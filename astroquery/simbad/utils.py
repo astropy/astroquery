@@ -33,13 +33,29 @@ def _catch_deprecated_fields_with_arguments(votable_field):
                          "Coordinates are now per default in degrees and in the ICRS frame.")
     if votable_field.startswith("id("):
         raise ValueError("Catalog Ids are no longer supported as an output option. "
-                         "A good replacement can be `~astroquery.simbad.SimbadClass.query_cat`")
+                         "Good replacements can be `~astroquery.simbad.SimbadClass.query_cat` "
+                         "or `~astroquery.simbad.SimbadClass.query_objectids`.")
     if votable_field.startswith("bibcodelist("):
         raise ValueError("Selecting a range of years for bibcode is removed. You can still use "
                          "bibcodelist without parenthesis and get the full list of bibliographic references.")
     if votable_field in ["membership", "link_bibcode"]:
         raise ValueError("The hierarchy information is no longer an additional field. "
                          "It has been replaced by the 'query_hierarchy' method.")
+    if votable_field in ["pos", "posa"]:
+        raise ValueError("Successive measurements of the positions are no longer stored "
+                         "in SIMBAD. The columns 'ra' and 'dec' contain the most precise "
+                         "measurement recorded by the SIMBAD team. For historical values, "
+                         "search within VizieR (accessible via 'astroquery.vizier').")
+    if votable_field == "sp_nature":
+        raise ValueError("Spectral nature is no longer stored in SIMBAD. You can get the "
+                         "of the spectral type classification in 'sp_bibcode'.")
+    if votable_field == "typed_id":
+        raise ValueError("'typed_id' is no longer a votable field. It is now added by "
+                         "default in 'query_objects' and 'query_region'")
+    if votable_field in ["ubv", "uvby1", "uvby"]:
+        raise ValueError("Magnitudes are now handled very differently in SIMBAD. See this "
+                         "section of the documentation: "
+                         "https://astroquery.readthedocs.io/en/latest/simbad/simbad_evolution.html#optical-filters")
 
 # ----------------------------
 # Support wildcard argument

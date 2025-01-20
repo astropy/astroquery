@@ -234,18 +234,19 @@ class SimbadClass(BaseVOQuery):
         >>> options = Simbad.list_votable_fields() # doctest: +REMOTE_DATA
         >>> # to print only the available bundles of columns
         >>> options[options["type"] == "bundle of basic columns"][["name", "description"]] # doctest: +REMOTE_DATA
-        <Table length=8>
-            name                         description
-            object                           object
-        ------------- ----------------------------------------------------
-          coordinates                  all fields related with coordinates
-                  dim          major and minor axis, angle and inclination
-           dimensions              all fields related to object dimensions
-            morphtype         all fields related to the morphological type
-             parallax                     all fields related to parallaxes
-        propermotions           all fields related with the proper motions
-                   sp            all fields related with the spectral type
-             velocity all fields related with radial velocity and redshift
+        <Table length=9>
+             name                           description
+            object                             object
+        ------------- -------------------------------------------------------
+          coordinates                     all fields related with coordinates
+                  dim             major and minor axis, angle and inclination
+           dimensions                 all fields related to object dimensions
+            morphtype            all fields related to the morphological type
+             parallax                        all fields related to parallaxes
+                   pm proper motion values in right ascension and declination
+        propermotions              all fields related with the proper motions
+                   sp               all fields related with the spectral type
+             velocity    all fields related with radial velocity and redshift
         """
         # get the tables with a simple link to basic
         query_tables = """SELECT DISTINCT table_name AS name, tables.description
