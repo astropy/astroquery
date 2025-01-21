@@ -271,7 +271,7 @@ def test_add_votable_fields_errors():
     simbad_instance = simbad.SimbadClass()
     with pytest.raises(ValueError, match=r"The votable fields \'flux_\*\*\*\(filtername\)\' are removed *"):
         simbad_instance.add_votable_fields("flux_error(u)")
-    with pytest.warns(DeprecationWarning, match=r"The notation \'flux\(XXX\)\' is deprecated since 0.4.8 *"):
+    with pytest.warns(DeprecationWarning, match=r"The notation \'flux\(u\)\' is deprecated since 0.4.8 *"):
         simbad_instance.add_votable_fields("flux(u)")
         assert "u_" in str(simbad_instance.columns_in_output)
     # big letter J filter exists, but not small letter j
@@ -312,7 +312,7 @@ def test_add_votable_fields_errors():
 def test_add_list_of_fluxes():
     # regression test for https://github.com/astropy/astroquery/issues/3185#issuecomment-2599191953
     simbad_instance = simbad.Simbad()
-    with pytest.warns(DeprecationWarning, match=r"The notation \'flux\(XXX\)\' is deprecated since 0.4.8 *"):
+    with pytest.warns(DeprecationWarning, match=r"The notation \'flux\([UJ]\)\' is deprecated since 0.4.8 *"):
         simbad_instance.add_votable_fields("flux(U)", "flux(J)")
 
 
