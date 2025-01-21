@@ -381,7 +381,7 @@ class SimbadClass(BaseVOQuery):
         """
 
         # the legacy way of adding fluxes
-        args = list(args)
+        args = set(args)
         fluxes_to_add = []
         args_copy = args.copy()
         for arg in args_copy:
@@ -403,9 +403,10 @@ class SimbadClass(BaseVOQuery):
         # output options
         output_options = self.list_votable_fields()
         # fluxes are case-dependant
-        fluxes = output_options[output_options["type"] == "filter name"]["name"]
+        fluxes = set(output_options[output_options["type"] == "filter name"]["name"])
         # add fluxes
-        fluxes_to_add += [flux for flux in args if flux in fluxes]
+        fluxes_from_names = set(flux for flux in args if flux in fluxes)
+        fluxes_to_add += fluxes_from_names
         if fluxes_to_add:
             self.joins.append(_Join("allfluxes", _Column("basic", "oid"),
                               _Column("allfluxes", "oidref")))
@@ -416,6 +417,10 @@ class SimbadClass(BaseVOQuery):
                     self.columns_in_output.append(_Column("allfluxes", flux + "_", flux))
                 else:
                     self.columns_in_output.append(_Column("allfluxes", flux))
+        # remove the arguments already added
+        args -= fluxes_from_names
+        # remove filters from output options
+        output_options = output_options[output_options["type"] != "filter name"]
 
         # casefold args because we allow case difference for every other argument (legacy behavior)
         args = set(map(str.casefold, args))

@@ -30,6 +30,8 @@ simbad
 
 - Fix the deprecated votable fields ``otype(V)`` and ``otype(S)`` [#3186]
 
+- Fixed non existing flux filters as votable fields would fail silently [#3186]
+
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 

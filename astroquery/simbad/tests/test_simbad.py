@@ -274,6 +274,9 @@ def test_add_votable_fields_errors():
     with pytest.warns(DeprecationWarning, match=r"The notation \'flux\(XXX\)\' is deprecated since 0.4.8 *"):
         simbad_instance.add_votable_fields("flux(u)")
         assert "u_" in str(simbad_instance.columns_in_output)
+    # big letter J filter exists, but not small letter j
+    with pytest.raises(ValueError, match="'j' is not one of the accepted options *"):
+        simbad_instance.add_votable_fields("j")
     with pytest.raises(ValueError, match="Coordinates conversion and formatting is no longer supported*"):
         simbad_instance.add_votable_fields("coo(s)")
     with pytest.warns(DeprecationWarning, match=r"\'dec\(d\)\' has been renamed \'dec\'. *"):
