@@ -13,6 +13,7 @@ from astropy.table import Table
 from astroquery.query import BaseQuery, BaseVOQuery
 from astroquery import log
 import pyvo
+from requests import HTTPError
 
 from . import conf
 import time
@@ -348,12 +349,13 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         params = self.__get_science_window_parameter(science_windows, observation_id, revolution, proposal)
         params['RETRIEVAL_TYPE'] = 'SCW'
         try:
+
             return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session,
                                           filename=output_file, params=params, verbose=True)
         except Exception as e:
             log.error('No science windows have been found with these inputs. {}'.format(e))
 
-    def get_timeline(self, ra, dec, *, radius=14, plot=False, plot_revno=False, plot_distance=False):
+    def get_timeline(self, ra, dec, *, radius=14):
         """Retrieve the INTEGRAL timeline associated to coordinates and radius
 
         Parameters
@@ -364,13 +366,6 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             Declination
         radius: float or quantity, optional, default value 14 degrees
             radius in degrees (int, float) or quantity of the cone_search
-        plot: boolean, optional, default value False
-            show the timeline using matplotlib
-        plot_revno: boolean, optional, default value False
-            If plot is True, show in the X-Axis the revolution number
-            instead of the date
-        plot_distance: boolean, optional, default value False
-            If plot is True, show in the distance plot concatenated to the timeline
 
         Returns
         -------
@@ -406,20 +401,6 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             "scwOffAxis": data["scwOffAxis"]
         })
 
-        # Plot the timeline if required
-        if plot:
-            x = timeline['scwRevs'] if plot_revno else timeline['scwTimes']
-            x_label = 'Revolutions' if plot_revno else 'Calendar Dates'
-            if plot_distance:
-                esautils.plot_concatenated_results(x, timeline['scwExpo'] / 1000, timeline['scwOffAxis'],
-                                                   x_label, 'Effective Exposure (ks)', 'Distance (deg)',
-                                                   'Observations', x_label='Pointing (Ks)',
-                                                   y_label='Off-axis (deg)')
-            else:
-                esautils.plot_result(x, timeline['scwExpo'] / 1000,
-                                     x_label, 'Effective Exposure (ks)',
-                                     'Observations')
-
         return {'total_items': total_items, 'fraFC': fraFC, 'totEffExpo': totEffExpo, 'timeline': timeline}
 
     def get_epochs(self, *, target_name=None, instrument=None, band=None):
@@ -447,76 +428,8 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             query = conf.ISLA_EPOCH_QUERY.format(instrument_oid, band_oid)
         return self.query_tap(query)
 
-    def get_long_term_timeseries(self, target_name, *, instrument=None, band=None, plot=False):
-        """Retrieve the INTEGRAL long term timeseries associated to the target and instrument pr bamd
-
-        Parameters
-        ----------
-        target_name : str, mandatory
-            target name to be requested, mandatory
-        instrument : str, optional
-            Possible values are in isla.instruments object
-        band : str, optional
-            Possible values are in isla.bandsobject
-        plot: boolean
-            show the long term timeseries using matplotlib
-
-        Returns
-        -------
-        An object containing:
-            source_id: id of the source
-            aggregation_value
-            total_items: total number of elements in the timeseries
-            aggregation_unit
-            detectors: a list of the detector available for that instrument
-            timeseries_list: A list of astropy.table object containing the long term timeseries
-        """
-
-        value = self.__get_instrument_or_band(instrument=instrument, band=band)
-
-        query_params = {
-            'REQUEST': 'long_timeseries',
-            "source": target_name,
-            "instrument_oid": self.instrument_band_map[value]['instrument_oid']
-        }
-        try:
-            # Execute the request to the servlet
-            request_result = esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
-                                                              tap=self.tap,
-                                                              query_params=query_params)
-            if 'detectors' not in request_result or len(request_result['detectors']) == 0:
-                raise ValueError('Please try with different input parameters.')
-            # Parse the long term timeseries
-            source_id = request_result['sourceId']
-            aggregation_value = request_result['aggregationValue']
-            total_items = request_result['totalItems']
-            aggregation_unit = request_result['aggregationUnit']
-            detectors = request_result['detectors']
-            # Retrieve all the timeseries for each detector
-            timeseries_list = []
-            for i in range(0, len(detectors)):
-                timeseries_list.append(Table({
-                    "time": [datetime.fromisoformat(timeseries_time) for timeseries_time in request_result["time"][i]],
-                    "rates": request_result["rates"][i],
-                    "ratesError": request_result["ratesError"][i],
-                }))
-
-            # Plot the long term timeseries if required
-            if plot:
-                for i, timeseries in enumerate(timeseries_list):
-                    esautils.plot_result(timeseries['time'], timeseries['rates'],
-                                         'Time', 'Rate (cps)',
-                                         f"Long Term Timeseries ({detectors[i]})", error_y=timeseries['ratesError'])
-
-            return {'source_id': source_id, 'aggregation_value': aggregation_value,
-                    'total_items': total_items, 'aggregation_unit': aggregation_unit,
-                    'detectors': detectors, 'timeseries_list': timeseries_list}
-        except ValueError as valueErr:
-            log.error('No long term timeseries have been found with these inputs. {}'.format(valueErr))
-        except Exception as e:
-            log.error('Problem when retrieving long term timeseries. {}'.format(e))
-
-    def download_long_term_timeseries(self, target_name, *, instrument=None, band=None, output_file=None):
+    def get_long_term_timeseries(self, target_name, *, instrument=None, band=None, path='', filename=None,
+                                 cache=False, read_fits=True):
         """Method to download long term timeseries associated to an epoch and instrument or band
 
         Parameters
@@ -527,13 +440,19 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             Possible values are in isla.instruments object
         band : str
             Possible values are in isla.bandsobject
-
-        output_file: str, optional
-            File name and path for the downloaded file
+        path: str, optional
+            Path for the downloaded file
+        filename: str, optional
+            Filename for the downloaded file
+        cache: bool, optional, default False
+                Flag to determine if the file is stored in the cache or not
+        read_fits: bool, optional, default True
+            Open the downloaded file and parse the existing FITS files
 
         Returns
         -------
-        The path and filename of the file with long term timeseries
+        If read_fits=True, a list with objects containing filename, path and FITS file opened with long
+        term timeseries. If read_fits=False, return the path of the downloaded file
         """
 
         value = self.__get_instrument_or_band(instrument=instrument, band=band)
@@ -542,84 +461,20 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                   'source': target_name,
                   'instrument_oid': self.instrument_band_map[value]['instrument_oid']}
         try:
-            return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session, filename=output_file,
-                                          params=params, verbose=True)
+            downloaded_file = esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session,
+                                                     params=params, path=path, filename=filename,
+                                                     cache=cache, cache_folder=self.cache_location, verbose=True)
+            if read_fits:
+                return esautils.read_downloaded_fits([downloaded_file])
+            else:
+                return downloaded_file
+        except HTTPError as err:
+            log.error('No long term timeseries have been found with these inputs. {}'.format(err))
         except Exception as e:
-            log.error('No long term timeseries have been found with these inputs. {}'.format(e))
+            log.error('Problem when retrieving long term timeseries. {}'.format(e))
 
-    def get_short_term_timeseries(self, target_name, epoch, instrument=None, band=None, *, plot=False):
-        """Retrieve the INTEGRAL short term timeseries associated to the target and instrument or band
-
-        Parameters
-        ----------
-        target_name : str, mandatory
-            target name to be requested, mandatory
-        epoch : str, mandatory
-            reference epoch for the short term timeseries
-        instrument : str, optional
-            Possible values are in isla.instruments object
-        band : str, optional
-            Possible values are in isla.bandsobject
-        plot: boolean, optional
-            show the long term timeseries using matplotlib
-
-        Returns
-        -------
-        An object containing:
-            source_id: id of the source
-            total_items: total number of elements in the timeseries
-            detectors: a list of the detector available for that instrument
-            timeseries_list: A list of astropy.table object containing the short term timeseries
-        """
-
-        self.__validate_epoch(target_name=target_name, epoch=epoch,
-                              instrument=instrument, band=band)
-
-        value = self.__get_instrument_or_band(instrument=instrument, band=band)
-
-        query_params = {
-            'REQUEST': 'short_timeseries',
-            "source": target_name,
-            "band_oid": self.instrument_band_map[value]['band_oid'],
-            "epoch": epoch
-        }
-        try:
-            # Execute the request to the servlet
-            request_result = esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
-                                                              tap=self.tap,
-                                                              query_params=query_params)
-
-            if 'detectors' not in request_result or len(request_result['detectors']) == 0:
-                raise ValueError('Please try with different input parameters.')
-
-            # Parse the short term timeseries
-            source_id = request_result['sourceId']
-            total_items = request_result['totalItems']
-            detectors = request_result['detectors']
-            # Retrieve all the timeseries for each detector
-            timeseries_list = []
-            for i in range(0, len(detectors)):
-                timeseries_list.append(Table({
-                    "time": [datetime.fromisoformat(timeseries_time) for timeseries_time in request_result["time"][i]],
-                    "rates": request_result["rates"][i],
-                    "rates_error": request_result["ratesError"][i],
-                }))
-
-            # Plot the short term timeseries if required
-            if plot:
-                for i, timeseries in enumerate(timeseries_list):
-                    esautils.plot_result(timeseries['time'], timeseries['rates'],
-                                         'Time', 'Rate (cps)',
-                                         f"Light curve ({detectors[i]})", error_y=timeseries['rates_error'])
-
-            return {'source_id': source_id, 'total_items': total_items, 'detectors': detectors,
-                    'timeseries_list': timeseries_list}
-        except ValueError as valueErr:
-            log.error('No short term timeseries have been found with these inputs. {}'.format(valueErr))
-        except Exception as e:
-            log.error('Problem when retrieving short term timeseries. {}'.format(e))
-
-    def download_short_term_timeseries(self, target_name, epoch, *, instrument=None, band=None, output_file=None):
+    def get_short_term_timeseries(self, target_name, epoch, instrument=None, band=None,
+                                  path='', filename=None, cache=False, read_fits=True):
         """Method to download short term timeseries associated to an epoch and instrument or band
 
         Parameters
@@ -632,12 +487,19 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             Possible values are in isla.instruments object
         band : str, optional
             Possible values are in isla.bandsobject
-        output_file: str, optional
-            File name and path for the downloaded file
+        path: str, optional
+            Path for the downloaded file
+        filename: str, optional
+            Filename for the downloaded file
+        cache: bool, optional, default False
+                Flag to determine if the file is stored in the cache or not
+        read_fits: bool, optional, default True
+            Open the downloaded file and parse the existing FITS files
 
         Returns
         -------
-        The path and filename of the file with short term timeseries
+        If read_fits=True, a list with objects containing filename, path and FITS file opened with short
+        term timeseries. If read_fits=False, return the path of the downloaded file
 
         """
 
@@ -650,37 +512,48 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                   'source': target_name,
                   'band_oid': self.instrument_band_map[value]['band_oid'],
                   'epoch': epoch}
-        try:
-            return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session, filename=output_file,
-                                          params=params,
-                                          verbose=True)
-        except Exception as e:
-            log.error('No short term timeseries have been found with these inputs. {}'.format(e))
-        return
 
-    def get_spectra(self, target_name, epoch, instrument=None, band=None, *, plot=False,
-                    show_warning=True):
-        """Retrieve the INTEGRAL spectra associated to the target and instrument or band
+        try:
+            downloaded_file = esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session,
+                                                     params=params, path=path, filename=filename,
+                                                     cache=cache, cache_folder=self.cache_location, verbose=True)
+
+            if read_fits:
+                return esautils.read_downloaded_fits([downloaded_file])
+            else:
+                return downloaded_file
+        except HTTPError as err:
+            log.error('No short term timeseries have been found with these inputs. {}'.format(err))
+        except Exception as e:
+            log.error('Problem when retrieving short term timeseries. {}'.format(e))
+
+    def get_spectra(self, target_name, epoch, instrument=None, band=None, *, path='', filename=None,
+                    cache=False, read_fits=True):
+        """Method to download mosaics associated to an epoch and instrument or band
 
         Parameters
         ----------
         target_name : str, mandatory
             target name to be requested, mandatory
-        instrument : str, optional
-            Possible values are in isla.instruments object
-        band : str, optional
-            Possible values are in isla.bandsobject
         epoch : str, mandatory
             reference epoch for the short term timeseries
-        plot: boolean, optional, default False
-            show the long term timeseries using matplotlib
-        show_warning: boolean, optional, default True
-            show the warning message about the nature of this product
+        instrument : str
+            Possible values are in isla.instruments object
+        band : str
+            Possible values are in isla.bandsobject
+        path: str, optional
+            Path for the downloaded file
+        filename: str, optional
+            Filename for the downloaded file
+        cache: bool, optional, default False
+                Flag to determine if the file is stored in the cache or not
+        read_fits: bool, optional, default True
+            Open the downloaded file and parse the existing FITS files
 
         Returns
         -------
-        spectrum: a list of objects containing the parameters of the spectra and
-            an astropy.table object containing the spectra
+        If read_fits=True, a list with objects containing filename, path and FITS file opened with spectra.
+        If read_fits=False, return a list of paths of the downloaded files
         """
 
         self.__validate_epoch(target_name=target_name, epoch=epoch,
@@ -705,98 +578,48 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                 raise ValueError('Please try with different input parameters.')
 
             # Parse the spectrum
-            spectrum = []
+            downloaded_files = []
             for element in request_result:
-                spectra_element = {}
+                params = {'RETRIEVAL_TYPE': 'spectras',
+                          'spectra_oid': element['spectraOid']}
+                downloaded_files.append(
+                    esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session,
+                                           params=params, path=path, filename=filename,
+                                           cache=cache, cache_folder=self.cache_location, verbose=True))
 
-                spectra_element['spectra_oid'] = element['spectraOid']
-                spectra_element['file_name'] = element['fileName']
-                spectra_element['metadata'] = element['metadata']
-                spectra_element['date_start'] = element['dateStart']
-                spectra_element['date_stop'] = element['dateStop']
-                spectra_element['detector'] = element['detector']
-                # Retrieve all the timeseries for each detector
-                spectra_element['spectra'] = Table({"energy": element['energy'],
-                                                    "energy_error": element["energyError"],
-                                                    'rate': element["rate"],
-                                                    "rate_error": element["rateError"],
-                                                    })
-
-                spectrum.append(spectra_element)
-
-                # Plot the spectrum if required
-                if plot:
-                    esautils.plot_result(spectra_element['spectra']['energy'], spectra_element['spectra']['rate'],
-                                         'Energy (keV)', 'Counts s⁻¹ keV⁻¹',
-                                         'Spectrum', error_x=spectra_element['spectra']['energy_error'],
-                                         error_y=spectra_element['spectra']['rate_error'], log_scale=True)
-
-            self.__log_warning_message('get_spectra', 'download_spectra', show_warning)
-            return spectrum
-        except ValueError as valueErr:
-            log.error('Spectra are not available with these inputs. {}'.format(valueErr))
+            if read_fits:
+                return esautils.read_downloaded_fits(downloaded_files)
+            else:
+                return downloaded_files
+        except ValueError as err:
+            log.error('Spectra are not available with these inputs. {}'.format(err))
         except Exception as e:
             log.error('Problem when retrieving spectra. {}'.format(e))
 
-    def download_spectra(self, target_name, epoch, *, instrument=None, band=None, output_file=None):
+    def get_mosaic(self, epoch, instrument=None, band=None, *, path='', filename=None, cache=False, read_fits=True):
         """Method to download mosaics associated to an epoch and instrument or band
 
         Parameters
         ----------
-        target_name : str, mandatory
-            target name to be requested, mandatory
         epoch : str, mandatory
             reference epoch for the short term timeseries
         instrument : str
             Possible values are in isla.instruments object
         band : str
             Possible values are in isla.bandsobject
-        output_file: str, optional
-            File name and path for the downloaded file
+        cache: bool, optional, default False
+                Flag to determine if the file is stored in the cache or not
+        path: str, optional
+            Path for the downloaded file
+        filename: str, optional
+            Filename for the downloaded file
+        read_fits: bool, optional, default True
+            Open the downloaded file and parse the existing FITS files
 
         Returns
         -------
-        A list of paths and filenames of the files with spectras
-        """
-
-        self.__validate_epoch(target_name=target_name, epoch=epoch,
-                              instrument=instrument, band=band)
-
-        spectrum = self.get_spectra(target_name=target_name, epoch=epoch, instrument=instrument, band=band, plot=False,
-                                    show_warning=False)
-        downloaded_files = []
-        try:
-            for spectra in spectrum:
-                params = {'RETRIEVAL_TYPE': 'spectras',
-                          'spectra_oid': spectra['spectra_oid']}
-                downloaded_files.append(
-                    esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session, filename=output_file,
-                                           params=params,
-                                           verbose=True))
-            return downloaded_files
-        except Exception as e:
-            log.error('No spectra files have been found with these inputs. {}'.format(e))
-
-    def get_mosaic(self, epoch, instrument=None, band=None, *, plot=False, show_warning=True):
-        """Retrieve the INTEGRAL mosaics associated to the instrument or band
-
-        Parameters
-        ----------
-        epoch : str, mandatory
-            reference epoch for the short term timeseries
-        instrument : str, optional
-            Possible values are in isla.instruments object
-        band : str, optional
-            Possible values are in isla.bandsobject
-        plot: boolean, optional, default False
-            show the long term timeseries using matplotlib
-        show_warning: boolean, optional, default True
-            show the warning message about the nature of this product
-
-        Returns
-        -------
-        mosaics: a list of objects containing the parameters of the mosaic and
-            an astropy.table object containing the mosaic
+        If read_fits=True, a list with objects containing filename, path and FITS file opened with mosaics.
+        If read_fits=False, return a list of paths of the downloaded files
         """
 
         self.__validate_epoch(epoch=epoch,
@@ -819,69 +642,22 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             if len(request_result) == 0:
                 raise ValueError('Please try with different input parameters.')
 
-            # Plot the mosaics if required
-            mosaics = []
+            downloaded_files = []
             for element in request_result:
-                mosaic_element = {}
-
-                mosaic_element['file_name'] = element['fileName']
-                mosaic_element['mosaic_oid'] = element['mosaicOid']
-                mosaic_element['height'] = element['height']
-                mosaic_element['width'] = element['width']
-                mosaic_element['min_z_scale'] = element['minZScale']
-                mosaic_element['max_z_scale'] = element['maxZScale']
-                # Retrieve all the timeseries for each detector
-                mosaic_element['mosaic'] = Table({
-                    'ra': np.array(element['ra'], dtype=float).flatten().flatten(),
-                    'dec': np.array(element['dec'], dtype=float).flatten().flatten(),
-                    'data': np.array(element['data'], dtype=float).flatten().flatten()
-                })
-
-                mosaics.append(mosaic_element)
-                if plot:
-                    esautils.plot_image(z=mosaic_element['mosaic']['data'],
-                                        height=mosaic_element['height'], width=mosaic_element['width'],
-                                        plot_title='Mosaic')
-
-            self.__log_warning_message('get_mosaic', 'download_mosaic', show_warning)
-            return mosaics
-        except ValueError as valErr:
-            log.error('Mosaics are not available for these inputs. {}'.format(valErr))
-        except Exception as e:
-            log.error('Problem when retrieving mosaics. {}'.format(e))
-
-    def download_mosaic(self, epoch, *, instrument=None, band=None, output_file=None):
-        """Method to download mosaics associated to an epoch and instrument or band
-
-        Parameters
-        ----------
-        epoch : str, mandatory
-            reference epoch for the short term timeseries
-        instrument : str
-            Possible values are in isla.instruments object
-        band : str
-            Possible values are in isla.bandsobject
-
-        output_file: str, optional
-            File name and path for the downloaded file
-
-        Returns
-        -------
-        A list of paths and filenames of the files with mosaics
-        """
-
-        mosaics = self.get_mosaic(epoch=epoch, instrument=instrument, band=band, plot=False, show_warning=False)
-        downloaded_files = []
-        try:
-            for mosaic in mosaics:
                 params = {'RETRIEVAL_TYPE': 'mosaics',
-                          'mosaic_oid': mosaic['mosaic_oid']}
+                          'mosaic_oid': element['mosaicOid']}
                 downloaded_files.append(
                     esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session,
-                                           filename=output_file, params=params, verbose=True))
-            return downloaded_files
+                                           params=params, path=path, filename=filename,
+                                           cache=cache, cache_folder=self.cache_location, verbose=True))
+            if read_fits:
+                return esautils.read_downloaded_fits(downloaded_files)
+            else:
+                return downloaded_files
+        except ValueError as err:
+            log.error('Mosaics are not available for these inputs. {}'.format(err))
         except Exception as e:
-            log.error('No mosaics have been found with these inputs. {}'.format(e))
+            log.error('Problem when retrieving mosaics. {}'.format(e))
 
     def get_source_metadata(self, target_name):
         """Retrieve the metadata associated to an INTEGRAL target
@@ -1054,15 +830,6 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             return {'PROPID': proposal}
 
         raise ValueError("Input parameters are wrong")
-
-    def __log_warning_message(self, get_method, download_method, show_warning=True):
-        if show_warning:
-            log.warning(
-                f"The plots and data provided by '{get_method}' have been developed using the automatic reduction "
-                f"pipeline at ISDC, using INTEGRAL OSA version 11.2. No manual scientific validation has been "
-                f"performed on these outputs. They should be examined and validated before being used for scientific "
-                f"purposes. To ensure accuracy and reliability, please use '{download_method}' to download "
-                f"the original source files directly.")
 
 
 Integral = IntegralClass()

@@ -7,18 +7,23 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
 """
+import datetime
 import getpass
 import os
+import binascii
+import shutil
 
-import numpy as np
+import tarfile
+import zipfile
 from astropy import log
 from astropy.coordinates import SkyCoord
 
 from astropy.units import Quantity
+from astropy.io import fits
 from pyvo.auth.authsession import AuthSession
 from astroquery.utils import commons
 
-import matplotlib.pyplot as plt
+import requests
 from requests import Response
 
 
@@ -111,7 +116,6 @@ class ESAAuthSession(AuthSession):
         Returns:
             Response: The response object from the login request.
         """
-        import requests  # Use requests for handling HTTP interactions
 
         # Login payload
         payload = {"username": username, "password": password}
@@ -247,141 +251,9 @@ def execute_post_request(url, tap, *, query_params=None):
     return response
 
 
-def plot_result(x, y, x_title, y_title, plot_title, *, error_x=None, error_y=None, log_scale=False):
+def download_file(url, session, *, params=None, path='', filename=None, cache=False, cache_folder=None, verbose=False):
     """
-    Draw series in a 2D plot
-
-    Parameters
-    ----------
-    x: array of numbers, mandatory
-        values for the X series
-    y: array of numbers, mandatory
-        values for the Y series
-    x_title: str, mandatory
-        title of the X axis
-    y_title: str, mandatory
-        title of the Y axis
-    plot_title: str, mandatory
-        title of the plot
-    error_x: array of numbers, optional
-        error on the X series
-    error_y: array of numbers, optional
-        error on the Y series
-    log_scale: boolean, optional, default False
-        Draw X and Y axes using log scale
-    """
-
-    plt.figure(figsize=(8, 6))
-    plt.scatter(x, y, color='blue')
-    plt.xlabel(x_title)
-    plt.ylabel(y_title)
-
-    if log_scale:
-        plt.xscale('log')
-        plt.yscale('log')
-
-    plt.title(plot_title)
-
-    if error_x is not None or error_y is not None:
-        plt.errorbar(x, y, xerr=error_x, yerr=error_y, fmt='o')
-
-    plt.show(block=False)
-
-
-def plot_concatenated_results(x, y1, y2, x_title, y1_title, y2_title, plot_title, *,
-                              x_label=None, y_label=None):
-    """
-    Draw two plots concatenated on the X axis
-
-    Parameters
-    ----------
-    x: array of numbers, mandatory
-        values for the X series
-    y1: array of numbers, mandatory
-        values for the first Y series
-    y2: array of numbers, mandatory
-        values for the second Y series
-    x_title: str, mandatory
-        title of the X axis
-    y1_title: str, mandatory
-        title of the first Y axis
-    y2_title: str, mandatory
-        title of the second Y axis
-    plot_title: str, mandatory
-        title of the plot
-    x_label: str, optional
-        label for the X series
-    y_label: str, optional
-        label for the Y series
-    """
-    # Create a figure with two subplots that share the x-axis
-    fig = plt.figure()
-    gs = fig.add_gridspec(2, hspace=0)
-    axs = gs.subplots(sharex=True, sharey=True)
-
-    # Plot the first dataset on the first subplot
-    axs[0].scatter(x, y1, color='blue', label=x_label)
-    axs[0].set_ylabel(y1_title)
-    axs[0].grid(True, which='both')
-
-    # Plot the second dataset on the second subplot
-    axs[1].scatter(x, y2, label=y_label, color='#DB4052')
-    axs[1].set_xlabel(x_title)
-    axs[1].set_ylabel(y2_title)
-    axs[1].grid(True, which='both')
-
-    # Show the combined plot
-    fig.suptitle(plot_title)
-    for ax in axs:
-        ax.label_outer()
-    plt.show(block=False)
-
-
-def plot_image(z, height, width, *, x_title=None, y_title=None, z_title=None, plot_title=None, z_min=2, z_max=10):
-    """
-    Method to draw images and mosaics as heatmaps
-
-    Parameters
-    ----------
-    z: array of numbers, mandatory
-        values for the heatmap series
-    height: number, mandatory
-        height dimension for the heatmap
-    width: number, mandatory
-        width dimension for the heatmap
-    x_title: str, optional
-        title of the X axis
-    y_title: str, optional
-        title of the Y axis
-    z_title: str, optional
-        title of the Z axis (heatmap values)
-    plot_title: str, optional
-        title of the plot
-    z_min: number, optional, default 2
-        Min value to show in the plot
-    z_max: number, optional, default 10
-        Max value to show in the plot
-    """
-    z_reshaped = z.reshape(width, height)
-
-    if z_min is not None and z_max is not None:
-        z_clipped = np.clip(z_reshaped, z_min, z_max)
-        plt.imshow(z_clipped, origin='lower', cmap='hot')
-    else:
-        plt.imshow(z, origin='lower', cmap='hot')
-
-    # Plot the heatmap
-
-    plt.colorbar(label=z_title)
-    plt.xlabel(x_title)
-    plt.ylabel(y_title)
-    plt.title(plot_title)
-    plt.show(block=False)
-
-
-def download_file(url, session, *, filename=None, params=None, verbose=False):
-    """
-    Download a file in streaming mode using a existing session
+    Download a file in streaming mode using an existing session
 
     Parameters
     ----------
@@ -389,10 +261,16 @@ def download_file(url, session, *, filename=None, params=None, verbose=False):
         URL to be downloaded
     session: ESAAuthSession, mandatory
         session to download the file, including the cookies from ESA login
-    filename: str, optional
-        filename to be given to the final file
     params: dict, optional
         Additional params for the request
+    path: str, optional
+        Path where the file will be stored
+    filename: str, optional
+        filename to be given to the final file
+    cache: bool, optional, default False
+        flag to store the file in the Astroquery cache
+    cache_folder: str, optional
+        folder to store the cached file
     verbose: boolean, optional, default False
         Write the outputs in console
 
@@ -403,7 +281,6 @@ def download_file(url, session, *, filename=None, params=None, verbose=False):
 
     if 'TAPCLIENT' not in params:
         params['TAPCLIENT'] = 'ASTROQUERY'
-
     with session.get(url, stream=True, params=params) as response:
         response.raise_for_status()
 
@@ -413,16 +290,146 @@ def download_file(url, session, *, filename=None, params=None, verbose=False):
                 filename = content_disposition.split('filename=')[-1].strip('"')
             else:
                 filename = os.path.basename(url.split('?')[0])
-
+        if cache:
+            filename = get_cache_filepath(filename, cache_folder)
+            path = ''
         # Open a local file in binary write mode
         if verbose:
             log.info('Downloading: ' + filename)
-        with open(filename, 'wb') as file:
+        file_path = os.path.join(path, filename)
+        with open(file_path, 'wb') as file:
             for chunk in response.iter_content(chunk_size=8192):
                 file.write(chunk)
         if verbose:
-            log.info(f"File {filename} has been downloaded successfully")
-        return filename
+            log.info(f"File {file_path} has been downloaded successfully")
+        return file_path
+
+
+def get_cache_filepath(filename=None, cache_path=None):
+    """
+    Stores the content from a response as an Astroquery cache object.
+
+    Parameters:
+    response (requests.Response):
+        The HTTP response object with iterable content.
+    filename: str, optional
+        filename to be given to the final file
+    cache_filename (str, optional):
+        The desired filename in the cache. If None, a default name is used.
+
+    Returns:
+        str: Path to the cached file.
+    """
+    # Determine the cache path
+    cache_file_path = os.path.join(cache_path, filename)
+    # Create the cache directory if it doesn't exist
+    os.makedirs(cache_path, exist_ok=True)
+
+    return cache_file_path
+
+
+def read_downloaded_fits(files):
+    extracted_files = []
+    for file in files:
+        extracted_files.extend(extract_file(file))
+
+    fits_files = []
+    for file in extracted_files:
+        fits_file = safe_open_fits(file)
+        if fits_file:
+            fits_files.append({
+                'filename': os.path.basename(file),
+                'path': file,
+                'fits': fits_file
+            })
+
+    return fits_files
+
+
+def safe_open_fits(file_path):
+    """
+    Safely open a FITS file using astropy.io.fits.
+
+    Parameters:
+    file_path: string
+        The path to the file to be opened.
+
+    Returns:
+    fits.HDUList or None
+    Returns the HDUList object if the file is a valid FITS file, otherwise None.
+    """
+    try:
+        hdu_list = fits.open(file_path)
+        return hdu_list
+    except (OSError, fits.VerifyError) as e:
+        print(f"Skipping file {file_path}: {e}")
+        return None
+
+
+def extract_file(file_path, output_dir=None):
+    """
+    Extracts a .tar, .tar.gz, or .zip file. If the file is in a different format,
+    returns the path of the original file.
+
+    Parameters:
+        file_path (str):
+            Path to the archive file (.tar, .tar.gz, or .zip).
+        output_dir (str, optional):
+            Directory to store the extracted files. If None, a directory
+            with the same name as the archive file (minus the extension)
+            is created.
+
+    Returns:
+        list: List of paths to the extracted files.
+    """
+    if not output_dir:
+        output_dir = os.path.abspath(file_path)
+    if tarfile.is_tarfile(file_path):
+        with tarfile.open(file_path, "r") as tar_ref:
+            return extract_from_tar(tar_ref, file_path, output_dir)
+    elif is_gz_file(file_path):
+        with tarfile.open(file_path, "r:gz") as tar:
+            return extract_from_tar(tar, file_path, output_dir)
+    elif zipfile.is_zipfile(file_path):
+        return extract_from_zip(file_path, output_dir)
+    elif not is_gz_file(file_path):
+        return [str(file_path)]
+
+
+def is_gz_file(filepath):
+    with open(filepath, 'rb') as test_f:
+        return binascii.hexlify(test_f.read(2)) == b'1f8b'
+
+
+def extract_from_tar(tar, file_path, output_dir=None):
+    """
+    Extract files from a tar file (both .tar and .tar.gz formats).
+    """
+    # Prepare the output directory
+    output_dir = prepare_output_dir(file_path)
+
+    # Extract all files into the specified directory
+    tar.extractall(output_dir)
+
+    # Get the paths of the extracted files
+    extracted_files = [os.path.join(output_dir, member.name) for member in tar.getmembers()]
+    return extracted_files
+
+
+def extract_from_zip(file_path, output_dir=None):
+    """
+    Handle extraction of .zip files.
+    """
+    with zipfile.ZipFile(file_path, 'r') as zip_ref:
+        # Prepare the output directory
+        output_dir = prepare_output_dir(file_path)
+
+        # Extract all files into the specified directory
+        zip_ref.extractall(output_dir)
+
+        # Get the paths of the extracted files
+        extracted_files = [os.path.join(output_dir, file) for file in zip_ref.namelist()]
+        return extracted_files
 
 
 def check_rename_to_gz(filename):
@@ -450,6 +457,25 @@ def check_rename_to_gz(filename):
         return os.path.basename(output)
     else:
         return os.path.basename(filename)
+
+
+def prepare_output_dir(file_path):
+    """
+    Prepare the output directory. If output_dir is provided, use it. Otherwise,
+    create a new directory with the name of the file (without the extension).
+    """
+    # Create a directory based on the file name without extension
+    base_path = os.path.dirname(file_path)
+    base_name = os.path.basename(file_path)
+    file_name_without_extensions = base_name.split('.')[0]
+    current_time = datetime.datetime.now().strftime("%y%m%d%H%M%S")
+
+    output_dir = os.path.join(base_path, f"{file_name_without_extensions}_{current_time}")
+
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+    os.makedirs(output_dir, exist_ok=True)
+    return output_dir
 
 
 def resolve_target(url, session, target_name, target_resolver):

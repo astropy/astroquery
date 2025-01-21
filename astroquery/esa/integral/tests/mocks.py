@@ -113,7 +113,7 @@ def get_mock_mosaic():
              }]
 
 
-def get_mock_response(message):
+def get_mock_response():
     error_message = "Mocked HTTP error"
     mock_response = Mock()
     mock_response.raise_for_status.side_effect = HTTPError(error_message)
