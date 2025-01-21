@@ -8,7 +8,6 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
 """
-import numpy as np
 from astropy.table import Table
 from astroquery.query import BaseQuery, BaseVOQuery
 from astroquery import log
