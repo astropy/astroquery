@@ -383,6 +383,9 @@ For example to get the 10 biggest catalogs in SIMBAD, it looks like this:
 
 Where you can remove ``TOP 10`` to get **all** the catalogues (there's a lot of them).
 
+.. warning::
+    This method is case-sensitive since version 0.4.8 
+
 Bibliographic queries
 ---------------------
 
