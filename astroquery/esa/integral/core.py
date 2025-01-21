@@ -11,6 +11,7 @@ European Space Agency (ESA)
 from astropy.table import Table
 from astroquery.query import BaseQuery, BaseVOQuery
 from astroquery import log
+from astroquery.utils import commons
 import pyvo
 from requests import HTTPError
 
@@ -289,7 +290,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             dec = coord['dec'][0]
             conditions.append(conf.ISLA_COORDINATE_CONDITION.format(ra, dec, radius))
         elif coordinates:
-            coord = esautils.get_coord_input(value=coordinates, msg=coordinates)
+            coord = commons.parse_coordinates(coordinates=coordinates)
             ra = coord.ra.degree
             dec = coord.dec.degree
             conditions.append(conf.ISLA_COORDINATE_CONDITION.format(ra, dec, radius))
@@ -354,15 +355,13 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         except Exception as e:
             log.error('No science windows have been found with these inputs. {}'.format(e))
 
-    def get_timeline(self, ra, dec, *, radius=14):
+    def get_timeline(self, coordinates, *, radius=14):
         """Retrieve the INTEGRAL timeline associated to coordinates and radius
 
         Parameters
         ----------
-        ra: float, mandatory
-            Right ascension
-        dec: float, mandatory
-            Declination
+        coordinates: str or SkyCoord, mandatory
+            RA and Dec of the source
         radius: float or quantity, optional, default value 14 degrees
             radius in degrees (int, float) or quantity of the cone_search
 
@@ -378,10 +377,12 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         if radius:
             radius = esautils.get_degree_radius(radius)
 
+        c = commons.parse_coordinates(coordinates=coordinates)
+
         query_params = {
             'REQUEST': 'timelines',
-            "ra": ra,
-            "dec": dec,
+            "ra": c.ra.degree,
+            "dec": c.dec.degree,
             "radius": radius
         }
 

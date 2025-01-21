@@ -11,7 +11,6 @@ European Space Agency (ESA)
 import os
 
 from astropy.coordinates import SkyCoord
-
 from astroquery.esa.integral import IntegralClass
 from astroquery.esa.integral import conf
 from unittest.mock import PropertyMock, patch, Mock
@@ -345,25 +344,12 @@ class TestTap:
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
-    def test_get_timeline_no_distance(self, instrument_band_mock, servlet_mock):
+    def test_get_timeline(self, instrument_band_mock, servlet_mock):
         instrument_band_mock.return_value = mocks.get_instrument_bands()
         servlet_mock.return_value = mocks.get_mock_timeline()
 
         isla = IntegralClass()
-        isla.get_timeline(ra=83.63320922851562, dec=22.01447105407715)
-
-        args, kwargs = servlet_mock.call_args
-        assert kwargs['query_params']['REQUEST'] == 'timelines'
-
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
-    @patch('astroquery.esa.utils.utils.execute_servlet_request')
-    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
-    def test_get_timeline_distance(self, instrument_band_mock, servlet_mock):
-        instrument_band_mock.return_value = mocks.get_instrument_bands()
-        servlet_mock.return_value = mocks.get_mock_timeline()
-
-        isla = IntegralClass()
-        timeline = isla.get_timeline(ra=83.63320922851562, dec=22.01447105407715)
+        timeline = isla.get_timeline(coordinates='83.63320922851562 22.01447105407715')
 
         assert len(timeline['timeline']['scwRevs']) > 0
 

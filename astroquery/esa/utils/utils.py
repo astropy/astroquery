@@ -21,7 +21,6 @@ from astropy.coordinates import SkyCoord
 from astropy.units import Quantity
 from astropy.io import fits
 from pyvo.auth.authsession import AuthSession
-from astroquery.utils import commons
 
 import requests
 from requests import Response
@@ -149,31 +148,6 @@ class ESAAuthSession(AuthSession):
         else:
             url += "?TAPCLIENT=ASTROQUERY&format=votable_plain"
         return super()._request(method, url, **kwargs)
-
-
-def get_coord_input(value, msg):
-    """
-    Auxiliary method to parse the coordinates
-
-    Parameters
-    ----------
-    value: str or SkyCoord, mandatory
-        coordinates to be parsed
-    msg: str, mandatory
-        Value to be shown in the error message
-
-    Returns
-    -------
-    The coordinates parsed
-    """
-    if not (isinstance(value, str) or isinstance(value,
-                                                 commons.CoordClasses)):
-        raise ValueError(f"{msg} must be either a string or astropy.coordinates")
-    if isinstance(value, str):
-        c = commons.parse_coordinates(value)
-        return c
-    else:
-        return value
 
 
 def get_degree_radius(radius):

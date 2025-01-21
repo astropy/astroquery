@@ -124,8 +124,10 @@ to refine their search.
 .. doctest-remote-data::
 
   >>> from astroquery.esa.integral import IntegralClass
+  >>> from astropy.coordinates import SkyCoord
   >>> isla = IntegralClass()
-  >>> timeline = isla.get_timeline(ra=83.63320922851562, dec=22.01447105407715)
+  >>> coordinates = SkyCoord(83.63320922851562, 22.01447105407715, unit="deg")
+  >>> timeline = isla.get_timeline(coordinates=coordinates)
   >>> timeline # doctest: +IGNORE_OUTPUT
   {'total_items': 8714, 'fraFC': 0.8510442965343126, 'totEffExpo': 16416293.994214607, 'timeline': <Table length=8714>
        scwExpo            scwRevs                scwTimes                scwOffAxis
