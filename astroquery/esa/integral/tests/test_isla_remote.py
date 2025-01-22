@@ -13,7 +13,6 @@ import os
 from astroquery.esa.integral import IntegralClass
 import pytest
 from pyvo import DALQueryError
-from requests import HTTPError
 
 
 def data_path(filename):
@@ -183,7 +182,6 @@ class TestIntegralRemote:
         ltt = isla.get_long_term_timeseries(target_name='star', instrument='jem-x')
         assert ltt is None
 
-
     def test_get_short_term_timeseries(self):
         isla = IntegralClass()
         stt = isla.get_short_term_timeseries(target_name='J011705.1-732636', band='28_40', epoch='0745_06340000001')
@@ -246,4 +244,3 @@ class TestIntegralRemote:
         with pytest.raises(ValueError) as err:
             isla.get_mosaic(epoch='123456', instrument='ibis')
         assert 'Epoch 123456 is not available for this target and instrument/band.' in err.value.args[0]
-

@@ -413,7 +413,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             return {'total_items': total_items, 'fraFC': fraFC, 'totEffExpo': totEffExpo, 'timeline': timeline}
         except HTTPError as e:
             if 'None science windows have been selected' in e.response.text:
-                raise ValueError(f"No timeline is available for the current coordinates and radius.")
+                raise ValueError('No timeline is available for the current coordinates and radius.')
             else:
                 raise e
 
@@ -433,7 +433,6 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         -------
         An astropy.table object containing the available epochs
         """
-
 
         value = self.__get_instrument_or_band(instrument=instrument, band=band)
         instrument_oid, band_oid = self.__get_oids(value)
@@ -689,8 +688,8 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         }
         try:
             return esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
-                                                      tap=self.tap,
-                                                      query_params=query_params)
+                                                    tap=self.tap,
+                                                    query_params=query_params)
         except HTTPError as e:
             if 'Source not found in the database' in e.response.text:
                 raise ValueError(f"Target {target_name} cannot be resolved for ISLA")
