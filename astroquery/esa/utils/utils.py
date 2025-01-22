@@ -17,13 +17,11 @@ import tarfile
 import zipfile
 from astropy import log
 from astropy.coordinates import SkyCoord
+from astropy import units as u
 
 from astropy.units import Quantity
 from astropy.io import fits
 from pyvo.auth.authsession import AuthSession
-
-import requests
-from requests import Response
 
 
 TARGET_RESOLVERS = ['ALL', 'SIMBAD', 'NED', 'VIZIER']
@@ -73,8 +71,9 @@ class ESAAuthSession(AuthSession):
                 "Content-type": "application/x-www-form-urlencoded",
                 "Accept": "text/plain"
             }
-            response = self.post(url=login_url, data=args, headers=header)
+
             try:
+                response = self.post(url=login_url, data=args, headers=header)
                 response.raise_for_status()
                 log.info('User has been logged successfully.')
             except Exception as e:
@@ -96,35 +95,14 @@ class ESAAuthSession(AuthSession):
             "Content-type": "application/x-www-form-urlencoded",
             "Accept": "text/plain"
         }
-        response = self.post(url=logout_url, headers=header)
+
         try:
+            response = self.post(url=logout_url, headers=header)
             response.raise_for_status()
             log.info('Logout executed successfully.')
         except Exception as e:
             log.error('Logout error: {}'.format(e))
             raise e
-
-    def _send_login_request(self, username: str, password: str) -> Response:
-        """
-        Send a POST request to the login URL with username and password.
-
-        Parameters:
-            username (str): The username for authentication.
-            password (str): The password for authentication.
-
-        Returns:
-            Response: The response object from the login request.
-        """
-
-        # Login payload
-        payload = {"username": username, "password": password}
-
-        # Perform the POST request
-        response = requests.post(self.login_url, data=payload)
-
-        # Raise an error if the request failed
-        response.raise_for_status()
-        return response
 
     def _request(self, method, url, *args, **kwargs):
         """
@@ -167,7 +145,7 @@ def get_degree_radius(radius):
     """
     if radius is not None:
         if isinstance(radius, Quantity):
-            return radius.degree
+            return radius.to(u.deg).value
         elif isinstance(radius, float):
             return radius
         elif isinstance(radius, int):
@@ -188,7 +166,7 @@ def download_table(astropy_table, output_file=None, output_format=None):
     output_format: str, optional
         Format of the file to be exported
     """
-    astropy_table.write(output_file, format=output_format, overwrite=False)
+    astropy_table.write(output_file, format=output_format, overwrite=True)
 
 
 def execute_servlet_request(url, tap, *, query_params=None):
@@ -220,13 +198,6 @@ def execute_servlet_request(url, tap, *, query_params=None):
         response.raise_for_status()
 
 
-def execute_post_request(url, tap, *, query_params=None):
-    response = tap._session.post(url=url, params=query_params)
-    response.raise_for_status()
-
-    return response
-
-
 def download_file(url, session, *, params=None, path='', filename=None, cache=False, cache_folder=None, verbose=False):
     """
     Download a file in streaming mode using an existing session
@@ -254,7 +225,8 @@ def download_file(url, session, *, params=None, path='', filename=None, cache=Fa
     -------
     The request with the modified url
     """
-
+    if params is None or len(params) == 0:
+        params = {}
     if 'TAPCLIENT' not in params:
         params['TAPCLIENT'] = 'ASTROQUERY'
     with session.get(url, stream=True, params=params) as response:
@@ -478,15 +450,13 @@ def resolve_target(url, session, target_name, target_resolver):
         raise ValueError("This target resolver is not allowed")
 
     resolver_url = url.format(target_name, target_resolver)
-
-    with session.get(resolver_url, stream=True) as response:
-        response.raise_for_status()
-
-        try:
+    try:
+        with session.get(resolver_url, stream=True) as response:
+            response.raise_for_status()
             target_result = response.json()
             if target_result['objects']:
                 ra = target_result['objects'][0]['raDegrees']
                 dec = target_result['objects'][0]['decDegrees']
             return SkyCoord(ra=ra, dec=dec, unit="deg")
-        except (ValueError, KeyError):
-            raise ValueError("This target cannot be resolved")
+    except (ValueError, KeyError) as err:
+        raise ValueError('This target cannot be resolved. {}'.format(err))

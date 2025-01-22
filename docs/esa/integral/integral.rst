@@ -104,7 +104,11 @@ operation asynchronously.
 
 Science window data can be downloaded using this method by providing only one identifier,
 such as science window IDs, observation ID, revolution number, or proposal ID.
-The results can be exported to a file for further investigation or analysis.
+An additional parameter, read_fits (default value True) reads automatically the downloaded FITS files.
+
+* If ``read_fits=True``, a list of objects containing filename, path and the FITS file opened is returned.
+* If ``read_fits=False``, the file name and path where the file has been downloaded is provided.
+
 
 .. doctest-remote-data::
 
@@ -167,9 +171,13 @@ specific target, instrument, or energy band is available.
 This will perform an ADQL search to the Integral database and will return the output.
 
 ----------------
-8. ISLA Explorer
+8. Data Download
 ----------------
 
+For each of the following features, an additional parameter, read_fits, is available.
+
+* If ``read_fits=True``, a list of objects containing filename, path and the FITS file opened is returned.
+* If ``read_fits=False``, the file names and paths where the files have been downloaded is provided.
 
 8.1. Retrieving Long-Term Timeseries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -177,11 +185,12 @@ This will perform an ADQL search to the Integral database and will return the ou
 This method provides access to long-term timeseries data for a specified target.
 Users can refine their results by selecting an instrument or energy band.
 
+
 .. doctest-remote-data::
 
   >>> from astroquery.esa.integral import IntegralClass
   >>> isla = IntegralClass()
-  >>> ltt = get_long_term_timeseries(target_name='J174537.0-290107', instrument='jem-x') # doctest: +IGNORE_OUTPUT
+  >>> ltt = isla.get_long_term_timeseries(target_name='J174537.0-290107', instrument='jem-x') # doctest: +IGNORE_OUTPUT
 
 8.2. Retrieving Short-Term Timeseries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -194,7 +203,7 @@ the results are saved to a file for detailed examination.
 
   >>> from astroquery.esa.integral import IntegralClass
   >>> isla = IntegralClass()
-  >>> isla.get_short_term_timeseries(target_name='J011705.1-732636', band='28_40', epoch='0745_06340000001') # doctest: +IGNORE_OUTPUT
+  >>> stt = isla.get_short_term_timeseries(target_name='J011705.1-732636', band='28_40', epoch='0745_06340000001') # doctest: +IGNORE_OUTPUT
 
 8.3. Retrieving spectra
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -207,7 +216,7 @@ output file for further processing.
 
   >>> from astroquery.esa.integral import IntegralClass
   >>> isla = IntegralClass()
-  >>> isla.get_spectra(target_name='J011705.1-732636', instrument='ibis', epoch='0745_06340000001') # doctest: +IGNORE_OUTPUT
+  >>> spectra = isla.get_spectra(target_name='J011705.1-732636', instrument='ibis', epoch='0745_06340000001') # doctest: +IGNORE_OUTPUT
 
 
 8.4. Retrieving mosaics

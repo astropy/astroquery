@@ -412,7 +412,7 @@ class TestIntegralTap:
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_long_term_timeseries(self, instrument_band_mock, download_mock):
         instrument_band_mock.return_value = mocks.get_instrument_bands()
-        download_mock.return_value = data_path('lt.zip')
+        download_mock.return_value = data_path('zip_file.zip')
 
         isla = IntegralClass()
         mock_instrument_bands(isla_module=isla)
@@ -421,7 +421,6 @@ class TestIntegralTap:
         assert len(lt_timeseries_list_extracted) == 2
         lt_timeseries_list_compressed = isla.get_long_term_timeseries(target_name='J174537.0-290107', band='b1',
                                                                       read_fits=False)
-
         assert type(lt_timeseries_list_compressed) is str
         close_files(lt_timeseries_list_extracted)
 
@@ -483,7 +482,7 @@ class TestIntegralTap:
 
         instrument_band_mock.return_value = mocks.get_instrument_bands()
         epoch_mock.return_value = {'epoch': ['time']}
-        download_mock.return_value = data_path('st.tar')
+        download_mock.return_value = data_path('tar_file.tar')
 
         isla = IntegralClass()
         mock_instrument_bands(isla_module=isla)
@@ -559,7 +558,7 @@ class TestIntegralTap:
         instrument_band_mock.return_value = mocks.get_instrument_bands()
         servlet_mock.return_value = mocks.get_mock_spectra()
         epoch_mock.return_value = {'epoch': ['today']}
-        download_mock.return_value = data_path('spectra.tar')
+        download_mock.return_value = data_path('tar_file.tar')
 
         isla = IntegralClass()
         mock_instrument_bands(isla_module=isla)
@@ -615,7 +614,7 @@ class TestIntegralTap:
         instrument_band_mock.return_value = mocks.get_instrument_bands()
         servlet_mock.return_value = mocks.get_mock_mosaic()
         epoch_mock.return_value = {'epoch': ['today']}
-        download_mock.return_value = data_path('mosaic.tar.gz')
+        download_mock.return_value = data_path('tar_gz_file.gz')
 
         isla = IntegralClass()
         mock_instrument_bands(isla_module=isla)

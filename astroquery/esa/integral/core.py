@@ -325,7 +325,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                                   output_format=output_format)
 
     def download_science_windows(self, *, science_windows=None, observation_id=None, revolution=None, proposal=None,
-                                 output_file=None, read_fits=True):
+                                 output_file=None, cache=False, read_fits=True):
         """Method to download science windows associated to one of these parameters:
         science_windows, observation_id, revolution or proposal
 
@@ -341,6 +341,8 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             Proposal ID associated to science windows
         output_file: str, optional
             File name and path for the downloaded file
+        cache: bool, optional, default False
+                Flag to determine if the file is stored in the cache or not
         read_fits: bool, optional, default True
             Open the downloaded file and parse the existing FITS files
 
@@ -355,7 +357,8 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         try:
 
             downloaded_file = esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session,
-                                                     filename=output_file, params=params, verbose=True)
+                                                     filename=output_file, params=params,
+                                                     cache=cache, cache_folder=self.cache_location, verbose=True)
             if read_fits:
                 return esautils.read_downloaded_fits([downloaded_file])
             else:
