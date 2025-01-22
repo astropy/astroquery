@@ -143,10 +143,12 @@ class ESAAuthSession(AuthSession):
         """
 
         # Add the custom query parameter to the URL
-        if '?' in url:
-            url += "&TAPCLIENT=ASTROQUERY&format=votable_plain"
-        else:
-            url += "?TAPCLIENT=ASTROQUERY&format=votable_plain"
+        additional_params = {'TAPCLIENT': 'ASTROQUERY',
+                             'format': 'votable_plain'}
+        if kwargs is not None and 'params' in kwargs:
+            kwargs['params'].update(additional_params)
+        elif kwargs is not None:
+            kwargs['params'] = additional_params
         return super()._request(method, url, **kwargs)
 
 

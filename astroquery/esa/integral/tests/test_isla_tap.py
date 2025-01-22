@@ -39,7 +39,7 @@ def close_files(file_list):
         close_file(file['fits'])
 
 
-class TestTap:
+class TestIntegralTap:
 
     def test_get_tables(self):
         # default parameters

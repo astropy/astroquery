@@ -158,7 +158,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         """
         self.tap._session.logout(logout_url=conf.ISLA_LOGOUT_SERVER)
 
-    def query_tap(self, query, *, async_job=False, output_file=None, output_format=None):
+    def query_tap(self, query, *, async_job=False, output_file=None, output_format='votable'):
         """Launches a synchronous or asynchronous job to query the ISLA tap
 
         Parameters
@@ -254,8 +254,10 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             end time of the observation
         start_revno: string, optional
             start revolution number, as a four-digit string with leading zeros
+            e.g. 0352
         end_revno: string, optional
             end revolution number, as a four-digit string with leading zeros
+            e.g. 0353
         async_job : bool, optional, default 'False'
             executes the query (job) in asynchronous/synchronous mode (default
             synchronous)
@@ -323,7 +325,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
                                   output_format=output_format)
 
     def download_science_windows(self, *, science_windows=None, observation_id=None, revolution=None, proposal=None,
-                                 output_file=None):
+                                 output_file=None, read_fits=True):
         """Method to download science windows associated to one of these parameters:
         science_windows, observation_id, revolution or proposal
 
@@ -339,6 +341,8 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             Proposal ID associated to science windows
         output_file: str, optional
             File name and path for the downloaded file
+        read_fits: bool, optional, default True
+            Open the downloaded file and parse the existing FITS files
 
         Returns
         -------
@@ -350,8 +354,13 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         params['RETRIEVAL_TYPE'] = 'SCW'
         try:
 
-            return esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session,
-                                          filename=output_file, params=params, verbose=True)
+            downloaded_file = esautils.download_file(url=conf.ISLA_DATA_SERVER, session=self.tap._session,
+                                                     filename=output_file, params=params, verbose=True)
+            if read_fits:
+                return esautils.read_downloaded_fits([downloaded_file])
+            else:
+                return downloaded_file
+
         except Exception as e:
             log.error('No science windows have been found with these inputs. {}'.format(e))
 
@@ -386,22 +395,27 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             "radius": radius
         }
 
-        # Execute the request to the servlet
-        request_result = esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
-                                                          tap=self.tap,
-                                                          query_params=query_params)
-        total_items = request_result['totalItems']
-        data = request_result['data']
-        fraFC = data['fraFC']
-        totEffExpo = data['totEffExpo']
-        timeline = Table({
-            "scwExpo": data["scwExpo"],
-            "scwRevs": data["scwRevs"],
-            "scwTimes": [datetime.fromtimestamp(scwTime / 1000) for scwTime in data["scwTimes"]],
-            "scwOffAxis": data["scwOffAxis"]
-        })
-
-        return {'total_items': total_items, 'fraFC': fraFC, 'totEffExpo': totEffExpo, 'timeline': timeline}
+        try:
+            # Execute the request to the servlet
+            request_result = esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
+                                                              tap=self.tap,
+                                                              query_params=query_params)
+            total_items = request_result['totalItems']
+            data = request_result['data']
+            fraFC = data['fraFC']
+            totEffExpo = data['totEffExpo']
+            timeline = Table({
+                "scwExpo": data["scwExpo"],
+                "scwRevs": data["scwRevs"],
+                "scwTimes": [datetime.fromtimestamp(scwTime / 1000) for scwTime in data["scwTimes"]],
+                "scwOffAxis": data["scwOffAxis"]
+            })
+            return {'total_items': total_items, 'fraFC': fraFC, 'totEffExpo': totEffExpo, 'timeline': timeline}
+        except HTTPError as e:
+            if 'None science windows have been selected' in e.response.text:
+                raise ValueError(f"No timeline is available for the current coordinates and radius.")
+            else:
+                raise e
 
     def get_epochs(self, *, target_name=None, instrument=None, band=None):
         """Retrieve the INTEGRAL epochs associated to a target and an instrument or a band
@@ -419,6 +433,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         -------
         An astropy.table object containing the available epochs
         """
+
 
         value = self.__get_instrument_or_band(instrument=instrument, band=band)
         instrument_oid, band_oid = self.__get_oids(value)
@@ -503,10 +518,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
 
         """
 
+        value = self.__get_instrument_or_band(instrument=instrument, band=band)
         self.__validate_epoch(target_name=target_name, epoch=epoch,
                               instrument=instrument, band=band)
-
-        value = self.__get_instrument_or_band(instrument=instrument, band=band)
 
         params = {'RETRIEVAL_TYPE': 'short_timeseries',
                   'source': target_name,
@@ -556,11 +570,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         If read_fits=False, return a list of paths of the downloaded files
         """
 
+        value = self.__get_instrument_or_band(instrument=instrument, band=band)
         self.__validate_epoch(target_name=target_name, epoch=epoch,
                               instrument=instrument, band=band)
-
-        value = self.__get_instrument_or_band(instrument=instrument, band=band)
-
         query_params = {
             'REQUEST': 'spectra',
             "source": target_name,
@@ -675,9 +687,15 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             'REQUEST': 'sources',
             "SOURCE": target_name
         }
-        return esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
-                                                tap=self.tap,
-                                                query_params=query_params)
+        try:
+            return esautils.execute_servlet_request(url=conf.ISLA_SERVLET,
+                                                      tap=self.tap,
+                                                      query_params=query_params)
+        except HTTPError as e:
+            if 'Source not found in the database' in e.response.text:
+                raise ValueError(f"Target {target_name} cannot be resolved for ISLA")
+            else:
+                raise e
 
     def get_instrument_band_map(self):
         """
@@ -792,7 +810,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
 
         Parameters
         ----------
-        science_windows : list of str, mandat
+        science_windows : list of str or str, mandatory
             Science Windows to download
         observation_id: str, optional
             Observation ID associated to science windows
@@ -823,10 +841,10 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         if observation_id is not None and isinstance(observation_id, str):
             return {'obsid': observation_id}
 
-        if revolution is not None and isinstance(observation_id, str):
+        if revolution is not None and isinstance(revolution, str):
             return {'REVID': revolution}
 
-        if proposal is not None and isinstance(observation_id, str):
+        if proposal is not None and isinstance(proposal, str):
             return {'PROPID': proposal}
 
         raise ValueError("Input parameters are wrong")
