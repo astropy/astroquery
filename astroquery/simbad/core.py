@@ -234,18 +234,19 @@ class SimbadClass(BaseVOQuery):
         >>> options = Simbad.list_votable_fields() # doctest: +REMOTE_DATA
         >>> # to print only the available bundles of columns
         >>> options[options["type"] == "bundle of basic columns"][["name", "description"]] # doctest: +REMOTE_DATA
-        <Table length=8>
-            name                         description
-            object                           object
-        ------------- ----------------------------------------------------
-          coordinates                  all fields related with coordinates
-                  dim          major and minor axis, angle and inclination
-           dimensions              all fields related to object dimensions
-            morphtype         all fields related to the morphological type
-             parallax                     all fields related to parallaxes
-        propermotions           all fields related with the proper motions
-                   sp            all fields related with the spectral type
-             velocity all fields related with radial velocity and redshift
+        <Table length=9>
+             name                           description
+            object                             object
+        ------------- -------------------------------------------------------
+          coordinates                     all fields related with coordinates
+                  dim             major and minor axis, angle and inclination
+           dimensions                 all fields related to object dimensions
+            morphtype            all fields related to the morphological type
+             parallax                        all fields related to parallaxes
+                   pm proper motion values in right ascension and declination
+        propermotions              all fields related with the proper motions
+                   sp               all fields related with the spectral type
+             velocity    all fields related with radial velocity and redshift
         """
         # get the tables with a simple link to basic
         query_tables = """SELECT DISTINCT table_name AS name, tables.description
@@ -380,9 +381,10 @@ class SimbadClass(BaseVOQuery):
         """
 
         # the legacy way of adding fluxes
-        args = list(args)
+        args = set(args)
         fluxes_to_add = []
-        for arg in args:
+        args_copy = args.copy()
+        for arg in args_copy:
             if arg.startswith("flux_"):
                 raise ValueError("The votable fields 'flux_***(filtername)' are removed and replaced "
                                  "by 'flux' that will add all information for every filters. "
@@ -390,19 +392,22 @@ class SimbadClass(BaseVOQuery):
                                  "https://astroquery.readthedocs.io/en/latest/simbad/simbad_evolution.html"
                                  " to see the new ways to interact with SIMBAD's fluxes.")
             if re.match(r"^flux.*\(.+\)$", arg):
-                warnings.warn("The notation 'flux(U)' is deprecated since 0.4.8 in favor of 'U'. "
-                              "See section on filters in "
+                filter_name = re.findall(r"\((\w+)\)", arg)[0]
+                warnings.warn(f"The notation 'flux({filter_name})' is deprecated since 0.4.8 in favor of "
+                              f"'{filter_name}'. You will see the column appearing with its new name "
+                              "in the output. See section on filters in "
                               "https://astroquery.readthedocs.io/en/latest/simbad/simbad_evolution.html "
                               "to see the new ways to interact with SIMBAD's fluxes.", DeprecationWarning, stacklevel=2)
-                fluxes_to_add.append(re.findall(r"\((\w+)\)", arg)[0])
+                fluxes_to_add.append(filter_name)
                 args.remove(arg)
 
         # output options
         output_options = self.list_votable_fields()
         # fluxes are case-dependant
-        fluxes = output_options[output_options["type"] == "filter name"]["name"]
+        fluxes = set(output_options[output_options["type"] == "filter name"]["name"])
         # add fluxes
-        fluxes_to_add += [flux for flux in args if flux in fluxes]
+        fluxes_from_names = set(flux for flux in args if flux in fluxes)
+        fluxes_to_add += fluxes_from_names
         if fluxes_to_add:
             self.joins.append(_Join("allfluxes", _Column("basic", "oid"),
                               _Column("allfluxes", "oidref")))
@@ -413,6 +418,10 @@ class SimbadClass(BaseVOQuery):
                     self.columns_in_output.append(_Column("allfluxes", flux + "_", flux))
                 else:
                     self.columns_in_output.append(_Column("allfluxes", flux))
+        # remove the arguments already added
+        args -= fluxes_from_names
+        # remove filters from output options
+        output_options = output_options[output_options["type"] != "filter name"]
 
         # casefold args because we allow case difference for every other argument (legacy behavior)
         args = set(map(str.casefold, args))

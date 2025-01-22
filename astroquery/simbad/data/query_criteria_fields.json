@@ -33,6 +33,20 @@
     "tap_column": ["ra", "dec", "ra_prec", "dec_prec"],
     "type": "bundle"
   },
+  "dec(d)": {
+    "tap_column": "dec",
+    "type": "alias"
+  },
+  "dec_prec": {
+    "description": "precision code for the coordinates (ra and dec are no longer distinct)",
+    "tap_column": "coo_qual",
+    "type": "alias"
+  },
+  "diameter": {
+    "descriptions": "all measurements of diameter",
+    "tap_table": "mesdiameter",
+    "type": "alias table"
+  },
   "dim": {
     "description": "major and minor axis, angle and inclination",
     "tap_startswith": "galdim_",
@@ -187,13 +201,21 @@
     "tap_column": "morph_type",
     "type": "alias"
   },
-  "otype(V)": {
+  "otype(v)": {
     "tap_table": "otypedef",
     "type": "alias table"
   },
-  "otype(S)": {
+  "otype(n)": {
     "tap_table": "otypedef",
     "type": "alias table"
+  },
+  "otype(3)": {
+    "tap_column": "otype",
+    "type": "alias"
+  },
+  "otype(s)": {
+    "tap_column": "otype",
+    "type": "alias"
   },
   "parallax": {
     "description": "all fields related to parallaxes",
@@ -210,6 +232,11 @@
     "tap_column": "plx_err",
     "type": "alias"
   },
+  "pm": {
+    "description": "proper motion values in right ascension and declination",
+    "tap_column": ["pmra", "pmdec"],
+    "type": "bundle"
+  },
   "pm_err_maja": {
     "description": "major axis of the error ellipse",
     "tap_column": "pm_err_maj",
@@ -225,9 +252,18 @@
     "tap_startswith": "pm",
     "type": "bundle"
   },
+  "ra(d)": {
+    "tap_column": "ra",
+    "type": "alias"
+  },
   "radvel": {
     "description": "Radial velocity",
     "tap_column": "rvz_radvel",
+    "type": "alias"
+  },
+  "ra_prec": {
+    "description": "precision code for the coordinates (ra and dec are no longer distinct)",
+    "tap_column": "coo_qual",
     "type": "alias"
   },
   "redshift": {
@@ -267,6 +303,10 @@
     "description": "spectral type value",
     "type": "alias",
     "tap_column": "sp_type"
+  },
+  "td1": {
+    "description": "UV fluxes from TD1 satellite,by Thompson et al.",
+    "type": "historical measurement"
   },
   "v*": {
     "description": "variable stars parameters extracted mainly from the General Catalog of Variable Stars by Kukarkin et al. USSR Academy of Sciences (3rd edition in 1969,and continuations)",

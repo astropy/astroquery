@@ -19,6 +19,18 @@ jplspec
 
 - minor improvement to lookuptable behavior [#3173,#2901]
 
+simbad
+^^^^^^
+
+- Fixed adding a list of fluxes with the deprecated notation 
+  ``Simbad.add_votable_fields("flux(U)", "flux(J)")`` [#3186]
+
+- Support more of the 0.4.7 votable fields. Raise more significant error messages
+  for the discontinued ones. [#3186]
+
+- Fix the deprecated votable fields ``otype(V)`` and ``otype(S)`` [#3186]
+
+- Fixed non existing flux filters as votable fields would fail silently [#3186]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

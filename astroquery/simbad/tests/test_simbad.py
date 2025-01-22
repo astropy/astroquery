@@ -261,15 +261,26 @@ def test_add_votable_fields():
     # a table which name has changed should raise a warning too
     with pytest.warns(DeprecationWarning, match="'distance' has been renamed 'mesdistance'*"):
         simbad_instance.add_votable_fields("distance")
+
+
+@pytest.mark.usefixtures("_mock_simbad_class")
+@pytest.mark.usefixtures("_mock_basic_columns")
+@pytest.mark.usefixtures("_mock_linked_to_basic")
+def test_add_votable_fields_errors():
     # errors are raised for the deprecated fields with options
     simbad_instance = simbad.SimbadClass()
     with pytest.raises(ValueError, match=r"The votable fields \'flux_\*\*\*\(filtername\)\' are removed *"):
         simbad_instance.add_votable_fields("flux_error(u)")
-    with pytest.warns(DeprecationWarning, match=r"The notation \'flux\(U\)\' is deprecated since 0.4.8 *"):
+    with pytest.warns(DeprecationWarning, match=r"The notation \'flux\(u\)\' is deprecated since 0.4.8 *"):
         simbad_instance.add_votable_fields("flux(u)")
         assert "u_" in str(simbad_instance.columns_in_output)
+    # big letter J filter exists, but not small letter j
+    with pytest.raises(ValueError, match="'j' is not one of the accepted options *"):
+        simbad_instance.add_votable_fields("j")
     with pytest.raises(ValueError, match="Coordinates conversion and formatting is no longer supported*"):
-        simbad_instance.add_votable_fields("coo(s)", "dec(d)")
+        simbad_instance.add_votable_fields("coo(s)")
+    with pytest.warns(DeprecationWarning, match=r"\'dec\(d\)\' has been renamed \'dec\'. *"):
+        simbad_instance.add_votable_fields("dec(d)")
     with pytest.raises(ValueError, match="Catalog Ids are no longer supported as an output option.*"):
         simbad_instance.add_votable_fields("ID(Gaia)")
     with pytest.raises(ValueError, match="Selecting a range of years for bibcode is removed.*"):
@@ -281,7 +292,28 @@ def test_add_votable_fields():
     with pytest.raises(ValueError, match="'alltype' is not one of the accepted options which can be "
                        "listed with 'list_votable_fields'. Did you mean 'alltypes' or 'otype' or 'otypes'?"):
         simbad_instance.add_votable_fields("ALLTYPE")
-    # bundles and tables require a connection to the tap_schema and are thus tested in test_simbad_remote
+    # successive positions no longer ins SIMBAD (for years)
+    with pytest.raises(ValueError, match="Successive measurements of the positions *"):
+        simbad_instance.add_votable_fields("pos")
+    # no longer stores sp_nature
+    with pytest.raises(ValueError, match="Spectral nature is no longer stored in SIMBAD. *"):
+        simbad_instance.add_votable_fields("sp_nature")
+    # typed_id had only been added for astroquery's interaction with the old API
+    with pytest.raises(ValueError, match="'typed_id' is no longer a votable field. *"):
+        simbad_instance.add_votable_fields("typed_id")
+    # uvb and others no longer have their table in SIMBAD
+    with pytest.raises(ValueError, match="Magnitudes are now handled very differently in SIMBAD. *"):
+        simbad_instance.add_votable_fields("ubv")
+
+
+@pytest.mark.usefixtures("_mock_simbad_class")
+@pytest.mark.usefixtures("_mock_basic_columns")
+@pytest.mark.usefixtures("_mock_linked_to_basic")
+def test_add_list_of_fluxes():
+    # regression test for https://github.com/astropy/astroquery/issues/3185#issuecomment-2599191953
+    simbad_instance = simbad.Simbad()
+    with pytest.warns(DeprecationWarning, match=r"The notation \'flux\([UJ]\)\' is deprecated since 0.4.8 *"):
+        simbad_instance.add_votable_fields("flux(U)", "flux(J)")
 
 
 def test_list_wildcards(capsys):
