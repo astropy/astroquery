@@ -14,6 +14,11 @@ linelists.cdms
 - Add whole catalog retrieval, improve error messaging for unparseable lines,
   improve metadata catalog, and improve lookuptable behavior [#3173,#2901]
 
+heasarc
+^^^^^^^
+
+- Fix Heasarc.download_data for Sciserver. [#3183]
+
 jplspec
 ^^^^^^^
 
@@ -67,7 +72,6 @@ simbad
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
-
 
 
 0.4.8 (2025-01-16)

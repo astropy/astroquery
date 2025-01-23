@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import os
-import shutil
 import pytest
+import tempfile
 from unittest.mock import patch, PropertyMock
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
@@ -304,6 +304,24 @@ def test_download_data__missingcolumn(host):
         Heasarc.download_data(Table({"id": [1]}), host=host)
 
 
+def test_download_data__sciserver():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        datadir = f'{tmpdir}/data'
+        downloaddir = f'{tmpdir}/download'
+        os.makedirs(datadir, exist_ok=True)
+        with open(f'{datadir}/file.txt', 'w') as fp:
+            fp.write('data')
+        # include both a file and a directory
+        tab = Table({'sciserver': [f'{tmpdir}/data/file.txt', f'{tmpdir}/data']})
+        # The patch is to avoid the test that we are on sciserver
+        with patch('os.path.exists') as exists:
+            exists.return_value = True
+            Heasarc.download_data(tab, host="sciserver", location=downloaddir)
+        assert os.path.exists(f'{downloaddir}/file.txt')
+        assert os.path.exists(f'{downloaddir}/data')
+        assert os.path.exists(f'{downloaddir}/data/file.txt')
+
+
 def test_download_data__outside_sciserver():
     with pytest.raises(
         FileNotFoundError,
@@ -350,10 +368,10 @@ def test_s3_mock_basic(s3_mock):
 def test_s3_mock_file(s3_mock):
     links = Table({"aws": [f"s3://{s3_bucket}/{s3_key1}"]})
     Heasarc.enable_cloud(profile=False)
-    Heasarc.download_data(links, host="aws", location=".")
-    file = s3_key1.split("/")[-1]
-    assert os.path.exists(file)
-    os.remove(file)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        Heasarc.download_data(links, host="aws", location=tmpdir)
+        file = s3_key1.split("/")[-1]
+        assert os.path.exists(f'{tmpdir}/{file}')
 
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
@@ -361,9 +379,9 @@ def test_s3_mock_file(s3_mock):
 def test_s3_mock_directory(s3_mock):
     links = Table({"aws": [f"s3://{s3_bucket}/{s3_dir}"]})
     Heasarc.enable_cloud(profile=False)
-    Heasarc.download_data(links, host="aws", location=".")
-    assert os.path.exists("location")
-    assert os.path.exists("location/file1.txt")
-    assert os.path.exists("location/sub/file2.txt")
-    assert os.path.exists("location/sub/sub2/file3.txt")
-    shutil.rmtree("location")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        Heasarc.download_data(links, host="aws", location=tmpdir)
+        assert os.path.exists(f"{tmpdir}/location")
+        assert os.path.exists(f"{tmpdir}/location/file1.txt")
+        assert os.path.exists(f"{tmpdir}/location/sub/file2.txt")
+        assert os.path.exists(f"{tmpdir}/location/sub/sub2/file3.txt")
