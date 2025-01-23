@@ -13,7 +13,7 @@ import os
 import binascii
 import shutil
 
-import tarfile
+import tarfile as esatar
 import zipfile
 from astropy import log
 from astropy.coordinates import SkyCoord
@@ -25,6 +25,12 @@ from pyvo.auth.authsession import AuthSession
 
 
 TARGET_RESOLVERS = ['ALL', 'SIMBAD', 'NED', 'VIZIER']
+
+
+# We do trust the ESA tar files, this is to avoid the new to Python 3.12 deprecation warning
+# https://docs.python.org/3.12/library/tarfile.html#tarfile-extraction-filter
+if hasattr(esatar, "fully_trusted_filter"):
+    esatar.TarFile.extraction_filter = staticmethod(esatar.fully_trusted_filter)
 
 
 # Subclass AuthSession to customize requests
@@ -332,11 +338,11 @@ def extract_file(file_path, output_dir=None):
     """
     if not output_dir:
         output_dir = os.path.abspath(file_path)
-    if tarfile.is_tarfile(file_path):
-        with tarfile.open(file_path, "r") as tar_ref:
+    if esatar.is_tarfile(file_path):
+        with esatar.open(file_path, "r") as tar_ref:
             return extract_from_tar(tar_ref, file_path, output_dir)
     elif is_gz_file(file_path):
-        with tarfile.open(file_path, "r:gz") as tar:
+        with esatar.open(file_path, "r:gz") as tar:
             return extract_from_tar(tar, file_path, output_dir)
     elif zipfile.is_zipfile(file_path):
         return extract_from_zip(file_path, output_dir)
