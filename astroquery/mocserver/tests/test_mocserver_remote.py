@@ -1,24 +1,15 @@
-# -*- coding: utf-8 -*
-
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import pytest
 
-from astropy import coordinates
 from astropy.table import Table
+from astropy.time import Time
 
 try:
-    from mocpy import MOC
+    from mocpy import MOC, STMOC, TimeMOC
 
     HAS_MOCPY = True
 except ImportError:
     HAS_MOCPY = False
-
-try:
-    from regions import CircleSkyRegion
-
-    HAS_REGIONS = True
-except ImportError:
-    HAS_REGIONS = False
 
 from ..core import MOCServer
 
@@ -26,78 +17,85 @@ from ..core import MOCServer
 @pytest.mark.remote_data
 @pytest.mark.skipif(not HAS_MOCPY, reason="mocpy is required")
 class TestMOCServerRemote:
-    """
-    Tests requiring regions
-    """
-
     # test of MAXREC payload
-    @pytest.mark.skipif(not HAS_REGIONS, reason="regions is required")
-    @pytest.mark.parametrize("max_rec", [3, 10, 25, 100])
+    @pytest.mark.parametrize("max_rec", [3, 10])
     def test_max_rec_param(self, max_rec):
-        center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
-        radius = coordinates.Angle(1.5, unit="deg")
-
-        cone_region = CircleSkyRegion(center, radius)
         result = MOCServer.query_region(
-            region=cone_region, max_rec=max_rec, get_query_payload=False
+            region=MOC.from_str("0/0-11"),
+            max_rec=max_rec,
+            get_query_payload=False,
+            fields=["ID"],
         )
-
         assert max_rec == len(result)
 
     # test of field_l when retrieving dataset records
-    @pytest.mark.skipif(not HAS_REGIONS, reason="regions is required")
     @pytest.mark.parametrize(
         "field_l",
         [
             ["ID"],
-            ["ID", "moc_sky_fraction"],
             ["data_ucd", "vizier_popularity", "ID"],
-            ["publisher_id", "ID"],
         ],
     )
     def test_field_l_param(self, field_l):
-        center = coordinates.SkyCoord(ra=10.8, dec=32.2, unit="deg")
-        radius = coordinates.Angle(1.5, unit="deg")
-
-        cone_region = CircleSkyRegion(center, radius)
-
         table = MOCServer.query_region(
-            region=cone_region, fields=field_l, get_query_payload=False
+            region=MOC.from_str("20/0"), fields=field_l, get_query_payload=False
         )
         assert isinstance(table, Table)
         assert set(table.colnames).issubset(set(field_l))
 
-    """
-    Tests requiring mocpy
-    """
-
     # test of moc_order payload
-    @pytest.mark.parametrize("moc_order", [5, 10])
-    def test_moc_order_param(self, moc_order, tmp_cwd):
-        # We need a long timeout for this
-        MOCServer.TIMEOUT = 300
-
-        moc_region = MOC.from_json({"0": [1]})
-
+    @pytest.mark.parametrize("moc_order", [1, 3])
+    def test_moc_order_param(self, moc_order):
+        moc_region = MOC.from_str("10/0-9")
         result = MOCServer.query_region(
             region=moc_region,
-            # return a mocpy obj
             return_moc=True,
             max_norder=moc_order,
-            get_query_payload=False,
+            intersect="enclosed",
         )
-
         assert isinstance(result, MOC)
+        assert result.max_order == moc_order
 
-    @pytest.mark.parametrize(
-        "meta_data_expr",
-        ["ID=*HST*", "moc_sky_fraction>0.5", "(ID=*DSS*)&&(moc_sky_fraction>0.1)"],
-    )
-    def test_find_data_sets(self, meta_data_expr):
-        result = MOCServer.find_datasets(
-            meta_data=meta_data_expr,
-            fields=["ID", "moc_sky_fraction"],
-            get_query_payload=False,
+    def test_stmoc_as_outputs(self):
+        # chose a dataset with a MOC with few cells
+        stmoc = MOCServer.query_region(
+            criteria="ID=CDS/J/AJ/157/109/table1", return_moc="stmoc"
         )
+        assert isinstance(stmoc, STMOC)
 
-        assert isinstance(result, Table)
+    def test_temporal_mocs_as_inputs(self):
+        tmoc = TimeMOC.from_str("11/1")
+        result = MOCServer.query_region(
+            region=tmoc,
+            fields=["t_min"],
+            max_rec=100,
+            criteria="dataproduct_type='image'&&t_min=*",
+        )
+        min_time_result = Time(result["t_min"].value, format="mjd")
+        # the resulting datasets should only have starting times after the
+        # beginning of the T-MOC
+        assert all(tmoc.min_time < min_time_result)
+
+    def test_no_region(self):
+        result = MOCServer.query_region(
+            criteria="moc_sky_fraction>0.5&&moc_sky_fraction=*",
+            fields=["ID", "moc_sky_fraction"],
+            max_rec=100,
+        )
+        assert all(result["moc_sky_fraction"] > 0.5)
+
+    def test_query_hips(self):
+        result = MOCServer.query_hips(coordinate_system="venus", fields="hips_frame")
+        assert all(result["hips_frame"] == "venus")
+
+    def test_list_fields(self):
+        # with keyword
+        moc_fields = MOCServer.list_fields("moc")
+        assert all("moc" in field for field in moc_fields["field_name"])
+        type_moc = moc_fields[moc_fields["field_name"] == "moc_type"]
+        # this was the occurrence number in 2024, can only be higher in the future
+        assert type_moc["occurrence"][0] >= 34000
+        # without keyword
+        all_fields = MOCServer.list_fields()
+        assert len(all_fields) > 100
+        assert "ID" in list(all_fields["field_name"])
