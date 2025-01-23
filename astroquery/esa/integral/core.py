@@ -348,7 +348,8 @@ class IntegralClass(BaseVOQuery, BaseQuery):
 
         Returns
         -------
-        The path and filename of the file with science windows
+        If read_fits=True, a list with objects containing filename, path and FITS file opened with the
+        science windows. If read_fits=False, the path of the downloaded file
         """
 
         # Validate and retrieve the correct value
@@ -469,7 +470,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         Returns
         -------
         If read_fits=True, a list with objects containing filename, path and FITS file opened with long
-        term timeseries. If read_fits=False, return the path of the downloaded file
+        term timeseries. If read_fits=False, the path of the downloaded file
         """
 
         value = self.__get_instrument_or_band(instrument=instrument, band=band)
@@ -516,7 +517,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         Returns
         -------
         If read_fits=True, a list with objects containing filename, path and FITS file opened with short
-        term timeseries. If read_fits=False, return the path of the downloaded file
+        term timeseries. If read_fits=False, the path of the downloaded file
 
         """
 
@@ -569,7 +570,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         Returns
         -------
         If read_fits=True, a list with objects containing filename, path and FITS file opened with spectra.
-        If read_fits=False, return a list of paths of the downloaded files
+        If read_fits=False, a list of paths of the downloaded files
         """
 
         value = self.__get_instrument_or_band(instrument=instrument, band=band)
@@ -633,7 +634,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
         Returns
         -------
         If read_fits=True, a list with objects containing filename, path and FITS file opened with mosaics.
-        If read_fits=False, return a list of paths of the downloaded files
+        If read_fits=False, a list of paths of the downloaded files
         """
 
         self.__validate_epoch(epoch=epoch,

@@ -9,6 +9,8 @@ European Space Agency (ESA)
 
 """
 import os
+import shutil
+import tempfile
 
 from astropy.coordinates import SkyCoord
 from astroquery.esa.integral import IntegralClass
@@ -28,6 +30,16 @@ def mock_instrument_bands(isla_module):
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
+
+
+def create_temp_folder():
+    return tempfile.TemporaryDirectory()
+
+
+def copy_to_temporal_path(data_path, temp_folder, filename):
+    temp_data_dir = os.path.join(temp_folder.name, filename)
+    shutil.copy(data_path, temp_data_dir)
+    return temp_data_dir
 
 
 def close_file(file):
@@ -325,7 +337,6 @@ class TestIntegralTap:
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_download_science_windows(self, instrument_band_mock, download_mock):
         instrument_band_mock.return_value = mocks.get_instrument_bands()
-        download_mock.return_value = 'file.test'
 
         isla = IntegralClass()
         with pytest.raises(ValueError) as err:
@@ -336,10 +347,18 @@ class TestIntegralTap:
             isla.download_science_windows(science_windows='sc', observation_id='obs')
         assert 'Only one parameter can be provided at a time.' in err.value.args[0]
 
-        isla.download_science_windows(science_windows='sc')
+        temp_path = create_temp_folder()
+        temp_file = copy_to_temporal_path(data_path=data_path('zip_file.zip'), temp_folder=temp_path,
+                                          filename='zip_file.zip')
+        download_mock.return_value = temp_file
+
+        sc = isla.download_science_windows(science_windows='sc')
 
         args, kwargs = download_mock.call_args
         assert kwargs['params']['RETRIEVAL_TYPE'] == 'SCW'
+
+        close_files(sc)
+        temp_path.cleanup()
 
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
@@ -349,7 +368,8 @@ class TestIntegralTap:
         servlet_mock.return_value = mocks.get_mock_timeline()
 
         isla = IntegralClass()
-        timeline = isla.get_timeline(coordinates='83.63320922851562 22.01447105407715')
+        coords = SkyCoord(ra=83.63320922851562, dec=22.01447105407715, unit="deg")
+        timeline = isla.get_timeline(coordinates=coords)
 
         assert len(timeline['timeline']['scwRevs']) > 0
 
@@ -412,7 +432,11 @@ class TestIntegralTap:
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_long_term_timeseries(self, instrument_band_mock, download_mock):
         instrument_band_mock.return_value = mocks.get_instrument_bands()
-        download_mock.return_value = data_path('zip_file.zip')
+
+        temp_path = create_temp_folder()
+        temp_file = copy_to_temporal_path(data_path=data_path('zip_file.zip'), temp_folder=temp_path,
+                                          filename='zip_file.zip')
+        download_mock.return_value = temp_file
 
         isla = IntegralClass()
         mock_instrument_bands(isla_module=isla)
@@ -423,6 +447,7 @@ class TestIntegralTap:
                                                                       read_fits=False)
         assert type(lt_timeseries_list_compressed) is str
         close_files(lt_timeseries_list_extracted)
+        temp_path.cleanup()
 
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.log')
@@ -482,7 +507,10 @@ class TestIntegralTap:
 
         instrument_band_mock.return_value = mocks.get_instrument_bands()
         epoch_mock.return_value = {'epoch': ['time']}
-        download_mock.return_value = data_path('tar_file.tar')
+        temp_path = create_temp_folder()
+        temp_file = copy_to_temporal_path(data_path=data_path('tar_file.tar'), temp_folder=temp_path,
+                                          filename='tar_file.tar')
+        download_mock.return_value = temp_file
 
         isla = IntegralClass()
         mock_instrument_bands(isla_module=isla)
@@ -495,6 +523,7 @@ class TestIntegralTap:
         assert type(st_timeseries_list_compressed) is str
 
         close_files(st_timeseries_list_extracted)
+        temp_path.cleanup()
 
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.log')
@@ -558,7 +587,10 @@ class TestIntegralTap:
         instrument_band_mock.return_value = mocks.get_instrument_bands()
         servlet_mock.return_value = mocks.get_mock_spectra()
         epoch_mock.return_value = {'epoch': ['today']}
-        download_mock.return_value = data_path('tar_file.tar')
+        temp_path = create_temp_folder()
+        temp_file = copy_to_temporal_path(data_path=data_path('tar_file.tar'), temp_folder=temp_path,
+                                          filename='tar_file.tar')
+        download_mock.return_value = temp_file
 
         isla = IntegralClass()
         mock_instrument_bands(isla_module=isla)
@@ -571,6 +603,7 @@ class TestIntegralTap:
         assert type(spectra_list_compressed) is list
 
         close_files(spectra_list_extracted)
+        temp_path.cleanup()
 
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.log')
@@ -614,7 +647,10 @@ class TestIntegralTap:
         instrument_band_mock.return_value = mocks.get_instrument_bands()
         servlet_mock.return_value = mocks.get_mock_mosaic()
         epoch_mock.return_value = {'epoch': ['today']}
-        download_mock.return_value = data_path('tar_gz_file.gz')
+        temp_path = create_temp_folder()
+        temp_file = copy_to_temporal_path(data_path=data_path('tar_gz_file.gz'), temp_folder=temp_path,
+                                          filename='tar_gz_file.gz')
+        download_mock.return_value = temp_file
 
         isla = IntegralClass()
         mock_instrument_bands(isla_module=isla)
@@ -625,6 +661,7 @@ class TestIntegralTap:
 
         assert type(mosaics_compressed) is list
         close_files(mosaics_extracted)
+        temp_path.cleanup()
 
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.execute_servlet_request')

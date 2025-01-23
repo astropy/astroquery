@@ -9,7 +9,9 @@ European Space Agency (ESA)
 
 """
 import os
+import tempfile
 
+from astropy.coordinates import SkyCoord
 from astroquery.esa.integral import IntegralClass
 import pytest
 from pyvo import DALQueryError
@@ -27,6 +29,10 @@ def close_file(file):
 def close_files(file_list):
     for file in file_list:
         close_file(file['fits'])
+
+
+def create_temp_folder():
+    return tempfile.TemporaryDirectory()
 
 
 @pytest.mark.remote_data
@@ -54,9 +60,12 @@ class TestIntegralRemote:
         assert 'Unknown table' in err.value.args[0]
 
         # Store the result in a file
-        filename = 'query_tap.votable'
+        temp_folder = create_temp_folder()
+        filename = os.path.join(temp_folder.name, 'query_tap.votable')
         isla.query_tap('select top 10 * from ivoa.obscore;', output_file=filename)
         assert os.path.exists(filename)
+
+        temp_folder.cleanup()
 
     def test_get_sources(self):
         isla = IntegralClass()
@@ -118,8 +127,12 @@ class TestIntegralRemote:
     def test_download_science_windows(self):
         # Simple download
         isla = IntegralClass()
-        sc = isla.download_science_windows(science_windows='008100430010')
+        temp_folder = create_temp_folder()
+        output_file = os.path.join(temp_folder.name, 'sc')
+        sc = isla.download_science_windows(science_windows='008100430010', output_file=output_file)
         assert len(sc) > 1
+
+        close_files(sc)
 
         # Only one parameter is allowed
         with pytest.raises(ValueError) as err:
@@ -131,17 +144,21 @@ class TestIntegralRemote:
             isla.download_science_windows(revolution=12)
         assert 'Input parameters are wrong' in err.value.args[0]
 
+        temp_folder.cleanup()
+
     def test_get_timeline(self):
         isla = IntegralClass()
-        timeline = isla.get_timeline(coordinates='83.63320922851562 22.01447105407715')
+        coords = SkyCoord(ra=83.63320922851562, dec=22.01447105407715, unit="deg")
+        timeline = isla.get_timeline(coordinates=coords)
 
         assert timeline is not None
         assert 'timeline' in timeline
         assert timeline['total_items'] == len(timeline['timeline'])
 
         # No timeline has been found
+        zero_coords = SkyCoord(ra=0, dec=0, unit="deg")
         with pytest.raises(ValueError) as err:
-            isla.get_timeline(coordinates='0 0', radius=0.8)
+            isla.get_timeline(coordinates=zero_coords, radius=0.8)
         assert 'No timeline is available for the current coordinates and radius.' in err.value.args[0]
 
     def test_get_epochs(self):
@@ -167,11 +184,15 @@ class TestIntegralRemote:
         assert len(epochs) == 0
 
     def test_get_long_term_timeseries(self):
+        temp_folder = create_temp_folder()
+
         isla = IntegralClass()
-        ltt = isla.get_long_term_timeseries(target_name='J174537.0-290107', instrument='jem-x')
+        ltt = isla.get_long_term_timeseries(target_name='J174537.0-290107', instrument='jem-x', path=temp_folder.name)
 
         assert len(ltt) > 0
         assert 'fits' in ltt[0]
+
+        close_files(ltt)
 
         # No correct instrument or band
         with pytest.raises(ValueError) as err:
@@ -182,21 +203,26 @@ class TestIntegralRemote:
         ltt = isla.get_long_term_timeseries(target_name='star', instrument='jem-x')
         assert ltt is None
 
+        temp_folder.cleanup()
+
     def test_get_short_term_timeseries(self):
+        temp_folder = create_temp_folder()
+
         isla = IntegralClass()
-        stt = isla.get_short_term_timeseries(target_name='J011705.1-732636', band='28_40', epoch='0745_06340000001')
+        stt = isla.get_short_term_timeseries(target_name='J011705.1-732636', band='28_40', epoch='0745_06340000001',
+                                             path=temp_folder.name)
 
         assert len(stt) > 0
         assert 'fits' in stt[0]
 
+        close_files(stt)
+
         # No correct instrument or band
-        print('error instrument')
         with pytest.raises(ValueError) as err:
             isla.get_short_term_timeseries(target_name='J011705.1-732636', band='1234', epoch='0745_06340000001')
         assert 'This is not a valid value for instrument or band.' in err.value.args[0]
 
         # No correct epoch
-        print('error band')
         with pytest.raises(ValueError) as err:
             isla.get_short_term_timeseries(target_name='J011705.1-732636', band='28_40', epoch='123456')
         assert 'Epoch 123456 is not available for this target and instrument/band.' in err.value.args[0]
@@ -206,12 +232,19 @@ class TestIntegralRemote:
             isla.get_short_term_timeseries(target_name='star', band='28_40', epoch='0745_06340000001')
         assert 'Epoch 0745_06340000001 is not available for this target and instrument/band.' in err.value.args[0]
 
+        temp_folder.cleanup()
+
     def test_get_spectra(self):
+        temp_folder = create_temp_folder()
+
         isla = IntegralClass()
-        spectra = isla.get_spectra(target_name='J011705.1-732636', instrument='ibis', epoch='0745_06340000001')
+        spectra = isla.get_spectra(target_name='J011705.1-732636', instrument='ibis', epoch='0745_06340000001',
+                                   path=temp_folder.name)
 
         assert len(spectra) > 0
         assert 'fits' in spectra[0]
+
+        close_files(spectra)
 
         # No correct instrument or band
         with pytest.raises(ValueError) as err:
@@ -228,12 +261,18 @@ class TestIntegralRemote:
             isla.get_spectra(target_name='star', instrument='ibis', epoch='0745_06340000001')
         assert 'Epoch 0745_06340000001 is not available for this target and instrument/band.' in err.value.args[0]
 
+        temp_folder.cleanup()
+
     def test_get_mosaics(self):
+        temp_folder = create_temp_folder()
+
         isla = IntegralClass()
-        mosaics = isla.get_mosaic(epoch='0727_88601650001', instrument='ibis')
+        mosaics = isla.get_mosaic(epoch='0727_88601650001', instrument='ibis', path=temp_folder.name)
 
         assert len(mosaics) > 0
         assert 'fits' in mosaics[0]
+
+        close_files(mosaics)
 
         # No correct instrument or band
         with pytest.raises(ValueError) as err:
@@ -244,3 +283,5 @@ class TestIntegralRemote:
         with pytest.raises(ValueError) as err:
             isla.get_mosaic(epoch='123456', instrument='ibis')
         assert 'Epoch 123456 is not available for this target and instrument/band.' in err.value.args[0]
+
+        temp_folder.cleanup()
