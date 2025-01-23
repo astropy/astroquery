@@ -233,7 +233,7 @@ class NasaExoplanetArchiveClass(BaseVOQuery, BaseQuery):
         if cache is None:
             cache = self.CACHE
 
-        if table in self.TAP_TABLES:
+        if table in [tab.lower() for tab in self.TAP_TABLES]:
             tap = pyvo.dal.tap.TAPService(baseurl=self.URL_TAP, session=self._session)
             # construct query from table and request_payload (including format)
             tap_query = self._request_to_sql(request_payload)
