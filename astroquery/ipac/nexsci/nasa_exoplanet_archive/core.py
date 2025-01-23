@@ -39,6 +39,8 @@ UNIT_MAPPER = {
     "BKJD": None,  # TODO: optionally support mapping columns to Time objects
     "D_L": u.pc,
     "D_S": u.pc,
+    "micron": u.um,
+    "microns": u.um,
     "Earth flux": u.L_sun / (4 * np.pi * u.au**2),
     "Earth Flux": u.L_sun / (4 * np.pi * u.au**2),
     "Fearth": u.L_sun / (4 * np.pi * u.au**2),
@@ -73,6 +75,7 @@ UNIT_MAPPER = {
     "log(Solar)": u.dex(u.L_sun),
     "mags": u.mag,
     "microas": u.uas,
+    "uas": u.uas,
     "perc": u.percent,
     "pi_E": None,
     "pi_EE": None,

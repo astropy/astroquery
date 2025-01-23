@@ -69,6 +69,11 @@ simbad
 
 - Fixed non existing flux filters as votable fields would fail silently [#3186]
 
+ipac.nexsci.nasa_exoplanet_archive
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Add missing unit strings to unit mapper. ``micron``, ``microns``, and ``uas``. [#3188]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
