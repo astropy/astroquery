@@ -122,7 +122,7 @@ class TestIntegralTap:
         assert esautils.get_degree_radius(12) == 12.0
         assert esautils.get_degree_radius(30 * u.arcmin) == 0.5
 
-    def test_download_table(self):
+    def test_download_table(self, tmp_cwd):
         dummy_table = get_dummy_table()
         filename = 'test.votable'
         esautils.download_table(dummy_table, output_file=filename, output_format='votable')
@@ -159,7 +159,7 @@ class TestIntegralTap:
         assert error_message in err.value.args[0]
 
     @patch("pyvo.auth.authsession.AuthSession.get")
-    def test_download_local(self, mock_get):
+    def test_download_local(self, mock_get, tmp_cwd):
         iter_content_mock = get_iter_content_mock()
         mock_response = Mock()
         mock_response.iter_content.side_effect = iter_content_mock
@@ -172,7 +172,7 @@ class TestIntegralTap:
 
         filename = 'test_file.fits'
         esautils.download_file(url='http://dummyurl.com/download', session=esa_session,
-                               params={'file': filename}, path='', filename=filename)
+                               params={'file': filename}, filename=filename)
 
         mock_get.assert_called_once_with('http://dummyurl.com/download', stream=True,
                                          params={'file': filename, 'TAPCLIENT': 'ASTROQUERY'})
@@ -180,7 +180,7 @@ class TestIntegralTap:
         assert os.path.exists(filename)
 
     @patch("pyvo.auth.authsession.AuthSession.get")
-    def test_download_cache(self, mock_get):
+    def test_download_cache(self, mock_get, tmp_cwd):
         iter_content_mock = get_iter_content_mock()
         mock_response = Mock()
         mock_response.iter_content.side_effect = iter_content_mock
@@ -194,7 +194,7 @@ class TestIntegralTap:
         filename = 'test_file2.fits'
         cache_folder = './cache/'
         esautils.download_file(url='http://dummyurl.com/download', session=esa_session,
-                               params={'file': filename}, path='', filename=filename,
+                               params={'file': filename}, filename=filename,
                                cache=True, cache_folder=cache_folder)
 
         mock_get.assert_called_once_with('http://dummyurl.com/download', stream=True,
@@ -203,7 +203,7 @@ class TestIntegralTap:
         assert not os.path.exists(filename)
         assert os.path.exists(esautils.get_cache_filepath(filename=filename, cache_path=cache_folder))
 
-    def test_read_tar(self):
+    def test_read_tar(self, tmp_cwd):
         tar_file = data_path('tar_file.tar')
 
         files = esautils.read_downloaded_fits([tar_file])
@@ -213,7 +213,7 @@ class TestIntegralTap:
 
         close_files(files)
 
-    def test_read_tar_gz(self):
+    def test_read_tar_gz(self, tmp_cwd):
         tar_gz_file = data_path('tar_gz_file.tar.gz')
 
         files = esautils.read_downloaded_fits([tar_gz_file])
@@ -224,7 +224,7 @@ class TestIntegralTap:
 
         close_files(files)
 
-    def test_read_zip(self):
+    def test_read_zip(self, tmp_cwd):
         zip_file = data_path('tar_file.tar')
 
         files = esautils.read_downloaded_fits([zip_file])
@@ -234,7 +234,7 @@ class TestIntegralTap:
 
         close_files(files)
 
-    def test_read_uncompressed(self):
+    def test_read_uncompressed(self, tmp_cwd):
         uncompressed_file = data_path('test.fits')
 
         files = esautils.read_downloaded_fits([uncompressed_file])
