@@ -1,84 +1,105 @@
-0.4.9 (unreleased)
+0.4.9 (2025-01-24)
 ==================
 
 New Tools and Services
 ----------------------
+
 esa.integral
 ^^^^^^^^^^^^
+
 - New module to access the ESA Integral Science Legacy Archive. [#3154]
+
 
 Service fixes and enhancements
 ------------------------------
-
-linelists.cdms
-^^^^^^^^^^^^^^
-
-- Add whole catalog retrieval, improve error messaging for unparseable lines,
-  improve metadata catalog, and improve lookuptable behavior [#3173,#2901]
 
 heasarc
 ^^^^^^^
 
 - Fix Heasarc.download_data for Sciserver. [#3183]
 
+ipac.nexsci.nasa_exoplanet_archive
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Add missing unit strings to unit mapper. ``micron``, ``microns``,
+  and ``uas``. [#3188]
+
 jplspec
 ^^^^^^^
 
-- minor improvement to lookuptable behavior [#3173,#2901]
+- Minor improvement to lookuptable behavior. [#3173, #2901]
+
+linelists.cdms
+^^^^^^^^^^^^^^
+
+- Add whole catalog retrieval, improve error messaging for unparseable lines,
+  improve metadata catalog, and improve lookuptable behavior. [#3173, #2901]
+
+mast
+^^^^
+
+- Retrieve data products from the Missions-MAST API with
+  ``MastMissions.get_product_list``. Retrieve unique data
+  products only with ``MastMissions.get_unique_product_list``. [#3155]
+
+- Filter data products retrieved from the Missions-MAST API with
+  ``MastMissions.filter_products``. [#3155]
+
+- Download data products from the Missions-MAST API with
+  ``MastMissions.download_products``.
+  Download a single data product using ``MastMissions.download_file``. [#3155]
+
+- Get the keyword corresponding to the dataset ID for a specific mission
+  with ``MastMissions.get_dataset_kwd``. [#3155]
 
 mocserver
 ^^^^^^^^^
 
 - Switch to https instead of http for the default url (allows pyodide to use the
-  module) [#3139]
+  module). [#3139]
 
-- Add ``TimeMOC`` and ``STMOC`` as possible entries in ``MOCServer.query_region`` to
-  allow temporal and space-time searches [#3139]
+- Add ``TimeMOC`` and ``STMOC`` as possible entries in
+  ``MOCServer.query_region`` to allow temporal and space-time searches. [#3139]
 
-- ``return_moc`` now allows to ask for a Time-MOC or a Space-Time MOC rather than only
-  Space-MOCs [#3139]
+- ``return_moc`` now allows to ask for a Time-MOC or a Space-Time MOC rather
+  than only Space-MOCs. [#3139]
 
-- Fix query by MOC that would write a file ``moc.fits`` where the method was executed in
-  overwriting mode (potentially deleting data if there was a conflicting file) [#3139]
+- Fix query by MOC that would write a file ``moc.fits`` where the method
+  was executed in overwriting mode (potentially deleting data if there was
+  a conflicting file). [#3139]
 
-- [:warning: BREAKING] Returned tables now have a default list of fields instead of the
-  > 130 columns returned previously. The full list of fields can be displayed with the
-  new method ``MOCServer.list_fields`` [#3139]
+- Returned tables now have a default list of fields instead of the
+  > 130 columns returned previously. The full list of fields can be
+  displayed with the new method ``MOCServer.list_fields``. [#3139]
 
 - Add ``casesensitive`` parameter in the queries (previously, this was hardcoded
   to ``True``) [#3139]
 
-- Add ``coordinate_system`` parameter to the queries to allow to filter on the different
-  bodies or frames. The list of available space systems can be printed with the new
-  method ``MOCServer.list_coordinates_systems`` [#3139]
+- Add ``coordinate_system`` parameter to the queries to allow to filter on
+  the different bodies or frames. The list of available space systems can
+  be printed with the new method ``MOCServer.list_coordinates_systems``. [#3139]
 
-- Add ``query_hips`` method, which is convenient to filter only Hierarchical progressive
-  surveys [#3139]
+- Add ``query_hips`` method, which is convenient to filter only
+  Hierarchical progressive surveys. [#3139]
 
-- New parameter ``criteria`` in ``query_region`` and ``query_hips`` that has the same
-  use than ``meta_data`` in the deprecated method ``find_datasets`` [#3139]
+- Add new parameter ``criteria`` in ``query_region`` and ``query_hips`` with
+  the same use as ``meta_data`` in the deprecated method ``find_datasets``.
+  [#3139]
+
+- Deprecated ``find_datasets`` in favour of ``query_region``. [#3139]
 
 simbad
 ^^^^^^
 
 - Fixed adding a list of fluxes with the deprecated notation
-  ``Simbad.add_votable_fields("flux(U)", "flux(J)")`` [#3186]
+  ``Simbad.add_votable_fields("flux(U)", "flux(J)")``. [#3186]
 
 - Support more of the 0.4.7 votable fields. Raise more significant error messages
   for the discontinued ones. [#3186]
 
-- Fix the deprecated votable fields ``otype(V)`` and ``otype(S)`` [#3186]
+- Fix the deprecated votable fields ``otype(V)`` and ``otype(S)``. [#3186]
 
-- Fixed non existing flux filters as votable fields would fail silently [#3186]
-
-ipac.nexsci.nasa_exoplanet_archive
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-- Add missing unit strings to unit mapper. ``micron``, ``microns``, and ``uas``. [#3188]
-
-
-Infrastructure, Utility and Other Changes and Additions
--------------------------------------------------------
+- Fixed non existing flux filters as votable fields would fail silently. [#3186]
 
 
 0.4.8 (2025-01-16)
