@@ -8,6 +8,11 @@ New Tools and Services
 Service fixes and enhancements
 ------------------------------
 
+ipac.nexsci.nasa_exoplanet_archive
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fixed InvalidTableError for DI_STARS_EXEP and TD tables. [#3189]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
