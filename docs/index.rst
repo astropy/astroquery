@@ -141,6 +141,7 @@ queries based on coordinates or object names.  Some simple examples, using SIMBA
     >>> from astroquery.simbad import Simbad
     >>> result_table = Simbad.query_object("m1")
     >>> result_table.pprint()
+
     main_id    ra     dec   coo_err_maj coo_err_min coo_err_angle coo_wavelength     coo_bibcode     matched_id
               deg     deg       mas         mas          deg
     ------- ------- ------- ----------- ----------- ------------- -------------- ------------------- ----------
@@ -257,6 +258,7 @@ The following modules have been completed using a common API:
   linelists/cdms/cdms.rst
   esa/hsa/hsa.rst
   esa/hubble/hubble.rst
+  esa/integral/integral.rst
   esa/iso/iso.rst
   esa/jwst/jwst.rst
   esa/xmm_newton/xmm_newton.rst
