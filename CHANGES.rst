@@ -35,21 +35,81 @@ simbad
 Service fixes and enhancements
 ------------------------------
 
-gaia
+linelists.cdms
+^^^^^^^^^^^^^^
+
+- Add whole catalog retrieval, improve error messaging for unparseable lines,
+  improve metadata catalog, and improve lookuptable behavior [#3173,#2901]
+
+heasarc
+^^^^^^^
+
+- Fix Heasarc.download_data for Sciserver. [#3183]
+
+jplspec
+^^^^^^^
+
+- minor improvement to lookuptable behavior [#3173,#2901]
+
+mast
 ^^^^
 
-- Update DR4 retrieval_type names and include the new one EPOCH_ASTROMETRY_BRIGHT [#3207, #3238]
+- Retrieve data products from the Missions-MAST API with ``mast.MastMissions.get_product_list``. Retrieve unique data
+  products only with ``mast.MastMissions.get_unique_product_list``. [#3155]
 
-ipac.irsa
+- Filter data products retrieved from the Missions-MAST API with ``mast.MastMissions.filter_products``. [#3155]
+
+- Download data products from the Missions-MAST API with ``mast.MastMissions.download_products``. 
+  Download a single data product using ``mast.MastMissions.download_file``. [#3155]
+
+- Get the keyword corresponding to the dataset ID for a specific mission with ``mast.MastMissions.get_dataset_kwd``. [#3155]
+
+- Handle coordinates that are not in the ICRS frame in query functions. [#3164]
+
+mocserver
 ^^^^^^^^^
 
-- Method to run Simple Spectral Access (SSA) VO queries, ``query_ssa``, is added. [#3076]
+- Switch to https instead of http for the default url (allows pyodide to use the
+  module) [#3139]
 
-- Adding the "servicetype" kwarg to ``list_collections`` to be able to list SIA
-  and SSA collections separately. [#3200]
+- Add ``TimeMOC`` and ``STMOC`` as possible entries in ``MOCServer.query_region`` to
+  allow temporal and space-time searches [#3139]
 
-- Adding support for asynchronous queries using the new ``async_job``
-  keyword. [#3201]
+- ``return_moc`` now allows to ask for a Time-MOC or a Space-Time MOC rather than only
+  Space-MOCs [#3139]
+
+- Fix query by MOC that would write a file ``moc.fits`` where the method was executed in
+  overwriting mode (potentially deleting data if there was a conflicting file) [#3139]
+
+- [:warning: BREAKING] Returned tables now have a default list of fields instead of the
+  > 130 columns returned previously. The full list of fields can be displayed with the
+  new method ``MOCServer.list_fields`` [#3139]
+
+- Add ``casesensitive`` parameter in the queries (previously, this was hardcoded
+  to ``True``) [#3139]
+
+- Add ``coordinate_system`` parameter to the queries to allow to filter on the different
+  bodies or frames. The list of available space systems can be printed with the new
+  method ``MOCServer.list_coordinates_systems`` [#3139]
+
+- Add ``query_hips`` method, which is convenient to filter only Hierarchical progressive
+  surveys [#3139]
+
+- New parameter ``criteria`` in ``query_region`` and ``query_hips`` that has the same
+  use than ``meta_data`` in the deprecated method ``find_datasets`` [#3139]
+
+simbad
+^^^^^^
+
+- Fixed adding a list of fluxes with the deprecated notation
+  ``Simbad.add_votable_fields("flux(U)", "flux(J)")`` [#3186]
+
+- Support more of the 0.4.7 votable fields. Raise more significant error messages
+  for the discontinued ones. [#3186]
+
+- Fix the deprecated votable fields ``otype(V)`` and ``otype(S)`` [#3186]
+
+- Fixed non existing flux filters as votable fields would fail silently [#3186]
 
 - Making ``'spatial'`` keyword in ``query_region`` case insensitive. [#3224]
 
@@ -90,6 +150,8 @@ Infrastructure, Utility and Other Changes and Additions
 
 - Removed usage of the astropy TestRunner, therefore the unadvertised
   ``astroquery.test()`` functionality. [#3215]
+
+- ``return_frame`` parameter in ``utils.commons.parse_coordinates`` returns coordinates in the specified frame. [#3164]
 
 
 0.4.9 (2025-01-24)

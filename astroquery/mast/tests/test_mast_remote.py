@@ -1292,7 +1292,7 @@ class TestMast:
         assert sector_table['ccd'][0] == 1
 
         error_noname = ("Please specify the object name or ID (as understood by the "
-                        "`JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) "
+                        "`JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons/app.html>`__) "
                         "of a moving target such as an asteroid or comet.")
         error_nameresolve = f"Could not resolve {moving_target_name} to a sky position."
         error_mt_coord = "Only one of moving_target and coordinates may be specified."
@@ -1375,7 +1375,7 @@ class TestMast:
             assert os.path.isfile(row['Local Path'])
 
         error_noname = ("Please specify the object name or ID (as understood by the "
-                        "`JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of "
+                        "`JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons/app.html>`__) of "
                         "a moving target such as an asteroid or comet.")
         error_nameresolve = f"Could not resolve {moving_target_name} to a sky position."
         error_mt_coord = "Only one of moving_target and coordinates may be specified."
@@ -1456,7 +1456,7 @@ class TestMast:
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
 
         error_noname = ("Please specify the object name or ID (as understood by the "
-                        "`JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons.cgi>`__) of "
+                        "`JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons/app.html>`__) of "
                         "a moving target such as an asteroid or comet.")
         error_nameresolve = f"Could not resolve {moving_target_name} to a sky position."
         error_mt_coord = "Only one of moving_target and coordinates may be specified."
