@@ -1,0 +1,79 @@
+{
+    "products": [
+        {
+            "product_key": "Z14Z0104T_z14z0104t_shf.fits",
+            "access": "PUBLIC",
+            "dataset": "Z14Z0104T",
+            "instrument_name": "HRS   ",
+            "filters": "MIRROR-N2",
+            "filename": "z14z0104t_shf.fits",
+            "uri": "Z14Z0104T/z14z0104t_shf.fits",
+            "authz_primary_identifier": "Z14Z0104T",
+            "authz_secondary_identifier": "CAL",
+            "file_suffix": "SHF",
+            "category": "UNCALIBRATED",
+            "size": 31680,
+            "type": "science"
+        },
+        {
+            "product_key": "Z14Z0104T_z14z0104t_trl.fits",
+            "access": "PUBLIC",
+            "dataset": "Z14Z0104T",
+            "instrument_name": "HRS   ",
+            "filters": "MIRROR-N2",
+            "filename": "z14z0104t_trl.fits",
+            "uri": "Z14Z0104T/z14z0104t_trl.fits",
+            "authz_primary_identifier": "Z14Z0104T",
+            "authz_secondary_identifier": "CAL",
+            "file_suffix": "TRL",
+            "category": "AUX",
+            "size": 17280,
+            "type": "science"
+        },
+        {
+            "product_key": "Z14Z0104T_z14z0104t_ulf.fits",
+            "access": "PUBLIC",
+            "dataset": "Z14Z0104T",
+            "instrument_name": "HRS   ",
+            "filters": "MIRROR-N2",
+            "filename": "z14z0104t_ulf.fits",
+            "uri": "Z14Z0104T/z14z0104t_ulf.fits",
+            "authz_primary_identifier": "Z14Z0104T",
+            "authz_secondary_identifier": "CAL",
+            "file_suffix": "ULF",
+            "category": "UNCALIBRATED",
+            "size": 14400,
+            "type": "science"
+        },
+        {
+            "product_key": "Z14Z0104T_z14z0104t_pdq.fits",
+            "access": "PUBLIC",
+            "dataset": "Z14Z0104T",
+            "instrument_name": "HRS   ",
+            "filters": "MIRROR-N2",
+            "filename": "z14z0104t_pdq.fits",
+            "uri": "Z14Z0104T/z14z0104t_pdq.fits",
+            "authz_primary_identifier": "Z14Z0104T",
+            "authz_secondary_identifier": "PDQ",
+            "file_suffix": "PDQ",
+            "category": "AUX",
+            "size": 11520,
+            "type": "science"
+        },
+        {
+            "product_key": "Z14Z0104T_z14z0104x_ocx.fits",
+            "access": "PUBLIC",
+            "dataset": "Z14Z0104T",
+            "instrument_name": "HRS   ",
+            "filters": "MIRROR-N2",
+            "filename": "z14z0104x_ocx.fits",
+            "uri": "Z14Z0104T/z14z0104x_ocx.fits",
+            "authz_primary_identifier": "Z14Z0104X",
+            "authz_secondary_identifier": "OCX",
+            "file_suffix": "OCX",
+            "category": "OTHER",
+            "size": 11520,
+            "type": "science"
+        }
+    ]
+}

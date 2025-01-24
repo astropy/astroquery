@@ -26,6 +26,19 @@ jplspec
 
 - minor improvement to lookuptable behavior [#3173,#2901]
 
+mast
+^^^^
+
+- Retrieve data products from the Missions-MAST API with ``mast.MastMissions.get_product_list``. Retrieve unique data
+  products only with ``mast.MastMissions.get_unique_product_list``. [#3155]
+
+- Filter data products retrieved from the Missions-MAST API with ``mast.MastMissions.filter_products``. [#3155]
+
+- Download data products from the Missions-MAST API with ``mast.MastMissions.download_products``. 
+  Download a single data product using ``mast.MastMissions.download_file``. [#3155]
+
+- Get the keyword corresponding to the dataset ID for a specific mission with ``mast.MastMissions.get_dataset_kwd``. [#3155]
+
 mocserver
 ^^^^^^^^^
 
