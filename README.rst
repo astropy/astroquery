@@ -114,7 +114,7 @@ looked up at the following `Zenodo page <https://doi.org/10.5281/zenodo.591669>`
 Additional Links
 ----------------
 
-Maintained by `Adam Ginsburg`_ and `Brigitta Sipocz <https://github.com/bsipocz>`_ (`astropy.astroquery@gmail.com`_)
+Maintained by `Adam Ginsburg`_ and `Brigitta Sipocz <https://github.com/bsipocz>`_
 
 
 .. _Download Development ZIP: https://github.com/astropy/astroquery/zipball/main
