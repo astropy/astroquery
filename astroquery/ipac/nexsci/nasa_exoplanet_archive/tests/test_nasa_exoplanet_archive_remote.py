@@ -185,3 +185,10 @@ def test_format():
     with pytest.raises(InvalidQueryError) as error:
         NasaExoplanetArchive.query_object("HAT-P-11 b", format="json")
     assert "json" in str(error)
+
+
+@pytest.mark.remote_data
+def test_table_case_sensivity():
+    # Regression test from #3090
+    table = NasaExoplanetArchive.query_criteria(table='DI_STARS_EXEP', select='*')
+    assert len(table) > 0

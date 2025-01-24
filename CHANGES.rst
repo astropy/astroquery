@@ -74,6 +74,8 @@ ipac.nexsci.nasa_exoplanet_archive
 
 - Add missing unit strings to unit mapper. ``micron``, ``microns``, and ``uas``. [#3188]
 
+- Fixed InvalidTableError for DI_STARS_EXEP and TD tables. [#3189]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
