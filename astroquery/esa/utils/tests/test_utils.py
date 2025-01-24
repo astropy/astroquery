@@ -218,7 +218,7 @@ class TestIntegralTap:
     def test_read_tar(self):
         temp_path = create_temp_folder()
         tar_file = copy_to_temporal_path(data_path=data_path('tar_file.tar'), temp_folder=temp_path,
-                                          filename='tar_file.tar')
+                                         filename='tar_file.tar')
 
         files = esautils.read_downloaded_fits([tar_file])
 
@@ -231,7 +231,7 @@ class TestIntegralTap:
     def test_read_tar_gz(self):
         temp_path = create_temp_folder()
         tar_gz_file = copy_to_temporal_path(data_path=data_path('tar_gz_file.tar.gz'), temp_folder=temp_path,
-                                         filename='tar_gz_file.tar.gz')
+                                            filename='tar_gz_file.tar.gz')
 
         files = esautils.read_downloaded_fits([tar_gz_file])
 
@@ -245,7 +245,7 @@ class TestIntegralTap:
     def test_read_zip(self):
         temp_path = create_temp_folder()
         zip_file = copy_to_temporal_path(data_path=data_path('zip_file.zip'), temp_folder=temp_path,
-                                        filename='zip_file.zip')
+                                         filename='zip_file.zip')
 
         files = esautils.read_downloaded_fits([zip_file])
 
