@@ -42,17 +42,24 @@ jobs:
             toxenv: py39-test-oldestdeps-alldeps
             toxargs: -v
 
-          - name: Python 3.10 with all optional dependencies (MacOS X)
+          - name: OSX, py310, all optional dependencies
             os: macos-latest
             python: "3.10"
             toxenv: py310-test-alldeps
             toxargs: -v
 
-          - name: Python 3.11 with mandatory dependencies (Windows)
+          - name: Windows, py311, mandatory dependencies only
             os: windows-latest
             python: "3.11"
             toxenv: py311-test
             toxargs: -v
+
+          - name: Linux ARM, py312, all optional dependencies
+            os: ubuntu-24.04-arm
+            python: "3.12"
+            toxenv: py312-test-alldeps
+            toxargs: -v
+
 
     steps:
     - name: Checkout code
