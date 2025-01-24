@@ -9,6 +9,8 @@ European Space Agency (ESA)
 
 """
 import os.path
+import shutil
+import tempfile
 from unittest.mock import patch, Mock
 
 import astroquery.esa.utils.utils as esautils
@@ -53,6 +55,16 @@ def close_file(file):
 def close_files(file_list):
     for file in file_list:
         close_file(file['fits'])
+
+
+def create_temp_folder():
+    return tempfile.TemporaryDirectory()
+
+
+def copy_to_temporal_path(data_path, temp_folder, filename):
+    temp_data_dir = os.path.join(temp_folder.name, filename)
+    shutil.copy(data_path, temp_data_dir)
+    return temp_data_dir
 
 
 class TestIntegralTap:
@@ -203,8 +215,10 @@ class TestIntegralTap:
         assert not os.path.exists(filename)
         assert os.path.exists(esautils.get_cache_filepath(filename=filename, cache_path=cache_folder))
 
-    def test_read_tar(self, tmp_cwd):
-        tar_file = data_path('tar_file.tar')
+    def test_read_tar(self):
+        temp_path = create_temp_folder()
+        tar_file = copy_to_temporal_path(data_path=data_path('tar_file.tar'), temp_folder=temp_path,
+                                          filename='tar_file.tar')
 
         files = esautils.read_downloaded_fits([tar_file])
 
@@ -212,9 +226,12 @@ class TestIntegralTap:
         assert files[0]['filename'] == 'test.fits'
 
         close_files(files)
+        temp_path.cleanup()
 
-    def test_read_tar_gz(self, tmp_cwd):
-        tar_gz_file = data_path('tar_gz_file.tar.gz')
+    def test_read_tar_gz(self):
+        temp_path = create_temp_folder()
+        tar_gz_file = copy_to_temporal_path(data_path=data_path('tar_gz_file.tar.gz'), temp_folder=temp_path,
+                                         filename='tar_gz_file.tar.gz')
 
         files = esautils.read_downloaded_fits([tar_gz_file])
 
@@ -223,9 +240,12 @@ class TestIntegralTap:
         assert files[0]['filename'] == 'test.fits'
 
         close_files(files)
+        temp_path.cleanup()
 
-    def test_read_zip(self, tmp_cwd):
-        zip_file = data_path('tar_file.tar')
+    def test_read_zip(self):
+        temp_path = create_temp_folder()
+        zip_file = copy_to_temporal_path(data_path=data_path('zip_file.zip'), temp_folder=temp_path,
+                                        filename='zip_file.zip')
 
         files = esautils.read_downloaded_fits([zip_file])
 
@@ -233,6 +253,7 @@ class TestIntegralTap:
         assert files[0]['filename'] == 'test.fits'
 
         close_files(files)
+        temp_path.cleanup()
 
     def test_read_uncompressed(self, tmp_cwd):
         uncompressed_file = data_path('test.fits')
