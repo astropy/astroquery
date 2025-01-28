@@ -97,6 +97,8 @@ class XMatchClass(BaseQuery):
             raise ValueError('max_distance argument must not be greater than 180')
         payload = {'request': 'xmatch',
                    'distMaxArcsec': max_distance.to(u.arcsec).value,
+                   'radius': max_distance.to(u.arcsec).value,
+                   'xmatchMethod': fixedRadius
                    'RESPONSEFORMAT': 'votable',
                    **kwargs}
 
@@ -127,7 +129,9 @@ class XMatchClass(BaseQuery):
         catstr = 'cat{0}'.format(cat_index)
         if isinstance(cat, str):
             payload[catstr] = cat
+            payload[f'typeCat{cat_index}'] = 'vizier'
         else:
+            payload[f'typeCat{cat_index}'] = 'file' # is this correct?
             # create the dictionary of uploaded files
             if "files" not in kwargs:
                 kwargs["files"] = {}
@@ -164,9 +168,9 @@ class XMatchClass(BaseQuery):
         elif isinstance(area, CircleSkyRegion):
             payload['area'] = 'cone'
             cone_center = area.center
-            payload['coneRA'] = cone_center.icrs.ra.deg
-            payload['coneDec'] = cone_center.icrs.dec.deg
-            payload['coneRadiusDeg'] = area.radius.to_value(u.deg)
+            payload['areaCenter'] = f'{cone_center.icrs.ra.deg} {cone_center.icrs.dec.deg}'
+            payload['areaRadius'] = cone_center.icrs.dec.deg
+            payload['areaRadiusUnit'] = 'deg'
         else:
             raise ValueError('Unsupported area {}'.format(str(area)))
 
