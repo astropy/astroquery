@@ -99,13 +99,14 @@ class MastMissionsClass(MastQueryWithLogin):
 
         if self.service == self._search:
             results = self._service_api_connection._parse_result(response, verbose, data_key='results')
+
+            # Warn if maximum results are returned
+            if len(results) >= self.limit:
+                warnings.warn("Maximum results returned, may not include all sources within radius.",
+                              MaxResultsWarning)
         elif self.service == self._list_products:
             # Results from post_list_products endpoint need to be handled differently
             results = Table(response.json()['products'])
-
-        if len(results) >= self.limit:
-            warnings.warn("Maximum results returned, may not include all sources within radius.",
-                          MaxResultsWarning)
 
         return results
 
