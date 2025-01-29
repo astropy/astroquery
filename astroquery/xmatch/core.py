@@ -94,7 +94,7 @@ class XMatchClass(BaseQuery):
             The HTTP response returned from the service.
         """
         if max_distance > 180 * u.arcsec:
-            raise ValueError('max_distance argument must not be greater than 180')
+            raise ValueError('max_distance argument must not be greater than 180".')
         payload = {'request': 'xmatch',
                    'distMaxArcsec': max_distance.to(u.arcsec).value,
                    'RESPONSEFORMAT': 'votable',

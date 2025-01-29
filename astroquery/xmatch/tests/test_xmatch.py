@@ -46,10 +46,9 @@ def request_mockreturn(method, url, data, **kwargs):
 
 
 def test_xmatch_query_invalid_max_distance():
-    with pytest.raises(ValueError) as ex:
+    with pytest.raises(ValueError,
+                       match='max_distance argument must not be greater than 180"'):
         XMatch().query_async('', '', 181 * arcsec)
-        assert str(ex.value) == (
-            'max_distance argument must not be greater than 180')
 
 
 def test_get_available_tables(monkeypatch):
