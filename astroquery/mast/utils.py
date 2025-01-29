@@ -185,7 +185,8 @@ def mast_relative_path(mast_uri):
     result = []
     for chunk in uri_list_chunks:
         response = _simple_request("https://mast.stsci.edu/api/v0.1/path_lookup/",
-                                   {"uri": chunk})
+                                   {"uri": [mast_uri[1] for mast_uri in chunk]})
+
         json_response = response.json()
 
         for uri in chunk:

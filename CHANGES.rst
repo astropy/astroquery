@@ -4,8 +4,17 @@
 New Tools and Services
 ----------------------
 
+
 API changes
 -----------
+
+mast
+^^^^
+
+- Handle coordinates that are not in the ICRS frame in query functions. [#3164]
+
+- Handle a MAST URI string as input for ``Observations.get_cloud_uri`` and a list of MAST URIs as input for
+  ``Observations.get_cloud_uris``. [#3193]
 
 simbad
 ^^^^^^
@@ -25,6 +34,13 @@ ipac.nexsci.nasa_exoplanet_archive
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Fixed InvalidTableError for DI_STARS_EXEP and TD tables. [#3189]
+
+mast
+^^^^
+
+- Bugfix where users are unnecessarily warned about a query limit while fetching products in ``MastMissions.get_product_list``. [#3193]
+
+- Bugfix where ``Observations.get_cloud_uri`` and ``Observations.get_cloud_uris`` fail if the MAST relative path is not found. [#3193]
 
 simbad
 ^^^^^^

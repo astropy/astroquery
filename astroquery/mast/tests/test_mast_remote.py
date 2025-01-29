@@ -805,6 +805,7 @@ class TestMast:
                                         extension='png')
 
     def test_observations_get_cloud_uris_list_input(self):
+        pytest.importorskip("boto3")
         uri_list = ['mast:HST/product/u24r0102t_c1f.fits',
                     'mast:PS1/product/rings.v3.skycell.1334.061.stk.r.unconv.exp.fits']
         expected = ['s3://stpubdata/hst/public/u24r/u24r0102t/u24r0102t_c1f.fits',
@@ -851,6 +852,8 @@ class TestMast:
             Observations.get_cloud_uris(target_name=234295611)
 
     def test_observations_get_cloud_uris_no_duplicates(self, msa_product_table):
+        pytest.importorskip("boto3")
+
         # Get a product list with 6 duplicate JWST MSA config files
         products = msa_product_table
 
