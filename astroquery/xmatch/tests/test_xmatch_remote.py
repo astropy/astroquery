@@ -112,6 +112,12 @@ class TestXMatch:
             else:
                 assert_allclose(table[col], remote_table[col])
 
+    def test_two_remote_tables(self, xmatch):
+        # we also test that omitting vizier: works
+        result = xmatch.query("simbad", "J/A+A/113/61/table2", max_distance=0.5*arcsec)
+        assert {"main_id", "MH"}.issubset(result.colnames)
+        assert all(result["angDist"] < 0.5)
+
     @pytest.mark.skipif('regions' not in sys.modules,
                         reason="requires astropy-regions")
     def test_xmatch_query_with_cone_area(self, xmatch):

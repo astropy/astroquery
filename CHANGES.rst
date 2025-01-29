@@ -13,6 +13,12 @@ ipac.nexsci.nasa_exoplanet_archive
 
 - Fixed InvalidTableError for DI_STARS_EXEP and TD tables. [#3189]
 
+xmatch
+^^^^^^
+
+- the API is more flexible: you can now ommit the ``vizier:`` before the catalog name
+  when crossmatching with a vizier table [#3194]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
