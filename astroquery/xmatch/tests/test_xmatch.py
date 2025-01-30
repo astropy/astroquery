@@ -46,10 +46,9 @@ def request_mockreturn(method, url, data, **kwargs):
 
 
 def test_xmatch_query_invalid_max_distance():
-    with pytest.raises(ValueError) as ex:
+    with pytest.raises(ValueError,
+                       match='max_distance argument must not be greater than 180"'):
         XMatch().query_async('', '', 181 * arcsec)
-        assert str(ex.value) == (
-            'max_distance argument must not be greater than 180')
 
 
 def test_get_available_tables(monkeypatch):
@@ -125,3 +124,35 @@ def test_table_not_available(monkeypatch):
     # reproduces #1464
     with pytest.raises(ValueError, match=f"'{re.escape(cat1)}' is not available *"):
         xm.query_async(cat1=cat1, cat2=cat2, max_distance=5 * arcsec)
+
+
+def test_prepare_sending_tables(monkeypatch):
+    xm = XMatch()
+    monkeypatch.setattr(xm, '_request', request_mockreturn)
+
+    # if it's a valid vizier table, prepend vizier:
+    payload = {}
+    xm._prepare_sending_table(1, payload, {}, "II/316/gps6", None, None)
+    assert payload == {'cat1': 'vizier:II/316/gps6'}
+    # also works if vizier: is already given by the user
+    payload = {}
+    xm._prepare_sending_table(1, payload, {}, "vizier:II/316/gps6", None, None)
+    assert payload == {'cat1': 'vizier:II/316/gps6'}
+
+    # otherwise colRa1 and colDec1 have to be given
+    with pytest.raises(ValueError, match="'test' is not available on the XMatch server."):
+        xm._prepare_sending_table(1, payload, {}, "test", None, None)
+    payload = {}
+    # this mimics the url case
+    xm._prepare_sending_table(1, payload, {}, "test", "ra", "dec")
+    assert payload == {'cat1': 'test', 'colRA1': 'ra', 'colDec1': 'dec'}
+
+    # if cat is not a string, then the payload has to include the file
+    payload = {}
+    kwargs = {}
+    cat = Table({'a': [0, 1, 2], 'b': [3, 4, 5]})
+    xm._prepare_sending_table(1, payload, kwargs, cat, "a", "b")
+    assert payload == {'colRA1': 'a', 'colDec1': 'b'}
+    assert (kwargs == {'files': {'cat1': ('cat1.csv', 'a,b\n0,3\n1,4\n2,5\n')}}
+            # for windows systems
+            or kwargs == {'files': {'cat1': ('cat1.csv', 'a,b\r\n0,3\r\n1,4\r\n2,5\r\n')}})

@@ -94,7 +94,7 @@ class XMatchClass(BaseQuery):
             The HTTP response returned from the service.
         """
         if max_distance > 180 * u.arcsec:
-            raise ValueError('max_distance argument must not be greater than 180')
+            raise ValueError('max_distance argument must not be greater than 180".')
         payload = {'request': 'xmatch',
                    'distMaxArcsec': max_distance.to(u.arcsec).value,
                    'RESPONSEFORMAT': 'votable',
@@ -126,6 +126,10 @@ class XMatchClass(BaseQuery):
         '''
         catstr = 'cat{0}'.format(cat_index)
         if isinstance(cat, str):
+            if (self.is_table_available(cat) and not cat.startswith("vizier:")):
+                # if we detect that the given name is a vizier table, we can make
+                # it comply to the API, see issue #3191
+                cat = f"vizier:{cat}"
             payload[catstr] = cat
         else:
             # create the dictionary of uploaded files
@@ -181,7 +185,7 @@ class XMatchClass(BaseQuery):
         if not isinstance(table_id, str):
             return False
 
-        if (table_id[:7] == 'vizier:'):
+        if table_id.startswith('vizier:'):
             table_id = table_id[7:]
 
         return table_id in self.get_available_tables()
