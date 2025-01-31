@@ -111,22 +111,22 @@ class EsoClass(QueryWithLogin):
     @staticmethod
     def log_info(message):
         "Wrapper for logging function"
-        log.info("%s", message)
+        log.info(message)
 
     @staticmethod
     def log_warning(message):
         "Wrapper for logging function"
-        log.warning("%s", message)
+        log.warning(message)
 
     @staticmethod
     def log_error(message):
         "Wrapper for logging function"
-        log.error("%s", message)
+        log.error(message)
 
     @staticmethod
     def log_debug(message):
         "Wrapper for logging function"
-        log.debug("%s", message)
+        log.debug(message)
 
     @timeout.setter
     def timeout(self, value):
@@ -326,12 +326,18 @@ class EsoClass(QueryWithLogin):
             self._collections = list(res)
         return self._collections
 
-    def print_table_help(self, table_name):
+    def print_table_help(self, table_name: str) -> None:
+        """
+        Prints the columns contained in a given table
+        """
         help_query = \
             f"select column_name, datatype from TAP_SCHEMA.columns where table_name = '{table_name}'"
-        h = self.query_tap_service(help_query)
-        self.log_info(f"Columns present in the table {table_name}: {h}")
-        return
+        available_cols = self.query_tap_service(help_query)
+        nlines = len(available_cols) + 2
+        n_ = astropy.conf.max_lines
+        astropy.conf.max_lines = nlines
+        self.log_info(f"\nColumns present in the table {table_name}:\n{available_cols}\n")
+        astropy.conf.max_lines = n_
 
     def _query_instrument_or_collection(self,
                                         query_on: QueryOnField, primary_filter: Union[List[str], str], *,
