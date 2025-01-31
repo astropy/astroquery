@@ -41,12 +41,6 @@ class CalSelectorError(Exception):
     """
 
 
-class UnknownException(Exception):
-    """
-    Raised when an exception is not foreseen.
-    """
-
-
 class AuthInfo:
     def __init__(self, username: str, password: str, token: str):
         self.username = username
@@ -81,6 +75,7 @@ QueryOnCollection = QueryOnField(
 
 
 class EsoClass(QueryWithLogin):
+    has_TAP = True # TODO: remove this -- only for debugging
     ROW_LIMIT = conf.row_limit
     USERNAME = conf.username
     QUERY_INSTRUMENT_URL = conf.query_instrument_url
@@ -99,6 +94,7 @@ class EsoClass(QueryWithLogin):
         self._hash = None
         # for future debugging
         self._payload = None
+        print("Using TAP branch") #TODO: remove this -- only for debugging
 
     @property
     def timeout(self):
@@ -276,7 +272,7 @@ class EsoClass(QueryWithLogin):
             raise pyvo.dal.exceptions.DALQueryError(f"\n\n\
                             Error executing the following query:\n\n{query_str}\n\n\
                             See examples here: http://archive.eso.org/tap_obs/examples\n\n") from e
-        except UnknownException as e:
+        except Exception as e:
             raise RuntimeError(f"\n\n\
                             Unknown exception {e} while executing the\
                             following query: \n\n{query_str}\n\n\
@@ -286,7 +282,8 @@ class EsoClass(QueryWithLogin):
             warnings.warn("Query returned no results", NoResultsWarning)
             return None
 
-        return table_to_return
+        #return table_to_return.filled() ## not masked
+        return table_to_return ## Masked
 
     def list_instruments(self, *, cache=True) -> List[str]:
         """ List all the available instrument-specific queries offered by the ESO archive.
@@ -646,7 +643,7 @@ class EsoClass(QueryWithLogin):
                 self.log_info(f"Uncompressing file {filename}")
                 try:
                     subprocess.run([self.GUNZIP, filename], check=True)
-                except UnknownException as ex:
+                except Exception as ex:
                     uncompressed_filename = None
                     self.log_error(f"Failed to unzip {filename}: {ex}")
         return uncompressed_filename or filename
@@ -784,7 +781,7 @@ class EsoClass(QueryWithLogin):
                     associated_files += self.get_associated_files(sorted_datasets[i:i + BATCH_SIZE], mode=with_calib)
                 associated_files = list(set(associated_files))
                 self.log_info(f"Found {len(associated_files)} associated files")
-            except UnknownException as ex:
+            except Exception as ex:
                 self.log_error(f"Failed to retrieve associated files: {ex}")
 
         all_datasets = datasets + associated_files
