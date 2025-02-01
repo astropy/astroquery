@@ -4,6 +4,11 @@
 New Tools and Services
 ----------------------
 
+esa.neocc
+^^^^^^^^^
+
+- New module to provide access too the ESA near-earth objects coordination centre. [#2254]
+
 
 Service fixes and enhancements
 ------------------------------
