@@ -214,7 +214,7 @@ def test_add_table_to_output(monkeypatch):
     simbad_instance._add_table_to_output("mesDiameter")
     assert simbad.core._Join("mesdiameter",
                              simbad.core._Column("basic", "oid"),
-                             simbad.core._Column("mesdiameter", "oidref")
+                             simbad.core._Column("mesdiameter", "oidref"), "LEFT JOIN"
                              ) in simbad_instance.joins
     assert simbad.core._Column("mesdiameter", "bibcode", "mesdiameter.bibcode"
                                ) in simbad_instance.columns_in_output

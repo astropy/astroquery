@@ -21,6 +21,13 @@ ipac.nexsci.nasa_exoplanet_archive
 
 - Fixed InvalidTableError for DI_STARS_EXEP and TD tables. [#3189]
 
+simbad
+^^^^^^
+
+- fix: when adding a measurement table in the votable_fields, if a measurement table is
+  empty for an object, there will now be a line with masked values instead of no line in
+  the result [#3199]
+
 xmatch
 ^^^^^^
 
