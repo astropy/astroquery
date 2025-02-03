@@ -347,7 +347,7 @@ class SimbadClass(BaseVOQuery):
         self.columns_in_output += [_Column(table, column, alias)
                                    for column, alias in zip(columns, alias)]
         self.joins += [_Join(table, _Column("basic", link["target_column"]),
-                             _Column(table, link["from_column"]))]
+                             _Column(table, link["from_column"]), "LEFT JOIN")]
 
     def add_votable_fields(self, *args):
         """Add columns to the output of a SIMBAD query.

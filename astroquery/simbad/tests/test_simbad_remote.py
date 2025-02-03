@@ -119,6 +119,16 @@ class TestSimbad:
         result = self.simbad.query_object("NGC [0-9]*", wildcard=True)
         assert all(matched_id.startswith("NGC") for matched_id in result["matched_id"].data.data)
 
+    def test_query_object_with_measurement_table(self):
+        # regression for #3197
+        self.simbad.reset_votable_fields()
+        self.simbad.add_votable_fields("mesdistance")
+        vega = self.simbad.query_object("vega")
+        # there is one response line
+        assert len(vega) == 1
+        # even if the measurement table is empty
+        assert bool(vega["mesdistance.dist"][0].mask)
+
     def test_query_criteria(self):
         simbad_instance = Simbad()
         simbad_instance.add_votable_fields("otype")
@@ -199,7 +209,8 @@ class TestSimbad:
         # tables also require a join
         assert _Join("otypes",
                      _Column("basic", "oid"),
-                     _Column("otypes", "oidref")) == simbad_instance.joins[0]
+                     _Column("otypes", "oidref"),
+                     "LEFT JOIN") == simbad_instance.joins[0]
         # tables that have been renamed should warn
         with pytest.warns(DeprecationWarning, match="'iue' has been renamed 'mesiue'.*"):
             simbad_instance.add_votable_fields("IUE")
