@@ -234,13 +234,15 @@ Enhanced Imaging products in the centre of the COSMOS field as an `~astropy.tabl
 
 To list available collections for SIA queries, the
 `~astroquery.ipac.irsa.IrsaClass.list_collections` method is provided, and
-will return a `~astropy.table.Table`:
+will return a `~astropy.table.Table`. You can use the ``servicetype``
+argument to filter for image or spectral collections using ``'SIA'`` or
+``'SSA'`` respectively:
 
 .. doctest-remote-data::
 
    >>> from astroquery.ipac.irsa import Irsa
-   >>> Irsa.list_collections()
-   <Table length=124>
+   >>> Irsa.list_collections(servicetype='SIA')
+   <Table length=104>
          collection
            object
    ---------------------
