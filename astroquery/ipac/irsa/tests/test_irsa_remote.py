@@ -67,13 +67,18 @@ class TestIrsa:
         # (at the time of writing there are 933 tables in the list).
         assert len(catalogs) > 900
 
-    def test_list_collections(self):
-        collections = Irsa.list_collections()
+    @pytest.mark.parametrize('servicetype', (None, 'sia', 'ssa'))
+    def test_list_collections(self, servicetype):
+        collections = Irsa.list_collections(servicetype=servicetype)
         # Number of available collections may change over time, test only for significant drop.
-        # (at the time of writing there are 110 collections in the list).
-        assert len(collections) > 100
-        assert 'spitzer_seip' in collections['collection']
-        assert 'wise_allwise' in collections['collection']
+        # (at the time of writing there are 104 SIA and 35 SSA collections in the list).
+        if servicetype == 'ssa':
+            assert len(collections) > 30
+            assert 'sofia_exes' in collections['collection']
+        else:
+            assert len(collections) > 100
+            assert 'spitzer_seip' in collections['collection']
+            assert 'wise_allwise' in collections['collection']
 
     def test_tap(self):
         query = "SELECT TOP 5 ra,dec FROM cosmos2015"

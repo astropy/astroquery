@@ -132,22 +132,22 @@ class IrsaClass(BaseVOQuery):
             A table listing all the possible collections for IRSA SIA queries.
         """
 
-        servicetype = servicetype.upper()
-
         if not servicetype:
             query = "SELECT DISTINCT collection from caom.observation ORDER by collection"
-        elif servicetype == 'SIA':
-            query = ("SELECT DISTINCT o.collection FROM caom.observation o "
-                     "JOIN caom.plane p ON o.obsid = p.obsid "
-                     "WHERE (p.dataproducttype = 'image' OR p.dataproducttype = 'cube') "
-                     "order by collection")
-        elif servicetype == 'SSA':
-            query = ("SELECT DISTINCT o.collection FROM caom.observation o "
-                     "JOIN caom.plane p ON o.obsid = p.obsid "
-                     "WHERE (p.dataproducttype = 'spectrum' OR p.dataproducttype = 'cube') "
-                     "order by collection")
         else:
-            raise ValueError("if specified, servicetype should be 'SIA' or 'SSA'")
+            servicetype = servicetype.upper()
+            if servicetype == 'SIA':
+                query = ("SELECT DISTINCT o.collection FROM caom.observation o "
+                         "JOIN caom.plane p ON o.obsid = p.obsid "
+                         "WHERE (p.dataproducttype = 'image' OR p.dataproducttype = 'cube') "
+                         "order by collection")
+            elif servicetype == 'SSA':
+                query = ("SELECT DISTINCT o.collection FROM caom.observation o "
+                         "JOIN caom.plane p ON o.obsid = p.obsid "
+                         "WHERE (p.dataproducttype = 'spectrum' OR p.dataproducttype = 'cube') "
+                         "order by collection")
+            else:
+                raise ValueError("if specified, servicetype should be 'SIA' or 'SSA'")
 
         collections = self.query_tap(query=query)
         return collections.to_table()
