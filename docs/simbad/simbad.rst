@@ -181,7 +181,7 @@ assessments, they are translated in SIMBAD as follows:
 | non member        | 0                      |
 +-------------------+------------------------+
 
-For gravitational lens systems, double stars, and blends (superimposition of two
+For gravitational lens systems, double stars, and blends (superposition of two
 non-physically linked objects), the SIMBAD team does not assign a probability
 value (this will be a ``None``).
 
@@ -303,7 +303,7 @@ Here, we see that the link between ``V* V787 Cep`` and the open cluster ``NGC 18
 opened for debate: the only way to build an opinion is to read the four articles.
 This information would be hidden if we did not print the detailed hierarchy report.
 
-These somewhat contradicting results are an inherent part of SIMBAD, which simply
+These somewhat contradictory results are an inherent part of SIMBAD, which simply
 translates the literature into a database.
 
 Query a region
