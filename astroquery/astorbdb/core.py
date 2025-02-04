@@ -55,14 +55,14 @@ class AstInfoClass(BaseQuery):
         >>> from astroquery.astorbdb import AstInfo
         >>> designations = AstInfo.designations('Beagle')
         >>> print(designations)
-        OrderedDict({'alternate_designations': ['1954 HJ', 'A908 BJ', 'A917 ST'], 'name': 'Beagle', 'number': 656, 'primary_designation': 'Beagle'})
+        OrderedDict({'alternate_designations': ['1954 HJ', ...], 'name': 'Beagle', 'number': 656, ...})
         """
 
         self.query_type = 'designations'
 
         response = self._request('GET',
-            url=self.URL + object_name + '/designations',
-            timeout=self.TIMEOUT, cache=cache)
+                                 url=self.URL + object_name + '/designations',
+                                 timeout=self.TIMEOUT, cache=cache)
 
         if get_raw_response:
             self._return_raw = True
@@ -73,9 +73,9 @@ class AstInfoClass(BaseQuery):
         return response
 
     def elements_async(self, object_name, *,
-                           get_raw_response=False,
-                           get_uri=False,
-                           cache=True):
+                       get_raw_response=False,
+                       get_uri=False,
+                       cache=True):
         """
         This method uses a REST interface to query the `Lowell Observatory
         astorbDB database <https://asteroid.lowell.edu/>`_ for orbital element
@@ -101,8 +101,8 @@ class AstInfoClass(BaseQuery):
         self.query_type = 'elements'
 
         response = self._request('GET',
-            url=self.URL + object_name + '/elements',
-            timeout=self.TIMEOUT, cache=cache)
+                                 url=self.URL + object_name + '/elements',
+                                 timeout=self.TIMEOUT, cache=cache)
 
         if get_raw_response:
             self._return_raw = True
@@ -135,14 +135,14 @@ class AstInfoClass(BaseQuery):
         >>> from astroquery.astorbdb import AstInfo
         >>> orbit = AstInfo.orbit('Beagle')
         >>> print(orbit)
-        OrderedDict({'a1con': <Quantity 0. AU / d2>, 'a2con': <Quantity 0. AU / d2>, 'a3con': <Quantity 0. AU / d2>, ...})
+        OrderedDict({'a1con': <Quantity 0. AU / d2>, 'a2con': <Quantity 0. AU / d2>, ...})
         """
 
         self.query_type = 'orbit'
 
         response = self._request('GET',
-            url=self.URL + object_name + '/orbit',
-            timeout=self.TIMEOUT, cache=cache)
+                                 url=self.URL + object_name + '/orbit',
+                                 timeout=self.TIMEOUT, cache=cache)
 
         if get_raw_response:
             self._return_raw = True
@@ -153,9 +153,9 @@ class AstInfoClass(BaseQuery):
         return response
 
     def albedos_async(self, object_name, *,
-                    get_raw_response=False,
-                    get_uri=False,
-                    cache=True):
+                      get_raw_response=False,
+                      get_uri=False,
+                      cache=True):
         """
         This method uses a REST interface to query the `Lowell Observatory
         astorbDB database <https://asteroid.lowell.edu/>`_ for albedo
@@ -183,8 +183,8 @@ class AstInfoClass(BaseQuery):
         self.query_type = 'albedos'
 
         response = self._request('GET',
-            url=self.URL + object_name + '/data/albedos',
-            timeout=self.TIMEOUT, cache=cache)
+                                 url=self.URL + object_name + '/data/albedos',
+                                 timeout=self.TIMEOUT, cache=cache)
 
         if get_raw_response:
             self._return_raw = True
@@ -195,9 +195,9 @@ class AstInfoClass(BaseQuery):
         return response
 
     def colors_async(self, object_name, *,
-                    get_raw_response=False,
-                    get_uri=False,
-                    cache=True):
+                     get_raw_response=False,
+                     get_uri=False,
+                     cache=True):
         """
         This method uses a REST interface to query the `Lowell Observatory
         astorbDB database <https://asteroid.lowell.edu/>`_ for color
@@ -217,8 +217,8 @@ class AstInfoClass(BaseQuery):
         >>> from astroquery.astorbdb import AstInfo
         >>> colors = AstInfo.colors('Beagle')
         >>> print(colors)
-        [{'citation_bibcode': '2010PDSS..125.....S', ..., 'color': 0.431, 'color_error': 0.035, ..., 'sys_color': 'J-H'},
-         {'citation_bibcode': '2010PDSS..125.....S', ..., 'color': 0.076, 'color_error': 0.041, ..., 'sys_color': 'H-K'},
+        [{..., 'color': 0.431, 'color_error': 0.035, ..., 'sys_color': 'J-H'},
+         {..., 'color': 0.076, 'color_error': 0.041, ..., 'sys_color': 'H-K'},
          ...]
         """
 
@@ -266,8 +266,8 @@ class AstInfoClass(BaseQuery):
         self.query_type = 'taxonomies'
 
         response = self._request('GET',
-            url=self.URL + object_name + '/data/taxonomies',
-            timeout=self.TIMEOUT, cache=cache)
+                                 url=self.URL + object_name + '/data/taxonomies',
+                                 timeout=self.TIMEOUT, cache=cache)
 
         if get_raw_response:
             self._return_raw = True
@@ -300,14 +300,14 @@ class AstInfoClass(BaseQuery):
         >>> from astroquery.astorbdb import AstInfo
         >>> lightcurves = AstInfo.lightcurves('Beagle')
         >>> print(lightcurves)
-        [{'ambiguous_period': False, ..., 'amp_max': <Quantity 1.2 mag>, 'amp_min': <Quantity 0.57 mag>, ..., 'period': <Quantity 7.035 h>, ...}]
+        [{..., 'amp_max': <Quantity 1.2 mag>, 'amp_min': <Quantity 0.57 mag>, ..., 'period': <Quantity 7.035 h>, ...}]
         """
 
         self.query_type = 'lightcurves'
 
         response = self._request('GET',
-            url=self.URL + object_name + '/data/lightcurves',
-            timeout=self.TIMEOUT, cache=cache)
+                                 url=self.URL + object_name + '/data/lightcurves',
+                                 timeout=self.TIMEOUT, cache=cache)
 
         if get_raw_response:
             self._return_raw = True
@@ -347,8 +347,8 @@ class AstInfoClass(BaseQuery):
         self.query_type = 'dynamicalfamily'
 
         response = self._request('GET',
-            url=self.URL + object_name + '/data/dynamical-family',
-            timeout=self.TIMEOUT, cache=cache)
+                                 url=self.URL + object_name + '/data/dynamical-family',
+                                 timeout=self.TIMEOUT, cache=cache)
 
         if get_raw_response:
             self._return_raw = True
@@ -387,8 +387,8 @@ class AstInfoClass(BaseQuery):
         self.query_type = 'escaperoutes'
 
         response = self._request('GET',
-            url=self.URL + object_name + '/data/escape-routes',
-            timeout=self.TIMEOUT, cache=cache)
+                                 url=self.URL + object_name + '/data/escape-routes',
+                                 timeout=self.TIMEOUT, cache=cache)
 
         if get_raw_response:
             self._return_raw = True
@@ -399,9 +399,9 @@ class AstInfoClass(BaseQuery):
         return response
 
     def all_astinfo_async(self, object_name, *,
-                           get_raw_response=False,
-                           get_uri=False,
-                           cache=True):
+                          get_raw_response=False,
+                          get_uri=False,
+                          cache=True):
         """
         This method uses REST interfaces to query the `Lowell Observatory
         astorbDB database <https://asteroid.lowell.edu/>`_ for all AstInfo
@@ -421,19 +421,20 @@ class AstInfoClass(BaseQuery):
         >>> from astroquery.astorbdb import AstInfo
         >>> all_astinfo = AstInfo.all_astinfo('Beagle')
         >>> print(all_astinfo)
+
         OrderedDict({
-        'designations': OrderedDict({'alternate_designations': ['1954 HJ', 'A908 BJ', 'A917 ST'], 'name': 'Beagle', ...}),
+        'designations': OrderedDict({'alternate_designations': ['1954 HJ', ...], 'name': 'Beagle', ...}),
         'elements': OrderedDict({'a': <Quantity 3.15597543 AU>, 'aphelion_dist': <Quantity 3.57009832 AU>, ...}),
-        'orbit': OrderedDict({'a1con': <Quantity 0. AU / d2>, 'a2con': <Quantity 0. AU / d2>, 'a3con': <Quantity 0. AU / d2>, ...}),
-        'albedos': [{'albedo': 0.065, 'albedo_error_lower': -0.002, 'albedo_error_upper': 0.002, ..., 'survey_name': 'Usui et al. (2011)'},
-                    {'albedo': 0.0625, 'albedo_error_lower': -0.015, 'albedo_error_upper': 0.015, ..., 'survey_name': 'Infrared Astronomical Satellite (IRAS)'},
+        'orbit': OrderedDict({'a1con': <Quantity 0. AU / d2>, 'a2con': <Quantity 0. AU / d2>, ...}),
+        'albedos': [{'albedo': 0.065, ..., 'survey_name': 'Usui et al. (2011)'},
+                    {'albedo': 0.0625, ..., 'survey_name': 'Infrared Astronomical Satellite (IRAS)'},
                     ...],
-        'colors': [{'citation_bibcode': '2010PDSS..125.....S', ..., 'color': 0.431, 'color_error': 0.035, ..., 'sys_color': 'J-H'},
-                   {'citation_bibcode': '2010PDSS..125.....S', ..., 'color': 0.076, 'color_error': 0.041, ..., 'sys_color': 'H-K'},
+        'colors': [{..., 'color': 0.431, 'color_error': 0.035, ..., 'sys_color': 'J-H'},
+                   {..., 'color': 0.076, 'color_error': 0.041, ..., 'sys_color': 'H-K'},
                    ...],
-        'taxonomies': [{'citation_bibcode': '2011PDSS..145.....H', ..., 'survey_name': 'Carvano et al. (2010)', 'taxonomy': 'C', ...},
-                       {'citation_bibcode': '2013Icar..226..723D', ..., 'survey_name': 'DeMeo et al. (2013)', 'taxonomy': 'C', ...}],
-        'lightcurves': [{'ambiguous_period': False, ..., 'amp_max': <Quantity 1.2 mag>, 'amp_min': <Quantity 0.57 mag>, ..., 'period': <Quantity 7.035 h>, ...}],
+        'taxonomies': [{..., 'survey_name': 'Carvano et al. (2010)', 'taxonomy': 'C', ...},
+                       {..., 'survey_name': 'DeMeo et al. (2013)', 'taxonomy': 'C', ...}],
+        'lightcurves': [{..., 'amp_max': <Quantity 1.2 mag>, ..., 'period': <Quantity 7.035 h>, ...}],
         'dynamicalfamily': [{'citation_bibcode': '2015PDSS..234.....N', ..., 'family': 'Themis', ...},
                             {'citation_bibcode': '2015PDSS..234.....N', ..., 'family': 'Beagle', ...}],
         'escaperoutes': []
@@ -445,40 +446,40 @@ class AstInfoClass(BaseQuery):
         response = {}
 
         response['designations'] = self._request('GET',
-            url=self.URL + object_name + '/designations',
-            timeout=self.TIMEOUT, cache=cache)
+                                                 url=self.URL + object_name + '/designations',
+                                                 timeout=self.TIMEOUT, cache=cache)
 
         response['elements'] = self._request('GET',
-            url=self.URL + object_name + '/elements',
-            timeout=self.TIMEOUT, cache=cache)
+                                             url=self.URL + object_name + '/elements',
+                                             timeout=self.TIMEOUT, cache=cache)
 
         response['orbit'] = self._request('GET',
-            url=self.URL + object_name + '/orbit',
-            timeout=self.TIMEOUT, cache=cache)
+                                          url=self.URL + object_name + '/orbit',
+                                          timeout=self.TIMEOUT, cache=cache)
 
         response['albedos'] = self._request('GET',
-            url=self.URL + object_name + '/data/albedos',
-            timeout=self.TIMEOUT, cache=cache)
+                                            url=self.URL + object_name + '/data/albedos',
+                                            timeout=self.TIMEOUT, cache=cache)
 
         response['colors'] = self._request('GET',
-            url=self.URL + object_name + '/data/colors',
-            timeout=self.TIMEOUT, cache=cache)
+                                           url=self.URL + object_name + '/data/colors',
+                                           timeout=self.TIMEOUT, cache=cache)
 
         response['taxonomies'] = self._request('GET',
-            url=self.URL + object_name + '/data/taxonomies',
-            timeout=self.TIMEOUT, cache=cache)
+                                               url=self.URL + object_name + '/data/taxonomies',
+                                               timeout=self.TIMEOUT, cache=cache)
 
         response['lightcurves'] = self._request('GET',
-            url=self.URL + object_name + '/data/lightcurves',
-            timeout=self.TIMEOUT, cache=cache)
+                                                url=self.URL + object_name + '/data/lightcurves',
+                                                timeout=self.TIMEOUT, cache=cache)
 
         response['dynamicalfamily'] = self._request('GET',
-            url=self.URL + object_name + '/data/dynamical-family',
-            timeout=self.TIMEOUT, cache=cache)
+                                                    url=self.URL + object_name + '/data/dynamical-family',
+                                                    timeout=self.TIMEOUT, cache=cache)
 
         response['escaperoutes'] = self._request('GET',
-            url=self.URL + object_name + '/data/escape-routes',
-            timeout=self.TIMEOUT, cache=cache)
+                                                 url=self.URL + object_name + '/data/escape-routes',
+                                                 timeout=self.TIMEOUT, cache=cache)
 
         if get_raw_response:
             self._return_raw = True
@@ -708,6 +709,7 @@ class AstInfoClass(BaseQuery):
                 src[i]['epoch'] = Time(src[i]['epoch'], format='isot', scale='utc')
 
         return src
+
 
 AstInfo = AstInfoClass()
 
