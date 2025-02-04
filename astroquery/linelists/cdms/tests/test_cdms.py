@@ -72,8 +72,7 @@ def test_query(patch_post):
     tbl = CDMS.query_lines(min_frequency=100 * u.GHz,
                            max_frequency=1000 * u.GHz,
                            min_strength=-500,
-                           molecule="CO",
-                           parse_name_locally=True
+                           molecule='028503 CO, v=0'
                            )
     assert isinstance(tbl, Table)
     assert len(tbl) == 8
@@ -111,7 +110,7 @@ def test_hc7s(patch_post):
     CDMS.query_lines_async(100*u.GHz, 100.755608*u.GHz, molecule='HC7S', parse_name_locally=True)
     """
 
-    tbl = CDMS.query_lines(100*u.GHz, 100.755608*u.GHz, molecule='HC7S',)
+    tbl = CDMS.query_lines(100*u.GHz, 100.755608*u.GHz, molecule='117501 HC7S',)
     assert isinstance(tbl, Table)
     assert len(tbl) == 5
     assert set(tbl.keys()) == colname_set
@@ -141,7 +140,7 @@ def test_hc7n(patch_post):
     CDMS.query_lines(200*u.GHz, 230.755608*u.GHz, molecule='HC7N',parse_name_locally=True)
     """
 
-    tbl = CDMS.query_lines(200*u.GHz, 230.755608*u.GHz, molecule='HC7N')
+    tbl = CDMS.query_lines(200*u.GHz, 230.755608*u.GHz, molecule='099501 HC7N, v=0'')
     assert isinstance(tbl, Table)
     assert len(tbl) == 27
     assert set(tbl.keys()) == colname_set
