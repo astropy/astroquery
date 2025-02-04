@@ -708,6 +708,7 @@ class AstInfoClass(BaseQuery):
 
         return src
 
+
 AstInfo = AstInfoClass()
 
 # once your class is done, tests should be written
