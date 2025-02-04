@@ -56,7 +56,9 @@ class IrsaClass(BaseVOQuery):
         ----------
         query : str
             ADQL query to be executed
-        maxrec : int
+        async_mode : bool, optional
+            if True query is run as an async job
+        maxrec : int, optional
             maximum number of records to return
 
         Returns
@@ -159,7 +161,7 @@ class IrsaClass(BaseVOQuery):
     @deprecated_renamed_argument(("selcols", "cache", "verbose"), ("columns", None, None), since="0.4.7")
     def query_region(self, coordinates=None, *, catalog=None, spatial='Cone',
                      radius=10 * u.arcsec, width=None, polygon=None,
-                     get_query_payload=False, columns='*',
+                     get_query_payload=False, columns='*', async_mode=False,
                      verbose=False, cache=True):
         """
         Queries the IRSA TAP server around a coordinate and returns a `~astropy.table.Table` object.
@@ -194,6 +196,8 @@ class IrsaClass(BaseVOQuery):
             Defaults to `False`.
         columns : str, optional
             Target column list with value separated by a comma(,)
+        async_mode : bool, optional
+            if True query is run as an async job
 
         Returns
         -------
@@ -243,7 +247,7 @@ class IrsaClass(BaseVOQuery):
 
         if get_query_payload:
             return adql
-        response = self.query_tap(query=adql)
+        response = self.query_tap(query=adql, async_mode=async_mode)
 
         return response.to_table()
 
