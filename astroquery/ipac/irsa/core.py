@@ -47,7 +47,7 @@ class IrsaClass(BaseVOQuery):
             self._tap = TAPService(baseurl=self.tap_url, session=self._session)
         return self._tap
 
-    def query_tap(self, query, *, maxrec=None):
+    def query_tap(self, query, *, async_mode=False, maxrec=None):
         """
         Send query to IRSA TAP. Results in `~pyvo.dal.TAPResults` format.
         result.to_qtable in `~astropy.table.QTable` format
@@ -69,8 +69,12 @@ class IrsaClass(BaseVOQuery):
             TAP query result as `~astropy.table.QTable`
 
         """
-        log.debug(f'TAP query: {query}')
-        return self.tap.search(query, language='ADQL', maxrec=maxrec)
+        log.debug(f'Query is run in async mode: {async_mode}\n TAP query: {query}')
+
+        if async_mode:
+            return self.tap.run_async(query, language='ADQL', maxrec=maxrec)
+        else:
+            return self.tap.run_sync(query, language='ADQL', maxrec=maxrec)
 
     def query_sia(self, *, pos=None, band=None, time=None, pol=None,
                   field_of_view=None, spatial_resolution=None,
