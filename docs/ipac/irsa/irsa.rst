@@ -186,13 +186,13 @@ star HIP 12 with just the ra, dec and w1mpro columns would be:
 Async queries
 --------------
 
-For bigger queries it is recommended using the ``async_mode`` keyword option. When used,
-the query is send in asyncronous mode.
+For bigger queries it is recommended using the ``async_job`` keyword option. When used,
+the query is send in asynchronous mode.
 
 .. doctest-remote-data::
 
     >>> from astroquery.ipac.irsa import Irsa
-    >>> table = Irsa.query_region("HIP 12", catalog="allwise_p3as_psd", spatial="Cone", async_mode=True)
+    >>> table = Irsa.query_region("HIP 12", catalog="allwise_p3as_psd", spatial="Cone", async_job=True)
     >>> print(table)
         designation         ra        dec     sigra  ...         y                   z           spt_ind      htm20    
                            deg        deg     arcsec ...                                                               

@@ -47,7 +47,7 @@ class IrsaClass(BaseVOQuery):
             self._tap = TAPService(baseurl=self.tap_url, session=self._session)
         return self._tap
 
-    def query_tap(self, query, *, async_mode=False, maxrec=None):
+    def query_tap(self, query, *, async_job=False, maxrec=None):
         """
         Send query to IRSA TAP. Results in `~pyvo.dal.TAPResults` format.
         result.to_qtable in `~astropy.table.QTable` format
@@ -56,8 +56,8 @@ class IrsaClass(BaseVOQuery):
         ----------
         query : str
             ADQL query to be executed
-        async_mode : bool, optional
-            if True query is run as an async job
+        async_job : bool, optional
+            if True query is run in asynchronous mode
         maxrec : int, optional
             maximum number of records to return
 
@@ -71,9 +71,9 @@ class IrsaClass(BaseVOQuery):
             TAP query result as `~astropy.table.QTable`
 
         """
-        log.debug(f'Query is run in async mode: {async_mode}\n TAP query: {query}')
+        log.debug(f'Query is run in async mode: {async_job}\n TAP query: {query}')
 
-        if async_mode:
+        if async_job:
             return self.tap.run_async(query, language='ADQL', maxrec=maxrec)
         else:
             return self.tap.run_sync(query, language='ADQL', maxrec=maxrec)
@@ -161,7 +161,7 @@ class IrsaClass(BaseVOQuery):
     @deprecated_renamed_argument(("selcols", "cache", "verbose"), ("columns", None, None), since="0.4.7")
     def query_region(self, coordinates=None, *, catalog=None, spatial='Cone',
                      radius=10 * u.arcsec, width=None, polygon=None,
-                     get_query_payload=False, columns='*', async_mode=False,
+                     get_query_payload=False, columns='*', async_job=False,
                      verbose=False, cache=True):
         """
         Queries the IRSA TAP server around a coordinate and returns a `~astropy.table.Table` object.
@@ -196,8 +196,8 @@ class IrsaClass(BaseVOQuery):
             Defaults to `False`.
         columns : str, optional
             Target column list with value separated by a comma(,)
-        async_mode : bool, optional
-            if True query is run as an async job
+        async_job : bool, optional
+            if True query is run in asynchronous mode
 
         Returns
         -------
@@ -247,7 +247,7 @@ class IrsaClass(BaseVOQuery):
 
         if get_query_payload:
             return adql
-        response = self.query_tap(query=adql, async_mode=async_mode)
+        response = self.query_tap(query=adql, async_job=async_job)
 
         return response.to_table()
 
