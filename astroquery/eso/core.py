@@ -75,7 +75,6 @@ QueryOnCollection = QueryOnField(
 
 
 class EsoClass(QueryWithLogin):
-    has_TAP = True # TODO: remove this -- only for debugging
     ROW_LIMIT = conf.row_limit
     USERNAME = conf.username
     QUERY_INSTRUMENT_URL = conf.query_instrument_url
@@ -94,7 +93,6 @@ class EsoClass(QueryWithLogin):
         self._hash = None
         # for future debugging
         self._payload = None
-        print("Using TAP branch") #TODO: remove this -- only for debugging
 
     @property
     def timeout(self):
@@ -282,8 +280,10 @@ class EsoClass(QueryWithLogin):
             warnings.warn("Query returned no results", NoResultsWarning)
             return None
 
-        #return table_to_return.filled() ## not masked
-        return table_to_return ## Masked
+        # TODO: Do we want to override the default behaviour
+        # and return a filled table??
+        # return table_to_return.filled() ## not masked
+        return table_to_return  # Masked - default
 
     def list_instruments(self, *, cache=True) -> List[str]:
         """ List all the available instrument-specific queries offered by the ESO archive.
@@ -410,7 +410,8 @@ class EsoClass(QueryWithLogin):
 
         return self.query_tap_service(query_str=query, cache=cache)
 
-    @deprecated_renamed_argument(old_name='open_form', new_name=None, since='0.4.8')
+    @deprecated_renamed_argument(('open_form', 'help'), (None, 'print_help'),
+                                 since=['0.4.8', '0.4.8'])
     def query_instrument(self, instrument: Union[List, str] = None, *,
                          column_filters: Dict = None, columns: Union[List, str] = None,
                          open_form=False, print_help=False, cache=True,
@@ -424,7 +425,8 @@ class EsoClass(QueryWithLogin):
                                                     cache=cache,
                                                     **kwargs)
 
-    @deprecated_renamed_argument(old_name='open_form', new_name=None, since='0.4.8')
+    @deprecated_renamed_argument(('open_form', 'help'), (None, 'print_help'),
+                                 since=['0.4.8', '0.4.8'])
     def query_collections(self, collections: Union[List, str] = None, *,
                           column_filters: Dict = None, columns: Union[List, str] = None,
                           open_form=False, print_help=False, cache=True,
@@ -440,6 +442,7 @@ class EsoClass(QueryWithLogin):
                                                     cache=cache,
                                                     **kwargs)
 
+    @deprecated_renamed_argument(old_name='help', new_name='print_help', since='0.4.8')
     def query_main(self, *, column_filters=None, columns=None,
                    print_help=False, cache=True, **kwargs):
         """
@@ -792,6 +795,8 @@ class EsoClass(QueryWithLogin):
         self.log_info("Done!")
         return files[0] if files and len(files) == 1 and return_string else files
 
+    @deprecated_renamed_argument(('open_form', 'help'), (None, 'print_help'),
+                                 since=['0.4.8', '0.4.8'])
     def query_apex_quicklooks(self, *, project_id=None, print_help=False,
                               open_form=False, cache=True, **kwargs):
         """
