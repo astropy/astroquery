@@ -302,10 +302,10 @@ class AstInfoClass(BaseQuery):
         ----------
         object_name : str
             name of the identifier to query.
-
+        
         Returns
         -------
-        res : A dictionary holding available orbit fitting data
+        res : A dictionary holding available orbit data
 
         Examples
         --------
