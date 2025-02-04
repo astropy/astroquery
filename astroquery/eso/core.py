@@ -81,6 +81,7 @@ class EsoClass(QueryWithLogin):
         self._instrument_list = None
         self._survey_list = None
         self._auth_info: Optional[AuthInfo] = None
+        print("Using main branch")
 
     def _activate_form(self, response, *, form_index=0, form_id=None, inputs={},
                        cache=True, method=None):
