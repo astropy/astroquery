@@ -116,7 +116,7 @@ class AstInfoClass(BaseQuery):
         This method uses a REST interface to query the `Lowell Observatory
         astorbDB database <https://asteroid.lowell.edu/>`_ for designation
         data for a single object and returns a dictionary from JSON results
-
+        
         Parameters
         ----------
         object_name : str
@@ -152,12 +152,12 @@ class AstInfoClass(BaseQuery):
         This method uses a REST interface to query the `Lowell Observatory
         astorbDB database <https://asteroid.lowell.edu/>`_ for dynamical family
         data for a single object and returns a dictionary from JSON results
-
+        
         Parameters
         ----------
         object_name : str
             name of the identifier to query.
-
+        
         Returns
         -------
         res : A dictionary holding available dynamical family data
