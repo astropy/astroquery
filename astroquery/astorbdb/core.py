@@ -1,27 +1,20 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import astropy.units as u
-import astropy.coordinates as coord
-import astropy.io.votable as votable
-import warnings
-from astropy.table import Table
 from astropy.time import Time
-from astropy.io import fits
 import json
 from collections import OrderedDict
 
 from ..query import BaseQuery
-from ..utils import commons
 from ..utils import async_to_sync
 from . import conf
 
 __all__ = ['AstInfo', 'AstInfoClass']
 
+
 @async_to_sync
 class AstInfoClass(BaseQuery):
 
-    ## NEED TO ADD EXAMPLE OUTPUT TO ALL METHODS ##
-    
     """
     A class for querying Lowell Observatory's `astorbDB
     <https://asteroid.lowell.edu/>`_ service.
@@ -39,7 +32,7 @@ class AstInfoClass(BaseQuery):
     # actual query uri
     _uri = None
 
-    def designations_async(self,object_name, *,
+    def designations_async(self, object_name, *,
                            get_raw_response=False,
                            get_uri=False,
                            cache=True):
@@ -47,15 +40,15 @@ class AstInfoClass(BaseQuery):
         This method uses a REST interface to query the `Lowell Observatory
         astorbDB database <https://asteroid.lowell.edu/>`_ for designation
         data for a single object and returns a dictionary from JSON results
-        
+
         Parameters
         ----------
         object_name : str
             name of the identifier to query.
-        
+
         Returns
         -------
-        res : A dictionary holding available color data
+        res : A dictionary holding available designation data
 
         Examples
         --------
@@ -66,7 +59,7 @@ class AstInfoClass(BaseQuery):
         """
 
         self.query_type = 'designations'
-        
+
         response = self._request('GET',
             url=self.URL + object_name + '/designations',
             timeout=self.TIMEOUT, cache=cache)
@@ -76,27 +69,26 @@ class AstInfoClass(BaseQuery):
 
         if get_uri:
             self._uri = response.url
-                
+
         return response
 
-    
-    def elements_async(self,object_name, *,
+    def elements_async(self, object_name, *,
                            get_raw_response=False,
                            get_uri=False,
                            cache=True):
         """
         This method uses a REST interface to query the `Lowell Observatory
-        astorbDB database <https://asteroid.lowell.edu/>`_ for designation
+        astorbDB database <https://asteroid.lowell.edu/>`_ for orbital element
         data for a single object and returns a dictionary from JSON results
-        
+
         Parameters
         ----------
         object_name : str
             name of the identifier to query.
-        
+
         Returns
         -------
-        res : A dictionary holding available color data
+        res : A dictionary holding available orbital element data
 
         Examples
         --------
@@ -107,7 +99,7 @@ class AstInfoClass(BaseQuery):
         """
 
         self.query_type = 'elements'
-        
+
         response = self._request('GET',
             url=self.URL + object_name + '/elements',
             timeout=self.TIMEOUT, cache=cache)
@@ -117,11 +109,10 @@ class AstInfoClass(BaseQuery):
 
         if get_uri:
             self._uri = response.url
-                
+
         return response
 
-        
-    def orbit_async(self,object_name, *,
+    def orbit_async(self, object_name, *,
                     get_raw_response=False,
                     get_uri=False,
                     cache=True):
@@ -129,12 +120,12 @@ class AstInfoClass(BaseQuery):
         This method uses a REST interface to query the `Lowell Observatory
         astorbDB database <https://asteroid.lowell.edu/>`_ for orbit
         data for a single object and returns a dictionary from JSON results
-        
+
         Parameters
         ----------
         object_name : str
             name of the identifier to query.
-        
+
         Returns
         -------
         res : A dictionary holding available orbit data
@@ -148,21 +139,20 @@ class AstInfoClass(BaseQuery):
         """
 
         self.query_type = 'orbit'
-        
+
         response = self._request('GET',
             url=self.URL + object_name + '/orbit',
             timeout=self.TIMEOUT, cache=cache)
-        
+
         if get_raw_response:
             self._return_raw = True
 
         if get_uri:
             self._uri = response.url
-            
+
         return response
 
-    
-    def albedos_async(self,object_name, *,
+    def albedos_async(self, object_name, *,
                     get_raw_response=False,
                     get_uri=False,
                     cache=True):
@@ -170,12 +160,12 @@ class AstInfoClass(BaseQuery):
         This method uses a REST interface to query the `Lowell Observatory
         astorbDB database <https://asteroid.lowell.edu/>`_ for albedo
         data for a single object and returns a dictionary from JSON results
-        
+
         Parameters
         ----------
         object_name : str
             name of the identifier to query.
-        
+
         Returns
         -------
         res : A dictionary holding available albedo data
@@ -191,21 +181,20 @@ class AstInfoClass(BaseQuery):
         """
 
         self.query_type = 'albedos'
-        
+
         response = self._request('GET',
             url=self.URL + object_name + '/data/albedos',
             timeout=self.TIMEOUT, cache=cache)
-        
+
         if get_raw_response:
             self._return_raw = True
 
         if get_uri:
             self._uri = response.url
-            
+
         return response
 
-
-    def colors_async(self,object_name, *,
+    def colors_async(self, object_name, *,
                     get_raw_response=False,
                     get_uri=False,
                     cache=True):
@@ -213,12 +202,12 @@ class AstInfoClass(BaseQuery):
         This method uses a REST interface to query the `Lowell Observatory
         astorbDB database <https://asteroid.lowell.edu/>`_ for color
         data for a single object and returns a dictionary from JSON results
-        
+
         Parameters
         ----------
         object_name : str
             name of the identifier to query.
-        
+
         Returns
         -------
         res : A dictionary holding available color data
@@ -234,11 +223,11 @@ class AstInfoClass(BaseQuery):
         """
 
         self.query_type = 'colors'
-        
+
         response = self._request('GET',
             url=self.URL + object_name + '/data/colors',
             timeout=self.TIMEOUT, cache=cache)
-        
+
         if get_raw_response:
             self._return_raw = True
 
@@ -247,8 +236,7 @@ class AstInfoClass(BaseQuery):
 
         return response
 
-        
-    def taxonomies_async(self,object_name, *,
+    def taxonomies_async(self, object_name, *,
                          get_raw_response=False,
                          get_uri=False,
                          cache=True):
@@ -256,12 +244,12 @@ class AstInfoClass(BaseQuery):
         This method uses a REST interface to query the `Lowell Observatory
         astorbDB database <https://asteroid.lowell.edu/>`_ for taxonomy
         data for a single object and returns a dictionary from JSON results
-        
+
         Parameters
         ----------
         object_name : str
             name of the identifier to query.
-        
+
         Returns
         -------
         res : A dictionary holding available taxonomy data
@@ -276,21 +264,20 @@ class AstInfoClass(BaseQuery):
         """
 
         self.query_type = 'taxonomies'
-        
+
         response = self._request('GET',
             url=self.URL + object_name + '/data/taxonomies',
             timeout=self.TIMEOUT, cache=cache)
-        
+
         if get_raw_response:
             self._return_raw = True
 
         if get_uri:
             self._uri = response.url
-        
+
         return response
 
-        
-    def lightcurves_async(self,object_name, *, 
+    def lightcurves_async(self, object_name, *, 
                           get_raw_response=False,
                           get_uri=False,
                           cache=True):
@@ -298,12 +285,12 @@ class AstInfoClass(BaseQuery):
         This method uses a REST interface to query the `Lowell Observatory
         astorbDB database <https://asteroid.lowell.edu/>`_ for lightcurve
         data for a single object and returns a dictionary from JSON results
-        
+
         Parameters
         ----------
         object_name : str
             name of the identifier to query.
-        
+
         Returns
         -------
         res : A dictionary holding available lightcurve data
@@ -317,21 +304,20 @@ class AstInfoClass(BaseQuery):
         """
 
         self.query_type = 'lightcurves'
-        
+
         response = self._request('GET',
             url=self.URL + object_name + '/data/lightcurves',
             timeout=self.TIMEOUT, cache=cache)
-        
+
         if get_raw_response:
             self._return_raw = True
 
         if get_uri:
             self._uri = response.url
-        
+
         return response
 
-
-    def dynamicalfamily_async(self,object_name, *,
+    def dynamicalfamily_async(self, object_name, *,
                               get_raw_response=False,
                               get_uri=False,
                               cache=True):
@@ -339,12 +325,12 @@ class AstInfoClass(BaseQuery):
         This method uses a REST interface to query the `Lowell Observatory
         astorbDB database <https://asteroid.lowell.edu/>`_ for dynamical family
         data for a single object and returns a dictionary from JSON results
-        
+
         Parameters
         ----------
         object_name : str
             name of the identifier to query.
-        
+
         Returns
         -------
         res : A dictionary holding available dynamical family data
@@ -359,21 +345,20 @@ class AstInfoClass(BaseQuery):
         """
 
         self.query_type = 'dynamicalfamily'
-        
+
         response = self._request('GET',
             url=self.URL + object_name + '/data/dynamical-family',
             timeout=self.TIMEOUT, cache=cache)
-        
+
         if get_raw_response:
             self._return_raw = True
 
         if get_uri:
             self._uri = response.url
-        
+
         return response
 
-    
-    def escaperoutes_async(self,object_name, *,
+    def escaperoutes_async(self, object_name, *,
                            get_raw_response=False,
                            get_uri=False,
                            cache=True):
@@ -381,12 +366,12 @@ class AstInfoClass(BaseQuery):
         This method uses a REST interface to query the `Lowell Observatory
         astorbDB database <https://asteroid.lowell.edu/>`_ for NEO escape route
         data for a single object and returns a dictionary from JSON results
-        
+
         Parameters
         ----------
         object_name : str
             name of the identifier to query.
-        
+
         Returns
         -------
         res : A dictionary holding available NEO escape route data
@@ -400,7 +385,7 @@ class AstInfoClass(BaseQuery):
         """
 
         self.query_type = 'escaperoutes'
-        
+
         response = self._request('GET',
             url=self.URL + object_name + '/data/escape-routes',
             timeout=self.TIMEOUT, cache=cache)
@@ -410,27 +395,26 @@ class AstInfoClass(BaseQuery):
 
         if get_uri:
             self._uri = response.url
-        
+
         return response
 
-
-    def all_astinfo_async(self,object_name, *,
+    def all_astinfo_async(self, object_name, *,
                            get_raw_response=False,
                            get_uri=False,
                            cache=True):
         """
-        This method uses a REST interface to query the `Lowell Observatory
-        astorbDB database <https://asteroid.lowell.edu/>`_ for NEO escape route
+        This method uses REST interfaces to query the `Lowell Observatory
+        astorbDB database <https://asteroid.lowell.edu/>`_ for all AstInfo
         data for a single object and returns a dictionary from JSON results
-        
+
         Parameters
         ----------
         object_name : str
             name of the identifier to query.
-        
+
         Returns
         -------
-        res : A dictionary holding available NEO escape route data
+        res : A dictionary holding available AstInfo data
 
         Examples
         --------
@@ -459,23 +443,23 @@ class AstInfoClass(BaseQuery):
         self.query_type = 'all_astinfo'
 
         response = {}
-        
+
         response['designations'] = self._request('GET',
             url=self.URL + object_name + '/designations',
             timeout=self.TIMEOUT, cache=cache)
-        
+
         response['elements'] = self._request('GET',
             url=self.URL + object_name + '/elements',
             timeout=self.TIMEOUT, cache=cache)
-        
+
         response['orbit'] = self._request('GET',
             url=self.URL + object_name + '/orbit',
             timeout=self.TIMEOUT, cache=cache)
-        
+
         response['albedos'] = self._request('GET',
             url=self.URL + object_name + '/data/albedos',
             timeout=self.TIMEOUT, cache=cache)
-        
+
         response['colors'] = self._request('GET',
             url=self.URL + object_name + '/data/colors',
             timeout=self.TIMEOUT, cache=cache)
@@ -510,9 +494,8 @@ class AstInfoClass(BaseQuery):
                          'dynamicalfamily':response['dynamicalfamily'].url,
                          'escaperoutes':response['escaperoutes'].url
                         }
-        
-        return response
 
+        return response
 
     def _parse_result(self, response, *, verbose=None):
         """
@@ -541,7 +524,7 @@ class AstInfoClass(BaseQuery):
 
         if self.query_type == 'orbit':
             src = self._process_data_orbit(src)
-            
+
         if self.query_type == 'albedos':
             src = self._process_data_albedos(src)
 
@@ -577,8 +560,6 @@ class AstInfoClass(BaseQuery):
 
         return src
 
-    
-
     def _process_data_designations(self, src):
         """
         internal routine to process raw data in OrderedDict format
@@ -590,7 +571,6 @@ class AstInfoClass(BaseQuery):
 
         return src
 
-    
     def _process_data_elements(self, src):
         """
         internal routine to process raw data in OrderedDict format, must
@@ -629,23 +609,21 @@ class AstInfoClass(BaseQuery):
 
         return src
 
-
     def _process_data_orbit(self, src):
         """
         internal routine to process raw data in OrderedDict format, must
         be able to work recursively
 
         """
-    
+
         if 'orbit' in src:
             src = OrderedDict(src['orbit'])
             src['a1con']            = u.Quantity(src['a1con'], u.au/(u.d ** 2))
             src['a2con']            = u.Quantity(src['a2con'], u.au/(u.d ** 2))
             src['a3con']            = u.Quantity(src['a3con'], u.au/(u.d ** 2))
             src['arc']              = u.Quantity(src['arc'], u.yr)
-            
-        return src
 
+        return src
 
     def _process_data_albedos(self, src):
         """
@@ -659,9 +637,8 @@ class AstInfoClass(BaseQuery):
                 src[i]['diameter'] = u.Quantity(src[i]['diameter'], u.km)
                 src[i]['diameter_error_lower'] = u.Quantity(src[i]['diameter_error_lower'], u.km)
                 src[i]['diameter_error_upper'] = u.Quantity(src[i]['diameter_error_upper'], u.km)
-                
-        return src
 
+        return src
 
     def _process_data_colors(self, src):
         """
@@ -673,9 +650,8 @@ class AstInfoClass(BaseQuery):
             src = src['colors']
             for i in range(len(src)):
                 src[i]['jd'] = Time(src[i]['jd'], format='jd', scale='utc')
-                
-        return src
 
+        return src
 
     def _process_data_taxonomies(self, src):
         """
@@ -688,7 +664,6 @@ class AstInfoClass(BaseQuery):
             src = src['taxonomies']
 
         return src
-
 
     def _process_data_lightcurves(self, src):
         """
@@ -705,9 +680,8 @@ class AstInfoClass(BaseQuery):
                     if src[i]['amp_min'] is not None:
                         src[i]['amp_min'] = u.Quantity(src[i]['amp_min'], u.mag)
                     src[i]['period']  = u.Quantity(src[i]['period'], u.h)
-                 
-        return src
 
+        return src
 
     def _process_data_dynamicalfamily(self, src):
         """
@@ -720,7 +694,6 @@ class AstInfoClass(BaseQuery):
             src = src['dynamical-family']
 
         return src
-
 
     def _process_data_escaperoutes(self, src):
         """
@@ -735,7 +708,6 @@ class AstInfoClass(BaseQuery):
                 src[i]['epoch'] = Time(src[i]['epoch'], format='isot', scale='utc')
 
         return src
-
 
 AstInfo = AstInfoClass()
 
