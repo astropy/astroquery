@@ -225,8 +225,8 @@ class AstInfoClass(BaseQuery):
         self.query_type = 'colors'
 
         response = self._request('GET',
-            url=self.URL + object_name + '/data/colors',
-            timeout=self.TIMEOUT, cache=cache)
+                                 url=self.URL + object_name + '/data/colors',
+                                 timeout=self.TIMEOUT, cache=cache)
 
         if get_raw_response:
             self._return_raw = True
@@ -277,7 +277,7 @@ class AstInfoClass(BaseQuery):
 
         return response
 
-    def lightcurves_async(self, object_name, *, 
+    def lightcurves_async(self, object_name, *,
                           get_raw_response=False,
                           get_uri=False,
                           cache=True):
@@ -485,16 +485,16 @@ class AstInfoClass(BaseQuery):
             self._return_raw = True
 
         if get_uri:
-            self._uri = {'designations':response['designations'].url,
-                         'elements':response['elements'].url,
-                         'orbit':response['orbit'].url,
-                         'albedos':response['albedos'].url,
-                         'colors':response['colors'].url,
-                         'taxonomies':response['taxonomies'].url,
-                         'lightcurves':response['lightcurves'].url,
-                         'dynamicalfamily':response['dynamicalfamily'].url,
-                         'escaperoutes':response['escaperoutes'].url
-                        }
+            self._uri = {'designations': response['designations'].url,
+                         'elements': response['elements'].url,
+                         'orbit': response['orbit'].url,
+                         'albedos': response['albedos'].url,
+                         'colors': response['colors'].url,
+                         'taxonomies': response['taxonomies'].url,
+                         'lightcurves': response['lightcurves'].url,
+                         'dynamicalfamily': response['dynamicalfamily'].url,
+                         'escaperoutes': response['escaperoutes'].url
+                         }
 
         return response
 
@@ -545,15 +545,15 @@ class AstInfoClass(BaseQuery):
             src = self._process_data_escaperoutes(src)
 
         if self.query_type == 'all_astinfo':
-            src['designations']    = self._process_data_designations(src['designations'])
-            src['elements']        = self._process_data_elements(src['elements'])
-            src['orbit']           = self._process_data_orbit(src['orbit'])
-            src['albedos']         = self._process_data_albedos(src['albedos'])
-            src['colors']          = self._process_data_colors(src['colors'])
-            src['taxonomies']      = self._process_data_taxonomies(src['taxonomies'])
-            src['lightcurves']     = self._process_data_lightcurves(src['lightcurves'])
+            src['designations'] = self._process_data_designations(src['designations'])
+            src['elements'] = self._process_data_elements(src['elements'])
+            src['orbit'] = self._process_data_orbit(src['orbit'])
+            src['albedos'] = self._process_data_albedos(src['albedos'])
+            src['colors'] = self._process_data_colors(src['colors'])
+            src['taxonomies'] = self._process_data_taxonomies(src['taxonomies'])
+            src['lightcurves'] = self._process_data_lightcurves(src['lightcurves'])
             src['dynamicalfamily'] = self._process_data_dynamicalfamily(src['dynamicalfamily'])
-            src['escaperoutes']    = self._process_data_escaperoutes(src['escaperoutes'])
+            src['escaperoutes'] = self._process_data_escaperoutes(src['escaperoutes'])
 
         # add query uri, if desired
         if self._uri is not None:
@@ -581,32 +581,32 @@ class AstInfoClass(BaseQuery):
 
         if 'elements' in src:
             src = OrderedDict(src['elements'])
-            src['a']                  = u.Quantity(src['a'], u.au)
-            src['aphelion_dist']      = u.Quantity(src['aphelion_dist'], u.au)
+            src['a'] = u.Quantity(src['a'], u.au)
+            src['aphelion_dist'] = u.Quantity(src['aphelion_dist'], u.au)
             if src['delta_v'] is not None:
-                src['delta_v']        = u.Quantity(src['delta_v'], u.km/u.s)
-            src['ecc_anomaly']        = u.Quantity(src['ecc_anomaly'], u.deg)
-            src['epoch']              = Time(src['epoch'], format='isot', scale='utc')
-            src['h']                  = u.Quantity(src['h'], u.mag)
-            src['i']                  = u.Quantity(src['m'], u.deg)
+                src['delta_v'] = u.Quantity(src['delta_v'], u.km/u.s)
+            src['ecc_anomaly'] = u.Quantity(src['ecc_anomaly'], u.deg)
+            src['epoch'] = Time(src['epoch'], format='isot', scale='utc')
+            src['h'] = u.Quantity(src['h'], u.mag)
+            src['i'] = u.Quantity(src['m'], u.deg)
             src['long_of_perihelion'] = u.Quantity(src['long_of_perihelion'], u.deg)
-            src['m']                  = u.Quantity(src['m'], u.deg)            
-            src['moid_earth']         = u.Quantity(src['moid_earth'], u.au)
-            src['moid_jupiter']       = u.Quantity(src['moid_jupiter'], u.au)
-            src['moid_mars']          = u.Quantity(src['moid_mars'], u.au)
-            src['moid_mercury']       = u.Quantity(src['moid_mercury'], u.au)
-            src['moid_neptune']       = u.Quantity(src['moid_neptune'], u.au)
-            src['moid_saturn']        = u.Quantity(src['moid_saturn'], u.au)
-            src['moid_uranus']        = u.Quantity(src['moid_uranus'], u.au)
-            src['moid_venus']         = u.Quantity(src['moid_venus'], u.au)
-            src['node']               = u.Quantity(src['node'], u.deg)
-            src['peri']               = u.Quantity(src['peri'], u.deg)
-            src['q']                  = u.Quantity(src['q'], u.au)
-            src['r']                  = u.Quantity(src['r'], u.au)
-            src['true_anomaly']       = u.Quantity(src['true_anomaly'], u.deg)
-            src['x']                  = u.Quantity(src['x'], u.au)
-            src['y']                  = u.Quantity(src['y'], u.au)
-            src['z']                  = u.Quantity(src['z'], u.au)
+            src['m'] = u.Quantity(src['m'], u.deg)
+            src['moid_earth'] = u.Quantity(src['moid_earth'], u.au)
+            src['moid_jupiter'] = u.Quantity(src['moid_jupiter'], u.au)
+            src['moid_mars'] = u.Quantity(src['moid_mars'], u.au)
+            src['moid_mercury'] = u.Quantity(src['moid_mercury'], u.au)
+            src['moid_neptune'] = u.Quantity(src['moid_neptune'], u.au)
+            src['moid_saturn'] = u.Quantity(src['moid_saturn'], u.au)
+            src['moid_uranus'] = u.Quantity(src['moid_uranus'], u.au)
+            src['moid_venus'] = u.Quantity(src['moid_venus'], u.au)
+            src['node'] = u.Quantity(src['node'], u.deg)
+            src['peri'] = u.Quantity(src['peri'], u.deg)
+            src['q'] = u.Quantity(src['q'], u.au)
+            src['r'] = u.Quantity(src['r'], u.au)
+            src['true_anomaly'] = u.Quantity(src['true_anomaly'], u.deg)
+            src['x'] = u.Quantity(src['x'], u.au)
+            src['y'] = u.Quantity(src['y'], u.au)
+            src['z'] = u.Quantity(src['z'], u.au)
 
         return src
 
@@ -619,10 +619,10 @@ class AstInfoClass(BaseQuery):
 
         if 'orbit' in src:
             src = OrderedDict(src['orbit'])
-            src['a1con']            = u.Quantity(src['a1con'], u.au/(u.d ** 2))
-            src['a2con']            = u.Quantity(src['a2con'], u.au/(u.d ** 2))
-            src['a3con']            = u.Quantity(src['a3con'], u.au/(u.d ** 2))
-            src['arc']              = u.Quantity(src['arc'], u.yr)
+            src['a1con'] = u.Quantity(src['a1con'], u.au/(u.d ** 2))
+            src['a2con'] = u.Quantity(src['a2con'], u.au/(u.d ** 2))
+            src['a3con'] = u.Quantity(src['a3con'], u.au/(u.d ** 2))
+            src['arc'] = u.Quantity(src['arc'], u.yr)
 
         return src
 
@@ -680,7 +680,7 @@ class AstInfoClass(BaseQuery):
                     src[i]['amp_max'] = u.Quantity(src[i]['amp_max'], u.mag)
                     if src[i]['amp_min'] is not None:
                         src[i]['amp_min'] = u.Quantity(src[i]['amp_min'], u.mag)
-                    src[i]['period']  = u.Quantity(src[i]['period'], u.h)
+                    src[i]['period'] = u.Quantity(src[i]['period'], u.h)
 
         return src
 
