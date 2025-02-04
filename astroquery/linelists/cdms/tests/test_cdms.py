@@ -72,7 +72,9 @@ def test_query(patch_post):
     tbl = CDMS.query_lines(min_frequency=100 * u.GHz,
                            max_frequency=1000 * u.GHz,
                            min_strength=-500,
-                           molecule="CO")
+                           molecule="CO",
+                           parse_name_locally=True
+                           )
     assert isinstance(tbl, Table)
     assert len(tbl) == 8
     assert set(tbl.keys()) == colname_set

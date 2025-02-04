@@ -155,6 +155,11 @@ class CDMSClass(BaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
         response.raise_for_status()
 
+        if 'Ups! Code: 011' in response.text:
+            raise InvalidQueryError("Specified query was invalid.  Check that"
+                                    " a valid molecule name was specified.  "
+                                    f"Payload was {payload}.")
+
         soup = BeautifulSoup(response.text, 'html.parser')
 
         ok = False
