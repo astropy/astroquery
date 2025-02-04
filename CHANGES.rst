@@ -28,6 +28,11 @@ linelists.cdms
 
 - Add a keyword to control writing of new species cache files.  This is needed to prevent tests from overwriting those files. [#3297]
 
+eso
+^^^
+
+- Use TAP backend instead of WDB. [#3141]
+
 heasarc
 ^^^^^^^
 
