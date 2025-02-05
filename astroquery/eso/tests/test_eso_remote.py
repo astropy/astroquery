@@ -50,16 +50,16 @@ class TestEso:
         # in principle, we should run both of these tests
         # result_i = eso.query_instrument('midi', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
-        result_i = eso.query_instrument('midi', coord1=266.41681662,
-                                        coord2=-29.00782497, cache=False)
+        result_i = eso.query_instrument('midi', ra=266.41681662,
+                                        dec=-29.00782497, radius=1.0, cache=False)
 
         collections = eso.list_collections(cache=False)
         assert len(collections) > 0
         # result_s = eso.query_collections('VVV', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
-        result_s = eso.query_collections(collections='VVV', coord1=266.41681662,
-                                         coord2=-29.00782497,
-                                         box='01 00 00',
+        result_s = eso.query_collections(collections='VVV', ra=266.41681662,
+                                         dec=-29.00782497,
+                                         radius=1.0,
                                          cache=False)
 
         assert 'midi' in instruments
@@ -87,9 +87,9 @@ class TestEso:
 
         test_collections = ['VVV', 'XSHOOTER']
         result_s = eso.query_collections(collections=test_collections,
-                                         coord1=266.41681662,
-                                         coord2=-29.00782497,
-                                         box='01 00 00',
+                                         ra=266.41681662,
+                                         dec=-29.00782497,
+                                         radius=1.0,
                                          cache=False)
 
         assert result_s is not None
@@ -112,20 +112,20 @@ class TestEso:
 
         # Avoid SESAME
         with pytest.warns(NoResultsWarning):
-            result_s = eso.query_collections(collections=collections[0], coord1=202.469575,
-                                             coord2=47.195258, cache=False)
+            result_s = eso.query_collections(collections=collections[0], ra=202.469575,
+                                             dec=47.195258, radius=1.0, cache=False)
 
         assert result_s is None
 
     def test_SgrAstar_remotevslocal(self, tmp_path):
         eso = Eso()
         # Remote version
-        result1 = eso.query_instrument('gravity', coord1=266.41681662,
-                                       coord2=-29.00782497, cache=False)
+        result1 = eso.query_instrument('gravity', ra=266.41681662,
+                                       dec=-29.00782497, radius=1.0, cache=False)
         # Local version
         eso.cache_location = tmp_path
-        result2 = eso.query_instrument('gravity', coord1=266.41681662,
-                                       coord2=-29.00782497, cache=True)
+        result2 = eso.query_instrument('gravity', ra=266.41681662,
+                                       dec=-29.00782497, radius=1.0, cache=True)
         assert all(result1.values_equal(result2))
 
     def test_list_instruments(self):
@@ -167,8 +167,8 @@ class TestEso:
     def test_apex_retrieval(self):
         eso = Eso()
 
-        tbl = eso.query_apex_quicklooks(prog_id='095.F-9802')
-        tblb = eso.query_apex_quicklooks(project_id='095.F-9802')
+        tbl = eso.query_apex_quicklooks(prog_id='095.F-9802', cache=False)
+        tblb = eso.query_apex_quicklooks(project_id='095.F-9802', cache=False)
 
         assert len(tbl) == 5
         assert set(tbl['Release Date']) == {'2015-07-17', '2015-07-18',
@@ -184,7 +184,9 @@ class TestEso:
 
         for instrument in instruments:
             try:
-                result = eso.query_instrument(instrument, coord1=266.41681662, coord2=-29.00782497, cache=False)
+                result = eso.query_instrument(instrument,
+                                              ra=266.41681662, dec=-29.00782497, radius=1.0,
+                                              cache=False)
             except NoResultsWarning:
                 # Sometimes there are ResourceWarnings, we ignore those for this test
                 pass
@@ -200,18 +202,17 @@ class TestEso:
         collections = eso.list_collections(cache=False)
         for collection in collections:
             if collection in SGRA_COLLECTIONS:
-                result_s = eso.query_collections(collections=collection, coord1=266.41681662,
-                                                 coord2=-29.00782497,
-                                                 box='01 00 00',
+                result_s = eso.query_collections(collections=collection,
+                                                 ra=266.41681662, dec=-29.00782497, radius=0.1775,
                                                  cache=False)
                 assert len(result_s) > 0
             else:
                 with pytest.warns(NoResultsWarning):
-                    result_s = eso.query_collections(collections=collection, coord1=266.41681662,
-                                                     coord2=-29.00782497,
-                                                     box='01 00 00',
+                    result_s = eso.query_collections(collections=collection, ra=266.41681662,
+                                                     dec=-29.00782497,
+                                                     radius=0.1775,
                                                      cache=False)
-                    assert result_s is None
+                    assert result_s is None, f"Failed for collection {collection}"
 
                     generic_result = eso.query_collections(collections=collection)
                     assert generic_result is not None, f"query_collection({collection}) returned None"
@@ -222,10 +223,10 @@ class TestEso:
         eso.cache_location = tmp_path
         eso.ROW_LIMIT = 5
 
-        result1 = eso.query_instrument('midi', coord1=266.41681662,
-                                       coord2=-29.00782497, cache=False)
-        result2 = eso.query_instrument('MiDi', coord1=266.41681662,
-                                       coord2=-29.00782497, cache=False)
+        result1 = eso.query_instrument('midi', ra=266.41681662,
+                                       dec=-29.00782497, radius=1.0, cache=False)
+        result2 = eso.query_instrument('MiDi', ra=266.41681662,
+                                       dec=-29.00782497, radius=1.0, cache=False)
 
         assert all(result1.values_equal(result2))
 
