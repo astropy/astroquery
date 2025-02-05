@@ -242,7 +242,7 @@ class TestEso:
         eso.ROW_LIMIT = 5
 
         # the failure should occur here
-        result = eso.query_main(target='SGR A', object='SGR A')
+        result = eso.query_raw(target='SGR A', object='SGR A')
 
         # test that max_results = 5
         assert len(result) == 5
