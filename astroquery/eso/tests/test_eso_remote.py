@@ -1,11 +1,20 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
+===========================
+ESO Astroquery Module tests
+===========================
 
+European Southern Observatory (ESO)
+
+"""
+
+from collections import Counter
 import numpy as np
 import pytest
 
-from astroquery.eso import Eso
-from astroquery.exceptions import NoResultsWarning
 from astropy.table import Table
+from astroquery.exceptions import NoResultsWarning
+from astroquery.eso import Eso
 
 instrument_list = ['fors1', 'fors2', 'sphere', 'vimos', 'omegacam',
                    'hawki', 'isaac', 'naco', 'visir', 'vircam', 'apex',
@@ -38,7 +47,7 @@ class TestEso:
         eso.ROW_LIMIT = 7
         t = eso.query_tap_service(f"select top {eso.ROW_LIMIT} * from ivoa.ObsCore")
         lt = len(t)
-        assert type(t) is Table, f"Expected type {type(Table)}; Obtained {type(t)}"
+        assert isinstance(t, Table), f"Expected type {type(Table)}; Obtained {type(t)}"
         assert len(t) > 0, "Table length is zero"
         assert len(t) == eso.ROW_LIMIT, f"Table length is {lt}, expected {eso.ROW_LIMIT}"
 
@@ -75,7 +84,7 @@ class TestEso:
         # From ivoa.ObsCore, we have "target_name" (when query_collections)
         # target_name: The target name as assigned by the Principal Investigator;
         # ref. Ref. OBJECT keyword in ESO SDP standard.
-        # For spectroscopic public surveys, the value shall be set to the survey source identifier...
+        # For spectroscopic public surveys, the value shall be set to the survey source identifier.
         assert 'target_name' in result_s.colnames
         assert 'b333' in result_s['target_name']
 
@@ -95,14 +104,9 @@ class TestEso:
         assert result_s is not None
         assert 'target_name' in result_s.colnames
 
-        from collections import Counter
         counts = Counter(result_s["obs_collection"].data)
         for tc in test_collections:
             assert counts[tc] > 0, f"{tc} : collection not present in results"
-
-        # TODO - Confirm that these tests are really necessary.
-        # assert 'b333' in result_s['target_name']
-        # assert 'Pistol-Star' in result_s['target_name']
 
     def test_empty_return(self):
         # test for empty return with an object from the North
@@ -134,7 +138,8 @@ class TestEso:
         inst = set(Eso.list_instruments(cache=False))
 
         # we only care about the sets matching
-        assert set(inst) == set(instrument_list), f"Expected result {instrument_list}; Obtained: {inst}"
+        assert set(inst) == set(instrument_list), \
+            f"Expected result {instrument_list}; Obtained: {inst}"
 
     def test_retrieve_data(self):
         eso = Eso()
@@ -215,8 +220,10 @@ class TestEso:
                     assert result_s is None, f"Failed for collection {collection}"
 
                     generic_result = eso.query_collections(collections=collection)
-                    assert generic_result is not None, f"query_collection({collection}) returned None"
-                    assert len(generic_result) > 0, f"query_collection({collection}) returned no records"
+                    assert generic_result is not None, \
+                        f"query_collection({collection}) returned None"
+                    assert len(generic_result) > 0, \
+                        f"query_collection({collection}) returned no records"
 
     def test_mixed_case_instrument(self, tmp_path):
         eso = Eso()
