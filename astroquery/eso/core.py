@@ -86,7 +86,6 @@ QueryOnCollection = QueryOnField(
 class EsoClass(QueryWithLogin):
     ROW_LIMIT = conf.row_limit
     USERNAME = conf.username
-    QUERY_INSTRUMENT_URL = conf.query_instrument_url
     CALSELECTOR_URL = "https://archive.eso.org/calselector/v1/associations"
     DOWNLOAD_URL = "https://dataportal.eso.org/dataPortal/file/"
     AUTH_URL = "https://www.eso.org/sso/oidc/token"
@@ -100,8 +99,6 @@ class EsoClass(QueryWithLogin):
         self._auth_info: Optional[AuthInfo] = None
         self.timeout = timeout
         self._hash = None
-        # for future debugging
-        self._payload = None
 
     @property
     def timeout(self):
@@ -140,9 +137,9 @@ class EsoClass(QueryWithLogin):
 
     @staticmethod
     def tap_url() -> str:
-        url = "http://archive.eso.org/tap_obs"
+        url = conf.tap_url
         if EsoClass.USE_DEV_TAP:
-            url = "http://dfidev5.hq.eso.org:8123/tap_obs"
+            url = conf.tap_url_dev
         return url
 
     def request_file(self, query_str: str):
@@ -348,7 +345,7 @@ class EsoClass(QueryWithLogin):
 
     def _query_instrument_or_collection(self,
                                         query_on: QueryOnField,
-                                        primary_filter: Union[List[str], str], *,
+                                        collections: Union[List[str], str], *,
                                         ra: float = None, dec: float = None, radius: float = None,
                                         column_filters: Dict = None,
                                         columns: Union[List, str] = None,
@@ -358,34 +355,6 @@ class EsoClass(QueryWithLogin):
         Query instrument- or collection-specific data contained in the ESO archive.
          - instrument-specific data is raw
          - collection-specific data is processed
-
-        Parameters
-        ----------
-        instrument : string
-            Name of the instrument to query, one of the names returned by
-            `~astroquery.eso.EsoClass.list_instruments`.
-        column_filters : dict
-            Constraints applied to the query.
-        columns : list of strings
-            Columns returned by the query.
-        open_form : bool
-            If `True`, opens in your default browser the query form
-            for the requested instrument.
-        print_help : bool
-            If `True`, prints all the parameters accepted in
-            ``column_filters`` and ``columns`` for the requested
-            ``instrument``.
-        cache : bool
-            Defaults to True. If set overrides global caching behavior.
-            See :ref:`caching documentation <astroquery_cache>`.
-
-        Returns
-        -------
-        table : `~astropy.table.Table`
-            A table representing the data available in the archive for the
-            specified instrument, matching the constraints specified in
-            ``kwargs``. The number of rows returned is capped by the
-            ROW_LIMIT configuration item.
         """
         column_filters = column_filters or {}
         columns = columns or []
@@ -406,14 +375,13 @@ class EsoClass(QueryWithLogin):
             message += f"Values provided: ra = {ra}, dec = {dec}, radius = {radius}"
             raise ValueError(message)
 
-        if isinstance(primary_filter, str):
-            primary_filter = _split_str_as_list_of_str(primary_filter)
+        if isinstance(collections, str):
+            collections = _split_str_as_list_of_str(collections)
 
-        primary_filter = list(map(lambda x: f"'{x.strip()}'", primary_filter))
-        where_collections_str = f"{query_on.column_name} in (" + ", ".join(primary_filter) + ")"
+        collections = list(map(lambda x: f"'{x.strip()}'", collections))
+        where_collections_str = f"{query_on.column_name} in (" + ", ".join(collections) + ")"
 
-        where_constraints_strlist = [f"{k} = {adql_sanitize_val(v)}"
-                                     for k, v in filters.items()]
+        where_constraints_strlist = [f"{k} = {adql_sanitize_val(v)}" for k, v in filters.items()]
         where_constraints = [where_collections_str] + where_constraints_strlist
         query = py2adql(table=query_on.table_name, columns=columns,
                         ra=ra, dec=dec, radius=radius,
@@ -431,7 +399,7 @@ class EsoClass(QueryWithLogin):
                          **kwargs) -> astropy.table.Table:
         _ = open_form
         return self._query_instrument_or_collection(query_on=QueryOnInstrument,
-                                                    primary_filter=instrument,
+                                                    collections=instrument,
                                                     ra=ra, dec=dec, radius=radius,
                                                     column_filters=column_filters,
                                                     columns=columns,
@@ -450,7 +418,7 @@ class EsoClass(QueryWithLogin):
         columns = columns or []
         _ = open_form
         return self._query_instrument_or_collection(query_on=QueryOnCollection,
-                                                    primary_filter=collections,
+                                                    collections=collections,
                                                     ra=ra, dec=dec, radius=radius,
                                                     column_filters=column_filters,
                                                     columns=columns,
@@ -459,38 +427,51 @@ class EsoClass(QueryWithLogin):
                                                     **kwargs)
 
     @deprecated_renamed_argument(old_name='help', new_name='print_help', since='0.4.8')
-    def query_main(self, *,
+    def query_raw(self, *,
+                  ra: float = None, dec: float = None, radius: float = None,
+                  column_filters=None, columns=None,
+                  print_help=False, cache=True, **kwargs):
+        """
+        Query raw data contained in the ESO archive.
+
+        Returns
+        -------
+        table : `~astropy.table.Table`, the number of rows
+        capped by the ROW_LIMIT configuration item.
+        """
+        column_filters = column_filters or {}
+        columns = columns or []
+        filters = {**dict(kwargs), **column_filters}
+        table_name = "dbo.raw"
+
+        if print_help:
+            self.print_table_help(table_name=table_name)
+            return
+
+        where_constraints_strlist = [f"{k} = {adql_sanitize_val(v)}" for k, v in filters.items()]
+        where_constraints = where_constraints_strlist
+
+
+        query = py2adql(table=table_name,
+                        columns=columns,
+                        ra=ra, dec=dec, radius=radius,
+                        where_constraints=where_constraints,
+                        top=self.ROW_LIMIT)
+
+        return self.query_tap_service(query_str=query, cache=cache)
+
+    @deprecated_renamed_argument(old_name='help', new_name='print_help', since='0.4.8')
+    def query_prods(self, *,
                    ra: float = None, dec: float = None, radius: float = None,
                    column_filters=None, columns=None,
                    print_help=False, cache=True, **kwargs):
         """
-        Query raw data contained in the ESO archive.
-
-        Parameters
-        ----------
-        column_filters : dict
-            Constraints applied to the query.
-        columns : list of strings
-            Columns returned by the query.
-        open_form : bool
-            If `True`, opens in your default browser the query form
-            for the requested instrument.
-        help : bool
-            If `True`, prints all the parameters accepted in
-            ``column_filters`` and ``columns`` for the requested
-            ``instrument``.
-        cache : bool
-            Defaults to True. If set overrides global caching behavior.
-            See :ref:`caching documentation <astroquery_cache>`.
+        Query processed data contained in the ESO archive.
 
         Returns
         -------
-        table : `~astropy.table.Table`
-            A table representing the data available in the archive for the
-            specified instrument, matching the constraints specified in
-            ``kwargs``. The number of rows returned is capped by the
-            ROW_LIMIT configuration item.
-
+        table : `~astropy.table.Table`, the number of rows
+        capped by the ROW_LIMIT configuration item.
         """
         column_filters = column_filters or {}
         columns = columns or []
@@ -501,12 +482,12 @@ class EsoClass(QueryWithLogin):
 
         if print_help:
             help_query = \
-                "select column_name, datatype from TAP_SCHEMA.columns where table_name = 'dbo.raw'"
+                "select column_name, datatype from TAP_SCHEMA.columns where table_name = 'ivoa.ObsCore'"
             h = self.query_tap_service(help_query, cache=cache)
             self.log_info(f"Columns present in the table: {h}")
             return
 
-        query = py2adql(table="dbo.raw",
+        query = py2adql(table="ivoa.ObsCore",
                         columns=columns,
                         ra=ra, dec=dec, radius=radius,
                         where_constraints=where_constraints,
