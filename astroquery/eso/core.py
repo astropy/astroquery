@@ -768,6 +768,8 @@ class EsoClass(QueryWithLogin):
         if isinstance(datasets, str):
             return_string = True
             datasets = [datasets]
+        if isinstance(datasets, astropy.table.column.Column):
+            datasets = list(datasets)
 
         if with_calib and with_calib not in ('raw', 'processed'):
             raise ValueError("Invalid value for 'with_calib'. "
