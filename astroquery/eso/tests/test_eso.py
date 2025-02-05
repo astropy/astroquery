@@ -1,4 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
+===========================
+ESO Astroquery Module tests
+===========================
+
+European Southern Observatory (ESO)
+
+"""
 import os
 import shutil
 import sys

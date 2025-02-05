@@ -1,4 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
+=====================
+ESO Astroquery Module
+=====================
+
+European Southern Observatory (ESO)
+
+"""
 
 import base64
 import email
@@ -30,7 +38,8 @@ from . import conf
 from ..exceptions import RemoteServiceError, NoResultsWarning, LoginError
 from ..query import QueryWithLogin
 from ..utils import schema
-from .utils import py2adql, _split_str_as_list_of_str, adql_sanitize_val, to_cache, eso_hash, are_coords_valid
+from .utils import py2adql, _split_str_as_list_of_str, \
+    adql_sanitize_val, to_cache, eso_hash, are_coords_valid
 
 __doctest_skip__ = ['EsoClass.*']
 
@@ -244,7 +253,9 @@ class EsoClass(QueryWithLogin):
         else:
             return {}
 
-    def query_tap_service(self, query_str: str, cache: Optional[bool] = None) -> Optional[astropy.table.Table]:
+    def query_tap_service(self,
+                          query_str: str,
+                          cache: Optional[bool] = None) -> Optional[astropy.table.Table]:
         """
         returns an astropy.table.Table from an adql query string
         Example use:
@@ -280,10 +291,7 @@ class EsoClass(QueryWithLogin):
             warnings.warn("Query returned no results", NoResultsWarning)
             return None
 
-        # TODO: Do we want to override the default behaviour
-        # and return a filled table??
-        # return table_to_return.filled() ## not masked
-        return table_to_return  # Masked - default
+        return table_to_return
 
     def list_instruments(self, *, cache=True) -> List[str]:
         """ List all the available instrument-specific queries offered by the ESO archive.
@@ -298,7 +306,8 @@ class EsoClass(QueryWithLogin):
         """
         if self._instruments is None:
             self._instruments = []
-            query_str = "select table_name from TAP_SCHEMA.tables where schema_name='ist' order by table_name"
+            query_str = ("select table_name from TAP_SCHEMA.tables "
+                         "where schema_name='ist' order by table_name")
             res = self.query_tap_service(query_str, cache=cache)["table_name"].data
             self._instruments = list(map(lambda x: x.split(".")[1], res))
         return self._instruments
@@ -327,8 +336,9 @@ class EsoClass(QueryWithLogin):
         """
         Prints the columns contained in a given table
         """
-        help_query = \
-            f"select column_name, datatype from TAP_SCHEMA.columns where table_name = '{table_name}'"
+        help_query = (
+            f"select column_name, datatype from TAP_SCHEMA.columns "
+            f"where table_name = '{table_name}'")
         available_cols = self.query_tap_service(help_query)
         nlines = len(available_cols) + 2
         n_ = astropy.conf.max_lines
@@ -337,10 +347,12 @@ class EsoClass(QueryWithLogin):
         astropy.conf.max_lines = n_
 
     def _query_instrument_or_collection(self,
-                                        query_on: QueryOnField, primary_filter: Union[List[str], str], *,
+                                        query_on: QueryOnField,
+                                        primary_filter: Union[List[str], str], *,
                                         ra: float = None, dec: float = None, radius: float = None,
                                         column_filters: Dict = None,
-                                        columns: Union[List, str] = None, print_help=False, cache=True,
+                                        columns: Union[List, str] = None,
+                                        print_help=False, cache=True,
                                         **kwargs) -> astropy.table.Table:
         """
         Query instrument- or collection-specific data contained in the ESO archive.
@@ -383,8 +395,11 @@ class EsoClass(QueryWithLogin):
             self.print_table_help(query_on.table_name)
             return
 
-        if ('box' in filters.keys()) or ('coord1' in filters.keys()) or ('coord2' in filters.keys()):
-            raise ValueError('box, coord1 and coord2 are deprecated; use ra, dec and radius instead')
+        if (('box' in filters.keys())
+            or ('coord1' in filters.keys())
+                or ('coord2' in filters.keys())):
+            message = 'box, coord1 and coord2 are deprecated; use ra, dec and radius instead'
+            raise ValueError(message)
 
         if not are_coords_valid(ra, dec, radius):
             message = "Either all three (ra, dec, radius) must be present or none of them.\n"
@@ -493,6 +508,7 @@ class EsoClass(QueryWithLogin):
 
         query = py2adql(table="dbo.raw",
                         columns=columns,
+                        ra=ra, dec=dec, radius=radius,
                         where_constraints=where_constraints,
                         top=self.ROW_LIMIT)
 
@@ -530,7 +546,7 @@ class EsoClass(QueryWithLogin):
         result = []
         for dp_id in product_ids:
             response = self._request(
-                "GET", "http://archive.eso.org/hdr?DpId={0}".format(dp_id),
+                "GET", f"http://archive.eso.org/hdr?DpId={dp_id}",
                 cache=cache)
             root = BeautifulSoup(response.content, 'html5lib')
             hdr = root.select('pre')[0].text
@@ -565,10 +581,10 @@ class EsoClass(QueryWithLogin):
                     columns.append(key)
                     column_types.append(type(header[key]))
         # Add all missing elements
-        for i in range(len(result)):
+        for r in result:
             for (column, column_type) in zip(columns, column_types):
-                if column not in result[i]:
-                    result[i][column] = column_type()
+                if column not in r:
+                    r[column] = column_type()
         # Return as Table
         return Table(result)
 
@@ -714,7 +730,8 @@ class EsoClass(QueryWithLogin):
                 self._save_xml(xml, filename, destination)
         # For multiple datasets it returns a multipart message
         elif 'multipart/form-data' in content_type:
-            msg = email.message_from_string(f'Content-Type: {content_type}\r\n' + response.content.decode())
+            msg = email.message_from_string(
+                f'Content-Type: {content_type}\r\n' + response.content.decode())
             for part in msg.get_payload():
                 filename = part.get_filename()
                 xml = part.get_payload(decode=True)
@@ -783,10 +800,11 @@ class EsoClass(QueryWithLogin):
             self.log_info(f"Retrieving associated '{with_calib}' calibration files ...")
             try:
                 # batch calselector requests to avoid possible issues on the ESO server
-                BATCH_SIZE = 100
+                batch_size = 100
                 sorted_datasets = sorted(datasets)
-                for i in range(0, len(sorted_datasets), BATCH_SIZE):
-                    associated_files += self.get_associated_files(sorted_datasets[i:i + BATCH_SIZE], mode=with_calib)
+                for i in range(0, len(sorted_datasets), batch_size):
+                    associated_files += self.get_associated_files(
+                        sorted_datasets[i:i + batch_size], mode=with_calib)
                 associated_files = list(set(associated_files))
                 self.log_info(f"Found {len(associated_files)} associated files")
             except Exception as ex:
@@ -825,17 +843,17 @@ class EsoClass(QueryWithLogin):
     @deprecated(since="v0.4.8", message=("The ESO list_surveys function is deprecated,"
                                          "Use the list_collections  function instead."))
     def list_surveys(self, *args, **kwargs):
-        if "surveys" in kwargs.keys():
+        if "surveys" in kwargs:
             kwargs["collections"] = kwargs["surveys"]
-            del (kwargs["surveys"])
+            del kwargs["surveys"]
         return self.list_collections(*args, **kwargs)
 
     @deprecated(since="v0.4.8", message=("The ESO query_surveys function is deprecated,"
                                          "Use the query_collections  function instead."))
     def query_surveys(self, *args, **kwargs):
-        if "surveys" in kwargs.keys():
+        if "surveys" in kwargs:
             kwargs["collections"] = kwargs["surveys"]
-            del (kwargs["surveys"])
+            del kwargs["surveys"]
         return self.query_collections(*args, **kwargs)
 
 
