@@ -30,11 +30,51 @@ def adql_sanitize_val(x):
         return f"{x}"
 
 
-def py2adql(table: str, columns: Union[List, str] = None, where_constraints: List = None,
+def are_coords_valid(ra: float = None,
+                     dec: float = None,
+                     radius: float = None) -> bool:
+    """
+    ra, dec, radius must be either present all three
+    or absent all three. Moreover, they must be float
+    """
+    is_a_valid_combination = True
+    # if either of the three is None...
+    if ((ra is None)
+        or (dec is None)
+            or (radius is None)):
+        # ...all three must be none
+        is_a_valid_combination = (
+            (ra is None)
+            and (dec is None)
+            and (radius is None))
+    else:
+        # They are not None --> they must be float:
+        is_a_valid_combination = (
+            isinstance(ra, (float, int))
+            and isinstance(dec, (float, int))
+            and isinstance(radius, (float, int)))
+    return is_a_valid_combination
+
+
+def py2adql(table: str, columns: Union[List, str] = None,
+            ra: float = None, dec: float = None, radius: float = None,
+            where_constraints: List = None,
             order_by: str = '', order_by_desc=True, top: int = None):
     """
     Return the adql string corresponding to the parameters passed
+    See adql examples at http://archive.eso.org/tap_obs/examples
     """
+    # validate ra, dec, radius
+    if not are_coords_valid(ra, dec, radius):
+        message = "Either all three values for (ra, dec, radius) must be present or none of them.\n"
+        message += f"Values provided: ra = {ra:0.7f}, dec = {dec:0.7f}, radius = {radius:0.7f}"
+        raise ValueError(message)
+
+    # coordinates are valid
+    where_circle = []
+    if ra:
+        where_circle += [f'intersects(s_region, circle(\'ICRS\', {ra}, {dec}, {radius}))=1']
+
     # Initialize / validate
     query_string = None
     # do not modify the original list
@@ -47,7 +87,7 @@ def py2adql(table: str, columns: Union[List, str] = None, where_constraints: Lis
     # Build the query
     query_string = ', '.join(columns) + ' from ' + table
     if len(wc) > 0:
-        where_string = ' where ' + ' and '.join(wc)
+        where_string = ' where ' + ' and '.join(wc + where_circle)
         query_string += where_string
 
     if len(order_by) > 0:

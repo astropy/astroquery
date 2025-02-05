@@ -33,7 +33,7 @@ DATA_FILES = {
             # TODO: Point the second query to an IST when the ISTs are available.
             # TODO: Fix the apex query when the backend is available.
             "select top 50 * from ivoa.ObsCore where obs_collection in ('VVV') and "
-            "intersects(circle('ICRS', 266.41681662, -29.00782497, 0.1775), s_region)=1":
+            "intersects(s_region, circle('ICRS', 266.41681662, -29.00782497, 0.1775))=1":
             "query_coll_vvv_sgra.pickle",
             "select top 50 * from dbo.raw where instrument in ('sinfoni') and "
             "target = 'SGRA'":
@@ -114,8 +114,8 @@ def test_vvv(monkeypatch):
     eso = Eso()
     monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
     result = eso.query_collections(collections='VVV',
-                                   coord1=266.41681662, coord2=-29.00782497,
-                                   box='01 00 00',
+                                   ra=266.41681662, dec=-29.00782497,
+                                   radius=0.1775,
                                    )
     # test all results are there and the expected target is present
     assert len(result) == 50
@@ -248,7 +248,7 @@ def test_py2adql():
                 order_by='order_col')
     eq = "select pippo, tizio, caio from pinko.Pallino " + \
         "where asdf > 1 and asdf < 2 and asdf = 3 and asdf != 4 " + \
-        "order by order_col desc"  # JM check here!!
+        "order by order_col desc"
     assert eq == q, f"Expected:\n{eq}\n\nObtained:\n{q}\n\n"
 
     q = py2adql('pinko.Pallino', ['pippo', 'tizio', 'caio'],
@@ -256,7 +256,7 @@ def test_py2adql():
                 order_by='order_col')
     eq = "select pippo, tizio, caio from pinko.Pallino " + \
         "where asdf = 'ASDF' and bcd = 'BCD' " + \
-        "order by order_col desc"  # JM check here!!
+        "order by order_col desc"
     assert eq == q, f"Expected:\n{eq}\n\nObtained:\n{q}\n\n"
 
     # All arguments
@@ -280,5 +280,27 @@ def test_py2adql():
                 order_by='snr', order_by_desc=False)
     expected_query = 'select ' + columns + ' from ' + table + \
         ' where ' + and_c_list[0] + ' and ' + and_c_list[1] + ' and ' + and_c_list[2] + \
+        " order by snr asc"
+    assert expected_query == q, f"Expected:\n{expected_query}\n\nObtained:\n{q}\n\n"
+
+    # ra, dec, radius
+    q = py2adql(columns=columns, table=table,
+                where_constraints=and_c_list,
+                order_by='snr', order_by_desc=False,
+                ra=1, dec=2, radius=3)
+    expected_query = 'select ' + columns + ' from ' + table + \
+        ' where ' + and_c_list[0] + ' and ' + and_c_list[1] + ' and ' + and_c_list[2] + \
+        ' and intersects(s_region, circle(\'ICRS\', 1, 2, 3))=1' + \
+        " order by snr asc"
+    assert expected_query == q, f"Expected:\n{expected_query}\n\nObtained:\n{q}\n\n"
+
+    # ra, dec, radius
+    q = py2adql(columns=columns, table=table,
+                where_constraints=and_c_list,
+                order_by='snr', order_by_desc=False,
+                ra=1.23, dec=2.34, radius=3.45)
+    expected_query = 'select ' + columns + ' from ' + table + \
+        ' where ' + and_c_list[0] + ' and ' + and_c_list[1] + ' and ' + and_c_list[2] + \
+        ' and intersects(s_region, circle(\'ICRS\', 1.23, 2.34, 3.45))=1' + \
         " order by snr asc"
     assert expected_query == q, f"Expected:\n{expected_query}\n\nObtained:\n{q}\n\n"
