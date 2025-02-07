@@ -98,26 +98,6 @@ class EsoClass(QueryWithLogin):
     def timeout(self):
         return self._timeout
 
-    @staticmethod
-    def log_info(message):
-        "Wrapper for logging function"
-        log.info(message)
-
-    @staticmethod
-    def log_warning(message):
-        "Wrapper for logging function"
-        log.warning(message)
-
-    @staticmethod
-    def log_error(message):
-        "Wrapper for logging function"
-        log.error(message)
-
-    @staticmethod
-    def log_debug(message):
-        "Wrapper for logging function"
-        log.debug(message)
-
     @timeout.setter
     def timeout(self, value):
         if hasattr(value, 'to'):
@@ -152,12 +132,14 @@ class EsoClass(QueryWithLogin):
                 if not isinstance(cached_table, Table):
                     cached_table = None
             else:
-                self.log_debug(f"Cache expired for {table_file} ...")
+                logmsg = (f"Cache expired for {table_file} ...")
+                log.debug(logmsg)
                 cached_table = None
         except FileNotFoundError:
             cached_table = None
         if cached_table:
-            self.log_debug(f"Retrieved data from {table_file} ...")
+            logmsg = (f"Retrieved data from {table_file} ...")
+            log.debug(logmsg)
         return cached_table
 
     def _authenticate(self, *, username: str, password: str) -> bool:
@@ -171,15 +153,18 @@ class EsoClass(QueryWithLogin):
                       "client_secret": "clientSecret",
                       "username": username,
                       "password": password}
-        self.log_info(f"Authenticating {username} on 'www.eso.org' ...")
+        logmsg = (f"Authenticating {username} on 'www.eso.org' ...")
+        log.info(logmsg)
         response = self._request('GET', self.AUTH_URL, params=url_params)
         if response.status_code == 200:
             token = json.loads(response.content)['id_token']
             self._auth_info = AuthInfo(username=username, password=password, token=token)
-            self.log_info("Authentication successful!")
+            logmsg = ("Authentication successful!")
+            log.info(logmsg)
             return True
         else:
-            self.log_error("Authentication failed!")
+            logmsg = ("Authentication failed!")
+            log.error(logmsg)
             return False
 
     def _get_auth_info(self, username: str, *, store_password: bool = False,
@@ -232,7 +217,8 @@ class EsoClass(QueryWithLogin):
 
     def _get_auth_header(self) -> Dict[str, str]:
         if self._auth_info and self._auth_info.expired():
-            self.log_info("Authentication token has expired! Re-authenticating ...")
+            logmsg = ("Authentication token has expired! Re-authenticating ...")
+            log.info(logmsg)
             self._authenticate(username=self._auth_info.username,
                                password=self._auth_info.password)
         if self._auth_info and not self._auth_info.expired():
@@ -330,7 +316,8 @@ class EsoClass(QueryWithLogin):
         nlines = len(available_cols) + 2
         n_ = astropy.conf.max_lines
         astropy.conf.max_lines = nlines
-        self.log_info(f"\nColumns present in the table {table_name}:\n{available_cols}\n")
+        logmsg = (f"\nColumns present in the table {table_name}:\n{available_cols}\n")
+        log.info(logmsg)
         astropy.conf.max_lines = n_
 
     def _query_on_allowed_values(self,
@@ -527,7 +514,8 @@ class EsoClass(QueryWithLogin):
             filename = os.path.join(destination, filename)
             part_filename = filename + ".part"
             if os.path.exists(part_filename):
-                self.log_info(f"Removing partially downloaded file {part_filename}")
+                logmsg = (f"Removing partially downloaded file {part_filename}")
+                log.info(logmsg)
                 os.remove(part_filename)
             download_required = overwrite or not self._find_cached_file(filename)
             if download_required:
@@ -543,23 +531,29 @@ class EsoClass(QueryWithLogin):
         destination = os.path.abspath(destination)
         os.makedirs(destination, exist_ok=True)
         nfiles = len(file_ids)
-        self.log_info(f"Downloading {nfiles} files ...")
+        logmsg = (f"Downloading {nfiles} files ...")
+        log.info(logmsg)
         downloaded_files = []
         for i, file_id in enumerate(file_ids, 1):
             file_link = self.DOWNLOAD_URL + file_id
-            self.log_info(f"Downloading file {i}/{nfiles} {file_link} to {destination}")
+            logmsg = (f"Downloading file {i}/{nfiles} {file_link} to {destination}")
+            log.info(logmsg)
             try:
                 filename, downloaded = self._download_eso_file(file_link, destination, overwrite)
                 downloaded_files.append(filename)
                 if downloaded:
-                    self.log_info(f"Successfully downloaded dataset {file_id} to {filename}")
+                    logmsg = (f"Successfully downloaded dataset {file_id} to {filename}")
+                    log.info(logmsg)
             except requests.HTTPError as http_error:
                 if http_error.response.status_code == 401:
-                    self.log_error(f"Access denied to {file_link}")
+                    logmsg = (f"Access denied to {file_link}")
+                    log.error(logmsg)
                 else:
-                    self.log_error(f"Failed to download {file_link}. {http_error}")
+                    logmsg = (f"Failed to download {file_link}. {http_error}")
+                    log.error(logmsg)
             except RuntimeError as ex:
-                self.log_error(f"Failed to download {file_link}. {ex}")
+                logmsg = (f"Failed to download {file_link}. {ex}")
+                log.error(logmsg)
         return downloaded_files
 
     def _unzip_file(self, filename: str) -> str:
@@ -572,12 +566,14 @@ class EsoClass(QueryWithLogin):
         if filename.endswith(('fits.Z', 'fits.gz')):
             uncompressed_filename = filename.rsplit(".", 1)[0]
             if not os.path.exists(uncompressed_filename):
-                self.log_info(f"Uncompressing file {filename}")
+                logmsg = (f"Uncompressing file {filename}")
+                log.info(logmsg)
                 try:
                     subprocess.run([self.GUNZIP, filename], check=True)
                 except Exception as ex:
                     uncompressed_filename = None
-                    self.log_error(f"Failed to unzip {filename}: {ex}")
+                    logmsg = (f"Failed to unzip {filename}: {ex}")
+                    log.error(logmsg)
         return uncompressed_filename or filename
 
     def _unzip_files(self, files: List[str]) -> List[str]:
@@ -598,7 +594,8 @@ class EsoClass(QueryWithLogin):
         destination = os.path.abspath(destination)
         os.makedirs(destination, exist_ok=True)
         filename = os.path.join(destination, filename)
-        self.log_info(f"Saving Calselector association tree to {filename}")
+        logmsg = (f"Saving Calselector association tree to {filename}")
+        log.info(logmsg)
         with open(filename, "wb") as fd:
             fd.write(payload)
 
@@ -707,7 +704,8 @@ class EsoClass(QueryWithLogin):
 
         associated_files = []
         if with_calib:
-            self.log_info(f"Retrieving associated '{with_calib}' calibration files ...")
+            logmsg = (f"Retrieving associated '{with_calib}' calibration files ...")
+            log.info(logmsg)
             try:
                 # batch calselector requests to avoid possible issues on the ESO server
                 batch_size = 100
@@ -716,16 +714,20 @@ class EsoClass(QueryWithLogin):
                     associated_files += self.get_associated_files(
                         sorted_datasets[i:i + batch_size], mode=with_calib)
                 associated_files = list(set(associated_files))
-                self.log_info(f"Found {len(associated_files)} associated files")
+                logmsg = (f"Found {len(associated_files)} associated files")
+                log.info(logmsg)
             except Exception as ex:
-                self.log_error(f"Failed to retrieve associated files: {ex}")
+                logmsg = (f"Failed to retrieve associated files: {ex}")
+                log.error(logmsg)
 
         all_datasets = datasets + associated_files
-        self.log_info("Downloading datasets ...")
+        logmsg = ("Downloading datasets ...")
+        log.info(logmsg)
         files = self._download_eso_files(all_datasets, destination, continuation)
         if unzip:
             files = self._unzip_files(files)
-        self.log_info("Done!")
+        logmsg = ("Done!")
+        log.info(logmsg)
         return files[0] if files and len(files) == 1 and return_string else files
 
     @deprecated_renamed_argument(('open_form', 'help'), (None, 'print_help'),
