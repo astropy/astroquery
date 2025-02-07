@@ -20,7 +20,6 @@ import time
 import warnings
 import xml.etree.ElementTree as ET
 from typing import List, Optional, Tuple, Dict, Set, Union
-from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta
 
 import astropy.table
@@ -29,7 +28,7 @@ import astropy.units as u
 import keyring
 import requests.exceptions
 from astropy.table import Table, Column
-from astropy.utils.decorators import deprecated, deprecated_renamed_argument
+from astropy.utils.decorators import deprecated_renamed_argument
 from bs4 import BeautifulSoup
 import pyvo
 
@@ -67,20 +66,15 @@ class AuthInfo:
         return time.time() > self.expiration_time - 600
 
 
-@dataclass
-class QueryOnField:
-    table_name: str
-    column_name: str
+class EsoNames:
+    raw_table = "dbo.raw"
+    phase3_table = "ivoa.ObsCore"
+    raw_instruments_column = "instrument"
+    phase3_collections_column = "obs_collection"
 
-
-QueryOnInstrument = QueryOnField(
-    table_name="dbo.raw",  # This should be ist.<instrument_name>
-    column_name="instrument")
-
-
-QueryOnCollection = QueryOnField(
-    table_name="ivoa.ObsCore",
-    column_name="obs_collection")
+    @staticmethod
+    def ist_table(instrument_name):
+        return f"ist.{instrument_name}"
 
 
 class EsoClass(QueryWithLogin):
@@ -104,10 +98,6 @@ class EsoClass(QueryWithLogin):
     def timeout(self):
         return self._timeout
 
-    # The logging module needs strings
-    # written in %s style. This wrappers
-    # are used for that purpose.
-    # [W1203 - logging-fstring-interpolation]
     @staticmethod
     def log_info(message):
         "Wrapper for logging function"
@@ -321,8 +311,8 @@ class EsoClass(QueryWithLogin):
         """
         if self._collections is None:
             self._collections = []
-            c = QueryOnCollection.column_name
-            t = QueryOnCollection.table_name
+            t = EsoNames.phase3_table
+            c = EsoNames.phase3_collections_column
             query_str = f"select distinct {c} from {t}"
             res = self.query_tap_service(query_str, cache=cache)[c].data
 
@@ -343,30 +333,29 @@ class EsoClass(QueryWithLogin):
         self.log_info(f"\nColumns present in the table {table_name}:\n{available_cols}\n")
         astropy.conf.max_lines = n_
 
-    def _query_instrument_or_collection(self,
-                                        query_on: QueryOnField,
-                                        collections: Union[List[str], str], *,
-                                        ra: float = None, dec: float = None, radius: float = None,
-                                        column_filters: Dict = None,
-                                        columns: Union[List, str] = None,
-                                        print_help=False, cache=True,
-                                        **kwargs) -> astropy.table.Table:
+    def _query_on_allowed_values(self,
+                                 table_name: str,
+                                 column_name: str,
+                                 allowed_values: Union[List[str], str] = None, *,
+                                 ra: float = None, dec: float = None, radius: float = None,
+                                 columns: Union[List, str] = None,
+                                 print_help=False, cache=True,
+                                 **kwargs) -> astropy.table.Table:
         """
         Query instrument- or collection-specific data contained in the ESO archive.
          - instrument-specific data is raw
          - collection-specific data is processed
         """
-        column_filters = column_filters or {}
         columns = columns or []
-        filters = {**dict(kwargs), **column_filters}
+        filters = {**dict(kwargs)}
 
         if print_help:
-            self.print_table_help(query_on.table_name)
+            self.print_table_help(table_name)
             return
 
-        if (('box' in filters.keys())
-            or ('coord1' in filters.keys())
-                or ('coord2' in filters.keys())):
+        if (('box' in filters)
+            or ('coord1' in filters)
+                or ('coord2' in filters)):
             message = 'box, coord1 and coord2 are deprecated; use ra, dec and radius instead'
             raise ValueError(message)
 
@@ -375,125 +364,65 @@ class EsoClass(QueryWithLogin):
             message += f"Values provided: ra = {ra}, dec = {dec}, radius = {radius}"
             raise ValueError(message)
 
-        if isinstance(collections, str):
-            collections = _split_str_as_list_of_str(collections)
+        where_collections_strlist = []
+        if allowed_values:
+            if isinstance(allowed_values, str):
+                allowed_values = _split_str_as_list_of_str(allowed_values)
 
-        collections = list(map(lambda x: f"'{x.strip()}'", collections))
-        where_collections_str = f"{query_on.column_name} in (" + ", ".join(collections) + ")"
+            allowed_values = list(map(lambda x: f"'{x.strip()}'", allowed_values))
+            where_collections_strlist = [f"{column_name} in (" + ", ".join(allowed_values) + ")"]
 
         where_constraints_strlist = [f"{k} = {adql_sanitize_val(v)}" for k, v in filters.items()]
-        where_constraints = [where_collections_str] + where_constraints_strlist
-        query = py2adql(table=query_on.table_name, columns=columns,
+        where_constraints = where_collections_strlist + where_constraints_strlist
+        query = py2adql(table=table_name, columns=columns,
                         ra=ra, dec=dec, radius=radius,
                         where_constraints=where_constraints,
                         top=self.ROW_LIMIT)
 
         return self.query_tap_service(query_str=query, cache=cache)
 
-    @deprecated_renamed_argument(('open_form', 'help'), (None, 'print_help'),
-                                 since=['0.4.8', '0.4.8'])
-    def query_instrument(self, instrument: Union[List, str] = None, *,
-                         ra: float = None, dec: float = None, radius: float = None,
-                         column_filters: Dict = None, columns: Union[List, str] = None,
-                         open_form=False, print_help=False, cache=True,
-                         **kwargs) -> astropy.table.Table:
-        _ = open_form
-        return self._query_instrument_or_collection(query_on=QueryOnInstrument,
-                                                    collections=instrument,
-                                                    ra=ra, dec=dec, radius=radius,
-                                                    column_filters=column_filters,
-                                                    columns=columns,
-                                                    print_help=print_help,
-                                                    cache=cache,
-                                                    **kwargs)
-
-    @deprecated_renamed_argument(('open_form', 'help'), (None, 'print_help'),
-                                 since=['0.4.8', '0.4.8'])
-    def query_collections(self, collections: Union[List, str] = None, *,
+    def query_collections(self,
+                          collections: Union[List[str], str], *,
                           ra: float = None, dec: float = None, radius: float = None,
-                          column_filters: Dict = None, columns: Union[List, str] = None,
-                          open_form=False, print_help=False, cache=True,
+                          columns: Union[List, str] = None,
+                          print_help=False, cache=True,
                           **kwargs) -> astropy.table.Table:
-        column_filters = column_filters or {}
-        columns = columns or []
-        _ = open_form
-        return self._query_instrument_or_collection(query_on=QueryOnCollection,
-                                                    collections=collections,
-                                                    ra=ra, dec=dec, radius=radius,
-                                                    column_filters=column_filters,
-                                                    columns=columns,
-                                                    print_help=print_help,
-                                                    cache=cache,
-                                                    **kwargs)
+        return self._query_on_allowed_values(table_name=EsoNames.phase3_table,
+                                             column_name=EsoNames.phase3_collections_column,
+                                             allowed_values=collections,
+                                             ra=ra, dec=dec, radius=radius,
+                                             columns=columns,
+                                             print_help=print_help, cache=cache,
+                                             **kwargs)
 
-    @deprecated_renamed_argument(old_name='help', new_name='print_help', since='0.4.8')
-    def query_raw(self, *,
-                  ra: float = None, dec: float = None, radius: float = None,
-                  column_filters=None, columns=None,
-                  print_help=False, cache=True, **kwargs):
-        """
-        Query raw data contained in the ESO archive.
-
-        Returns
-        -------
-        table : `~astropy.table.Table`, the number of rows
-        capped by the ROW_LIMIT configuration item.
-        """
-        column_filters = column_filters or {}
-        columns = columns or []
-        filters = {**dict(kwargs), **column_filters}
-        table_name = "dbo.raw"
-
-        if print_help:
-            self.print_table_help(table_name=table_name)
-            return
-
-        where_constraints_strlist = [f"{k} = {adql_sanitize_val(v)}" for k, v in filters.items()]
-        where_constraints = where_constraints_strlist
-
-
-        query = py2adql(table=table_name,
-                        columns=columns,
-                        ra=ra, dec=dec, radius=radius,
-                        where_constraints=where_constraints,
-                        top=self.ROW_LIMIT)
-
-        return self.query_tap_service(query_str=query, cache=cache)
-
-    @deprecated_renamed_argument(old_name='help', new_name='print_help', since='0.4.8')
-    def query_prods(self, *,
+    def query_main(self,
+                   instruments: Union[List[str], str] = None, *,
                    ra: float = None, dec: float = None, radius: float = None,
-                   column_filters=None, columns=None,
-                   print_help=False, cache=True, **kwargs):
-        """
-        Query processed data contained in the ESO archive.
+                   columns: Union[List, str] = None,
+                   print_help=False, cache=True,
+                   **kwargs) -> astropy.table.Table:
+        return self._query_on_allowed_values(table_name=EsoNames.raw_table,
+                                             column_name=EsoNames.raw_instruments_column,
+                                             allowed_values=instruments,
+                                             ra=ra, dec=dec, radius=radius,
+                                             columns=columns,
+                                             print_help=print_help, cache=cache,
+                                             **kwargs)
 
-        Returns
-        -------
-        table : `~astropy.table.Table`, the number of rows
-        capped by the ROW_LIMIT configuration item.
-        """
-        column_filters = column_filters or {}
-        columns = columns or []
-        filters = {**dict(kwargs), **column_filters}
-
-        where_constraints_strlist = [f"{k} = {adql_sanitize_val(v)}" for k, v in filters.items()]
-        where_constraints = where_constraints_strlist
-
-        if print_help:
-            help_query = \
-                "select column_name, datatype from TAP_SCHEMA.columns where table_name = 'ivoa.ObsCore'"
-            h = self.query_tap_service(help_query, cache=cache)
-            self.log_info(f"Columns present in the table: {h}")
-            return
-
-        query = py2adql(table="ivoa.ObsCore",
-                        columns=columns,
-                        ra=ra, dec=dec, radius=radius,
-                        where_constraints=where_constraints,
-                        top=self.ROW_LIMIT)
-
-        return self.query_tap_service(query_str=query, cache=cache)
+    # ex query_instrument
+    def query_instrument(self,
+                         instrument: str, *,
+                         ra: float = None, dec: float = None, radius: float = None,
+                         columns: Union[List, str] = None,
+                         print_help=False, cache=True,
+                         **kwargs) -> astropy.table.Table:
+        return self._query_on_allowed_values(table_name=EsoNames.ist_table(instrument),
+                                             column_name=None,
+                                             allowed_values=None,
+                                             ra=ra, dec=dec, radius=radius,
+                                             columns=columns,
+                                             print_help=print_help, cache=cache,
+                                             **kwargs)
 
     def get_headers(self, product_ids, *, cache=True):
         """
@@ -820,22 +749,6 @@ class EsoClass(QueryWithLogin):
             return self.query_tap_service(query_str=query, cache=cache)
         else:
             raise NotImplementedError
-
-    @deprecated(since="v0.4.8", message=("The ESO list_surveys function is deprecated,"
-                                         "Use the list_collections  function instead."))
-    def list_surveys(self, *args, **kwargs):
-        if "surveys" in kwargs:
-            kwargs["collections"] = kwargs["surveys"]
-            del kwargs["surveys"]
-        return self.list_collections(*args, **kwargs)
-
-    @deprecated(since="v0.4.8", message=("The ESO query_surveys function is deprecated,"
-                                         "Use the query_collections  function instead."))
-    def query_surveys(self, *args, **kwargs):
-        if "surveys" in kwargs:
-            kwargs["collections"] = kwargs["surveys"]
-            del kwargs["surveys"]
-        return self.query_collections(*args, **kwargs)
 
 
 Eso = EsoClass()
