@@ -11,6 +11,7 @@ European Southern Observatory (ESO)
 import base64
 import email
 import json
+import os
 import os.path
 import pickle
 import re
@@ -109,7 +110,14 @@ class EsoClass(QueryWithLogin):
     def tap_url() -> str:
         url = conf.tap_url
         if EsoClass.USE_DEV_TAP:
-            url = conf.tap_url_dev
+            try:
+                url = os.environ['TAP_URL']
+            except KeyError as e:
+                raise EnvironmentError(
+                    "Running on dev mode, but TAP_URL environment variable is not set"
+                ) from e
+            logmsg = f"Using dev tap url: {url}"
+            log.info(logmsg)
         return url
 
     def request_file(self, query_str: str):

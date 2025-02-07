@@ -3,7 +3,6 @@
 ESO service.
 """
 from astropy import config as _config
-import os
 
 
 class Conf(_config.ConfigNamespace):
@@ -20,9 +19,7 @@ class Conf(_config.ConfigNamespace):
     tap_url = _config.ConfigItem(
         "https://archive.eso.org/tap_obs",
         'URL for TAP queries.')
-    tap_url_dev = _config.ConfigItem(
-        os.environ['TAP_URL_DEV'],
-        'URL for TAP development server.')
+
 
 conf = Conf()
 
