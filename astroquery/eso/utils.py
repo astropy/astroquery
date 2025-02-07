@@ -62,7 +62,7 @@ def py2adql(table: str, columns: Union[List, str] = None,
             order_by: str = '', order_by_desc=True, top: int = None):
     """
     Return the adql string corresponding to the parameters passed
-    See adql examples at http://archive.eso.org/tap_obs/examples
+    See adql examples at https://archive.eso.org/tap_obs/examples
     """
     # validate ra, dec, radius
     if not are_coords_valid(ra, dec, radius):
