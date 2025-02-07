@@ -110,7 +110,7 @@ def test_main_SgrAstar(monkeypatch):
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
     monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
-    result = eso.query_raw(target='SGR A', object='SGR A')
+    result = eso.query_main(target='SGR A', object='SGR A')
     # test all results are there and the expected target is present
     assert len(result) == 23
     assert 'SGR A' in result['object']
