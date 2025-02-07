@@ -253,12 +253,12 @@ class EsoClass(QueryWithLogin):
         except pyvo.dal.exceptions.DALQueryError as e:
             raise pyvo.dal.exceptions.DALQueryError(f"\n\n\
                             Error executing the following query:\n\n{query_str}\n\n\
-                            See examples here: http://archive.eso.org/tap_obs/examples\n\n") from e
+                            See examples here: https://archive.eso.org/tap_obs/examples\n\n") from e
         except Exception as e:
             raise RuntimeError(f"\n\n\
                             Unknown exception {e} while executing the\
                             following query: \n\n{query_str}\n\n\
-                            See examples here: http://archive.eso.org/tap_obs/examples\n\n") from e
+                            See examples here: https://archive.eso.org/tap_obs/examples\n\n") from e
 
         if len(table_to_return) < 1:
             warnings.warn("Query returned no results", NoResultsWarning)
@@ -443,7 +443,7 @@ class EsoClass(QueryWithLogin):
         result = []
         for dp_id in product_ids:
             response = self._request(
-                "GET", f"http://archive.eso.org/hdr?DpId={dp_id}",
+                "GET", f"https://archive.eso.org/hdr?DpId={dp_id}",
                 cache=cache)
             root = BeautifulSoup(response.content, 'html5lib')
             hdr = root.select('pre')[0].text
@@ -500,7 +500,8 @@ class EsoClass(QueryWithLogin):
             files_to_check.append(filename.rsplit(".", 1)[0])
         for file in files_to_check:
             if os.path.exists(file):
-                EsoClass.log_info(f"Found cached file {file}")
+                logmsg = (f"Found cached file {file}")
+                log.info(logmsg)
                 return True
         return False
 

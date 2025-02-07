@@ -18,7 +18,7 @@ class Conf(_config.ConfigNamespace):
         "",
         'Optional default username for ESO archive.')
     tap_url = _config.ConfigItem(
-        "http://archive.eso.org/tap_obs",
+        "https://archive.eso.org/tap_obs",
         'URL for TAP queries.')
     tap_url_dev = _config.ConfigItem(
         os.environ['TAP_URL_DEV'],

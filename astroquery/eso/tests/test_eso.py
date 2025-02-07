@@ -32,9 +32,9 @@ DATA_FILES = {
         },
     'POST':
         {
-            'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/query': 'main_sgra_query.tbl',
-            'http://archive.eso.org/wdb/wdb/eso/amber/query': 'amber_sgra_query.tbl',
-            'http://archive.eso.org/wdb/wdb/adp/phase3_main/query': 'vvv_sgra_survey_response.tbl',
+            'https://archive.eso.org/wdb/wdb/eso/eso_archive_main/query': 'main_sgra_query.tbl',
+            'https://archive.eso.org/wdb/wdb/eso/amber/query': 'amber_sgra_query.tbl',
+            'https://archive.eso.org/wdb/wdb/adp/phase3_main/query': 'vvv_sgra_survey_response.tbl',
         },
     'ADQL':
         {
@@ -211,7 +211,7 @@ def test_tap_url():
     if EsoClass.USE_DEV_TAP:
         assert url == "http://dfidev5.hq.eso.org:8123/tap_obs"
     else:
-        assert url == "http://archive.eso.org/tap_obs"
+        assert url == "https://archive.eso.org/tap_obs"
 
 
 def test_py2adql():
