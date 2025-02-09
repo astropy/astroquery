@@ -16,6 +16,11 @@ simbad
 Service fixes and enhancements
 ------------------------------
 
+gaia
+^^^^
+
+- Update DR4 retrieval_type names and include the new one EPOCH_ASTROMETRY_BRIGHT [#3207]
+
 ipac.nexsci.nasa_exoplanet_archive
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
