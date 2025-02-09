@@ -28,13 +28,13 @@ class Conf(_config.ConfigNamespace):
     VALID_DATALINK_RETRIEVAL_TYPES = ['EPOCH_PHOTOMETRY',
                                       'XP_CONTINUOUS',
                                       'XP_SAMPLED',
-                                      'RVS',
+                                      'RVS_MEAN_SPECTRUM',
                                       'MCMC_GSPPHOT',
                                       'MCMC_MSC',
                                       'EPOCH_ASTROMETRY',
-                                      'RV_EPOCH_SINGLE',
-                                      'RV_EPOCH_DOUBLE',
-                                      'RVS_EPOCH',
+                                      'RVS_EPOCH_DATA_SINGLE',
+                                      'RVS_EPOCH_DATA_DOUBLE',
+                                      'RVS_EPOCH_SPECTRUM',
                                       'RVS_TRANSIT',
                                       'EPOCH_ASTROMETRY_CROWDED_FIELD',
                                       'EPOCH_IMAGE',
@@ -43,7 +43,8 @@ class Conf(_config.ConfigNamespace):
                                       'XP_EPOCH_CROWDING',
                                       'XP_MEAN_SPECTRUM',
                                       'XP_EPOCH_SPECTRUM',
-                                      'CROWDED_FIELD_IMAGE']
+                                      'CROWDED_FIELD_IMAGE',
+                                      'EPOCH_ASTROMETRY_BRIGHT']
 
     VALID_LINKING_PARAMETERS = {'SOURCE_ID', 'TRANSIT_ID', 'IMAGE_ID'}
 
