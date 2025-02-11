@@ -164,7 +164,7 @@ def test_hc7n(patch_post):
 
 def test_retrieve_species_table_local():
     species_table = CDMS.get_species_table(use_cached=True)
-    assert len(species_table) == 1293
+    assert len(species_table) == 1300
     assert 'int' in species_table['tag'].dtype.name
     assert 'int' in species_table['#lines'].dtype.name
     assert 'float' in species_table['lg(Q(1000))'].dtype.name
