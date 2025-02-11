@@ -812,6 +812,9 @@ class TestMast:
                     's3://stpubdata/panstarrs/ps1/public/rings.v3.skycell/1334/061/rings.v3.skycell.1334.'
                     '061.stk.r.unconv.exp.fits']
 
+        # enable access to public AWS S3 bucket
+        Observations.enable_cloud_dataset()
+
         # list of URI strings as input
         uris = Observations.get_cloud_uris(uri_list)
         assert len(uris) > 0, f'Products for URI list {uri_list} were not found in the cloud.'
