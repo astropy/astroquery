@@ -140,7 +140,7 @@ def test_hc7n(patch_post):
     CDMS.query_lines(200*u.GHz, 230.755608*u.GHz, molecule='HC7N',parse_name_locally=True)
     """
 
-    tbl = CDMS.query_lines(200*u.GHz, 230.755608*u.GHz, molecule='099501 HC7N, v=0'')
+    tbl = CDMS.query_lines(200*u.GHz, 230.755608*u.GHz, molecule='099501 HC7N, v=0')
     assert isinstance(tbl, Table)
     assert len(tbl) == 27
     assert set(tbl.keys()) == colname_set
