@@ -53,6 +53,44 @@ class TestEso:
         assert len(t) > 0, "Table length is zero"
         assert len(t) == eso.ROW_LIMIT, f"Table length is {lt}, expected {eso.ROW_LIMIT}"
 
+    def test_row_limit(self):
+        eso = Eso()
+        eso.ROW_LIMIT = 5
+        # since in this case the results are truncated, a warning is issued
+
+        with pytest.warns(MaxResultsWarning):
+            table = eso.query_instrument('UVES', cache=False)
+            n = len(table)
+            assert n == eso.ROW_LIMIT, f"Expected {eso.ROW_LIMIT}; Obtained {n}"
+
+        with pytest.warns(MaxResultsWarning):
+            table = eso.query_collections('VVV', cache=False)
+            n = len(table)
+            assert n == eso.ROW_LIMIT, f"Expected {eso.ROW_LIMIT}; Obtained {n}"
+
+        with pytest.warns(MaxResultsWarning):
+            table = eso.query_main(cache=False)
+            n = len(table)
+            assert n == eso.ROW_LIMIT, f"Expected {eso.ROW_LIMIT}; Obtained {n}"
+
+    def test_top(self):
+        eso = Eso()
+        top = 5
+        eso.ROW_LIMIT = None
+        # in this case the results are NOT truncated, no warnings should be issued
+
+        table = eso.query_instrument('UVES', cache=False, top=top)
+        n = len(table)
+        assert n == top, f"Expected {top}; Obtained {n}"
+
+        table = eso.query_collections('VVV', cache=False, top=top)
+        n = len(table)
+        assert n == top, f"Expected {top}; Obtained {n}"
+
+        table = eso.query_main(cache=False, top=top)
+        n = len(table)
+        assert n == top, f"Expected {top}; Obtained {n}"
+
     def test_SgrAstar(self):
         eso = Eso()
         eso.ROW_LIMIT = 1
@@ -286,19 +324,3 @@ class TestEso:
         assert len(result) == 5
         assert 'SGR A' in result['object']
         assert 'SGR A' in result['target']
-
-    def test_top(self):
-        eso = Eso()
-        top = 25
-
-        table = eso.query_instrument('UVES', cache=False, top=top)
-        n = len(table)
-        assert n == top, f"Expected {top}; Obtained {n}"
-
-        table = eso.query_collections('VVV', cache=False, top=top)
-        n = len(table)
-        assert n == top, f"Expected {top}; Obtained {n}"
-
-        table = eso.query_main(cache=False, top=top)
-        n = len(table)
-        assert n == top, f"Expected {top}; Obtained {n}"
