@@ -21,6 +21,12 @@ gaia
 
 - Update DR4 retrieval_type names and include the new one EPOCH_ASTROMETRY_BRIGHT [#3207]
 
+ipac.irsa
+^^^^^^^^^
+
+- Adding the "servicetype" kwarg to ``list_collections`` to be able to list SIA
+  and SSA collections separately. [#3200]
+
 ipac.nexsci.nasa_exoplanet_archive
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

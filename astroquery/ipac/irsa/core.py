@@ -116,16 +116,39 @@ class IrsaClass(BaseVOQuery):
 
     query_sia.__doc__ = query_sia.__doc__.replace('_SIA2_PARAMETERS', SIA2_PARAMETERS_DESC)
 
-    def list_collections(self):
+    def list_collections(self, servicetype=None):
         """
         Return information of available IRSA SIAv2 collections to be used in ``query_sia`` queries.
+
+        Parameters
+        ----------
+        servicetype : str or None
+            Service type to list collections for. Returns all collections when not provided.
+            Currently supported service types are: 'SIA', 'SSA'.
 
         Returns
         -------
         collections : A `~astropy.table.Table` object.
             A table listing all the possible collections for IRSA SIA queries.
         """
-        query = "SELECT DISTINCT collection from caom.observation ORDER by collection"
+
+        if not servicetype:
+            query = "SELECT DISTINCT collection from caom.observation ORDER by collection"
+        else:
+            servicetype = servicetype.upper()
+            if servicetype == 'SIA':
+                query = ("SELECT DISTINCT o.collection FROM caom.observation o "
+                         "JOIN caom.plane p ON o.obsid = p.obsid "
+                         "WHERE (p.dataproducttype = 'image' OR p.dataproducttype = 'cube') "
+                         "order by collection")
+            elif servicetype == 'SSA':
+                query = ("SELECT DISTINCT o.collection FROM caom.observation o "
+                         "JOIN caom.plane p ON o.obsid = p.obsid "
+                         "WHERE (p.dataproducttype = 'spectrum' OR p.dataproducttype = 'cube') "
+                         "order by collection")
+            else:
+                raise ValueError("if specified, servicetype should be 'SIA' or 'SSA'")
+
         collections = self.query_tap(query=query)
         return collections.to_table()
 
