@@ -13,7 +13,7 @@ import numpy as np
 import pytest
 
 from astropy.table import Table
-from astroquery.exceptions import NoResultsWarning
+from astroquery.exceptions import NoResultsWarning, MaxResultsWarning
 from astroquery.eso import Eso
 
 instrument_list = ['fors1', 'fors2', 'sphere', 'vimos', 'omegacam',
@@ -46,31 +46,34 @@ class TestEso:
     def test_query_tap_service(self):
         eso = Eso()
         eso.ROW_LIMIT = 7
-        t = eso.query_tap_service(f"select top {eso.ROW_LIMIT} * from ivoa.ObsCore")
+        with pytest.warns(MaxResultsWarning):
+            t = eso.query_tap_service("select * from ivoa.ObsCore")
         lt = len(t)
         assert isinstance(t, Table), f"Expected type {type(Table)}; Obtained {type(t)}"
         assert len(t) > 0, "Table length is zero"
         assert len(t) == eso.ROW_LIMIT, f"Table length is {lt}, expected {eso.ROW_LIMIT}"
 
-    def test_SgrAstar(self, tmp_path):
+    def test_SgrAstar(self):
         eso = Eso()
-        eso.cache_location = tmp_path
+        eso.ROW_LIMIT = 1
 
         instruments = eso.list_instruments(cache=False)
         # in principle, we should run both of these tests
         # result_i = eso.query_instrument('midi', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
-        result_i = eso.query_instrument('midi', ra=266.41681662,
-                                        dec=-29.00782497, radius=1.0, cache=False)
+        with pytest.warns(MaxResultsWarning):
+            result_i = eso.query_instrument('midi', ra=266.41681662,
+                                            dec=-29.00782497, radius=1.0, cache=False)
 
         collections = eso.list_collections(cache=False)
         assert len(collections) > 0
         # result_s = eso.query_collections('VVV', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
-        result_s = eso.query_collections(collections='VVV', ra=266.41681662,
-                                         dec=-29.00782497,
-                                         radius=1.0,
-                                         cache=False)
+        with pytest.warns(MaxResultsWarning):
+            result_s = eso.query_collections(collections='VVV', ra=266.41681662,
+                                             dec=-29.00782497,
+                                             radius=1.0,
+                                             cache=False)
 
         assert 'midi' in instruments
         assert result_i is not None
@@ -87,7 +90,7 @@ class TestEso:
         # ref. Ref. OBJECT keyword in ESO SDP standard.
         # For spectroscopic public surveys, the value shall be set to the survey source identifier.
         assert 'target_name' in result_s.colnames
-        assert 'b333' in result_s['target_name']
+        assert 'b319' in result_s['target_name']
 
     def test_multicollection(self, tmp_path):
 
@@ -96,11 +99,12 @@ class TestEso:
         eso.ROW_LIMIT = 1000
 
         test_collections = ['VVV', 'XSHOOTER']
-        result_s = eso.query_collections(collections=test_collections,
-                                         ra=266.41681662,
-                                         dec=-29.00782497,
-                                         radius=1.0,
-                                         cache=False)
+        with pytest.warns(MaxResultsWarning):
+            result_s = eso.query_collections(collections=test_collections,
+                                             ra=266.41681662,
+                                             dec=-29.00782497,
+                                             radius=1.0,
+                                             cache=False)
 
         assert result_s is not None
         assert 'target_name' in result_s.colnames
@@ -120,19 +124,22 @@ class TestEso:
             result_s = eso.query_collections(collections=collections[0], ra=202.469575,
                                              dec=47.195258, radius=1.0, cache=False)
 
-        assert result_s is None
+        assert len(result_s) == 0
 
     def test_SgrAstar_remotevslocal(self, tmp_path):
         eso = Eso()
         # TODO originally it was 'gravity', but it is not yet ready in the TAP ISTs
         instrument = 'uves'
+
         # Remote version
-        result1 = eso.query_instrument(instrument, ra=266.41681662,
-                                       dec=-29.00782497, radius=1.0, cache=False)
+        with pytest.warns(MaxResultsWarning):
+            result1 = eso.query_instrument(instrument, ra=266.41681662,
+                                           dec=-29.00782497, radius=1.0, cache=False)
         # Local version
         eso.cache_location = tmp_path
-        result2 = eso.query_instrument(instrument, ra=266.41681662,
-                                       dec=-29.00782497, radius=1.0, cache=True)
+        with pytest.warns(MaxResultsWarning):
+            result2 = eso.query_instrument(instrument, ra=266.41681662,
+                                           dec=-29.00782497, radius=1.0, cache=True)
         assert all(result1.values_equal(result2))
 
     def test_list_instruments(self):
@@ -194,6 +201,7 @@ class TestEso:
     def test_each_instrument_SgrAstar(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
+        eso.ROW_LIMIT = 5
 
         instruments = eso.list_instruments(cache=False)
 
@@ -202,7 +210,7 @@ class TestEso:
             instruments.remove('apex')      # ValueError: 1:0: not well-formed (invalid token)
             #                               # pyvo.dal.exceptions.DALServiceError:
             #                                 500 Server Error:  for url: http://dfidev5.hq.eso.org:8123/tap_obs/sync
-            instruments.remove('fiat')      # pyvo.dal.exceptions.DALQueryError:
+            instruments.remove('fiat')      # TODO pyvo.dal.exceptions.DALQueryError: # fiat has no ra and dec
             #                                 Error converting data type varchar to numeric.
             instruments.remove('espresso')  # pyvo.dal.exceptions.DALQueryError: Invalid column name 'obs_container_id'
             instruments.remove('gravity')   # pyvo.dal.exceptions.DALQueryError: Invalid column name 'obs_container_id'
@@ -216,11 +224,11 @@ class TestEso:
 
         for instrument in instruments:
             try:
-                result = eso.query_instrument(instrument,
-                                              ra=266.41681662, dec=-29.00782497, radius=1.0,
-                                              cache=False)
-            except NoResultsWarning:
-                # Sometimes there are ResourceWarnings, we ignore those for this test
+                with pytest.warns(MaxResultsWarning):
+                    result = eso.query_instrument(instrument,
+                                                  ra=266.41681662, dec=-29.00782497, radius=1.0,
+                                                  cache=False)
+            except NoResultsWarning:  # we don't care if there are no results
                 pass
             else:
                 assert result is not None, f"query_instrument({instrument}) returned None"
@@ -229,14 +237,15 @@ class TestEso:
     def test_each_collection_and_SgrAstar(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
-        eso.ROW_LIMIT = 5
+        eso.ROW_LIMIT = 1
 
         collections = eso.list_collections(cache=False)
         for collection in collections:
             if collection in SGRA_COLLECTIONS:
-                result_s = eso.query_collections(collections=collection,
-                                                 ra=266.41681662, dec=-29.00782497, radius=0.1775,
-                                                 cache=False)
+                with pytest.warns(MaxResultsWarning):
+                    result_s = eso.query_collections(collections=collection,
+                                                     ra=266.41681662, dec=-29.00782497, radius=0.1775,
+                                                     cache=False)
                 assert len(result_s) > 0
             else:
                 with pytest.warns(NoResultsWarning):
@@ -244,9 +253,11 @@ class TestEso:
                                                      dec=-29.00782497,
                                                      radius=0.1775,
                                                      cache=False)
-                    assert result_s is None, f"Failed for collection {collection}"
+                    assert len(result_s) == 0, f"Failed for collection {collection}"
 
+                with pytest.warns(MaxResultsWarning):
                     generic_result = eso.query_collections(collections=collection)
+
                     assert generic_result is not None, \
                         f"query_collection({collection}) returned None"
                     assert len(generic_result) > 0, \
@@ -257,10 +268,11 @@ class TestEso:
         eso.cache_location = tmp_path
         eso.ROW_LIMIT = 5
 
-        result1 = eso.query_instrument('midi', ra=266.41681662,
-                                       dec=-29.00782497, radius=1.0, cache=False)
-        result2 = eso.query_instrument('MiDi', ra=266.41681662,
-                                       dec=-29.00782497, radius=1.0, cache=False)
+        with pytest.warns(MaxResultsWarning):
+            result1 = eso.query_instrument('midi', ra=266.41681662,
+                                           dec=-29.00782497, radius=1.0, cache=False)
+            result2 = eso.query_instrument('MiDi', ra=266.41681662,
+                                           dec=-29.00782497, radius=1.0, cache=False)
 
         assert all(result1.values_equal(result2))
 
@@ -268,10 +280,25 @@ class TestEso:
         eso = Eso()
         eso.ROW_LIMIT = 5
 
-        # the failure should occur here
-        result = eso.query_main(target='SGR A', object='SGR A')
+        with pytest.warns(MaxResultsWarning):
+            result = eso.query_main(target='SGR A', object='SGR A', cache=False)
 
-        # test that max_results = 5
         assert len(result) == 5
         assert 'SGR A' in result['object']
         assert 'SGR A' in result['target']
+
+    def test_top(self):
+        eso = Eso()
+        top = 25
+
+        table = eso.query_instrument('UVES', cache=False, top=top)
+        n = len(table)
+        assert n == top, f"Expected {top}; Obtained {n}"
+
+        table = eso.query_collections('VVV', cache=False, top=top)
+        n = len(table)
+        assert n == top, f"Expected {top}; Obtained {n}"
+
+        table = eso.query_main(cache=False, top=top)
+        n = len(table)
+        assert n == top, f"Expected {top}; Obtained {n}"

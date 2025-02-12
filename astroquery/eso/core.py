@@ -13,6 +13,7 @@ import email
 import json
 import os
 import os.path
+import sys
 import pickle
 import re
 import shutil
@@ -35,7 +36,8 @@ import pyvo
 
 from astroquery import log, cache_conf
 from . import conf
-from ..exceptions import RemoteServiceError, NoResultsWarning, LoginError
+from ..exceptions import RemoteServiceError, LoginError, \
+    NoResultsWarning, MaxResultsWarning
 from ..query import QueryWithLogin
 from ..utils import schema
 from .utils import py2adql, _split_str_as_list_of_str, \
@@ -242,35 +244,45 @@ class EsoClass(QueryWithLogin):
         Example use:
         eso._query_tap_service("Select * from ivoa.ObsCore")
         """
+        maxrec = sys.maxsize
+        if self.ROW_LIMIT:
+            if self.ROW_LIMIT > 0:
+                maxrec = self.ROW_LIMIT
+
         if cache is None:  # Global caching not overridden
             cache = cache_conf.cache_active
 
         tap = pyvo.dal.TAPService(EsoClass.tap_url())
         table_to_return = None
-
+        log.debug(f"querystr = {query_str}")
         try:
             if not cache:
                 with cache_conf.set_temp("cache_active", False):
-                    table_to_return = tap.search(query_str).to_table()
+                    table_to_return = tap.search(query_str, maxrec=maxrec).to_table()
             else:
                 table_to_return = self.from_cache(query_str, cache_conf.cache_timeout)
                 if not table_to_return:
-                    table_to_return = tap.search(query_str).to_table()
+                    table_to_return = tap.search(query_str, maxrec=maxrec).to_table()
                     to_cache(table_to_return, self.request_file(query_str=query_str))
 
         except pyvo.dal.exceptions.DALQueryError as e:
-            raise pyvo.dal.exceptions.DALQueryError(f"\n\n\
-                            Error executing the following query:\n\n{query_str}\n\n\
-                            See examples here: https://archive.eso.org/tap_obs/examples\n\n") from e
+            raise pyvo.dal.exceptions.DALQueryError(
+                f"Error executing the following query:\n\n"
+                f"{query_str}\n\n"
+                "See examples here: https://archive.eso.org/tap_obs/examples\n\n") from e
+
         except Exception as e:
-            raise RuntimeError(f"\n\n\
-                            Unknown exception {e} while executing the\
-                            following query: \n\n{query_str}\n\n\
-                            See examples here: https://archive.eso.org/tap_obs/examples\n\n") from e
+            raise RuntimeError(
+                f"Unhandled exception {type(e)}\n"
+                               "While executing the following query:\n\n"
+                               f"{query_str}\n\n"
+                               "See examples here: https://archive.eso.org/tap_obs/examples\n\n") from e
 
         if len(table_to_return) < 1:
             warnings.warn("Query returned no results", NoResultsWarning)
-            return None
+
+        if len(table_to_return) == maxrec:
+            warnings.warn(f"Results truncated to {maxrec}", MaxResultsWarning)
 
         return table_to_return
 
@@ -285,12 +297,17 @@ class EsoClass(QueryWithLogin):
             See :ref:`caching documentation <astroquery_cache>`.
 
         """
-        if self._instruments is None:
-            self._instruments = []
-            query_str = ("select table_name from TAP_SCHEMA.tables "
-                         "where schema_name='ist' order by table_name")
-            res = self.query_tap_service(query_str, cache=cache)["table_name"].data
-            self._instruments = list(map(lambda x: x.split(".")[1], res))
+        tmpvar = self.ROW_LIMIT
+        self.ROW_LIMIT = sys.maxsize
+        try:
+            if self._instruments is None:
+                self._instruments = []
+                query_str = ("select table_name from TAP_SCHEMA.tables "
+                             "where schema_name='ist' order by table_name")
+                res = self.query_tap_service(query_str, cache=cache)["table_name"].data
+                self._instruments = list(map(lambda x: x.split(".")[1], res))
+        finally:
+            self.ROW_LIMIT = tmpvar
         return self._instruments
 
     def list_collections(self, *, cache=True) -> List[str]:
@@ -303,14 +320,19 @@ class EsoClass(QueryWithLogin):
             Defaults to True. If set overrides global caching behavior.
             See :ref:`caching documentation <astroquery_cache>`.
         """
-        if self._collections is None:
-            self._collections = []
-            t = EsoNames.phase3_table
-            c = EsoNames.phase3_collections_column
-            query_str = f"select distinct {c} from {t}"
-            res = self.query_tap_service(query_str, cache=cache)[c].data
+        tmpvar = self.ROW_LIMIT
+        self.ROW_LIMIT = sys.maxsize
+        try:
+            if self._collections is None:
+                self._collections = []
+                t = EsoNames.phase3_table
+                c = EsoNames.phase3_collections_column
+                query_str = f"select distinct {c} from {t}"
+                res = self.query_tap_service(query_str, cache=cache)[c].data
 
-            self._collections = list(res)
+                self._collections = list(res)
+        finally:
+            self.ROW_LIMIT = tmpvar
         return self._collections
 
     def print_table_help(self, table_name: str) -> None:
@@ -328,14 +350,18 @@ class EsoClass(QueryWithLogin):
         log.info(logmsg)
         astropy.conf.max_lines = n_
 
-    def _query_on_allowed_values(self,
-                                 table_name: str,
-                                 column_name: str,
-                                 allowed_values: Union[List[str], str] = None, *,
-                                 ra: float = None, dec: float = None, radius: float = None,
-                                 columns: Union[List, str] = None,
-                                 print_help=False, cache=True,
-                                 **kwargs) -> astropy.table.Table:
+    def _query_on_allowed_values(
+            self,
+            table_name: str,
+            column_name: str,
+            allowed_values: Union[List[str], str] = None, *,
+            ra: float = None, dec: float = None, radius: float = None,
+            columns: Union[List, str] = None,
+            top: int = None,
+            count_only: bool = False,
+            print_help: bool = False,
+            cache: bool = True,
+            **kwargs) -> Union[astropy.table.Table, int]:
         """
         Query instrument- or collection-specific data contained in the ESO archive.
          - instrument-specific data is raw
@@ -372,50 +398,71 @@ class EsoClass(QueryWithLogin):
         query = py2adql(table=table_name, columns=columns,
                         ra=ra, dec=dec, radius=radius,
                         where_constraints=where_constraints,
-                        top=self.ROW_LIMIT)
+                        count_only=count_only,
+                        top=top)
 
-        return self.query_tap_service(query_str=query, cache=cache)
+        table_to_return = self.query_tap_service(query_str=query, cache=cache)
 
-    def query_collections(self,
-                          collections: Union[List[str], str], *,
-                          ra: float = None, dec: float = None, radius: float = None,
-                          columns: Union[List, str] = None,
-                          print_help=False, cache=True,
-                          **kwargs) -> astropy.table.Table:
+        if count_only:  # this below is an int, not a table
+            table_to_return = list(table_to_return[0].values())[0]
+
+        return table_to_return
+
+    def query_collections(
+            self,
+            collections: Union[List[str], str], *,
+            ra: float = None, dec: float = None, radius: float = None,
+            columns: Union[List, str] = None,
+            top: int = None,
+            count_only: bool = False,
+            print_help=False, cache=True,
+            **kwargs) -> Union[astropy.table.Table, int]:
         return self._query_on_allowed_values(table_name=EsoNames.phase3_table,
                                              column_name=EsoNames.phase3_collections_column,
                                              allowed_values=collections,
                                              ra=ra, dec=dec, radius=radius,
                                              columns=columns,
+                                             top=top,
+                                             count_only=count_only,
                                              print_help=print_help, cache=cache,
                                              **kwargs)
 
-    def query_main(self,
-                   instruments: Union[List[str], str] = None, *,
-                   ra: float = None, dec: float = None, radius: float = None,
-                   columns: Union[List, str] = None,
-                   print_help=False, cache=True,
-                   **kwargs) -> astropy.table.Table:
+    def query_main(
+            self,
+            instruments: Union[List[str], str] = None, *,
+            ra: float = None, dec: float = None, radius: float = None,
+            columns: Union[List, str] = None,
+            top: int = None,
+            count_only: bool = False,
+            print_help=False, cache=True,
+            **kwargs) -> Union[astropy.table.Table, int]:
         return self._query_on_allowed_values(table_name=EsoNames.raw_table,
                                              column_name=EsoNames.raw_instruments_column,
                                              allowed_values=instruments,
                                              ra=ra, dec=dec, radius=radius,
                                              columns=columns,
+                                             top=top,
+                                             count_only=count_only,
                                              print_help=print_help, cache=cache,
                                              **kwargs)
 
     # ex query_instrument
-    def query_instrument(self,
-                         instrument: str, *,
-                         ra: float = None, dec: float = None, radius: float = None,
-                         columns: Union[List, str] = None,
-                         print_help=False, cache=True,
-                         **kwargs) -> astropy.table.Table:
+    def query_instrument(
+            self,
+            instrument: str, *,
+            ra: float = None, dec: float = None, radius: float = None,
+            columns: Union[List, str] = None,
+            top: int = None,
+            count_only: bool = False,
+            print_help=False, cache=True,
+            **kwargs) -> Union[astropy.table.Table, int]:
         return self._query_on_allowed_values(table_name=EsoNames.ist_table(instrument),
                                              column_name=None,
                                              allowed_values=None,
                                              ra=ra, dec=dec, radius=radius,
                                              columns=columns,
+                                             top=top,
+                                             count_only=count_only,
                                              print_help=print_help, cache=cache,
                                              **kwargs)
 
@@ -713,7 +760,7 @@ class EsoClass(QueryWithLogin):
 
         associated_files = []
         if with_calib:
-            logmsg = (f"Retrieving associated '{with_calib}' calibration files ...")
+            logmsg = f"Retrieving associated '{with_calib}' calibration files ..."
             log.info(logmsg)
             try:
                 # batch calselector requests to avoid possible issues on the ESO server

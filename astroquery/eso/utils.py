@@ -59,18 +59,13 @@ def are_coords_valid(ra: float = None,
 def py2adql(table: str, columns: Union[List, str] = None,
             ra: float = None, dec: float = None, radius: float = None,
             where_constraints: List = None,
-            order_by: str = '', order_by_desc=True, top: int = None):
+            order_by: str = '', order_by_desc=True,
+            count_only: bool = False, top: int = None):
     """
     Return the adql string corresponding to the parameters passed
     See adql examples at https://archive.eso.org/tap_obs/examples
     """
-    # validate ra, dec, radius
-    if not are_coords_valid(ra, dec, radius):
-        message = "Either all three values for (ra, dec, radius) must be present or none of them.\n"
-        message += f"Values provided: ra = {ra:0.7f}, dec = {dec:0.7f}, radius = {radius:0.7f}"
-        raise ValueError(message)
-
-    # coordinates are valid
+    # We assume the coordinates passed are valid
     where_circle = []
     if ra:
         where_circle += [f'intersects(s_region, circle(\'ICRS\', {ra}, {dec}, {radius}))=1']
@@ -83,6 +78,9 @@ def py2adql(table: str, columns: Union[List, str] = None,
         columns = _split_str_as_list_of_str(columns)
     if columns is None or len(columns) < 1:
         columns = ['*']
+    if count_only:
+        columns = ['count(*)']
+
 
     # Build the query
     query_string = ', '.join(columns) + ' from ' + table
