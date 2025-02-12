@@ -282,7 +282,8 @@ class EsoClass(QueryWithLogin):
             warnings.warn("Query returned no results", NoResultsWarning)
 
         if len(table_to_return) == maxrec:
-            warnings.warn(f"Results truncated to {maxrec}", MaxResultsWarning)
+            warnings.warn(f"Results truncated to {maxrec}. "
+                          "To retrieve all the records set to None the ROW_LIMIT attribute", MaxResultsWarning)
 
         return table_to_return
 
