@@ -194,8 +194,8 @@ the query is send in asynchronous mode.
     >>> from astroquery.ipac.irsa import Irsa
     >>> table = Irsa.query_region("HIP 12", catalog="allwise_p3as_psd", spatial="Cone", async_job=True)
     >>> print(table)
-        designation         ra        dec     sigra  ...         y                   z           spt_ind      htm20    
-                           deg        deg     arcsec ...                                                               
+        designation         ra        dec     sigra  ...         y                   z           spt_ind      htm20
+                           deg        deg     arcsec ...
     ------------------- --------- ----------- ------ ... ------------------ ------------------- --------- -------------
     J000009.78-355736.9 0.0407905 -35.9602605 0.0454 ... 0.0005762523295116 -0.5872239888098030 100102010 8873706189183
 
@@ -314,6 +314,85 @@ Now plot the cutout.
    u.arcmin, wcs=WCS(hdul[0].header))
    plt.imshow(cutout.data, cmap='grey')
    plt.show()
+
+
+
+Simple spectral access queries
+------------------------------
+
+`~astroquery.ipac.irsa.IrsaClass.query_ssa` provides a way to access IRSA's Simple
+Spectral Access VO service. In the following example we are looking for Spitzer
+Enhanced Imaging products in the centre of the COSMOS field as an `~astropy.table.Table`.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.ipac.irsa import Irsa
+   >>> from astropy.coordinates import SkyCoord
+   >>> from astropy import units as u
+   >>>
+   >>> coord = pos = SkyCoord.from_name('Arp 220')
+   >>> arp220_spectra = Irsa.query_ssa(pos=coord).to_table()
+
+Without specifying the collection, the query returns results from multiple
+collections. For example this target has spectra from Sofia as well as from
+Spitzer.
+
+   >>> from astropy.table import unique
+   >>> unique(arp220_spectra, keys='dataid_collection')['dataid_collection']
+   <MaskedColumn name='dataid_collection' dtype='object' description='IVOA Identifier of collection' length=4>
+            goals
+     sofia_fifils
+   spitzer_irsenh
+      spitzer_sha
+
+
+To list available collections for SSA queries, the
+`~astroquery.ipac.irsa.IrsaClass.list_collections` method is provided, and
+will return a `~astropy.table.Table`.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.ipac.irsa import Irsa
+   >>> Irsa.list_collections(servicetype='SSA')
+   <Table length=35>
+          collection
+            object
+   ------------------------
+                      champ
+                      goals
+          herschel_gotcplus
+             herschel_hexos
+         herschel_hifistars
+               herschel_hop
+              herschel_hops
+    herschel_magcloudscplus
+           herschel_ppdisks
+           herschel_prismas
+              herschel_sag4
+             herschel_shpdp
+           herschel_v838mon
+              herschel_vngs
+                irtf_mearth
+                       irts
+                    iso_sws
+                 sofia_exes
+               sofia_fifils
+             sofia_flitecam
+              sofia_forcast
+                sofia_great
+             spitzer_5muses
+                spitzer_c2d
+   spitzer_disks_sh_spectra
+               spitzer_feps
+            spitzer_irs_std
+             spitzer_irsenh
+             spitzer_m83m33
+                 spitzer_s5
+               spitzer_sage
+               spitzer_sass
+                spitzer_sha
+              spitzer_sings
+              spitzer_ssgss
 
 
 Other Configurations
