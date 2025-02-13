@@ -31,6 +31,13 @@ class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.ipac.ned`.
     """
+
+    # NED DBR server
+    server_dbr = _config.ConfigItem(
+        ['https://ned.ipac.caltech.edu/NED::API/'],
+        'NED DBR server'
+    )
+
     server = _config.ConfigItem(
         ['https://ned.ipac.caltech.edu/cgi-bin/'],
         'Name of the NED server to use.')
@@ -77,7 +84,6 @@ class Conf(_config.ConfigNamespace):
          "Redshift - ascending",
          "Redshift - descending"],
         'Display output sorted by this criteria.')
-
 
 conf = Conf()
 

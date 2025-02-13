@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.5" xmlns="http://www.ivoa.net/xml/VOTable/v1.3"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3  https://www.ivoa.net/xml/VOTable/VOTable-1.5.xsd">
+<RESOURCE type="results">
+<LINK content-role="query" href="/NED::API/DistancesOfObject?TARGET=3C 273"/>
+<TABLE ID="distances" name="DistancesOfObject" nrows="0">
+<GROUP  ID="QUERY" name="QUERY">
+<PARAM name="TARGET" datatype="char" arraysize="*" value="3C 273"/>
+</GROUP>
+<GROUP ID="RESPONSE"  name="RESPONSE">
+<PARAM name="QUERY_STATUS" datatype="char" arraysize="*" value="OK"/>
+<PARAM name="QUERY_TIME" datatype="char" arraysize="*" xtype="timestamp" value="20260604T061421Z"/>
+<PARAM name="RECORDS_AVAILABLE" datatype="int" value="0"/>
+<PARAM name="RECORDS_RETURNED" datatype="int" value="0"/>
+</GROUP>
+<GROUP ID="Curation" name="Curation">
+<PARAM ID="Publisher" datatype="char" name="Publisher" ucd="meta.curation" value="NASA/IPAC Extragalactic Database (NED)" arraysize="*">
+<DESCRIPTION>
+Copyright 2019-2026 Caltech, Support from NASA is acknowledged.
+This information is taken from a collection created and curated by
+the NASA/IPAC Extragalactic Database (NED), operated by the California Institute of Technology (Caltech).
+If your research benefits from the use of NED, the following acknowledgement in your paper would be appreciated:
+
+"This research has made use of the NASA/IPAC Extragalactic Database (NED), which is funded by the National Aeronautics and Space Administration and operated by the California Institute of Technology."
+
+See: https://ned.ipac.caltech.edu/Documents/Overview/Acknowledgments 
+</DESCRIPTION>
+</PARAM>
+<PARAM name="queryEngineInfo" datatype="char" arraysize="*" value="https://ned.ipac.caltech.edu/NED::API/DistancesOfObject" />
+</GROUP>
+<FIELD ID="row" name="No." ucd="meta.number" datatype="int" >
+<DESCRIPTION>A row number applicable to this list only</DESCRIPTION>
+</FIELD>
+<FIELD ID="dist_mod" name="(m-M)" ucd="phot.mag.distMod" datatype="double" unit="mag" precision="2" >
+<DESCRIPTION>Distance modulus in magnitudes (m-M)</DESCRIPTION>
+</FIELD>
+<FIELD ID="dist_mod_err" name="err(m-M)" ucd="stat.error;phot.mag.distMod" datatype="double" unit="mag" precision="2" >
+<DESCRIPTION>Error in the distance modulus, if given, in magnitudes</DESCRIPTION>
+</FIELD>
+<FIELD ID="distance" name="Distance" ucd="pos.distance" datatype="double" unit="Mpc" precision="3" >
+<DESCRIPTION>Distance in megaparsecs</DESCRIPTION>
+</FIELD>
+<FIELD ID="method" name="Method" ucd="meta.id" datatype="char" arraysize="*" >
+<DESCRIPTION>Method used to determine the distance</DESCRIPTION>
+</FIELD>
+<FIELD ID="refcode" name="Reference" ucd="meta.bib.bibcode" datatype="char" arraysize="*" >
+<DESCRIPTION>Bibliographic reference code</DESCRIPTION>
+<LINK content-role="query;encode:values" content-type="text/xml" href="/reflookup?refcode=" />
+</FIELD>
+<FIELD ID="notes" name="Notes" ucd="meta.note" datatype="char" arraysize="*" >
+<DESCRIPTION>Notes and qualifiers</DESCRIPTION>
+</FIELD>
+<FIELD ID="SN_name" name="SN Name" ucd="meta.id" datatype="char" arraysize="*" >
+<DESCRIPTION>The supernova name, if the distance depends on one of the SNe methods</DESCRIPTION>
+</FIELD>
+<FIELD ID="def_redshift" name="Redshift" ucd="src.redshift" datatype="double" >
+<DESCRIPTION>Redshift of the object or host galaxy, if used to convert a luminosity distance modulus to metric distance</DESCRIPTION>
+</FIELD>
+<FIELD ID="def_H0" name="H0" ucd="stat.param" datatype="double" unit="km/s/Mpc" >
+<DESCRIPTION>Adopted Hubble constant, otherwise set 70.0 km/s/Mpc</DESCRIPTION>
+</FIELD>
+<FIELD ID="def_LMC_mod" name="LMCModulus" ucd="stat.param" datatype="double" unit="mag" precision="2" >
+<DESCRIPTION>Adopted LMC distance modulus, otherwise (m-M) = 18.50</DESCRIPTION>
+</FIELD>
+<DATA>
+<TABLEDATA>
+</TABLEDATA>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>

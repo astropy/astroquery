@@ -1,132 +1,169 @@
-<?xml version="1.0"?>
-<VOTABLE version="1.1">
-<DEFINITIONS>
-<COOSYS ID="J2000" equinox="2000." epoch="2000." system="eq_FK5" />
-</DEFINITIONS>
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.5" xmlns="http://www.ivoa.net/xml/VOTable/v1.3"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3  https://www.ivoa.net/xml/VOTable/VOTable-1.5.xsd">
 <RESOURCE type="results">
+<LINK content-role="query" href="/NED::API/ConeSearchByTarget?TARGET=m1&amp;RADIUS=1&amp;Z_CONSTRAINT=Unconstrained"/>
+<TABLE ID="conesearch" name="ConeSearch" nrows="65">
+<GROUP  ID="QUERY" name="QUERY">
+<PARAM name="TARGET" datatype="char" arraysize="*" value="m1"/>
+<PARAM name="RADIUS" datatype="char" arraysize="*" value="1"/>
+<PARAM name="Z_CONSTRAINT" datatype="char" arraysize="*" value="Unconstrained"/>
+</GROUP>
+<GROUP ID="RESPONSE"  name="RESPONSE">
+<PARAM name="QUERY_STATUS" datatype="char" arraysize="*" value="OK"/>
+<PARAM name="QUERY_TIME" datatype="char" arraysize="*" xtype="timestamp" value="20260604T061415Z"/>
+<PARAM name="RECORDS_AVAILABLE" datatype="int" value="65"/>
+<PARAM name="RECORDS_RETURNED" datatype="int" value="65"/>
+</GROUP>
+<GROUP ID="Curation" name="Curation">
+<PARAM ID="Publisher" datatype="char" name="Publisher" ucd="meta.curation" value="NASA/IPAC Extragalactic Database (NED)" arraysize="*">
 <DESCRIPTION>
-Results from query to  NASA/IPAC Extragalactic Database (NED),
-which is operated by the Jet Propulsion Laboratory, California Institute of
-Technology, under contract with the National Aeronautics and Space Administration.
-This work was (partially) supported by the US National Virtual Observatory
-development project, which is funded by the National Science Foundation
-under cooperative agreement AST0122449 with The Johns Hopkins University.
-</DESCRIPTION>
-<INFO name="QUERY_STATUS" value="OK"/>
-<PARAM name="queryDateTime"  ucd="time.creation" datatype="char" arraysize="*" value="2013-07-18T04:13:16PDT"/>
-<INFO name="QUERY_STATUS" value="OK"/>
-<LINK content-role="query" content-type="char" 
-href="http://ned.ipac.caltech.edu/cgi-bin/objsearch?search_type=Near+Name+Search&amp;objname=MESSIER+001&amp;radius=1.0&amp;of=xml_main"/>
-<TABLE ID="NED_MainTable" name="Main Information Table for NED objects within 1.000 arcmin of object MESSIER 001">
-<DESCRIPTION> Main information about object (Cone Search results)</DESCRIPTION>
+Copyright 2019-2026 Caltech, Support from NASA is acknowledged.
+This information is taken from a collection created and curated by
+the NASA/IPAC Extragalactic Database (NED), operated by the California Institute of Technology (Caltech).
+If your research benefits from the use of NED, the following acknowledgement in your paper would be appreciated:
 
-<PARAM name="Equinox" datatype="char" arraysize="*" ucd="time.equinox" value="J2000.0"/>
-<PARAM name="CoordSystem" datatype="char" arraysize="*" ucd="pos.system.coord" value="Equatorial"/>
-<FIELD ID="main_col1" name="No." ucd="meta.number" datatype="int" width="4" type="hidden">
-<DESCRIPTION> A sequential object number applicable to this list only.  </DESCRIPTION>
+"This research has made use of the NASA/IPAC Extragalactic Database (NED), which is funded by the National Aeronautics and Space Administration and operated by the California Institute of Technology."
+
+See: https://ned.ipac.caltech.edu/Documents/Overview/Acknowledgments 
+</DESCRIPTION>
+</PARAM>
+<PARAM name="queryEngineInfo" datatype="char" arraysize="*" value="https://ned.ipac.caltech.edu/NED::API/ConeSearchByTarget"/>
+</GROUP>
+<FIELD ID="row" name="No." ucd="meta.number" datatype="int" >
+<DESCRIPTION>A row number applicable to this list only</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col2" name="Object Name" ucd="meta.id;meta.main" datatype="char" arraysize="30" width="30">
-<DESCRIPTION> NED preferred name for the object </DESCRIPTION>
-<LINK content-role="query" content-type="char" href="http://ned.ipac.caltech.edu/cgi-bin/objsearch?objname=${Object Name}"/>
+<FIELD ID="prefname" name="Object Name" ucd="meta.id.cross" datatype="char" arraysize="*" >
+<DESCRIPTION>Object name in NED standard format</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col3" name="RA(deg)" ucd="pos.eq.ra;meta.main" datatype="double" unit="degrees" width="10">
-<DESCRIPTION> Right Ascension in degrees (Equatorial J2000.0)</DESCRIPTION>
+<FIELD ID="equ_j2000_lon_s" name="RA-s" ucd="pos.eq.ra" datatype="char" arraysize="*" >
+<DESCRIPTION>Right Ascension in sexagesimal (FK5 Equatorial J2000.0)</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col4" name="DEC(deg)" ucd="pos.eq.dec;meta.main" datatype="double" unit="degrees" width="10">
-<DESCRIPTION> Declination in degrees (Equatorial J2000.0)</DESCRIPTION>
+<FIELD ID="equ_j2000_lat_s" name="Dec-s" ucd="pos.eq.dec" datatype="char" arraysize="*" >
+<DESCRIPTION>Declination in sexagesimal (FK5 Equatorial J2000.0)</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col5" name="Type" ucd="src.class" datatype="char" arraysize="*" width="10">
-<DESCRIPTION> NED's Preferred Object Type: G,GPair,GTrpl,GGroup,GClstr,QSO,AbLS,RadioS,IrS,EmLS,UvES,XrayS,SN </DESCRIPTION>
-<LINK content-role="query" content-type="char" href="http://ned.ipac.caltech.edu/help/faq5.html#5k"/>
+<FIELD ID="ra" name="RA" ucd="pos.eq.ra" datatype="double" unit="deg" precision="6" >
+<DESCRIPTION>Right Ascension in degrees (FK5 Equatorial J2000.0)</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col6" name="Velocity" ucd="src.veloc.hc" datatype="double" unit="km/sec" width="10">
-<DESCRIPTION> Velocity in km/sec, based on known heliocentric redshift </DESCRIPTION>
+<FIELD ID="dec" name="Dec" ucd="pos.eq.dec" datatype="double" unit="deg" precision="6" >
+<DESCRIPTION>Declination in degrees (FK5 Equatorial J2000.0)</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col7" name="Redshift" ucd="src.redshift" datatype="double" width="10">
-<DESCRIPTION> Heliocentric redshift for the object, if it exists in NED </DESCRIPTION>
+<FIELD ID="z" name="Redshift (z)" ucd="src.redshift" datatype="double" precision="6" >
+<DESCRIPTION>Fiducial heliocentric redshift</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col8" name="Redshift Flag" ucd="meta.code;src.redshift" datatype="char" arraysize="*" width="5">
-<DESCRIPTION> Quality flag for known heliocentric redshift</DESCRIPTION>
+<FIELD ID="velocity" name="cz" ucd="phys.veloc" datatype="double" unit="km/s" precision="0" >
+<DESCRIPTION>Apparent velocity computed as c*z</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col9" name="Magnitude and Filter" ucd="meta.code;src.magnitude" datatype="char" arraysize="*" width="5">
-<DESCRIPTION>  NED's Basic Data magnitude and filter, generally in an optical band.</DESCRIPTION>
+<FIELD ID="zflag" name="z flag" ucd="meta.code;src.redshift" datatype="char" arraysize="*" >
+<DESCRIPTION>Redshift flags indicating measurement technique (1 char, e.g., S=spec, P=phot), method (2 chars, e.g., SL=single line), and quality (1 char, e.g. blank= reliable, ?=uncertain).</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col10" name="Distance (arcmin)" ucd="pos.distance" datatype="double" unit="arcmin" width="10">
-<DESCRIPTION> Distance of the source from the queried position (arcmin);listed as blank if not applicable. </DESCRIPTION>
+<FIELD ID="ptype" name="Phys Type" ucd="src.class" datatype="char" arraysize="*" >
+<DESCRIPTION>Physical type of the celestial object</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col11" name="References" ucd="meta.bib;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of literature references in NED </DESCRIPTION>
+<FIELD ID="emtype" name="EM Region" ucd="instr;em" datatype="char" arraysize="*" >
+<DESCRIPTION>Region of the electromagnetic spectrum where the object was detected</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col12" name="Notes" ucd="meta.note;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of catalog notes in NED </DESCRIPTION>
+<FIELD ID="sep" name="Separation" ucd="pos.angDistance" datatype="double" unit="arcmin" precision="3" >
+<DESCRIPTION>Angular separation between object and search center</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col13" name="Photometry Points" ucd="phot;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of photometric data points stored by NED for the object </DESCRIPTION>
+<FIELD ID="n_ref" name="Reference" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of references</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col14" name="Positions" ucd="pos;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of position data points stored by NED for the object </DESCRIPTION>
+<FIELD ID="n_notes" name="Note" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of notes</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col15" name="Redshift Points" ucd="src.redshift;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of redshift data points stored by NED for the object. </DESCRIPTION>
+<FIELD ID="n_gphot" name="Photometry" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of photometric data points</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col16" name="Diameter Points" ucd="phys.size.diameter;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of diameter data points stored by NED for the object. </DESCRIPTION>
+<FIELD ID="n_posd" name="Position" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of position data points</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col17" name="Associations" ucd="meta.id.assoc;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of NED associations for the object. </DESCRIPTION>
+<FIELD ID="n_zdf" name="Redshift" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of redshift data points</DESCRIPTION>
+</FIELD>
+<FIELD ID="n_ddf" name="Diameter" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of diameter data points</DESCRIPTION>
+</FIELD>
+<FIELD ID="n_dist" name="Distances" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of redshift independent distances</DESCRIPTION>
+</FIELD>
+<FIELD ID="n_class" name="Classification" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of classifications</DESCRIPTION>
+</FIELD>
+<FIELD ID="n_images" name="Images" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of images</DESCRIPTION>
+</FIELD>
+<FIELD ID="n_spectra" name="Spectra" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of spectra</DESCRIPTION>
 </FIELD>
 <DATA>
 <TABLEDATA>
 <TR>
 <TD>1</TD>
-<TD>MESSIER 001</TD>
-<TD> 83.63321 </TD>
-<TD>  22.01446 </TD>
+<TD>Crab Pulsar</TD>
+<TD>05h34m31.9456s</TD>
+<TD>+22d00m52.149s</TD>
+<TD>83.633107</TD>
+<TD>22.014486</TD>
+<TD/>
+<TD/>
+<TD/>
 <TD>SNR</TD>
-<TD></TD>
-<TD></TD>
-<TD></TD>
-<TD><![CDATA[     ]]></TD>
-<TD>  0.000</TD>
-<TD>75</TD>
+<TD>Gamma,IR,Radio,X-ray</TD>
 <TD>0</TD>
-<TD>44</TD>
-<TD>4</TD>
+<TD>180</TD>
+<TD>2</TD>
+<TD>67</TD>
+<TD>27</TD>
 <TD>0</TD>
 <TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>6</TD>
 <TD>0</TD>
 </TR>
 <TR>
 <TD>2</TD>
-<TD>2MASX J05343184+2201158</TD>
-<TD> 83.63271 </TD>
-<TD>  22.02106 </TD>
-<TD>IrS</TD>
-<TD></TD>
-<TD></TD>
-<TD></TD>
-<TD><![CDATA[ 6.8J]]></TD>
-<TD>  0.397</TD>
+<TD>CXOGSG J053432.2+220049</TD>
+<TD>05h34m32.2000s</TD>
+<TD>+22d00m49.000s</TD>
+<TD>83.6341666666667</TD>
+<TD>22.0136111111111</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>X-ray</TD>
+<TD>0.0789303868342069</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>1</TD>
 <TD>0</TD>
 <TD>0</TD>
-<TD>9</TD>
 <TD>0</TD>
 <TD>0</TD>
-<TD>2</TD>
+<TD>0</TD>
 <TD>0</TD>
 </TR>
 <TR>
 <TD>3</TD>
-<TD>2MASXi J0534296+220050</TD>
-<TD> 83.62371 </TD>
-<TD>  22.01391 </TD>
-<TD>IrS</TD>
-<TD></TD>
-<TD></TD>
-<TD></TD>
-<TD><![CDATA[     ]]></TD>
-<TD>  0.530</TD>
+<TD>CXOGSG J053432.3+220052</TD>
+<TD>05h34m32.3000s</TD>
+<TD>+22d00m52.000s</TD>
+<TD>83.6345833333333</TD>
+<TD>22.0144444444444</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>X-ray</TD>
+<TD>0.0821594147398585</TD>
+<TD>1</TD>
 <TD>0</TD>
+<TD>1</TD>
+<TD>1</TD>
 <TD>0</TD>
 <TD>0</TD>
 <TD>0</TD>
@@ -136,16 +173,21 @@ href="http://ned.ipac.caltech.edu/cgi-bin/objsearch?search_type=Near+Name+Search
 </TR>
 <TR>
 <TD>4</TD>
-<TD>NVSS J053435+220034</TD>
-<TD> 83.64708 </TD>
-<TD>  22.00953 </TD>
-<TD>RadioS</TD>
-<TD></TD>
-<TD></TD>
-<TD></TD>
-<TD><![CDATA[     ]]></TD>
-<TD>  0.826</TD>
+<TD>2MASS J05343217+2200560</TD>
+<TD>05h34m32.1794s</TD>
+<TD>+22d00m56.001s</TD>
+<TD>83.634081</TD>
+<TD>22.015556</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.0840058916193411</TD>
+<TD>1</TD>
 <TD>0</TD>
+<TD>6</TD>
+<TD>1</TD>
 <TD>0</TD>
 <TD>0</TD>
 <TD>0</TD>
@@ -155,35 +197,1461 @@ href="http://ned.ipac.caltech.edu/cgi-bin/objsearch?search_type=Near+Name+Search
 </TR>
 <TR>
 <TD>5</TD>
-<TD>2MASX J05343558+2200368</TD>
-<TD> 83.64829 </TD>
-<TD>  22.01028 </TD>
-<TD>IrS</TD>
-<TD></TD>
-<TD></TD>
-<TD></TD>
-<TD><![CDATA[10.4J]]></TD>
-<TD>  0.876</TD>
-<TD>2</TD>
+<TD>CXOGSG J053432.0+220047</TD>
+<TD>05h34m32.0000s</TD>
+<TD>+22d00m47.000s</TD>
+<TD>83.6333333333333</TD>
+<TD>22.0130555555556</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>X-ray</TD>
+<TD>0.0867451604106459</TD>
+<TD>1</TD>
 <TD>0</TD>
-<TD>9</TD>
+<TD>1</TD>
+<TD>1</TD>
 <TD>0</TD>
 <TD>0</TD>
-<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
 <TD>0</TD>
 </TR>
 <TR>
 <TD>6</TD>
-<TD>NVSS J053428+220019</TD>
-<TD> 83.62013 </TD>
-<TD>  22.00536 </TD>
-<TD>RadioS</TD>
-<TD></TD>
-<TD></TD>
-<TD></TD>
-<TD><![CDATA[     ]]></TD>
-<TD>  0.910</TD>
+<TD>2MASS J05343232+2200491</TD>
+<TD>05h34m32.3258s</TD>
+<TD>+22d00m49.122s</TD>
+<TD>83.634691</TD>
+<TD>22.013645</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.101536809758109</TD>
+<TD>1</TD>
 <TD>0</TD>
+<TD>5</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>7</TD>
+<TD>2MASS J05343188+2200460</TD>
+<TD>05h34m31.8856s</TD>
+<TD>+22d00m46.058s</TD>
+<TD>83.632857</TD>
+<TD>22.012794</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.102468050670871</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>6</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>8</TD>
+<TD>CXOGSG J053432.1+220046</TD>
+<TD>05h34m32.1000s</TD>
+<TD>+22d00m46.000s</TD>
+<TD>83.63375</TD>
+<TD>22.0127777777778</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>X-ray</TD>
+<TD>0.108554982050164</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>9</TD>
+<TD>2MASS J05343146+2200567</TD>
+<TD>05h34m31.4666s</TD>
+<TD>+22d00m56.786s</TD>
+<TD>83.631111</TD>
+<TD>22.015774</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.135275073616453</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>6</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>10</TD>
+<TD>SRGA J053431.8+220103</TD>
+<TD>05h34m31.7760s</TD>
+<TD>+22d01m02.640s</TD>
+<TD>83.6324</TD>
+<TD>22.0174</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD>SNR</TD>
+<TD>X-ray</TD>
+<TD>0.179208310249058</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>11</TD>
+<TD>2MASS J05343210+2200413</TD>
+<TD>05h34m32.1043s</TD>
+<TD>+22d00m41.385s</TD>
+<TD>83.633768</TD>
+<TD>22.011496</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.183129195463828</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>16</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>12</TD>
+<TD>2MASS J05343104+2200567</TD>
+<TD>05h34m31.0461s</TD>
+<TD>+22d00m56.779s</TD>
+<TD>83.629359</TD>
+<TD>22.015772</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.222303316937811</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>5</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>13</TD>
+<TD>2MASS J05343124+2201020</TD>
+<TD>05h34m31.2468s</TD>
+<TD>+22d01m02.046s</TD>
+<TD>83.630195</TD>
+<TD>22.017235</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.231176439539871</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>14</TD>
+<TD>2MASS J05343094+2200535</TD>
+<TD>05h34m30.9475s</TD>
+<TD>+22d00m53.503s</TD>
+<TD>83.628948</TD>
+<TD>22.014862</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.232442893765153</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>15</TD>
+<TD>2MASS J05343113+2201005</TD>
+<TD>05h34m31.1330s</TD>
+<TD>+22d01m00.508s</TD>
+<TD>83.629721</TD>
+<TD>22.016808</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.2342738432521</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>16</TD>
+<TD>WISEA J053431.16+220101.6</TD>
+<TD>05h34m31.1616s</TD>
+<TD>+22d01m01.632s</TD>
+<TD>83.62984</TD>
+<TD>22.01712</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.240834169371484</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>12</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>17</TD>
+<TD>WISEA J053430.99+220046.1</TD>
+<TD>05h34m30.9981s</TD>
+<TD>+22d00m46.152s</TD>
+<TD>83.629159</TD>
+<TD>22.01282</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.24128950519516</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>12</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>18</TD>
+<TD>2MASS J05343138+2201050</TD>
+<TD>05h34m31.3891s</TD>
+<TD>+22d01m05.073s</TD>
+<TD>83.630788</TD>
+<TD>22.018076</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.251070696742848</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>19</TD>
+<TD>2MASS J05343185+2201081</TD>
+<TD>05h34m31.8501s</TD>
+<TD>+22d01m08.144s</TD>
+<TD>83.632709</TD>
+<TD>22.018929</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.267497688210326</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>20</TD>
+<TD>2MASS J05343296+2200416</TD>
+<TD>05h34m32.9692s</TD>
+<TD>+22d00m41.688s</TD>
+<TD>83.637372</TD>
+<TD>22.01158</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.294425507577912</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>21</TD>
+<TD>2MASS J05343097+2201048</TD>
+<TD>05h34m30.9700s</TD>
+<TD>+22d01m04.807s</TD>
+<TD>83.629042</TD>
+<TD>22.018002</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.309243860332524</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>22</TD>
+<TD>2MASS J05343288+2200382</TD>
+<TD>05h34m32.8857s</TD>
+<TD>+22d00m38.217s</TD>
+<TD>83.637024</TD>
+<TD>22.010616</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.318420765587972</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>23</TD>
+<TD>WISEA J053433.43+220049.1</TD>
+<TD>05h34m33.4320s</TD>
+<TD>+22d00m49.140s</TD>
+<TD>83.6393</TD>
+<TD>22.01365</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.348121464178208</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>12</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>24</TD>
+<TD>2MASS J05343342+2200584</TD>
+<TD>05h34m33.4204s</TD>
+<TD>+22d00m58.453s</TD>
+<TD>83.639252</TD>
+<TD>22.016237</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.357596894668395</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>15</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>25</TD>
+<TD>2CXO J053431.2+220111X</TD>
+<TD>05h34m31.2098s</TD>
+<TD>+22d01m11.527s</TD>
+<TD>83.6300409240967</TD>
+<TD>22.0198688509433</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>X-ray</TD>
+<TD>0.36523557553644</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>26</TD>
+<TD>2MASS J05343040+2200472</TD>
+<TD>05h34m30.4072s</TD>
+<TD>+22d00m47.289s</TD>
+<TD>83.626697</TD>
+<TD>22.013136</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.365644854894412</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>27</TD>
+<TD>2MASS J05343234+2201134</TD>
+<TD>05h34m32.3436s</TD>
+<TD>+22d01m13.407s</TD>
+<TD>83.634765</TD>
+<TD>22.020391</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.36610644198276</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>28</TD>
+<TD>2MASS J05343029+2200528</TD>
+<TD>05h34m30.2916s</TD>
+<TD>+22d00m52.876s</TD>
+<TD>83.626215</TD>
+<TD>22.014688</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.383561152025332</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>5</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>29</TD>
+<TD>2MASX J05343184+2201158</TD>
+<TD>05h34m31.8727s</TD>
+<TD>+22d01m16.161s</TD>
+<TD>83.632803</TD>
+<TD>22.021156</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.400557083576406</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>15</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>30</TD>
+<TD>2FHL J0534.5+2201</TD>
+<TD>05h34m32.1840s</TD>
+<TD>+22d01m17.400s</TD>
+<TD>83.6341</TD>
+<TD>22.0215</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>Gamma</TD>
+<TD>0.424449249982365</TD>
+<TD>8</TD>
+<TD>0</TD>
+<TD>3</TD>
+<TD>5</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>31</TD>
+<TD>2MASS J05343411+2200596</TD>
+<TD>05h34m34.1152s</TD>
+<TD>+22d00m59.616s</TD>
+<TD>83.642147</TD>
+<TD>22.01656</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.518018233962054</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>5</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>32</TD>
+<TD>2MASXi J0534296+220050</TD>
+<TD>05h34m29.6900s</TD>
+<TD>+22d00m50.070s</TD>
+<TD>83.62370833333</TD>
+<TD>22.01390833333</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.523952811844781</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>33</TD>
+<TD>2MASS J05343207+2200203</TD>
+<TD>05h34m32.0760s</TD>
+<TD>+22d00m20.325s</TD>
+<TD>83.63365</TD>
+<TD>22.005646</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.531259384864559</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>34</TD>
+<TD>2MASS J05343396+2200284</TD>
+<TD>05h34m33.9628s</TD>
+<TD>+22d00m28.454s</TD>
+<TD>83.641512</TD>
+<TD>22.007904</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.612010809421911</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>35</TD>
+<TD>WISEA J053432.94+220126.2</TD>
+<TD>05h34m32.9472s</TD>
+<TD>+22d01m26.292s</TD>
+<TD>83.63728</TD>
+<TD>22.02397</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.61456059915339</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>12</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>36</TD>
+<TD>2MASS J05342969+2200307</TD>
+<TD>05h34m29.6959s</TD>
+<TD>+22d00m30.762s</TD>
+<TD>83.623733</TD>
+<TD>22.008545</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.631637920176774</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>37</TD>
+<TD>2MASS J05343201+2200137</TD>
+<TD>05h34m32.0188s</TD>
+<TD>+22d00m13.741s</TD>
+<TD>83.633412</TD>
+<TD>22.003817</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.6403648022689</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>38</TD>
+<TD>2MASS J05343290+2201303</TD>
+<TD>05h34m32.9013s</TD>
+<TD>+22d01m30.302s</TD>
+<TD>83.637089</TD>
+<TD>22.025084</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.67335132864731</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>39</TD>
+<TD>WISEA J053429.23+220036.1</TD>
+<TD>05h34m29.2393s</TD>
+<TD>+22d00m36.136s</TD>
+<TD>83.6218307</TD>
+<TD>22.010038</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.6816725484471</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>12</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>40</TD>
+<TD>SSTSL2 J053430.50+220016.3</TD>
+<TD>05h34m30.5017s</TD>
+<TD>+22d00m16.313s</TD>
+<TD>83.627090788</TD>
+<TD>22.004531471</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.684641963872729</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>10</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>41</TD>
+<TD>WISEA J053432.33+220010.6</TD>
+<TD>05h34m32.3328s</TD>
+<TD>+22d00m10.692s</TD>
+<TD>83.63472</TD>
+<TD>22.00297</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.696761592941597</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>12</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>42</TD>
+<TD>2MASS J05343268+2200103</TD>
+<TD>05h34m32.6824s</TD>
+<TD>+22d00m10.346s</TD>
+<TD>83.636177</TD>
+<TD>22.002874</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.71734474080237</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>43</TD>
+<TD>2MASS J05343222+2200080</TD>
+<TD>05h34m32.2296s</TD>
+<TD>+22d00m08.096s</TD>
+<TD>83.63429</TD>
+<TD>22.002249</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.737163247008492</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>44</TD>
+<TD>2MASS J05343256+2200074</TD>
+<TD>05h34m32.5653s</TD>
+<TD>+22d00m07.477s</TD>
+<TD>83.635689</TD>
+<TD>22.002077</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.758267535746644</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>45</TD>
+<TD>2MASS J05343198+2201383</TD>
+<TD>05h34m31.9852s</TD>
+<TD>+22d01m38.341s</TD>
+<TD>83.633272</TD>
+<TD>22.027317</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.769914701552632</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>5</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>46</TD>
+<TD>1LHAASO J0534+2200</TD>
+<TD>05h34m28.8000s</TD>
+<TD>+22d00m36.000s</TD>
+<TD>83.62</TD>
+<TD>22.01</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>Gamma</TD>
+<TD>0.77718958384329</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>47</TD>
+<TD>2MASS J05343250+2201390</TD>
+<TD>05h34m32.5008s</TD>
+<TD>+22d01m39.068s</TD>
+<TD>83.63542</TD>
+<TD>22.027519</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.792492875938976</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>5</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>48</TD>
+<TD>2MASS J05343230+2200044</TD>
+<TD>05h34m32.3078s</TD>
+<TD>+22d00m04.464s</TD>
+<TD>83.634616</TD>
+<TD>22.00124</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.799180712935058</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>49</TD>
+<TD>NVSS J053435+220034</TD>
+<TD>05h34m35.3000s</TD>
+<TD>+22d00m34.300s</TD>
+<TD>83.64708333333</TD>
+<TD>22.00952777778</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>Radio</TD>
+<TD>0.83242649834028</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>50</TD>
+<TD>SSTSL2 J053428.50+220106.9</TD>
+<TD>05h34m28.5031s</TD>
+<TD>+22d01m06.983s</TD>
+<TD>83.618763151</TD>
+<TD>22.018606586</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.835297383420082</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>9</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>51</TD>
+<TD>2MASS J05343477+2200209</TD>
+<TD>05h34m34.7752s</TD>
+<TD>+22d00m20.901s</TD>
+<TD>83.644897</TD>
+<TD>22.005806</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.837473926163853</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>52</TD>
+<TD>WISEA J053432.32+220143.9</TD>
+<TD>05h34m32.3247s</TD>
+<TD>+22d01m43.907s</TD>
+<TD>83.6346866</TD>
+<TD>22.0288631</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.867088939577933</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>12</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>53</TD>
+<TD>2MASS J05342878+2201208</TD>
+<TD>05h34m28.7834s</TD>
+<TD>+22d01m20.852s</TD>
+<TD>83.619931</TD>
+<TD>22.022459</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.875207572279788</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>54</TD>
+<TD>2MASS J05342935+2200137</TD>
+<TD>05h34m29.3584s</TD>
+<TD>+22d00m13.741s</TD>
+<TD>83.622327</TD>
+<TD>22.003817</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.877140753671959</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>5</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>55</TD>
+<TD>2MASS J05343025+2200047</TD>
+<TD>05h34m30.2558s</TD>
+<TD>+22d00m04.759s</TD>
+<TD>83.626066</TD>
+<TD>22.001322</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.881622092392245</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>5</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>56</TD>
+<TD>2MASX J05343558+2200368</TD>
+<TD>05h34m35.6198s</TD>
+<TD>+22d00m37.263s</TD>
+<TD>83.648416</TD>
+<TD>22.010351</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR,Radio</TD>
+<TD>0.886985661000783</TD>
+<TD>8</TD>
+<TD>0</TD>
+<TD>25</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>57</TD>
+<TD>NVSS J053428+220019</TD>
+<TD>05h34m28.8300s</TD>
+<TD>+22d00m19.300s</TD>
+<TD>83.620125</TD>
+<TD>22.00536111111</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>Radio</TD>
+<TD>0.906229407430932</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>58</TD>
+<TD>2MASS J05342981+2200059</TD>
+<TD>05h34m29.8120s</TD>
+<TD>+22d00m05.932s</TD>
+<TD>83.624217</TD>
+<TD>22.001648</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.915364904163885</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>59</TD>
+<TD>WISEA J053434.31+220007.8</TD>
+<TD>05h34m34.3104s</TD>
+<TD>+22d00m07.848s</TD>
+<TD>83.64296</TD>
+<TD>22.00218</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.919559386362669</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>12</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>60</TD>
+<TD>2MASS J05342883+2201267</TD>
+<TD>05h34m28.8324s</TD>
+<TD>+22d01m26.749s</TD>
+<TD>83.620135</TD>
+<TD>22.024097</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.923670713370999</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>6</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>61</TD>
+<TD>2MASS J05342794+2200465</TD>
+<TD>05h34m27.9468s</TD>
+<TD>+22d00m46.512s</TD>
+<TD>83.616445</TD>
+<TD>22.01292</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.931585180494441</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>62</TD>
+<TD>2MASS J05343487+2200138</TD>
+<TD>05h34m34.8770s</TD>
+<TD>+22d00m13.885s</TD>
+<TD>83.645321</TD>
+<TD>22.003857</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.931848771820493</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>6</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>63</TD>
+<TD>2MASS J05342822+2200307</TD>
+<TD>05h34m28.2283s</TD>
+<TD>+22d00m30.783s</TD>
+<TD>83.617618</TD>
+<TD>22.008551</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.932287569017877</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>6</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>64</TD>
+<TD>2MASS J05342793+2200411</TD>
+<TD>05h34m27.9336s</TD>
+<TD>+22d00m41.166s</TD>
+<TD>83.61639</TD>
+<TD>22.011435</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.947746268940915</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>65</TD>
+<TD>2MASS J05343133+2201494</TD>
+<TD>05h34m31.3375s</TD>
+<TD>+22d01m49.494s</TD>
+<TD>83.630573</TD>
+<TD>22.030415</TD>
+<TD/>
+<TD/>
+<TD/>
+<TD/>
+<TD>IR</TD>
+<TD>0.966077079131246</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>5</TD>
+<TD>1</TD>
 <TD>0</TD>
 <TD>0</TD>
 <TD>0</TD>
@@ -196,4 +1664,3 @@ href="http://ned.ipac.caltech.edu/cgi-bin/objsearch?search_type=Near+Name+Search
 </TABLE>
 </RESOURCE>
 </VOTABLE>
-
