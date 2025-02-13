@@ -15,7 +15,7 @@ import pickle
 import pytest
 
 from astroquery.utils.mocks import MockResponse
-from ...eso import Eso, EsoClass
+from ...eso import Eso
 from ...eso.utils import py2adql
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
@@ -241,6 +241,16 @@ def test_tap_url():
     # set again the env vars, in case we deleted it earlier
     if tmpvar:
         os.environ[tap_url_env_var] = tmpvar
+
+
+def test_request_file():
+    eso_instance = Eso()
+    teststr = "placeholderstring"
+    obtained = eso_instance.request_file(teststr)
+    obtained = os.path.split(obtained)[1]
+    expected = "faf18a6f956ef8b772e5688aabbb15d1aa4b1c2f0ccd108a982590f7.pickle"
+    assert obtained == expected, (f"Expected result: {expected}; "
+                                  f"Obtained result: {obtained}")
 
 
 def test_py2adql():
