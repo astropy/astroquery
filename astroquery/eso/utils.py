@@ -8,6 +8,7 @@ import copy
 import hashlib
 import pickle
 from typing import Union, List
+from datetime import datetime, timezone, timedelta
 
 from astroquery import log
 
@@ -106,6 +107,22 @@ def eso_hash(query_str: str, url: str):
     request_key = (query_str, url)
     h = hashlib.sha224(pickle.dumps(request_key)).hexdigest()
     return h
+
+
+def is_file_expired(filepath, timeout):
+    if timeout is None:
+        is_expired = False
+    else:
+        current_time = datetime.now(timezone.utc)
+        file_time = datetime.fromtimestamp(filepath.stat().st_mtime, timezone.utc)
+        is_expired = current_time-file_time > timedelta(seconds=timeout)
+    return is_expired
+
+
+def read_table_from_file(filepath):
+    with open(filepath, "rb") as f:
+        table = pickle.load(f)
+    return table
 
 
 def to_cache(table, cache_file):
