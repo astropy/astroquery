@@ -87,7 +87,7 @@ class EsoClass(QueryWithLogin):
     DOWNLOAD_URL = "https://dataportal.eso.org/dataPortal/file/"
     AUTH_URL = "https://www.eso.org/sso/oidc/token"
     GUNZIP = "gunzip"
-    USE_DEV_TAP = True
+    USE_DEV_TAP = False
 
     def __init__(self, timeout=None):
         super().__init__()
@@ -254,7 +254,8 @@ class EsoClass(QueryWithLogin):
 
         tap = pyvo.dal.TAPService(EsoClass.tap_url())
         table_to_return = None
-        log.debug(f"querystr = {query_str}")
+        logmsg = f"querystr = {query_str}"
+        log.debug(logmsg)
         try:
             if not cache:
                 with cache_conf.set_temp("cache_active", False):
@@ -274,9 +275,9 @@ class EsoClass(QueryWithLogin):
         except Exception as e:
             raise RuntimeError(
                 f"Unhandled exception {type(e)}\n"
-                               "While executing the following query:\n\n"
-                               f"{query_str}\n\n"
-                               "See examples here: https://archive.eso.org/tap_obs/examples\n\n") from e
+                "While executing the following query:\n\n"
+                f"{query_str}\n\n"
+                "See examples here: https://archive.eso.org/tap_obs/examples\n\n") from e
 
         if len(table_to_return) < 1:
             warnings.warn("Query returned no results", NoResultsWarning)

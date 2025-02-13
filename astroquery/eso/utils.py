@@ -81,7 +81,6 @@ def py2adql(table: str, columns: Union[List, str] = None,
     if count_only:
         columns = ['count(*)']
 
-
     # Build the query
     query_string = ', '.join(columns) + ' from ' + table
     if len(wc) > 0:
