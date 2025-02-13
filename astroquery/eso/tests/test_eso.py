@@ -43,16 +43,28 @@ DATA_FILES = {
             "select * from ivoa.ObsCore where obs_collection in ('VVV') and "
             "intersects(s_region, circle('ICRS', 266.41681662, -29.00782497, 0.1775))=1":
             "query_coll_vvv_sgra.pickle",
+
             "select * from ist.sinfoni where target = 'SGRA'":
             "query_inst_sinfoni_sgra.pickle",
+
             "select * from dbo.raw where target = 'SGR A' and object = 'SGR A'":
             "query_main_sgra.pickle",
+
+            "select distinct obs_collection from ivoa.ObsCore": "query_list_collections.pickle",
+
+            "select table_name from TAP_SCHEMA.tables where schema_name='ist' order by table_name":
+            "query_list_instruments.pickle",
+
             "APEX_QUERY_PLACEHOLDER": "query_apex_ql_5.pickle",
+
             "generic cached query": "fd303fa27993048bd2393af067fe5ceccf4817c288ce5c0b4343386f.pickle",
+
             "query points to non table file": "2031769bb0e68fb2816bf5680203e586eea71ca58b2694a71a428605.pickle"
         }
 }
 
+TEST_COLLECTIONS = ['081.C-0827', 'ADHOC', 'CAFFEINE', 'ENTROPY', 'GAIAESO', 'HARPS', 'INSPIRE', 'KIDS', 'ZCOSMOS']
+TEST_INSTRUMENTS = ['amber', 'crires', 'espresso', 'fors1', 'giraffe', 'gravity', 'midi', 'xshooter']
 
 def eso_request(request_type, url, **kwargs):
     _ = kwargs
@@ -130,6 +142,22 @@ def test_vvv(monkeypatch):
     assert len(result) == 50
     assert 'target_name' in result.colnames
     assert 'b333' in result['target_name']
+
+
+def test_list_collections(monkeypatch):
+    eso = Eso()
+    monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
+    saved_list = eso.list_collections()
+    assert isinstance(saved_list, list)
+    assert set(TEST_COLLECTIONS) <= set(saved_list)
+
+
+def test_list_instruments(monkeypatch):
+    eso = Eso()
+    monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
+    saved_list = eso.list_instruments()
+    assert isinstance(saved_list, list)
+    assert set(TEST_INSTRUMENTS) <= set(saved_list)
 
 
 def test_apex_quicklooks(monkeypatch):

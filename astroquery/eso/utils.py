@@ -113,9 +113,12 @@ def is_file_expired(filepath, timeout):
     if timeout is None:
         is_expired = False
     else:
-        current_time = datetime.now(timezone.utc)
-        file_time = datetime.fromtimestamp(filepath.stat().st_mtime, timezone.utc)
-        is_expired = current_time-file_time > timedelta(seconds=timeout)
+        try:
+            current_time = datetime.now(timezone.utc)
+            file_time = datetime.fromtimestamp(filepath.stat().st_mtime, timezone.utc)
+            is_expired = current_time-file_time > timedelta(seconds=timeout)
+        except FileNotFoundError:
+            is_expired = True
     return is_expired
 
 
