@@ -40,13 +40,12 @@ DATA_FILES = {
         {
             # TODO: Point the second query to an IST when the ISTs are available.
             # TODO: Fix the apex query when the backend is available.
-            "select top 50 * from ivoa.ObsCore where obs_collection in ('VVV') and "
+            "select * from ivoa.ObsCore where obs_collection in ('VVV') and "
             "intersects(s_region, circle('ICRS', 266.41681662, -29.00782497, 0.1775))=1":
             "query_coll_vvv_sgra.pickle",
-            "select top 50 * from dbo.raw where instrument in ('sinfoni') and "
-            "target = 'SGRA'":
+            "select * from ist.sinfoni where target = 'SGRA'":
             "query_inst_sinfoni_sgra.pickle",
-            "select top 50 * from dbo.raw where target = 'SGR A' and object = 'SGR A'":
+            "select * from dbo.raw where target = 'SGR A' and object = 'SGR A'":
             "query_main_sgra.pickle",
             "APEX_QUERY_PLACEHOLDER": "query_apex_ql_5.pickle",
         }
