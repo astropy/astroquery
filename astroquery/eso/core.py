@@ -14,7 +14,6 @@ import json
 import os
 import os.path
 import sys
-import pickle
 import re
 import shutil
 import subprocess
@@ -22,7 +21,6 @@ import time
 import warnings
 import xml.etree.ElementTree as ET
 from typing import List, Optional, Tuple, Dict, Set, Union
-from datetime import datetime, timezone, timedelta
 
 import astropy.table
 import astropy.utils.data
@@ -41,7 +39,8 @@ from ..exceptions import RemoteServiceError, LoginError, \
 from ..query import QueryWithLogin
 from ..utils import schema
 from .utils import py2adql, _split_str_as_list_of_str, \
-    adql_sanitize_val, to_cache, eso_hash, are_coords_valid
+    adql_sanitize_val, to_cache, eso_hash, are_coords_valid, \
+    read_table_from_file, is_file_expired
 
 __doctest_skip__ = ['EsoClass.*']
 
@@ -93,7 +92,7 @@ class EsoClass(QueryWithLogin):
         self._instruments: Optional[List[str]] = None
         self._collections: Optional[List[str]] = None
         self._auth_info: Optional[AuthInfo] = None
-        self.timeout = timeout
+        self.timeout = timeout  # TODO: Is this timeout for login?
         self._hash = None
         self.USE_DEV_TAP = False
 
@@ -128,27 +127,28 @@ class EsoClass(QueryWithLogin):
 
     def from_cache(self, query_str, cache_timeout):
         table_file = self.request_file(query_str)
+        expired = is_file_expired(table_file, cache_timeout)
+        cached_table = None
+        if not expired:
+            cached_table = self.read_cached_table(table_file)
+        else:
+            logmsg = (f"Cache expired for {table_file} ...")
+            log.debug(logmsg)
+        return cached_table
+
+    def read_cached_table(self, table_file):
         try:
-            if cache_timeout is None:
-                expired = False
-            else:
-                current_time = datetime.now(timezone.utc)
-                cache_time = datetime.fromtimestamp(table_file.stat().st_mtime, timezone.utc)
-                expired = current_time-cache_time > timedelta(seconds=cache_timeout)
-            if not expired:
-                with open(table_file, "rb") as f:
-                    cached_table = pickle.load(f)
-                if not isinstance(cached_table, Table):
-                    cached_table = None
-            else:
-                logmsg = (f"Cache expired for {table_file} ...")
-                log.debug(logmsg)
-                cached_table = None
+            cached_table = read_table_from_file(table_file)
         except FileNotFoundError:
             cached_table = None
+
+        if not isinstance(cached_table, Table):
+            cached_table = None
+
         if cached_table:
             logmsg = (f"Retrieved data from {table_file} ...")
             log.debug(logmsg)
+
         return cached_table
 
     def _authenticate(self, *, username: str, password: str) -> bool:

@@ -16,7 +16,7 @@ import pytest
 
 from astroquery.utils.mocks import MockResponse
 from ...eso import Eso
-from ...eso.utils import py2adql
+from ...eso.utils import py2adql, read_table_from_file
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -48,6 +48,8 @@ DATA_FILES = {
             "select * from dbo.raw where target = 'SGR A' and object = 'SGR A'":
             "query_main_sgra.pickle",
             "APEX_QUERY_PLACEHOLDER": "query_apex_ql_5.pickle",
+            "generic cached query": "fd303fa27993048bd2393af067fe5ceccf4817c288ce5c0b4343386f.pickle",
+            "query points to non table file": "2031769bb0e68fb2816bf5680203e586eea71ca58b2694a71a428605.pickle"
         }
 }
 
@@ -181,6 +183,30 @@ def test_cached_file():
     assert eso._find_cached_file("non_existent_filename") is False
 
 
+def test_from_cache():
+    query_str = "generic cached query"
+    filepath = os.path.join(DATA_DIR, DATA_FILES['ADQL'][query_str])
+    table_directly_from_file = read_table_from_file(filepath)
+    eso_instance = Eso()
+    eso_instance.cache_location = DATA_DIR
+
+    # Cached file does not exist
+    table_from_cache = eso_instance.from_cache(query_str="not cached query", cache_timeout=None)
+    assert table_from_cache is None
+
+    # File is expired
+    table_from_cache = eso_instance.from_cache(query_str=query_str, cache_timeout=0.01)
+    assert table_from_cache is None
+
+    # The file exists but is not a table:
+    table_from_cache = eso_instance.from_cache(query_str="query points to non table file", cache_timeout=None)
+    assert table_from_cache is None
+
+    # Getting a valid cached table
+    table_from_cache = eso_instance.from_cache(query_str=query_str, cache_timeout=None)
+    assert all(table_from_cache.values_equal(table_directly_from_file))
+
+
 def test_calselector(monkeypatch, tmp_path):
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
@@ -245,10 +271,10 @@ def test_tap_url():
 
 def test_request_file():
     eso_instance = Eso()
-    teststr = "placeholderstring"
+    teststr = "generic cached query"
     obtained = eso_instance.request_file(teststr)
     obtained = os.path.split(obtained)[1]
-    expected = "faf18a6f956ef8b772e5688aabbb15d1aa4b1c2f0ccd108a982590f7.pickle"
+    expected = DATA_FILES['ADQL'][teststr]
     assert obtained == expected, (f"Expected result: {expected}; "
                                   f"Obtained result: {obtained}")
 
