@@ -66,6 +66,7 @@ DATA_FILES = {
 TEST_COLLECTIONS = ['081.C-0827', 'ADHOC', 'CAFFEINE', 'ENTROPY', 'GAIAESO', 'HARPS', 'INSPIRE', 'KIDS', 'ZCOSMOS']
 TEST_INSTRUMENTS = ['amber', 'crires', 'espresso', 'fors1', 'giraffe', 'gravity', 'midi', 'xshooter']
 
+
 def eso_request(request_type, url, **kwargs):
     _ = kwargs
     with open(data_path(DATA_FILES[request_type][url]), 'rb') as f:
