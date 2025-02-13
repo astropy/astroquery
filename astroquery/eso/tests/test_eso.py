@@ -206,11 +206,41 @@ def test_calselector_multipart(monkeypatch, tmp_path):
 
 
 def test_tap_url():
-    url = EsoClass.tap_url()
-    if EsoClass.USE_DEV_TAP:
-        assert url == "http://dfidev5.hq.eso.org:8123/tap_obs"
-    else:
-        assert url == "https://archive.eso.org/tap_obs"
+    tap_url_env_var = "TAP_URL"
+    tmpvar = None
+    dev_url = "dev_url"
+    prod_url = "https://archive.eso.org/tap_obs"
+
+    try:
+        # this shouldn't be set at this point
+        tmpvar = os.environ[tap_url_env_var]
+        del os.environ[tap_url_env_var]
+    except KeyError:
+        pass
+
+    eso_instance = Eso()
+
+    # TAP URL not set and DEV False
+    eso_instance.USE_DEV_TAP = False
+    assert eso_instance.tap_url() == prod_url
+
+    # TAP URL not set and DEV True
+    eso_instance.USE_DEV_TAP = True
+    with pytest.raises(KeyError):
+        _ = eso_instance.tap_url()
+
+    os.environ["TAP_URL"] = dev_url
+    # TAP URL set and DEV True
+    eso_instance.USE_DEV_TAP = True
+    assert eso_instance.tap_url() == dev_url
+
+    # TAP URL set and DEV False
+    eso_instance.USE_DEV_TAP = False
+    assert eso_instance.tap_url() == prod_url
+
+    # set again the env vars, in case we deleted it earlier
+    if tmpvar:
+        os.environ[tap_url_env_var] = tmpvar
 
 
 def test_py2adql():
