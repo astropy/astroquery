@@ -43,6 +43,7 @@ SGRA_COLLECTIONS = ['195.B-0283',
 
 @pytest.mark.remote_data
 class TestEso:
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_query_tap_service(self):
         eso = Eso()
         eso.ROW_LIMIT = 7
@@ -53,6 +54,7 @@ class TestEso:
         assert len(t) > 0, "Table length is zero"
         assert len(t) == eso.ROW_LIMIT, f"Table length is {lt}, expected {eso.ROW_LIMIT}"
 
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_row_limit(self):
         eso = Eso()
         eso.ROW_LIMIT = 5
@@ -73,6 +75,7 @@ class TestEso:
             n = len(table)
             assert n == eso.ROW_LIMIT, f"Expected {eso.ROW_LIMIT}; Obtained {n}"
 
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_top(self):
         eso = Eso()
         top = 5
@@ -91,6 +94,7 @@ class TestEso:
         n = len(table)
         assert n == top, f"Expected {top}; Obtained {n}"
 
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_SgrAstar(self):
         eso = Eso()
         eso.ROW_LIMIT = 1
@@ -130,6 +134,7 @@ class TestEso:
         assert 'target_name' in result_s.colnames
         assert 'b319' in result_s['target_name']
 
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_multicollection(self, tmp_path):
 
         eso = Eso()
@@ -151,6 +156,7 @@ class TestEso:
         for tc in test_collections:
             assert counts[tc] > 0, f"{tc} : collection not present in results"
 
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_empty_return(self):
         # test for empty return with an object from the North
         eso = Eso()
@@ -164,6 +170,7 @@ class TestEso:
 
         assert len(result_s) == 0
 
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_SgrAstar_remotevslocal(self, tmp_path):
         eso = Eso()
         # TODO originally it was 'gravity', but it is not yet ready in the TAP ISTs
@@ -236,6 +243,7 @@ class TestEso:
 
         assert np.all(tbl == tblb)
 
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_each_instrument_SgrAstar(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
@@ -272,6 +280,7 @@ class TestEso:
                 assert result is not None, f"query_instrument({instrument}) returned None"
                 assert len(result) > 0, f"query_instrument({instrument}) returned no records"
 
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_each_collection_and_SgrAstar(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
@@ -301,6 +310,7 @@ class TestEso:
                     assert len(generic_result) > 0, \
                         f"query_collection({collection}) returned no records"
 
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_mixed_case_instrument(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
@@ -314,6 +324,7 @@ class TestEso:
 
         assert all(result1.values_equal(result2))
 
+    @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_main_SgrAstar(self):
         eso = Eso()
         eso.ROW_LIMIT = 5
