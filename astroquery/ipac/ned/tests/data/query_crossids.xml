@@ -1,0 +1,1052 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.5" xmlns="http://www.ivoa.net/xml/VOTable/v1.3"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3  https://www.ivoa.net/xml/VOTable/VOTable-1.5.xsd">
+<RESOURCE type="results">
+<LINK content-role="query" href="/NED::API/CrossidsOfObject?TARGET=3C 273"/>
+<TABLE ID="crossids" name="CrossidsOfObject" nrows="167">
+<GROUP  ID="QUERY" name="QUERY">
+<PARAM name="TARGET" datatype="char" arraysize="*" value="3C 273"/>
+</GROUP>
+<GROUP ID="RESPONSE"  name="RESPONSE">
+<PARAM name="QUERY_STATUS" datatype="char" arraysize="*" value="OK"/>
+<PARAM name="QUERY_TIME" datatype="char" arraysize="*" xtype="timestamp" value="20260602T010111Z"/>
+<PARAM name="RECORDS_AVAILABLE" datatype="int" value="167"/>
+<PARAM name="RECORDS_RETURNED" datatype="int" value="167"/>
+</GROUP>
+<GROUP ID="Curation" name="Curation">
+<PARAM ID="Publisher" datatype="char" name="Publisher" ucd="meta.curation" value="NASA/IPAC Extragalactic Database (NED)" arraysize="*">
+<DESCRIPTION>
+Copyright 2019-2026 Caltech, Support from NASA is acknowledged.
+This information is taken from a collection created and curated by
+the NASA/IPAC Extragalactic Database (NED), operated by the California Institute of Technology (Caltech).
+If your research benefits from the use of NED, the following acknowledgement in your paper would be appreciated:
+
+"This research has made use of the NASA/IPAC Extragalactic Database (NED), which is funded by the National Aeronautics and Space Administration and operated by the California Institute of Technology."
+
+See: https://ned.ipac.caltech.edu/Documents/Overview/Acknowledgments 
+</DESCRIPTION>
+</PARAM>
+<PARAM name="queryEngineInfo" datatype="char" arraysize="*" value="https://ned.ipac.caltech.edu/NED::API/CrossidsOfObject" />
+</GROUP>
+<FIELD ID="row" name="No." ucd="meta.number" datatype="int" >
+<DESCRIPTION>A row number applicable to this list only</DESCRIPTION>
+</FIELD>
+<FIELD ID="object_name" name="Object Name" ucd="meta.id.cross" datatype="char" arraysize="*" >
+<DESCRIPTION>Object name in NED standard format</DESCRIPTION>
+</FIELD>
+<FIELD ID="ptype" name="Physical Type" ucd="src.class" datatype="char" arraysize="*" >
+<DESCRIPTION>Physical type of the celestial object</DESCRIPTION>
+</FIELD>
+<FIELD ID="emtype" name="EM Region" ucd="instr;em" datatype="char" arraysize="*" >
+<DESCRIPTION>Region of the electromagnetic spectrum where the object was detected</DESCRIPTION>
+</FIELD>
+<DATA>
+<TABLEDATA>
+<TR>
+<TD>1</TD>
+<TD>0FGL J1229.1+0202</TD>
+<TD/>
+<TD/>
+</TR>
+<TR>
+<TD>2</TD>
+<TD>1225+022</TD>
+<TD/>
+<TD/>
+</TR>
+<TR>
+<TD>3</TD>
+<TD>1226+02</TD>
+<TD/>
+<TD/>
+</TR>
+<TR>
+<TD>4</TD>
+<TD>1226+0219</TD>
+<TD/>
+<TD/>
+</TR>
+<TR>
+<TD>5</TD>
+<TD>1226+022</TD>
+<TD/>
+<TD/>
+</TR>
+<TR>
+<TD>6</TD>
+<TD>1226+023</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>7</TD>
+<TD>1AGL J1228+0142</TD>
+<TD/>
+<TD/>
+</TR>
+<TR>
+<TD>8</TD>
+<TD>1CGH J1229+0203</TD>
+<TD>QSO</TD>
+<TD>Gamma</TD>
+</TR>
+<TR>
+<TD>9</TD>
+<TD>1ES 1226+023</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>10</TD>
+<TD>1FGL J1229.1+0203</TD>
+<TD/>
+<TD/>
+</TR>
+<TR>
+<TD>11</TD>
+<TD>1FLE J1227+0218</TD>
+<TD/>
+<TD>Gamma</TD>
+</TR>
+<TR>
+<TD>12</TD>
+<TD>1H 1226+022</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>13</TD>
+<TD>1RXS J122906.5+020311</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>14</TD>
+<TD>1XMM J122906.7+020308</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>15</TD>
+<TD>2A 1225+022</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>16</TD>
+<TD>2CXO J122906.6+020308</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>17</TD>
+<TD>2E 2729</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>18</TD>
+<TD>2EG J1229+0206</TD>
+<TD/>
+<TD>Gamma</TD>
+</TR>
+<TR>
+<TD>19</TD>
+<TD>2FGL J1229.1+0202</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>20</TD>
+<TD>2MASS J12290669+0203085</TD>
+<TD/>
+<TD>IR</TD>
+</TR>
+<TR>
+<TD>21</TD>
+<TD>2MASX J12290674+0203083</TD>
+<TD>G</TD>
+<TD>IR</TD>
+</TR>
+<TR>
+<TD>22</TD>
+<TD>2PBC J1229.1+0202</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>23</TD>
+<TD>2RXS J122906.6+020309</TD>
+<TD>QSO</TD>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>24</TD>
+<TD>2XMM J122906.6+020308</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>25</TD>
+<TD>2XMMp J122906.6+020308</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>26</TD>
+<TD>3A 1226+023</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>27</TD>
+<TD>3C 273</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>28</TD>
+<TD>3C 273:[CME2001] 01</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>29</TD>
+<TD>3C 273:[PWC2011] 2843</TD>
+<TD>*</TD>
+<TD/>
+</TR>
+<TR>
+<TD>30</TD>
+<TD>3EG J1229+0210</TD>
+<TD/>
+<TD/>
+</TR>
+<TR>
+<TD>31</TD>
+<TD>3FGL J1229.1+0202</TD>
+<TD/>
+<TD>Gamma</TD>
+</TR>
+<TR>
+<TD>32</TD>
+<TD>3FHL J1229.2+0201</TD>
+<TD/>
+<TD>Gamma</TD>
+</TR>
+<TR>
+<TD>33</TD>
+<TD>3PBC J1229.1+0203</TD>
+<TD>QSO</TD>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>34</TD>
+<TD>4C +02.32</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>35</TD>
+<TD>4FGL J1229.0+0202</TD>
+<TD/>
+<TD>Gamma</TD>
+</TR>
+<TR>
+<TD>36</TD>
+<TD>4U 1226+02</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>37</TD>
+<TD>5BZQ J1229+0203</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>38</TD>
+<TD>87GB 122633.1+021928</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>39</TD>
+<TD>87GB[BWE91] 1226+0219</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>40</TD>
+<TD>9Y-MST J1229+0200</TD>
+<TD/>
+<TD>Gamma</TD>
+</TR>
+<TR>
+<TD>41</TD>
+<TD>[AHG2014] B015</TD>
+<TD>G</TD>
+<TD/>
+</TR>
+<TR>
+<TD>42</TD>
+<TD>[BTM2013] 0619</TD>
+<TD>G</TD>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>43</TD>
+<TD>BZQ J1229+0203</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>44</TD>
+<TD>[CG2022] J122906.69+020308.59</TD>
+<TD>QSO</TD>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>45</TD>
+<TD>CGRaBS J1229+0203</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>46</TD>
+<TD>CoNFIG 137</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>47</TD>
+<TD>CoNFIG2 J122906.41+020305.10</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>48</TD>
+<TD>CRATES J1229+0203</TD>
+<TD/>
+<TD/>
+</TR>
+<TR>
+<TD>49</TD>
+<TD>CRATES J122906.70+020308.6</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>50</TD>
+<TD>CTA 053</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>51</TD>
+<TD>Cul 1226+023</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>52</TD>
+<TD>[CW2008] J122909+020259</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>53</TD>
+<TD>CXOGSG J122906.6+020308</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>54</TD>
+<TD>CXO J122906.6+020308</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>55</TD>
+<TD>DA 324</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>56</TD>
+<TD>[DFD2009] J1229+0203</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>57</TD>
+<TD>[dML87] 295</TD>
+<TD>G</TD>
+<TD/>
+</TR>
+<TR>
+<TD>58</TD>
+<TD>EGR J1229+0203</TD>
+<TD/>
+<TD/>
+</TR>
+<TR>
+<TD>59</TD>
+<TD>EPIC 229151988</TD>
+<TD>QSO</TD>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>60</TD>
+<TD>EUVE J1229+02.0</TD>
+<TD/>
+<TD>UV</TD>
+</TR>
+<TR>
+<TD>61</TD>
+<TD>[FBS2007] 48</TD>
+<TD>G</TD>
+<TD/>
+</TR>
+<TR>
+<TD>62</TD>
+<TD>[FCC2009] 096</TD>
+<TD>G</TD>
+<TD/>
+</TR>
+<TR>
+<TD>63</TD>
+<TD>F-GAMMA J1229+0203</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>64</TD>
+<TD>FIRST J122906.7+020308</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>65</TD>
+<TD>FL8Y J1229.0+0202</TD>
+<TD/>
+<TD>Gamma</TD>
+</TR>
+<TR>
+<TD>66</TD>
+<TD>G4Jy 1003</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>67</TD>
+<TD>GALEXASC J122906.80+020308.2</TD>
+<TD/>
+<TD>UV</TD>
+</TR>
+<TR>
+<TD>68</TD>
+<TD>GB6 J1229+0202</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>69</TD>
+<TD>[GBW2010] CoNFIG1 135</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>70</TD>
+<TD>GLEAM J122906+020251</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>71</TD>
+<TD>H 1226+023</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>72</TD>
+<TD>[HB89] 1226+023</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>73</TD>
+<TD>HE 1226+0219</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>74</TD>
+<TD>HEGS J1229+020</TD>
+<TD/>
+<TD>Gamma</TD>
+</TR>
+<TR>
+<TD>75</TD>
+<TD>HIP 060936</TD>
+<TD>*</TD>
+<TD/>
+</TR>
+<TR>
+<TD>76</TD>
+<TD>[HRT2007] J122906+020245</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>77</TD>
+<TD>ICRF J122906.6+020308</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>78</TD>
+<TD>IDEOS 00000010_00</TD>
+<TD>G</TD>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>79</TD>
+<TD>IDEOS 04978176_00</TD>
+<TD>G</TD>
+<TD/>
+</TR>
+<TR>
+<TD>80</TD>
+<TD>IDEOS 12259328_00</TD>
+<TD>G</TD>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>81</TD>
+<TD>IDEOS 19716096_00</TD>
+<TD>G</TD>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>82</TD>
+<TD>IDEOS 19718656_00</TD>
+<TD>G</TD>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>83</TD>
+<TD>IDEOS 28975872_00</TD>
+<TD>G</TD>
+<TD/>
+</TR>
+<TR>
+<TD>84</TD>
+<TD>IDEOS 28976384_00</TD>
+<TD>G</TD>
+<TD/>
+</TR>
+<TR>
+<TD>85</TD>
+<TD>IDEOS 28976640_00</TD>
+<TD>G</TD>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>86</TD>
+<TD>IDEOS 28976896_00</TD>
+<TD>G</TD>
+<TD/>
+</TR>
+<TR>
+<TD>87</TD>
+<TD>IDEOS 28977152_00</TD>
+<TD>G</TD>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>88</TD>
+<TD>IERS B1226+023</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>89</TD>
+<TD>IGR J12291+0203</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>90</TD>
+<TD>IRAS  12265+0219</TD>
+<TD>G</TD>
+<TD/>
+</TR>
+<TR>
+<TD>91</TD>
+<TD>IRAS 12265+0219</TD>
+<TD/>
+<TD>IR</TD>
+</TR>
+<TR>
+<TD>92</TD>
+<TD>IRAS F12265+0219</TD>
+<TD/>
+<TD>IR</TD>
+</TR>
+<TR>
+<TD>93</TD>
+<TD>[JBB2007] J122906.70+020308.6</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>94</TD>
+<TD>JVAS J1229+0203</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>95</TD>
+<TD>[KPP2022] J1229+0203</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>96</TD>
+<TD>[KRL2007] 118</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>97</TD>
+<TD>[KSK2022] N334</TD>
+<TD>QSO</TD>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>98</TD>
+<TD>[KT2024] J1229+0203</TD>
+<TD>QSO</TD>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>99</TD>
+<TD>[KWP81] 1226+02</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>100</TD>
+<TD>LAMOST J122906.69+020308.6</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>101</TD>
+<TD>LAMOST J122906.70+020308.6</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>102</TD>
+<TD>LAMOST J122906.96+020307.6</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>103</TD>
+<TD>LEDA 041121</TD>
+<TD>G</TD>
+<TD/>
+</TR>
+<TR>
+<TD>104</TD>
+<TD>[LLK2008] 1226+023</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>105</TD>
+<TD>LQAC 187+002 004</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>106</TD>
+<TD>[LSJ2017] J1229+0203</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>107</TD>
+<TD>MAXI J1229+020</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>108</TD>
+<TD>MG1 J122906+0202</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>109</TD>
+<TD>[MGL2009] 1478</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>110</TD>
+<TD>[MHH96] J122906+020306</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>111</TD>
+<TD>MRC 1226+023</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>112</TD>
+<TD>NEWPS_5yr_5s_15 272</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>113</TD>
+<TD>NEWPS_5yr_5s 281</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>114</TD>
+<TD>NRAO 0400</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>115</TD>
+<TD>NVSS J122906+020305</TD>
+<TD>QSO</TD>
+<TD>IR</TD>
+</TR>
+<TR>
+<TD>116</TD>
+<TD>OCARS 1226+023</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>117</TD>
+<TD>ON +044</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>118</TD>
+<TD>PAPER J187.29+02.09</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>119</TD>
+<TD>PBC J1229.1+0202</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>120</TD>
+<TD>PCCS2 143 G289.94+64.36</TD>
+<TD/>
+<TD>IR</TD>
+</TR>
+<TR>
+<TD>121</TD>
+<TD>PG 1226+023</TD>
+<TD>G</TD>
+<TD/>
+</TR>
+<TR>
+<TD>122</TD>
+<TD>PGC 041121</TD>
+<TD>G</TD>
+<TD/>
+</TR>
+<TR>
+<TD>123</TD>
+<TD>[PKP2022] J1229+0203</TD>
+<TD>G</TD>
+<TD/>
+</TR>
+<TR>
+<TD>124</TD>
+<TD>PKS 1226+02</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>125</TD>
+<TD>PKS B1226+023</TD>
+<TD>G</TD>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>126</TD>
+<TD>PKS J1229+0203</TD>
+<TD/>
+<TD/>
+</TR>
+<TR>
+<TD>127</TD>
+<TD>PMN J1229+0203</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>128</TD>
+<TD>[POS96] J122906.78+020310.0</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>129</TD>
+<TD>QVW5 J122907+0203</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>130</TD>
+<TD>QVW7 J122906+020310</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>131</TD>
+<TD>RBS 1114</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>132</TD>
+<TD>RFC J1229+0203</TD>
+<TD/>
+<TD/>
+</TR>
+<TR>
+<TD>133</TD>
+<TD>RGB J1229+020</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>134</TD>
+<TD>RX J1229.1+0203</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>135</TD>
+<TD>RX J1229.1+0203:[BEV98] 001</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>136</TD>
+<TD>RX J1229.1+0203:[ZEH2003] 01</TD>
+<TD/>
+<TD>Vis</TD>
+</TR>
+<TR>
+<TD>137</TD>
+<TD>SAXWFC J1229.1+0202.3</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>138</TD>
+<TD>[SBW2011] 43</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>139</TD>
+<TD>SDSS J122906.69+020308.5</TD>
+<TD>*</TD>
+<TD/>
+</TR>
+<TR>
+<TD>140</TD>
+<TD>SFRS 204</TD>
+<TD>G</TD>
+<TD/>
+</TR>
+<TR>
+<TD>141</TD>
+<TD>[SMI2006] 02</TD>
+<TD>G</TD>
+<TD/>
+</TR>
+<TR>
+<TD>142</TD>
+<TD>SRGA J122906.6+020310</TD>
+<TD>QSO</TD>
+<TD>Radio,X-ray</TD>
+</TR>
+<TR>
+<TD>143</TD>
+<TD>SSTSL2 J122906.70+020308.6</TD>
+<TD/>
+<TD>IR</TD>
+</TR>
+<TR>
+<TD>144</TD>
+<TD>SWIFT J1229.1+0202</TD>
+<TD>G</TD>
+<TD/>
+</TR>
+<TR>
+<TD>145</TD>
+<TD>[TES2010] 040</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>146</TD>
+<TD>TXS 1226+023</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>147</TD>
+<TD>UITBOC 1715</TD>
+<TD/>
+<TD>Vis</TD>
+</TR>
+<TR>
+<TD>148</TD>
+<TD>UVQS J122906.70+020308.6</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>149</TD>
+<TD>[VCV2001] J122906.7+020308</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>150</TD>
+<TD>[VGV2018] J122906.41+020305.10</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>151</TD>
+<TD>VLSS J1229.0+0202</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>152</TD>
+<TD>VSOP J1229+0203</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>153</TD>
+<TD>[WB92] 1226+0219</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>154</TD>
+<TD>WB J1229+0203</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>155</TD>
+<TD>WIBRaLS J1229+0203</TD>
+<TD>G</TD>
+<TD/>
+</TR>
+<TR>
+<TD>156</TD>
+<TD>WISEA J122906.69+020308.6</TD>
+<TD/>
+<TD>IR</TD>
+</TR>
+<TR>
+<TD>157</TD>
+<TD>WISE J122906.69+020308.6</TD>
+<TD/>
+<TD>IR</TD>
+</TR>
+<TR>
+<TD>158</TD>
+<TD>WISE J122906.70+020308.6</TD>
+<TD/>
+<TD>IR</TD>
+</TR>
+<TR>
+<TD>159</TD>
+<TD>WMAP 170</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>160</TD>
+<TD>WMAP3-NEWPS-5S 163</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>161</TD>
+<TD>WMAP J1229+0203</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>162</TD>
+<TD>WMAP J122906+0203</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+<TR>
+<TD>163</TD>
+<TD>[WMR2009] 093</TD>
+<TD>G</TD>
+<TD/>
+</TR>
+<TR>
+<TD>164</TD>
+<TD>[XH2014] J187.2779+02.0525</TD>
+<TD>QSO</TD>
+<TD/>
+</TR>
+<TR>
+<TD>165</TD>
+<TD>XRS 12260+024</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>166</TD>
+<TD>XSS J12288+0200</TD>
+<TD/>
+<TD>X-ray</TD>
+</TR>
+<TR>
+<TD>167</TD>
+<TD>[ZZ2014] J122906.69+020308.6</TD>
+<TD/>
+<TD>Radio</TD>
+</TR>
+</TABLEDATA>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
