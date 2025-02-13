@@ -251,7 +251,7 @@ class EsoClass(QueryWithLogin):
         if cache is None:  # Global caching not overridden
             cache = cache_conf.cache_active
 
-        tap = pyvo.dal.TAPService(EsoClass.tap_url())
+        tap = pyvo.dal.TAPService(self.tap_url())
         table_to_return = None
         logmsg = f"querystr = {query_str}"
         log.debug(logmsg)
