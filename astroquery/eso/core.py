@@ -87,7 +87,6 @@ class EsoClass(QueryWithLogin):
     DOWNLOAD_URL = "https://dataportal.eso.org/dataPortal/file/"
     AUTH_URL = "https://www.eso.org/sso/oidc/token"
     GUNZIP = "gunzip"
-    USE_DEV_TAP = False
 
     def __init__(self, timeout=None):
         super().__init__()
@@ -96,6 +95,7 @@ class EsoClass(QueryWithLogin):
         self._auth_info: Optional[AuthInfo] = None
         self.timeout = timeout
         self._hash = None
+        self.USE_DEV_TAP = False
 
     @property
     def timeout(self):
@@ -108,14 +108,13 @@ class EsoClass(QueryWithLogin):
         else:
             self._timeout = value
 
-    @staticmethod
-    def tap_url() -> str:
+    def tap_url(self) -> str:
         url = conf.tap_url
-        if EsoClass.USE_DEV_TAP:
+        if self.USE_DEV_TAP:
             try:
                 url = os.environ['TAP_URL']
             except KeyError as e:
-                raise EnvironmentError(
+                raise KeyError(
                     "Running on dev mode, but TAP_URL environment variable is not set"
                 ) from e
             logmsg = f"Using dev tap url: {url}"
