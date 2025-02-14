@@ -128,7 +128,8 @@ class IrsaClass(BaseVOQuery):
 
     query_sia.__doc__ = query_sia.__doc__.replace('_SIA2_PARAMETERS', SIA2_PARAMETERS_DESC)
 
-    def query_ssa(self, *, pos=None, diameter=None, band=None, time=None, format=None, **kwargs):
+    def query_ssa(self, *, pos=None, diameter=None, band=None, time=None, format=None,
+                  collection=None):
         """
         Use standard SSA attributes to query the IRSA SSA service.
 
@@ -146,17 +147,14 @@ class IrsaClass(BaseVOQuery):
         time : `~astropy.time.Time` class or sequence of two strings
             the datetime range the observations were made in.
             assuming iso 8601 if format is not specified.
+        collection : str
+           Name of the collection that the data belongs to.
         format : str
            the image format(s) of interest.  "all" indicates
            all available formats; "graphic" indicates
            graphical images (e.g. jpeg, png, gif; not FITS);
            "metadata" indicates that no images should be
            returned--only an empty table with complete metadata.
-        **kwargs :
-           additional case insensitive parameters can be given via arbitrary
-           case insensitive keyword arguments. Where there is overlap
-           with the parameters set by the other arguments to
-           this function, these keywords will override.
 
         Returns
         -------
@@ -164,7 +162,7 @@ class IrsaClass(BaseVOQuery):
         result.table in Astropy table format
         """
         return self.ssa.search(pos=pos, diameter=diameter, band=band, time=time,
-                               format=format, **kwargs)
+                               format=format, collection=collection)
 
     def list_collections(self, servicetype=None):
         """
