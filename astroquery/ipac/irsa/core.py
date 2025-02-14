@@ -44,7 +44,7 @@ class IrsaClass(BaseVOQuery):
     @property
     def ssa(self):
         if not self._ssa:
-            self._ssa = SSAService(baseurl=self.sia_url, session=self._session)
+            self._ssa = SSAService(baseurl=self.ssa_url, session=self._session)
         return self._ssa
 
     @property
