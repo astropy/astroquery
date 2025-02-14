@@ -54,21 +54,6 @@ class TestEso:
         assert len(t) > 0, "Table length is zero"
         assert len(t) == eso.ROW_LIMIT, f"Table length is {lt}, expected {eso.ROW_LIMIT}"
 
-    def test_query_instrument(self):
-        # TODO - Just testing whether this alleviates Codecov complaints
-        assert True
-
-    def test_query_collections(self):
-        # TODO - Just testing whether this alleviates Codecov complaints
-        assert True
-
-    def test_query_main(self):
-        # TODO - Just testing whether this alleviates Codecov complaints
-        assert True
-
-    def test_query_apex_quicklooks(self):
-        # TODO - Just testing whether this alleviates Codecov complaints
-        assert True
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_row_limit(self):
