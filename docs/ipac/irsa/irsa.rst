@@ -337,6 +337,8 @@ Without specifying the collection, the query returns results from multiple
 collections. For example this target has spectra from Sofia as well as from
 Spitzer.
 
+.. doctest-remote-data::
+
    >>> from astropy.table import unique
    >>> unique(arp220_spectra, keys='dataid_collection')['dataid_collection']
    <MaskedColumn name='dataid_collection' dtype='object' description='IVOA Identifier of collection' length=4>
