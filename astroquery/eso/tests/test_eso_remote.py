@@ -54,7 +54,6 @@ class TestEso:
         assert len(t) > 0, "Table length is zero"
         assert len(t) == eso.ROW_LIMIT, f"Table length is {lt}, expected {eso.ROW_LIMIT}"
 
-
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_row_limit(self):
         eso = Eso()
