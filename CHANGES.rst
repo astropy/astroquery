@@ -24,6 +24,8 @@ gaia
 ipac.irsa
 ^^^^^^^^^
 
+- Method to run Simple Spectral Access (SSA) VO queries, ``query_ssa``, is added. [#3076]
+
 - Adding the "servicetype" kwarg to ``list_collections`` to be able to list SIA
   and SSA collections separately. [#3200]
 
