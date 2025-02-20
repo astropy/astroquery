@@ -128,8 +128,7 @@ class IrsaClass(BaseVOQuery):
 
     query_sia.__doc__ = query_sia.__doc__.replace('_SIA2_PARAMETERS', SIA2_PARAMETERS_DESC)
 
-    def query_ssa(self, *, pos=None, diameter=None, band=None, time=None, format=None,
-                  collection=None):
+    def query_ssa(self, *, pos=None, radius=None, band=None, time=None, collection=None):
         """
         Use standard SSA attributes to query the IRSA SSA service.
 
@@ -138,8 +137,8 @@ class IrsaClass(BaseVOQuery):
         pos : `~astropy.coordinates.SkyCoord` class or sequence of two floats
             the position of the center of the circular search region.
             assuming icrs decimal degrees if unit is not specified.
-        diameter : `~astropy.units.Quantity` class or scalar float
-            the diameter of the circular region around pos in which to search.
+        raidus : `~astropy.units.Quantity` class or scalar float
+            the radius of the circular region around pos in which to search.
             assuming icrs decimal degrees if unit is not specified.
         band : `~astropy.units.Quantity` class or sequence of two floats
             the bandwidth range the observations belong to.
@@ -149,20 +148,20 @@ class IrsaClass(BaseVOQuery):
             assuming iso 8601 if format is not specified.
         collection : str
            Name of the collection that the data belongs to.
-        format : str
-           the image format(s) of interest.  "all" indicates
-           all available formats; "graphic" indicates
-           graphical images (e.g. jpeg, png, gif; not FITS);
-           "metadata" indicates that no images should be
-           returned--only an empty table with complete metadata.
 
         Returns
         -------
         Results in `pyvo.dal.SSAResults` format.
-        result.table in Astropy table format
+        result.to_table() in Astropy table format
         """
+
+        if radius is None:
+            diameter = None
+        else:
+            diameter = 2 * radius
+            
         return self.ssa.search(pos=pos, diameter=diameter, band=band, time=time,
-                               format=format, collection=collection)
+                               format='all', collection=collection)
 
     def list_collections(self, servicetype=None):
         """

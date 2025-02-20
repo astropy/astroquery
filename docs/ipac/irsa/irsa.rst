@@ -334,7 +334,7 @@ Enhanced Imaging products in the centre of the COSMOS field as an `~astropy.tabl
    >>> arp220_spectra = Irsa.query_ssa(pos=coord).to_table()
 
 Without specifying the collection, the query returns results from multiple
-collections. For example this target has spectra from Sofia as well as from
+collections. For example this target has spectra from SOFIA as well as from
 Spitzer.
 
 .. doctest-remote-data::
