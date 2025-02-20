@@ -692,7 +692,7 @@ It is possible to download a product given its file name or product id:
   >>>
   >>> plt.figure()
   <Figure size 800x600 with 0 Axes>
- <Figure size 800x600 with 0 Axes>
+  <Figure size 800x600 with 0 Axes>
   >>> plt.imshow(image_data, cmap='gray', origin='lower', norm=ImageNormalize(image_data, interval=PercentileInterval(99.9), stretch=AsinhStretch()))
   >>> colorbar = plt.colorbar()
 
