@@ -11,8 +11,6 @@ API changes
 mast
 ^^^^
 
-- Handle coordinates that are not in the ICRS frame in query functions. [#3164]
-
 - Handle a MAST URI string as input for ``Observations.get_cloud_uri`` and a list of MAST URIs as input for
   ``Observations.get_cloud_uris``. [#3193]
 
