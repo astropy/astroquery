@@ -1134,7 +1134,7 @@ datasets offered by different services. In practice, it can be seen and used as 
 data products available for each object outside the main catalogue(s). For more information about the products served via
 DataLink in the Gaia ESA Archive we recommend to read the Archive DataLink tutorials available at https://www.cosmos.esa.int/web/gaia-users/archive/datalink-products.
 
-The DataLink products is restricted to authenticated users. via the `~astroquery.gaia.EuclidClass.load_data` method.
+The DataLink products is restricted to authenticated users. via the `~astroquery.esa.euclid.EuclidClass.load_data` method.
 From SAS the Datalink service can be used to access and download 1D Spectra data.
 
 To find out the resources associated to a given source:
