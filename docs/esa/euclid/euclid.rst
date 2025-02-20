@@ -1181,7 +1181,7 @@ The query below retrieves a random a sample of Euclid sources having spectra, i.
                6                   23754  8.934832487262709  440041                  1.0 ...     0.9950650845505895              7               1          7
                5                   23146 15.085673491841636  390028                  1.0 ...                    0.0              7               1          7
                5                   23159 11.356825209088221     111                  0.0 ...                    0.0              7               1          7
- Length = 2000 rows
+  Length = 2000 rows
 
 
 The following example shows how to retrieve the DataLink products (1D Spectra) associated to the previous sources (IDs).
