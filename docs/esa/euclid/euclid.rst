@@ -12,11 +12,8 @@ out to redshifts ~2, or equivalently to a look-back time of 10 billion years. It
 expanded and how structure has formed over cosmic history, revealing more about the role of gravity and the nature of
 dark energy and dark matter.
 
-|
 This package allows the access to the European Space Agency Euclid Archive (https://eas.esac.esa.int/).
 
-
-|
 The Euclid Survey is done in a 'step-and-stare' mode, where the telescope points to a position on the sky and then
 imaging and spectroscopic measurements are performed on an area of ~0.48 deg2 around this position. The telescope
 consists of two cameras, the visible instrument (VIS) and the Near Infrared Spectrometer and Photometer (NISP)
@@ -39,7 +36,7 @@ This package provides access to the metadata and datasets provided by the Europe
 TAP+ REST service. TAP+ is an extension of Table Access Protocol (TAP: http://www.ivoa.net/documents/TAP/) specified by
 the International Virtual Observatory Alliance (IVOA: http://www.ivoa.net).
 
-|
+
 The TAP query language is Astronomical Data Query Language
 (ADQL: https://www.ivoa.net/documents/ADQL/20231215/index.html), which is similar to Structured Query Language (SQL),
 widely used to query databases.
@@ -73,14 +70,12 @@ ESA EUCLID TAP+ server provides two access mode: public and authenticated:
     These tables can be used in queries as well as in cross-matches operations.
 
 
-|
+
 If you use public Euclid data in your paper, please take note of our guide_ on how to acknowledge and cite Euclid data.
 
 .. _guide: https://www.cosmos.esa.int/web/euclid/data-credits-acknowledgements
 
-|
 This python module provides an Astroquery API access.
-
 
 ========
 Examples
