@@ -91,25 +91,25 @@ It is highly recommended checking the status of Euclid TAP before executing this
 This method will retrieve the same warning messages shown in EUCLID Science Archive with information about service degradation.
 
 
----------------------------
-0. Environments
----------------------------
+---------------------------------
+0. Euclid science archive systems
+---------------------------------
 
 The Euclid Science Archive has several environments serving different purposes for the Euclid Consortium members.
 
-1. The OTF ("on-the-fly") the first started at the start of science operation exposed data as processed as processed by
+1. The OTF ("on-the-fly") environment of the Euclid science archive, first started at the start of science operation exposed data as processed as processed by
 the SGS (Science Ground Segment) soon after acquisition to provide an access as soon as possible. In this environment
 the data will not be reprocessed and the processing is therefore heterogeneous.
 
-2. The REG (for non-regression testing) environment where a large area in the sky is processed with the same version for
+2. The REG (for non-regression testing) environment of the Euclid science archive, where a large area in the sky is processed with the same version for
 all data products. The first campaign was run in September 2024, for area of about 500 square degrees (~1000
 observation), the next campaign shall be run in March-April 2025.
 
-3. The IDR (Internal Data Release) environment holds the data that will then become public. The first release Q1
+3. The IDR (Internal Data Release) environment of the Euclid science archiveholds the data that will then become public. The first release Q1
 opened on the 6th of November 2024, with a first pass on the three Euclid deep fields (EDFN, EDFS and EDFF) as well as
 observations on the Lynds Dark Nebula LDN1641.
 
-4. The PDR (Public Data Release) environment holds the public data. Euclid Q1 data will be publicly released on March 19,
+4. The PDR (Public Data Release) environment of the Euclid science archive holds the public data. Euclid Q1 data will be publicly released on March 19,
 2025. The main component of the Q1 data shall contain Level 2 data of a single visit (at the depth of the Euclid Wide
 Survey) over the Euclid Deep Fields (EDFs): 20 deg<sup>2</sup> of the EDF North, 10 deg<sup>2</sup> of EDF Fornax, and
 23 deg<sup>2</sup> of the EDF South. The deep fields will be visited multiple times during the mission.
@@ -862,7 +862,7 @@ surrounded by quotation marks, i.e.: *user_<your_login_name>."<table_name>"*):
 2.5.3. Uploading table from an astropy Table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A in memory PyTable (See https://wiki.python.org/moin/PyTables) can be uploaded to the user private area.
+An in memory PyTable (See https://wiki.python.org/moin/PyTables) can be uploaded to the user private area.
 
 Your schema name will be automatically added to the provided table name.
 
@@ -997,11 +997,11 @@ We can type the following:
 2.8. Cross match
 ^^^^^^^^^^^^^^^^
 
-It is possible to run a geometric cross-match between the rA/dec coordinates of two tables
+It is possible to run a geometric cross-match between the ra/dec coordinates of two tables
 using the crossmatch function provided by the archive. In order to do so the user must be
 logged in. This is required because the cross match operation will generate a join table
 in the user private area. That table contains the identifiers of both tables and the separation,
-in degrees, between rA/dec coordinates of each source in the first table and its associated
+in degrees, between ra/dec coordinates of each source in the first table and its associated
 source in the second table. Later, the table can be used to obtain the actual data from both tables.
 
 In order to perform a cross match, both tables must have defined RA and Dec columns
