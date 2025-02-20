@@ -103,6 +103,7 @@ def test_load_environments():
 
 
 def test_query_object(column_attrs, mock_querier):
+
     coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
     table = mock_querier.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg), height=u.Quantity(0.1, u.deg))
 
