@@ -9,7 +9,7 @@ to access online Astronomical data. Each web service has its own sub-package.
 # Affiliated packages may add whatever they like to this file, but
 # should keep this content at the top.
 # ----------------------------------------------------------------------------
-from ._astropy_init import __version__, __githash__, test
+from ._astropy_init import __version__, __githash__
 # ----------------------------------------------------------------------------
 
 import os
@@ -18,7 +18,7 @@ import logging
 from .logger import _init_log
 from astropy import config as _config
 
-__all__ = ["__version__", "__githash__", "__citation__", "__bibtex__", "test", "log"]
+__all__ = ["__version__", "__githash__", "__citation__", "__bibtex__", "log"]
 
 
 # Set the bibtex entry to the article referenced in CITATION.
