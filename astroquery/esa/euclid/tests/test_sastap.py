@@ -15,16 +15,18 @@ from pathlib import Path
 
 import astropy.units as u
 import numpy as np
+import pytest
 from astropy import coordinates
 from astropy.coordinates.sky_coordinate import SkyCoord
-from astropy.table import Table
+from astropy.table import Column, Table
 from astropy.utils.data import get_pkg_data_filename
 
 from astroquery.esa.euclid.core import EuclidClass
+from astroquery.esa.euclid.core import conf
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.core import TapPlus
-from astroquery.esa.euclid.core import conf
+
 
 package = "astroquery.esa.euclid.tests"
 
@@ -49,6 +51,33 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
+@pytest.fixture(scope="module")
+def mock_querier():
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+
+    launch_response = DummyResponse(200)
+    launch_response.set_data(method="POST", body=JOB_DATA)
+    # The query contains decimals: default response is more robust.
+    conn_handler.set_default_response(launch_response)
+
+    return EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+
+
+@pytest.fixture(scope="module")
+def column_attrs():
+    dtypes = {
+        "alpha": np.float64,
+        "delta": np.float64,
+        "source_id": object,
+        "table1_oid": np.int32
+    }
+    columns = {k: Column(name=k, description=k, dtype=v) for k, v in dtypes.items()}
+
+    columns["source_id"].meta = {"_votable_string_dtype": "char"}
+    return columns
+
+
 def test_load_environments():
     tap = EuclidClass(environment='PDR')
 
@@ -71,6 +100,17 @@ def test_load_environments():
         tap = EuclidClass(environment='WRONG')
     except Exception as e:
         assert str(e).startswith(f"Invalid environment {environment}. Valid values: {list(conf.ENVIRONMENTS.keys())}")
+
+
+def test_query_object(column_attrs, mock_querier):
+    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
+    table = mock_querier.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg), height=u.Quantity(0.1, u.deg))
+
+    assert table is not None
+
+    assert len(table) == 3
+    for colname, attrs in column_attrs.items():
+        assert table[colname].attrs_equal(attrs)
 
 
 def test_load_tables():
