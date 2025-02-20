@@ -101,7 +101,7 @@ class EuclidClass(TapPlus):
     def load_tables(self, *, only_names=False, include_shared_tables=False, verbose=False):
         """
         Description
-        -----------        
+        -----------
         Loads all public tables
 
         Parameters
@@ -112,7 +112,7 @@ class EuclidClass(TapPlus):
             True to include shared tables
         verbose : bool, optional, default 'False'
             flag to display information about the process
-            
+
         Returns
         -------
         A list of table objects
@@ -131,7 +131,7 @@ class EuclidClass(TapPlus):
             full qualified table name (i.e. schema name + table name)
         verbose : bool, optional, default 'False'
             flag to display information about the process
-            
+
         Returns
         -------
         A table object
@@ -152,7 +152,7 @@ class EuclidClass(TapPlus):
         name : str, optional, default None
             custom name defined by the user for the job that is going to be created
         dump_to_file : bool, optional, default 'False'
-            if True, the results are saved in a file instead of using memory            
+            if True, the results are saved in a file instead of using memory
         output_file : str, optional, default None
             File name where the results are saved if dump_to_file is True.
             If this parameter is not provided, the job id is used instead
@@ -164,7 +164,7 @@ class EuclidClass(TapPlus):
             resource to be uploaded to UPLOAD_SCHEMA
         upload_table_name: str, required if uploadResource is provided, default None
             resource temporary table name associated to the uploaded resource
-            
+
         Returns
         -------
         A Job object
@@ -286,7 +286,7 @@ class EuclidClass(TapPlus):
         Description
         -----------
         Searches for jobs applying the specified filter
-        
+
         Parameters
         ----------
         jobfilter : JobFilter, optional, default None
