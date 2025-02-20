@@ -1,0 +1,10 @@
+{
+    "mast:HST/product/u9o40504m_c3m.fits": {
+        "status_code": 200,
+        "path": "/hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits"
+    },
+    "mast:HST/product/does_not_exist.fits": {
+        "status_code": 404,
+        "path": null
+    }
+}

@@ -6,6 +6,7 @@ MAST Utils
 Miscellaneous functions used throughout the MAST module.
 """
 
+import warnings
 import numpy as np
 
 import requests
@@ -14,11 +15,11 @@ import platform
 from urllib import parse
 
 import astropy.coordinates as coord
-from astropy.table import unique
+from astropy.table import unique, Table
 
 from .. import log
 from ..version import version
-from ..exceptions import ResolverError, InvalidQueryError
+from ..exceptions import NoResultsWarning, ResolverError, InvalidQueryError
 from ..utils import commons
 
 from . import conf
@@ -184,7 +185,8 @@ def mast_relative_path(mast_uri):
     result = []
     for chunk in uri_list_chunks:
         response = _simple_request("https://mast.stsci.edu/api/v0.1/path_lookup/",
-                                   {"uri": chunk})
+                                   {"uri": [mast_uri[1] for mast_uri in chunk]})
+
         json_response = response.json()
 
         for uri in chunk:
@@ -192,6 +194,9 @@ def mast_relative_path(mast_uri):
             # ("uri", "/path/to/product")
             # so we index for path (index=1)
             path = json_response.get(uri[1])["path"]
+            if path is None:
+                warnings.warn(f"Failed to retrieve MAST relative path for {uri[1]}. Skipping...", NoResultsWarning)
+                continue
             if 'galex' in path:
                 path = path.lstrip("/mast/")
             elif '/ps1/' in path:
@@ -218,19 +223,31 @@ def _split_list_into_chunks(input_list, chunk_size):
 def remove_duplicate_products(data_products, uri_key):
     """
     Removes duplicate data products that have the same data URI.
+
     Parameters
     ----------
-    data_products : `~astropy.table.Table`
-        Table containing products to be checked for duplicates.
+    data_products : `~astropy.table.Table`, list
+        Table containing products or list of URIs to be checked for duplicates.
     uri_key : str
         Column name representing the URI of a product.
+
     Returns
     -------
     unique_products : `~astropy.table.Table`
         Table containing products with unique dataURIs.
     """
+    # Get unique products based on input type
+    if isinstance(data_products, Table):
+        unique_products = unique(data_products, keys=uri_key)
+    else:  # data_products is a list
+        seen = set()
+        unique_products = []
+        for uri in data_products:
+            if uri not in seen:
+                seen.add(uri)
+                unique_products.append(uri)
+
     number = len(data_products)
-    unique_products = unique(data_products, keys=uri_key)
     number_unique = len(unique_products)
     if number_unique < number:
         log.info(f"{number - number_unique} of {number} products were duplicates. "

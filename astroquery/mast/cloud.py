@@ -52,7 +52,8 @@ class CloudAccess:  # pragma:no-cover
         import boto3
         import botocore
 
-        self.supported_missions = ["mast:hst/product", "mast:tess/product", "mast:kepler", "mast:galex", "mast:ps1"]
+        self.supported_missions = ["mast:hst/product", "mast:tess/product", "mast:kepler", "mast:galex", "mast:ps1",
+                                   "mast:jwst/product"]
 
         self.boto3 = boto3
         self.botocore = botocore
@@ -77,11 +78,7 @@ class CloudAccess:  # pragma:no-cover
         response : bool
               Is the product from a supported mission.
         """
-
-        for mission in self.supported_missions:
-            if data_product['dataURI'].lower().startswith(mission):
-                return True
-        return False
+        return any(data_product['dataURI'].lower().startswith(mission) for mission in self.supported_missions)
 
     def get_cloud_uri(self, data_product, include_bucket=True, full_url=False):
         """
@@ -92,7 +89,7 @@ class CloudAccess:  # pragma:no-cover
 
         Parameters
         ----------
-        data_product : `~astropy.table.Row`
+        data_product : `~astropy.table.Row`, str
             Product to be converted into cloud data uri.
         include_bucket : bool
             Default True. When false returns the path of the file relative to the
@@ -108,6 +105,8 @@ class CloudAccess:  # pragma:no-cover
             Cloud URI generated from the data product. If the product cannot be
             found in the cloud, None is returned.
         """
+        # If data_product is a string, convert to a list
+        data_product = [data_product] if isinstance(data_product, str) else data_product
 
         uri_list = self.get_cloud_uri_list(data_product, include_bucket=include_bucket, full_url=full_url)
 
@@ -124,8 +123,8 @@ class CloudAccess:  # pragma:no-cover
 
         Parameters
         ----------
-        data_products : `~astropy.table.Table`
-            Table containing products to be converted into cloud data uris.
+        data_products : `~astropy.table.Table`, list
+            Table containing products or list of MAST uris to be converted into cloud data uris.
         include_bucket : bool
             Default True. When false returns the path of the file relative to the
             top level cloud storage location.
@@ -141,8 +140,8 @@ class CloudAccess:  # pragma:no-cover
             if data_products includes products not found in the cloud.
         """
         s3_client = self.boto3.client('s3', config=self.config)
-
-        paths = utils.mast_relative_path(data_products["dataURI"])
+        data_uris = data_products if isinstance(data_products, list) else data_products['dataURI']
+        paths = utils.mast_relative_path(data_uris)
         if isinstance(paths, str):  # Handle the case where only one product was requested
             paths = [paths]
 

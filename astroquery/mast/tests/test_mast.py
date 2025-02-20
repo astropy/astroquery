@@ -4,6 +4,7 @@ import json
 import os
 import re
 from shutil import copyfile
+from unittest.mock import patch
 
 import pytest
 
@@ -16,7 +17,8 @@ from requests import HTTPError, Response
 
 from astroquery.mast.services import _json_to_table
 from astroquery.utils.mocks import MockResponse
-from astroquery.exceptions import InvalidQueryError, InputWarning, MaxResultsWarning
+from astroquery.exceptions import (InvalidQueryError, InputWarning, MaxResultsWarning, NoResultsWarning,
+                                   RemoteServiceError)
 
 from astroquery import mast
 
@@ -48,6 +50,7 @@ DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.HscMatches.Db.v3': 'matchid.json',
               'Mast.HscMatches.Db.v2': 'matchid.json',
               'Mast.HscSpectra.Db.All': 'spectra.json',
+              'mast_relative_path': 'mast_relative_path.json',
               'panstarrs': 'panstarrs.json',
               'panstarrs_columns': 'panstarrs_columns.json',
               'tess_cutout': 'astrocut_107.27_-70.0_5x5.zip',
@@ -142,6 +145,8 @@ def request_mockreturn(url, params={}):
         filename = data_path(DATA_FILES["Mast.Name.Lookup"])
     elif 'panstarrs' in url:
         filename = data_path(DATA_FILES['panstarrs_columns'])
+    elif 'path_lookup' in url:
+        filename = data_path(DATA_FILES['mast_relative_path'])
     with open(filename, 'rb') as infile:
         content = infile.read()
     return MockResponse(content)
@@ -676,6 +681,95 @@ def test_observations_download_file(patch_post, tmpdir):
     # download it
     result = mast.Observations.download_file(uri)
     assert result == ('COMPLETE', None, None)
+
+
+@patch('boto3.client')
+def test_observations_get_cloud_uri(mock_client, patch_post):
+    pytest.importorskip("boto3")
+
+    mast_uri = 'mast:HST/product/u9o40504m_c3m.fits'
+    expected = 's3://stpubdata/hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits'
+
+    # Error without cloud connection
+    with pytest.raises(RemoteServiceError):
+        mast.Observations.get_cloud_uri('mast:HST/product/u9o40504m_c3m.fits')
+
+    # Enable access to public AWS S3 bucket
+    mast.Observations.enable_cloud_dataset()
+
+    # Row input
+    product = Table()
+    product['dataURI'] = [mast_uri]
+    uri = mast.Observations.get_cloud_uri(product[0])
+    assert isinstance(uri, str)
+    assert uri == expected
+
+    # String input
+    uri = mast.Observations.get_cloud_uri(mast_uri)
+    assert uri == expected
+
+    mast.Observations.disable_cloud_dataset()
+
+
+@patch('boto3.client')
+def test_observations_get_cloud_uris(mock_client, patch_post):
+    pytest.importorskip("boto3")
+
+    mast_uri = 'mast:HST/product/u9o40504m_c3m.fits'
+    expected = 's3://stpubdata/hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits'
+
+    # Error without cloud connection
+    with pytest.raises(RemoteServiceError):
+        mast.Observations.get_cloud_uris(['mast:HST/product/u9o40504m_c3m.fits'])
+
+    # Enable access to public AWS S3 bucket
+    mast.Observations.enable_cloud_dataset()
+
+    # Get the cloud URIs
+    # Table input
+    product = Table()
+    product['dataURI'] = [mast_uri]
+    uris = mast.Observations.get_cloud_uris([mast_uri])
+    assert isinstance(uris, list)
+    assert len(uris) == 1
+    assert uris[0] == expected
+
+    # List input
+    uris = mast.Observations.get_cloud_uris([mast_uri])
+    assert isinstance(uris, list)
+    assert len(uris) == 1
+    assert uris[0] == expected
+
+    # Warn if attempting to filter with list input
+    with pytest.warns(InputWarning, match='Filtering is not supported'):
+        mast.Observations.get_cloud_uris([mast_uri],
+                                         extension='png')
+
+    # Warn if not found
+    with pytest.warns(NoResultsWarning, match='Failed to retrieve MAST relative path'):
+        mast.Observations.get_cloud_uris(['mast:HST/product/does_not_exist.fits'])
+
+
+@patch('boto3.client')
+def test_observations_get_cloud_uris_query(mock_client, patch_post):
+    pytest.importorskip("boto3")
+
+    # enable access to public AWS S3 bucket
+    mast.Observations.enable_cloud_dataset()
+
+    # get uris with streamlined function
+    uris = mast.Observations.get_cloud_uris(target_name=234295610,
+                                            filter_products={'productSubGroupDescription': 'C3M'})
+    assert isinstance(uris, list)
+
+    # check that InvalidQueryError is thrown if neither data_products or **criteria are defined
+    with pytest.raises(InvalidQueryError):
+        mast.Observations.get_cloud_uris(filter_products={'productSubGroupDescription': 'C3M'})
+
+    # warn if no data products match filters
+    with pytest.warns(NoResultsWarning, match='No matching products'):
+        mast.Observations.get_cloud_uris(target_name=234295610,
+                                         filter_products={'productSubGroupDescription': 'LC'})
 
 
 ######################

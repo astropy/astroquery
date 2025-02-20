@@ -692,20 +692,6 @@ class TestMast:
         with caplog.at_level("INFO", logger="astroquery"):
             assert "products were duplicates" in caplog.text
 
-    def test_observations_get_cloud_uris_no_duplicates(self, msa_product_table):
-
-        # Get a product list with 6 duplicate JWST MSA config files
-        products = msa_product_table
-
-        assert len(products) == 6
-
-        # enable access to public AWS S3 bucket
-        Observations.enable_cloud_dataset(provider='AWS')
-
-        # Check that only one URI is returned
-        uris = Observations.get_cloud_uris(products)
-        assert len(uris) == 1
-
     def test_observations_download_file(self, tmp_path):
 
         def check_result(result, path):
@@ -776,7 +762,7 @@ class TestMast:
          "s3://stpubdata/panstarrs/ps1/public/rings.v3.skycell/1334/061/"
          "rings.v3.skycell.1334.061.stk.r.unconv.exp.fits")
     ])
-    def test_get_cloud_uri(self, test_data_uri, expected_cloud_uri):
+    def test_observations_get_cloud_uri(self, test_data_uri, expected_cloud_uri):
         pytest.importorskip("boto3")
         # get a product list
         product = Table()
@@ -790,13 +776,17 @@ class TestMast:
         assert len(uri) > 0, f'Product for dataURI {test_data_uri} was not found in the cloud.'
         assert uri == expected_cloud_uri, f'Cloud URI does not match expected. ({uri} != {expected_cloud_uri})'
 
+        # pass the URI as a string
+        uri = Observations.get_cloud_uri(test_data_uri)
+        assert uri == expected_cloud_uri, f'Cloud URI does not match expected. ({uri} != {expected_cloud_uri})'
+
     @pytest.mark.parametrize("test_obs_id", ["25568122", "31411", "107604081"])
-    def test_get_cloud_uris(self, test_obs_id):
+    def test_observations_get_cloud_uris(self, test_obs_id):
         pytest.importorskip("boto3")
 
         # get a product list
         index = 24 if test_obs_id == '25568122' else 0
-        products = Observations.get_product_list(test_obs_id)[index:]
+        products = Observations.get_product_list(test_obs_id)[index:index + 2]
 
         assert len(products) > 0, (f'No products found for OBSID {test_obs_id}. '
                                    'Unable to move forward with getting URIs from the cloud.')
@@ -814,7 +804,32 @@ class TestMast:
             Observations.get_cloud_uris(products,
                                         extension='png')
 
-    def test_get_cloud_uris_query(self):
+    def test_observations_get_cloud_uris_list_input(self):
+        pytest.importorskip("boto3")
+        uri_list = ['mast:HST/product/u24r0102t_c1f.fits',
+                    'mast:PS1/product/rings.v3.skycell.1334.061.stk.r.unconv.exp.fits']
+        expected = ['s3://stpubdata/hst/public/u24r/u24r0102t/u24r0102t_c1f.fits',
+                    's3://stpubdata/panstarrs/ps1/public/rings.v3.skycell/1334/061/rings.v3.skycell.1334.'
+                    '061.stk.r.unconv.exp.fits']
+
+        # enable access to public AWS S3 bucket
+        Observations.enable_cloud_dataset()
+
+        # list of URI strings as input
+        uris = Observations.get_cloud_uris(uri_list)
+        assert len(uris) > 0, f'Products for URI list {uri_list} were not found in the cloud.'
+        assert uris == expected
+
+        # check for warning if filters are provided with list input
+        with pytest.warns(InputWarning, match='Filtering is not supported'):
+            Observations.get_cloud_uris(uri_list,
+                                        extension='png')
+
+        # check for warning if one of the URIs is not found
+        with pytest.warns(NoResultsWarning, match='Failed to retrieve MAST relative path'):
+            Observations.get_cloud_uris(['mast:HST/product/does_not_exist.fits'])
+
+    def test_observations_get_cloud_uris_query(self):
         pytest.importorskip("boto3")
 
         # enable access to public AWS S3 bucket
@@ -838,6 +853,21 @@ class TestMast:
         # check for warning if query returns no observations
         with pytest.warns(NoResultsWarning):
             Observations.get_cloud_uris(target_name=234295611)
+
+    def test_observations_get_cloud_uris_no_duplicates(self, msa_product_table):
+        pytest.importorskip("boto3")
+
+        # Get a product list with 6 duplicate JWST MSA config files
+        products = msa_product_table
+
+        assert len(products) == 6
+
+        # enable access to public AWS S3 bucket
+        Observations.enable_cloud_dataset(provider='AWS')
+
+        # Check that only one URI is returned
+        uris = Observations.get_cloud_uris(products)
+        assert len(uris) == 1
 
     ######################
     # CatalogClass tests #

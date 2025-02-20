@@ -854,9 +854,9 @@ class ObservationsClass(MastQueryWithLogin):
 
         Parameters
         ----------
-        data_products : `~astropy.table.Table`
-            Table containing products to be converted into cloud data uris. If provided, this will supercede
-            page_size, page, or any keyword arguments passed in as criteria.
+        data_products : `~astropy.table.Table`, list
+            Table containing products or list of MAST uris to be converted into cloud data uris.
+            If provided, this will supercede page_size, page, or any keyword arguments passed in as criteria.
         include_bucket : bool
             Default True. When False, returns the path of the file relative to the
             top level cloud storage location.
@@ -920,16 +920,23 @@ class ObservationsClass(MastQueryWithLogin):
                 # Return list of associated data products
                 data_products = self.get_product_list(obs)
 
-        # Filter product list
-        data_products = self.filter_products(data_products, mrp_only=mrp_only, extension=extension, **filter_products)
+        if isinstance(data_products, Table):
+            # Filter product list
+            data_products = self.filter_products(data_products, mrp_only=mrp_only, extension=extension,
+                                                 **filter_products)
+        else:  # data_products is a list of URIs
+            # Warn if trying to supply filters
+            if filter_products or extension or mrp_only:
+                warnings.warn('Filtering is not supported when providing a list of MAST URIs. '
+                              'To apply filters, please provide query criteria or a table of data products '
+                              'as returned by `Observations.get_product_list`', InputWarning)
 
         if not len(data_products):
-            warnings.warn("No matching products to fetch associated cloud URIs.", NoResultsWarning)
+            warnings.warn('No matching products to fetch associated cloud URIs.', NoResultsWarning)
             return
 
         # Remove duplicate products
         data_products = utils.remove_duplicate_products(data_products, 'dataURI')
-
         return self._cloud_connection.get_cloud_uri_list(data_products, include_bucket, full_url)
 
     def get_cloud_uri(self, data_product, *, include_bucket=True, full_url=False):
@@ -941,7 +948,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         Parameters
         ----------
-        data_product : `~astropy.table.Row`
+        data_product : `~astropy.table.Row`, str
             Product to be converted into cloud data uri.
         include_bucket : bool
             Default True. When false returns the path of the file relative to the
