@@ -134,7 +134,7 @@ By default, the object *Euclid*
 
   >>> from astroquery.esa.euclid import Euclid
 
-makes use of the *IDR* environment. In order to make use of a different one, it is necessary to instantiate the class EuclidClass
+makes use of the *PDR* environment. In order to make use of a different one, it is necessary to instantiate the class EuclidClass
 
 .. doctest-remote-data::
 
@@ -375,7 +375,7 @@ Query without saving results in a file:
   >>> print("Found", len(source_results_table), " query results")
   Found 2000  query results
   >>> print("The results table includes the following", len(source_results_table.colnames), "columns: ", source_results_table.colnames)
-The results table includes the following 6 columns:  ['right_ascension', 'declination', 'segmentation_area', 'fluxerr_vis_1fwhm_aper', 'ellipticity', 'kron_radius']
+  The results table includes the following 6 columns:  ['right_ascension', 'declination', 'segmentation_area', 'fluxerr_vis_1fwhm_aper', 'ellipticity', 'kron_radius']
   >>> print(source_results_table[:15])
    right_ascension       declination     segmentation_area fluxerr_vis_1fwhm_aper      ellipticity          kron_radius
   ------------------ ------------------- ----------------- ---------------------- ---------------------- ------------------
