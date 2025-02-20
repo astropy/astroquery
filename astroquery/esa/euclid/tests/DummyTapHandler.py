@@ -14,6 +14,7 @@ from astroquery.utils.tap.model.job import Job
 
 CONTENT_TYPE_POST_DEFAULT = "application/x-www-form-urlencoded"
 
+
 class DummyTapHandler(object):
 
     def __init__(self):
@@ -34,9 +35,9 @@ class DummyTapHandler(object):
         if method == self.__invokedMethod:
             return
         else:
-            raise Exception("Method '"+str(method)
+            raise Exception("Method '" + str(method)
                             + "' not invoked. (Invoked method is '"
-                            + str(self.__invokedMethod)+"')")
+                            + str(self.__invokedMethod) + "')")
 
     def check_parameters(self, parameters, method_name):
         if parameters is None:
@@ -89,10 +90,10 @@ class DummyTapHandler(object):
         self.__parameters['upload_resource'] = upload_resource
         self.__parameters['upload_table_name'] = upload_table_name
         return self.__job
-    
+
     def launch_job_data_context(self, query, name=None, output_file=None,
-                   output_format="votable", verbose=False, dump_to_file=False,
-                   upload_resource=None, upload_table_name=None):
+                                output_format="votable", verbose=False, dump_to_file=False,
+                                upload_resource=None, upload_table_name=None):
         self.__invokedMethod = 'launch_job_data_context'
         self.__parameters['query'] = query
         self.__parameters['name'] = name
@@ -103,7 +104,7 @@ class DummyTapHandler(object):
         self.__parameters['upload_resource'] = upload_resource
         self.__parameters['upload_table_name'] = upload_table_name
         return self.__job
-    
+
     def launch_job_async(self, query, name=None, output_file=None,
                          output_format="votable", verbose=False,
                          dump_to_file=False, background=False,
@@ -192,8 +193,8 @@ class DummyTapHandler(object):
         return None
 
     def cone_search_async(self, coordinate, radius, background=False,
-                    output_file=None, output_format="votable", verbose=False,
-                    dump_to_file=False):
+                          output_file=None, output_format="votable", verbose=False,
+                          dump_to_file=False):
         self.__invokedMethod = 'cone_search_async'
         self.__parameters['coordinate'] = coordinate
         self.__parameters['radius'] = radius
@@ -270,21 +271,21 @@ class DummyTapHandler(object):
         return output_file
 
     def get_product(self, file_name=None,
-                         product_id=None,
-                         schema='sedm_pvpr01',
-                         output_file=None):
+                    product_id=None,
+                    schema='sedm_pvpr01',
+                    output_file=None):
         self.__invokedMethod = 'get_product'
         self.__parameters['file_name'] = file_name
         self.__parameters['product_id'] = product_id
         self.__parameters['schema'] = schema
         self.__parameters['output_file'] = output_file
-        return output_file        
-    
+        return output_file
+
     def get_cutout(self, coordinate, file_path=None,
-                         instrument=None,
-                         id=None,
-                         radius=None,
-                         output_file=None):
+                   instrument=None,
+                   id=None,
+                   radius=None,
+                   output_file=None):
         self.__invokedMethod = 'get_cutout'
         self.__parameters['file_path'] = file_path
         self.__parameters['instrument'] = instrument
@@ -292,15 +293,13 @@ class DummyTapHandler(object):
         self.__parameters['coordinate'] = coordinate
         self.__parameters['radius'] = radius
         self.__parameters['output_file'] = output_file
-        return output_file      
-      
+        return output_file
+
     def get_spectrum(self, source_id=None,
-                         schema='sedm_pvpr01',
-                         output_file=None):
+                     schema='sedm_pvpr01',
+                     output_file=None):
         self.__invokedMethod = 'get_spectrum'
         self.__parameters['source_id'] = source_id
         self.__parameters['schema'] = schema
         self.__parameters['output_file'] = output_file
         return output_file
-    
-    

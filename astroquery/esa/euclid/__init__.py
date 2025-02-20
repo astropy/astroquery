@@ -65,7 +65,7 @@ class Conf(_config.ConfigNamespace):
     CALIBRATED_FRAME_PRODUCTS = ['DpdVisCalibratedQuadFrame', 'DpdNirCalibratedFrame']
 
     FRAME_CATALOG_PRODUCTS = ['DpdNirStackedFrameCatalog', 'DpdVisStackedFrameCatalog', 'DpdNirCalibratedFrameCatalog',
-                              'DpdVisCalibratedFrameCatalog' ]
+                              'DpdVisCalibratedFrameCatalog']
 
     COMBINED_SPECTRA_PRODUCTS = ['DpdSirCombinedSpectra']
 
@@ -74,6 +74,7 @@ class Conf(_config.ConfigNamespace):
     PRODUCT_TYPES = ['observation', 'mosaic']
 
     SCHEMAS = ['sedm']
+
 
 conf = Conf()
 
