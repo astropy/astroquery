@@ -43,7 +43,7 @@ class EuclidClass(TapPlus):
     """
     ROW_LIMIT = conf.ROW_LIMIT
 
-    def __init__(self, *, tap_plus_conn_handler=None, datalink_handler=None, cutout_handler=None, environment='IDR',
+    def __init__(self, *, tap_plus_conn_handler=None, datalink_handler=None, cutout_handler=None, environment='PDR',
                  verbose=False, show_server_messages=True):
 
         if environment not in conf.ENVIRONMENTS:
