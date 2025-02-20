@@ -322,7 +322,7 @@ def test_get_product_list():
     conn_handler.set_default_response(responseLaunchJob)
 
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
-    results = tap.get_product_list(observation_id='13', product_type='observation')
+    results = tap.get_product_list(observation_id='13', product_type='DpdMerBksMosaic')
     # results
     assert results is not None, "Expected a valid table"
 
