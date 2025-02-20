@@ -1,0 +1,29 @@
+<VOTABLE version="1.3" xmlns="http://www.ivoa.net/xml/VOTable/v1.3">
+<RESOURCE type="results">
+<INFO name="QUERY_STATUS" value="OK"/>
+<INFO name="ADQL_QUERY" value="select * from user_jsegovia.table1" />
+<INFO name="CAPTION" value="If you use public Gaia DR1 data in your paper, please take note of our guide on how to acknowledge and cite Gaia DR1: http://gaia.esac.esa.int/documentation/GDR1/Miscellaneous/sec_credit_and_citation_instructions.html" />
+<TABLE>
+<FIELD datatype="double" name="alpha">
+<DESCRIPTION>alpha</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="delta">
+<DESCRIPTION>delta</DESCRIPTION>
+</FIELD>
+<FIELD arraysize="*" datatype="char" name="source_id">
+<DESCRIPTION>source_id</DESCRIPTION>
+</FIELD>
+<FIELD datatype="int" name="table1_oid">
+<DESCRIPTION>table1_oid</DESCRIPTION>
+</FIELD>
+<DATA>
+<BINARY2>
+<STREAM encoding='base64'>
+AD/wAAAAAAAAQAAAAAAAAAAAAAABYQAAAAEAQAgAAAAAAABAEAAAAAAAAAAAAAFi
+AAAAAgBAFAAAAAAAAEAYAAAAAAAAAAAAAWMAAAAD
+</STREAM>
+</BINARY2>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
