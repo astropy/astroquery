@@ -313,9 +313,9 @@ class EuclidClass(TapPlus):
     def list_async_jobs(self, *, verbose=False):
         """
         Description
-        -----------        
+        -----------
         Returns all the asynchronous jobs
-        
+
         Parameters
         ----------
         verbose : bool, optional, default 'False'
@@ -530,7 +530,7 @@ class EuclidClass(TapPlus):
         Description
         -----------
         Cone search for a given catalog and sky position, results sorted by distance
-        
+
         Parameters
         ----------
         coordinate : astropy.coordinate, mandatory
@@ -560,7 +560,7 @@ class EuclidClass(TapPlus):
             if empty, all columns will be selected
         verbose : bool, optional, default 'False'
             flag to display information about the process
-            
+
         Returns
         -------
         A Job object
@@ -630,7 +630,7 @@ class EuclidClass(TapPlus):
 
         User and password can be used or a file that contains user name and password
         (2 lines: one for user name and the following one for the password)
-        
+
         Parameters
         ----------
         user : str, mandatory if 'file' is not provided, default None
@@ -665,7 +665,7 @@ class EuclidClass(TapPlus):
     def login_gui(self, verbose=False):
         """
         Description
-        -----------        
+        -----------
         Performs a login using a GUI dialog
 
         Parameters
