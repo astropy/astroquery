@@ -50,7 +50,6 @@ def data_path(filename):
 
 
 def test_load_environments():
-
     tap = EuclidClass(environment='PDR')
 
     assert tap is not None
@@ -72,7 +71,6 @@ def test_load_environments():
         tap = EuclidClass(environment='WRONG')
     except Exception as e:
         assert str(e).startswith(f"Invalid environment {environment}. Valid values: {list(conf.ENVIRONMENTS.keys())}")
-
 
 
 def test_load_tables():
