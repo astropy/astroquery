@@ -1151,12 +1151,12 @@ The query below retrieves a random a sample of Euclid sources having spectra, i.
 .. Skipping authentication requiring examples
 .. doctest-skip::
 
- >>> query = f"SELECT TOP 2000 * FROM catalogue.phz_photo_z"
- >>> job = Euclid.launch_job_async(query)
- >>> results = job.get_results()
- >>> print(f'Table size (rows): {len(results)}')
-Table size (rows): 2000
- >>> print(results)
+  >>> query = f"SELECT TOP 2000 * FROM catalogue.phz_photo_z"
+  >>> job = Euclid.launch_job_async(query)
+  >>> results = job.get_results()
+  >>> print(f'Table size (rows): {len(results)}')
+  Table size (rows): 2000
+  >>> print(results)
   alt_tom_bin_id basic_download_data_oid     best_chi2      bias_id flag_som_alt_tomobin ...       phz_weight       pos_tom_bin_id to_be_published tom_bin_id
   -------------- ----------------------- ------------------ ------- -------------------- ... ---------------------- -------------- --------------- ----------
               -1                   24244 13.634156774112924  650116                  0.0 ...                    0.0             -1               1         -1
@@ -1181,7 +1181,7 @@ Table size (rows): 2000
                6                   23754  8.934832487262709  440041                  1.0 ...     0.9950650845505895              7               1          7
                5                   23146 15.085673491841636  390028                  1.0 ...                    0.0              7               1          7
                5                   23159 11.356825209088221     111                  0.0 ...                    0.0              7               1          7
-  Length = 2000 rows
+ Length = 2000 rows
 
 
 The following example shows how to retrieve the DataLink products (1D Spectra) associated to the previous sources (IDs).
