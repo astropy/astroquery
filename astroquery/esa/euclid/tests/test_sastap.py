@@ -24,6 +24,7 @@ from astroquery.esa.euclid.core import EuclidClass
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.core import TapPlus
+from astroquery.esa.euclid.core import conf
 
 package = "astroquery.esa.euclid.tests"
 
@@ -46,6 +47,32 @@ TEST_GET_PRODUCT_LIST = Path(PRODUCT_LIST_FILE_NAME).read_text()
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
+
+
+def test_load_environments():
+
+    tap = EuclidClass(environment='PDR')
+
+    assert tap is not None
+
+    tap = EuclidClass(environment='IDR')
+
+    assert tap is not None
+
+    tap = EuclidClass(environment='OTF')
+
+    assert tap is not None
+
+    tap = EuclidClass(environment='REG')
+
+    assert tap is not None
+
+    environment = 'WRONG'
+    try:
+        tap = EuclidClass(environment='WRONG')
+    except Exception as e:
+        assert str(e).startswith(f"Invalid environment {environment}. Valid values: {list(conf.ENVIRONMENTS.keys())}")
+
 
 
 def test_load_tables():
