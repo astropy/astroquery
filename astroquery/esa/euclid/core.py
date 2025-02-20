@@ -1117,8 +1117,9 @@ class EuclidClass(TapPlus):
                     DpdNirStackedFrame: NIR Stacked Frame
                     DpdNirStackedFrameCatalog: NIR Stacked Frame Catalog
                 #. MER
-                    DpdMerSegmentationMap: Segmentation Map Product
-                    dpdMerFinalCatalog: Final Catalog Product
+                     DpdMerSegmentationMap: Segmentation Map Product
+                     DpdMerBksMosaic: Background-Subtracted Mosaic Product
+                     dpdMerFinalCatalog: Final Catalog Product
                 #. PHZ
                     dpdPhzPfOutputCatalog: PHZ PF output catalog product for Deep tiles
                     dpdPhzPfOutputForL3: PHZ PF output catalog product for LE3
