@@ -105,7 +105,7 @@ the data will not be reprocessed and the processing is therefore heterogeneous.
 all data products. The first campaign was run in September 2024, for area of about 500 square degrees (~1000
 observation), the next campaign shall be run in March-April 2025.
 
-3. The IDR (Internal Data Release) environment of the Euclid science archiveholds the data that will then become public. The first release Q1
+3. The IDR (Internal Data Release) environment of the Euclid science archive holds the data that will then become public. The first release Q1
 opened on the 6th of November 2024, with a first pass on the three Euclid deep fields (EDFN, EDFS and EDFF) as well as
 observations on the Lynds Dark Nebula LDN1641.
 
