@@ -15,7 +15,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.esa.euclid`.
     """
 
-    URL_BASE = _config.ConfigItem('https://easidr.esac.esa.int/', 'Euclid base URL')
+    URL_BASE = _config.ConfigItem('https://eas.esac.esa.int/', 'Euclid base URL')
 
     EUCLID_TAP_SERVER = _config.ConfigItem('https://easidr.esac.esa.int/tap-server/tap', 'Euclid TAP Server')
     EUCLID_DATALINK_SERVER = _config.ConfigItem("https://easidr.esac.esa.int/sas-dd/data?", "Euclid DataLink Server")
@@ -32,14 +32,12 @@ class Conf(_config.ConfigNamespace):
 
     ENVIRONMENTS = {'IDR': {'url_server': 'https://easidr.esac.esa.int/', 'main_table': 'catalogue.mer_catalogue',
                             'main_table_ra_column': 'right_ascension', 'main_table_dec_column': 'declination'},
-                    'OTF': {'url_server': 'https://easotf.esac.esa.int/',
-                            'main_table': 'catalogue.mer_catalogue',
+                    'OTF': {'url_server': 'https://easotf.esac.esa.int/', 'main_table': 'catalogue.mer_catalogue',
                             'main_table_ra_column': 'right_ascension', 'main_table_dec_column': 'declination'},
                     'REG': {'url_server': 'https://easreg.esac.esa.int/',
                             'main_table': 'catalogue.mer_final_catalog_fits_file_regreproc1_r2',
                             'main_table_ra_column': 'right_ascension', 'main_table_dec_column': 'declination'},
-                    'PDR': {'url_server': 'https://eas.esac.esa.int/',
-                            'main_table': 'catalogue.mer_final_catalog_fits_file_regreproc1_r2',
+                    'PDR': {'url_server': 'https://eas.esac.esa.int/', 'main_table': 'catalogue.mer_catalogue',
                             'main_table_ra_column': 'right_ascension', 'main_table_dec_column': 'declination'}
                     }
 

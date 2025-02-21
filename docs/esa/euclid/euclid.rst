@@ -207,7 +207,7 @@ Once a table is loaded, its columns can be inspected:
 .. doctest-remote-data::
 
   >>> for column in raw_detector_table.columns:
-          print(column.name)
+  ...   print(column.name)
   crpix1
   crpix2
   crval1
@@ -220,11 +220,13 @@ Once a table is loaded, its columns can be inspected:
   q3_oid
   q4_oid
   to_be_published
+  ...
 
 
 To get the list of products associated with a given Euclid observation_id or tile_index (for mosaic):
 
-.. doctest-remote-data::
+.. Skipping authentication requiring examples
+.. doctest-skip::
 
   >>> from astroquery.esa.euclid import Euclid
   >>> product_list_results = Euclid.get_product_list(tile_index="102018211", product_type="DpdMerBksMosaic")
@@ -251,7 +253,8 @@ The method returns a list of products as an astropy.table.
 
 This query performs a cone search centered at the specified ra/dec coordinates with the provided radius argument.
 
-.. doctest-remote-data::
+.. Skipping authentication requiring examples
+.. doctest-skip::
 
   >>> #example cone search for source NGC6505
   >>> from astroquery.esa.euclid import Euclid
@@ -364,6 +367,7 @@ Query without saving results in a file:
 .. Skipping authentication requiring examples
 .. doctest-skip::
 
+  >>> from astroquery.esa.euclid import Euclid
   >>> query content: getting some galaxies from the mer catalogue
   >>> job = Euclid.launch_job("SELECT right_ascension, declination, segmentation_area, fluxerr_vis_1fwhm_aper, ellipticity, kron_radius FROM catalogue.mer_catalogue  WHERE ellipticity > 0 ORDER BY ellipticity ASC")
   >>> source_results_table = job.get_results()
@@ -399,6 +403,7 @@ Query saving results in a file (you may use 'output_format' to specified the res
 .. Skipping authentication requiring examples
 .. doctest-skip::
 
+  >>> from astroquery.esa.euclid import Euclid
   >>> job = Euclid.launch_job("SELECT right_ascension, declination, segmentation_area, fluxerr_vis_1fwhm_aper, ellipticity, kron_radius FROM catalogue.mer_catalogue  WHERE ellipticity > 0 ORDER BY ellipticity ASC",dump_to_file=True, output_format='votable')
   >>> print(job.outputFile)
   1668863838419O-result.vot.gz
@@ -494,6 +499,7 @@ To get all the asynchronous jobs:
 .. Skipping authentication requiring examples
 .. doctest-skip::
 
+  >>> from astroquery.esa.euclid import Euclid
   >>> joblist = Euclid.list_async_jobs()
   >>> for j in joblist:
   ...     print(j, "\n")
@@ -515,8 +521,8 @@ To remove asynchronous
 .. Pseudo code with ``job_id`` list ellipsis, skipping test
 .. doctest-skip::
 
-  >>> from astroquery.esa.jwst import Jwst
-  >>> job = Jwst.remove_jobs(["job_id_1", "job_id_2", ...])
+  >>> from astroquery.esa.euclid import Euclid
+  >>> job = Euclid.remove_jobs(["job_id_1", "job_id_2", ...])
 
 
 1.6. Synchronous query on an 'on-the-fly' uploaded table
@@ -655,6 +661,7 @@ It is possible to download a product given its file name or product id:
 
   >>> #makeing a folder for the output files
   >>> import os
+  >>> from astroquery.esa.euclid import Euclid
   >>> output_folder= 'example_outputs/'
   >>> if not os.path.exists(output_folder):
          os.makedirs(output_folder)
@@ -706,14 +713,11 @@ To download the products for a given EUCLID observation_id (observations) or til
 .. doctest-skip::
 
   >>> #downloading all products for observation id: 102018211
+  >>> from astroquery.esa.euclid import Euclid
   >>> mos_id = 1399
   >>> path = Euclid.get_observation_products(id=mos_id, product_type='mosaic', filter="VIS", output_file=f"{output_folder}/products_{mos_id}.fits", verbose=True)
 
   For big files the download may require a long time.
-  >>> mos_id = 1399
-  >>> path = Euclid.get_obs_products(id=mos_id, product_type='mosaic', filter="VIS", output_file=f"{output_folder}/products_{mos_id}.fits", verbose=True)
-
-For big files the download may require a long time.
 
 
 2.3. Cutout search
@@ -725,6 +729,7 @@ To download a cutout given its file path, instrument and obs_id, and the cutout 
 .. doctest-skip::
 
   >>> # the map cone_results was previously obtained by the query executed in section 2.1
+  >>> from astroquery.esa.euclid import Euclid
   >>> example_file = cone_results[cone_results['instrument_name'] == 'VIS'][0]
   >>> # getting the arguments from the cone search result table automatically
   >>> file_path=example_file["file_path"] + "/" + example_file["file_name"]
@@ -826,6 +831,7 @@ surrounded by quotation marks, i.e.: *user_<your_login_name>."<table_name>"*):
 .. Skipping authentication requiring examples
 .. doctest-skip::
 
+  >>> from astroquery.esa.euclid import Euclid
   >>> full_qualified_table_name = 'user_<your_login_name>.table_test_from_url'
   >>> query = 'select * from ' + full_qualified_table_name
   >>> job = Euclid.launch_job(query=query)
@@ -857,6 +863,7 @@ surrounded by quotation marks, i.e.: *user_<your_login_name>."<table_name>"*):
 .. Skipping authentication requiring examples
 .. doctest-skip::
 
+  >>> from astroquery.esa.euclid import Euclid
   >>> full_qualified_table_name = 'user_<your_login_name>.table_test_from_file'
   >>> query = 'select * from ' + full_qualified_table_name
   >>> job = Euclid.launch_job(query=query)
@@ -890,6 +897,7 @@ surrounded by quotation marks, i.e.: *user_<your_login_name>."<table_name>"*):
 .. Skipping authentication requiring examples
 .. doctest-skip::
 
+  >>> from astroquery.esa.euclid import Euclid
   >>> full_qualified_table_name = 'user_<your_login_name>.table_test_from_astropy'
   >>> query = 'select * from ' + full_qualified_table_name
   >>> job = Euclid.launch_job(query=query)
@@ -920,6 +928,7 @@ surrounded by quotation marks since it contains capital letters.):
 .. Skipping authentication requiring examples
 .. doctest-skip::
 
+  >>> from astroquery.esa.euclid import Euclid
   >>> full_qualified_table_name = 'user_<your_login_name>."t1710251325268O"'
   >>> query = 'select * from ' + full_qualified_table_name
   >>> job = Euclid.launch_job(query=query)
@@ -1034,6 +1043,7 @@ Once you have your cross match finished, you can obtain the results:
 .. Skipping authentication requiring examples
 .. doctest-skip::
 
+  >>> from astroquery.esa.euclid import Euclid
   >>> xmatch_table = 'user_<your_login_name>.' + xmatch_table_name
   >>> query = (f"SELECT c.separation*3600 AS separation_arcsec, a.*, b.* FROM Eucliddr3.Euclid_source AS a, "
   ...          f"{full_qualified_table_name} AS b, {xmatch_table} AS c WHERE c.Euclid_source_source_id = a.source_id AND "
@@ -1141,6 +1151,7 @@ To find out the resources associated to a given source:
 .. Skipping authentication requiring examples
 .. doctest-skip::
 
+  >>> from astroquery.esa.euclid import Euclid
   >>> ids=["sedm -522481450274091664"]
   >>> datalink = Euclid.get_datalinks(ids=ids)
 
@@ -1150,6 +1161,7 @@ The query below retrieves a random a sample of Euclid sources having spectra, i.
 .. Skipping authentication requiring examples
 .. doctest-skip::
 
+  >>> from astroquery.esa.euclid import Euclid
   >>> query = f"SELECT TOP 2000 * FROM catalogue.phz_photo_z"
   >>> job = Euclid.launch_job_async(query)
   >>> results = job.get_results()
@@ -1188,6 +1200,7 @@ The following example shows how to retrieve the DataLink products (1D Spectra) a
 .. Skipping authentication requiring examples
 .. doctest-skip::
 
+  >>> from astroquery.esa.euclid import Euclid
   >>> params_dict = {}
   >>> params_dict['ID']=','.join(str(item) for item in results['object_id'])
   >>> params_dict['RETRIEVAL_TYPE'] = 'SPECTRA'

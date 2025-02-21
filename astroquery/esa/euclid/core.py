@@ -966,6 +966,11 @@ class EuclidClass(TapPlus):
         The list of products (astropy.table)
         """
 
+        if tile_index is None:
+            raise ValueError(self.ERROR_MSG_REQUESTED_TILE_ID)
+        if product_type is None:
+            raise ValueError(self.ERROR_MSG_REQUESTED_PRODUCT_TYPE)
+
         query = None
 
         if product_type in conf.MOSAIC_PRODUCTS:
