@@ -19,7 +19,7 @@ from astropy.table import Table, Row, Column, vstack
 from requests import HTTPError, RequestException
 
 from astroquery import log
-from astroquery.utils import async_to_sync
+from astroquery.utils import commons, async_to_sync
 from astroquery.utils.class_or_instance import class_or_instance
 from astroquery.exceptions import InvalidQueryError, MaxResultsWarning, InputWarning, NoResultsWarning
 
@@ -184,7 +184,7 @@ class MastMissionsClass(MastQueryWithLogin):
         self._validate_criteria(**criteria)
 
         # Put coordinates and radius into consistent format
-        coordinates = utils.parse_coordinates(coordinates)
+        coordinates = commons.parse_coordinates(coordinates, 'icrs')
 
         # if radius is just a number we assume degrees
         radius = coord.Angle(radius, u.arcmin)
