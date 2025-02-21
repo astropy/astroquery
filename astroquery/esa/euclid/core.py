@@ -835,7 +835,8 @@ class EuclidClass(TapPlus):
             files.append(output_file_full_path)
             return files
 
-    def get_observation_products(self, *, id=None, schema="sedm", product_type=None, product_subtype="STK", filter="VIS",
+    def get_observation_products(self, *, id=None, schema="sedm", product_type=None, product_subtype="STK",
+                                 filter="VIS",
                                  output_file=None, verbose=False):
         """
         Description
@@ -965,11 +966,6 @@ class EuclidClass(TapPlus):
         The list of products (astropy.table)
         """
 
-        if tile_index is None:
-            raise ValueError(self.ERROR_MSG_REQUESTED_TILE_ID)
-        if product_type is None:
-            raise ValueError(self.ERROR_MSG_REQUESTED_PRODUCT_TYPE)
-
         query = None
 
         if product_type in conf.MOSAIC_PRODUCTS:
@@ -1018,7 +1014,7 @@ class EuclidClass(TapPlus):
                                  format_with_results_compressed=('votable_gzip',))
         return job.get_results()
 
-    def get_product_list(self, *, observation_id=None, tile_index=None, product_type=None, verbose=False):
+    def get_product_list(self, *, observation_id=None, tile_index=None, product_type, verbose=False):
         """
         Description
         -----------

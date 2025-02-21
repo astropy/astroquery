@@ -475,6 +475,11 @@ def test_get_product_list_errors():
         assert str(exc_info).startswith("Invalid product type DpdNirStackedFrame.")
 
     with pytest.raises(ValueError) as exc_info:
+        tap.get_product_list(tile_index='13', product_type=None)
+
+        assert str(exc_info).startswith("Invalid product type DpdNirStackedFrame.")
+
+    with pytest.raises(ValueError) as exc_info:
         tap.get_product_list(observation_id='13', product_type='DpdMerBksMosaic')
 
         assert str(exc_info).startswith("Invalid product type DpdMerBksMosaic.")
