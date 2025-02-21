@@ -126,8 +126,8 @@ def test_load_environments():
 
 def test_query_async_object(column_attrs, mock_querier_async):
     coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
-    table = mock_querier_async.query_object_async(coordinate=coord, width=u.Quantity(0.1, u.deg),
-                                                  height=u.Quantity(0.1, u.deg))
+    table = mock_querier_async.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg),
+                                            height=u.Quantity(0.1, u.deg), async_job=True)
 
     assert table is not None
 
@@ -138,8 +138,8 @@ def test_query_async_object(column_attrs, mock_querier_async):
 
 def test_query_async_object_columns(column_attrs, mock_querier_async):
     coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
-    table = mock_querier_async.query_object_async(coordinate=coord, width=u.Quantity(0.1, u.deg),
-                                                  height=u.Quantity(0.1, u.deg), columns=("alpha",))
+    table = mock_querier_async.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg),
+                                            height=u.Quantity(0.1, u.deg), columns=("alpha",), async_job=True)
 
     assert table is not None
 
@@ -173,7 +173,7 @@ def test_query_object_columns(column_attrs, mock_querier):
 
 def test_query_object_async_radius(column_attrs, mock_querier_async):
     coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
-    table = mock_querier_async.query_object_async(coordinate=coord, radius=RADIUS)
+    table = mock_querier_async.query_object(coordinate=coord, radius=RADIUS, async_job=True)
 
     assert table is not None
 
@@ -194,7 +194,7 @@ def test_query_object_async_radius(column_attrs, mock_querier_async):
 
 def test_query_object_async_radius_columns(column_attrs, mock_querier_async):
     coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
-    table = mock_querier_async.query_object_async(coordinate=coord, radius=RADIUS, columns=("alpha",))
+    table = mock_querier_async.query_object(coordinate=coord, radius=RADIUS, columns=("alpha",), async_job=True)
 
     assert table is not None
 

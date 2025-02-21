@@ -197,78 +197,8 @@ class EuclidClass(TapPlus):
         except Exception as exx:
             log.error(f'Query failed: {query}, {str(exx)}')
 
-    def load_async_job(self, jobid=None, name=None, verbose=False):
-        """
-        Description
-        -----------
-        Loads an asynchronous job
-
-        Parameters
-        ----------
-        jobid : str, mandatory if no name is provided, default None
-            job identifier
-        name : str, mandatory if no jobid is provided, default None
-            job name
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A Job object
-        """
-        try:
-            job = super().load_async_job(jobid=jobid, name=name, verbose=verbose)
-            return job
-
-        except HTTPError as err:
-            log.error(f"Loading async job failed: {jobid}, HTTP error: {err}")
-        except Exception as exx:
-            log.error(f'Loading async job failed: {jobid}, {str(exx)}')
-
-    def search_async_jobs(self, *, jobfilter=None, verbose=False):
-        """
-        Description
-        -----------
-        Searches for jobs applying the specified filter
-
-        Parameters
-        ----------
-        jobfilter : JobFilter, optional, default None
-            job filter
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A list of Job objects
-        """
-        try:
-            job = super().search_async_jobs(jobfilter=jobfilter, verbose=verbose)
-            return job
-        except HTTPError as err:
-            log.error(f"Loading jobs with filter failed. HTTP error: {err}")
-        except Exception as exx:
-            log.error(f'Loading jobs with filter failed: {str(exx)}')
-
-    def list_async_jobs(self, *, verbose=False):
-        """
-        Description
-        -----------
-        Returns all the asynchronous jobs
-
-        Parameters
-        ----------
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A list of Job objects
-        """
-        return super().list_async_jobs(verbose=verbose)
-
-    def __query_object(self, coordinate, radius=None, width=None, height=None,
-                       async_job=False, verbose=False, columns=()):
+    def query_object(self, coordinate, radius=None, width=None, height=None,
+                     async_job=False, verbose=False, columns=()):
         """
         Description
         -----------
@@ -394,62 +324,6 @@ class EuclidClass(TapPlus):
             job = super().launch_job(query=query, verbose=verbose, format_with_results_compressed=('votable_gzip',))
 
         return job
-
-    def query_object(self, coordinate, *, radius=None, width=None, height=None, verbose=False, columns=()):
-        """
-        Description
-        -----------
-        Searches for objects around a given position with the default catalog sascat_pvpr01.mer_final_cat_pvpr01
-
-        Parameters
-        ----------
-        coordinate : astropy.coordinates, mandatory
-            coordinates center point
-        radius : astropy.units, required if no 'width' nor 'height' are provided
-            radius (deg)
-        width : astropy.units, required if no 'radius' is provided
-            box width
-        height : astropy.units, required if no 'radius' is provided
-            box height
-        columns: list, optional, default ()
-            if empty, all columns will be selected
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        The job results (astropy.table)
-        """
-        return self.__query_object(coordinate, radius=radius, width=width, height=height, async_job=False,
-                                   verbose=verbose, columns=columns)
-
-    def query_object_async(self, coordinate, *, radius=None, width=None, height=None, verbose=False, columns=()):
-        """
-        Description
-        -----------
-        Searches for objects around a given position with the default catalog sascat_pvpr01.mer_final_cat_pvpr01
-
-        Parameters
-        ----------
-        coordinate : astropy.coordinates, mandatory
-            coordinates center point
-        radius : astropy.units, required if no 'width' nor 'height' are provided
-            radius
-        width : astropy.units, required if no 'radius' is provided
-            box width
-        height : astropy.units, required if no 'radius' is provided
-            box height
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-        columns: list, optional, default ()
-            if empty, all columns will be selected
-
-        Returns
-        -------
-        The job results (astropy.table).
-        """
-        return self.__query_object(coordinate, radius=radius, width=width, height=height, async_job=True,
-                                   verbose=verbose, columns=columns)
 
     def cone_search(self, coordinate, radius, *,
                     table_name=None,
