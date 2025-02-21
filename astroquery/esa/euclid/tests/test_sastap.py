@@ -606,7 +606,6 @@ def test_get_product_exceptions():
 
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
-    file_name = 'EUC_SIM_NISRGS180-8-1_20220722T094150.427Z_PV023_NISP-S_8_18_0.fits'
     with pytest.raises(ValueError) as exc_info:
         tap.get_product(file_name=None, product_id=None, output_file=None)
 
