@@ -835,8 +835,8 @@ class EuclidClass(TapPlus):
             files.append(output_file_full_path)
             return files
 
-    def get_obs_products(self, *, id=None, schema="sedm", product_type=None, product_subtype="STK", filter="VIS",
-                         output_file=None, verbose=False):
+    def get_observation_products(self, *, id=None, schema="sedm", product_type=None, product_subtype="STK", filter="VIS",
+                                 output_file=None, verbose=False):
         """
         Description
         -----------
@@ -910,7 +910,7 @@ class EuclidClass(TapPlus):
 
         return files
 
-    def __get_tile_catalogue_list(self, *, tile_index=None, product_type=None, verbose=False):
+    def __get_tile_catalogue_list(self, *, tile_index, product_type, verbose=False):
         """
          Description
          -----------

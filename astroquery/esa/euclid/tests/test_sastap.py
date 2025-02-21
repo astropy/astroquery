@@ -511,7 +511,7 @@ def test_get_obs_products():
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
     with pytest.raises(Exception) as exc_info:
-        tap.get_obs_products(id='13', product_type='observation', filter='VIS', output_file=None)
+        tap.get_observation_products(id='13', product_type='observation', filter='VIS', output_file=None)
 
         assert str(exc_info).startswith('Cannot retrieve products')
 

@@ -706,6 +706,10 @@ To download the products for a given EUCLID observation_id (observations) or til
 .. doctest-skip::
 
   >>> #downloading all products for observation id: 102018211
+    >>> mos_id = 1399
+    >>> path = Euclid.get_observation_products(id=mos_id, product_type='mosaic', filter="VIS", output_file=f"{output_folder}/products_{mos_id}.fits", verbose=True)
+
+  For big files the download may require a long time.
   >>> mos_id = 1399
   >>> path = Euclid.get_obs_products(id=mos_id, product_type='mosaic', filter="VIS", output_file=f"{output_folder}/products_{mos_id}.fits", verbose=True)
 
