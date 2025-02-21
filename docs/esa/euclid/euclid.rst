@@ -227,7 +227,7 @@ To get the list of products associated with a given Euclid observation_id or til
 .. doctest-remote-data::
 
   >>> from astroquery.esa.euclid import Euclid
-  >>> product_list_results = Euclid.get_product_list(id="102018211", product_type="DpdMerBksMosaic")
+  >>> product_list_results = Euclid.get_product_list(tile_index="102018211", product_type="DpdMerBksMosaic")
   >>> print("Found", len(product_list_results), "results")
   Found 12 results
   >>> print(product_list_results)
@@ -623,14 +623,13 @@ To perform a logout:
 2.2. Getting public tables metadata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Get the list of products associated with a given observation id.
 To get the list of products associated with a given EUCLID observation_id or tile_index (for mosaic):
 
 .. Skipping authentication requiring examples
 .. doctest-skip::
 
   >>> from astroquery.esa.euclid import Euclid
-  >>> product_list_results = Euclid.get_product_list(id="102018211", product_type="DpdMerBksMosaic")
+  >>> product_list_results = Euclid.get_product_list(tile_index="102018211", product_type="DpdMerBksMosaic")
   >>> print("Found", len(product_list_results), "results")
   Found 12 results
   >>> print(product_list_results)
@@ -647,6 +646,7 @@ To get the list of products associated with a given EUCLID observation_id or til
   EUC_MER_BGSUB-MOSAIC-DES-Z_TILE102018211-83C32F_20241018T143526.104818Z_00.00.fits               1398  102018211           DECAM     DECAM_z  SCIENCE         SKY 57.9990741   -51.5     IMAGE
 
 The method returns a list of products as an astropy.table.
+
 
 It is possible to download a product given its file name or product id:
 
