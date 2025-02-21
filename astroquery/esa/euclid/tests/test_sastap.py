@@ -12,6 +12,7 @@ Euclid adaptation: 15 March 2018
 """
 import os
 from pathlib import Path
+from unittest.mock import patch
 
 import astropy.units as u
 import numpy as np
@@ -20,13 +21,13 @@ from astropy import coordinates
 from astropy.coordinates.sky_coordinate import SkyCoord
 from astropy.table import Column, Table
 from astropy.utils.data import get_pkg_data_filename
+from requests import HTTPError
 
 from astroquery.esa.euclid.core import EuclidClass
 from astroquery.esa.euclid.core import conf
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.core import TapPlus
-
 
 package = "astroquery.esa.euclid.tests"
 
@@ -49,6 +50,43 @@ TEST_GET_PRODUCT_LIST = Path(PRODUCT_LIST_FILE_NAME).read_text()
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
+
+
+@patch.object(TapPlus, 'login')
+def test_login(mock_login):
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus(url="https://test:1111/tap", connhandler=conn_handler)
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
+    tap.login(user="user", password="password")
+    assert (mock_login.call_count == 3)
+    mock_login.side_effect = HTTPError("Login error")
+    tap.login(user="user", password="password")
+    assert (mock_login.call_count == 4)
+
+
+@patch.object(TapPlus, 'login_gui')
+@patch.object(TapPlus, 'login')
+def test_login_gui(mock_login_gui, mock_login):
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
+    tap.login_gui()
+    assert (mock_login_gui.call_count == 2)
+    mock_login_gui.side_effect = HTTPError("Login error")
+    tap.login(user="user", password="password")
+    assert (mock_login.call_count == 1)
+
+
+@patch.object(TapPlus, 'logout')
+def test_logout(mock_logout):
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
+    tap.logout()
+    assert (mock_logout.call_count == 3)
+    mock_logout.side_effect = HTTPError("Login error")
+    tap.logout()
+    assert (mock_logout.call_count == 4)
 
 
 @pytest.fixture(scope="module")
@@ -103,7 +141,6 @@ def test_load_environments():
 
 
 def test_query_object(column_attrs, mock_querier):
-
     coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
     table = mock_querier.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg), height=u.Quantity(0.1, u.deg))
 
@@ -395,6 +432,55 @@ def test_get_product_list():
     assert len(results) == 4, "Wrong job results (num rows). Expected: %d, found %d" % (4, len(results))
     __check_results_column(results, 'observation_id', None, None, np.dtype('<U255'))
     __check_results_column(results, 'observation_stk_oid', None, None, np.int64)
+
+
+def test_get_product_list_by_tile_index():
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+    # Launch response: we use default response because the query contains decimals
+    responseLaunchJob = DummyResponse(200)
+    responseLaunchJob.set_data(method='POST', context=None, body=TEST_GET_PRODUCT_LIST, headers=None)
+
+    conn_handler.set_default_response(responseLaunchJob)
+
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+    results = tap.get_product_list(tile_index='13', product_type='DpdMerBksMosaic')
+    # results
+    assert results is not None, "Expected a valid table"
+
+    assert len(results) == 4, "Wrong job results (num rows). Expected: %d, found %d" % (4, len(results))
+    __check_results_column(results, 'observation_id', None, None, np.dtype('<U255'))
+    __check_results_column(results, 'observation_stk_oid', None, None, np.int64)
+
+
+def test_get_product_list_errors():
+    tap = EuclidClass()
+
+    try:
+        results = tap.get_product_list(observation_id='13', product_type=None)
+    except ValueError as e:
+        assert str(e).startswith("Missing required argument: 'product_type'")
+
+    try:
+        results = tap.get_product_list(observation_id=None, tile_index=None, product_type='DpdNirStackedFrame')
+    except ValueError as e:
+        assert str(e).startswith("Missing required argument: 'observation_id'; Missing required argument: 'tile_id'")
+
+    try:
+        results = tap.get_product_list(observation_id='13', tile_index='13', product_type='DpdNirStackedFrame')
+    except ValueError as e:
+        assert str(e).startswith("Incompatible: 'observation_id' and 'tile_id'. Use only one.")
+
+    try:
+        results = tap.get_product_list(tile_index='13', product_type='DpdNirStackedFrame')
+    except ValueError as e:
+        assert str(e).startswith("Invalid product type DpdNirStackedFrame.")
+
+    try:
+        results = tap.get_product_list(observation_id='13', product_type='DpdMerBksMosaic')
+    except ValueError as e:
+        assert str(e).startswith("Invalid product type DpdMerBksMosaic.")
 
 
 def test_get_product():
