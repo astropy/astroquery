@@ -68,6 +68,18 @@ def mock_querier_async():
     results_response.set_data(method="GET", body=JOB_DATA)
     conn_handler.set_response("async/" + jobid + "/results/result", results_response)
 
+    phase_response = DummyResponse(200)
+    phase_response.set_data(method="GET", body=JOBS_ASYNC_DATA)
+    conn_handler.set_response("async/1479386030738O", phase_response)
+
+    phase_response = DummyResponse(200)
+    phase_response.set_data(method="GET", body="COMPLETED")
+    conn_handler.set_response("async/1479386030738O/phase", phase_response)
+
+    results_response = DummyResponse(200)
+    results_response.set_data(method="GET", body=JOB_DATA)
+    conn_handler.set_response("async/1479386030738O/results/result", results_response)
+
     return EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, cutout_handler=cutout_handler,
                        show_server_messages=False)
 
@@ -617,6 +629,16 @@ def test_get_spectrum():
     result = tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=None)
 
     assert result is not None
+
+
+def test_load_async_job(mock_querier_async):
+    jobid = '1479386030738O'
+    name = None
+    job = mock_querier_async.load_async_job(jobid=jobid, name=name, verbose=False)
+
+    assert job is not None
+
+    assert job.jobid == jobid
 
 
 @patch.object(TapPlus, 'login')
