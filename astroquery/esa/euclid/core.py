@@ -198,7 +198,7 @@ class EuclidClass(TapPlus):
             log.error(f'Query failed: {query}, {str(exx)}')
 
     def query_object(self, coordinate, radius=None, width=None, height=None,
-                     async_job=False, verbose=False, columns=()):
+                     async_job=False, verbose=False, columns=None):
         """
         Description
         -----------
@@ -219,6 +219,8 @@ class EuclidClass(TapPlus):
             synchronous)
         verbose : bool, optional, default 'False'
             flag to display information about the process
+        columns: list, optional, default None
+            if empty, all columns will be selected
 
         Returns
         -------
@@ -250,7 +252,7 @@ class EuclidClass(TapPlus):
         return job.get_results()
 
     def __cone_search(self, coordinate, radius, *, table_name=None, ra_column_name=None, dec_column_name=None,
-                      async_job=False, verbose=False, columns=()):
+                      async_job=False, verbose=False, columns=None):
         """Cone search sorted by distance
         TAP & TAP+
 
@@ -271,7 +273,7 @@ class EuclidClass(TapPlus):
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
-        columns: list, optional, default ()
+        columns: list, optional, default None
             if empty, all columns will be selected
         Returns
         -------
@@ -335,7 +337,7 @@ class EuclidClass(TapPlus):
                     output_file=None,
                     output_format="csv",
                     verbose=False,
-                    columns=()):
+                    columns=None):
         """
         Description
         -----------
@@ -366,7 +368,7 @@ class EuclidClass(TapPlus):
             If this parameter is not provided, the job id is used instead
         output_format : str, optional, default 'csv'
             Output format for the output file
-        columns: list, optional, default ()
+        columns: list, optional, default None
             if empty, all columns will be selected
         verbose : bool, optional, default 'False'
             flag to display information about the process
