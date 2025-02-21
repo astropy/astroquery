@@ -136,7 +136,7 @@ class EuclidClass(TapPlus):
                                       format_with_results_compressed=('votable_gzip',))
 
         except HTTPError as err:
-            message = EuclidClass.__handle_http_error(err)
+            message = self.__handle_http_error(err)
             if message is None:
                 log.error('Query failed: %s, %s' % (query, str(err)))
             else:
@@ -198,7 +198,7 @@ class EuclidClass(TapPlus):
                                             format_with_results_compressed=('votable_gzip',))
 
         except HTTPError as err:
-            message = EuclidClass.__handle_http_error(err)
+            message = self.__handle_http_error(err)
             if message is None:
                 log.error('Query failed: %s, %s' % (query, str(err)))
             else:
@@ -229,7 +229,7 @@ class EuclidClass(TapPlus):
             job = super().load_async_job(jobid=jobid, name=name, verbose=verbose)
             return job
         except HTTPError as err:
-            message = EuclidClass.__handle_http_error(err)
+            message = self.__handle_http_error(err)
             if message is None:
                 log.error('Loading async job failed: %s, %s' % (jobid, str(err)))
             else:
@@ -258,7 +258,7 @@ class EuclidClass(TapPlus):
             job = super().search_async_jobs(jobfilter=jobfilter, verbose=verbose)
             return job
         except HTTPError as err:
-            message = EuclidClass.__handle_http_error(err)
+            message = self.__handle_http_error(err)
             if message is None:
                 log.error('Loading jobs with filter failed: %s' % (str(err)))
             else:
@@ -683,11 +683,8 @@ class EuclidClass(TapPlus):
         except HTTPError as err:
             log.error('Error logging out cutout server: %s' % (str(err)))
 
-    def __check_quantity_input(self, value, msg):
-        if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(f"{msg} must be either a string or astropy.coordinates")
-
-    def __get_quantity_input(self, value, msg):
+    @staticmethod
+    def __get_quantity_input(value, msg):
         if value is None:
             raise ValueError(f"Missing required argument: '{msg}'")
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
@@ -697,12 +694,8 @@ class EuclidClass(TapPlus):
         else:
             return value
 
-    def __check_coord_input(self, value, msg):
-        if not (isinstance(value, str) or isinstance(value, commons.CoordClasses)):
-            raise ValueError(
-                str(msg) + " must be either a string or astropy.coordinates")
-
-    def __get_coord_input(self, value, msg):
+    @staticmethod
+    def __get_coord_input(value, msg):
         if not (isinstance(value, str) or isinstance(value, commons.CoordClasses)):
             raise ValueError(
                 str(msg) + " must be either a string or astropy.coordinates")
@@ -887,7 +880,7 @@ class EuclidClass(TapPlus):
         try:
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
-            message = EuclidClass.__handle_http_error(err)
+            message = self.__handle_http_error(err)
             if message is None:
                 log.error('Cannot retrieve products for observation %s: \n %s' % (id, str(err)))
             else:
@@ -1250,7 +1243,7 @@ class EuclidClass(TapPlus):
         try:
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
-            message = EuclidClass.__handle_http_error(err)
+            message = self.__handle_http_error(err)
             if message is None:
                 log.error('Cannot retrieve products for file_name %s or product_id %s: \n %s' % (
                     file_name, product_id, str(err)))
@@ -1321,7 +1314,7 @@ class EuclidClass(TapPlus):
         try:
             self.__euclidcutout.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
-            message = EuclidClass.__handle_http_error(err)
+            message = self.__handle_http_error(err)
             log.error('Cannot retrieve the product for file_path %s, obsId %s, and collection %s: \n %s' % (
                 file_path, id, instrument, str(err)))
             if message is not None:
@@ -1375,7 +1368,7 @@ class EuclidClass(TapPlus):
         try:
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
-            message = EuclidClass.__handle_http_error(err)
+            message = self.__handle_http_error(err)
             log.error('Cannot retrieve spectrum for source_id %s, schema %s: \n %s' % (source_id, schema, str(err)))
             if message is not None:
                 log.error(f'Error message from server: {message}')

@@ -110,9 +110,22 @@ def test_load_environments():
         assert str(e).startswith(f"Invalid environment {environment}. Valid values: {list(conf.ENVIRONMENTS.keys())}")
 
 
+def test_query_async_object(column_attrs, mock_querier_async):
+    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
+    table = mock_querier_async.query_object_async(coordinate=coord, width=u.Quantity(0.1, u.deg),
+                                                  height=u.Quantity(0.1, u.deg))
+
+    assert table is not None
+
+    assert len(table) == 3
+    for colname, attrs in column_attrs.items():
+        assert table[colname].attrs_equal(attrs)
+
+
 def test_query_object(column_attrs, mock_querier):
     coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
-    table = mock_querier.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg), height=u.Quantity(0.1, u.deg))
+    table = mock_querier.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg),
+                                      height=u.Quantity(0.1, u.deg))
 
     assert table is not None
 
@@ -121,15 +134,25 @@ def test_query_object(column_attrs, mock_querier):
         assert table[colname].attrs_equal(attrs)
 
 
-def test_query_object_radius(column_attrs, mock_querier):
+def test_query_object_async_radius(column_attrs, mock_querier_async):
     coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
-    table = mock_querier.query_object(coordinate=coord, radius=RADIUS)
+    table = mock_querier_async.query_object_async(coordinate=coord, radius=RADIUS)
 
     assert table is not None
 
     assert len(table) == 3
     for colname, attrs in column_attrs.items():
         assert table[colname].attrs_equal(attrs)
+
+        def test_query_object_radius(column_attrs, mock_querier):
+            coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
+            table = mock_querier.query_object(coordinate=coord, radius=RADIUS)
+
+            assert table is not None
+
+            assert len(table) == 3
+            for colname, attrs in column_attrs.items():
+                assert table[colname].attrs_equal(attrs)
 
 
 def test_load_tables():

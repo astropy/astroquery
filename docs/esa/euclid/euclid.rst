@@ -528,7 +528,8 @@ To remove asynchronous
 1.6. Synchronous query on an 'on-the-fly' uploaded table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A votable can be uploaded to the server in order to be used in a query.
+A user can execute ADQL queries and upload a votable to be used in a query 'on-the-fly' (these tables will be removed
+once the query is executed).
 
 You have to provide the local path to the file you want to upload. In the following example, the file 'my_table.xml' is
 located to the relative location where your python program is running. See note below.
