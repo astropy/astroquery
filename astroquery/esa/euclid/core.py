@@ -94,46 +94,6 @@ class EuclidClass(TapPlus):
         if show_server_messages:
             self.get_status_messages()
 
-    def load_tables(self, *, only_names=False, include_shared_tables=False, verbose=False):
-        """
-        Description
-        -----------
-        Loads all public tables
-
-        Parameters
-        ----------
-        only_names : bool, TAP+ only, optional, default 'False'
-            True to load table names only
-        include_shared_tables : bool, TAP+, optional, default 'False'
-            True to include shared tables
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A list of table objects
-        """
-        return super().load_tables(only_names=only_names, include_shared_tables=include_shared_tables, verbose=verbose)
-
-    def load_table(self, table, *, verbose=False):
-        """
-        Description
-        -----------
-        Loads the specified table
-
-        Parameters
-        ----------
-        table : str, mandatory
-            full qualified table name (i.e. schema name + table name)
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A table object
-        """
-        return super().load_table(table, verbose=verbose)
-
     def launch_job(self, query, *, name=None, dump_to_file=False, output_file=None, output_format="csv", verbose=False,
                    upload_resource=None, upload_table_name=None):
         """
