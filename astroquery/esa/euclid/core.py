@@ -224,7 +224,7 @@ class EuclidClass(TapPlus):
         -------
         The job results (astropy.table)
         """
-        coord = self.__get_coord_input(coordinate, "coordinate")
+        coord = commons.parse_coordinates(coordinate)
 
         if radius is not None:
             job = self.__cone_search(coord, radius, async_job=async_job, verbose=verbose, columns=columns)
@@ -284,7 +284,7 @@ class EuclidClass(TapPlus):
             dec_column_name = self.main_table_dec
 
         radius_deg = None
-        coord = self.__get_coord_input(coordinate, "coordinate")
+        coord = commons.parse_coordinates(coordinate)
         ra_hours, dec = commons.coord_to_radec(coord)
         ra = ra_hours * 15.0  # Converts to degrees
         if radius is not None:
@@ -376,7 +376,7 @@ class EuclidClass(TapPlus):
         A Job object
         """
         radius_deg = None
-        coord = self.__get_coord_input(coordinate, "coordinate")
+        coord = commons.parse_coordinates(coordinate)
         ra_hours, dec = commons.coord_to_radec(coord)
         ra = ra_hours * 15.0  # Converts to degrees
         if radius is not None:
@@ -549,17 +549,6 @@ class EuclidClass(TapPlus):
             raise ValueError(f"{msg} must be either a string or astropy.coordinates")
         if isinstance(value, str):
             return Quantity(value)
-        else:
-            return value
-
-    @staticmethod
-    def __get_coord_input(value, msg):
-        if not (isinstance(value, str) or isinstance(value, commons.CoordClasses)):
-            raise ValueError(
-                str(msg) + " must be either a string or astropy.coordinates")
-        if isinstance(value, str):
-            c = commons.parse_coordinates(value)
-            return c
         else:
             return value
 
@@ -1113,7 +1102,7 @@ class EuclidClass(TapPlus):
         radius_deg = Angle(self.__get_quantity_input(radius, "radius")).to_value(u.deg)
         if radius_deg > 0.5:
             raise ValueError(self.ERROR_MSG_REQUESTED_RADIUS)
-        coord = self.__get_coord_input(coordinate, "coordinate")
+        coord = commons.parse_coordinates(coordinate)
         ra_hours, dec = commons.coord_to_radec(coord)
         ra = ra_hours * 15.0  # Converts to degrees
         pos = """CIRCLE,{ra},{dec},{radius}""".format(**{'ra': ra, 'dec': dec, 'radius': radius_deg})
