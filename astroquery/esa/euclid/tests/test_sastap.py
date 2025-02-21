@@ -451,6 +451,38 @@ def test_get_product_list():
     __check_results_column(results, 'observation_id', None, None, np.dtype('<U255'))
     __check_results_column(results, 'observation_stk_oid', None, None, np.int64)
 
+    for product_type in conf.OBSERVATION_STACK_PRODUCTS:
+        results = tap.get_product_list(observation_id='13', product_type=product_type)
+        assert results is not None, "Expected a valid table"
+
+    for product_type in conf.BASIC_DOWNLOAD_DATA_PRODUCTS:
+        results = tap.get_product_list(observation_id='13', product_type=product_type)
+        assert results is not None, "Expected a valid table"
+
+    for product_type in conf.MER_SEGMENTATION_MAP_PRODUCTS:
+        results = tap.get_product_list(observation_id='13', product_type=product_type)
+        assert results is not None, "Expected a valid table"
+
+    for product_type in conf.RAW_FRAME_PRODUCTS:
+        results = tap.get_product_list(observation_id='13', product_type=product_type)
+        assert results is not None, "Expected a valid table"
+
+    for product_type in conf.CALIBRATED_FRAME_PRODUCTS:
+        results = tap.get_product_list(observation_id='13', product_type=product_type)
+        assert results is not None, "Expected a valid table"
+
+    for product_type in conf.FRAME_CATALOG_PRODUCTS:
+        results = tap.get_product_list(observation_id='13', product_type=product_type)
+        assert results is not None, "Expected a valid table"
+
+    for product_type in conf.COMBINED_SPECTRA_PRODUCTS:
+        results = tap.get_product_list(observation_id='13', product_type=product_type)
+        assert results is not None, "Expected a valid table"
+
+    for product_type in conf.SIR_SCIENCE_FRAME_PRODUCTS:
+        results = tap.get_product_list(observation_id='13', product_type=product_type)
+        assert results is not None, "Expected a valid table"
+
 
 def test_get_product_list_by_tile_index():
     conn_handler = DummyConnHandler()
@@ -470,6 +502,22 @@ def test_get_product_list_by_tile_index():
     assert len(results) == 4, "Wrong job results (num rows). Expected: %d, found %d" % (4, len(results))
     __check_results_column(results, 'observation_id', None, None, np.dtype('<U255'))
     __check_results_column(results, 'observation_stk_oid', None, None, np.int64)
+
+    for product_type in conf.MOSAIC_PRODUCTS:
+        results = tap.get_product_list(tile_index='13', product_type=product_type)
+        assert results is not None, "Expected a valid table"
+
+    for product_type in conf.BASIC_DOWNLOAD_DATA_PRODUCTS:
+        results = tap.get_product_list(tile_index='13', product_type=product_type)
+        assert results is not None, "Expected a valid table"
+
+    for product_type in conf.COMBINED_SPECTRA_PRODUCTS:
+        results = tap.get_product_list(tile_index='13', product_type=product_type)
+        assert results is not None, "Expected a valid table"
+
+    for product_type in conf.MER_SEGMENTATION_MAP_PRODUCTS:
+        results = tap.get_product_list(tile_index='13', product_type=product_type)
+        assert results is not None, "Expected a valid table"
 
 
 def test_get_product_list_errors():
@@ -507,6 +555,25 @@ def test_get_product_list_errors():
     assert str(exc_info.value).startswith("Invalid product type DpdMerBksMosaic.")
 
 
+def test_get_product_by_product_id():
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+    # Launch response: we use default response because the query contains decimals
+    responseLaunchJob = DummyResponse(200)
+    responseLaunchJob.set_data(method='POST', context=None, body='', headers=None)
+
+    conn_handler.set_default_response(responseLaunchJob)
+
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+
+    result = tap.get_product(product_id=123456789, output_file=None)
+
+    assert result is not None
+
+    remove_temp_dir()
+
+
 def test_get_product():
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
@@ -523,6 +590,27 @@ def test_get_product():
                              output_file=None)
 
     assert result is not None
+
+    remove_temp_dir()
+
+
+def test_get_product_exceptions():
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+    # Launch response: we use default response because the query contains decimals
+    responseLaunchJob = DummyResponse(200)
+    responseLaunchJob.set_data(method='POST', context=None, body='', headers=None)
+
+    conn_handler.set_default_response(responseLaunchJob)
+
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+
+    file_name = 'EUC_SIM_NISRGS180-8-1_20220722T094150.427Z_PV023_NISP-S_8_18_0.fits'
+    with pytest.raises(ValueError) as exc_info:
+        tap.get_product(file_name=None, product_id=None, output_file=None)
+
+    assert str(exc_info.value).startswith("'file_name' and 'product_id' are both None")
 
 
 def test_get_obs_products():
@@ -591,6 +679,12 @@ def test_get_cutout_exception():
                       show_server_messages=False)
 
     with pytest.raises(Exception) as exc_info:
+        tap.get_cutout(file_path=file_path, instrument='NISP', id='19704', coordinate=c, radius=100 * u.arcmin,
+                       output_file=None)
+
+    assert str(exc_info.value).startswith('Radius cannot be greater than 30 arcminutes')
+
+    with pytest.raises(Exception) as exc_info:
         tap.get_cutout(file_path=None, instrument='NISP', id='19704', coordinate=c, radius=r, output_file=None)
 
     assert str(exc_info.value).startswith('Missing required argument')
@@ -632,8 +726,11 @@ def test_get_spectrum():
 
     assert result is not None
 
-    dirs = glob.glob('./temp_*')
+    remove_temp_dir()
 
+
+def remove_temp_dir():
+    dirs = glob.glob('./temp_*')
     for dir_path in dirs:
         try:
             shutil.rmtree(dir_path)

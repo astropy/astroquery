@@ -1229,7 +1229,7 @@ class EuclidClass(TapPlus):
         """
 
         if file_name is None and product_id is None:
-            raise ValueError(file_name)
+            raise ValueError("'file_name' and 'product_id' are both None")
 
         params_dict = {'TAPCLIENT': 'ASTROQUERY', 'RELEASE': schema}
         if file_name is not None:
