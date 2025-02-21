@@ -74,6 +74,7 @@ class EuclidClass(TapPlus):
                                         data_context="data",
                                         datalink_context="datalink",
                                         verbose=verbose,
+                                        client_id='ASTROQUERY',
                                         use_names_over_ids=conf.USE_NAMES_OVER_IDS)
         else:
             self.__eucliddata = datalink_handler
@@ -87,6 +88,7 @@ class EuclidClass(TapPlus):
                                           data_context="cutout",
                                           datalink_context="datalink",
                                           verbose=verbose,
+                                          client_id='ASTROQUERY',
                                           use_names_over_ids=conf.USE_NAMES_OVER_IDS)
         else:
             self.__euclidcutout = cutout_handler
