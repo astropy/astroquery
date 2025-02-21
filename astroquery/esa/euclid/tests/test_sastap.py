@@ -456,33 +456,33 @@ def test_get_product_list_errors():
     with pytest.raises(ValueError) as exc_info:
         tap.get_product_list(observation_id='13', product_type=None)
 
-        assert str(exc_info).startswith("Missing required argument: 'product_type'")
+    assert str(exc_info.value).startswith("Missing required argument: 'product_type'")
 
     with pytest.raises(ValueError) as exc_info:
         tap.get_product_list(observation_id=None, tile_index=None, product_type='DpdNirStackedFrame')
 
-        assert str(exc_info).startswith(
-            "Missing required argument: 'observation_id'; Missing required argument: 'tile_id'")
+    assert str(exc_info.value).startswith(
+        "Missing required argument: 'observation_id'; Missing required argument: 'tile_id'")
 
     with pytest.raises(ValueError) as exc_info:
         tap.get_product_list(observation_id='13', tile_index='13', product_type='DpdNirStackedFrame')
 
-        assert str(exc_info).startswith("Incompatible: 'observation_id' and 'tile_id'. Use only one.")
+    assert str(exc_info.value).startswith("Incompatible: 'observation_id' and 'tile_id'. Use only one.")
 
     with pytest.raises(ValueError) as exc_info:
         tap.get_product_list(tile_index='13', product_type='DpdNirStackedFrame')
 
-        assert str(exc_info).startswith("Invalid product type DpdNirStackedFrame.")
+    assert str(exc_info.value).startswith("Invalid product type DpdNirStackedFrame.")
 
     with pytest.raises(ValueError) as exc_info:
         tap.get_product_list(tile_index='13', product_type=None)
 
-        assert str(exc_info).startswith("Invalid product type DpdNirStackedFrame.")
+    assert str(exc_info.value).startswith("Missing required argument: 'product_type'")
 
     with pytest.raises(ValueError) as exc_info:
         tap.get_product_list(observation_id='13', product_type='DpdMerBksMosaic')
 
-        assert str(exc_info).startswith("Invalid product type DpdMerBksMosaic.")
+    assert str(exc_info.value).startswith("Invalid product type DpdMerBksMosaic.")
 
 
 def test_get_product():
@@ -497,10 +497,10 @@ def test_get_product():
 
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
-    with pytest.raises(Exception) as exc_info:
-        tap.get_product(file_name='EUC_SIM_NISRGS180-8-1_20220722T094150.427Z_PV023_NISP-S_8_18_0.fits',
-                        output_file=None)
-        assert str(exc_info).startswith('Cannot retrieve products')
+    result = tap.get_product(file_name='EUC_SIM_NISRGS180-8-1_20220722T094150.427Z_PV023_NISP-S_8_18_0.fits',
+                             output_file=None)
+
+    assert result is not None
 
 
 def test_get_obs_products():
@@ -515,16 +515,18 @@ def test_get_obs_products():
 
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
-    with pytest.raises(Exception) as exc_info:
-        tap.get_observation_products(id='13', product_type='observation', filter='VIS', output_file=None)
+    result = tap.get_observation_products(id='13', product_type='observation', filter='VIS', output_file=None)
 
-        assert str(exc_info).startswith('Cannot retrieve products')
+    assert result is not None
 
 
 def test_get_cutout():
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='cutout', client_id='ASTROQUERY',
                        connhandler=conn_handler)
+
+    cutout_handler = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                             connhandler=conn_handler)
     # tap.set_cutout_context()
     # Launch response: we use default response because the query contains decimals
     responseLaunchJob = DummyResponse(200)
@@ -535,14 +537,61 @@ def test_get_cutout():
     c = coordinates.SkyCoord("187.89d 29.54d", frame='icrs')
     r = 1 * u.arcmin
 
-    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, cutout_handler=cutout_handler,
+                      show_server_messages=False)
+
+    result = tap.get_cutout(
+        file_path='/data/repository/NIR/19704/EUC_NIR_W-STACK_NIR-J-19704_20190718T001858.5Z_00.00.fits',
+        instrument='NISP', id='19704', coordinate=c, radius=r, output_file=None)
+
+    assert result is not None
+
+
+def test_get_cutout_exception():
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='cutout', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+
+    cutout_handler = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                             connhandler=conn_handler)
+    # tap.set_cutout_context()
+    # Launch response: we use default response because the query contains decimals
+    responseLaunchJob = DummyResponse(200)
+    responseLaunchJob.set_data(method='POST', context=None, body='', headers=None)
+
+    conn_handler.set_default_response(responseLaunchJob)
+
+    c = coordinates.SkyCoord("187.89d 29.54d", frame='icrs')
+    r = 1 * u.arcmin
+    file_path = '/data/repository/NIR/19704/EUC_NIR_W-STACK_NIR-J-19704_20190718T001858.5Z_00.00.fits',
+
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, cutout_handler=cutout_handler,
+                      show_server_messages=False)
 
     with pytest.raises(Exception) as exc_info:
-        tap.get_cutout(
-            file_path='/data/repository/NIR/19704/EUC_NIR_W-STACK_NIR-J-19704_20190718T001858.5Z_00.00.fits',
-            instrument='NISP', id='19704', coordinate=c, radius=r, output_file=None)
+        tap.get_cutout(file_path=None, instrument='NISP', id='19704', coordinate=c, radius=r, output_file=None)
 
-        assert str(exc_info).startswith('Cannot retrieve the product')
+    assert str(exc_info.value).startswith('Missing required argument')
+
+    with pytest.raises(Exception) as exc_info:
+        tap.get_cutout(file_path=file_path, instrument=None, id='19704', coordinate=c, radius=r, output_file=None)
+
+    assert str(exc_info.value).startswith('Missing required argument')
+
+    with pytest.raises(Exception) as exc_info:
+        tap.get_cutout(file_path=file_path, instrument='NISP', id=None, coordinate=c, radius=r, output_file=None)
+
+    assert str(exc_info.value).startswith('Missing required argument')
+
+    with pytest.raises(Exception) as exc_info:
+        tap.get_cutout(file_path=file_path, instrument='NISP', id='19704', coordinate=None, radius=r, output_file=None)
+
+    assert str(exc_info.value).startswith('Missing required argument')
+
+    with pytest.raises(Exception) as exc_info:
+        tap.get_cutout(file_path=file_path, instrument='NISP', id='19704', coordinate=c, radius=None, output_file=None)
+
+    assert str(exc_info.value).startswith('Missing required argument')
 
 
 def test_get_spectrum():
@@ -557,7 +606,6 @@ def test_get_spectrum():
 
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
-    with pytest.raises(Exception) as exc_info:
-        tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=None)
+    result = tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=None)
 
-        assert str(exc_info).startswith('Cannot retrieve spectrum')
+    assert result is not None
