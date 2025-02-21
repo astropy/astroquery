@@ -6,7 +6,9 @@ Euclid TAP plus
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 """
+import glob
 import os
+import shutil
 from pathlib import Path
 from unittest.mock import patch
 
@@ -629,6 +631,39 @@ def test_get_spectrum():
     result = tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=None)
 
     assert result is not None
+
+    dirs = glob.glob('./temp_*')
+
+    for dir_path in dirs:
+        try:
+            shutil.rmtree(dir_path)
+        except OSError as e:
+            print("Error: %s : %s" % (dir_path, e.strerror))
+
+
+def test_get_spectrum_exceptions():
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+    # Launch response: we use default response because the query contains decimals
+    responseLaunchJob = DummyResponse(200)
+    responseLaunchJob.set_data(method='POST', context=None, body='', headers=None)
+
+    conn_handler.set_default_response(responseLaunchJob)
+
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+
+    # if source_id is None or schema is None:
+
+    with pytest.raises(Exception) as exc_info:
+        tap.get_spectrum(source_id=None, schema='sedm_sc8', output_file=None)
+
+    assert str(exc_info.value).startswith('Missing required argument')
+
+    with pytest.raises(Exception) as exc_info:
+        tap.get_spectrum(source_id='2417660845403252054', schema=None, output_file=None)
+
+    assert str(exc_info.value).startswith('Missing required argument')
 
 
 def test_load_async_job(mock_querier_async):
