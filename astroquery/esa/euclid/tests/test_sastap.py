@@ -458,27 +458,27 @@ def test_get_product_list_errors():
     tap = EuclidClass()
 
     try:
-        results = tap.get_product_list(observation_id='13', product_type=None)
+        tap.get_product_list(observation_id='13', product_type=None)
     except ValueError as e:
         assert str(e).startswith("Missing required argument: 'product_type'")
 
     try:
-        results = tap.get_product_list(observation_id=None, tile_index=None, product_type='DpdNirStackedFrame')
+        tap.get_product_list(observation_id=None, tile_index=None, product_type='DpdNirStackedFrame')
     except ValueError as e:
         assert str(e).startswith("Missing required argument: 'observation_id'; Missing required argument: 'tile_id'")
 
     try:
-        results = tap.get_product_list(observation_id='13', tile_index='13', product_type='DpdNirStackedFrame')
+        tap.get_product_list(observation_id='13', tile_index='13', product_type='DpdNirStackedFrame')
     except ValueError as e:
         assert str(e).startswith("Incompatible: 'observation_id' and 'tile_id'. Use only one.")
 
     try:
-        results = tap.get_product_list(tile_index='13', product_type='DpdNirStackedFrame')
+        tap.get_product_list(tile_index='13', product_type='DpdNirStackedFrame')
     except ValueError as e:
         assert str(e).startswith("Invalid product type DpdNirStackedFrame.")
 
     try:
-        results = tap.get_product_list(observation_id='13', product_type='DpdMerBksMosaic')
+        tap.get_product_list(observation_id='13', product_type='DpdMerBksMosaic')
     except ValueError as e:
         assert str(e).startswith("Invalid product type DpdMerBksMosaic.")
 
