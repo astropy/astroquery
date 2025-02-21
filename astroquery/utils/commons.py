@@ -52,8 +52,8 @@ def parse_coordinates(coordinates, return_frame=None):
     coordinates : str or `astropy.coordinates` object
         Astronomical coordinate
     return_frame : `astropy.coordinates` frame
-        The frame to return the coordinates in. If None and `coordinates` is
-        a string, the frame will be ICRS. If `coordinates` is an `astropy.coordinates` object, the
+        The frame to return the coordinates in. If None and ``coordinates`` is
+        a string, the frame will be ICRS. If ``coordinates`` is an `astropy.coordinates` object, the
         frame will be the same as the input object.
 
     Returns

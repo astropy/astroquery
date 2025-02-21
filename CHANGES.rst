@@ -48,13 +48,13 @@ gaia
 - New method cross_match_basic that simplifies the positional x-match method [#3320]
 - new DR4 datalink retrieve type MEAN_SPECTRUM_RVS [#3342]
 
-mast
-^^^^
+linelists.cdms
+^^^^^^^^^^^^^^
 
 - Add a keyword to control writing of new species cache files.  This is needed to prevent tests from overwriting those files. [#3297]
 
-simbad
-^^^^^^
+heasarc
+^^^^^^^
 
 - Add support for astropy.table.Row in Heasarc.download_data and Heasarc.locate_data. [#3270]
 - Heasarc.locate_data returns empty rows with an error in the error_message column if there are
@@ -143,6 +143,8 @@ utils
 
 - Raising cleaner errors earlier when server returns with error. [#3284]
 
+- ``return_frame`` parameter in ``utils.commons.parse_coordinates`` returns coordinates in the specified frame. [#3164]
+
 
 0.4.10 (2025-03-18)
 ===================
@@ -176,8 +178,8 @@ simbad
 Service fixes and enhancements
 ------------------------------
 
-linelists.cdms
-^^^^^^^^^^^^^^
+gaia
+^^^^
 
 - Update DR4 retrieval_type names and include the new one
   EPOCH_ASTROMETRY_BRIGHT. [#3207, #3238]
