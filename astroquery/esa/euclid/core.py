@@ -138,19 +138,12 @@ class EuclidClass(TapPlus):
                                       format_with_results_compressed=('votable_gzip',))
 
         except HTTPError as err:
-            message = self.__handle_http_error(err)
-            if message is None:
-                log.error('Query failed: %s, %s' % (query, str(err)))
-            else:
-                log.error(f'Query failed: {query}: \n {message}')
+            log.error(f'Query failed: {query}: HTTP error: {err}')
         except Exception as exx:
-            log.error('Query failed: %s, %s' % (query, str(exx)))
+            log.error(f'Query failed: {query}, {str(exx)}')
 
     def launch_job_async(self, query, *, name=None, dump_to_file=False, output_file=None, output_format="csv",
-                         verbose=False,
-                         background=False,
-                         upload_resource=None, upload_table_name=None,
-                         autorun=True):
+                         verbose=False, background=False, upload_resource=None, upload_table_name=None, autorun=True):
         """
         Description
         -----------
@@ -200,13 +193,9 @@ class EuclidClass(TapPlus):
                                             format_with_results_compressed=('votable_gzip',))
 
         except HTTPError as err:
-            message = self.__handle_http_error(err)
-            if message is None:
-                log.error('Query failed: %s, %s' % (query, str(err)))
-            else:
-                log.error(f'Query failed: {query}: \n {message}')
+            log.error(f'Query failed: {query}: HTTP error: {err}')
         except Exception as exx:
-            log.error('Query failed: %s, %s' % (query, str(exx)))
+            log.error(f'Query failed: {query}, {str(exx)}')
 
     def load_async_job(self, jobid=None, name=None, verbose=False):
         """
@@ -230,14 +219,11 @@ class EuclidClass(TapPlus):
         try:
             job = super().load_async_job(jobid=jobid, name=name, verbose=verbose)
             return job
+
         except HTTPError as err:
-            message = self.__handle_http_error(err)
-            if message is None:
-                log.error('Loading async job failed: %s, %s' % (jobid, str(err)))
-            else:
-                log.error(f'Loading async job {jobid} failed: \n {message}')
+            log.error(f"Loading async job failed: {jobid}, HTTP error: {err}")
         except Exception as exx:
-            log.error('Loading async job failed: %s, %s' % (jobid, str(exx)))
+            log.error(f'Loading async job failed: {jobid}, {str(exx)}')
 
     def search_async_jobs(self, *, jobfilter=None, verbose=False):
         """
@@ -260,13 +246,9 @@ class EuclidClass(TapPlus):
             job = super().search_async_jobs(jobfilter=jobfilter, verbose=verbose)
             return job
         except HTTPError as err:
-            message = self.__handle_http_error(err)
-            if message is None:
-                log.error('Loading jobs with filter failed: %s' % (str(err)))
-            else:
-                log.error(f'Loading jobs with filter failed: \n {message}')
+            log.error(f"Loading jobs with filter failed. HTTP error: {err}")
         except Exception as exx:
-            log.error('Loading jobs with filter failed: %s' % (str(exx)))
+            log.error(f'Loading jobs with filter failed: {str(exx)}')
 
     def list_async_jobs(self, *, verbose=False):
         """
@@ -582,8 +564,8 @@ class EuclidClass(TapPlus):
         -----------
         Performs a login
 
-        User and password can be used or a file that contains user name and password
-        (2 lines: one for user name and the following one for the password)
+        User and password can be used or a file that contains username and password
+        (2 lines: one for username and the following one for the password)
 
         Parameters
         ----------
@@ -708,45 +690,6 @@ class EuclidClass(TapPlus):
             return value
 
     @staticmethod
-    def __handle_http_error(error):
-
-        status_code = None
-        if hasattr(error, 'code'):
-            status_code = error.code
-        if hasattr(error, 'response') and hasattr(error.response, 'status_code'):
-            status_code = error.response.status_code
-
-        # See tapconn, line 671, HttpError with only string message is thrown, no info about code or status_code
-        if not status_code:
-            status_code = str(error)
-            # return message
-
-        if '400' in status_code:
-            message = "Server unable to fulfill a bad request"
-        elif '401' in status_code:
-            message = "Session expired/Unauthorized access"
-        elif '404' in status_code:
-            message = "Address not found. If you are requesting a product, please check you are logged in"
-        elif '405' in status_code:
-            message = "Method call is not allowed"
-        elif '407' in status_code:
-            message = "Using a proxy with an authentication required"
-        elif '413' in status_code:
-            message = "Request entity too large"
-        elif '414' in status_code:
-            message = "Request URI too long"
-        elif '501' in status_code:
-            message = "Method not implemented"
-        elif '503' in status_code:
-            message = "Service is not available"
-        elif '500' in status_code:
-            message = "Internal server error"
-        else:
-            message = "Http error detected: %s" % (str(error))
-            # log.error(f'{message}. ({status_code})')
-        return message
-
-    @staticmethod
     def is_gz_file(filepath):
         with open(filepath, 'rb') as test_f:
             return binascii.hexlify(test_f.read(2)) == b'1f8b'
@@ -782,7 +725,8 @@ class EuclidClass(TapPlus):
         except OSError:
             print("Status messages could not be retrieved")
 
-    def __set_dirs(self, output_file, observation_id):
+    @staticmethod
+    def __set_dirs(output_file, observation_id):
         if output_file is None:
             now = datetime.now()
             output_dir = os.getcwd() + os.sep + "temp_" + now.strftime("%Y%m%d_%H%M%S")
@@ -798,7 +742,8 @@ class EuclidClass(TapPlus):
                           % (output_dir, err.strerror))
         return output_file_full_path, output_dir
 
-    def __check_file_number(self, output_dir, output_file_name,
+    @staticmethod
+    def __check_file_number(output_dir, output_file_name,
                             output_file_full_path, files):
         num_files_in_dir = len(os.listdir(output_dir))
         if num_files_in_dir == 1:
@@ -814,7 +759,8 @@ class EuclidClass(TapPlus):
                     if file != output_file_name:
                         files.append(os.path.join(r, file))
 
-    def __extract_file(self, output_file_full_path, output_dir, files):
+    @staticmethod
+    def __extract_file(output_file_full_path, output_dir, files):
         if tarfile.is_tarfile(output_file_full_path):
             with tarfile.open(output_file_full_path) as tar_ref:
                 tar_ref.extractall(path=output_dir)
@@ -827,8 +773,7 @@ class EuclidClass(TapPlus):
             return files
 
     def get_observation_products(self, *, id=None, schema="sedm", product_type=None, product_subtype="STK",
-                                 filter="VIS",
-                                 output_file=None, verbose=False):
+                                 filter="VIS", output_file=None, verbose=False):
         """
         Description
         -----------
@@ -882,14 +827,10 @@ class EuclidClass(TapPlus):
         try:
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
-            message = self.__handle_http_error(err)
-            if message is None:
-                log.error('Cannot retrieve products for observation %s: \n %s' % (id, str(err)))
-            else:
-                log.error(f'Cannot retrieve products for observation {id}: \n {message}')
+            log.error(f"Cannot retrieve products for observation {id}. HTTP error: {err}")
             return
         except Exception as exx:
-            log.error('Cannot retrieve products for observation %s: \n %s' % (id, str(exx)))
+            log.error(f'Cannot retrieve products for observation {id}: {str(exx)}')
             return
 
         files = []
@@ -1245,17 +1186,11 @@ class EuclidClass(TapPlus):
         try:
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
-            message = self.__handle_http_error(err)
-            if message is None:
-                log.error('Cannot retrieve products for file_name %s or product_id %s: \n %s' % (
-                    file_name, product_id, str(err)))
-            else:
-                log.error(
-                    f'Cannot retrieve products for file_name {file_name} or product_id {product_id}: \n {message}')
+            log.error(
+                f"Cannot retrieve products for file_name {file_name} or product_id {product_id}. HTTP error: {err}")
             return
         except Exception as exx:
-            log.error(
-                'Cannot retrieve products for file_name %s or product_id %s: \n %s' % (file_name, product_id, str(exx)))
+            log.error(f"Cannot retrieve products for file_name {file_name} or product_id {product_id}: {str(exx)}")
             return
 
         files = []
@@ -1316,15 +1251,14 @@ class EuclidClass(TapPlus):
         try:
             self.__euclidcutout.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
-            message = self.__handle_http_error(err)
-            log.error('Cannot retrieve the product for file_path %s, obsId %s, and collection %s: \n %s' % (
-                file_path, id, instrument, str(err)))
-            if message is not None:
-                log.error(f'Error message from server: {message}')
+            log.error(
+                f"Cannot retrieve the product for file_path %{file_path}, obsId {id}, and collection {instrument}. "
+                f"HTTP error: {err}")
             return
         except Exception as exx:
-            log.error('Cannot retrieve the product for file_path %s, obsId %s, and collection %s: \n %s' % (
-                file_path, id, instrument, str(exx)))
+            log.error(
+                f"Cannot retrieve the product for file_path %{file_path}, obsId {id}, and collection {instrument}: "
+                f"{str(exx)}")
             return
 
         files = []
@@ -1363,20 +1297,17 @@ class EuclidClass(TapPlus):
             raise ValueError(self.ERROR_MSG_REQUESTED_GENERIC)
 
         params_dict = {'TAPCLIENT': 'ASTROQUERY', 'RETRIEVAL_TYPE': 'SPECTRA'}
-        id = """{schema} {source_id}""".format(**{'schema': schema, 'source_id': source_id})
-        params_dict['ID'] = id
+        id_value = """{schema} {source_id}""".format(**{'schema': schema, 'source_id': source_id})
+        params_dict['ID'] = id_value
 
         output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id='temp')
         try:
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
-            message = self.__handle_http_error(err)
-            log.error('Cannot retrieve spectrum for source_id %s, schema %s: \n %s' % (source_id, schema, str(err)))
-            if message is not None:
-                log.error(f'Error message from server: {message}')
+            log.error(f'Cannot retrieve spectrum for source_id {source_id}, schema {schema}. HTTP error: {err}')
             return
         except Exception as exx:
-            log.error('Cannot retrieve spectrum for source_id %s, schema %s: \n %s' % (source_id, schema, str(exx)))
+            log.error(f'Cannot retrieve spectrum for source_id {source_id}, schema {schema}: {str(exx)}')
             return
 
         files = []
