@@ -356,11 +356,10 @@ The previous query can be executed as an asynchronous version:
 ^^^^^^^^^^^^^^^^^^^^^^
 
 The results of a synchronous query are stored at the user side (i.e., they are not saved in the server). These queries
-must be used when the amount of data to be retrieved (number of rows) is small, otherwise, a timeout error can be raised
-(an error created because the execution time of the query exceeds time execution limit). The output of the synchronous
-queries is limited to 2000 rows. If you need more than that, you must use asynchronous queries. The results of
-asynchronous queries can be saved in memory (default) or in a file but is also stored on the server/archive so you can
-access the results by logging in on the archive website too.
+can only used when the amount of data to be retrieved (number of rows) is small, otherwise, a timeout error can be raised.
+The output of the synchronous queries is limited to 2000 rows. If you need more than that, you must use asynchronous queries.
+The results of asynchronous queries can be saved in memory (default) or in a file but is also stored on the server/archive
+so you can access the results by logging in on the archive website too.
 
 Query without saving results in a file:
 
@@ -368,7 +367,7 @@ Query without saving results in a file:
 .. doctest-skip::
 
   >>> from astroquery.esa.euclid import Euclid
-  >>> query content: getting some galaxies from the mer catalogue
+  >>> #query content: getting some galaxies from the mer catalogue
   >>> job = Euclid.launch_job("SELECT right_ascension, declination, segmentation_area, fluxerr_vis_1fwhm_aper, ellipticity, kron_radius FROM catalogue.mer_catalogue  WHERE ellipticity > 0 ORDER BY ellipticity ASC")
   >>> source_results_table = job.get_results()
   >>> print("Found", len(source_results_table), " query results")
@@ -464,10 +463,8 @@ Make sure to delete the results you don't need anymore every once in a while to 
 user quota. When that happens all future jobs/queries will start failing. You can delete the jobs on the archive website
 (and soon through python too).
 
-Queries retrieved results can be stored locally in memory (by default) or in a file.
-
-Query without saving results in a file:
-
+The results of the execution of the queries can be stored locally in memory (by default) or in a file. The following
+command stores the result in memory:
 
 .. Skipping authentication requiring examples
 .. doctest-skip::
@@ -874,9 +871,7 @@ surrounded by quotation marks, i.e.: *user_<your_login_name>."<table_name>"*):
 2.5.3. Uploading table from an astropy Table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-An in memory PyTable (See https://wiki.python.org/moin/PyTables) can be uploaded to the user private area.
-
-Your schema name will be automatically added to the provided table name.
+A votable can be uploaded to the server in order to be used in a query. Your schema name will be automatically added to the provided table name.
 
 .. Skipping authentication requiring examples
 .. doctest-skip::
