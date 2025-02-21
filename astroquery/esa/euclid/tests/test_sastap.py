@@ -457,30 +457,30 @@ def test_get_product_list_by_tile_index():
 def test_get_product_list_errors():
     tap = EuclidClass()
 
-    try:
+    with pytest.raises(ValueError) as exc_info:
         tap.get_product_list(observation_id='13', product_type=None)
-    except ValueError as e:
-        assert str(e).startswith("Missing required argument: 'product_type'")
 
-    try:
+        assert str(exc_info).startswith("Missing required argument: 'product_type'")
+
+    with pytest.raises(ValueError) as exc_info:
         tap.get_product_list(observation_id=None, tile_index=None, product_type='DpdNirStackedFrame')
-    except ValueError as e:
-        assert str(e).startswith("Missing required argument: 'observation_id'; Missing required argument: 'tile_id'")
 
-    try:
+        assert str(exc_info).startswith("Missing required argument: 'observation_id'; Missing required argument: 'tile_id'")
+
+    with pytest.raises(ValueError) as exc_info:
         tap.get_product_list(observation_id='13', tile_index='13', product_type='DpdNirStackedFrame')
-    except ValueError as e:
-        assert str(e).startswith("Incompatible: 'observation_id' and 'tile_id'. Use only one.")
 
-    try:
+        assert str(exc_info).startswith("Incompatible: 'observation_id' and 'tile_id'. Use only one.")
+
+    with pytest.raises(ValueError) as exc_info:
         tap.get_product_list(tile_index='13', product_type='DpdNirStackedFrame')
-    except ValueError as e:
-        assert str(e).startswith("Invalid product type DpdNirStackedFrame.")
 
-    try:
+        assert str(exc_info).startswith("Invalid product type DpdNirStackedFrame.")
+
+    with pytest.raises(ValueError) as exc_info:
         tap.get_product_list(observation_id='13', product_type='DpdMerBksMosaic')
-    except ValueError as e:
-        assert str(e).startswith("Invalid product type DpdMerBksMosaic.")
+
+        assert str(exc_info).startswith("Invalid product type DpdMerBksMosaic.")
 
 
 def test_get_product():
@@ -495,11 +495,10 @@ def test_get_product():
 
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
-    try:
+    with pytest.raises(Exception) as exc_info:
         tap.get_product(file_name='EUC_SIM_NISRGS180-8-1_20220722T094150.427Z_PV023_NISP-S_8_18_0.fits',
                         output_file=None)
-    except Exception as e:
-        assert str(e).startswith('Cannot retrieve products')
+        assert str(exc_info).startswith('Cannot retrieve products')
 
 
 def test_get_obs_products():
@@ -514,10 +513,10 @@ def test_get_obs_products():
 
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
-    try:
+    with pytest.raises(Exception) as exc_info:
         tap.get_obs_products(id='13', product_type='observation', filter='VIS', output_file=None)
-    except Exception as e:
-        assert str(e).startswith('Cannot retrieve products')
+
+        assert str(exc_info).startswith('Cannot retrieve products')
 
 
 def test_get_cutout():
@@ -536,12 +535,13 @@ def test_get_cutout():
 
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
-    try:
+    with pytest.raises(Exception) as exc_info:
+
         tap.get_cutout(
             file_path='/data/repository/NIR/19704/EUC_NIR_W-STACK_NIR-J-19704_20190718T001858.5Z_00.00.fits',
             instrument='NISP', id='19704', coordinate=c, radius=r, output_file=None)
-    except Exception as e:
-        assert str(e).startswith('Cannot retrieve the product')
+
+        assert str(exc_info).startswith('Cannot retrieve the product')
 
 
 def test_get_spectrum():
@@ -556,7 +556,8 @@ def test_get_spectrum():
 
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
-    try:
+    with pytest.raises(Exception) as exc_info:
+
         tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=None)
-    except Exception as e:
-        assert str(e).startswith('Cannot retrieve spectrum')
+
+        assert str(exc_info).startswith('Cannot retrieve spectrum')
