@@ -184,7 +184,7 @@ class MastMissionsClass(MastQueryWithLogin):
         self._validate_criteria(**criteria)
 
         # Put coordinates and radius into consistent format
-        coordinates = commons.parse_coordinates(coordinates)
+        coordinates = commons.parse_coordinates(coordinates, 'icrs')
 
         # if radius is just a number we assume degrees
         radius = coord.Angle(radius, u.arcmin)
