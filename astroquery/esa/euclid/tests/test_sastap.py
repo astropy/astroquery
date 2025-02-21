@@ -48,54 +48,28 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-@patch.object(TapPlus, 'login')
-def test_login(mock_login):
-    conn_handler = DummyConnHandler()
-    tapplus = TapPlus(url="https://test:1111/tap", connhandler=conn_handler)
-    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
-    tap.login(user="user", password="password")
-    assert (mock_login.call_count == 3)
-    mock_login.side_effect = HTTPError("Login error")
-    tap.login(user="user", password="password")
-    assert (mock_login.call_count == 4)
-
-
-@patch.object(TapPlus, 'login_gui')
-@patch.object(TapPlus, 'login')
-def test_login_gui(mock_login_gui, mock_login):
-    conn_handler = DummyConnHandler()
-    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
-    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
-    tap.login_gui()
-    assert (mock_login_gui.call_count == 2)
-    mock_login_gui.side_effect = HTTPError("Login error")
-    tap.login(user="user", password="password")
-    assert (mock_login.call_count == 1)
-
-
-@patch.object(TapPlus, 'logout')
-def test_logout(mock_logout):
-    conn_handler = DummyConnHandler()
-    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
-    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
-    tap.logout()
-    assert (mock_logout.call_count == 3)
-    mock_logout.side_effect = HTTPError("Login error")
-    tap.logout()
-    assert (mock_logout.call_count == 4)
-
-
 @pytest.fixture(scope="module")
-def mock_querier():
+def mock_querier_async():
     conn_handler = DummyConnHandler()
-    tap_plus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+    cutout_handler = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+    jobid = "12345"
 
-    launch_response = DummyResponse(200)
-    launch_response.set_data(method="POST", body=JOB_DATA)
-    # The query contains decimals: default response is more robust.
+    launch_response = DummyResponse(303)
+    launch_response_headers = [["location", "http://test:1111/tap/async/" + jobid]]
+    launch_response.set_data(method="POST", headers=launch_response_headers)
     conn_handler.set_default_response(launch_response)
 
-    return EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+    phase_response = DummyResponse(200)
+    phase_response.set_data(method="GET", body="COMPLETED")
+    conn_handler.set_response("async/" + jobid + "/phase", phase_response)
+
+    results_response = DummyResponse(200)
+    results_response.set_data(method="GET", body=JOB_DATA)
+    conn_handler.set_response("async/" + jobid + "/results/result", results_response)
+
+    return EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, cutout_handler=cutout_handler,
+                       show_server_messages=False)
 
 
 @pytest.fixture(scope="module")
@@ -139,6 +113,17 @@ def test_load_environments():
 def test_query_object(column_attrs, mock_querier):
     coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
     table = mock_querier.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg), height=u.Quantity(0.1, u.deg))
+
+    assert table is not None
+
+    assert len(table) == 3
+    for colname, attrs in column_attrs.items():
+        assert table[colname].attrs_equal(attrs)
+
+
+def test_query_object_radius(column_attrs, mock_querier):
+    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
+    table = mock_querier.query_object(coordinate=coord, radius=RADIUS)
 
     assert table is not None
 
@@ -609,3 +594,53 @@ def test_get_spectrum():
     result = tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=None)
 
     assert result is not None
+
+
+@patch.object(TapPlus, 'login')
+def test_login(mock_login):
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus(url="https://test:1111/tap", connhandler=conn_handler)
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
+    tap.login(user="user", password="password")
+    assert (mock_login.call_count == 3)
+    mock_login.side_effect = HTTPError("Login error")
+    tap.login(user="user", password="password")
+    assert (mock_login.call_count == 4)
+
+
+@patch.object(TapPlus, 'login_gui')
+@patch.object(TapPlus, 'login')
+def test_login_gui(mock_login_gui, mock_login):
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
+    tap.login_gui()
+    assert (mock_login_gui.call_count == 2)
+    mock_login_gui.side_effect = HTTPError("Login error")
+    tap.login(user="user", password="password")
+    assert (mock_login.call_count == 1)
+
+
+@patch.object(TapPlus, 'logout')
+def test_logout(mock_logout):
+    conn_handler = DummyConnHandler()
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
+    tap.logout()
+    assert (mock_logout.call_count == 3)
+    mock_logout.side_effect = HTTPError("Login error")
+    tap.logout()
+    assert (mock_logout.call_count == 4)
+
+
+@pytest.fixture(scope="module")
+def mock_querier():
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+
+    launch_response = DummyResponse(200)
+    launch_response.set_data(method="POST", body=JOB_DATA)
+    # The query contains decimals: default response is more robust.
+    conn_handler.set_default_response(launch_response)
+
+    return EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)

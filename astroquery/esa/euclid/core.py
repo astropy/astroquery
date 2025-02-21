@@ -335,12 +335,8 @@ class EuclidClass(TapPlus):
                 job = super().launch_job(query, verbose=verbose, format_with_results_compressed=('votable_gzip',))
         return job.get_results()
 
-    def __cone_search(self, coordinate, radius, *, table_name=None,
-                      ra_column_name=None,
-                      dec_column_name=None,
-                      async_job=False,
-                      verbose=False,
-                      columns=()):
+    def __cone_search(self, coordinate, radius, *, table_name=None, ra_column_name=None, dec_column_name=None,
+                      async_job=False, verbose=False, columns=()):
         """Cone search sorted by distance
         TAP & TAP+
 
@@ -413,7 +409,7 @@ class EuclidClass(TapPlus):
         else:
             job = super().launch_job(query=query, verbose=verbose, format_with_results_compressed=('votable_gzip',))
 
-        return job.get_results()
+        return job
 
     def query_object(self, coordinate, *, radius=None, width=None, height=None, verbose=False, columns=()):
         """
