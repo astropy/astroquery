@@ -465,7 +465,8 @@ def test_get_product_list_errors():
     with pytest.raises(ValueError) as exc_info:
         tap.get_product_list(observation_id=None, tile_index=None, product_type='DpdNirStackedFrame')
 
-        assert str(exc_info).startswith("Missing required argument: 'observation_id'; Missing required argument: 'tile_id'")
+        assert str(exc_info).startswith(
+            "Missing required argument: 'observation_id'; Missing required argument: 'tile_id'")
 
     with pytest.raises(ValueError) as exc_info:
         tap.get_product_list(observation_id='13', tile_index='13', product_type='DpdNirStackedFrame')
@@ -536,7 +537,6 @@ def test_get_cutout():
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
     with pytest.raises(Exception) as exc_info:
-
         tap.get_cutout(
             file_path='/data/repository/NIR/19704/EUC_NIR_W-STACK_NIR-J-19704_20190718T001858.5Z_00.00.fits',
             instrument='NISP', id='19704', coordinate=c, radius=r, output_file=None)
@@ -557,7 +557,6 @@ def test_get_spectrum():
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
     with pytest.raises(Exception) as exc_info:
-
         tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=None)
 
         assert str(exc_info).startswith('Cannot retrieve spectrum')
