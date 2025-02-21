@@ -48,13 +48,13 @@ gaia
 - New method cross_match_basic that simplifies the positional x-match method [#3320]
 - new DR4 datalink retrieve type MEAN_SPECTRUM_RVS [#3342]
 
-linelists.cdms
-^^^^^^^^^^^^^^
+mast
+^^^^
 
 - Add a keyword to control writing of new species cache files.  This is needed to prevent tests from overwriting those files. [#3297]
 
-heasarc
-^^^^^^^
+simbad
+^^^^^^
 
 - Add support for astropy.table.Row in Heasarc.download_data and Heasarc.locate_data. [#3270]
 - Heasarc.locate_data returns empty rows with an error in the error_message column if there are

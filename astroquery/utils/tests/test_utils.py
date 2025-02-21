@@ -15,6 +15,7 @@ from astropy.table import Table
 import astropy.utils.data as aud
 from astropy.logger import log
 
+from ...exceptions import InputWarning
 from ...utils import chunk_read, chunk_report, class_or_instance, commons
 from ...utils.process_asyncs import async_to_sync_docstr, async_to_sync
 from ...utils.docstr_chompers import remove_sections, prepend_docstr_nosections
@@ -78,6 +79,30 @@ def test_parse_coordinates_4():
     coordinates = "251.51 32.36"
     c = commons.parse_coordinates(coordinates)
     assert c.to_string() == coordinates
+
+
+def test_parse_coordinates_return_frame():
+    # String input should return in icrs frame
+    coords = commons.parse_coordinates('266.40498829 -28.93617776')
+    assert coords.frame.name == 'icrs'
+
+    # SkyCoord input without return_frame should return in original frame
+    galactic = coord.SkyCoord('0 0', unit='deg', frame='galactic')
+    coords = commons.parse_coordinates(galactic)
+    assert coords.frame.name == 'galactic'
+
+    # Parse a SkyCoord in galactic frame into icrs frame
+    galactic = coord.SkyCoord('0 0', unit='deg', frame='galactic')
+    icrs = galactic.transform_to('icrs')  # Expected result
+    coords = commons.parse_coordinates(galactic, return_frame='icrs')
+    assert icrs.ra.deg == coords.ra.deg
+    assert icrs.dec.deg == coords.dec.deg
+    assert galactic.frame.name == 'galactic'
+    assert coords.frame.name == 'icrs'
+
+    # Warn if transformation fails
+    with pytest.warns(InputWarning, match='Failed to transform coordinates'):
+        coords = commons.parse_coordinates(galactic, return_frame='invalid')
 
 
 col_1 = [1, 2, 3]

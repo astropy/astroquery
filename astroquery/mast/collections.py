@@ -19,7 +19,7 @@ import astropy.coordinates as coord
 
 from astropy.table import Table, Row
 
-from ..utils import async_to_sync
+from ..utils import commons, async_to_sync
 from ..utils.class_or_instance import class_or_instance
 from ..exceptions import InvalidQueryError, MaxResultsWarning, InputWarning
 
@@ -204,7 +204,7 @@ class CatalogsClass(MastQueryWithLogin):
         """
 
         # Put coordinates and radius into consistent format
-        coordinates = utils.parse_coordinates(coordinates)
+        coordinates = commons.parse_coordinates(coordinates, 'icrs')
 
         # if radius is just a number we assume degrees
         radius = coord.Angle(radius, u.deg)
