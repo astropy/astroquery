@@ -136,6 +136,18 @@ def test_query_async_object(column_attrs, mock_querier_async):
         assert table[colname].attrs_equal(attrs)
 
 
+def test_query_async_object_columns(column_attrs, mock_querier_async):
+    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
+    table = mock_querier_async.query_object_async(coordinate=coord, width=u.Quantity(0.1, u.deg),
+                                                  height=u.Quantity(0.1, u.deg), columns=("alpha",))
+
+    assert table is not None
+
+    assert len(table) == 3
+
+    assert table["alpha"].attrs_equal(column_attrs["alpha"])
+
+
 def test_query_object(column_attrs, mock_querier):
     coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
     table = mock_querier.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg),
@@ -146,6 +158,17 @@ def test_query_object(column_attrs, mock_querier):
     assert len(table) == 3
     for colname, attrs in column_attrs.items():
         assert table[colname].attrs_equal(attrs)
+
+
+def test_query_object_columns(column_attrs, mock_querier):
+    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
+    table = mock_querier.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg),
+                                      height=u.Quantity(0.1, u.deg), columns=("alpha",))
+
+    assert table is not None
+
+    assert len(table) == 3
+    assert table["alpha"].attrs_equal(column_attrs["alpha"])
 
 
 def test_query_object_async_radius(column_attrs, mock_querier_async):
@@ -167,6 +190,37 @@ def test_query_object_async_radius(column_attrs, mock_querier_async):
             assert len(table) == 3
             for colname, attrs in column_attrs.items():
                 assert table[colname].attrs_equal(attrs)
+
+
+def test_query_object_async_radius_columns(column_attrs, mock_querier_async):
+    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
+    table = mock_querier_async.query_object_async(coordinate=coord, radius=RADIUS, columns=("alpha",))
+
+    assert table is not None
+
+    assert len(table) == 3
+    assert table["alpha"].attrs_equal(column_attrs["alpha"])
+
+
+def test_query_object_radius(column_attrs, mock_querier):
+    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
+    table = mock_querier.query_object(coordinate=coord, radius=RADIUS)
+
+    assert table is not None
+
+    assert len(table) == 3
+    for colname, attrs in column_attrs.items():
+        assert table[colname].attrs_equal(attrs)
+
+
+def test_query_object_radius_columns(column_attrs, mock_querier):
+    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
+    table = mock_querier.query_object(coordinate=coord, radius=RADIUS, columns=("alpha",))
+
+    assert table is not None
+
+    assert len(table) == 3
+    assert table["alpha"].attrs_equal(column_attrs["alpha"])
 
 
 def test_load_tables():
