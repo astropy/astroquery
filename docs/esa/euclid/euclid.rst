@@ -1238,8 +1238,9 @@ The DataLink products are stored inside a Python Dictionary. Each of its element
 .. _DataLink: https://www.ivoa.net/documents/DataLink/
 
 
+=============
 Reference/API
 =============
 
-.. automodapi:: astroquery.esa.euclid
+.. automodapi:: astroquery.esa.jwst
     :no-inheritance-diagram:
