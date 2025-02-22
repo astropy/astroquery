@@ -157,20 +157,27 @@ To load only table names metadata (TAP+ capability):
   INFO: Retrieving tables... [astroquery.utils.tap.core]
   INFO: Parsing tables... [astroquery.utils.tap.core]
   INFO: Done. [astroquery.utils.tap.core]
-  >>> print("Found", len(tables), "tables")
-  Found 45 tables
-  >>> for table in tables:
-         print(table.get_qualified_name())
+  >>> print("Found", len(tables), "tables") # doctest: +IGNORE_OUTPUT
+  Found 34 tables
+  >>> print(*(table.name for table in tables), sep="\n")  # doctest: +IGNORE_OUTPUT
   ivoa.obscore
   public.dual
   sedm.raw_detector
   sedm.raw_frame
   sedm.raw_quadrant
   sedm.aux_calibrated
-         ...
-  tap_schema.keys
-  tap_schema.schemas
-  tap_schema.tables
+  sedm.aux_mosaic
+  sedm.aux_stacked
+  sedm.basic_download_data
+  sedm.calibrated_detectors
+  sedm.calibrated_frame
+  sedm.column_values
+  sedm.combined_spectra
+  ...
+  tap_config.coord_sys
+  tap_config.properties
+  ...
+
 
 
 To load all tables metadata (TAP compatible):
@@ -182,32 +189,25 @@ To load all tables metadata (TAP compatible):
   INFO: Retrieving tables... [astroquery.utils.tap.core]
   INFO: Parsing tables... [astroquery.utils.tap.core]
   INFO: Done. [astroquery.utils.tap.core]
-  >>> print(tables[0])
+  >>> print(tables[0]) # doctest: +IGNORE_OUTPUT
   TAP Table name: ivoa.obscore
   Description: None
   Size (bytes): 0
   Num. columns: 34
 
 
-To load only a table (TAP+ capability):
+To load only a table (TAP+ capability) and inspect its columns:
 
 .. doctest-remote-data::
 
   >>> from astroquery.esa.euclid import Euclid
   >>> raw_detector_table = Euclid.load_table('sedm.raw_detector')
-  >>> print(raw_detector_table)
+  >>> print(raw_detector_table) # doctest: +SKIP
   TAP Table name: sedm.raw_detector
   Description: None
   Size (bytes): 0
   Num. columns: 12
-
-
-Once a table is loaded, its columns can be inspected:
-
-.. doctest-remote-data::
-
-  >>> for column in raw_detector_table.columns:
-  ...   print(column.name)
+  >>> print(*(column.name for column in raw_detector_table.columns), sep="\n")  # doctest: +IGNORE_OUTPUT
   crpix1
   crpix2
   crval1
@@ -220,7 +220,6 @@ Once a table is loaded, its columns can be inspected:
   q3_oid
   q4_oid
   to_be_published
-  ...
 
 
 To get the list of products associated with a given Euclid observation_id or tile_index (for mosaic):
