@@ -37,6 +37,8 @@ ipac.irsa
 - Adding support for asynchronous queries using the new ``async_job``
   keyword. [#3201]
 
+- Making ``'spatial'`` keyword in ``query_region`` case insensitive. [#3224]
+
 ipac.nexsci.nasa_exoplanet_archive
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
