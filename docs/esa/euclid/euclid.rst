@@ -12,7 +12,7 @@ out to redshifts ~2, or equivalently to a look-back time of 10 billion years. It
 expanded and how structure has formed over cosmic history, revealing more about the role of gravity and the nature of
 dark energy and dark matter.
 
-This package allows the access to the European Space Agency Euclid Archive (https://eas.esac.esa.int/).
+This package allows access to the European Space Agency Euclid Archive (https://eas.esac.esa.int/).
 
 The Euclid Survey is done in a 'step-and-stare' mode, where the telescope points to a position on the sky and then
 imaging and spectroscopic measurements are performed on an area of ~0.48 deg\ :sup:`2` around this position. The telescope
@@ -23,7 +23,7 @@ For the survey standard operating mode, the telescope undertakes a 4-point dithe
 each take a 560s exposure, consisting of a direct visible image and a red grism exposure. This is followed by further
 NISP exposures in the Y, J, and H band filters (87 seconds each). The telescope is then dithered, and the sequence is
 repeated starting with a different grism position angle. There are actually two operational grisms oriented 180 degrees
-from each other. Each grism which will be used twice in this sequence, but with slight angular offsets (+/- 4 degrees),
+from each other. Each grism will be used twice in this sequence, but with slight angular offsets (+/- 4 degrees),
 effectively creating the four different grism angles (Scaramella et al. 2022, A&A 662, A112).
 
 This standard four-dithers operating mode sequence is called a single observation and all the individual exposures
@@ -44,21 +44,21 @@ widely used to query databases.
 TAP provides two operation modes: Synchronous and Asynchronous:
 
 * Synchronous: the response to the request will be generated as soon as the request received by the server.
-  (Do not use this method for queries that generate a big amount of results.)
+  (Do not use this method for queries that generate a large amount of results.)
 * Asynchronous: the server starts a job that will execute the request.
   The first response to the request is the required information (a link) to obtain the job status.
   Once the job is finished, the results can be retrieved.
 
 
-ESA EUCLID TAP+ server provides two access mode: public and authenticated:
+ESA EUCLID TAP+ server provides two access modes: public and authenticated:
 
 * Public: this is the standard TAP access.
   A user can execute ADQL queries and upload tables to be used in a query 'on-the-fly' (these tables will be removed
-  once the query is executed). The results are available to any other user and they will remain in the server for a
+  once the query is executed). The results are available to any other user, and they will remain in the server for a
   limited space of time.
 
 * Authenticated: some functionalities are restricted to authenticated users only.
-  The results are saved in a private user space and they will remain in the server for ever (they can be removed by the
+  The results are saved in a private user space and they will remain in the server forever (they can be removed by the
   user).
 
   * ADQL queries and results are saved in a user private area.
@@ -97,13 +97,13 @@ This method will retrieve the same warning messages shown in EUCLID Science Arch
 
 The Euclid Science Archive has several environments serving different purposes for the Euclid Consortium members.
 
-1. The OTF ("on-the-fly") environment of the Euclid science archive, first started at the start of science operation exposed data as processed as processed by
+1. The OTF ("on-the-fly") environment of the Euclid science archive, first started at the start of science operation exposed data as processed by
 the SGS (Science Ground Segment) soon after acquisition to provide an access as soon as possible. In this environment
 the data will not be reprocessed and the processing is therefore heterogeneous.
 
 2. The REG (for non-regression testing) environment of the Euclid science archive, where a large area in the sky is processed with the same version for
 all data products. The first campaign was run in September 2024, for area of about 500 square degrees (~1000
-observation), the next campaign shall be run in March-April 2025.
+observations), the next campaign shall be run in March-April 2025.
 
 3. The IDR (Internal Data Release) environment of the Euclid science archive holds the data that will then become public. The first release Q1
 opened on the 6th of November 2024, with a first pass on the three Euclid deep fields (EDFN, EDFS and EDFF) as well as
@@ -136,8 +136,7 @@ makes use of the *PDR* environment. In order to make use of a different one, it 
   >>> from astroquery.esa.euclid import EuclidClass
   >>> euclid = EuclidClass(environment='IDR')
 
-The parameter *environment* can take only the following values: *IDR*, *OTF*, *PDR* or *REG*.
-
+The parameter *environment* is limited to *IDR*, *OTF*, *PDR* or *REG*.
 
 
 1. Non authenticated access
@@ -146,7 +145,7 @@ The parameter *environment* can take only the following values: *IDR*, *OTF*, *P
 1.1. Getting public tables metadata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Table and columns metadata are specified by IVOA TAP_ recommendation (to access to the actual data, an ADQL query must be executed).
+Table and column metadata are specified by IVOA TAP_ recommendation (to access to the actual data, an ADQL query must be executed).
 
 To load only table names metadata (TAP+ capability):
 
@@ -179,8 +178,7 @@ To load only table names metadata (TAP+ capability):
   ...
 
 
-
-To load all tables metadata (TAP compatible):
+To load all table metadata (TAP compatible):
 
 .. doctest-remote-data::
 
@@ -300,7 +298,7 @@ This query searches for all the objects contained in an arbitrary rectangular pr
 WARNING: This method implements the ADQL BOX function that is deprecated in the latest version of the standard
 (ADQL 2.1,  see: https://ivoa.net/documents/ADQL/20231107/PR-ADQL-2.1-20231107.html#tth_sEc4.2.9).
 
-The following example searches for all the sources contained in an squared region of side = 0.1 degrees around an specific point in ra/dec coordinates. The results are sorted by distance (``dist``) in ascending order.
+The following example searches for all the sources contained in an squared region of side = 0.1 degrees around a specific point in ra/dec coordinates. The results are sorted by distance (``dist``) in ascending order.
 
 The method returns the job results as astropy.table
 
@@ -371,9 +369,9 @@ The previous query can be executed as an asynchronous version:
 ^^^^^^^^^^^^^^^^^^^^^^
 
 The results of a synchronous query are stored at the user side (i.e., they are not saved in the server). These queries
-can only used when the amount of data to be retrieved (number of rows) is small, otherwise, a timeout error can be raised.
+can only be used when the amount of data to be retrieved (number of rows) is small, otherwise, a timeout error can be raised.
 The output of the synchronous queries is limited to 2000 rows. If you need more than that, you must use asynchronous queries.
-The results of asynchronous queries can be saved in memory (default) or in a file but is also stored on the server/archive
+The results of asynchronous queries can be saved in memory (default) or in a file but are also stored on the server/archive
 so you can access the results by logging in on the archive website too.
 
 Query without saving results in a file:
@@ -411,7 +409,7 @@ Query without saving results in a file:
 
 The method returns a Job object.
 
-Query saving results in a file (you may use 'output_format' to specified the results data format, available formats are:
+Query saving results in a file (you may use 'output_format' to specify the results' data format. Available formats are:
 'votable', 'votable_plain', 'fits', 'csv' and 'json', default is 'votable'):
 
 .. Skipping authentication requiring examples
@@ -440,7 +438,7 @@ Query saving results in a file (you may use 'output_format' to specified the res
     59.5694307527783  -47.00910465608437               162   0.030248118564486504  0.0021698300261050463 11.478931427001953
 
 
-Note: you can inspect the status of the job by typing:
+You can inspect the status of the job by typing:
 
 .. Skipping authentication requiring examples
 .. doctest-skip::
@@ -471,11 +469,11 @@ Note: to obtain the current location, type:
 1.5. Asynchronous query
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Asynchronous queries save all results at server side which means they take up the user's file quota on the archive.
+Asynchronous queries save all results on the server side, which means they take up the user’s file quota in the archive.
 These queries can be accessed at any time on the archive website. For anonymous users, results are kept for three days.
-For authenticated users the asynchronous results are kept at server side forever (until the user decides to remove them).
-Make sure to delete the results you don't need anymore every once in a while to make sure you don't reach the archive
-user quota. When that happens all future jobs/queries will start failing. You can delete the jobs on the archive website
+For authenticated users, the asynchronous results are kept at the server side forever (until the user decides to remove them).
+Make sure to delete the results you don’t need anymore every once in a while to make sure you don’t reach the archive user
+quota. When that happens, all future jobs/queries will start failing. You can delete the jobs on the archive website
 (and soon through python too).
 
 The results of the execution of the queries can be stored locally in memory (by default) or in a file. The following
@@ -528,7 +526,7 @@ To get all the asynchronous jobs:
   Results: None
 
 
-To remove asynchronous
+To remove asynchronous jobs:
 
 .. Pseudo code with ``job_id`` list ellipsis, skipping test
 .. doctest-skip::
@@ -576,25 +574,25 @@ Note: to obtain the current location, type:
 
 Authenticated users are able to access to TAP+ capabilities (shared tables, persistent jobs, etc.) In order to
 authenticate a user, ``login`` method must be called. After a successful authentication, the user will be authenticated
-until ``logout`` method is called.
+until the ``logout`` method is called.
 
 All previous methods (``query_object``, ``cone_search``, ``load_table``, ``load_tables``, ``launch_job``) explained for
 non authenticated users are applicable for authenticated ones.
 
 The main differences are:
 
-* Asynchronous results are kept at server side for ever (until the user decides to remove one of them).
-* Users can access to shared tables.
+* Asynchronous results are kept at the server side forever (until the user decides to remove one of them).
+* Users can access to share tables.
 
 
 2.1. Login/Logout
 ^^^^^^^^^^^^^^^^^
 
-There are several ways to login to Euclid archive.
+There are several ways to log in to the Euclid archive.
 
 **Login through graphic interface**
 
-*Note: Python Tkinter module is required to use login_gui method.*
+*Note: The Python Tkinter module is required to use the login_gui method.*
 
 .. Skipping authentication requiring examples
 .. doctest-skip::
@@ -624,7 +622,7 @@ or
 
 It is possible to use a file where the credentials are stored:
 
-*The file must containing user and password in two different lines.*
+*The file must contain user and password in two different lines.*
 
 .. Skipping authentication requiring examples
 .. doctest-skip::
@@ -719,7 +717,7 @@ It is possible to download a product given its file name or product id:
    :alt: EUC_MER_BGSUB-MOSAIC-NIR-H_TILE102158889-ED035A_20241024T212936.705156Z_00.00.fits
 
 
-The method downloads the fits file(s) and returns the local path where the product(s) are saved.
+The method downloads the fits file(s) and returns the local path where the product(s) is saved.
 
 To download the products for a given EUCLID observation_id (observations) or tile_index (mosaics):
 
@@ -775,7 +773,7 @@ To download a cutout given its file path, instrument and obs_id, and the cutout 
    :alt: astroquery_cutout_example.fits
 
 
-Below is the equivalent version but copying arguments manually (for clarity)
+Below is the equivalent version but copying arguments manually (for clarity).
 
 .. Skipping authentication requiring examples
 .. doctest-skip::
@@ -807,7 +805,7 @@ To obtain a list of the tables shared to a user type the following:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 It is now possible to store a table in the private user space. The table to be uploaded can
-be in a VOTable_ located in a given URL, a table stored in a local file in the user machine,
+be in a VOTable_ located at a given URL, a table stored in a local file in the user machine,
 a pre-computed Astropy table file or a job executed in the Euclid archive.
 
 .. _VOTable: https://www.ivoa.net/documents/VOTable/
@@ -822,7 +820,7 @@ referenced as 'user_joe.table_name'
 An already generated VOTable, accessible through a URL, can be uploaded to Euclid archive.
 
 The following example launches a query to Vizier TAP ('url' parameter). The result is a
-VOTable that can be uploaded to the user private area.
+VOTable that can be uploaded to the user's private area.
 
 Your schema name will be automatically added to the provided table name:
 
@@ -856,7 +854,7 @@ surrounded by quotation marks, i.e.: *user_<your_login_name>."<table_name>"*):
 2.5.2. Uploading table from file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A file containing a table (votable, fits or csv) can be uploaded to the user private area.
+A file containing a table (votable, fits or csv) can be uploaded to the user's private area.
 
 The parameter 'format' must be provided when the input file is not a votable file.
 
@@ -921,7 +919,7 @@ surrounded by quotation marks, i.e.: *user_<your_login_name>."<table_name>"*):
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The results generated by an *asynchronous* job (from a query executed in the Euclid archive) can be
-ingested in a table in the user private area.
+ingested in a table in the user's private area.
 
 The following example generates a job in the Euclid archive and then, the results are ingested in a
 table named: user_<your_login_name>.'t'<job_id>:
@@ -952,7 +950,7 @@ surrounded by quotation marks since it contains capital letters.):
 2.6. Deleting table
 ^^^^^^^^^^^^^^^^^^^
 
-A table from the user private area can be deleted as follows:
+A table from the user's private area can be deleted as follows:
 
 .. Skipping authentication requiring examples
 .. doctest-skip::
@@ -967,7 +965,7 @@ A table from the user private area can be deleted as follows:
 
 It can be useful for the user to modify the metadata of a given table. For example, a user
 might want to change the description (UCD) of a column, or the flags that give extra information
-about certain column. This is possible using:
+about a certain column. This is possible using:
 
 .. Skipping authentication requiring examples
 .. doctest-skip::
@@ -1025,7 +1023,7 @@ We can type the following:
 ^^^^^^^^^^^^^^^^
 
 It is possible to run a geometric cross-match between the ra/dec coordinates of two tables
-using the crossmatch function provided by the archive. In order to do so the user must be
+using the crossmatch function provided by the archive. In order to do so, the user must be
 logged in. This is required because the cross match operation will generate a join table
 in the user private area. That table contains the identifiers of both tables and the separation,
 in degrees, between ra/dec coordinates of each source in the first table and its associated
@@ -1072,7 +1070,7 @@ Cross-matching catalogues is one of the most popular operations executed in the 
 
 It is possible to share tables with other users. You have to create a group, populate that
 group with users, and share your table to that group. Then, any user belonging to that group
-will be able to access to your shared table in a query.
+will be able to access your shared table in a query.
 
 2.9.1. Creating a group
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -1156,12 +1154,12 @@ will be able to access to your shared table in a query.
 DataLink_ is a data access protocol compliant with the IVOA_ architecture that provides a linking mechanism between
 datasets offered by different services. In practice, it can be seen and used as a web service providing the list of additional
 data products available for each object outside the main catalogue(s). For more information about the products served via
-DataLink in the Euclid ESA Archive we recommend to read the Archive DataLink tutorials available at https://eas.esac.esa.int/sas/.
+DataLink in the Euclid ESA Archive we recommend reading the Archive DataLink tutorials available at https://eas.esac.esa.int/sas/.
 
-The DataLink products is restricted to authenticated users. via the `~astroquery.utils.tap.TapPlus.load_data` method.
+The DataLink products are restricted to authenticated users via the `~astroquery.utils.tap.TapPlus.load_data` method.
 From SAS the Datalink service can be used to access and download 1D Spectra data.
 
-To find out the resources associated to a given source:
+To find out the resources associated with a given source:
 
 .. Skipping authentication requiring examples
 .. doctest-skip::
@@ -1171,7 +1169,7 @@ To find out the resources associated to a given source:
   >>> datalink = Euclid.get_datalinks(ids=ids)
 
 
-The query below retrieves a random a sample of Euclid sources having spectra, i.e., ancillary products.
+The query below retrieves a random sample of Euclid sources having spectra, i.e., ancillary products.
 
 .. Skipping authentication requiring examples
 .. doctest-skip::
@@ -1210,7 +1208,7 @@ The query below retrieves a random a sample of Euclid sources having spectra, i.
   Length = 2000 rows
 
 
-The following example shows how to retrieve the DataLink products (1D Spectra) associated to the previous sources (IDs).
+The following example shows how to retrieve the DataLink products (1D Spectra) associated with the previous sources (IDs).
 
 .. Skipping authentication requiring examples
 .. doctest-skip::
@@ -1234,7 +1232,7 @@ The DataLink products are stored inside a Python Dictionary. Each of its element
 
 .. Note::
 
-   It is not possible to search for and retrieve the DataLink products associated to more than 5000 sources in one and the same call.
+   It is not possible to search for and retrieve the DataLink products associated with more than 5000 sources in one and the same call.
    However, it is possible to overcome this limit programmatically using a sequential download.
 
 .. _DataLink: https://www.ivoa.net/documents/DataLink/
