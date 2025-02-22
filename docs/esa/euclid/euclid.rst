@@ -1169,7 +1169,7 @@ To find out the resources associated with a given source:
   >>> datalink = Euclid.get_datalinks(ids=ids)
 
 
-The query below retrieves a random sample of Euclid sources having spectra, i.e., ancillary products.
+The query below retrieves a random sample of Euclid sources having spectra.
 
 .. Skipping authentication requiring examples
 .. doctest-skip::
@@ -1213,27 +1213,9 @@ The following example shows how to retrieve the DataLink products (1D Spectra) a
 .. Skipping authentication requiring examples
 .. doctest-skip::
 
-  >>> from astroquery.esa.euclid import Euclid
-  >>> params_dict = {}
-  >>> params_dict['ID']=','.join(str(item) for item in results['object_id'])
-  >>> params_dict['RETRIEVAL_TYPE'] = 'SPECTRA'
-  >>> datalink = Euclid.load_data(params_dict=params_dict)
+  >>> datalink = Euclid.get_spectrum(source_id='2417660845403252054')
 
-The DataLink products are stored inside a Python Dictionary. Each of its elements (keys) contains a one-element list that can be extracted as follows:
-
-.. Skipping authentication requiring examples
-.. doctest-skip::
-
-  >>> dl_keys  = [inp for inp in datalink.keys()]
-  >>> dl_keys.sort()
-  >>> print(f'The following Datalink products have been downloaded:')
-  >>> for dl_key in dl_keys:
-  ...   print(f' * {dl_key}')
-
-.. Note::
-
-   It is not possible to search for and retrieve the DataLink products associated with more than 5000 sources in one and the same call.
-   However, it is possible to overcome this limit programmatically using a sequential download.
+A fits file is made if no file name is provided.
 
 .. _DataLink: https://www.ivoa.net/documents/DataLink/
 
