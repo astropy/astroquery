@@ -15,7 +15,7 @@ dark energy and dark matter.
 This package allows the access to the European Space Agency Euclid Archive (https://eas.esac.esa.int/).
 
 The Euclid Survey is done in a 'step-and-stare' mode, where the telescope points to a position on the sky and then
-imaging and spectroscopic measurements are performed on an area of ~0.48 deg2 around this position. The telescope
+imaging and spectroscopic measurements are performed on an area of ~0.48 deg\ :sup:`2` around this position. The telescope
 consists of two cameras, the visible instrument (VIS) and the Near Infrared Spectrometer and Photometer (NISP)
 instrument that observe simultaneously using a light splitting dichroic.
 
@@ -111,8 +111,8 @@ observations on the Lynds Dark Nebula LDN1641.
 
 4. The PDR (Public Data Release) environment of the Euclid science archive holds the public data. Euclid Q1 data will be publicly released on March 19,
 2025. The main component of the Q1 data shall contain Level 2 data of a single visit (at the depth of the Euclid Wide
-Survey) over the Euclid Deep Fields (EDFs): 20 deg<sup>2</sup> of the EDF North, 10 deg<sup>2</sup> of EDF Fornax, and
-23 deg<sup>2</sup> of the EDF South. The deep fields will be visited multiple times during the mission.
+Survey) over the Euclid Deep Fields (EDFs): 20 deg\ :sup:`2` of the EDF North, 10 deg\ :sup:`2` of EDF Fornax, and
+23 deg\ :sup:`2` of the EDF South. The deep fields will be visited multiple times during the mission.
 
 
 The description of these data products can be found on the Data Product Definition Document (DPDD_)
