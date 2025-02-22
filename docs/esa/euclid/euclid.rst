@@ -37,8 +37,8 @@ Agency EUCLID Archive using a TAP+ REST service. TAP+ is an extension of Table A
 specified by the International Virtual Observatory Alliance (IVOA: http://www.ivoa.net).
 
 
-The TAP query language is Astronomical Data Query Language
-(ADQL: https://www.ivoa.net/documents/ADQL/20231215/index.html), which is similar to Structured Query Language (SQL),
+The TAP query language is Astronomical Data Query Language 
+(ADQL: https://www.ivoa.net/documents/ADQL/20231215/index.html ), which is similar to Structured Query Language (SQL),
 widely used to query databases.
 
 TAP provides two operation modes: Synchronous and Asynchronous:
@@ -540,8 +540,8 @@ To remove asynchronous
 1.6. Synchronous query on an 'on-the-fly' uploaded table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A user can execute ADQL queries and upload a votable to be used in a query 'on-the-fly' (these tables will be removed
-once the query is executed).
+'On-the-fly' queries allow you to submit a votable and perform a query using that table all in one command; unlike tables
+uploaded with `upload_table` (see :ref:`uploading_table_to_user_space`), these tables will be deleted after the query is complete.
 
 You have to provide the local path to the file you want to upload. In the following example, the file 'my_table.xml' is
 located to the relative location where your python program is running. See note below.
@@ -801,6 +801,7 @@ To obtain a list of the tables shared to a user type the following:
   >>> for table in tables:
   ...   print(table.get_qualified_name())
 
+.. _uploading_table_to_user_space:
 
 2.5. Uploading table to user space
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -914,6 +915,7 @@ surrounded by quotation marks, i.e.: *user_<your_login_name>."<table_name>"*):
   >>> query = 'select * from ' + full_qualified_table_name
   >>> job = Euclid.launch_job(query=query)
   >>> results = job.get_results()
+
 
 2.5.4. Uploading table from job
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
