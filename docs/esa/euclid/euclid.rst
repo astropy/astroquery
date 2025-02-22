@@ -91,7 +91,7 @@ It is highly recommended checking the status of Euclid TAP before executing this
 This method will retrieve the same warning messages shown in EUCLID Science Archive with information about service degradation.
 
 
----------------------------------
+
 0. Euclid science archive systems
 ---------------------------------
 
@@ -139,7 +139,7 @@ makes use of the *PDR* environment. In order to make use of a different one, it 
 The parameter *environment* can take only the following values: *IDR*, *OTF*, *PDR* or *REG*.
 
 
----------------------------
+
 1. Non authenticated access
 ---------------------------
 
@@ -569,7 +569,8 @@ Note: to obtain the current location, type:
   >>> print(os.getcwd())
   /Current/directory/path
 
------------------------
+
+
 2. Authenticated access
 -----------------------
 
@@ -1146,10 +1147,9 @@ will be able to access to your shared table in a query.
   >>> Euclid.share_table_stop(table_name="user_<user_login_name>.my_table", group_name="my_group")
 
 
------------------------------------
+
 3. Datalink service (Authenticated)
 -----------------------------------
-
 
 DataLink_ is a data access protocol compliant with the IVOA_ architecture that provides a linking mechanism between
 datasets offered by different services. In practice, it can be seen and used as a web service providing the list of additional
