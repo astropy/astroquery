@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uws:jobs xmlns:uws="http://www.ivoa.net/xml/UWS/v1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.ivoa.net/xml/UWS/v1.0 http://www.ivoa.net/xml/UWS/v1.0" total="1">
+    <uws:job>
+        <uws:jobId><![CDATA[1479386030738O]]></uws:jobId>
+        <uws:runId xsi:nil="true"/>
+        <uws:ownerId><![CDATA[anonymous]]></uws:ownerId>
+        <uws:phase>COMPLETED</uws:phase>
+        <uws:quote>-1</uws:quote>
+        <uws:startTime>2016-11-17T13:33:50.755+0100</uws:startTime>
+        <uws:endTime>2016-11-17T13:33:50.786+0100</uws:endTime>
+        <uws:executionDuration>1800</uws:executionDuration>
+        <uws:destruction>2016-11-20T13:33:50.738+0100</uws:destruction>
+        <uws:creationTime>2016-11-17T13:33:50.738+0100</uws:creationTime>
+        <uws:locationId>anonymous/2016/11/17/1479386030738O</uws:locationId>
+        <uws:name><![CDATA[]]></uws:name>
+        <uws:parameters>
+        </uws:parameters>
+        <uws:results>
+        </uws:results>
+        <uws:errorSummary xsi:nil="true"/>
+    </uws:job>
+    <uws:job>
+        <uws:jobId><![CDATA[14793860307381]]></uws:jobId>
+        <uws:runId xsi:nil="true"/>
+        <uws:ownerId><![CDATA[anonymous]]></uws:ownerId>
+        <uws:phase>ERROR</uws:phase>
+        <uws:quote>-1</uws:quote>
+        <uws:startTime>2016-11-17T13:33:50.755+0100</uws:startTime>
+        <uws:endTime>2016-11-17T13:33:50.786+0100</uws:endTime>
+        <uws:executionDuration>1800</uws:executionDuration>
+        <uws:destruction>2016-11-20T13:33:50.738+0100</uws:destruction>
+        <uws:creationTime>2016-11-17T13:33:50.738+0100</uws:creationTime>
+        <uws:locationId>anonymous/2016/11/17/1479386030738O</uws:locationId>
+        <uws:name><![CDATA[]]></uws:name>
+        <uws:parameters>
+        </uws:parameters>
+        <uws:results>
+        </uws:results>
+        <uws:errorSummary xsi:nil="true"/>
+    </uws:job>
+</uws:jobs>
