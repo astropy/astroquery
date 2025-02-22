@@ -1242,5 +1242,5 @@ The DataLink products are stored inside a Python Dictionary. Each of its element
 Reference/API
 =============
 
-.. automodapi:: astroquery.esa.jwst
+.. automodapi:: astroquery.esa.euclid
     :no-inheritance-diagram:
