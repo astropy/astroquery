@@ -48,7 +48,7 @@ poly2 = [(10.1 * u.deg, 10.1 * u.deg), (10.0 * u.deg, 10.1 * u.deg),
 def test_query_region_polygon(polygon):
     query1 = Irsa.query_region(catalog="fp_psc", spatial="Polygon", polygon=polygon,
                                get_query_payload=True)
-    query2 = Irsa.query_region("m31", catalog="fp_psc", spatial="Polygon", polygon=polygon,
+    query2 = Irsa.query_region("m31", catalog="fp_psc", spatial="polygon", polygon=polygon,
                                get_query_payload=True)
 
     assert query1 == query2
@@ -58,12 +58,12 @@ def test_query_region_polygon(polygon):
 
 def test_query_allsky():
     query1 = Irsa.query_region(catalog="fp_psc", spatial="All-Sky", get_query_payload=True)
-    query2 = Irsa.query_region("m31", catalog="fp_psc", spatial="All-Sky", get_query_payload=True)
+    query2 = Irsa.query_region("m31", catalog="fp_psc", spatial="allsky", get_query_payload=True)
 
     assert query1 == query2 == "SELECT * FROM fp_psc"
 
 
-@pytest.mark.parametrize('spatial', ['cone', 'box', 'polygon', 'all-Sky', 'All-sky', 'invalid'])
+@pytest.mark.parametrize('spatial', ['random_nonsense', 'invalid'])
 def test_spatial_invalid(spatial):
     with pytest.raises(ValueError):
         Irsa.query_region(OBJ_LIST[0], catalog='invalid_spatial', spatial=spatial)
