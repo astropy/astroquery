@@ -541,7 +541,7 @@ To remove asynchronous
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 'On-the-fly' queries allow you to submit a votable and perform a query using that table all in one command; unlike tables
-uploaded with :meth:`~astroquery.esa.euclid.Euclid.upload_table` (see :ref:`uploading_table_to_user_space`), these tables will be deleted after the query is complete.
+uploaded with :meth:`~astroquery.esa.euclid.EuclidClass.upload_table` (see :ref:`uploading_table_to_user_space`), these tables will be deleted after the query is complete.
 
 You have to provide the local path to the file you want to upload. In the following example, the file 'my_table.xml' is
 located to the relative location where your python program is running. See note below.
