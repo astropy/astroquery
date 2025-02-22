@@ -32,9 +32,9 @@ imaging into merged mosaics, which can contain multiple different observations. 
 mosaics are organized by Tile ID in the archive.
 
 
-This package provides access to the metadata and datasets provided by the European Space Agency EUCLID Archive using a
-TAP+ REST service. TAP+ is an extension of Table Access Protocol (TAP: http://www.ivoa.net/documents/TAP/) specified by
-the International Virtual Observatory Alliance (IVOA: http://www.ivoa.net).
+`astroquery.esa.euclid` provides the astroquery interface to the metadata and datasets provided by the European Space
+Agency EUCLID Archive using a TAP+ REST service. TAP+ is an extension of Table Access Protocol (TAP: http://www.ivoa.net/documents/TAP/)
+specified by the International Virtual Observatory Alliance (IVOA: http://www.ivoa.net).
 
 
 The TAP query language is Astronomical Data Query Language
@@ -276,6 +276,22 @@ This query performs a cone search centered at the specified ra/dec coordinates w
    102158889 2024-10-26T13:10:32.453 267.3807789 65.4983    EUC_MER_BGSUB-MOSAIC-NIR-H_TILE102158889-ED035A_20241024T212936.705156Z_00.00.fits    /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/NISP    /data/euclid_q1/Q1_R1/MER/102158889/NISP       NIR_H 0.16895922479034217
 
 
+
+Queries return a limited number of rows controlled by ``Euclid.ROW_LIMIT``. To change the default behaviour set this appropriately.
+
+.. Skipping authentication requiring examples
+.. doctest-skip::
+
+  >>> Euclid.ROW_LIMIT = 2
+  >>> job = Euclid.cone_search(coordinate=coord, radius=radius, table_name="sedm.mosaic_product", ra_column_name="ra", dec_column_name="dec", columns="*", async_job=True)
+  >>> cone_results = job.get_results()
+  >>> print("Found", len(cone_results), "results")
+  Found 2 results
+
+
+To return an unlimited number of rows set ``Euclid.ROW_LIMIT`` to -1.
+
+
 1.3. Query object
 ^^^^^^^^^^^^^^^^^
 
@@ -328,7 +344,7 @@ The previous query can be executed as an asynchronous version:
   >>> coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
   >>> width=u.Quantity(0.1, u.deg)
   >>> height= u.Quantity(0.1, u.deg)
-  >>> table_async = Euclid.query_object_async(coordinate=coord, width=width, height=height)
+  >>> table_async = Euclid.query_object(coordinate=coord, width=width, height=height, async_job=True)
   INFO: Query finished. [astroquery.utils.tap.core]
   >>> print("Found a total of", len(table_async), "query results")
   Found a total of 2895 query results
@@ -1130,8 +1146,10 @@ will be able to access to your shared table in a query.
   >>> Euclid.share_table_stop(table_name="user_<user_login_name>.my_table", group_name="my_group")
 
 
+-----------------------------------
 3. Datalink service (Authenticated)
-----------------------------------------------
+-----------------------------------
+
 
 DataLink_ is a data access protocol compliant with the IVOA_ architecture that provides a linking mechanism between
 datasets offered by different services. In practice, it can be seen and used as a web service providing the list of additional
