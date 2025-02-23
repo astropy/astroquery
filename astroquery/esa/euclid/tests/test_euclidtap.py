@@ -714,6 +714,34 @@ def test_get_product_exceptions():
     assert str(exc_info.value).startswith("'file_name' and 'product_id' are both None")
 
 
+@patch.object(TapPlus, 'load_data')
+def test_get_product_exceptions_2(mock_load_data, caplog):
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+    # Launch response: we use default response because the query contains decimals
+    responseLaunchJob = DummyResponse(200)
+    responseLaunchJob.set_data(method='POST', context=None, body='', headers=None)
+
+    conn_handler.set_default_response(responseLaunchJob)
+
+    mock_load_data.side_effect = HTTPError("launch_job_async HTTPError")
+
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+
+    tap.get_product(file_name='hola.fits', output_file=None)
+
+    mssg = "Cannot retrieve products for file_name hola.fits or product_id None. HTTP error: launch_job_async HTTPError"
+    assert caplog.records[0].msg == mssg
+
+    mock_load_data.side_effect = Exception("launch_job_async Exception")
+
+    tap.get_product(file_name='hola.fits', output_file=None)
+
+    mssg = "Cannot retrieve products for file_name hola.fits or product_id None: launch_job_async Exception"
+    assert caplog.records[1].msg == mssg
+
+
 def test_get_obs_products():
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
@@ -761,6 +789,34 @@ def test_get_obs_products_exceptions():
         tap.get_observation_products(id=12, product_type='XXXXXXXX', filter='VIS', output_file=None)
 
     assert str(exc_info.value).startswith("Invalid product type XXXXXXXX. Valid values: ['observation', 'mosaic']")
+
+
+@patch.object(TapPlus, 'load_data')
+def test_get_obs_products_exceptions_2(mock_load_data, caplog):
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+    # Launch response: we use default response because the query contains decimals
+    responseLaunchJob = DummyResponse(200)
+    responseLaunchJob.set_data(method='POST', context=None, body='', headers=None)
+
+    conn_handler.set_default_response(responseLaunchJob)
+
+    mock_load_data.side_effect = HTTPError("launch_job_async HTTPError")
+
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+
+    tap.get_observation_products(id=12345, product_type='observation', filter='VIS', output_file=None)
+
+    mssg = "Cannot retrieve products for observation 12345. HTTP error: launch_job_async HTTPError"
+    assert caplog.records[0].msg == mssg
+
+    mock_load_data.side_effect = Exception("launch_job_async Exception")
+
+    tap.get_observation_products(id=12345, product_type='observation', filter='VIS', output_file=None)
+
+    mssg = "Cannot retrieve products for observation 12345: launch_job_async Exception"
+    assert caplog.records[1].msg == mssg
 
 
 def test_get_cutout():
@@ -843,6 +899,43 @@ def test_get_cutout_exception():
     assert str(exc_info.value).startswith('Missing required argument')
 
 
+@patch.object(TapPlus, 'load_data')
+def test_get_cutout_exceptions_2(mock_load_data, caplog):
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='cutout', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+
+    cutout_handler = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                             connhandler=conn_handler)
+    # tap.set_cutout_context()
+    # Launch response: we use default response because the query contains decimals
+    responseLaunchJob = DummyResponse(200)
+    responseLaunchJob.set_data(method='POST', context=None, body='', headers=None)
+
+    conn_handler.set_default_response(responseLaunchJob)
+
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, cutout_handler=cutout_handler,
+                      show_server_messages=False)
+
+    mock_load_data.side_effect = HTTPError("launch_job_async HTTPError")
+
+    tap.get_cutout(file_path='hola.fits', instrument='NISP', id='19704', coordinate=SKYCOORD, radius=1 * u.arcmin,
+                   output_file=None)
+
+    mssg = ("Cannot retrieve the product for file_path hola.fits, obsId 19704, and collection NISP. HTTP error: "
+            "launch_job_async HTTPError")
+    assert caplog.records[0].msg == mssg
+
+    mock_load_data.side_effect = Exception("launch_job_async Exception")
+
+    tap.get_cutout(file_path='hola.fits', instrument='NISP', id='19704', coordinate=SKYCOORD, radius=1 * u.arcmin,
+                   output_file=None)
+
+    mssg = ("Cannot retrieve the product for file_path hola.fits, obsId 19704, and collection NISP: launch_job_async "
+            "Exception")
+    assert caplog.records[1].msg == mssg
+
+
 def test_get_spectrum():
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
@@ -860,6 +953,35 @@ def test_get_spectrum():
     assert result is not None
 
     remove_temp_dir()
+
+
+@patch.object(TapPlus, 'load_data')
+def test_get_spectrum_exceptions_2(mock_load_data, caplog):
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+    # Launch response: we use default response because the query contains decimals
+    responseLaunchJob = DummyResponse(200)
+    responseLaunchJob.set_data(method='POST', context=None, body='', headers=None)
+
+    conn_handler.set_default_response(responseLaunchJob)
+
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+
+    mock_load_data.side_effect = HTTPError("launch_job_async HTTPError")
+
+    tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=None)
+
+    mssg = ("Cannot retrieve spectrum for source_id 2417660845403252054, schema sedm_sc8. HTTP error: launch_job_async "
+            "HTTPError")
+    assert caplog.records[0].msg == mssg
+
+    mock_load_data.side_effect = Exception("launch_job_async Exception")
+
+    tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=None)
+
+    mssg = "Cannot retrieve spectrum for source_id 2417660845403252054, schema sedm_sc8: launch_job_async Exception"
+    assert caplog.records[1].msg == mssg
 
 
 def remove_temp_dir():

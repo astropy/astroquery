@@ -1117,12 +1117,12 @@ class EuclidClass(TapPlus):
             self.__euclidcutout.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
             log.error(
-                f"Cannot retrieve the product for file_path %{file_path}, obsId {id}, and collection {instrument}. "
+                f"Cannot retrieve the product for file_path {file_path}, obsId {id}, and collection {instrument}. "
                 f"HTTP error: {err}")
             return
         except Exception as exx:
             log.error(
-                f"Cannot retrieve the product for file_path %{file_path}, obsId {id}, and collection {instrument}: "
+                f"Cannot retrieve the product for file_path {file_path}, obsId {id}, and collection {instrument}: "
                 f"{str(exx)}")
             return
 
