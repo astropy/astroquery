@@ -758,6 +758,9 @@ To download a cutout given its file path, instrument and obs_id, and the cutout 
   >>> obs_id=example_file["tile_index"]
   >>> radius= 0.2 * u.arcmin
   >>> coord = SkyCoord("17h51m07.4s +65d31m50.8s", frame='icrs')
+  >>> output_folder= 'example_outputs/'
+  >>> if not os.path.exists(output_folder):
+         os.makedirs(output_folder)
   >>> output_file=output_folder + 'cutouts/astroquery_cutout_example.fits'
   >>> saved_cutout_filepath = Euclid.get_cutout(file_path=file_path, instrument=instrument, id=obs_id, coordinate=coord, radius=radius, output_file=output_file)
   >>> print("Cutout saved at", saved_cutout_filepath)
