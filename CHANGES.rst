@@ -8,6 +8,12 @@ New Tools and Services
 API changes
 -----------
 
+
+esa.euclid
+^^^^^^^^^^^^
+
+- New module to access the ESA Euclid Archive. [#3216]
+
 mast
 ^^^^
 
