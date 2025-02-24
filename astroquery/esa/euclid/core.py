@@ -26,12 +26,13 @@ from . import conf
 
 
 class EuclidClass(TapPlus):
-    ERROR_MSG_REQUESTED_OBSERVATION_ID = "Missing required argument: 'observation_id'"
-    ERROR_MSG_REQUESTED_TILE_ID = "Missing required argument: 'tile_id'"
-    ERROR_MSG_REQUESTED_OBSERVATION_ID_AND_TILE_ID = "Incompatible: 'observation_id' and 'tile_id'. Use only one."
-    ERROR_MSG_REQUESTED_PRODUCT_TYPE = "Missing required argument: 'product_type'"
-    ERROR_MSG_REQUESTED_GENERIC = "Missing required argument"
-    ERROR_MSG_REQUESTED_RADIUS = "Radius cannot be greater than 30 arcminutes"
+
+    __ERROR_MSG_REQUESTED_OBSERVATION_ID = "Missing required argument: 'observation_id'"
+    __ERROR_MSG_REQUESTED_TILE_ID = "Missing required argument: 'tile_id'"
+    __ERROR_MSG_REQUESTED_OBSERVATION_ID_AND_TILE_ID = "Incompatible: 'observation_id' and 'tile_id'. Use only one."
+    __ERROR_MSG_REQUESTED_PRODUCT_TYPE = "Missing required argument: 'product_type'"
+    __ERROR_MSG_REQUESTED_GENERIC = "Missing required argument"
+    __ERROR_MSG_REQUESTED_RADIUS = "Radius cannot be greater than 30 arcminutes"
     EUCLID_MESSAGES = "notification?action=GetNotifications"
 
     """
@@ -672,9 +673,9 @@ class EuclidClass(TapPlus):
         """
 
         if id is None:
-            raise ValueError(self.ERROR_MSG_REQUESTED_OBSERVATION_ID)
+            raise ValueError(self.__ERROR_MSG_REQUESTED_OBSERVATION_ID)
         if product_type is None:
-            raise ValueError(self.ERROR_MSG_REQUESTED_PRODUCT_TYPE)
+            raise ValueError(self.__ERROR_MSG_REQUESTED_PRODUCT_TYPE)
         if product_type not in conf.PRODUCT_TYPES:
             raise ValueError(f"Invalid product type {product_type}. Valid values: {conf.PRODUCT_TYPES}")
 
@@ -764,9 +765,9 @@ class EuclidClass(TapPlus):
         """
 
         if tile_index is None:
-            raise ValueError(self.ERROR_MSG_REQUESTED_TILE_ID)
+            raise ValueError(self.__ERROR_MSG_REQUESTED_TILE_ID)
         if product_type is None:
-            raise ValueError(self.ERROR_MSG_REQUESTED_PRODUCT_TYPE)
+            raise ValueError(self.__ERROR_MSG_REQUESTED_PRODUCT_TYPE)
 
         query = None
 
@@ -906,13 +907,13 @@ class EuclidClass(TapPlus):
         The list of products (astropy.table)
         """
         if product_type is None:
-            raise ValueError(self.ERROR_MSG_REQUESTED_PRODUCT_TYPE)
+            raise ValueError(self.__ERROR_MSG_REQUESTED_PRODUCT_TYPE)
 
         if observation_id is not None and tile_index is not None:
-            raise ValueError(self.ERROR_MSG_REQUESTED_OBSERVATION_ID_AND_TILE_ID)
+            raise ValueError(self.__ERROR_MSG_REQUESTED_OBSERVATION_ID_AND_TILE_ID)
 
         if observation_id is None and tile_index is None:
-            raise ValueError(self.ERROR_MSG_REQUESTED_OBSERVATION_ID + "; " + self.ERROR_MSG_REQUESTED_TILE_ID)
+            raise ValueError(self.__ERROR_MSG_REQUESTED_OBSERVATION_ID + "; " + self.__ERROR_MSG_REQUESTED_TILE_ID)
 
         if tile_index is not None:
             return self.__get_tile_catalogue_list(tile_index=tile_index, product_type=product_type, verbose=verbose)
@@ -1098,12 +1099,12 @@ class EuclidClass(TapPlus):
         """
 
         if file_path is None or instrument is None or id is None or coordinate is None or radius is None:
-            raise ValueError(self.ERROR_MSG_REQUESTED_GENERIC)
+            raise ValueError(self.__ERROR_MSG_REQUESTED_GENERIC)
 
         # Parse POS
         radius_deg = Angle(self.__get_quantity_input(radius, "radius")).to_value(u.deg)
         if radius_deg > 0.5:
-            raise ValueError(self.ERROR_MSG_REQUESTED_RADIUS)
+            raise ValueError(self.__ERROR_MSG_REQUESTED_RADIUS)
         coord = commons.parse_coordinates(coordinate)
         ra_hours, dec = commons.coord_to_radec(coord)
         ra = ra_hours * 15.0  # Converts to degrees
@@ -1159,7 +1160,7 @@ class EuclidClass(TapPlus):
         """
 
         if source_id is None or schema is None:
-            raise ValueError(self.ERROR_MSG_REQUESTED_GENERIC)
+            raise ValueError(self.__ERROR_MSG_REQUESTED_GENERIC)
 
         params_dict = {'TAPCLIENT': 'ASTROQUERY', 'RETRIEVAL_TYPE': 'SPECTRA'}
         id_value = """{schema} {source_id}""".format(**{'schema': schema, 'source_id': source_id})
