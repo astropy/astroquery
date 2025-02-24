@@ -1,53 +1,54 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
+=====================
+ESO Astroquery Module
+=====================
+
+European Southern Observatory (ESO)
+
+"""
 
 import base64
 import email
 import json
+import os
 import os.path
+import sys
 import re
 import shutil
 import subprocess
 import time
 import warnings
-import webbrowser
 import xml.etree.ElementTree as ET
-from io import BytesIO
-from typing import List, Optional, Tuple, Dict, Set
+from typing import List, Optional, Tuple, Dict, Set, Union
 
+import astropy.table
 import astropy.utils.data
+import astropy.units as u
 import keyring
 import requests.exceptions
 from astropy.table import Table, Column
 from astropy.utils.decorators import deprecated_renamed_argument
 from bs4 import BeautifulSoup
+import pyvo
 
-from astroquery import log
+from astroquery import log, cache_conf
 from . import conf
-from ..exceptions import RemoteServiceError, NoResultsWarning, LoginError
+from ..exceptions import RemoteServiceError, LoginError, \
+    NoResultsWarning, MaxResultsWarning
 from ..query import QueryWithLogin
 from ..utils import schema
+from .utils import py2adql, _split_str_as_list_of_str, \
+    adql_sanitize_val, to_cache, eso_hash, are_coords_valid, \
+    read_table_from_file, is_file_expired
 
 __doctest_skip__ = ['EsoClass.*']
-
-
-def _check_response(content):
-    """
-    Check the response from an ESO service query for various types of error
-
-    If all is OK, return True
-    """
-    if b"NETWORKPROBLEM" in content:
-        raise RemoteServiceError("The query resulted in a network "
-                                 "problem; the service may be offline.")
-    elif b"# No data returned !" not in content:
-        return True
 
 
 class CalSelectorError(Exception):
     """
     Raised on failure to parse CalSelector's response.
     """
-    pass
 
 
 class AuthInfo:
@@ -67,163 +68,88 @@ class AuthInfo:
         return time.time() > self.expiration_time - 600
 
 
+class EsoNames:
+    raw_table = "dbo.raw"
+    phase3_table = "ivoa.ObsCore"
+    raw_instruments_column = "instrument"
+    phase3_collections_column = "obs_collection"
+
+    @staticmethod
+    def ist_table(instrument_name):
+        return f"ist.{instrument_name}"
+
+
 class EsoClass(QueryWithLogin):
     ROW_LIMIT = conf.row_limit
     USERNAME = conf.username
-    QUERY_INSTRUMENT_URL = conf.query_instrument_url
     CALSELECTOR_URL = "https://archive.eso.org/calselector/v1/associations"
     DOWNLOAD_URL = "https://dataportal.eso.org/dataPortal/file/"
     AUTH_URL = "https://www.eso.org/sso/oidc/token"
     GUNZIP = "gunzip"
 
-    def __init__(self):
+    def __init__(self, timeout=None):
         super().__init__()
-        self._instrument_list = None
-        self._survey_list = None
+        self._instruments: Optional[List[str]] = None
+        self._collections: Optional[List[str]] = None
         self._auth_info: Optional[AuthInfo] = None
+        self.timeout = timeout  # TODO: Is this timeout for login?
+        self._hash = None
+        self.USE_DEV_TAP = False
 
-    def _activate_form(self, response, *, form_index=0, form_id=None, inputs={},
-                       cache=True, method=None):
-        """
-        Parameters
-        ----------
-        method: None or str
-            Can be used to override the form-specified method
-        """
-        # Extract form from response
-        root = BeautifulSoup(response.content, 'html5lib')
-        if form_id is None:
-            form = root.find_all('form')[form_index]
+    @property
+    def timeout(self):
+        return self._timeout
+
+    @timeout.setter
+    def timeout(self, value):
+        if hasattr(value, 'to'):
+            self._timeout = value.to(u.s).value
         else:
-            form = root.find_all('form', id=form_id)[form_index]
-        # Construct base url
-        form_action = form.get('action')
-        if "://" in form_action:
-            url = form_action
-        elif form_action.startswith('/'):
-            url = '/'.join(response.url.split('/', 3)[:3]) + form_action
+            self._timeout = value
+
+    def tap_url(self) -> str:
+        url = conf.tap_url
+        if self.USE_DEV_TAP:
+            try:
+                url = os.environ['TAP_URL']
+            except KeyError as e:
+                raise KeyError(
+                    "Running on dev mode, but TAP_URL environment variable is not set"
+                ) from e
+            logmsg = f"Using dev tap url: {url}"
+            log.info(logmsg)
+        return url
+
+    def request_file(self, query_str: str):
+        h = eso_hash(query_str=query_str, url=self.tap_url())
+        fn = self.cache_location.joinpath(h + ".pickle")
+        return fn
+
+    def from_cache(self, query_str, cache_timeout):
+        table_file = self.request_file(query_str)
+        expired = is_file_expired(table_file, cache_timeout)
+        cached_table = None
+        if not expired:
+            cached_table = self.read_cached_table(table_file)
         else:
-            url = response.url.rsplit('/', 1)[0] + '/' + form_action
-        # Identify payload format
-        fmt = None
-        form_method = form.get('method').lower()
-        if form_method == 'get':
-            fmt = 'get'  # get(url, params=payload)
-        elif form_method == 'post':
-            if 'enctype' in form.attrs:
-                if form.attrs['enctype'] == 'multipart/form-data':
-                    fmt = 'multipart/form-data'  # post(url, files=payload)
-                elif form.attrs['enctype'] == 'application/x-www-form-urlencoded':
-                    fmt = 'application/x-www-form-urlencoded'  # post(url, data=payload)
-                else:
-                    raise Exception("enctype={0} is not supported!".format(form.attrs['enctype']))
-            else:
-                fmt = 'application/x-www-form-urlencoded'  # post(url, data=payload)
-        # Extract payload from form
-        payload = []
-        for form_elem in form.find_all(['input', 'select', 'textarea']):
-            value = None
-            is_file = False
-            tag_name = form_elem.name
-            key = form_elem.get('name')
-            if tag_name == 'input':
-                is_file = (form_elem.get('type') == 'file')
-                value = form_elem.get('value')
-                if form_elem.get('type') in ['checkbox', 'radio']:
-                    if form_elem.has_attr('checked'):
-                        if not value:
-                            value = 'on'
-                    else:
-                        value = None
-            elif tag_name == 'select':
-                if form_elem.get('multiple') is not None:
-                    value = []
-                    if form_elem.select('option[value]'):
-                        for option in form_elem.select('option[value]'):
-                            if option.get('selected') is not None:
-                                value.append(option.get('value'))
-                    else:
-                        for option in form_elem.select('option'):
-                            if option.get('selected') is not None:
-                                # bs4 NavigableString types have bad,
-                                # undesirable properties that result
-                                # in recursion errors when caching
-                                value.append(str(option.string))
-                else:
-                    if form_elem.select('option[value]'):
-                        for option in form_elem.select('option[value]'):
-                            if option.get('selected') is not None:
-                                value = option.get('value')
-                        # select the first option field if none is selected
-                        if value is None:
-                            value = form_elem.select(
-                                'option[value]')[0].get('value')
-                    else:
-                        # survey form just uses text, not value
-                        for option in form_elem.select('option'):
-                            if option.get('selected') is not None:
-                                value = str(option.string)
-                        # select the first option field if none is selected
-                        if value is None:
-                            value = str(form_elem.select('option')[0].string)
+            logmsg = (f"Cache expired for {table_file} ...")
+            log.debug(logmsg)
+        return cached_table
 
-            if key in inputs:
-                if isinstance(inputs[key], list):
-                    # list input is accepted (for array uploads)
-                    value = inputs[key]
-                else:
-                    value = str(inputs[key])
+    def read_cached_table(self, table_file):
+        try:
+            cached_table = read_table_from_file(table_file)
+        except FileNotFoundError:
+            cached_table = None
 
-            if (key is not None):  # and (value is not None):
-                if fmt == 'multipart/form-data':
-                    if is_file:
-                        payload.append(
-                            (key, ('', '', 'application/octet-stream')))
-                    else:
-                        if type(value) is list:
-                            for v in value:
-                                entry = (key, ('', v))
-                                # Prevent redundant key, value pairs
-                                # (can happen if the form repeats them)
-                                if entry not in payload:
-                                    payload.append(entry)
-                        elif value is None:
-                            entry = (key, ('', ''))
-                            if entry not in payload:
-                                payload.append(entry)
-                        else:
-                            entry = (key, ('', value))
-                            if entry not in payload:
-                                payload.append(entry)
-                else:
-                    if type(value) is list:
-                        for v in value:
-                            entry = (key, v)
-                            if entry not in payload:
-                                payload.append(entry)
-                    else:
-                        entry = (key, value)
-                        if entry not in payload:
-                            payload.append(entry)
+        if not isinstance(cached_table, Table):
+            cached_table = None
 
-        # for future debugging
-        self._payload = payload
-        log.debug("Form: payload={0}".format(payload))
+        if cached_table:
+            logmsg = (f"Retrieved data from {table_file} ...")
+            log.debug(logmsg)
 
-        if method is not None:
-            fmt = method
-
-        log.debug("Method/format = {0}".format(fmt))
-
-        # Send payload
-        if fmt == 'get':
-            response = self._request("GET", url, params=payload, cache=cache)
-        elif fmt == 'multipart/form-data':
-            response = self._request("POST", url, files=payload, cache=cache)
-        elif fmt == 'application/x-www-form-urlencoded':
-            response = self._request("POST", url, data=payload, cache=cache)
-
-        return response
+        return cached_table
 
     def _authenticate(self, *, username: str, password: str) -> bool:
         """
@@ -236,15 +162,18 @@ class EsoClass(QueryWithLogin):
                       "client_secret": "clientSecret",
                       "username": username,
                       "password": password}
-        log.info(f"Authenticating {username} on 'www.eso.org' ...")
+        logmsg = (f"Authenticating {username} on 'www.eso.org' ...")
+        log.info(logmsg)
         response = self._request('GET', self.AUTH_URL, params=url_params)
         if response.status_code == 200:
             token = json.loads(response.content)['id_token']
             self._auth_info = AuthInfo(username=username, password=password, token=token)
-            log.info("Authentication successful!")
+            logmsg = ("Authentication successful!")
+            log.info(logmsg)
             return True
         else:
-            log.error("Authentication failed!")
+            logmsg = ("Authentication failed!")
+            log.error(logmsg)
             return False
 
     def _get_auth_info(self, username: str, *, store_password: bool = False,
@@ -271,8 +200,8 @@ class EsoClass(QueryWithLogin):
 
         return username, password
 
-    def _login(self, *, username: str = None, store_password: bool = False,
-               reenter_password: bool = False) -> bool:
+    def _login(self, *args, username: str = None, store_password: bool = False,
+               reenter_password: bool = False, **kwargs) -> bool:
         """
         Login to the ESO User Portal.
 
@@ -297,7 +226,8 @@ class EsoClass(QueryWithLogin):
 
     def _get_auth_header(self) -> Dict[str, str]:
         if self._auth_info and self._auth_info.expired():
-            log.info("Authentication token has expired! Re-authenticating ...")
+            logmsg = ("Authentication token has expired! Re-authenticating ...")
+            log.info(logmsg)
             self._authenticate(username=self._auth_info.username,
                                password=self._auth_info.password)
         if self._auth_info and not self._auth_info.expired():
@@ -305,7 +235,59 @@ class EsoClass(QueryWithLogin):
         else:
             return {}
 
-    def list_instruments(self, *, cache=True):
+    def query_tap_service(self,
+                          query_str: str,
+                          cache: Optional[bool] = None) -> Optional[astropy.table.Table]:
+        """
+        returns an astropy.table.Table from an adql query string
+        Example use:
+        eso._query_tap_service("Select * from ivoa.ObsCore")
+        """
+        maxrec = sys.maxsize
+        if self.ROW_LIMIT:
+            if self.ROW_LIMIT > 0:
+                maxrec = self.ROW_LIMIT
+
+        if cache is None:  # Global caching not overridden
+            cache = cache_conf.cache_active
+
+        tap = pyvo.dal.TAPService(self.tap_url())
+        table_to_return = None
+        logmsg = f"querystr = {query_str}"
+        log.debug(logmsg)
+        try:
+            if not cache:
+                with cache_conf.set_temp("cache_active", False):
+                    table_to_return = tap.search(query_str, maxrec=maxrec).to_table()
+            else:
+                table_to_return = self.from_cache(query_str, cache_conf.cache_timeout)
+                if not table_to_return:
+                    table_to_return = tap.search(query_str, maxrec=maxrec).to_table()
+                    to_cache(table_to_return, self.request_file(query_str=query_str))
+
+        except pyvo.dal.exceptions.DALQueryError as e:
+            raise pyvo.dal.exceptions.DALQueryError(
+                f"Error executing the following query:\n\n"
+                f"{query_str}\n\n"
+                "See examples here: https://archive.eso.org/tap_obs/examples\n\n") from e
+
+        except Exception as e:
+            raise RuntimeError(
+                f"Unhandled exception {type(e)}\n"
+                "While executing the following query:\n\n"
+                f"{query_str}\n\n"
+                "See examples here: https://archive.eso.org/tap_obs/examples\n\n") from e
+
+        if len(table_to_return) < 1:
+            warnings.warn("Query returned no results", NoResultsWarning)
+
+        if len(table_to_return) == maxrec:
+            warnings.warn(f"Results truncated to {maxrec}. "
+                          "To retrieve all the records set to None the ROW_LIMIT attribute", MaxResultsWarning)
+
+        return table_to_return
+
+    def list_instruments(self, *, cache=True) -> List[str]:
         """ List all the available instrument-specific queries offered by the ESO archive.
 
         Returns
@@ -316,228 +298,174 @@ class EsoClass(QueryWithLogin):
             See :ref:`caching documentation <astroquery_cache>`.
 
         """
-        if self._instrument_list is None:
-            url = "http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html"
-            instrument_list_response = self._request("GET", url, cache=cache)
-            root = BeautifulSoup(instrument_list_response.content, 'html5lib')
-            self._instrument_list = []
-            for element in root.select("div[id=col3] a[href]"):
-                href = element.attrs["href"]
-                if u"http://archive.eso.org/wdb/wdb/eso" in href:
-                    instrument = href.split("/")[-2]
-                    if instrument not in self._instrument_list:
-                        self._instrument_list.append(instrument)
-        return self._instrument_list
+        tmpvar = self.ROW_LIMIT
+        self.ROW_LIMIT = sys.maxsize
+        try:
+            if self._instruments is None:
+                self._instruments = []
+                query_str = ("select table_name from TAP_SCHEMA.tables "
+                             "where schema_name='ist' order by table_name")
+                res = self.query_tap_service(query_str, cache=cache)["table_name"].data
+                self._instruments = list(map(lambda x: x.split(".")[1], res))
+        finally:
+            self.ROW_LIMIT = tmpvar
+        return self._instruments
 
-    def list_surveys(self, *, cache=True):
-        """ List all the available surveys (phase 3) in the ESO archive.
+    def list_collections(self, *, cache=True) -> List[str]:
+        """ List all the available collections (phase 3) in the ESO archive.
 
         Returns
         -------
-        survey_list : list of strings
+        collection_list : list of strings
         cache : bool
             Defaults to True. If set overrides global caching behavior.
             See :ref:`caching documentation <astroquery_cache>`.
         """
-        if self._survey_list is None:
-            survey_list_response = self._request(
-                "GET", "http://archive.eso.org/wdb/wdb/adp/phase3_main/form",
-                cache=cache)
-            root = BeautifulSoup(survey_list_response.content, 'html5lib')
-            self._survey_list = []
-            collections_table = root.find('table', id='collections_table')
-            other_collections = root.find('select', id='collection_name_option')
-            # it is possible to have empty collections or other collections...
-            collection_elts = (collections_table.find_all('input', type='checkbox')
-                               if collections_table is not None
-                               else [])
-            other_elts = (other_collections.find_all('option')
-                          if other_collections is not None
-                          else [])
-            for element in (collection_elts + other_elts):
-                if 'value' in element.attrs:
-                    survey = element.attrs['value']
-                    if survey and survey not in self._survey_list and 'Any' not in survey:
-                        self._survey_list.append(survey)
-        return self._survey_list
+        tmpvar = self.ROW_LIMIT
+        self.ROW_LIMIT = sys.maxsize
+        try:
+            if self._collections is None:
+                self._collections = []
+                t = EsoNames.phase3_table
+                c = EsoNames.phase3_collections_column
+                query_str = f"select distinct {c} from {t}"
+                res = self.query_tap_service(query_str, cache=cache)[c].data
 
-    def query_surveys(self, *, surveys='', cache=True,
-                      help=False, open_form=False, **kwargs):
+                self._collections = list(res)
+        finally:
+            self.ROW_LIMIT = tmpvar
+        return self._collections
+
+    def print_table_help(self, table_name: str) -> None:
         """
-        Query survey Phase 3 data contained in the ESO archive.
-
-        Parameters
-        ----------
-        survey : string or list
-            Name of the survey(s) to query.  Should beone or more of the
-            names returned by `~astroquery.eso.EsoClass.list_surveys`.  If
-            specified as a string, should be a comma-separated list of
-            survey names.
-        cache : bool
-            Defaults to True. If set overrides global caching behavior.
-            See :ref:`caching documentation <astroquery_cache>`.
-
-        Returns
-        -------
-        table : `~astropy.table.Table` or `None`
-            A table representing the data available in the archive for the
-            specified survey, matching the constraints specified in ``kwargs``.
-            The number of rows returned is capped by the ROW_LIMIT
-            configuration item. `None` is returned when the query has no
-            results.
-
+        Prints the columns contained in a given table
         """
+        help_query = (
+            f"select column_name, datatype from TAP_SCHEMA.columns "
+            f"where table_name = '{table_name}'")
+        available_cols = self.query_tap_service(help_query)
+        nlines = len(available_cols) + 2
+        n_ = astropy.conf.max_lines
+        astropy.conf.max_lines = nlines
+        logmsg = (f"\nColumns present in the table {table_name}:\n{available_cols}\n")
+        log.info(logmsg)
+        astropy.conf.max_lines = n_
 
-        url = "http://archive.eso.org/wdb/wdb/adp/phase3_main/form"
-        if open_form:
-            webbrowser.open(url)
-        elif help:
-            self._print_surveys_help(url, cache=cache)
-        else:
-            survey_form = self._request("GET", url, cache=cache)
-            query_dict = kwargs
-            query_dict["wdbo"] = "csv/download"
-            if isinstance(surveys, str):
-                surveys = surveys.split(",")
-            query_dict['collection_name'] = surveys
-            if self.ROW_LIMIT >= 0:
-                query_dict["max_rows_returned"] = int(self.ROW_LIMIT)
-            else:
-                query_dict["max_rows_returned"] = 10000
-
-            survey_response = self._activate_form(survey_form, form_index=0,
-                                                  form_id='queryform',
-                                                  inputs=query_dict, cache=cache)
-
-            content = survey_response.content
-            # First line is always garbage
-            content = content.split(b'\n', 1)[1]
-            log.debug("Response content:\n{0}".format(content))
-            if _check_response(content):
-                table = Table.read(BytesIO(content), format="ascii.csv",
-                                   comment="^#")
-                return table
-            else:
-                warnings.warn("Query returned no results", NoResultsWarning)
-
-    def query_main(self, *, column_filters={}, columns=[],
-                   open_form=False, help=False, cache=True, **kwargs):
+    def _query_on_allowed_values(
+            self,
+            table_name: str,
+            column_name: str,
+            allowed_values: Union[List[str], str] = None, *,
+            ra: float = None, dec: float = None, radius: float = None,
+            columns: Union[List, str] = None,
+            top: int = None,
+            count_only: bool = False,
+            print_help: bool = False,
+            cache: bool = True,
+            **kwargs) -> Union[astropy.table.Table, int]:
         """
-        Query raw data contained in the ESO archive.
-
-        Parameters
-        ----------
-        column_filters : dict
-            Constraints applied to the query.
-        columns : list of strings
-            Columns returned by the query.
-        open_form : bool
-            If `True`, opens in your default browser the query form
-            for the requested instrument.
-        help : bool
-            If `True`, prints all the parameters accepted in
-            ``column_filters`` and ``columns`` for the requested
-            ``instrument``.
-        cache : bool
-            Defaults to True. If set overrides global caching behavior.
-            See :ref:`caching documentation <astroquery_cache>`.
-
-        Returns
-        -------
-        table : `~astropy.table.Table`
-            A table representing the data available in the archive for the
-            specified instrument, matching the constraints specified in
-            ``kwargs``. The number of rows returned is capped by the
-            ROW_LIMIT configuration item.
-
+        Query instrument- or collection-specific data contained in the ESO archive.
+         - instrument-specific data is raw
+         - collection-specific data is processed
         """
-        url = self.QUERY_INSTRUMENT_URL + "/eso_archive_main/form"
-        return self._query(url, column_filters=column_filters, columns=columns,
-                           open_form=open_form, help=help, cache=cache, **kwargs)
+        columns = columns or []
+        filters = {**dict(kwargs)}
 
-    def query_instrument(self, instrument, *, column_filters={}, columns=[],
-                         open_form=False, help=False, cache=True, **kwargs):
-        """
-        Query instrument-specific raw data contained in the ESO archive.
+        if print_help:
+            self.print_table_help(table_name)
+            return
 
-        Parameters
-        ----------
-        instrument : string
-            Name of the instrument to query, one of the names returned by
-            `~astroquery.eso.EsoClass.list_instruments`.
-        column_filters : dict
-            Constraints applied to the query.
-        columns : list of strings
-            Columns returned by the query.
-        open_form : bool
-            If `True`, opens in your default browser the query form
-            for the requested instrument.
-        help : bool
-            If `True`, prints all the parameters accepted in
-            ``column_filters`` and ``columns`` for the requested
-            ``instrument``.
-        cache : bool
-            Defaults to True. If set overrides global caching behavior.
-            See :ref:`caching documentation <astroquery_cache>`.
+        if (('box' in filters)
+            or ('coord1' in filters)
+                or ('coord2' in filters)):
+            message = 'box, coord1 and coord2 are deprecated; use ra, dec and radius instead'
+            raise ValueError(message)
 
-        Returns
-        -------
-        table : `~astropy.table.Table`
-            A table representing the data available in the archive for the
-            specified instrument, matching the constraints specified in
-            ``kwargs``. The number of rows returned is capped by the
-            ROW_LIMIT configuration item.
+        if not are_coords_valid(ra, dec, radius):
+            message = "Either all three (ra, dec, radius) must be present or none of them.\n"
+            message += f"Values provided: ra = {ra}, dec = {dec}, radius = {radius}"
+            raise ValueError(message)
 
-        """
+        where_collections_strlist = []
+        if allowed_values:
+            if isinstance(allowed_values, str):
+                allowed_values = _split_str_as_list_of_str(allowed_values)
 
-        url = self.QUERY_INSTRUMENT_URL + '/{0}/form'.format(instrument.lower())
-        return self._query(url, column_filters=column_filters, columns=columns,
-                           open_form=open_form, help=help, cache=cache, **kwargs)
+            allowed_values = list(map(lambda x: f"'{x.strip()}'", allowed_values))
+            where_collections_strlist = [f"{column_name} in (" + ", ".join(allowed_values) + ")"]
 
-    def _query(self, url, *, column_filters={}, columns=[],
-               open_form=False, help=False, cache=True, **kwargs):
+        where_constraints_strlist = [f"{k} = {adql_sanitize_val(v)}" for k, v in filters.items()]
+        where_constraints = where_collections_strlist + where_constraints_strlist
+        query = py2adql(table=table_name, columns=columns,
+                        ra=ra, dec=dec, radius=radius,
+                        where_constraints=where_constraints,
+                        count_only=count_only,
+                        top=top)
 
-        table = None
-        if open_form:
-            webbrowser.open(url)
-        elif help:
-            self._print_query_help(url)
-        else:
-            instrument_form = self._request("GET", url, cache=cache)
-            query_dict = {}
-            query_dict.update(column_filters)
-            # TODO: replace this with individually parsed kwargs
-            query_dict.update(kwargs)
-            query_dict["wdbo"] = "csv/download"
+        table_to_return = self.query_tap_service(query_str=query, cache=cache)
 
-            # Default to returning the DP.ID since it is needed for header
-            # acquisition
-            query_dict['tab_dp_id'] = kwargs.pop('tab_dp_id', 'on')
+        if count_only:  # this below is an int, not a table
+            table_to_return = list(table_to_return[0].values())[0]
 
-            for k in columns:
-                query_dict["tab_" + k] = True
-            if self.ROW_LIMIT >= 0:
-                query_dict["max_rows_returned"] = int(self.ROW_LIMIT)
-            else:
-                query_dict["max_rows_returned"] = 10000
-            # used to be form 0, but now there's a new 'logout' form at the top
-            # (form_index = -1 and 0 both work now that form_id is included)
-            instrument_response = self._activate_form(instrument_form,
-                                                      form_index=-1,
-                                                      form_id='queryform',
-                                                      inputs=query_dict,
-                                                      cache=cache)
+        return table_to_return
 
-            content = instrument_response.content
-            # First line is always garbage
-            content = content.split(b'\n', 1)[1]
-            log.debug("Response content:\n{0}".format(content))
-            if _check_response(content):
-                table = Table.read(BytesIO(content), format="ascii.csv",
-                                   comment='^#')
-                return table
-            else:
-                warnings.warn("Query returned no results", NoResultsWarning)
+    def query_collections(
+            self,
+            collections: Union[List[str], str], *,
+            ra: float = None, dec: float = None, radius: float = None,
+            columns: Union[List, str] = None,
+            top: int = None,
+            count_only: bool = False,
+            print_help=False, cache=True,
+            **kwargs) -> Union[astropy.table.Table, int]:
+        return self._query_on_allowed_values(table_name=EsoNames.phase3_table,
+                                             column_name=EsoNames.phase3_collections_column,
+                                             allowed_values=collections,
+                                             ra=ra, dec=dec, radius=radius,
+                                             columns=columns,
+                                             top=top,
+                                             count_only=count_only,
+                                             print_help=print_help, cache=cache,
+                                             **kwargs)
+
+    def query_main(
+            self,
+            instruments: Union[List[str], str] = None, *,
+            ra: float = None, dec: float = None, radius: float = None,
+            columns: Union[List, str] = None,
+            top: int = None,
+            count_only: bool = False,
+            print_help=False, cache=True,
+            **kwargs) -> Union[astropy.table.Table, int]:
+        return self._query_on_allowed_values(table_name=EsoNames.raw_table,
+                                             column_name=EsoNames.raw_instruments_column,
+                                             allowed_values=instruments,
+                                             ra=ra, dec=dec, radius=radius,
+                                             columns=columns,
+                                             top=top,
+                                             count_only=count_only,
+                                             print_help=print_help, cache=cache,
+                                             **kwargs)
+
+    # ex query_instrument
+    def query_instrument(
+            self,
+            instrument: str, *,
+            ra: float = None, dec: float = None, radius: float = None,
+            columns: Union[List, str] = None,
+            top: int = None,
+            count_only: bool = False,
+            print_help=False, cache=True,
+            **kwargs) -> Union[astropy.table.Table, int]:
+        return self._query_on_allowed_values(table_name=EsoNames.ist_table(instrument),
+                                             column_name=None,
+                                             allowed_values=None,
+                                             ra=ra, dec=dec, radius=radius,
+                                             columns=columns,
+                                             top=top,
+                                             count_only=count_only,
+                                             print_help=print_help, cache=cache,
+                                             **kwargs)
 
     def get_headers(self, product_ids, *, cache=True):
         """
@@ -571,7 +499,7 @@ class EsoClass(QueryWithLogin):
         result = []
         for dp_id in product_ids:
             response = self._request(
-                "GET", "http://archive.eso.org/hdr?DpId={0}".format(dp_id),
+                "GET", f"https://archive.eso.org/hdr?DpId={dp_id}",
                 cache=cache)
             root = BeautifulSoup(response.content, 'html5lib')
             hdr = root.select('pre')[0].text
@@ -606,10 +534,10 @@ class EsoClass(QueryWithLogin):
                     columns.append(key)
                     column_types.append(type(header[key]))
         # Add all missing elements
-        for i in range(len(result)):
+        for r in result:
             for (column, column_type) in zip(columns, column_types):
-                if column not in result[i]:
-                    result[i][column] = column_type()
+                if column not in r:
+                    r[column] = column_type()
         # Return as Table
         return Table(result)
 
@@ -628,7 +556,8 @@ class EsoClass(QueryWithLogin):
             files_to_check.append(filename.rsplit(".", 1)[0])
         for file in files_to_check:
             if os.path.exists(file):
-                log.info(f"Found cached file {file}")
+                logmsg = (f"Found cached file {file}")
+                log.info(logmsg)
                 return True
         return False
 
@@ -642,7 +571,8 @@ class EsoClass(QueryWithLogin):
             filename = os.path.join(destination, filename)
             part_filename = filename + ".part"
             if os.path.exists(part_filename):
-                log.info(f"Removing partially downloaded file {part_filename}")
+                logmsg = (f"Removing partially downloaded file {part_filename}")
+                log.info(logmsg)
                 os.remove(part_filename)
             download_required = overwrite or not self._find_cached_file(filename)
             if download_required:
@@ -658,24 +588,29 @@ class EsoClass(QueryWithLogin):
         destination = os.path.abspath(destination)
         os.makedirs(destination, exist_ok=True)
         nfiles = len(file_ids)
-        log.info(f"Downloading {nfiles} files ...")
+        logmsg = (f"Downloading {nfiles} files ...")
+        log.info(logmsg)
         downloaded_files = []
         for i, file_id in enumerate(file_ids, 1):
             file_link = self.DOWNLOAD_URL + file_id
-            log.info(f"Downloading file {i}/{nfiles} {file_link} to {destination}")
+            logmsg = (f"Downloading file {i}/{nfiles} {file_link} to {destination}")
+            log.info(logmsg)
             try:
                 filename, downloaded = self._download_eso_file(file_link, destination, overwrite)
                 downloaded_files.append(filename)
                 if downloaded:
-                    log.info(f"Successfully downloaded dataset"
-                             f" {file_id} to {filename}")
+                    logmsg = (f"Successfully downloaded dataset {file_id} to {filename}")
+                    log.info(logmsg)
             except requests.HTTPError as http_error:
                 if http_error.response.status_code == 401:
-                    log.error(f"Access denied to {file_link}")
+                    logmsg = (f"Access denied to {file_link}")
+                    log.error(logmsg)
                 else:
-                    log.error(f"Failed to download {file_link}. {http_error}")
-            except Exception as ex:
-                log.error(f"Failed to download {file_link}. {ex}")
+                    logmsg = (f"Failed to download {file_link}. {http_error}")
+                    log.error(logmsg)
+            except RuntimeError as ex:
+                logmsg = (f"Failed to download {file_link}. {ex}")
+                log.error(logmsg)
         return downloaded_files
 
     def _unzip_file(self, filename: str) -> str:
@@ -688,12 +623,14 @@ class EsoClass(QueryWithLogin):
         if filename.endswith(('fits.Z', 'fits.gz')):
             uncompressed_filename = filename.rsplit(".", 1)[0]
             if not os.path.exists(uncompressed_filename):
-                log.info(f"Uncompressing file {filename}")
+                logmsg = (f"Uncompressing file {filename}")
+                log.info(logmsg)
                 try:
                     subprocess.run([self.GUNZIP, filename], check=True)
                 except Exception as ex:
                     uncompressed_filename = None
-                    log.error(f"Failed to unzip {filename}: {ex}")
+                    logmsg = (f"Failed to unzip {filename}: {ex}")
+                    log.error(logmsg)
         return uncompressed_filename or filename
 
     def _unzip_files(self, files: List[str]) -> List[str]:
@@ -714,7 +651,8 @@ class EsoClass(QueryWithLogin):
         destination = os.path.abspath(destination)
         os.makedirs(destination, exist_ok=True)
         filename = os.path.join(destination, filename)
-        log.info(f"Saving Calselector association tree to {filename}")
+        logmsg = (f"Saving Calselector association tree to {filename}")
+        log.info(logmsg)
         with open(filename, "wb") as fd:
             fd.write(payload)
 
@@ -756,7 +694,8 @@ class EsoClass(QueryWithLogin):
                 self._save_xml(xml, filename, destination)
         # For multiple datasets it returns a multipart message
         elif 'multipart/form-data' in content_type:
-            msg = email.message_from_string(f'Content-Type: {content_type}\r\n' + response.content.decode())
+            msg = email.message_from_string(
+                f'Content-Type: {content_type}\r\n' + response.content.decode())
             for part in msg.get_payload():
                 filename = part.get_filename()
                 xml = part.get_payload(decode=True)
@@ -769,9 +708,11 @@ class EsoClass(QueryWithLogin):
         # remove input datasets from calselector results
         return list(associated_files.difference(set(datasets)))
 
-    @deprecated_renamed_argument(('request_all_objects', 'request_id'), (None, None), since=['0.4.7', '0.4.7'])
-    def retrieve_data(self, datasets, *, continuation=False, destination=None, with_calib=None,
-                      request_all_objects=False, unzip=True, request_id=None):
+    @deprecated_renamed_argument(('request_all_objects', 'request_id'), (None, None),
+                                 since=['0.4.7', '0.4.7'])
+    def retrieve_data(self, datasets, *, continuation=False, destination=None,
+                      with_calib=None, unzip=True,
+                      request_all_objects=None, request_id=None):
         """
         Retrieve a list of datasets form the ESO archive.
 
@@ -806,10 +747,13 @@ class EsoClass(QueryWithLogin):
         >>> files = Eso.retrieve_data(dpids)
 
         """
+        _ = request_all_objects, request_id
         return_string = False
         if isinstance(datasets, str):
             return_string = True
             datasets = [datasets]
+        if isinstance(datasets, astropy.table.column.Column):
+            datasets = list(datasets)
 
         if with_calib and with_calib not in ('raw', 'processed'):
             raise ValueError("Invalid value for 'with_calib'. "
@@ -817,27 +761,35 @@ class EsoClass(QueryWithLogin):
 
         associated_files = []
         if with_calib:
-            log.info(f"Retrieving associated '{with_calib}' calibration files ...")
+            logmsg = f"Retrieving associated '{with_calib}' calibration files ..."
+            log.info(logmsg)
             try:
                 # batch calselector requests to avoid possible issues on the ESO server
-                BATCH_SIZE = 100
+                batch_size = 100
                 sorted_datasets = sorted(datasets)
-                for i in range(0, len(sorted_datasets), BATCH_SIZE):
-                    associated_files += self.get_associated_files(sorted_datasets[i:i + BATCH_SIZE], mode=with_calib)
+                for i in range(0, len(sorted_datasets), batch_size):
+                    associated_files += self.get_associated_files(
+                        sorted_datasets[i:i + batch_size], mode=with_calib)
                 associated_files = list(set(associated_files))
-                log.info(f"Found {len(associated_files)} associated files")
+                logmsg = (f"Found {len(associated_files)} associated files")
+                log.info(logmsg)
             except Exception as ex:
-                log.error(f"Failed to retrieve associated files: {ex}")
+                logmsg = (f"Failed to retrieve associated files: {ex}")
+                log.error(logmsg)
 
         all_datasets = datasets + associated_files
-        log.info("Downloading datasets ...")
+        logmsg = ("Downloading datasets ...")
+        log.info(logmsg)
         files = self._download_eso_files(all_datasets, destination, continuation)
         if unzip:
             files = self._unzip_files(files)
-        log.info("Done!")
+        logmsg = ("Done!")
+        log.info(logmsg)
         return files[0] if files and len(files) == 1 and return_string else files
 
-    def query_apex_quicklooks(self, *, project_id=None, help=False,
+    @deprecated_renamed_argument(('open_form', 'help'), (None, 'print_help'),
+                                 since=['0.4.8', '0.4.8'])
+    def query_apex_quicklooks(self, *, project_id=None, print_help=False,
                               open_form=False, cache=True, **kwargs):
         """
         APEX data are distributed with quicklook products identified with a
@@ -846,182 +798,16 @@ class EsoClass(QueryWithLogin):
 
         Examples
         --------
-        >>> tbl = Eso.query_apex_quicklooks(project_id='093.C-0144')
-        >>> files = Eso.retrieve_data(tbl['Product ID'])
+        >>> tbl = ...
+        >>> files = ...
         """
-
-        apex_query_url = 'http://archive.eso.org/wdb/wdb/eso/apex_product/form'
-
-        table = None
-        if open_form:
-            webbrowser.open(apex_query_url)
-        elif help:
-            return self._print_instrument_help(apex_query_url, 'apex')
+        # TODO All this function
+        _ = project_id, print_help, open_form, kwargs
+        if cache:
+            query = "APEX_QUERY_PLACEHOLDER"
+            return self.query_tap_service(query_str=query, cache=cache)
         else:
-
-            payload = {'wdbo': 'csv/download'}
-            if project_id is not None:
-                payload['prog_id'] = project_id
-            payload.update(kwargs)
-
-            apex_form = self._request("GET", apex_query_url, cache=cache)
-            apex_response = self._activate_form(
-                apex_form, form_id='queryform', form_index=0, inputs=payload,
-                cache=cache, method='application/x-www-form-urlencoded')
-
-            content = apex_response.content
-            if _check_response(content):
-                # First line is always garbage
-                content = content.split(b'\n', 1)[1]
-                try:
-                    table = Table.read(BytesIO(content), format="ascii.csv",
-                                       guess=False,  # header_start=1,
-                                       comment="#", encoding='utf-8')
-                except ValueError as ex:
-                    if 'the encoding parameter is not supported on Python 2' in str(ex):
-                        # astropy python2 does not accept the encoding parameter
-                        table = Table.read(BytesIO(content), format="ascii.csv",
-                                           guess=False,
-                                           comment="#")
-                    else:
-                        raise ex
-            else:
-                raise RemoteServiceError("Query returned no results")
-
-            return table
-
-    def _print_query_help(self, url, *, cache=True):
-        """
-        Download a form and print it in a quasi-human-readable way
-        """
-        log.info("List of accepted column_filters parameters.")
-        log.info("The presence of a column in the result table can be "
-                 "controlled if prefixed with a [ ] checkbox.")
-        log.info("The default columns in the result table are shown as "
-                 "already ticked: [x].")
-
-        result_string = []
-
-        resp = self._request("GET", url, cache=cache)
-        doc = BeautifulSoup(resp.content, 'html5lib')
-        form = doc.select("html body form pre")[0]
-        # Unwrap all paragraphs
-        paragraph = form.find('p')
-        while paragraph:
-            paragraph.unwrap()
-            paragraph = form.find('p')
-        # For all sections
-        for section in form.select("table"):
-            section_title = "".join(section.stripped_strings)
-            section_title = "\n".join(["", section_title,
-                                       "-" * len(section_title)])
-            result_string.append(section_title)
-            checkbox_name = ""
-            checkbox_value = ""
-            for tag in section.next_siblings:
-                if tag.name == u"table":
-                    break
-                elif tag.name == u"input":
-                    if tag.get(u'type') == u"checkbox":
-                        checkbox_name = tag['name']
-                        checkbox_value = u"[x]" if ('checked' in tag.attrs) else u"[ ]"
-                        name = ""
-                        value = ""
-                    else:
-                        name = tag['name']
-                        value = ""
-                elif tag.name == u"select":
-                    options = []
-                    for option in tag.select("option"):
-                        options += ["{0} ({1})".format(option['value'], "".join(option.stripped_strings))]
-                    name = tag[u"name"]
-                    value = ", ".join(options)
-                else:
-                    name = ""
-                    value = ""
-                if u"tab_" + name == checkbox_name:
-                    checkbox = checkbox_value
-                else:
-                    checkbox = "   "
-                if name != u"":
-                    result_string.append("{0} {1}: {2}"
-                                         .format(checkbox, name, value))
-
-        log.info("\n".join(result_string))
-        return result_string
-
-    def _print_surveys_help(self, url, *, cache=True):
-        """
-        Download a form and print it in a quasi-human-readable way
-        """
-        log.info("List of the parameters accepted by the "
-                 "surveys query.")
-        log.info("The presence of a column in the result table can be "
-                 "controlled if prefixed with a [ ] checkbox.")
-        log.info("The default columns in the result table are shown as "
-                 "already ticked: [x].")
-
-        result_string = []
-
-        resp = self._request("GET", url, cache=cache)
-        doc = BeautifulSoup(resp.content, 'html5lib')
-        form = doc.select("html body form")[0]
-
-        # hovertext from different labels are used to give more info on forms
-        helptext_dict = {abbr['title'].split(":")[0].strip(): ":".join(abbr['title'].split(":")[1:])
-                         for abbr in form.find_all('abbr')
-                         if 'title' in abbr.attrs and ":" in abbr['title']}
-
-        for fieldset in form.select('fieldset'):
-            legend = fieldset.select('legend')
-            if len(legend) > 1:
-                raise ValueError("Form parsing error: too many legends.")
-            elif len(legend) == 0:
-                continue
-            section_title = "\n\n" + "".join(legend[0].stripped_strings) + "\n"
-
-            result_string.append(section_title)
-
-            for section in fieldset.select('table'):
-
-                checkbox_name = ""
-                checkbox_value = ""
-                for tag in section.next_elements:
-                    if tag.name == u"table":
-                        break
-                    elif tag.name == u"input":
-                        if tag.get(u'type') == u"checkbox":
-                            checkbox_name = tag['name']
-                            checkbox_value = (u"[x]"
-                                              if ('checked' in tag.attrs)
-                                              else u"[ ]")
-                            name = ""
-                            value = ""
-                        else:
-                            name = tag['name']
-                            value = ""
-                    elif tag.name == u"select":
-                        options = []
-                        for option in tag.select("option"):
-                            options += ["{0} ({1})".format(option['value'] if 'value' in option else "",
-                                                           "".join(option.stripped_strings))]
-                        name = tag[u"name"]
-                        value = ", ".join(options)
-                    else:
-                        name = ""
-                        value = ""
-                    if u"tab_" + name == checkbox_name:
-                        checkbox = checkbox_value
-                    else:
-                        checkbox = "   "
-                    if name != u"":
-                        result_string.append("{0} {1}: {2}"
-                                             .format(checkbox, name, value))
-                        if name.strip() in helptext_dict:
-                            result_string.append(helptext_dict[name.strip()])
-
-        log.info("\n".join(result_string))
-        return result_string
+            raise NotImplementedError
 
 
 Eso = EsoClass()
