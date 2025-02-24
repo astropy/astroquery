@@ -422,7 +422,7 @@ Query saving results in a file (you may use 'output_format' to specify the resul
 .. doctest-skip::
 
   >>> from astroquery.esa.euclid import Euclid
-  >>> job = Euclid.launch_job("SELECT right_ascension, declination, segmentation_area, fluxerr_vis_1fwhm_aper, ellipticity, kron_radius FROM catalogue.mer_catalogue  WHERE ellipticity > 0 ORDER BY ellipticity ASC",dump_to_file=True, output_format='votable')
+  >>> job = Euclid.launch_job("SELECT right_ascension, declination, segmentation_area, fluxerr_vis_1fwhm_aper, ellipticity, kron_radius FROM catalogue.mer_catalogue  WHERE ellipticity > 0 ORDER BY ellipticity ASC", dump_to_file=True, output_format='votable')
   >>> print(job.outputFile)
   1668863838419O-result.vot.gz
   >>> r = job.get_results()
@@ -490,6 +490,7 @@ command stores the result in memory:
 
   >>> from astroquery.esa.euclid import Euclid
   >>> # query content: getting the mosaic file name corresponding to the first source in the last query
+  >>> output_folder="my_temp_folder"
   >>> query = "SELECT file_name, file_path, datalabs_path, mosaic_product_oid, tile_index, instrument_name, filter_name, ra, dec FROM sedm.mosaic_product WHERE (instrument_name='VIS') AND (((mosaic_product.fov IS NOT NULL AND INTERSECTS(CIRCLE('ICRS', 60.3372780005097, -49.93184727724773,"+ str(0.5/60) + "), mosaic_product.fov)=1))) ORDER BY mosaic_product.tile_index ASC"
   >>> job_async = Euclid.launch_job_async(query, dump_to_file=True, output_file=output_folder + "async_result.csv", output_format="csv", verbose=False)
   >>> print("Started async job with id:", job_async.jobid)
