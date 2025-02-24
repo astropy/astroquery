@@ -255,6 +255,8 @@ This query performs a cone search centered at the specified ra/dec coordinates w
 
   >>> #example cone search for source NGC6505
   >>> from astroquery.esa.euclid import Euclid
+  >>> from astropy.coordinates import SkyCoord
+  >>> import astropy.units as u
   >>> coord = SkyCoord("17h51m07.4s +65d31m50.8s", frame='icrs')
   >>> radius = u.Quantity(0.5, u.deg)
   >>> job = Euclid.cone_search(coordinate=coord, radius=radius, table_name="sedm.mosaic_product", ra_column_name="ra", dec_column_name="dec", columns="*", async_job=True)
@@ -308,6 +310,8 @@ The method returns the job results as astropy.table
 
   >>> # Search for objects around a given position with the default catalog catalogue.mer_catalogue
   >>> from astroquery.esa.euclid import Euclid
+  >>> from astropy.coordinates import SkyCoord
+  >>> import astropy.units as u
   >>> coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
   >>> table = Euclid.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg), height= u.Quantity(0.1, u.deg))
   >>> print("Found a total of", len(table), "query results")
@@ -339,6 +343,8 @@ The previous query can be executed as an asynchronous version:
 .. doctest-skip::
 
   >>> from astroquery.esa.euclid import Euclid
+  >>> from astropy.coordinates import SkyCoord
+  >>> import astropy.units as u
   >>> coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
   >>> width=u.Quantity(0.1, u.deg)
   >>> height= u.Quantity(0.1, u.deg)
@@ -742,6 +748,8 @@ To download a cutout given its file path, instrument and obs_id, and the cutout 
 
   >>> # the map cone_results was previously obtained by the query executed in section 2.1
   >>> from astroquery.esa.euclid import Euclid
+  >>> from astropy.coordinates import SkyCoord
+  >>> import astropy.units as u
   >>> example_file = cone_results[cone_results['instrument_name'] == 'VIS'][0]
   >>> # getting the arguments from the cone search result table automatically
   >>> file_path=example_file["file_path"] + "/" + example_file["file_name"]
