@@ -111,6 +111,14 @@ class XMatchClass(BaseQuery):
 
         response = self._request(method='POST', url=self.URL, data=payload,
                                  timeout=self.TIMEOUT, cache=cache, **kwargs)
+
+        if response.status_code == 403:
+            raise HTTPError("Your IP address has been banned from the XMatch server. "
+                            "This means that you sent too many cross-matching jobs in "
+                            "parallel to the service blocking other astronomers. Please"
+                            " contact the CDS team at cds-question[at]unistra.fr to "
+                            "find a solution.")
+
         try:
             response.raise_for_status()
         except HTTPError as err:

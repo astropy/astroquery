@@ -62,6 +62,8 @@ xmatch
 - the API is more flexible: you can now ommit the ``vizier:`` before the catalog name
   when crossmatching with a vizier table [#3194]
 
+- add a help message when people are banned instead of returning error code 403 [#3225]
+
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
