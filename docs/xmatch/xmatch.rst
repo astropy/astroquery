@@ -79,6 +79,17 @@ in the resulting table for demonstration purposes.  Finally, ``colRa1`` and
 Troubleshooting
 ===============
 
+403 Forbidden
+-------------
+
+If you are getting a 403 Forbidden error, then your IP address has been banned from
+XMatch's server. This means that you sent too many cross-matching jobs in parallel to 
+the service, blocking other astronomers. Please contact the CDS team at
+cds-question[at]unistra.fr to find a solution.
+
+Out of date results
+-------------------
+
 If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing your cache:
 
 .. code-block:: python
