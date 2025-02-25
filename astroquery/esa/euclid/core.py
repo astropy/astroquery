@@ -1147,7 +1147,11 @@ class EuclidClass(TapPlus):
         """
         Description
         -----------
-        Downloads a spectrum with datalink
+        Downloads a spectrum with datalink.
+
+        The spectrum associated to the source_id is downloaded as fits file, and returned in a list. The file is
+        saved in the local path given by output_file. If this parameter is not set, the result is saved in the
+        directory <working directory>/temp_"%Y%m%d_%H%M%S"
 
         Parameters
         ----------
@@ -1156,13 +1160,14 @@ class EuclidClass(TapPlus):
         schema : str, mandatory, default 'sedm'
             the data release, 'sedm'
         output_file : str, optional
-            output file. If no value is provided, a temporary one is created
+            output file name. If no value is provided, a temporary one is created with the name
+            <working directory>/temp_"%Y%m%d_%H%M%S"/<source_id>.fits
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
         Returns
         -------
-        The fits file is downloaded, and the local path where the spectrum is saved is returned
+        A list of files.
         """
 
         if source_id is None or schema is None:
@@ -1172,7 +1177,8 @@ class EuclidClass(TapPlus):
         id_value = """{schema} {source_id}""".format(**{'schema': schema, 'source_id': source_id})
         params_dict['ID'] = id_value
 
-        output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id='temp')
+        fits_file = source_id + '.fits'
+        output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id=fits_file)
         try:
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
