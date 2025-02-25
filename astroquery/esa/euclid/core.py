@@ -1143,7 +1143,7 @@ class EuclidClass(TapPlus):
 
         return files
 
-    def get_spectrum(self, *, source_id=None, schema='sedm', output_file=None, verbose=False):
+    def get_spectrum(self, *, source_id, schema='sedm', output_file=None, verbose=False):
         """
         Description
         -----------
@@ -1151,7 +1151,7 @@ class EuclidClass(TapPlus):
 
         The spectrum associated to the source_id is downloaded as fits file, and returned in a list. The file is
         saved in the local path given by output_file. If this parameter is not set, the result is saved in the
-        directory <working directory>/temp_"%Y%m%d_%H%M%S"
+        file <working directory>/temp_<%Y%m%d_%H%M%S>/<source_id>.fits
 
         Parameters
         ----------
@@ -1161,7 +1161,7 @@ class EuclidClass(TapPlus):
             the data release, 'sedm'
         output_file : str, optional
             output file name. If no value is provided, a temporary one is created with the name
-            <working directory>/temp_"%Y%m%d_%H%M%S"/<source_id>.fits
+            <working directory>/temp_<%Y%m%d_%H%M%S>/<source_id>.fits
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
