@@ -1225,7 +1225,15 @@ The following example shows how to retrieve the DataLink products (1D Spectra) a
 .. Skipping authentication requiring examples
 .. doctest-skip::
 
-  >>> datalink = Euclid.get_spectrum(source_id='2417660845403252054')
+  >>> files = Euclid.get_spectrum(source_id='2675005060662306333')
+  >>> from astropy.io import fits
+  >>> print(fits.info(files[0]))
+  Filename: /home/astroquery/temp_20250225_204959/2675005060662306333.fits
+  No.    Name      Ver    Type      Cards   Dimensions   Format
+    0  PRIMARY       1 PrimaryHDU       4   ()
+    1  2675005060662306333    1 BinTableHDU     35   531R x 6C   [1E, 1E, 1J, 1E, 1E, 1I]
+  None
+
 
 A fits file is made if no file name is provided.
 
