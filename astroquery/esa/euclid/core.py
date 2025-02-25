@@ -26,7 +26,6 @@ from . import conf
 
 
 class EuclidClass(TapPlus):
-
     __ERROR_MSG_REQUESTED_OBSERVATION_ID = "Missing required argument: 'observation_id'"
     __ERROR_MSG_REQUESTED_TILE_ID = "Missing required argument: 'tile_id'"
     __ERROR_MSG_REQUESTED_OBSERVATION_ID_AND_TILE_ID = "Incompatible: 'observation_id' and 'tile_id'. Use only one."
@@ -828,25 +827,33 @@ class EuclidClass(TapPlus):
         observation_id : str, mandatory
             observation id for observations. It is not compatible with parameter tile_index.
 
-            Searchable products by observation_id: 'DpdNirStackedFrame', 'DpdVisStackedFrame', 'dpdPhzPfOutputForL3',
-            'dpdPhzPfOutputCatalog', 'dpdMerFinalCatalog', 'dpdSpePfOutputCatalog', 'dpdSheLensMcChains',
-            'dpdHealpixBitMaskVMPZ', 'dpdHealpixFootprintMaskVMPZ', 'dpdHealpixCoverageVMPZ', 'dpdHealpixDepthMapVMPZ',
-            'dpdHealpixInfoMapVMPZ', 'dpdSheBiasParams', 'dpdSheLensMcFinalCatalog','dpdSheLensMcRawCatalog',
-            'dpdSheMetaCalFinalCatalog', 'dpdSheMetaCalRawCatalog', 'dpdSleDetectionOutput', 'dpdSleModelOutput',
-            'DpdMerSegmentationMap',  'dpdVisRawFrame', 'dpdNispRawFrame', 'DpdVisCalibratedQuadFrame',
-            'DpdNirCalibratedFrame', 'DpdVisCalibratedQuadFrame', 'DpdNirCalibratedFrame', 'DpdNirStackedFrameCatalog',
-            'DpdVisStackedFrameCatalog', 'DpdNirCalibratedFrameCatalog', 'DpdVisCalibratedFrameCatalog',
+            Searchable products by observation_id: 'dpdVisRawFrame', 'dpdNispRawFrame',
+            ,'DpdVisCalibratedQuadFrame','DpdVisCalibratedFrameCatalog', 'DpdVisStackedFrame',
+            'DpdVisStackedFrameCatalog',
+            'DpdNirCalibratedFrame', 'DpdNirCalibratedFrameCatalog', 'DpdNirStackedFrameCatalog', 'DpdNirStackedFrame',
+            'DpdMerSegmentationMap', 'dpdMerFinalCatalog',
+            'dpdPhzPfOutputCatalog', 'dpdPhzPfOutputForL3',
+            'dpdSpePfOutputCatalog',
+            'dpdSheLensMcChains','dpdSheBiasParams', 'dpdSheLensMcFinalCatalog','dpdSheLensMcRawCatalog',
+            'dpdSheMetaCalFinalCatalog', 'dpdSheMetaCalRawCatalog',
+            'dpdHealpixBitMaskVMPZ', 'dpdHealpixFootprintMaskVMPZ', 'dpdHealpixCoverageVMPZ',
+            'dpdHealpixDepthMapVMPZ', 'dpdHealpixInfoMapVMPZ',
+            'dpdSleDetectionOutput','dpdSleModelOutput',
             'DpdSirCombinedSpectra','dpdSirScienceFrame'
 
         tile_index : str, mandatory
             tile index for products searchable by tile. It is not compatible with parameter observation_id.
 
-            Searchable products by tile_index: 'DpdMerBksMosaic', 'dpdPhzPfOutputForL3', 'dpdPhzPfOutputCatalog',
-            'dpdMerFinalCatalog','dpdSpePfOutputCatalog', 'dpdSheLensMcChains', 'dpdHealpixBitMaskVMPZ',
-            'dpdHealpixFootprintMaskVMPZ', 'dpdHealpixCoverageVMPZ', 'dpdHealpixDepthMapVMPZ','dpdHealpixInfoMapVMPZ',
-            'dpdSheBiasParams', 'dpdSheLensMcFinalCatalog', 'dpdSheLensMcRawCatalog', 'dpdSheMetaCalFinalCatalog',
-            'dpdSheMetaCalRawCatalog', 'dpdSleDetectionOutput', 'dpdSleModelOutput', 'DpdSirCombinedSpectra',
-            'DpdMerSegmentationMap'
+            Searchable products by tile_index:
+            'DpdMerSegmentationMap', 'dpdMerFinalCatalog', 'DpdMerBksMosaic',
+            'dpdPhzPfOutputCatalog','dpdPhzPfOutputForL3',
+            'dpdSpePfOutputCatalog',
+            'dpdSheLensMcChains', 'dpdSheBiasParams',  'dpdSheLensMcFinalCatalog', 'dpdSheLensMcRawCatalog',
+            'dpdSheMetaCalFinalCatalog', 'dpdSheMetaCalRawCatalog',
+            'dpdHealpixBitMaskVMPZ', 'dpdHealpixFootprintMaskVMPZ', 'dpdHealpixCoverageVMPZ',
+            'dpdHealpixDepthMapVMPZ','dpdHealpixInfoMapVMPZ',
+            dpdSleDetectionOutput', 'dpdSleModelOutput',
+            'DpdSirCombinedSpectra'
 
         product_type : str, mandatory, default None
             Available product types:
@@ -862,7 +869,6 @@ class EuclidClass(TapPlus):
 
                 #. VIS
                     DpdVisCalibratedQuadFrame: VIS Calibrated Frame Product
-                    DpdVisCalibratedCatalog: VIS Calibrated Catalogue Product
                     DpdVisCalibratedFrameCatalog: VIS Calibrated Frame Catalog
                     DpdVisStackedFrame: Vis Stacked Frame Product
                     DpdVisStackedFrameCatalog: Vis Stacked Catalogue Product
