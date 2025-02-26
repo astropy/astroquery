@@ -91,19 +91,11 @@ class EsoClass(QueryWithLogin):
         self._collections: Optional[List[str]] = None
         self._auth_info: Optional[AuthInfo] = None
         self._hash = None
-        self.USE_DEV_TAP = True
 
     def tap_url(self) -> str:
-        url = conf.tap_url
-        if self.USE_DEV_TAP:
-            try:
-                url = os.environ['TAP_URL']
-            except KeyError as e:
-                raise KeyError(
-                    "Running on dev mode, but TAP_URL environment variable is not set"
-                ) from e
-            logmsg = f"Using dev tap url: {url}"
-            log.info(logmsg)
+        url = os.environ.get('ESO_TAP_URL', conf.tap_url)
+        logmsg = f"Using tap_url = {url}"
+        log.info(logmsg)
         return url
 
     def _authenticate(self, *, username: str, password: str) -> bool:
