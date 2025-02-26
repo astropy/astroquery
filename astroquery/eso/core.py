@@ -10,6 +10,7 @@ European Southern Observatory (ESO)
 
 import base64
 import email
+import functools
 import json
 import os
 import os.path
@@ -75,6 +76,26 @@ class EsoNames:
     @staticmethod
     def ist_table(instrument_name):
         return f"ist.{instrument_name}"
+
+
+def unlimited_max_rec(func):
+    """
+    decorator to overwrite the ROW LIMIT
+    for specific queries
+    """
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        if not isinstance(self, EsoClass):
+            raise ValueError(f"Expecting EsoClass, found {type(self)}")
+
+        tmpvar = self.ROW_LIMIT
+        try:
+            self.ROW_LIMIT = sys.maxsize
+            result = func(self, *args, **kwargs)
+        finally:
+            self.ROW_LIMIT = tmpvar
+        return result
+    return wrapper
 
 
 class EsoClass(QueryWithLogin):
@@ -224,6 +245,7 @@ class EsoClass(QueryWithLogin):
 
         return table_to_return
 
+    @unlimited_max_rec
     def list_instruments(self) -> List[str]:
         """ List all the available instrument-specific queries offered by the ESO archive.
 
@@ -231,19 +253,15 @@ class EsoClass(QueryWithLogin):
         -------
         instrument_list : list of strings
         """
-        tmpvar = self.ROW_LIMIT
-        self.ROW_LIMIT = sys.maxsize
-        try:
-            if self._instruments is None:
-                self._instruments = []
-                query_str = ("select table_name from TAP_SCHEMA.tables "
-                             "where schema_name='ist' order by table_name")
-                res = self.query_tap_service(query_str)["table_name"].data
-                self._instruments = list(map(lambda x: x.split(".")[1], res))
-        finally:
-            self.ROW_LIMIT = tmpvar
+        if self._instruments is None:
+            self._instruments = []
+            query_str = ("select table_name from TAP_SCHEMA.tables "
+                         "where schema_name='ist' order by table_name")
+            res = self.query_tap_service(query_str)["table_name"].data
+            self._instruments = list(map(lambda x: x.split(".")[1], res))
         return self._instruments
 
+    @unlimited_max_rec
     def list_collections(self) -> List[str]:
         """ List all the available collections (phase 3) in the ESO archive.
 
@@ -254,21 +272,16 @@ class EsoClass(QueryWithLogin):
             Defaults to True. If set overrides global caching behavior.
             See :ref:`caching documentation <astroquery_cache>`.
         """
-        tmpvar = self.ROW_LIMIT
-        self.ROW_LIMIT = sys.maxsize
-        try:
-            if self._collections is None:
-                self._collections = []
-                t = EsoNames.phase3_table
-                c = EsoNames.phase3_collections_column
-                query_str = f"select distinct {c} from {t}"
-                res = self.query_tap_service(query_str)[c].data
-
-                self._collections = list(res)
-        finally:
-            self.ROW_LIMIT = tmpvar
+        if self._collections is None:
+            self._collections = []
+            t = EsoNames.phase3_table
+            c = EsoNames.phase3_collections_column
+            query_str = f"select distinct {c} from {t}"
+            res = self.query_tap_service(query_str)[c].data
+            self._collections = list(res)
         return self._collections
 
+    @unlimited_max_rec
     def print_table_help(self, table_name: str) -> None:
         """
         Prints the columns contained in a given table
