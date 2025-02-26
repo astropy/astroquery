@@ -9,7 +9,6 @@ European Southern Observatory (ESO)
 """
 
 from collections import Counter
-import numpy as np
 import pytest
 
 from astropy.table import Table
