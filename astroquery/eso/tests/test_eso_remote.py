@@ -61,17 +61,17 @@ class TestEso:
         # since in this case the results are truncated, a warning is issued
 
         with pytest.warns(MaxResultsWarning):
-            table = eso.query_instrument('UVES', cache=False)
+            table = eso.query_instrument('UVES')
             n = len(table)
             assert n == eso.ROW_LIMIT, f"Expected {eso.ROW_LIMIT}; Obtained {n}"
 
         with pytest.warns(MaxResultsWarning):
-            table = eso.query_collections('VVV', cache=False)
+            table = eso.query_collections('VVV')
             n = len(table)
             assert n == eso.ROW_LIMIT, f"Expected {eso.ROW_LIMIT}; Obtained {n}"
 
         with pytest.warns(MaxResultsWarning):
-            table = eso.query_main(cache=False)
+            table = eso.query_main()
             n = len(table)
             assert n == eso.ROW_LIMIT, f"Expected {eso.ROW_LIMIT}; Obtained {n}"
 
@@ -82,15 +82,15 @@ class TestEso:
         eso.ROW_LIMIT = None
         # in this case the results are NOT truncated, no warnings should be issued
 
-        table = eso.query_instrument('UVES', cache=False, top=top)
+        table = eso.query_instrument('UVES', top=top)
         n = len(table)
         assert n == top, f"Expected {top}; Obtained {n}"
 
-        table = eso.query_collections('VVV', cache=False, top=top)
+        table = eso.query_collections('VVV', top=top)
         n = len(table)
         assert n == top, f"Expected {top}; Obtained {n}"
 
-        table = eso.query_main(cache=False, top=top)
+        table = eso.query_main(top=top)
         n = len(table)
         assert n == top, f"Expected {top}; Obtained {n}"
 
@@ -99,23 +99,22 @@ class TestEso:
         eso = Eso()
         eso.ROW_LIMIT = 1
 
-        instruments = eso.list_instruments(cache=False)
+        instruments = eso.list_instruments()
         # in principle, we should run both of these tests
         # result_i = eso.query_instrument('midi', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
         with pytest.warns(MaxResultsWarning):
             result_i = eso.query_instrument('midi', ra=266.41681662,
-                                            dec=-29.00782497, radius=1.0, cache=False)
+                                            dec=-29.00782497, radius=1.0)
 
-        collections = eso.list_collections(cache=False)
+        collections = eso.list_collections()
         assert len(collections) > 0
         # result_s = eso.query_collections('VVV', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
         with pytest.warns(MaxResultsWarning):
             result_s = eso.query_collections(collections='VVV', ra=266.41681662,
                                              dec=-29.00782497,
-                                             radius=1.0,
-                                             cache=False)
+                                             radius=1.0)
 
         assert 'midi' in instruments
         assert result_i is not None
@@ -146,8 +145,7 @@ class TestEso:
             result_s = eso.query_collections(collections=test_collections,
                                              ra=266.41681662,
                                              dec=-29.00782497,
-                                             radius=1.0,
-                                             cache=False)
+                                             radius=1.0)
 
         assert result_s is not None
         assert 'target_name' in result_s.colnames
@@ -160,13 +158,13 @@ class TestEso:
     def test_empty_return(self):
         # test for empty return with an object from the North
         eso = Eso()
-        collections = eso.list_collections(cache=False)
+        collections = eso.list_collections()
         assert len(collections) > 0
 
         # Avoid SESAME
         with pytest.warns(NoResultsWarning):
             result_s = eso.query_collections(collections=collections[0], ra=202.469575,
-                                             dec=47.195258, radius=1.0, cache=False)
+                                             dec=47.195258, radius=1.0)
 
         assert len(result_s) == 0
 
@@ -179,18 +177,18 @@ class TestEso:
         # Remote version
         with pytest.warns(MaxResultsWarning):
             result1 = eso.query_instrument(instrument, ra=266.41681662,
-                                           dec=-29.00782497, radius=1.0, cache=False)
+                                           dec=-29.00782497, radius=1.0)
         # Local version
         eso.cache_location = tmp_path
         with pytest.warns(MaxResultsWarning):
             result2 = eso.query_instrument(instrument, ra=266.41681662,
-                                           dec=-29.00782497, radius=1.0, cache=True)
+                                           dec=-29.00782497, radius=1.0)
         assert all(result1.values_equal(result2))
 
     def test_list_instruments(self):
         # If this test fails, we may simply need to update it
 
-        inst = set(Eso.list_instruments(cache=False))
+        inst = set(Eso.list_instruments())
 
         # TODO ############ restore when they are fixed in TAP #
         try:
@@ -232,16 +230,7 @@ class TestEso:
         eso.query_instrument(instrument, print_help=True)
 
     def test_apex_retrieval(self):
-        eso = Eso()
-
-        tbl = eso.query_apex_quicklooks(prog_id='095.F-9802', cache=False)
-        tblb = eso.query_apex_quicklooks(project_id='095.F-9802', cache=False)
-
-        assert len(tbl) == 5
-        assert set(tbl['Release Date']) == {'2015-07-17', '2015-07-18',
-                                            '2015-09-15', '2015-09-18'}
-
-        assert np.all(tbl == tblb)
+        raise NotImplementedError
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_each_instrument_SgrAstar(self, tmp_path):
@@ -249,7 +238,7 @@ class TestEso:
         eso.cache_location = tmp_path
         eso.ROW_LIMIT = 5
 
-        instruments = eso.list_instruments(cache=False)
+        instruments = eso.list_instruments()
 
         # TODO: restore all of these instruments when they are fixed in the TAP ists ##################################
         try:
@@ -272,8 +261,7 @@ class TestEso:
             try:
                 with pytest.warns(MaxResultsWarning):
                     result = eso.query_instrument(instrument,
-                                                  ra=266.41681662, dec=-29.00782497, radius=1.0,
-                                                  cache=False)
+                                                  ra=266.41681662, dec=-29.00782497, radius=1.0)
             except NoResultsWarning:  # we don't care if there are no results
                 pass
             else:
@@ -286,20 +274,18 @@ class TestEso:
         eso.cache_location = tmp_path
         eso.ROW_LIMIT = 1
 
-        collections = eso.list_collections(cache=False)
+        collections = eso.list_collections()
         for collection in collections:
             if collection in SGRA_COLLECTIONS:
                 with pytest.warns(MaxResultsWarning):
                     result_s = eso.query_collections(collections=collection,
-                                                     ra=266.41681662, dec=-29.00782497, radius=0.1775,
-                                                     cache=False)
+                                                     ra=266.41681662, dec=-29.00782497, radius=0.1775)
                 assert len(result_s) > 0
             else:
                 with pytest.warns(NoResultsWarning):
                     result_s = eso.query_collections(collections=collection, ra=266.41681662,
                                                      dec=-29.00782497,
-                                                     radius=0.1775,
-                                                     cache=False)
+                                                     radius=0.1775)
                     assert len(result_s) == 0, f"Failed for collection {collection}"
 
                 with pytest.warns(MaxResultsWarning):
@@ -318,9 +304,9 @@ class TestEso:
 
         with pytest.warns(MaxResultsWarning):
             result1 = eso.query_instrument('midi', ra=266.41681662,
-                                           dec=-29.00782497, radius=1.0, cache=False)
+                                           dec=-29.00782497, radius=1.0)
             result2 = eso.query_instrument('MiDi', ra=266.41681662,
-                                           dec=-29.00782497, radius=1.0, cache=False)
+                                           dec=-29.00782497, radius=1.0)
 
         assert all(result1.values_equal(result2))
 
@@ -330,7 +316,7 @@ class TestEso:
         eso.ROW_LIMIT = 5
 
         with pytest.warns(MaxResultsWarning):
-            result = eso.query_main(target='SGR A', object='SGR A', cache=False)
+            result = eso.query_main(target='SGR A', object='SGR A')
 
         assert len(result) == 5
         assert 'SGR A' in result['object']
