@@ -870,13 +870,13 @@ class EuclidClass(TapPlus):
                 #. VIS
                     DpdVisCalibratedQuadFrame: VIS Calibrated Frame Product
                     DpdVisCalibratedFrameCatalog: VIS Calibrated Frame Catalog
-                    DpdVisStackedFrame: Vis Stacked Frame Product
-                    DpdVisStackedFrameCatalog: Vis Stacked Catalogue Product
+                    DpdVisStackedFrame: Vis Stacked Frame Product   - This product is not available in Q1
+                    DpdVisStackedFrameCatalog: Vis Stacked Catalogue Product    - This product is not available in Q1
                 #. NIR
                     DpdNirCalibratedFrame: NIR Calibrated Frame
                     DpdNirCalibratedFrameCatalog: NIR Calibrated Frame Catalog
-                    DpdNirStackedFrame: NIR Stacked Frame
-                    DpdNirStackedFrameCatalog: NIR Stacked Frame Catalog
+                    DpdNirStackedFrame: NIR Stacked Frame   - This product is not available in Q1
+                    DpdNirStackedFrameCatalog: NIR Stacked Frame Catalog    - This product is not available in Q1
                 #. MER
                      DpdMerSegmentationMap: Segmentation Map Product
                      DpdMerBksMosaic: Background-Subtracted Mosaic Product
