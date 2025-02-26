@@ -16,7 +16,7 @@ import pytest
 
 from astroquery.utils.mocks import MockResponse
 from ...eso import Eso
-from ...eso.utils import py2adql, read_table_from_file
+from ...eso.utils import py2adql
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -162,14 +162,7 @@ def test_list_instruments(monkeypatch):
 
 
 def test_apex_quicklooks(monkeypatch):
-    eso = Eso()
-    monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
-    p_id = '095.F-9802'
-    table = eso.query_apex_quicklooks(prog_id=p_id, cache=True)
-
-    assert len(table) == 5
-    assert set(table['Release Date']) == {'2015-07-17', '2015-07-18',
-                                          '2015-09-15', '2015-09-18'}
+    raise NotImplementedError
 
 
 def test_authenticate(monkeypatch):
@@ -210,30 +203,6 @@ def test_cached_file():
     filename = os.path.join(DATA_DIR, 'testfile.fits.Z')
     assert eso._find_cached_file(filename) is True
     assert eso._find_cached_file("non_existent_filename") is False
-
-
-def test_from_cache():
-    query_str = "generic cached query"
-    filepath = os.path.join(DATA_DIR, DATA_FILES['ADQL'][query_str])
-    table_directly_from_file = read_table_from_file(filepath)
-    eso_instance = Eso()
-    eso_instance.cache_location = DATA_DIR
-
-    # Cached file does not exist
-    table_from_cache = eso_instance.from_cache(query_str="not cached query", cache_timeout=None)
-    assert table_from_cache is None
-
-    # File is expired
-    table_from_cache = eso_instance.from_cache(query_str=query_str, cache_timeout=0.01)
-    assert table_from_cache is None
-
-    # The file exists but is not a table:
-    table_from_cache = eso_instance.from_cache(query_str="query points to non table file", cache_timeout=None)
-    assert table_from_cache is None
-
-    # Getting a valid cached table
-    table_from_cache = eso_instance.from_cache(query_str=query_str, cache_timeout=None)
-    assert all(table_from_cache.values_equal(table_directly_from_file))
 
 
 def test_calselector(monkeypatch, tmp_path):
@@ -296,16 +265,6 @@ def test_tap_url():
     # set again the env vars, in case we deleted it earlier
     if tmpvar:
         os.environ[tap_url_env_var] = tmpvar
-
-
-def test_request_file():
-    eso_instance = Eso()
-    teststr = "generic cached query"
-    obtained = eso_instance.request_file(teststr)
-    obtained = os.path.split(obtained)[1]
-    expected = DATA_FILES['ADQL'][teststr]
-    assert obtained == expected, (f"Expected result: {expected}; "
-                                  f"Obtained result: {obtained}")
 
 
 def test_py2adql():

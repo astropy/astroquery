@@ -24,7 +24,6 @@ from typing import List, Optional, Tuple, Dict, Set, Union
 
 import astropy.table
 import astropy.utils.data
-import astropy.units as u
 import keyring
 import requests.exceptions
 from astropy.table import Table, Column
@@ -32,15 +31,14 @@ from astropy.utils.decorators import deprecated_renamed_argument
 from bs4 import BeautifulSoup
 import pyvo
 
-from astroquery import log, cache_conf
+from astroquery import log
 from . import conf
 from ..exceptions import RemoteServiceError, LoginError, \
     NoResultsWarning, MaxResultsWarning
 from ..query import QueryWithLogin
 from ..utils import schema
 from .utils import py2adql, _split_str_as_list_of_str, \
-    adql_sanitize_val, to_cache, eso_hash, are_coords_valid, \
-    read_table_from_file, is_file_expired
+    adql_sanitize_val, are_coords_valid
 
 __doctest_skip__ = ['EsoClass.*']
 
@@ -87,25 +85,13 @@ class EsoClass(QueryWithLogin):
     AUTH_URL = "https://www.eso.org/sso/oidc/token"
     GUNZIP = "gunzip"
 
-    def __init__(self, timeout=None):
+    def __init__(self):
         super().__init__()
         self._instruments: Optional[List[str]] = None
         self._collections: Optional[List[str]] = None
         self._auth_info: Optional[AuthInfo] = None
-        self.timeout = timeout  # TODO: Is this timeout for login?
         self._hash = None
-        self.USE_DEV_TAP = False
-
-    @property
-    def timeout(self):
-        return self._timeout
-
-    @timeout.setter
-    def timeout(self, value):
-        if hasattr(value, 'to'):
-            self._timeout = value.to(u.s).value
-        else:
-            self._timeout = value
+        self.USE_DEV_TAP = True
 
     def tap_url(self) -> str:
         url = conf.tap_url
@@ -119,37 +105,6 @@ class EsoClass(QueryWithLogin):
             logmsg = f"Using dev tap url: {url}"
             log.info(logmsg)
         return url
-
-    def request_file(self, query_str: str):
-        h = eso_hash(query_str=query_str, url=self.tap_url())
-        fn = self.cache_location.joinpath(h + ".pickle")
-        return fn
-
-    def from_cache(self, query_str, cache_timeout):
-        table_file = self.request_file(query_str)
-        expired = is_file_expired(table_file, cache_timeout)
-        cached_table = None
-        if not expired:
-            cached_table = self.read_cached_table(table_file)
-        else:
-            logmsg = (f"Cache expired for {table_file} ...")
-            log.debug(logmsg)
-        return cached_table
-
-    def read_cached_table(self, table_file):
-        try:
-            cached_table = read_table_from_file(table_file)
-        except FileNotFoundError:
-            cached_table = None
-
-        if not isinstance(cached_table, Table):
-            cached_table = None
-
-        if cached_table:
-            logmsg = (f"Retrieved data from {table_file} ...")
-            log.debug(logmsg)
-
-        return cached_table
 
     def _authenticate(self, *, username: str, password: str) -> bool:
         """
@@ -237,7 +192,7 @@ class EsoClass(QueryWithLogin):
 
     def query_tap_service(self,
                           query_str: str,
-                          cache: Optional[bool] = None) -> Optional[astropy.table.Table]:
+                          ) -> Optional[astropy.table.Table]:
         """
         returns an astropy.table.Table from an adql query string
         Example use:
@@ -248,22 +203,12 @@ class EsoClass(QueryWithLogin):
             if self.ROW_LIMIT > 0:
                 maxrec = self.ROW_LIMIT
 
-        if cache is None:  # Global caching not overridden
-            cache = cache_conf.cache_active
-
         tap = pyvo.dal.TAPService(self.tap_url())
         table_to_return = None
         logmsg = f"querystr = {query_str}"
         log.debug(logmsg)
         try:
-            if not cache:
-                with cache_conf.set_temp("cache_active", False):
-                    table_to_return = tap.search(query_str, maxrec=maxrec).to_table()
-            else:
-                table_to_return = self.from_cache(query_str, cache_conf.cache_timeout)
-                if not table_to_return:
-                    table_to_return = tap.search(query_str, maxrec=maxrec).to_table()
-                    to_cache(table_to_return, self.request_file(query_str=query_str))
+            table_to_return = tap.search(query_str, maxrec=maxrec).to_table()
 
         except pyvo.dal.exceptions.DALQueryError as e:
             raise pyvo.dal.exceptions.DALQueryError(
@@ -287,16 +232,12 @@ class EsoClass(QueryWithLogin):
 
         return table_to_return
 
-    def list_instruments(self, *, cache=True) -> List[str]:
+    def list_instruments(self) -> List[str]:
         """ List all the available instrument-specific queries offered by the ESO archive.
 
         Returns
         -------
         instrument_list : list of strings
-        cache : bool
-            Defaults to True. If set overrides global caching behavior.
-            See :ref:`caching documentation <astroquery_cache>`.
-
         """
         tmpvar = self.ROW_LIMIT
         self.ROW_LIMIT = sys.maxsize
@@ -305,13 +246,13 @@ class EsoClass(QueryWithLogin):
                 self._instruments = []
                 query_str = ("select table_name from TAP_SCHEMA.tables "
                              "where schema_name='ist' order by table_name")
-                res = self.query_tap_service(query_str, cache=cache)["table_name"].data
+                res = self.query_tap_service(query_str)["table_name"].data
                 self._instruments = list(map(lambda x: x.split(".")[1], res))
         finally:
             self.ROW_LIMIT = tmpvar
         return self._instruments
 
-    def list_collections(self, *, cache=True) -> List[str]:
+    def list_collections(self) -> List[str]:
         """ List all the available collections (phase 3) in the ESO archive.
 
         Returns
@@ -329,7 +270,7 @@ class EsoClass(QueryWithLogin):
                 t = EsoNames.phase3_table
                 c = EsoNames.phase3_collections_column
                 query_str = f"select distinct {c} from {t}"
-                res = self.query_tap_service(query_str, cache=cache)[c].data
+                res = self.query_tap_service(query_str)[c].data
 
                 self._collections = list(res)
         finally:
@@ -361,7 +302,6 @@ class EsoClass(QueryWithLogin):
             top: int = None,
             count_only: bool = False,
             print_help: bool = False,
-            cache: bool = True,
             **kwargs) -> Union[astropy.table.Table, int]:
         """
         Query instrument- or collection-specific data contained in the ESO archive.
@@ -402,7 +342,7 @@ class EsoClass(QueryWithLogin):
                         count_only=count_only,
                         top=top)
 
-        table_to_return = self.query_tap_service(query_str=query, cache=cache)
+        table_to_return = self.query_tap_service(query_str=query)
 
         if count_only:  # this below is an int, not a table
             table_to_return = list(table_to_return[0].values())[0]
@@ -416,7 +356,7 @@ class EsoClass(QueryWithLogin):
             columns: Union[List, str] = None,
             top: int = None,
             count_only: bool = False,
-            print_help=False, cache=True,
+            print_help=False,
             **kwargs) -> Union[astropy.table.Table, int]:
         return self._query_on_allowed_values(table_name=EsoNames.phase3_table,
                                              column_name=EsoNames.phase3_collections_column,
@@ -425,7 +365,7 @@ class EsoClass(QueryWithLogin):
                                              columns=columns,
                                              top=top,
                                              count_only=count_only,
-                                             print_help=print_help, cache=cache,
+                                             print_help=print_help,
                                              **kwargs)
 
     def query_main(
@@ -435,7 +375,7 @@ class EsoClass(QueryWithLogin):
             columns: Union[List, str] = None,
             top: int = None,
             count_only: bool = False,
-            print_help=False, cache=True,
+            print_help=False,
             **kwargs) -> Union[astropy.table.Table, int]:
         return self._query_on_allowed_values(table_name=EsoNames.raw_table,
                                              column_name=EsoNames.raw_instruments_column,
@@ -444,7 +384,7 @@ class EsoClass(QueryWithLogin):
                                              columns=columns,
                                              top=top,
                                              count_only=count_only,
-                                             print_help=print_help, cache=cache,
+                                             print_help=print_help,
                                              **kwargs)
 
     # ex query_instrument
@@ -455,7 +395,7 @@ class EsoClass(QueryWithLogin):
             columns: Union[List, str] = None,
             top: int = None,
             count_only: bool = False,
-            print_help=False, cache=True,
+            print_help=False,
             **kwargs) -> Union[astropy.table.Table, int]:
         return self._query_on_allowed_values(table_name=EsoNames.ist_table(instrument),
                                              column_name=None,
@@ -464,7 +404,7 @@ class EsoClass(QueryWithLogin):
                                              columns=columns,
                                              top=top,
                                              count_only=count_only,
-                                             print_help=print_help, cache=cache,
+                                             print_help=print_help,
                                              **kwargs)
 
     def get_headers(self, product_ids, *, cache=True):
@@ -790,7 +730,7 @@ class EsoClass(QueryWithLogin):
     @deprecated_renamed_argument(('open_form', 'help'), (None, 'print_help'),
                                  since=['0.4.8', '0.4.8'])
     def query_apex_quicklooks(self, *, project_id=None, print_help=False,
-                              open_form=False, cache=True, **kwargs):
+                              open_form=False, **kwargs):
         """
         APEX data are distributed with quicklook products identified with a
         different name than other ESO products.  This query tool searches by
@@ -803,11 +743,7 @@ class EsoClass(QueryWithLogin):
         """
         # TODO All this function
         _ = project_id, print_help, open_form, kwargs
-        if cache:
-            query = "APEX_QUERY_PLACEHOLDER"
-            return self.query_tap_service(query_str=query, cache=cache)
-        else:
-            raise NotImplementedError
+        raise NotImplementedError
 
 
 Eso = EsoClass()
