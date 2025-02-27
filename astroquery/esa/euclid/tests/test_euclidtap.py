@@ -52,7 +52,7 @@ def data_path(filename):
 
 
 @pytest.fixture(autouse=True)
-def remove_temp_dirs():
+def run_before_and_after_tests():
     yield
     remove_temp_dir()
 
