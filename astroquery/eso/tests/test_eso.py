@@ -161,10 +161,6 @@ def test_list_instruments(monkeypatch):
     assert set(TEST_INSTRUMENTS) <= set(saved_list)
 
 
-def test_apex_quicklooks(monkeypatch):
-    raise NotImplementedError
-
-
 def test_authenticate(monkeypatch):
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
@@ -257,6 +253,7 @@ def test_tap_url():
 
 
 def test_py2adql():
+    """
     #  Example query:
     #
     #  SELECT
@@ -274,7 +271,7 @@ def test_py2adql():
     #  AND
     #      em_max<1.2e-6
     #  ORDER BY SNR DESC
-    #
+    """
 
     # Simple tests
     q = py2adql('ivoa.ObsCore')
