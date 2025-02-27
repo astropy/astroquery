@@ -392,12 +392,18 @@ class MastMissionsClass(MastQueryWithLogin):
             dataset_chunks = list(utils.split_list_into_chunks(datasets, max_batch))
 
             results = []  # list to store responses from each batch
-            with ProgressBarOrSpinner(len(dataset_chunks), f'Fetching products for {num_datasets} unique datasets '
+            with ProgressBarOrSpinner(num_datasets, f'Fetching products for {num_datasets} unique datasets '
                                       f'in {len(dataset_chunks)} batches ...') as pb:
-                for i, chunk in enumerate(dataset_chunks):
-                    pb.update(i)
+                datasets_fetched = 0
+                pb.update(0)
+                for chunk in dataset_chunks:
+                    # Send request for each chunk and add response to list
                     params = {'dataset_ids': chunk}
                     results.append(self._service_api_connection.missions_request_async(self.service, params))
+
+                    # Update progress bar with the number of datasets that have had products fetched
+                    datasets_fetched += len(chunk)
+                    pb.update(datasets_fetched)
             return results
         else:
             # Single batch request
