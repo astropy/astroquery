@@ -21,6 +21,7 @@ from requests import HTTPError, RequestException
 from astroquery import log
 from astroquery.utils import commons, async_to_sync
 from astroquery.utils.class_or_instance import class_or_instance
+from astropy.utils.console import ProgressBarOrSpinner
 from astroquery.exceptions import InvalidQueryError, MaxResultsWarning, InputWarning, NoResultsWarning
 
 from astroquery.mast import utils
@@ -106,7 +107,13 @@ class MastMissionsClass(MastQueryWithLogin):
                               MaxResultsWarning)
         elif self.service == self._list_products:
             # Results from post_list_products endpoint need to be handled differently
-            results = Table(response.json()['products'])
+            if isinstance(response, list):  # multiple async responses from batching
+                combined_products = []
+                for resp in response:
+                    combined_products.extend(resp.json().get('products', []))
+                return Table(combined_products)
+
+            results = Table(response.json()['products'])  # single async response
 
         return results
 
@@ -370,13 +377,32 @@ class MastMissionsClass(MastQueryWithLogin):
                             'list of strings, Astropy Row, Astropy Column, or Astropy Table.')
 
         # Filter out empty strings from IDs
-        datasets = [item.strip() for item in datasets if item.strip() != '' and item is not None]
-        if not len(datasets):
+        datasets = [item.strip() for item in datasets if item and item.strip()]
+        if not datasets:
             raise InvalidQueryError("Dataset list is empty, no associated products.")
 
-        # Send async service request
-        params = {'dataset_ids': datasets}
-        return self._service_api_connection.missions_request_async(self.service, params)
+        # Filter out duplicates
+        datasets = list(set(datasets))
+
+        # Batch API calls if number of datasets exceeds maximum
+        max_batch = 1000
+        num_datasets = len(datasets)
+        if num_datasets > max_batch:
+            # Split datasets into chunks
+            dataset_chunks = list(utils.split_list_into_chunks(datasets, max_batch))
+
+            results = []  # list to store responses from each batch
+            with ProgressBarOrSpinner(len(dataset_chunks), f'Fetching products for {num_datasets} unique datasets '
+                                      f'in {len(dataset_chunks)} batches ...') as pb:
+                for i, chunk in enumerate(dataset_chunks):
+                    pb.update(i)
+                    params = {'dataset_ids': chunk}
+                    results.append(self._service_api_connection.missions_request_async(self.service, params))
+            return results
+        else:
+            # Single batch request
+            params = {'dataset_ids': datasets}
+            return self._service_api_connection.missions_request_async(self.service, params)
 
     def get_unique_product_list(self, datasets):
         """
