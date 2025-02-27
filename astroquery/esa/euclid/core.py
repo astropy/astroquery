@@ -197,7 +197,7 @@ class EuclidClass(TapPlus):
         except Exception as exx:
             log.error(f'Query failed: {query}, {str(exx)}')
 
-    def query_object(self, coordinate, radius=None, width=None, height=None,
+    def query_object(self, coordinate, *, radius=None, width=None, height=None,
                      async_job=False, verbose=False, columns=None):
         """
         Description
