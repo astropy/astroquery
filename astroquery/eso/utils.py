@@ -5,6 +5,8 @@ utils.py: helper functions for the astropy.eso module
 """
 
 from typing import Union, List
+import warnings
+from ..exceptions import NoResultsWarning, MaxResultsWarning
 
 
 def _split_str_as_list_of_str(column_str: str):
@@ -49,6 +51,20 @@ def are_coords_valid(ra: float = None,
             and isinstance(dec, (float, int))
             and isinstance(radius, (float, int)))
     return is_a_valid_combination
+
+
+def issue_table_length_warnings(table, maxrec):
+    """
+    Issues a warning when a table is empty or when the
+    results are truncated
+    """
+    if len(table) < 1:
+        warnings.warn("Query returned no results", NoResultsWarning)
+
+    if len(table) == maxrec:
+        warnings.warn(f"Results truncated to {maxrec}. "
+                      "To retrieve all the records set to None the ROW_LIMIT attribute",
+                      MaxResultsWarning)
 
 
 def py2adql(table: str, columns: Union[List, str] = None,
