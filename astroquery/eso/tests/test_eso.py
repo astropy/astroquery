@@ -269,6 +269,33 @@ def test_adql_sanitize_val():
     assert adql_sanitize_val(1.5) == "1.5"
     assert adql_sanitize_val("1.5") == "'1.5'"
 
+def test_maxrec():
+    eso_instance = Eso()
+
+    # 50 is the default value in the conf
+    maxrec = eso_instance.maxrec
+    assert maxrec == 50
+
+    # we change it to 5
+    eso_instance.maxrec = 5
+    maxrec = eso_instance.maxrec
+    assert maxrec == 5
+
+    # change it to no-truncation
+    eso_instance.maxrec = None
+    maxrec = eso_instance.maxrec
+    assert maxrec == sys.maxsize
+
+    # no truncation
+    eso_instance.maxrec = 0
+    maxrec = eso_instance.maxrec
+    assert maxrec == sys.maxsize
+
+    # no truncation
+    eso_instance.maxrec = -1
+    maxrec = eso_instance.maxrec
+    assert maxrec == sys.maxsize
+
 
 def test_py2adql():
     """
