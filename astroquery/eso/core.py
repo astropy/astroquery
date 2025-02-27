@@ -115,7 +115,6 @@ class EsoClass(QueryWithLogin):
 
     def tap_url(self) -> str:
         url = os.environ.get('ESO_TAP_URL', conf.tap_url)
-        log.info(f"Using tap_url = {url}")
         return url
 
     def _authenticate(self, *, username: str, password: str) -> bool:
@@ -234,7 +233,8 @@ class EsoClass(QueryWithLogin):
 
         if len(table_to_return) == maxrec:
             warnings.warn(f"Results truncated to {maxrec}. "
-                          "To retrieve all the records set to None the ROW_LIMIT attribute", MaxResultsWarning)
+                          "To retrieve all the records set to None the ROW_LIMIT attribute",
+                          MaxResultsWarning)
 
         return table_to_return
 
