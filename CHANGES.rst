@@ -14,6 +14,8 @@ esa.euclid
 
 - New module to access the ESA Euclid Archive. [#3216]
 
+- Tests remove temp directories. [#3226]
+
 mast
 ^^^^
 

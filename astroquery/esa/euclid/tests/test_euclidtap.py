@@ -9,6 +9,7 @@ European Space Agency (ESA)
 import glob
 import os
 import shutil
+from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch
 
@@ -48,6 +49,25 @@ TEST_GET_PRODUCT_LIST = Path(PRODUCT_LIST_FILE_NAME).read_text()
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
+
+
+@pytest.fixture(autouse=True)
+def remove_temp_dirs():
+    yield
+    remove_temp_dir()
+
+
+@pytest.fixture(scope="module")
+def mock_querier():
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+
+    launch_response = DummyResponse(200)
+    launch_response.set_data(method="POST", body=JOB_DATA)
+    # The query contains decimals: default response is more robust.
+    conn_handler.set_default_response(launch_response)
+
+    return EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
 
 @pytest.fixture(scope="module")
@@ -657,7 +677,7 @@ def test_get_product_list_errors():
     assert str(exc_info.value).startswith("Invalid product type DpdMerBksMosaic.")
 
 
-def test_get_product_by_product_id():
+def test_get_product_by_product_id(tmp_path_factory):
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
                        connhandler=conn_handler)
@@ -669,11 +689,23 @@ def test_get_product_by_product_id():
 
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
-    result = tap.get_product(product_id=123456789, output_file=None)
+    result = tap.get_product(product_id='123456789', output_file=None)
 
     assert result is not None
 
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
     remove_temp_dir()
+
+    fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.fits')
+
+    result = tap.get_product(product_id='123456789', output_file=fits_file)
+
+    assert result is not None
 
 
 def test_get_product():
@@ -693,6 +725,12 @@ def test_get_product():
 
     assert result is not None
 
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
     remove_temp_dir()
 
 
@@ -711,7 +749,7 @@ def test_get_product_exceptions():
     with pytest.raises(ValueError) as exc_info:
         tap.get_product(file_name=None, product_id=None, output_file=None)
 
-    assert str(exc_info.value).startswith("'file_name' and 'product_id' are both None")
+    str(exc_info.value).startswith("'file_name' and 'product_id' are both None")
 
 
 @patch.object(TapPlus, 'load_data')
@@ -741,8 +779,16 @@ def test_get_product_exceptions_2(mock_load_data, caplog):
     mssg = "Cannot retrieve products for file_name hola.fits or product_id None: launch_job_async Exception"
     assert caplog.records[1].msg == mssg
 
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
 
-def test_get_obs_products():
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    remove_temp_dir()
+
+
+def test_get_observation_products(tmp_path_factory):
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
                        connhandler=conn_handler)
@@ -762,8 +808,22 @@ def test_get_obs_products():
 
     assert result is not None
 
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
 
-def test_get_obs_products_exceptions():
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    remove_temp_dir()
+
+    fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.fits')
+
+    result = tap.get_observation_products(id='13', product_type='mosaic', filter='VIS', output_file=fits_file)
+
+    assert result is not None
+
+
+def test_get_observation_products_exceptions():
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
                        connhandler=conn_handler)
@@ -781,18 +841,18 @@ def test_get_obs_products_exceptions():
     assert str(exc_info.value).startswith("Missing required argument: 'observation_id'")
 
     with pytest.raises(ValueError) as exc_info:
-        tap.get_observation_products(id=12, product_type=None, filter='VIS', output_file=None)
+        tap.get_observation_products(id='12', product_type=None, filter='VIS', output_file=None)
 
     assert str(exc_info.value).startswith("Missing required argument: 'product_type'")
 
     with pytest.raises(ValueError) as exc_info:
-        tap.get_observation_products(id=12, product_type='XXXXXXXX', filter='VIS', output_file=None)
+        tap.get_observation_products(id='12', product_type='XXXXXXXX', filter='VIS', output_file=None)
 
     assert str(exc_info.value).startswith("Invalid product type XXXXXXXX. Valid values: ['observation', 'mosaic']")
 
 
 @patch.object(TapPlus, 'load_data')
-def test_get_obs_products_exceptions_2(mock_load_data, caplog):
+def test_get_observation_products_exceptions_2(mock_load_data, caplog):
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
                        connhandler=conn_handler)
@@ -806,17 +866,19 @@ def test_get_obs_products_exceptions_2(mock_load_data, caplog):
 
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
-    tap.get_observation_products(id=12345, product_type='observation', filter='VIS', output_file=None)
+    tap.get_observation_products(id='12345', product_type='observation', filter='VIS', output_file=None)
 
     mssg = "Cannot retrieve products for observation 12345. HTTP error: launch_job_async HTTPError"
     assert caplog.records[0].msg == mssg
 
     mock_load_data.side_effect = Exception("launch_job_async Exception")
 
-    tap.get_observation_products(id=12345, product_type='observation', filter='VIS', output_file=None)
+    tap.get_observation_products(id='12345', product_type='observation', filter='VIS', output_file=None)
 
     mssg = "Cannot retrieve products for observation 12345: launch_job_async Exception"
     assert caplog.records[1].msg == mssg
+
+    remove_temp_dir()
 
 
 def test_get_cutout():
@@ -844,6 +906,8 @@ def test_get_cutout():
         instrument='NISP', id='19704', coordinate=c, radius=r, output_file=None)
 
     assert result is not None
+
+    remove_temp_dir()
 
 
 def test_get_cutout_exception():
@@ -936,7 +1000,7 @@ def test_get_cutout_exceptions_2(mock_load_data, caplog):
     assert caplog.records[1].msg == mssg
 
 
-def test_get_spectrum():
+def test_get_spectrum(tmp_path_factory):
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
                        connhandler=conn_handler)
@@ -952,7 +1016,19 @@ def test_get_spectrum():
 
     assert result is not None
 
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
     remove_temp_dir()
+
+    fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.fits')
+
+    result = tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=fits_file)
+
+    assert result is not None
 
 
 @patch.object(TapPlus, 'load_data')
@@ -984,15 +1060,6 @@ def test_get_spectrum_exceptions_2(mock_load_data, caplog):
     assert caplog.records[1].msg == mssg
 
 
-def remove_temp_dir():
-    dirs = glob.glob('./temp_*')
-    for dir_path in dirs:
-        try:
-            shutil.rmtree(dir_path)
-        except OSError as e:
-            print("Error: %s : %s" % (dir_path, e.strerror))
-
-
 def test_get_spectrum_exceptions():
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
@@ -1016,16 +1083,6 @@ def test_get_spectrum_exceptions():
         tap.get_spectrum(source_id='2417660845403252054', schema=None, output_file=None)
 
     assert str(exc_info.value).startswith('Missing required argument')
-
-
-def test_load_async_job(mock_querier_async):
-    jobid = '1479386030738O'
-    name = None
-    job = mock_querier_async.load_async_job(jobid=jobid, name=name, verbose=False)
-
-    assert job is not None
-
-    assert job.jobid == jobid
 
 
 @patch.object(TapPlus, 'login')
@@ -1065,14 +1122,21 @@ def test_logout(mock_logout):
     assert (mock_logout.call_count == 4)
 
 
-@pytest.fixture(scope="module")
-def mock_querier():
-    conn_handler = DummyConnHandler()
-    tap_plus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+def test_load_async_job(mock_querier_async):
+    jobid = '1479386030738O'
+    name = None
+    job = mock_querier_async.load_async_job(jobid=jobid, name=name, verbose=False)
 
-    launch_response = DummyResponse(200)
-    launch_response.set_data(method="POST", body=JOB_DATA)
-    # The query contains decimals: default response is more robust.
-    conn_handler.set_default_response(launch_response)
+    assert job is not None
 
-    return EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+    assert job.jobid == jobid
+
+
+def remove_temp_dir():
+    dirs = glob.glob('./temp_*')
+    for dir_path in dirs:
+        try:
+            print(dir_path)
+            shutil.rmtree(dir_path)
+        except OSError as e:
+            print("Error: %s : %s" % (dir_path, e.strerror))
