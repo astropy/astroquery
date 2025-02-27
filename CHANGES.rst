@@ -59,6 +59,8 @@ mast
 
 - Bugfix where ``Observations.get_cloud_uri`` and ``Observations.get_cloud_uris`` fail if the MAST relative path is not found. [#3193]
 
+- Add batching to ``MastMissions.get_product_list`` to avoid server errors and allow for a larger number of input datasets. [#3230]
+
 simbad
 ^^^^^^
 
