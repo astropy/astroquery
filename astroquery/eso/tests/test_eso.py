@@ -16,7 +16,7 @@ import pytest
 
 from astroquery.utils.mocks import MockResponse
 from ...eso import Eso
-from ...eso.utils import py2adql
+from ...eso.utils import py2adql, adql_sanitize_val
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -57,14 +57,18 @@ DATA_FILES = {
 
             "APEX_QUERY_PLACEHOLDER": "query_apex_ql_5.pickle",
 
-            "generic cached query": "fd303fa27993048bd2393af067fe5ceccf4817c288ce5c0b4343386f.pickle",
+            "generic cached query":
+            "fd303fa27993048bd2393af067fe5ceccf4817c288ce5c0b4343386f.pickle",
 
-            "query points to non table file": "2031769bb0e68fb2816bf5680203e586eea71ca58b2694a71a428605.pickle"
+            "query points to non table file":
+            "2031769bb0e68fb2816bf5680203e586eea71ca58b2694a71a428605.pickle"
         }
 }
 
-TEST_COLLECTIONS = ['081.C-0827', 'ADHOC', 'CAFFEINE', 'ENTROPY', 'GAIAESO', 'HARPS', 'INSPIRE', 'KIDS', 'ZCOSMOS']
-TEST_INSTRUMENTS = ['amber', 'crires', 'espresso', 'fors1', 'giraffe', 'gravity', 'midi', 'xshooter']
+TEST_COLLECTIONS = [
+    '081.C-0827', 'ADHOC', 'CAFFEINE', 'ENTROPY', 'GAIAESO', 'HARPS', 'INSPIRE', 'KIDS', 'ZCOSMOS']
+TEST_INSTRUMENTS = [
+    'amber', 'crires', 'espresso', 'fors1', 'giraffe', 'gravity', 'midi', 'xshooter']
 
 
 def eso_request(request_type, url, **kwargs):
@@ -252,6 +256,20 @@ def test_tap_url():
         os.environ[tap_url_env_var] = tmpvar
 
 
+def test_adql_sanitize_val():
+    # adql queries are themselves strings.
+    # field that are strings are surrounded by single quotes ('')
+    # This function sanitizes values so that the following queries
+    # are correctly written:
+    # select [...] where x_int = 9
+    # select [...] where x_str = '9'
+
+    assert adql_sanitize_val("ciao") == "'ciao'"
+    assert adql_sanitize_val(1) == "1"
+    assert adql_sanitize_val(1.5) == "1.5"
+    assert adql_sanitize_val("1.5") == "'1.5'"
+
+
 def test_py2adql():
     """
     #  Example query:
@@ -350,4 +368,25 @@ def test_py2adql():
         ' where ' + and_c_list[0] + ' and ' + and_c_list[1] + ' and ' + and_c_list[2] + \
         ' and intersects(s_region, circle(\'ICRS\', 1.23, 2.34, 3.45))=1' + \
         " order by snr asc"
+
+    # count only
+    q = py2adql(columns=columns, table=table,
+                where_constraints=and_c_list,
+                order_by='snr', order_by_desc=False,
+                ra=1.23, dec=2.34, radius=3.45, count_only=True)
+    expected_query = ("select count(*) from ivoa.ObsCore where "
+                      "em_min>4.0e-7 and em_max<1.2e-6 and asdasdads "
+                      "and intersects(s_region, circle('ICRS', 1.23, 2.34, 3.45))=1 "
+                      "order by snr asc")
+
+    # top
+    q = py2adql(columns=columns, table=table,
+                where_constraints=and_c_list,
+                order_by='snr', order_by_desc=False,
+                ra=1.23, dec=2.34, radius=3.45, top=5)
+    expected_query = 'select top 5 ' + columns + ' from ' + table + \
+        ' where ' + and_c_list[0] + ' and ' + and_c_list[1] + ' and ' + and_c_list[2] + \
+        ' and intersects(s_region, circle(\'ICRS\', 1.23, 2.34, 3.45))=1' + \
+        " order by snr asc"
+
     assert expected_query == q, f"Expected:\n{expected_query}\n\nObtained:\n{q}\n\n"
