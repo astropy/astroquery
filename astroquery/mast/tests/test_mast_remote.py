@@ -188,30 +188,39 @@ class TestMast:
             MastMissions.get_product_list_async([' '])
         assert 'Dataset list is empty' in str(err_empty.value)
 
-    def test_missions_get_product_list(self):
+    def test_missions_get_product_list(self, capsys):
         datasets = MastMissions.query_object("M4", radius=0.1)
         test_dataset = datasets[0]['sci_data_set_name']
         multi_dataset = list(datasets[:2]['sci_data_set_name'])
 
         # Compare Row input and string input
-        result1 = MastMissions.get_product_list(test_dataset)
-        result2 = MastMissions.get_product_list(datasets[0])
-        assert isinstance(result1, Table)
-        assert len(result1) == len(result2)
-        assert set(result1['filename']) == set(result2['filename'])
+        result_str = MastMissions.get_product_list(test_dataset)
+        result_row = MastMissions.get_product_list(datasets[0])
+        assert isinstance(result_str, Table)
+        assert len(result_str) == len(result_row)
+        assert set(result_str['filename']) == set(result_row['filename'])
 
         # Compare Table input and list input
-        result1 = MastMissions.get_product_list(multi_dataset)
-        result2 = MastMissions.get_product_list(datasets[:2])
-        assert isinstance(result1, Table)
-        assert len(result1) == len(result2)
-        assert set(result1['filename']) == set(result2['filename'])
+        result_list = MastMissions.get_product_list(multi_dataset)
+        result_table = MastMissions.get_product_list(datasets[:2])
+        assert isinstance(result_list, Table)
+        assert len(result_list) == len(result_table)
+        assert set(result_list['filename']) == set(result_table['filename'])
 
         # Filter datasets based on sci_data_set_name and verify products
         filtered = datasets[datasets['sci_data_set_name'] == 'IBKH03020']
         result = MastMissions.get_product_list(filtered)
         assert isinstance(result, Table)
         assert (result['dataset'] == 'IBKH03020').all()
+
+        # Test batching by creating a list of 1001 different strings
+        # This won't return any results, but will test the batching
+        dataset_list = [f'{i}' for i in range(1001)]
+        result = MastMissions.get_product_list(dataset_list)
+        out, _ = capsys.readouterr()
+        assert isinstance(result, Table)
+        assert len(result) == 0
+        assert 'Fetching products for 1001 unique datasets in 2 batches' in out
 
     def test_missions_get_unique_product_list(self, caplog):
         # Check that no rows are filtered out when all products are unique
