@@ -4,13 +4,7 @@
 utils.py: helper functions for the astropy.eso module
 """
 
-import copy
-import hashlib
-import pickle
 from typing import Union, List
-from datetime import datetime, timezone, timedelta
-
-from astroquery import log
 
 
 def _split_str_as_list_of_str(column_str: str):
@@ -98,42 +92,3 @@ def py2adql(table: str, columns: Union[List, str] = None,
         query_string = "select " + query_string
 
     return query_string.strip()
-
-
-def eso_hash(query_str: str, url: str):
-    """
-    Return a hash given an adql query string and an url.
-    """
-    request_key = (query_str, url)
-    h = hashlib.sha224(pickle.dumps(request_key)).hexdigest()
-    return h
-
-
-def is_file_expired(filepath, timeout):
-    if timeout is None:
-        is_expired = False
-    else:
-        try:
-            current_time = datetime.now(timezone.utc)
-            file_time = datetime.fromtimestamp(filepath.stat().st_mtime, timezone.utc)
-            is_expired = current_time-file_time > timedelta(seconds=timeout)
-        except FileNotFoundError:
-            is_expired = True
-    return is_expired
-
-
-def read_table_from_file(filepath):
-    with open(filepath, "rb") as f:
-        table = pickle.load(f)
-    return table
-
-
-def to_cache(table, cache_file):
-    """
-    Dump a table to a pickle file
-    """
-    log.debug("Caching data to %s", cache_file)
-
-    table = copy.deepcopy(table)
-    with open(cache_file, "wb") as f:
-        pickle.dump(table, f, protocol=4)
