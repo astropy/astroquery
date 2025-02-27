@@ -2,7 +2,7 @@
 
 import pytest
 import astropy.units as u
-from astropy.table import Table, unique
+from astropy.table import Table
 from astropy.coordinates import SkyCoord
 from astropy.utils.exceptions import AstropyDeprecationWarning
 

@@ -159,7 +159,7 @@ class IrsaClass(BaseVOQuery):
             diameter = None
         else:
             diameter = 2 * radius
-            
+
         return self.ssa.search(pos=pos, diameter=diameter, band=band, time=time,
                                format='all', collection=collection)
 
