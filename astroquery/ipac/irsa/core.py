@@ -208,9 +208,11 @@ class IrsaClass(BaseVOQuery):
 
         adql = f'SELECT {columns} FROM {catalog}'
 
-        if spatial == 'All-Sky':
+        spatial = spatial.lower()
+
+        if spatial == 'all-sky' or spatial == 'allsky':
             where = ''
-        elif spatial == 'Polygon':
+        elif spatial == 'polygon':
             try:
                 coordinates_list = [parse_coordinates(coord).icrs for coord in polygon]
             except TypeError:
@@ -229,12 +231,12 @@ class IrsaClass(BaseVOQuery):
             coords_icrs = parse_coordinates(coordinates).icrs
             ra, dec = coords_icrs.ra.deg, coords_icrs.dec.deg
 
-            if spatial == 'Cone':
+            if spatial == 'cone':
                 if isinstance(radius, str):
                     radius = Angle(radius)
                 where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),"
                          f"CIRCLE('ICRS',{ra},{dec},{radius.to(u.deg).value}))=1")
-            elif spatial == 'Box':
+            elif spatial == 'box':
                 if isinstance(width, str):
                     width = Angle(width)
                 where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),"
