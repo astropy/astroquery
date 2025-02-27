@@ -115,8 +115,7 @@ class EsoClass(QueryWithLogin):
 
     def tap_url(self) -> str:
         url = os.environ.get('ESO_TAP_URL', conf.tap_url)
-        logmsg = f"Using tap_url = {url}"
-        log.info(logmsg)
+        log.info(f"Using tap_url = {url}")
         return url
 
     def _authenticate(self, *, username: str, password: str) -> bool:
@@ -130,18 +129,15 @@ class EsoClass(QueryWithLogin):
                       "client_secret": "clientSecret",
                       "username": username,
                       "password": password}
-        logmsg = (f"Authenticating {username} on 'www.eso.org' ...")
-        log.info(logmsg)
+        log.info(f"Authenticating {username} on 'www.eso.org' ...")
         response = self._request('GET', self.AUTH_URL, params=url_params)
         if response.status_code == 200:
             token = json.loads(response.content)['id_token']
             self._auth_info = AuthInfo(username=username, password=password, token=token)
-            logmsg = ("Authentication successful!")
-            log.info(logmsg)
+            log.info("Authentication successful!")
             return True
         else:
-            logmsg = ("Authentication failed!")
-            log.error(logmsg)
+            log.error("Authentication failed!")
             return False
 
     def _get_auth_info(self, username: str, *, store_password: bool = False,
@@ -194,8 +190,7 @@ class EsoClass(QueryWithLogin):
 
     def _get_auth_header(self) -> Dict[str, str]:
         if self._auth_info and self._auth_info.expired():
-            logmsg = ("Authentication token has expired! Re-authenticating ...")
-            log.info(logmsg)
+            log.info("Authentication token has expired! Re-authenticating ...")
             self._authenticate(username=self._auth_info.username,
                                password=self._auth_info.password)
         if self._auth_info and not self._auth_info.expired():
@@ -218,8 +213,6 @@ class EsoClass(QueryWithLogin):
 
         tap = pyvo.dal.TAPService(self.tap_url())
         table_to_return = None
-        logmsg = f"querystr = {query_str}"
-        log.debug(logmsg)
         try:
             table_to_return = tap.search(query_str, maxrec=maxrec).to_table()
 
@@ -293,8 +286,7 @@ class EsoClass(QueryWithLogin):
         nlines = len(available_cols) + 2
         n_ = astropy.conf.max_lines
         astropy.conf.max_lines = nlines
-        logmsg = (f"\nColumns present in the table {table_name}:\n{available_cols}\n")
-        log.info(logmsg)
+        log.info(f"\nColumns present in the table {table_name}:\n{available_cols}\n")
         astropy.conf.max_lines = n_
 
     def _query_on_allowed_values(
@@ -501,8 +493,7 @@ class EsoClass(QueryWithLogin):
             files_to_check.append(filename.rsplit(".", 1)[0])
         for file in files_to_check:
             if os.path.exists(file):
-                logmsg = (f"Found cached file {file}")
-                log.info(logmsg)
+                log.info(f"Found cached file {file}")
                 return True
         return False
 
@@ -516,8 +507,7 @@ class EsoClass(QueryWithLogin):
             filename = os.path.join(destination, filename)
             part_filename = filename + ".part"
             if os.path.exists(part_filename):
-                logmsg = (f"Removing partially downloaded file {part_filename}")
-                log.info(logmsg)
+                log.info(f"Removing partially downloaded file {part_filename}")
                 os.remove(part_filename)
             download_required = overwrite or not self._find_cached_file(filename)
             if download_required:
@@ -533,29 +523,23 @@ class EsoClass(QueryWithLogin):
         destination = os.path.abspath(destination)
         os.makedirs(destination, exist_ok=True)
         nfiles = len(file_ids)
-        logmsg = (f"Downloading {nfiles} files ...")
-        log.info(logmsg)
+        log.info(f"Downloading {nfiles} files ...")
         downloaded_files = []
         for i, file_id in enumerate(file_ids, 1):
             file_link = self.DOWNLOAD_URL + file_id
-            logmsg = (f"Downloading file {i}/{nfiles} {file_link} to {destination}")
-            log.info(logmsg)
+            log.info(f"Downloading file {i}/{nfiles} {file_link} to {destination}")
             try:
                 filename, downloaded = self._download_eso_file(file_link, destination, overwrite)
                 downloaded_files.append(filename)
                 if downloaded:
-                    logmsg = (f"Successfully downloaded dataset {file_id} to {filename}")
-                    log.info(logmsg)
+                    log.info(f"Successfully downloaded dataset {file_id} to {filename}")
             except requests.HTTPError as http_error:
                 if http_error.response.status_code == 401:
-                    logmsg = (f"Access denied to {file_link}")
-                    log.error(logmsg)
+                    log.error(f"Access denied to {file_link}")
                 else:
-                    logmsg = (f"Failed to download {file_link}. {http_error}")
-                    log.error(logmsg)
+                    log.error(f"Failed to download {file_link}. {http_error}")
             except RuntimeError as ex:
-                logmsg = (f"Failed to download {file_link}. {ex}")
-                log.error(logmsg)
+                log.error(f"Failed to download {file_link}. {ex}")
         return downloaded_files
 
     def _unzip_file(self, filename: str) -> str:
@@ -568,14 +552,12 @@ class EsoClass(QueryWithLogin):
         if filename.endswith(('fits.Z', 'fits.gz')):
             uncompressed_filename = filename.rsplit(".", 1)[0]
             if not os.path.exists(uncompressed_filename):
-                logmsg = (f"Uncompressing file {filename}")
-                log.info(logmsg)
+                log.info(f"Uncompressing file {filename}")
                 try:
                     subprocess.run([self.GUNZIP, filename], check=True)
                 except Exception as ex:
                     uncompressed_filename = None
-                    logmsg = (f"Failed to unzip {filename}: {ex}")
-                    log.error(logmsg)
+                    log.error(f"Failed to unzip {filename}: {ex}")
         return uncompressed_filename or filename
 
     def _unzip_files(self, files: List[str]) -> List[str]:
@@ -596,8 +578,7 @@ class EsoClass(QueryWithLogin):
         destination = os.path.abspath(destination)
         os.makedirs(destination, exist_ok=True)
         filename = os.path.join(destination, filename)
-        logmsg = (f"Saving Calselector association tree to {filename}")
-        log.info(logmsg)
+        log.info(f"Saving Calselector association tree to {filename}")
         with open(filename, "wb") as fd:
             fd.write(payload)
 
@@ -706,8 +687,7 @@ class EsoClass(QueryWithLogin):
 
         associated_files = []
         if with_calib:
-            logmsg = f"Retrieving associated '{with_calib}' calibration files ..."
-            log.info(logmsg)
+            log.info(f"Retrieving associated '{with_calib}' calibration files ...")
             try:
                 # batch calselector requests to avoid possible issues on the ESO server
                 batch_size = 100
@@ -716,20 +696,16 @@ class EsoClass(QueryWithLogin):
                     associated_files += self.get_associated_files(
                         sorted_datasets[i:i + batch_size], mode=with_calib)
                 associated_files = list(set(associated_files))
-                logmsg = (f"Found {len(associated_files)} associated files")
-                log.info(logmsg)
+                log.info(f"Found {len(associated_files)} associated files")
             except Exception as ex:
-                logmsg = (f"Failed to retrieve associated files: {ex}")
-                log.error(logmsg)
+                log.error(f"Failed to retrieve associated files: {ex}")
 
         all_datasets = datasets + associated_files
-        logmsg = ("Downloading datasets ...")
-        log.info(logmsg)
+        log.info("Downloading datasets ...")
         files = self._download_eso_files(all_datasets, destination, continuation)
         if unzip:
             files = self._unzip_files(files)
-        logmsg = ("Done!")
-        log.info(logmsg)
+        log.info("Done!")
         return files[0] if files and len(files) == 1 and return_string else files
 
     @deprecated_renamed_argument(('open_form', 'help'), (None, 'print_help'),
