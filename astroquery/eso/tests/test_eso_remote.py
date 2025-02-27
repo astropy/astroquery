@@ -45,40 +45,40 @@ class TestEso:
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_query_tap_service(self):
         eso = Eso()
-        eso.ROW_LIMIT = 7
+        eso.maxrec = 7
         with pytest.warns(MaxResultsWarning):
             t = eso.query_tap_service("select * from ivoa.ObsCore")
         lt = len(t)
         assert isinstance(t, Table), f"Expected type {type(Table)}; Obtained {type(t)}"
         assert len(t) > 0, "Table length is zero"
-        assert len(t) == eso.ROW_LIMIT, f"Table length is {lt}, expected {eso.ROW_LIMIT}"
+        assert len(t) == eso.maxrec, f"Table length is {lt}, expected {eso.maxrec}"
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_row_limit(self):
         eso = Eso()
-        eso.ROW_LIMIT = 5
+        eso.maxrec = 5
         # since in this case the results are truncated, a warning is issued
 
         with pytest.warns(MaxResultsWarning):
             table = eso.query_instrument('UVES')
             n = len(table)
-            assert n == eso.ROW_LIMIT, f"Expected {eso.ROW_LIMIT}; Obtained {n}"
+            assert n == eso.maxrec, f"Expected {eso.maxrec}; Obtained {n}"
 
         with pytest.warns(MaxResultsWarning):
             table = eso.query_collections('VVV')
             n = len(table)
-            assert n == eso.ROW_LIMIT, f"Expected {eso.ROW_LIMIT}; Obtained {n}"
+            assert n == eso.maxrec, f"Expected {eso.maxrec}; Obtained {n}"
 
         with pytest.warns(MaxResultsWarning):
             table = eso.query_main()
             n = len(table)
-            assert n == eso.ROW_LIMIT, f"Expected {eso.ROW_LIMIT}; Obtained {n}"
+            assert n == eso.maxrec, f"Expected {eso.maxrec}; Obtained {n}"
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_top(self):
         eso = Eso()
         top = 5
-        eso.ROW_LIMIT = None
+        eso.maxrec = None
         # in this case the results are NOT truncated, no warnings should be issued
 
         table = eso.query_instrument('UVES', top=top)
@@ -96,7 +96,7 @@ class TestEso:
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_SgrAstar(self):
         eso = Eso()
-        eso.ROW_LIMIT = 1
+        eso.maxrec = 1
 
         instruments = eso.list_instruments()
         # in principle, we should run both of these tests
@@ -137,7 +137,7 @@ class TestEso:
 
         eso = Eso()
         eso.cache_location = tmp_path
-        eso.ROW_LIMIT = 1000
+        eso.maxrec = 1000
 
         test_collections = ['VVV', 'XSHOOTER']
         with pytest.warns(MaxResultsWarning):
@@ -235,7 +235,7 @@ class TestEso:
     def test_each_instrument_SgrAstar(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
-        eso.ROW_LIMIT = 5
+        eso.maxrec = 5
 
         instruments = eso.list_instruments()
 
@@ -271,7 +271,7 @@ class TestEso:
     def test_each_collection_and_SgrAstar(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
-        eso.ROW_LIMIT = 1
+        eso.maxrec = 1
 
         collections = eso.list_collections()
         for collection in collections:
@@ -299,7 +299,7 @@ class TestEso:
     def test_mixed_case_instrument(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
-        eso.ROW_LIMIT = 5
+        eso.maxrec = 5
 
         with pytest.warns(MaxResultsWarning):
             result1 = eso.query_instrument('midi', ra=266.41681662,
@@ -312,7 +312,7 @@ class TestEso:
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_main_SgrAstar(self):
         eso = Eso()
-        eso.ROW_LIMIT = 5
+        eso.maxrec = 5
 
         with pytest.warns(MaxResultsWarning):
             result = eso.query_main(target='SGR A', object='SGR A')

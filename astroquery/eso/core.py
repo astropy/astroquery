@@ -34,12 +34,11 @@ import pyvo
 
 from astroquery import log
 from . import conf
-from ..exceptions import RemoteServiceError, LoginError, \
-    NoResultsWarning, MaxResultsWarning
+from ..exceptions import RemoteServiceError, LoginError
 from ..query import QueryWithLogin
 from ..utils import schema
 from .utils import py2adql, _split_str_as_list_of_str, \
-    adql_sanitize_val, are_coords_valid
+    adql_sanitize_val, are_coords_valid, issue_table_length_warnings
 
 __doctest_skip__ = ['EsoClass.*']
 
@@ -88,18 +87,17 @@ def unlimited_max_rec(func):
         if not isinstance(self, EsoClass):
             raise ValueError(f"Expecting EsoClass, found {type(self)}")
 
-        tmpvar = self.ROW_LIMIT
+        tmpvar = self.maxrec
         try:
-            self.ROW_LIMIT = sys.maxsize
+            self.maxrec = sys.maxsize
             result = func(self, *args, **kwargs)
         finally:
-            self.ROW_LIMIT = tmpvar
+            self.maxrec = tmpvar
         return result
     return wrapper
 
 
 class EsoClass(QueryWithLogin):
-    ROW_LIMIT = conf.row_limit
     USERNAME = conf.username
     CALSELECTOR_URL = "https://archive.eso.org/calselector/v1/associations"
     DOWNLOAD_URL = "https://dataportal.eso.org/dataPortal/file/"
@@ -112,6 +110,21 @@ class EsoClass(QueryWithLogin):
         self._collections: Optional[List[str]] = None
         self._auth_info: Optional[AuthInfo] = None
         self._hash = None
+        self._maxrec = None
+
+        self.maxrec = conf.row_limit
+
+    @property
+    def maxrec(self):
+        return self._maxrec
+
+    @maxrec.setter
+    def maxrec(self, value):
+        mr = sys.maxsize
+        if value:
+            if value > 0:
+                mr = value
+        self._maxrec = mr
 
     def tap_url(self) -> str:
         url = os.environ.get('ESO_TAP_URL', conf.tap_url)
@@ -197,6 +210,23 @@ class EsoClass(QueryWithLogin):
         else:
             return {}
 
+    def download_pyvo_table(self, query_str, tap):
+        table_to_return = None
+        try:
+            table_to_return = tap.search(query_str, maxrec=self.maxrec).to_table()
+        except pyvo.dal.exceptions.DALQueryError as e:
+            raise pyvo.dal.exceptions.DALQueryError(
+                f"Error executing the following query:\n\n"
+                f"{query_str}\n\n"
+                "See examples here: https://archive.eso.org/tap_obs/examples\n\n") from e
+        except Exception as e:
+            raise RuntimeError(
+                f"Unhandled exception {type(e)}\n"
+                "While executing the following query:\n\n"
+                f"{query_str}\n\n"
+                "See examples here: https://archive.eso.org/tap_obs/examples\n\n") from e
+        return table_to_return
+
     def query_tap_service(self,
                           query_str: str,
                           ) -> Optional[astropy.table.Table]:
@@ -205,36 +235,12 @@ class EsoClass(QueryWithLogin):
         Example use:
         eso._query_tap_service("Select * from ivoa.ObsCore")
         """
-        maxrec = sys.maxsize
-        if self.ROW_LIMIT:
-            if self.ROW_LIMIT > 0:
-                maxrec = self.ROW_LIMIT
-
-        tap = pyvo.dal.TAPService(self.tap_url())
         table_to_return = None
-        try:
-            table_to_return = tap.search(query_str, maxrec=maxrec).to_table()
 
-        except pyvo.dal.exceptions.DALQueryError as e:
-            raise pyvo.dal.exceptions.DALQueryError(
-                f"Error executing the following query:\n\n"
-                f"{query_str}\n\n"
-                "See examples here: https://archive.eso.org/tap_obs/examples\n\n") from e
+        table_to_return = self.download_pyvo_table(query_str,
+                                                   pyvo.dal.TAPService(self.tap_url()))
 
-        except Exception as e:
-            raise RuntimeError(
-                f"Unhandled exception {type(e)}\n"
-                "While executing the following query:\n\n"
-                f"{query_str}\n\n"
-                "See examples here: https://archive.eso.org/tap_obs/examples\n\n") from e
-
-        if len(table_to_return) < 1:
-            warnings.warn("Query returned no results", NoResultsWarning)
-
-        if len(table_to_return) == maxrec:
-            warnings.warn(f"Results truncated to {maxrec}. "
-                          "To retrieve all the records set to None the ROW_LIMIT attribute",
-                          MaxResultsWarning)
+        issue_table_length_warnings(table_to_return, self.maxrec)
 
         return table_to_return
 
