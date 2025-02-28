@@ -56,6 +56,9 @@ simbad
   empty for an object, there will now be a line with masked values instead of no line in
   the result [#3199]
 
+- perf: use a TAP upload in ``query_region`` when there are more than 300 coordinates.
+  This prevents timeouts. [#3235]
+
 xmatch
 ^^^^^^
 
