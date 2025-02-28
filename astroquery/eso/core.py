@@ -30,7 +30,8 @@ import requests.exceptions
 from astropy.table import Table, Column
 from astropy.utils.decorators import deprecated_renamed_argument
 from bs4 import BeautifulSoup
-import pyvo
+from pyvo.dal import TAPService
+import pyvo.dal.exceptions as pde
 
 from astroquery import log
 from . import conf
@@ -210,21 +211,26 @@ class EsoClass(QueryWithLogin):
         else:
             return {}
 
-    def download_pyvo_table(self, query_str, tap):
+    def try_download_pyvo_table(self,
+                                query_str: str,
+                                tap: TAPService) -> Optional[astropy.table.Table]:
         table_to_return = None
+
+        def message(query_str):
+            return (f"Error executing the following query:\n\n"
+                    f"{query_str}\n\n"
+                    "See examples here: https://archive.eso.org/tap_obs/examples\n\n")
+
         try:
             table_to_return = tap.search(query_str, maxrec=self.maxrec).to_table()
-        except pyvo.dal.exceptions.DALQueryError as e:
-            raise pyvo.dal.exceptions.DALQueryError(
-                f"Error executing the following query:\n\n"
-                f"{query_str}\n\n"
-                "See examples here: https://archive.eso.org/tap_obs/examples\n\n") from e
+        except pde.DALQueryError as e:
+            raise pde.DALQueryError(message(query_str)) from e
+        except pde.DALFormatError as e:
+            raise pde.DALFormatError(message(query_str) + f"cause: {e.cause}") from e
         except Exception as e:
             raise RuntimeError(
-                f"Unhandled exception {type(e)}\n"
-                "While executing the following query:\n\n"
-                f"{query_str}\n\n"
-                "See examples here: https://archive.eso.org/tap_obs/examples\n\n") from e
+                f"Unhandled exception {type(e)}\n" + message(query_str)) from e
+
         return table_to_return
 
     def query_tap_service(self,
@@ -237,8 +243,8 @@ class EsoClass(QueryWithLogin):
         """
         table_to_return = None
 
-        table_to_return = self.download_pyvo_table(query_str,
-                                                   pyvo.dal.TAPService(self.tap_url()))
+        table_to_return = self.try_download_pyvo_table(query_str,
+                                                       TAPService(self.tap_url()))
 
         issue_table_length_warnings(table_to_return, self.maxrec)
 
