@@ -13,6 +13,7 @@ import sys
 
 import pickle
 import pytest
+import pyvo
 
 from astroquery.utils.mocks import MockResponse
 from ...eso import Eso
@@ -295,6 +296,18 @@ def test_maxrec():
     eso_instance.maxrec = -1
     maxrec = eso_instance.maxrec
     assert maxrec == sys.maxsize
+
+
+def test_download_pyvo_table():
+    eso_instance = Eso()
+    dal = pyvo.dal.TAPService(eso_instance.tap_url())
+
+    q_str = "select * from ivoa.ObsCore"
+    table = None
+    with pytest.raises(pyvo.dal.exceptions.DALFormatError):
+        table = eso_instance.try_download_pyvo_table(q_str, dal)
+
+    assert table is None
 
 
 def test_py2adql():
