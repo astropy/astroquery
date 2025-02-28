@@ -790,7 +790,7 @@ Below is the equivalent version but copying arguments manually (for clarity).
 .. Skipping authentication requiring examples
 .. doctest-skip::
 
-  >>> file_path="/data_03/repository_otf/MER/101158889/VIS/EUC_MER_BGSUB-MOSAIC-VIS_TILE101158889-D08FBD_20240113T021028.995617Z_00.00.fits"
+  >>> file_path="EUC_MER_BGSUB-MOSAIC-VIS_TILE101158889-D08FBD_20240113T021028.995617Z_00.00.fits"
   >>> saved_cutout_filepath = Euclid.get_cutout(file_path=file_path, instrument="VIS", id="101158889", coordinate=coord, radius=radius, output_file='example_outputs/test_cutout_example.fits')
   >>> print("Cutout saved at", saved_cutout_filepath)
   Cutout saved at ['example_outputs/cutouts/astroquery_cutout_example.fits']
