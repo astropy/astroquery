@@ -272,6 +272,7 @@ def test_adql_sanitize_val():
     assert adql_sanitize_val(1.5) == "1.5"
     assert adql_sanitize_val("1.5") == "'1.5'"
 
+
 def test_maxrec():
     eso_instance = Eso()
 
