@@ -479,11 +479,11 @@ class BaseQuery(metaclass=LoginABCMeta):
                 return
         else:
             open_mode = 'wb'
-            if head_safe:
-                response = self._session.request(method, url,
-                                                 timeout=timeout, stream=True,
-                                                 auth=auth, **kwargs)
-                response.raise_for_status()
+        if head_safe:
+            response = self._session.request(method, url,
+                                                timeout=timeout, stream=True,
+                                                auth=auth, **kwargs)
+            response.raise_for_status()
 
         blocksize = astropy.utils.data.conf.download_block_size
 
