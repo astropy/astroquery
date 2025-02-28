@@ -969,7 +969,7 @@ A table from the user's private area can be deleted as follows:
 
   >>> from astroquery.esa.euclid import Euclid
   >>> Euclid.login_gui()
-  >>> job = Euclid.delete_user_table("table_test_from_file")
+  >>> job = Euclid.delete_user_table(table_name="table_test_from_file")
   Table 'table_test_from_file' deleted.
 
 2.7. Updating table metadata
