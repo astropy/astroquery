@@ -701,7 +701,7 @@ It is possible to download a product given its file name or product id:
   >>> #display the downloaded product (since this is a calibrated frame the different detectors are stored as different extensions - we are displaying only one extension)
   >>> from astropy.io import fits
   >>> import matplotlib.pyplot as plt
-  >>> from astropy.visualization import astropy_mpl_style, ImageNormalize, PercentileInterval, AsinhStretch, LogStretchhdul = fits.open(path[0])
+  >>> from astropy.visualization import astropy_mpl_style, ImageNormalize, PercentileInterval, AsinhStretch, LogStretch
   >>> hdul = fits.open(path[0])
   >>> print(fits.info(path[0]))
   WARNING: File may have been truncated: actual file length (103579232) is smaller than the expected size (1474565760) [astropy.io.fits.file]
