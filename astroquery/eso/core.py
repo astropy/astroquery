@@ -260,7 +260,7 @@ class EsoClass(QueryWithLogin):
         table_to_return = self.try_download_pyvo_table(query_str,
                                                        TAPService(self.tap_url()))
 
-        issue_table_length_warnings(table_to_return, self.maxrec)
+        self.maybe_warn_about_table_length(table_to_return)
 
         return table_to_return
 
