@@ -701,7 +701,7 @@ It is possible to download a product given its file name or product id:
   >>> #display the downloaded product (since this is a calibrated frame the different detectors are stored as different extensions - we are displaying only one extension)
   >>> from astropy.io import fits
   >>> import matplotlib.pyplot as plt
-  >>> from astropy.visualization import astropy_mpl_style, ImageNormalize, PercentileInterval, AsinhStretch, LogStretchhdul = fits.open(path[0])
+  >>> from astropy.visualization import astropy_mpl_style, ImageNormalize, PercentileInterval, AsinhStretch, LogStretch
   >>> hdul = fits.open(path[0])
   >>> print(fits.info(path[0]))
   WARNING: File may have been truncated: actual file length (103579232) is smaller than the expected size (1474565760) [astropy.io.fits.file]
@@ -790,7 +790,7 @@ Below is the equivalent version but copying arguments manually (for clarity).
 .. Skipping authentication requiring examples
 .. doctest-skip::
 
-  >>> file_path="/data_03/repository_otf/MER/101158889/VIS/EUC_MER_BGSUB-MOSAIC-VIS_TILE101158889-D08FBD_20240113T021028.995617Z_00.00.fits"
+  >>> file_path="EUC_MER_BGSUB-MOSAIC-VIS_TILE101158889-D08FBD_20240113T021028.995617Z_00.00.fits"
   >>> saved_cutout_filepath = Euclid.get_cutout(file_path=file_path, instrument="VIS", id="101158889", coordinate=coord, radius=radius, output_file='example_outputs/test_cutout_example.fits')
   >>> print("Cutout saved at", saved_cutout_filepath)
   Cutout saved at ['example_outputs/cutouts/astroquery_cutout_example.fits']
@@ -969,7 +969,7 @@ A table from the user's private area can be deleted as follows:
 
   >>> from astroquery.esa.euclid import Euclid
   >>> Euclid.login_gui()
-  >>> job = Euclid.delete_user_table("table_test_from_file")
+  >>> job = Euclid.delete_user_table(table_name="table_test_from_file")
   Table 'table_test_from_file' deleted.
 
 2.7. Updating table metadata
