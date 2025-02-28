@@ -35,11 +35,12 @@ import pyvo.dal.exceptions as pde
 
 from astroquery import log
 from . import conf
-from ..exceptions import RemoteServiceError, LoginError
+from ..exceptions import RemoteServiceError, LoginError, \
+    NoResultsWarning, MaxResultsWarning
 from ..query import QueryWithLogin
 from ..utils import schema
 from .utils import py2adql, _split_str_as_list_of_str, \
-    adql_sanitize_val, are_coords_valid, issue_table_length_warnings
+    adql_sanitize_val, are_coords_valid
 
 __doctest_skip__ = ['EsoClass.*']
 
@@ -210,6 +211,19 @@ class EsoClass(QueryWithLogin):
             return {'Authorization': 'Bearer ' + self._auth_info.token}
         else:
             return {}
+
+    def maybe_warn_about_table_length(self, table):
+        """
+        Issues a warning when a table is empty or when the
+        results are truncated
+        """
+        if len(table) < 1:
+            warnings.warn("Query returned no results", NoResultsWarning)
+
+        if len(table) == self.maxrec:
+            warnings.warn(f"Results truncated to {self.maxrec}. "
+                          "To retrieve all the records set to None the ROW_LIMIT attribute",
+                          MaxResultsWarning)
 
     def try_download_pyvo_table(self,
                                 query_str: str,
