@@ -14,10 +14,12 @@ import sys
 import pickle
 import pytest
 import pyvo
+from astropy.table import Table
 
 from astroquery.utils.mocks import MockResponse
 from ...eso import Eso
 from ...eso.utils import py2adql, adql_sanitize_val
+from ...exceptions import NoResultsWarning, MaxResultsWarning
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -308,6 +310,24 @@ def test_download_pyvo_table():
         table = eso_instance.try_download_pyvo_table(q_str, dal)
 
     assert table is None
+
+
+def test_issue_table_length_warnings():
+    eso_instance = Eso()
+
+    # should warn, since the table is empty
+    t = Table()
+    with pytest.warns(NoResultsWarning):
+        eso_instance.maybe_warn_about_table_length(t)
+
+    # should warn, since 50 = eso_instance.maxrec
+    t = Table({"col_name": [i for i in range(50)]})
+    with pytest.warns(MaxResultsWarning):
+        eso_instance.maybe_warn_about_table_length(t)
+
+    # should not warn
+    t = Table({"col_name": [i for i in range(51)]})
+    eso_instance.maybe_warn_about_table_length(t)
 
 
 def test_py2adql():
