@@ -357,6 +357,10 @@ def test_py2adql():
     eq = "select * from ivoa.ObsCore"
     assert eq == q, f"Expected:\n{eq}\n\nObtained:\n{q}\n\n"
 
+    q = py2adql('ivoa.ObsCore', columns='')
+    eq = "select * from ivoa.ObsCore"
+    assert eq == q, f"Expected:\n{eq}\n\nObtained:\n{q}\n\n"
+
     q = py2adql('ivoa.ObsCore', columns='*')
     eq = "select * from ivoa.ObsCore"
     assert eq == q, f"Expected:\n{eq}\n\nObtained:\n{q}\n\n"
