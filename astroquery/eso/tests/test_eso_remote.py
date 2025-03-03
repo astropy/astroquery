@@ -15,7 +15,7 @@ from astropy.table import Table
 from astroquery.exceptions import NoResultsWarning, MaxResultsWarning
 from astroquery.eso import Eso
 
-instrument_list = ['fors1', 'fors2', 'sphere', 'vimos', 'omegacam',
+instrument_list = ['alpaca', 'fors1', 'fors2', 'sphere', 'vimos', 'omegacam',
                    'hawki', 'isaac', 'naco', 'visir', 'vircam',
                    # TODO 'apex', uncomment when ready in the ISTs
                    'giraffe', 'uves', 'xshooter', 'muse', 'crires',
