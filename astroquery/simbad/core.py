@@ -108,6 +108,7 @@ class SimbadClass(BaseVOQuery):
         self._server = conf.server
         self._tap = None
         self._hardlimit = None
+        self._uploadlimit = None
         # attributes to construct ADQL queries
         self._columns_in_output = None  # a list of _Column
         self.joins = []  # a list of _Join
@@ -165,6 +166,12 @@ class SimbadClass(BaseVOQuery):
         if self._hardlimit is None:
             self._hardlimit = self.tap.hardlimit
         return self._hardlimit
+
+    @property
+    def uploadlimit(self):
+        if self._uploadlimit is None:
+            self._uploadlimit = self.tap.get_tap_capability().uploadlimit.hard.content
+        return self._uploadlimit
 
     @property
     def columns_in_output(self):
@@ -780,9 +787,9 @@ class SimbadClass(BaseVOQuery):
 
         # from uploadLimit in SIMBAD's capabilities
         # http://simbad.cds.unistra.fr/simbad/sim-tap/capabilities
-        if len(center) > 200000:
-            raise ValueError("'query_region' can process up to 200000 centers. For "
-                             "larger queries, split your centers list.")
+        if len(center) > self.uploadlimit:
+            raise ValueError(f"'query_region' can process up to {self.uploadlimit} "
+                             "centers. For larger queries, split your centers list.")
 
         # `radius` as `str` is iterable, but contains only one value.
         if isiterable(radius) and not isinstance(radius, str):

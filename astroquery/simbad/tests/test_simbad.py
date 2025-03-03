@@ -33,6 +33,7 @@ def _mock_simbad_class(monkeypatch):
     # >>> options = Simbad.list_votable_fields()
     # >>> options.write("simbad_output_options.xml", format="votable")
     monkeypatch.setattr(simbad.SimbadClass, "hardlimit", 2000000)
+    monkeypatch.setattr(simbad.SimbadClass, "uploadlimit", 200000)
     monkeypatch.setattr(simbad.SimbadClass, "list_votable_fields", lambda self: table)
 
 
@@ -151,6 +152,8 @@ def test_mocked_simbad():
     assert len(options) >= 115
     # this mocks the hardlimit
     assert simbad_instance.hardlimit == 2000000
+    # and the uploadlimit
+    assert simbad_instance.uploadlimit == 200000
 
 # ----------------------------
 # Test output options settings
