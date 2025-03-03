@@ -698,7 +698,6 @@ class SimbadClass(BaseVOQuery):
 
     @deprecated_renamed_argument(["equinox", "epoch", "cache"],
                                  new_name=[None]*3,
-                                 alternative=["astropy.coordinates.SkyCoord"]*2 + [None],
                                  since=['0.4.8']*3, relax=True)
     def query_region(self, coordinates, radius=2*u.arcmin, *,
                      criteria=None, get_query_payload=False,
