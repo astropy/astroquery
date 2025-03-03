@@ -18,7 +18,7 @@ from astropy.utils.decorators import deprecated_renamed_argument
 
 from astroquery.query import BaseVOQuery
 from astroquery.utils import commons
-from astroquery.exceptions import LargeQueryWarning, NoResultsWarning
+from astroquery.exceptions import NoResultsWarning
 from astroquery.simbad.utils import (_catch_deprecated_fields_with_arguments,
                                      _wildcard_to_regexp, CriteriaTranslator,
                                      query_criteria_fields)
@@ -108,6 +108,7 @@ class SimbadClass(BaseVOQuery):
         self._server = conf.server
         self._tap = None
         self._hardlimit = None
+        self._uploadlimit = None
         # attributes to construct ADQL queries
         self._columns_in_output = None  # a list of _Column
         self.joins = []  # a list of _Join
@@ -165,6 +166,12 @@ class SimbadClass(BaseVOQuery):
         if self._hardlimit is None:
             self._hardlimit = self.tap.hardlimit
         return self._hardlimit
+
+    @property
+    def uploadlimit(self):
+        if self._uploadlimit is None:
+            self._uploadlimit = self.tap.get_tap_capability().uploadlimit.hard.content
+        return self._uploadlimit
 
     @property
     def columns_in_output(self):
@@ -698,7 +705,6 @@ class SimbadClass(BaseVOQuery):
 
     @deprecated_renamed_argument(["equinox", "epoch", "cache"],
                                  new_name=[None]*3,
-                                 alternative=["astropy.coordinates.SkyCoord"]*3,
                                  since=['0.4.8']*3, relax=True)
     def query_region(self, coordinates, radius=2*u.arcmin, *,
                      criteria=None, get_query_payload=False,
@@ -768,42 +774,54 @@ class SimbadClass(BaseVOQuery):
         center = center.transform_to("icrs")
 
         top, columns, joins, instance_criteria = self._get_query_parameters()
+        if criteria:
+            instance_criteria.append(f"({criteria})")
 
         if center.isscalar:
             radius = coord.Angle(radius)
             instance_criteria.append(f"CONTAINS(POINT('ICRS', basic.ra, basic.dec), "
                                      f"CIRCLE('ICRS', {center.ra.deg}, {center.dec.deg}, "
                                      f"{radius.to(u.deg).value})) = 1")
+            return self._query(top, columns, joins, instance_criteria,
+                               get_query_payload=get_query_payload)
 
+        # from uploadLimit in SIMBAD's capabilities
+        # http://simbad.cds.unistra.fr/simbad/sim-tap/capabilities
+        if len(center) > self.uploadlimit:
+            raise ValueError(f"'query_region' can process up to {self.uploadlimit} "
+                             "centers. For larger queries, split your centers list.")
+
+        # `radius` as `str` is iterable, but contains only one value.
+        if isiterable(radius) and not isinstance(radius, str):
+            if len(radius) != len(center):
+                raise ValueError(f"Mismatch between radii of length {len(radius)}"
+                                 f" and center coordinates of length {len(center)}.")
+            radius = [coord.Angle(item).to(u.deg).value for item in radius]
         else:
-            if len(center) > 10000:
-                warnings.warn(
-                    "For very large queries, you may receive a timeout error.  SIMBAD suggests"
-                    " splitting queries with >10000 entries into multiple threads",
-                    LargeQueryWarning, stacklevel=2
-                )
+            radius = [coord.Angle(radius).to(u.deg).value] * len(center)
 
-            # `radius` as `str` is iterable, but contains only one value.
-            if isiterable(radius) and not isinstance(radius, str):
-                if len(radius) != len(center):
-                    raise ValueError(f"Mismatch between radii of length {len(radius)}"
-                                     f" and center coordinates of length {len(center)}.")
-                radius = [coord.Angle(item) for item in radius]
-            else:
-                radius = [coord.Angle(radius)] * len(center)
-
+        # for small number of centers, not using the upload method is faster
+        if len(center) <= 300:
             cone_criteria = [(f"CONTAINS(POINT('ICRS', basic.ra, basic.dec), CIRCLE('ICRS', "
-                             f"{center.ra.deg}, {center.dec.deg}, {radius.to(u.deg).value})) = 1 ")
+                             f"{center.ra.deg}, {center.dec.deg}, {radius})) = 1 ")
                              for center, radius in zip(center, radius)]
 
             cone_criteria = f" ({'OR '.join(cone_criteria)})"
             instance_criteria.append(cone_criteria)
 
-        if criteria:
-            instance_criteria.append(f"({criteria})")
+            return self._query(top, columns, joins, instance_criteria,
+                               get_query_payload=get_query_payload)
+
+        # for longer centers list, we use a TAP upload
+        upload_centers = Table({"ra": center.ra.deg, "dec": center.dec.deg,
+                                "radius": radius})
+        sub_query = "(SELECT ra, dec, radius FROM TAP_UPLOAD.centers) AS centers"
+        instance_criteria.append("CONTAINS(POINT('ICRS', basic.ra, basic.dec), CIRCLE"
+                                 "('ICRS', centers.ra, centers.dec, centers.radius)) = 1 ")
 
         return self._query(top, columns, joins, instance_criteria,
-                           get_query_payload=get_query_payload)
+                           from_table=f"{sub_query}, basic",
+                           get_query_payload=get_query_payload, centers=upload_centers)
 
     @deprecated_renamed_argument(["verbose", "cache"], new_name=[None, None],
                                  since=['0.4.8', '0.4.8'], relax=True)

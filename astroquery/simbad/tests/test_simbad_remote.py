@@ -1,4 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import numpy as np
 import pytest
 
 from astropy.coordinates import SkyCoord
@@ -78,6 +79,13 @@ class TestSimbad:
                                           radius=1 * u.arcmin, criteria="main_id LIKE 'M %'")
         # filtering on main_id to retrieve the two cone centers
         assert {"M  81", "M  10"} == set(result["main_id"].data.data)
+
+    def test_query_regions_long_list(self):
+        self.simbad.ROW_LIMIT = -1
+        # we create a list of centers longer than 300 to trigger the TAP upload case
+        centers = SkyCoord(np.arange(0, 360, 1), np.arange(0, 180, 0.5) - 90, unit="deg")
+        result = self.simbad.query_region(centers, radius="1m")
+        assert len(result) > 90
 
     def test_query_object_ids(self):
         self.simbad.ROW_LIMIT = -1
