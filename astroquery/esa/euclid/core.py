@@ -880,13 +880,13 @@ class EuclidClass(TapPlus):
                 #. MER
                      DpdMerSegmentationMap: Segmentation Map Product
                      DpdMerBksMosaic: Background-Subtracted Mosaic Product
-                     dpdMerFinalCatalog: Final Catalog Product
-                #. PHZ
-                    dpdPhzPfOutputCatalog: PHZ PF output catalog product for Deep tiles
+                     dpdMerFinalCatalog: Final Catalog Product  - We suggest to use ADQL to retrieve data from this dataset.
+                #. PHZ      - We suggest to use ADQL to retrieve data from these products.
+                    dpdPhzPfOutputCatalog: PHZ PF output catalog product for weak lensing
                     dpdPhzPfOutputForL3: PHZ PF output catalog product for LE3
-                #. SPE
+                #. SPE      - We suggest to use ADQL to retrieve data from this product.
                     dpdSpePfOutputCatalog: SPE PF output catalog product
-                #. SHE
+                #. SHE      - None of these product are available in Q1
                     dpdSheLensMcChains: Shear LensMc Chains
                     dpdSheBiasParams: Shear Bias Parameters Data Product
                     dpdSheLensMcFinalCatalog: Shear LensMc Final Catalog
@@ -899,11 +899,11 @@ class EuclidClass(TapPlus):
                     dpdHealpixCoverageVMPZ: Output Product: HEALPix Coverage Mask
                     dpdHealpixDepthMapVMPZ: Input Product: Depth Maps Parameters
                     dpdHealpixInfoMapVMPZ: Input Product: Information Map Parameters
-                #. SLE
+                #. SLE      - None of these product are available in Q1
                     dpdSleDetectionOutput: SLE Detection Output
                     dpdSleModelOutput: SLE Model Output
                 #. SIR
-                    DpdSirCombinedSpectra: Combined Spectra Product
+                    DpdSirCombinedSpectra: Combined Spectra Product - We suggest to use ADQL to retrieve data (spectra) from this dataset.
                     dpdSirScienceFrame: Science Frame Product
         verbose : bool, optional, default 'False'
             flag to display information about the process
