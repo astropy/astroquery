@@ -28,7 +28,7 @@ class Conf(_config.ConfigNamespace):
     VALID_DATALINK_RETRIEVAL_TYPES = ['EPOCH_PHOTOMETRY',
                                       'XP_CONTINUOUS',
                                       'XP_SAMPLED',
-                                      'RVS_MEAN_SPECTRUM',
+                                      'RVS',
                                       'MCMC_GSPPHOT',
                                       'MCMC_MSC',
                                       'EPOCH_ASTROMETRY',
