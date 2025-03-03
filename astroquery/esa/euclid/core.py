@@ -899,7 +899,7 @@ class EuclidClass(TapPlus):
                     dpdHealpixCoverageVMPZ: Output Product: HEALPix Coverage Mask
                     dpdHealpixDepthMapVMPZ: Input Product: Depth Maps Parameters
                     dpdHealpixInfoMapVMPZ: Input Product: Information Map Parameters
-                #. SLE      - None of these product are available in Q
+                #. SLE      - None of these product are available in Q1
                     dpdSleDetectionOutput: SLE Detection Output
                     dpdSleModelOutput: SLE Model Output
                 #. SIR
