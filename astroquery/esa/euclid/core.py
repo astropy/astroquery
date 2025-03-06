@@ -880,7 +880,8 @@ class EuclidClass(TapPlus):
                 #. MER
                      DpdMerSegmentationMap: Segmentation Map Product
                      DpdMerBksMosaic: Background-Subtracted Mosaic Product
-                     dpdMerFinalCatalog: Final Catalog Product  - We suggest to use ADQL to retrieve data from this dataset.
+                     dpdMerFinalCatalog: Final Catalog Product   \
+                                         - We suggest to use ADQL to retrieve data from this dataset.
                 #. PHZ      - We suggest to use ADQL to retrieve data from these products.
                     dpdPhzPfOutputCatalog: PHZ PF output catalog product for weak lensing
                     dpdPhzPfOutputForL3: PHZ PF output catalog product for LE3
@@ -903,7 +904,8 @@ class EuclidClass(TapPlus):
                     dpdSleDetectionOutput: SLE Detection Output
                     dpdSleModelOutput: SLE Model Output
                 #. SIR
-                    DpdSirCombinedSpectra: Combined Spectra Product - We suggest to use ADQL to retrieve data (spectra) from this dataset.
+                    DpdSirCombinedSpectra: Combined Spectra Product \
+                                           - We suggest to use ADQL to retrieve data (spectra) from this dataset.
                     dpdSirScienceFrame: Science Frame Product
         verbose : bool, optional, default 'False'
             flag to display information about the process
