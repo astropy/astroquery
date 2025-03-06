@@ -27,7 +27,7 @@ To get a concise list of IRSA catalogs available to query, use the
 `~.astroquery.ipac.irsa.IrsaClass.list_catalogs` method.
 The output consists of two fields for each catalog. To query a
 specific catalog, the first field can be entered as the value of the
-``catalog parameter`` in the `~.astroquery.ipac.irsa.IrsaClass.query_region` method.
+``catalog`` parameter in the `~.astroquery.ipac.irsa.IrsaClass.query_region` method.
 
 .. doctest-remote-data::
 
