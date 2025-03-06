@@ -34,11 +34,11 @@ def test_invalid_query_exoplanets():
 
 
 @pytest.mark.remote_data
-def test_missing_criterion_kepler():
+def test_invalid_query_kepler():
     with pytest.raises(InvalidQueryError) as error:
         NasaExoplanetArchive.query_criteria("keplertimeseries", where="kepid=8561063")
-    assert "Queries against the Kepler Time Series table require" in str(error)
-    NasaExoplanetArchive.query_criteria("keplertimeseries", kepid=8561063, quarter=14)
+    assert "'KEPID': invalid identifier" in str(error)
+    NasaExoplanetArchive.query_criteria("keplertimeseries", where="star_id=8561063")
 
 
 @pytest.mark.skip('TMP skip, server stuck with query')
@@ -135,10 +135,10 @@ def test_request_to_sql():
 
     assert payload_sql == "select * from ps where hostname like 'Kepler%' order by hostname"
 
-    # "cumulative" table is not in TAP_TABLES, payload is sent directly as GET params
+    # "cumulative" table is now in TAP_TABLES
     payload_dict = NasaExoplanetArchive.query_criteria(table="cumulative", where="pl_hostname like 'Kepler%'",
                                                        order="pl_hostname", get_query_payload=True)
-    assert isinstance(payload_dict, dict)
+    assert isinstance(payload_dict, str)
 
 
 @pytest.mark.remote_data
@@ -190,5 +190,5 @@ def test_format():
 @pytest.mark.remote_data
 def test_table_case_sensivity():
     # Regression test from #3090
-    table = NasaExoplanetArchive.query_criteria(table='DI_STARS_EXEP', select='*')
+    table = NasaExoplanetArchive.query_criteria(table='DI_STARS_EXEP', select='tic_id')
     assert len(table) > 0
