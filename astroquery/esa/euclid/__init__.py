@@ -69,6 +69,8 @@ class Conf(_config.ConfigNamespace):
 
     SCHEMAS = ['sedm']
 
+    VALID_DATALINK_RETRIEVAL_TYPES = ['SPECTRA_BGS', 'SPECTRA_RGS']
+
 
 conf = Conf()
 

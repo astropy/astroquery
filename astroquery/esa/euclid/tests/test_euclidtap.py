@@ -746,10 +746,8 @@ def test_get_product_exceptions():
 
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(ValueError, match="'file_name' and 'product_id' are both None"):
         tap.get_product(file_name=None, product_id=None, output_file=None)
-
-    str(exc_info.value).startswith("'file_name' and 'product_id' are both None")
 
 
 @patch.object(TapPlus, 'load_data')
@@ -1083,6 +1081,10 @@ def test_get_spectrum_exceptions():
         tap.get_spectrum(source_id='2417660845403252054', schema=None, output_file=None)
 
     assert str(exc_info.value).startswith('Missing required argument')
+    with pytest.raises(ValueError, match=(
+            "Invalid argument value for 'retrieval_type'. Found hola, expected: 'ALL' or any of \\['SPECTRA_BGS', "
+            "'SPECTRA_RGS'\\]")):
+        tap.get_spectrum(retrieval_type='hola', source_id='2417660845403252054', schema='schema', output_file=None)
 
 
 @patch.object(TapPlus, 'login')
