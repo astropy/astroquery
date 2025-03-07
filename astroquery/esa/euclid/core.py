@@ -1188,7 +1188,7 @@ class EuclidClass(TapPlus):
 
         rt = str(retrieval_type).upper()
         if rt != 'ALL' and rt not in self.__VALID_DATALINK_RETRIEVAL_TYPES:
-            raise ValueError(f"Invalid mandatory argument 'retrieval_type'. Found {retrieval_type}, "
+            raise ValueError(f"Invalid argument value for 'retrieval_type'. Found {retrieval_type}, "
                              f"expected: 'ALL' or any of {self.__VALID_DATALINK_RETRIEVAL_TYPES}")
 
         params_dict = {}

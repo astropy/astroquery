@@ -1230,7 +1230,7 @@ The following example shows how to retrieve the DataLink products (1D Spectra) a
 
   >>> files = Euclid.get_spectrum(retrieval_type='SPECTRA_BGS', source_id='2675005060662306333')
   >>> from astropy.io import fits
-  >>> print(fits.info(files[0]))
+  >>> print(fits.info(files[0]))  # doctest: +IGNORE_OUTPUT
   Filename: /home/astroquery/temp_20250225_204959/2675005060662306333.fits
   No.    Name      Ver    Type      Cards   Dimensions   Format
     0  PRIMARY       1 PrimaryHDU       4   ()

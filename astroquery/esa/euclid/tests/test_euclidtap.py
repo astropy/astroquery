@@ -1084,7 +1084,7 @@ def test_get_spectrum_exceptions():
 
     assert str(exc_info.value).startswith('Missing required argument')
 
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         tap.get_spectrum(retrieval_type='hola', source_id='2417660845403252054', schema='schema', output_file=None)
 
     assert str(exc_info.value).startswith(
