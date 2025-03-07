@@ -152,3 +152,6 @@ class DummyConnHandler:
 
     def execute_secure(self, subcontext=None, data=None, verbose=False):
         return self.__execute_post(subcontext=subcontext, data=data, verbose=verbose)
+
+    def get_host_url(self):
+        return "my fake object"

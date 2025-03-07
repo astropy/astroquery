@@ -39,6 +39,8 @@ class EuclidClass(TapPlus):
     """
     ROW_LIMIT = conf.ROW_LIMIT
 
+    __VALID_DATALINK_RETRIEVAL_TYPES = conf.VALID_DATALINK_RETRIEVAL_TYPES
+
     def __init__(self, *, tap_plus_conn_handler=None, datalink_handler=None, cutout_handler=None, environment='PDR',
                  verbose=False, show_server_messages=True):
 
@@ -456,6 +458,7 @@ class EuclidClass(TapPlus):
         """
         try:
             log.info("Login to Euclid TAP server")
+            log.info(f"Euclid TAP server url: {self._TapPlus__getconnhandler().get_host_url()}")
             super().login(user=user, password=password, credentials_file=credentials_file, verbose=verbose)
         except HTTPError as err:
             log.error('Error logging in TAP server: %s' % (str(err)))
@@ -466,8 +469,10 @@ class EuclidClass(TapPlus):
 
         try:
             log.info("Login to Euclid data service")
+            log.info(f"Euclid data server url: {self.__eucliddata._TapPlus__getconnhandler().get_host_url()}")
             self.__eucliddata.login(user=tap_user, password=tap_password, verbose=verbose)
             log.info("Login to Euclid cutout service")
+            log.info(f"Euclid cutout server url: {self.__euclidcutout._TapPlus__getconnhandler().get_host_url()}")
             self.__euclidcutout.login(user=tap_user, password=tap_password, verbose=verbose)
         except HTTPError as err:
             log.error('Error logging in data or cutout services: %s' % (str(err)))
@@ -1145,7 +1150,7 @@ class EuclidClass(TapPlus):
 
         return files
 
-    def get_spectrum(self, *, source_id, schema='sedm', output_file=None, verbose=False):
+    def get_spectrum(self, *, source_id, schema='sedm', retrieval_type="ALL", output_file=None, verbose=False):
         """
         Description
         -----------
@@ -1161,6 +1166,9 @@ class EuclidClass(TapPlus):
             source id for the spectrum
         schema : str, mandatory, default 'sedm'
             the data release, 'sedm'
+        retrieval_type : str, optional, default 'ALL' to retrieve all data from the list of sources
+            retrieval type identifier. Possible values are: 'SPECTRA_BGS' for the blue spectrum and 'SPECTRA_RGS' for
+            the red one.
         output_file : str, optional
             output file name. If no value is provided, a temporary one is created with the name
             "<working directory>/temp_<%Y%m%d_%H%M%S>/<source_id>.fits"
@@ -1175,9 +1183,19 @@ class EuclidClass(TapPlus):
         if source_id is None or schema is None:
             raise ValueError(self.__ERROR_MSG_REQUESTED_GENERIC)
 
-        params_dict = {'TAPCLIENT': 'ASTROQUERY', 'RETRIEVAL_TYPE': 'SPECTRA'}
+        rt = str(retrieval_type).upper()
+        if rt != 'ALL' and rt not in self.__VALID_DATALINK_RETRIEVAL_TYPES:
+            raise ValueError(f"Invalid mandatory argument 'retrieval_type'. Found {retrieval_type}, "
+                             f"expected: 'ALL' or any of {self.__VALID_DATALINK_RETRIEVAL_TYPES}")
+
+        params_dict = {}
+
         id_value = """{schema} {source_id}""".format(**{'schema': schema, 'source_id': source_id})
         params_dict['ID'] = id_value
+        params_dict['SCHEMA'] = schema
+        params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
+        params_dict['USE_ZIP_ALWAYS'] = 'true'
+        params_dict['TAPCLIENT'] = 'ASTROQUERY'
 
         fits_file = source_id + '.fits'
         output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id=fits_file)

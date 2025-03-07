@@ -1084,6 +1084,13 @@ def test_get_spectrum_exceptions():
 
     assert str(exc_info.value).startswith('Missing required argument')
 
+    with pytest.raises(Exception) as exc_info:
+        tap.get_spectrum(retrieval_type='hola', source_id='2417660845403252054', schema='schema', output_file=None)
+
+    assert str(exc_info.value).startswith(
+        "Invalid mandatory argument 'retrieval_type'. Found hola, expected: 'ALL' or any of ['SPECTRA_BGS', "
+        "'SPECTRA_RGS']")
+
 
 @patch.object(TapPlus, 'login')
 def test_login(mock_login):
