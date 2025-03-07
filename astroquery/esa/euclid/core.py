@@ -492,6 +492,7 @@ class EuclidClass(TapPlus):
         """
         try:
             log.info("Login to Euclid TAP server")
+            log.info(f"Euclid TAP server url: {self._TapPlus__getconnhandler().get_host_url()}")
             TapPlus.login_gui(self, verbose=verbose)
         except HTTPError as err:
             log.error('Error logging in TAP server: %s' % (str(err)))
@@ -502,6 +503,7 @@ class EuclidClass(TapPlus):
 
         try:
             log.info("Login to Euclid data server")
+            log.info(f"Euclid data server url: {self.__eucliddata._TapPlus__getconnhandler().get_host_url()}")
             self.__eucliddata.login(user=tap_user, password=tap_password, verbose=verbose)
         except HTTPError as err:
             log.error('Error logging in data server: %s' % (str(err)))
@@ -510,6 +512,7 @@ class EuclidClass(TapPlus):
 
         try:
             log.info("Login to Euclid cutout server")
+            log.info(f"Euclid cutout server url: {self.__euclidcutout._TapPlus__getconnhandler().get_host_url()}")
             self.__euclidcutout.login(user=tap_user, password=tap_password, verbose=verbose)
         except HTTPError as err:
             log.error('Error logging in cutout server: %s' % (str(err)))
