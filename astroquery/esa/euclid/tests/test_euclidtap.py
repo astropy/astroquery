@@ -645,36 +645,24 @@ def test_get_product_list_by_tile_index():
 def test_get_product_list_errors():
     tap = EuclidClass()
 
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(ValueError, match="Missing required argument: 'product_type'"):
         tap.get_product_list(observation_id='13', product_type=None)
 
-    assert str(exc_info.value).startswith("Missing required argument: 'product_type'")
-
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(ValueError,
+                       match="Missing required argument: 'observation_id'; Missing required argument: 'tile_id'"):
         tap.get_product_list(observation_id=None, tile_index=None, product_type='DpdNirStackedFrame')
 
-    assert str(exc_info.value).startswith(
-        "Missing required argument: 'observation_id'; Missing required argument: 'tile_id'")
-
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(ValueError, match="Incompatible: 'observation_id' and 'tile_id'. Use only one."):
         tap.get_product_list(observation_id='13', tile_index='13', product_type='DpdNirStackedFrame')
 
-    assert str(exc_info.value).startswith("Incompatible: 'observation_id' and 'tile_id'. Use only one.")
-
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(ValueError, match="Invalid product type DpdNirStackedFrame."):
         tap.get_product_list(tile_index='13', product_type='DpdNirStackedFrame')
 
-    assert str(exc_info.value).startswith("Invalid product type DpdNirStackedFrame.")
-
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(ValueError, match="Missing required argument: 'product_type'"):
         tap.get_product_list(tile_index='13', product_type=None)
 
-    assert str(exc_info.value).startswith("Missing required argument: 'product_type'")
-
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(ValueError, match="Invalid product type DpdMerBksMosaic."):
         tap.get_product_list(observation_id='13', product_type='DpdMerBksMosaic')
-
-    assert str(exc_info.value).startswith("Invalid product type DpdMerBksMosaic.")
 
 
 def test_get_product_by_product_id(tmp_path_factory):
@@ -833,20 +821,14 @@ def test_get_observation_products_exceptions():
 
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(ValueError, match="Missing required argument: 'observation_id'"):
         tap.get_observation_products(id=None, product_type='observation', filter='VIS', output_file=None)
 
-    assert str(exc_info.value).startswith("Missing required argument: 'observation_id'")
-
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(ValueError, match="Missing required argument: 'product_type'"):
         tap.get_observation_products(id='12', product_type=None, filter='VIS', output_file=None)
 
-    assert str(exc_info.value).startswith("Missing required argument: 'product_type'")
-
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(ValueError, match="Invalid product type XXXXXXXX. Valid values: \\['observation', 'mosaic'\\]"):
         tap.get_observation_products(id='12', product_type='XXXXXXXX', filter='VIS', output_file=None)
-
-    assert str(exc_info.value).startswith("Invalid product type XXXXXXXX. Valid values: ['observation', 'mosaic']")
 
 
 @patch.object(TapPlus, 'load_data')
@@ -929,36 +911,24 @@ def test_get_cutout_exception():
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, cutout_handler=cutout_handler,
                       show_server_messages=False)
 
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(ValueError, match="Radius cannot be greater than 30 arcminutes"):
         tap.get_cutout(file_path=file_path, instrument='NISP', id='19704', coordinate=c, radius=100 * u.arcmin,
                        output_file=None)
 
-    assert str(exc_info.value).startswith('Radius cannot be greater than 30 arcminutes')
-
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(ValueError, match="Missing required argument"):
         tap.get_cutout(file_path=None, instrument='NISP', id='19704', coordinate=c, radius=r, output_file=None)
 
-    assert str(exc_info.value).startswith('Missing required argument')
-
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(ValueError, match="Missing required argument"):
         tap.get_cutout(file_path=file_path, instrument=None, id='19704', coordinate=c, radius=r, output_file=None)
 
-    assert str(exc_info.value).startswith('Missing required argument')
-
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(ValueError, match="Missing required argument"):
         tap.get_cutout(file_path=file_path, instrument='NISP', id=None, coordinate=c, radius=r, output_file=None)
 
-    assert str(exc_info.value).startswith('Missing required argument')
-
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(ValueError, match="Missing required argument"):
         tap.get_cutout(file_path=file_path, instrument='NISP', id='19704', coordinate=None, radius=r, output_file=None)
 
-    assert str(exc_info.value).startswith('Missing required argument')
-
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(ValueError, match="Missing required argument"):
         tap.get_cutout(file_path=file_path, instrument='NISP', id='19704', coordinate=c, radius=None, output_file=None)
-
-    assert str(exc_info.value).startswith('Missing required argument')
 
 
 @patch.object(TapPlus, 'load_data')
@@ -1072,15 +1042,12 @@ def test_get_spectrum_exceptions():
 
     # if source_id is None or schema is None:
 
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(ValueError, match="Missing required argument"):
         tap.get_spectrum(source_id=None, schema='sedm_sc8', output_file=None)
 
-    assert str(exc_info.value).startswith('Missing required argument')
-
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(ValueError, match="Missing required argument"):
         tap.get_spectrum(source_id='2417660845403252054', schema=None, output_file=None)
 
-    assert str(exc_info.value).startswith('Missing required argument')
     with pytest.raises(ValueError, match=(
             "Invalid argument value for 'retrieval_type'. Found hola, expected: 'ALL' or any of \\['SPECTRA_BGS', "
             "'SPECTRA_RGS'\\]")):

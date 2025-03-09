@@ -1200,7 +1200,8 @@ class EuclidClass(TapPlus):
         params_dict['USE_ZIP_ALWAYS'] = 'true'
         params_dict['TAPCLIENT'] = 'ASTROQUERY'
 
-        fits_file = source_id + '.fits'
+        fits_file = source_id + '.fits.zip'
+
         output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id=fits_file)
         try:
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
