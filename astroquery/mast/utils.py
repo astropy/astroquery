@@ -159,6 +159,26 @@ def parse_input_location(coordinates=None, objectname=None):
     return obj_coord
 
 
+def split_list_into_chunks(input_list, chunk_size):
+    """
+    Splits a list into chunks of a specified size.
+
+    Parameters
+    ----------
+    input_list : list
+        List to be split into chunks.
+    chunk_size : int
+        Size of each chunk.
+
+    Yields
+    ------
+    chunk : list
+        A chunk of the input list.
+    """
+    for idx in range(0, len(input_list), chunk_size):
+        yield input_list[idx:idx + chunk_size]
+
+
 def mast_relative_path(mast_uri):
     """
     Given one or more MAST dataURI(s), return the associated relative path(s).
@@ -180,7 +200,7 @@ def mast_relative_path(mast_uri):
 
     # Split the list into chunks of 50 URIs; this is necessary
     # to avoid "414 Client Error: Request-URI Too Large".
-    uri_list_chunks = list(_split_list_into_chunks(uri_list, chunk_size=50))
+    uri_list_chunks = list(split_list_into_chunks(uri_list, chunk_size=50))
 
     result = []
     for chunk in uri_list_chunks:
@@ -212,12 +232,6 @@ def mast_relative_path(mast_uri):
         return result[0]
     # Else, return a list of paths
     return result
-
-
-def _split_list_into_chunks(input_list, chunk_size):
-    """Helper function for `mast_relative_path`."""
-    for idx in range(0, len(input_list), chunk_size):
-        yield input_list[idx:idx + chunk_size]
 
 
 def remove_duplicate_products(data_products, uri_key):
