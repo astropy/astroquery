@@ -57,8 +57,7 @@ class NEOCCClass(BaseQuery):
         neocc_lst : `~astropy.table.Table`
             Astropy Table which contains the data of the requested list.
 
-        Note
-        ----
+        Note:
         If the contents request fails the following message will be printed:
 
         *Initial attempt to obtain list failed. Reattempting...*
