@@ -81,7 +81,7 @@ class EsoNames:
 
 def unlimited_max_rec(func):
     """
-    decorator to overwrite the ROW LIMIT
+    decorator to overwrite maxrec
     for specific queries
     """
     @functools.wraps(func)
@@ -212,7 +212,7 @@ class EsoClass(QueryWithLogin):
         else:
             return {}
 
-    def maybe_warn_about_table_length(self, table):
+    def _maybe_warn_about_table_length(self, table):
         """
         Issues a warning when a table is empty or when the
         results are truncated
@@ -222,10 +222,10 @@ class EsoClass(QueryWithLogin):
 
         if len(table) == self.maxrec:
             warnings.warn(f"Results truncated to {self.maxrec}. "
-                          "To retrieve all the records set to None the ROW_LIMIT attribute",
+                          "To retrieve all the records set to None the maxrec attribute",
                           MaxResultsWarning)
 
-    def try_download_pyvo_table(self,
+    def _try_download_pyvo_table(self,
                                 query_str: str,
                                 tap: TAPService) -> Optional[astropy.table.Table]:
         table_to_return = None
@@ -257,10 +257,10 @@ class EsoClass(QueryWithLogin):
         """
         table_to_return = None
 
-        table_to_return = self.try_download_pyvo_table(query_str,
+        table_to_return = self._try_download_pyvo_table(query_str,
                                                        TAPService(self.tap_url()))
 
-        self.maybe_warn_about_table_length(table_to_return)
+        self._maybe_warn_about_table_length(table_to_return)
 
         return table_to_return
 
@@ -278,6 +278,8 @@ class EsoClass(QueryWithLogin):
                          "where schema_name='ist' order by table_name")
             res = self.query_tap_service(query_str)["table_name"].data
             self._instruments = list(map(lambda x: x.split(".")[1], res))
+        if len(self._instruments) < 1:
+            self._instruments = None
         return self._instruments
 
     @unlimited_max_rec
