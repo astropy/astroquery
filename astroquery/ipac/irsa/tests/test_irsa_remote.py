@@ -92,5 +92,5 @@ class TestIrsa:
         coord = SkyCoord.from_name("Eta Carina")
         result = Irsa.query_ssa(pos=coord)
         assert len(result) > 260
-        collections = set(result.to_table()['dataid_collection'])
+        collections = set(result['dataid_collection'])
         assert {'champ', 'iso_sws', 'sofia_forcast', 'sofia_great', 'spitzer_sha'}.issubset(collections)
