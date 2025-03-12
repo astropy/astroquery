@@ -308,7 +308,7 @@ def test_download_pyvo_table():
     q_str = "select * from ivoa.ObsCore"
     table = None
     with pytest.raises(pyvo.dal.exceptions.DALFormatError):
-        table = eso_instance.try_download_pyvo_table(q_str, dal)
+        table = eso_instance._try_download_pyvo_table(q_str, dal)
 
     assert table is None
 
@@ -319,16 +319,16 @@ def test_issue_table_length_warnings():
     # should warn, since the table is empty
     t = Table()
     with pytest.warns(NoResultsWarning):
-        eso_instance.maybe_warn_about_table_length(t)
+        eso_instance._maybe_warn_about_table_length(t)
 
     # should warn, since 50 = eso_instance.maxrec
     t = Table({"col_name": [i for i in range(50)]})
     with pytest.warns(MaxResultsWarning):
-        eso_instance.maybe_warn_about_table_length(t)
+        eso_instance._maybe_warn_about_table_length(t)
 
     # should not warn
     t = Table({"col_name": [i for i in range(51)]})
-    eso_instance.maybe_warn_about_table_length(t)
+    eso_instance._maybe_warn_about_table_length(t)
 
 
 def test_py2adql():
