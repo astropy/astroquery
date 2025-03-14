@@ -42,20 +42,19 @@ class EuclidClass(TapPlus):
     __VALID_DATALINK_RETRIEVAL_TYPES = conf.VALID_DATALINK_RETRIEVAL_TYPES
 
     def __init__(self, *, environment='PDR', tap_plus_conn_handler=None, datalink_handler=None, cutout_handler=None,
-                 euclid_tap_server=None, euclid_data_server=None, euclid_cutout_server=None, verbose=False,
-                 show_server_messages=True):
+                 verbose=False, show_server_messages=True):
         """Constructor for EuclidClass.
 
         Parameters
         ----------
         environment : str, mandatory if no tap, data or cutout hosts is specified, default 'PDR'
             The Euclid Science Archive environment: 'PDR', 'IDR', 'OTF' and 'REG'
-        euclid_tap_server : str, optional, default None
-            TAP URL
-        euclid_data_server : str, optional, default None
-            data URL
-        euclid_cutout_server : str, optional, default None
-            cutout URL
+        tap_plus_conn_handler : tap connection handler object, optional, default None
+            HTTP(s) connection hander (creator). If no handler is provided, a new one is created.
+        datalink_handler : dataliink connection handler object, optional, default None
+            HTTP(s) connection hander (creator). If no handler is provided, a new one is created.
+        cutout_handler : cutout connection handler object, optional, default None
+            HTTP(s) connection hander (creator). If no handler is provided, a new one is created.
         verbose : bool, optional, default 'True'
             flag to display information about the process
         show_server_messages : bool, optional, default 'True'
