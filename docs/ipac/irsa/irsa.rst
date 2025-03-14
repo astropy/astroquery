@@ -271,7 +271,7 @@ Simple image access queries
 
 `~astroquery.ipac.irsa.IrsaClass.query_sia` provides a way to access IRSA's Simple
 Image Access VO service. In the following example we are looking for Spitzer
-Enhanced Imaging products in the centre of the COSMOS field as an `~astropy.table.Table`.
+Enhanced Imaging products in the centre of the COSMOS field as a `~astropy.table.QTable`.
 
 .. doctest-remote-data::
 
@@ -280,7 +280,7 @@ Enhanced Imaging products in the centre of the COSMOS field as an `~astropy.tabl
    >>> from astropy import units as u
    >>>
    >>> coord = SkyCoord('150.01d 2.2d', frame='icrs')
-   >>> spitzer_images = Irsa.query_sia(pos=(coord, 1 * u.arcmin), collection='spitzer_seip').to_table()
+   >>> spitzer_images = Irsa.query_sia(pos=(coord, 1 * u.arcmin), collection='spitzer_seip')
 
 To list available collections for SIA queries, the
 `~astroquery.ipac.irsa.IrsaClass.list_collections` method is provided, and
@@ -342,7 +342,7 @@ Now plot the cutout.
    from astropy.wcs import WCS
    import matplotlib.pyplot as plt
    coord = SkyCoord('150.01d 2.2d', frame='icrs')
-   spitzer_images = Irsa.query_sia(pos=(coord, 1 * u.arcmin), collection='spitzer_seip').to_table()
+   spitzer_images = Irsa.query_sia(pos=(coord, 1 * u.arcmin), collection='spitzer_seip')
    science_image = spitzer_images[spitzer_images['dataproduct_subtype'] == 'science'][0]
    with fits.open(science_image['access_url'], use_fsspec=True) as hdul:
         cutout = Cutout2D(hdul[0].section, position=coord, size=2 *
@@ -356,7 +356,7 @@ Simple spectral access queries
 
 `~astroquery.ipac.irsa.IrsaClass.query_ssa` provides a way to access IRSA's Simple
 Spectral Access VO service. In the following example we are looking for Spitzer
-Enhanced Imaging products in the centre of the COSMOS field as an `~astropy.table.Table`.
+Enhanced Imaging products in the centre of the COSMOS field as a `~astropy.table.QTable`.
 
 .. doctest-remote-data::
 
@@ -365,7 +365,7 @@ Enhanced Imaging products in the centre of the COSMOS field as an `~astropy.tabl
    >>> from astropy import units as u
    >>>
    >>> coord = pos = SkyCoord.from_name('Arp 220')
-   >>> arp220_spectra = Irsa.query_ssa(pos=coord).to_table()
+   >>> arp220_spectra = Irsa.query_ssa(pos=coord)
 
 Without specifying the collection, the query returns results from multiple
 collections. For example this target has spectra from SOFIA as well as from

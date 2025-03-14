@@ -8,6 +8,10 @@ New Tools and Services
 API changes
 -----------
 
+alma
+^^^^
+
+- ``query_sia`` now returns the results as an astropy QTable. [#3252]
 
 esa.euclid
 ^^^^^^^^^^^^
@@ -15,6 +19,11 @@ esa.euclid
 - New module to access the ESA Euclid Archive. [#3216]
 
 - Tests remove temp directories. [#3226]
+
+ipac.irsa
+^^^^^^^^^
+
+- ``query_sia`` now returns the results as an astropy QTable. [#3252]
 
 mast
 ^^^^

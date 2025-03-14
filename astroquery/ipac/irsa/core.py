@@ -102,10 +102,10 @@ class IrsaClass(BaseVOQuery):
 
         Returns
         -------
-        Results in `pyvo.dal.SIAResults` format.
-        result.to_table() in Astropy table format
+        Results in `~astropy.table.QTable` format.
+
         """
-        return self.sia.search(
+        results = self.sia.search(
             pos=pos,
             band=band,
             time=time,
@@ -125,6 +125,8 @@ class IrsaClass(BaseVOQuery):
             res_format=res_format,
             maxrec=maxrec,
             **kwargs)
+
+        return results.to_qtable()
 
     query_sia.__doc__ = query_sia.__doc__.replace('_SIA2_PARAMETERS', SIA2_PARAMETERS_DESC)
 
@@ -151,8 +153,7 @@ class IrsaClass(BaseVOQuery):
 
         Returns
         -------
-        Results in `pyvo.dal.SSAResults` format.
-        result.to_table() in Astropy table format
+        Results in `~astropy.table.QTable` format.
         """
 
         if radius is None:
@@ -160,8 +161,9 @@ class IrsaClass(BaseVOQuery):
         else:
             diameter = 2 * radius
 
-        return self.ssa.search(pos=pos, diameter=diameter, band=band, time=time,
-                               format='all', collection=collection)
+        results = self.ssa.search(pos=pos, diameter=diameter, band=band, time=time,
+                                  format='all', collection=collection)
+        return results.to_qtable()
 
     def list_collections(self, servicetype=None):
         """
@@ -302,10 +304,10 @@ class IrsaClass(BaseVOQuery):
         Parameters
         ----------
         full : bool
-            If True returns the full schema VOTable. If False returns a dictionary of the table names and
-            their description.
+            If True returns the full schema as a `~astropy.table.Table`.
+            If False returns a dictionary of the table names and their description.
         """
-        tap_tables = Irsa.query_tap("SELECT * FROM TAP_SCHEMA.tables")
+        tap_tables = Irsa.query_tap("SELECT * FROM TAP_SCHEMA.tables").to_table()
 
         if full:
             return tap_tables
