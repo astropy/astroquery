@@ -29,7 +29,7 @@ def are_coords_valid(ra: Optional[float] = None,
     or absent all three. Moreover, they must be float
     """
     are_all_none = (ra is None) and (dec is None) and (radius is None)
-    are_all_float = isinstance(ra, float) and isinstance(dec, float) and isinstance(radius, float)
+    are_all_float = isinstance(ra, (float, int)) and isinstance(dec, (float, int)) and isinstance(radius, (float, int))
     is_a_valid_combination = are_all_none or are_all_float
     return is_a_valid_combination
 
@@ -52,6 +52,7 @@ def py2adql(table: str, columns: Union[List, str] = None,
     query_string = None
     # do not modify the original list
     wc = [] if where_constraints is None else where_constraints[:]
+    wc += where_circle
     if isinstance(columns, str):
         columns = _split_str_as_list_of_str(columns)
     if columns is None or len(columns) < 1:
@@ -62,7 +63,7 @@ def py2adql(table: str, columns: Union[List, str] = None,
     # Build the query
     query_string = ', '.join(columns) + ' from ' + table
     if len(wc) > 0:
-        where_string = ' where ' + ' and '.join(wc + where_circle)
+        where_string = ' where ' + ' and '.join(wc)
         query_string += where_string
 
     if len(order_by) > 0:
