@@ -117,7 +117,7 @@ def calselector_request(url, **kwargs):
     return response
 
 
-def test_sinfoni_SgrAstar(monkeypatch):
+def test_sinfoni_sgr_a_star(monkeypatch):
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
     monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
@@ -127,7 +127,7 @@ def test_sinfoni_SgrAstar(monkeypatch):
     assert 'SGRA' in result['target']
 
 
-def test_main_SgrAstar(monkeypatch):
+def test_main_sgr_a_star(monkeypatch):
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
     monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
