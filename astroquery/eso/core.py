@@ -226,8 +226,8 @@ class EsoClass(QueryWithLogin):
                           MaxResultsWarning)
 
     def _try_download_pyvo_table(self,
-                                query_str: str,
-                                tap: TAPService) -> Optional[astropy.table.Table]:
+                                 query_str: str,
+                                 tap: TAPService) -> Optional[astropy.table.Table]:
         table_to_return = None
 
         def message(query_str):
@@ -258,7 +258,7 @@ class EsoClass(QueryWithLogin):
         table_to_return = None
 
         table_to_return = self._try_download_pyvo_table(query_str,
-                                                       TAPService(self.tap_url()))
+                                                        TAPService(self.tap_url()))
 
         self._maybe_warn_about_table_length(table_to_return)
 
@@ -308,14 +308,25 @@ class EsoClass(QueryWithLogin):
         Prints the columns contained in a given table
         """
         help_query = (
-            f"select column_name, datatype from TAP_SCHEMA.columns "
+            f"select column_name, datatype, xtype, unit, description from TAP_SCHEMA.columns "
             f"where table_name = '{table_name}'")
         available_cols = self.query_tap_service(help_query)
+
+        count_query = f"select count(*) from {table_name}"
+        num_records = list(self.query_tap_service(count_query)[0].values())[0]
+
+        # All this block is to print nicely...
+        # This whole function should be better written and the output
+        # shown tidier
         nlines = len(available_cols) + 2
         n_ = astropy.conf.max_lines
+        m_ = astropy.conf.max_width
         astropy.conf.max_lines = nlines
-        log.info(f"\nColumns present in the table {table_name}:\n{available_cols}\n")
+        astropy.conf.max_width = sys.maxsize
+        log.info(f"\nColumns present in the table {table_name}:\n{available_cols}\n"
+                 f"\nNumber of records present in the table {table_name}:\n{num_records}\n")
         astropy.conf.max_lines = n_
+        astropy.conf.max_width = m_
 
     def _query_on_allowed_values(
             self,
@@ -376,7 +387,7 @@ class EsoClass(QueryWithLogin):
 
     def query_collections(
             self,
-            collections: Union[List[str], str], *,
+            collections: Union[List[str], str] = None, *,
             ra: float = None, dec: float = None, radius: float = None,
             columns: Union[List, str] = None,
             top: int = None,
