@@ -41,8 +41,26 @@ class EuclidClass(TapPlus):
 
     __VALID_DATALINK_RETRIEVAL_TYPES = conf.VALID_DATALINK_RETRIEVAL_TYPES
 
-    def __init__(self, *, tap_plus_conn_handler=None, datalink_handler=None, cutout_handler=None, environment='PDR',
-                 verbose=False, show_server_messages=True):
+    def __init__(self, *, environment='PDR', tap_plus_conn_handler=None, datalink_handler=None, cutout_handler=None,
+                 euclid_tap_server=None, euclid_data_server=None, euclid_cutout_server=None, verbose=False,
+                 show_server_messages=True):
+        """Constructor for EuclidClass.
+
+        Parameters
+        ----------
+        environment : str, mandatory if no tap, data or cutout hosts is specified, default 'PDR'
+            The Euclid Science Archive environment: 'PDR', 'IDR', 'OTF' and 'REG'
+        euclid_tap_server : str, optional, default None
+            TAP URL
+        euclid_data_server : str, optional, default None
+            data URL
+        euclid_cutout_server : str, optional, default None
+            cutout URL
+        verbose : bool, optional, default 'True'
+            flag to display information about the process
+        show_server_messages : bool, optional, default 'True'
+            show the messages to inform users about the status of Euclid TAP
+        """
 
         if environment not in conf.ENVIRONMENTS:
             raise ValueError(
@@ -457,8 +475,7 @@ class EuclidClass(TapPlus):
             flag to display information about the process
         """
         try:
-            log.info("Login to Euclid TAP server")
-            log.info(f"Euclid TAP server url: {self._TapPlus__getconnhandler().get_host_url()}")
+            log.info(f"Login to Euclid TAP server: {self._TapPlus__getconnhandler().get_host_url()}")
             super().login(user=user, password=password, credentials_file=credentials_file, verbose=verbose)
         except HTTPError as err:
             log.error('Error logging in TAP server: %s' % (str(err)))
@@ -468,11 +485,9 @@ class EuclidClass(TapPlus):
         tap_password = self._TapPlus__pwd
 
         try:
-            log.info("Login to Euclid data service")
-            log.info(f"Euclid data server url: {self.__eucliddata._TapPlus__getconnhandler().get_host_url()}")
+            log.info(f"Login to Euclid data service: {self.__eucliddata._TapPlus__getconnhandler().get_host_url()}")
             self.__eucliddata.login(user=tap_user, password=tap_password, verbose=verbose)
-            log.info("Login to Euclid cutout service")
-            log.info(f"Euclid cutout server url: {self.__euclidcutout._TapPlus__getconnhandler().get_host_url()}")
+            log.info(f"Login to Euclid cutout service: {self.__euclidcutout._TapPlus__getconnhandler().get_host_url()}")
             self.__euclidcutout.login(user=tap_user, password=tap_password, verbose=verbose)
         except HTTPError as err:
             log.error('Error logging in data or cutout services: %s' % (str(err)))
@@ -491,8 +506,7 @@ class EuclidClass(TapPlus):
             flag to display information about the process
         """
         try:
-            log.info("Login to Euclid TAP server")
-            log.info(f"Euclid TAP server url: {self._TapPlus__getconnhandler().get_host_url()}")
+            log.info(f"Login to Euclid TAP server: {self._TapPlus__getconnhandler().get_host_url()}")
             TapPlus.login_gui(self, verbose=verbose)
         except HTTPError as err:
             log.error('Error logging in TAP server: %s' % (str(err)))
@@ -502,8 +516,7 @@ class EuclidClass(TapPlus):
         tap_password = self._TapPlus__pwd
 
         try:
-            log.info("Login to Euclid data server")
-            log.info(f"Euclid data server url: {self.__eucliddata._TapPlus__getconnhandler().get_host_url()}")
+            log.info(f"Login to Euclid data server: {self.__eucliddata._TapPlus__getconnhandler().get_host_url()}")
             self.__eucliddata.login(user=tap_user, password=tap_password, verbose=verbose)
         except HTTPError as err:
             log.error('Error logging in data server: %s' % (str(err)))
@@ -511,8 +524,7 @@ class EuclidClass(TapPlus):
             TapPlus.logout(self, verbose=verbose)
 
         try:
-            log.info("Login to Euclid cutout server")
-            log.info(f"Euclid cutout server url: {self.__euclidcutout._TapPlus__getconnhandler().get_host_url()}")
+            log.info(f"Login to Euclid cutout server: {self.__euclidcutout._TapPlus__getconnhandler().get_host_url()}")
             self.__euclidcutout.login(user=tap_user, password=tap_password, verbose=verbose)
         except HTTPError as err:
             log.error('Error logging in cutout server: %s' % (str(err)))
@@ -1159,16 +1171,18 @@ class EuclidClass(TapPlus):
         -----------
         Downloads a spectrum with datalink.
 
-        The spectrum associated to the source_id is downloaded as fits file, and returned in a list. The file is
-        saved in the local path given by output_file. If this parameter is not set, the result is saved in the
-        file "<working directory>/temp_<%Y%m%d_%H%M%S>/<source_id>.fits"
+        The spectrum associated to the source_id is downloaded as a compressed fits file, and the files it contains
+        are returned in a list. The compressed fits file is saved in the local path given by output_file. If this
+        parameter is not set, the result is saved in the file "<working
+        directory>/temp_<%Y%m%d_%H%M%S>/<source_id>.fits.zip". In any case, the content of the zip file is
+        automatically extracted.
 
         Parameters
         ----------
         source_id : str, mandatory, default None
             source id for the spectrum
         schema : str, mandatory, default 'sedm'
-            the data release, 'sedm'
+            the data release
         retrieval_type : str, optional, default 'ALL' to retrieve all data from the list of sources
             retrieval type identifier. Possible values are: 'SPECTRA_BGS' for the blue spectrum and 'SPECTRA_RGS' for
             the red one.
@@ -1180,7 +1194,10 @@ class EuclidClass(TapPlus):
 
         Returns
         -------
-        A list of files.
+        A list of files: the files contained in the downloaded compressed fits file. The format of the file is
+        SPECTRA_<colour>-<schema> <source_id>.fits', where <colour> is BGS or RGS, and <schema> and <source_id> are
+        taking from the input parameters.
+
         """
 
         if source_id is None or schema is None:
@@ -1202,7 +1219,22 @@ class EuclidClass(TapPlus):
 
         fits_file = source_id + '.fits.zip'
 
+        if output_file is not None:
+            if not output_file.endswith('.zip'):
+                output_file = output_file + '.zip'
+
+            if os.path.dirname(output_file) == '':
+                output_file = os.path.join(os.getcwd(), output_file)
+
+            if verbose:
+                print(f"output file: {output_file}")
+
         output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id=fits_file)
+
+        if os.listdir(output_dir):
+            log.error(f'The directory is not empty: {output_dir}')
+            return
+
         try:
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
