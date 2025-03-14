@@ -337,8 +337,9 @@ class EsoClass(QueryWithLogin):
             columns: Union[List, str] = None,
             top: int = None,
             count_only: bool = False,
+            query_str_only: bool = False,
             print_help: bool = False,
-            **kwargs) -> Union[astropy.table.Table, int]:
+            **kwargs) -> Union[astropy.table.Table, int, str]:
         """
         Query instrument- or collection-specific data contained in the ESO archive.
          - instrument-specific data is raw
@@ -378,12 +379,14 @@ class EsoClass(QueryWithLogin):
                         count_only=count_only,
                         top=top)
 
-        table_to_return = self.query_tap_service(query_str=query)
+        if query_str_only:
+            return query  # string
 
-        if count_only:  # this below is an int, not a table
-            table_to_return = list(table_to_return[0].values())[0]
+        retval = self.query_tap_service(query_str=query)  # table
+        if count_only:
+            retval = list(retval[0].values())[0]  # int
 
-        return table_to_return
+        return retval
 
     def query_collections(
             self,
@@ -392,8 +395,9 @@ class EsoClass(QueryWithLogin):
             columns: Union[List, str] = None,
             top: int = None,
             count_only: bool = False,
+            query_str_only: bool = False,
             print_help=False,
-            **kwargs) -> Union[astropy.table.Table, int]:
+            **kwargs) -> Union[astropy.table.Table, int, str]:
         return self._query_on_allowed_values(table_name=EsoNames.phase3_table,
                                              column_name=EsoNames.phase3_collections_column,
                                              allowed_values=collections,
@@ -401,6 +405,7 @@ class EsoClass(QueryWithLogin):
                                              columns=columns,
                                              top=top,
                                              count_only=count_only,
+                                             query_str_only=query_str_only,
                                              print_help=print_help,
                                              **kwargs)
 
@@ -411,8 +416,9 @@ class EsoClass(QueryWithLogin):
             columns: Union[List, str] = None,
             top: int = None,
             count_only: bool = False,
+            query_str_only: bool = False,
             print_help=False,
-            **kwargs) -> Union[astropy.table.Table, int]:
+            **kwargs) -> Union[astropy.table.Table, int, str]:
         return self._query_on_allowed_values(table_name=EsoNames.raw_table,
                                              column_name=EsoNames.raw_instruments_column,
                                              allowed_values=instruments,
@@ -420,6 +426,7 @@ class EsoClass(QueryWithLogin):
                                              columns=columns,
                                              top=top,
                                              count_only=count_only,
+                                             query_str_only=query_str_only,
                                              print_help=print_help,
                                              **kwargs)
 
@@ -431,8 +438,9 @@ class EsoClass(QueryWithLogin):
             columns: Union[List, str] = None,
             top: int = None,
             count_only: bool = False,
+            query_str_only: bool = False,
             print_help=False,
-            **kwargs) -> Union[astropy.table.Table, int]:
+            **kwargs) -> Union[astropy.table.Table, int, str]:
         return self._query_on_allowed_values(table_name=EsoNames.ist_table(instrument),
                                              column_name=None,
                                              allowed_values=None,
@@ -440,6 +448,7 @@ class EsoClass(QueryWithLogin):
                                              columns=columns,
                                              top=top,
                                              count_only=count_only,
+                                             query_str_only=query_str_only,
                                              print_help=print_help,
                                              **kwargs)
 
