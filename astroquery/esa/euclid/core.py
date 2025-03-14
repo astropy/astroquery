@@ -1170,7 +1170,7 @@ class EuclidClass(TapPlus):
         -----------
         Downloads a spectrum with datalink.
 
-        The spectrum associated to the source_id is downloaded as a compressed fits file, and the files it contains
+        The spectrum associated with the source_id is downloaded as a compressed fits file, and the files it contains
         are returned in a list. The compressed fits file is saved in the local path given by output_file. If this
         parameter is not set, the result is saved in the file "<working
         directory>/temp_<%Y%m%d_%H%M%S>/<source_id>.fits.zip". In any case, the content of the zip file is
@@ -1195,7 +1195,7 @@ class EuclidClass(TapPlus):
         -------
         A list of files: the files contained in the downloaded compressed fits file. The format of the file is
         SPECTRA_<colour>-<schema> <source_id>.fits', where <colour> is BGS or RGS, and <schema> and <source_id> are
-        taking from the input parameters.
+        taken from the input parameters.
 
         """
 
