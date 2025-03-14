@@ -1,10 +1,8 @@
-#!/usr/bin/env/python
-
 """
 utils.py: helper functions for the astropy.eso module
 """
 
-from typing import Union, List
+from typing import Union, List, Optional
 
 
 def _split_str_as_list_of_str(column_str: str):
@@ -19,35 +17,20 @@ def adql_sanitize_val(x):
     """
     If the value is a string, put it into single quotes
     """
-    if isinstance(x, str):
-        return f"'{x}'"
-    else:
-        return f"{x}"
+    retval = f"'{x}'" if isinstance(x, str) else f"{x}"
+    return retval
 
 
-def are_coords_valid(ra: float = None,
-                     dec: float = None,
-                     radius: float = None) -> bool:
+def are_coords_valid(ra: Optional[float] = None,
+                     dec: Optional[float] = None,
+                     radius: Optional[float] = None) -> bool:
     """
     ra, dec, radius must be either present all three
     or absent all three. Moreover, they must be float
     """
-    is_a_valid_combination = True
-    # if either of the three is None...
-    if ((ra is None)
-        or (dec is None)
-            or (radius is None)):
-        # ...all three must be none
-        is_a_valid_combination = (
-            (ra is None)
-            and (dec is None)
-            and (radius is None))
-    else:
-        # They are not None --> they must be float:
-        is_a_valid_combination = (
-            isinstance(ra, (float, int))
-            and isinstance(dec, (float, int))
-            and isinstance(radius, (float, int)))
+    are_all_none = (ra is None) and (dec is None) and (radius is None)
+    are_all_float = isinstance(ra, float) and isinstance(dec, float) and isinstance(radius, float)
+    is_a_valid_combination = are_all_none or are_all_float
     return is_a_valid_combination
 
 
