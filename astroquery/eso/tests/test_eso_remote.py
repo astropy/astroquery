@@ -22,6 +22,7 @@ instrument_list = ['alpaca', 'fors1', 'fors2', 'sphere', 'vimos', 'omegacam',
                    'kmos', 'sinfoni', 'amber', 'midi', 'pionier',
                    'gravity', 'espresso', 'wlgsu', 'matisse', 'eris',
                    'fiat',
+                   'efosc', 'harps', 'nirps', 'sofi'
                    ]
 
 SGRA_COLLECTIONS = ['195.B-0283',
@@ -94,7 +95,7 @@ class TestEso:
         assert n == top, f"Expected {top}; Obtained {n}"
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
-    def test_sgr_a_star(self):
+    def test_sgrastar(self):
         eso = Eso()
         eso.maxrec = 1
 
@@ -168,7 +169,7 @@ class TestEso:
         assert len(result_s) == 0
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
-    def test_sgr_a_star_remote_vs_local(self, tmp_path):
+    def test_sgrastar_remote_vs_local(self, tmp_path):
         eso = Eso()
         # TODO originally it was 'gravity', but it is not yet ready in the TAP ISTs
         instrument = 'uves'
@@ -186,17 +187,7 @@ class TestEso:
 
     def test_list_instruments(self):
         # If this test fails, we may simply need to update it
-
         inst = set(Eso.list_instruments())
-
-        # TODO ############ restore when they are fixed in TAP #
-        try:
-            inst.remove('apex')
-        except ValueError:
-            pass
-        # #################################################### #
-
-        # we only care about the sets matching
         assert set(inst) == set(instrument_list), \
             f"Expected result {instrument_list}; Obtained: {inst}"
 
@@ -232,43 +223,22 @@ class TestEso:
         raise NotImplementedError
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
-    def test_each_instrument_sgr_a_star(self, tmp_path):
+    @pytest.mark.parametrize('instrument', instrument_list)
+    def test_each_instrument_sgrastar(self, instrument):
         eso = Eso()
-        eso.cache_location = tmp_path
-        eso.maxrec = 5
-
-        instruments = eso.list_instruments()
-
-        # TODO: restore all of these instruments when they are fixed in the TAP ists ##################################
+        eso.maxrec = 1  # Either we have maxrec results or none at all
         try:
-            instruments.remove('apex')      # ValueError: 1:0: not well-formed (invalid token)
-            #                               # pyvo.dal.exceptions.DALServiceError:
-            #                                 500 Server Error:  for url: http://dfidev5.hq.eso.org:8123/tap_obs/sync
-            instruments.remove('fiat')      # TODO pyvo.dal.exceptions.DALQueryError: # fiat has no ra and dec
-            #                                 Error converting data type varchar to numeric.
-            instruments.remove('espresso')  # pyvo.dal.exceptions.DALQueryError: Invalid column name 'obs_container_id'
-            instruments.remove('gravity')   # pyvo.dal.exceptions.DALQueryError: Invalid column name 'obs_container_id'
-            instruments.remove('matisse')   # pyvo.dal.exceptions.DALQueryError: Invalid column name 'obs_container_id'
-            instruments.remove('omegacam')  # pyvo.dal.exceptions.DALQueryError: Invalid column name 'obs_container_id'
-            instruments.remove('pionier')   # pyvo.dal.exceptions.DALQueryError: Invalid column name 'obs_container_id'
-            instruments.remove('vircam')    # pyvo.dal.exceptions.DALQueryError: Invalid column name 'obs_container_id'
-        except ValueError:
+            with pytest.warns(MaxResultsWarning):
+                result = eso.query_instrument(instrument,
+                                              ra=266.41681662, dec=-29.00782497, radius=1.0)
+        except NoResultsWarning:  # we don't care if there are no results
             pass
-        # #################################################### #
-
-        for instrument in instruments:
-            try:
-                with pytest.warns(MaxResultsWarning):
-                    result = eso.query_instrument(instrument,
-                                                  ra=266.41681662, dec=-29.00782497, radius=1.0)
-            except NoResultsWarning:  # we don't care if there are no results
-                pass
-            else:
-                assert result is not None, f"query_instrument({instrument}) returned None"
-                assert len(result) > 0, f"query_instrument({instrument}) returned no records"
+        else:
+            assert result is not None, f"query_instrument({instrument}) returned None"
+            assert len(result) > 0, f"query_instrument({instrument}) returned no records"
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
-    def test_each_collection_sgr_a_star(self, tmp_path):
+    def test_each_collection_sgrastar(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
         eso.maxrec = 1
@@ -311,7 +281,7 @@ class TestEso:
         assert all(result1.values_equal(result2))
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
-    def test_main_sgr_a_star(self):
+    def test_main_sgrastar(self):
         eso = Eso()
         eso.maxrec = 5
 
