@@ -304,10 +304,10 @@ class IrsaClass(BaseVOQuery):
         Parameters
         ----------
         full : bool
-            If True returns the full schema VOTable. If False returns a dictionary of the table names and
-            their description.
+            If True returns the full schema as a `~astropy.table.Table`.
+            If False returns a dictionary of the table names and their description.
         """
-        tap_tables = Irsa.query_tap("SELECT * FROM TAP_SCHEMA.tables")
+        tap_tables = Irsa.query_tap("SELECT * FROM TAP_SCHEMA.tables").to_table()
 
         if full:
             return tap_tables
