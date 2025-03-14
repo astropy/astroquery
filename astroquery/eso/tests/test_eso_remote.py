@@ -17,7 +17,7 @@ from astroquery.eso import Eso
 
 instrument_list = ['alpaca', 'fors1', 'fors2', 'sphere', 'vimos', 'omegacam',
                    'hawki', 'isaac', 'naco', 'visir', 'vircam',
-                   # TODO 'apex', uncomment when ready in the ISTs
+                   'apex',
                    'giraffe', 'uves', 'xshooter', 'muse', 'crires',
                    'kmos', 'sinfoni', 'amber', 'midi', 'pionier',
                    'gravity', 'espresso', 'wlgsu', 'matisse', 'eris',
