@@ -1231,7 +1231,7 @@ class EuclidClass(TapPlus):
         output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id=fits_file)
 
         if os.listdir(output_dir):
-            raise Exception(f'The directory is not empty: {output_dir}')
+            raise IOError(f'The directory is not empty: {output_dir}')
 
         try:
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
