@@ -94,7 +94,7 @@ class TestEso:
         assert n == top, f"Expected {top}; Obtained {n}"
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
-    def test_SgrAstar(self):
+    def test_sgr_a_star(self):
         eso = Eso()
         eso.maxrec = 1
 
@@ -168,7 +168,7 @@ class TestEso:
         assert len(result_s) == 0
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
-    def test_SgrAstar_remotevslocal(self, tmp_path):
+    def test_sgr_a_star_remote_vs_local(self, tmp_path):
         eso = Eso()
         # TODO originally it was 'gravity', but it is not yet ready in the TAP ISTs
         instrument = 'uves'
@@ -232,7 +232,7 @@ class TestEso:
         raise NotImplementedError
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
-    def test_each_instrument_SgrAstar(self, tmp_path):
+    def test_each_instrument_sgr_a_star(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
         eso.maxrec = 5
@@ -268,7 +268,7 @@ class TestEso:
                 assert len(result) > 0, f"query_instrument({instrument}) returned no records"
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
-    def test_each_collection_and_SgrAstar(self, tmp_path):
+    def test_each_collection_sgr_a_star(self, tmp_path):
         eso = Eso()
         eso.cache_location = tmp_path
         eso.maxrec = 1
@@ -277,8 +277,9 @@ class TestEso:
         for collection in collections:
             if collection in SGRA_COLLECTIONS:
                 with pytest.warns(MaxResultsWarning):
-                    result_s = eso.query_collections(collections=collection,
-                                                     ra=266.41681662, dec=-29.00782497, radius=0.1775)
+                    result_s = eso.query_collections(
+                        collections=collection,
+                        ra=266.41681662, dec=-29.00782497, radius=0.1775)
                 assert len(result_s) > 0
             else:
                 with pytest.warns(NoResultsWarning):
@@ -310,7 +311,7 @@ class TestEso:
         assert all(result1.values_equal(result2))
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
-    def test_main_SgrAstar(self):
+    def test_main_sgr_a_star(self):
         eso = Eso()
         eso.maxrec = 5
 
