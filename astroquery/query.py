@@ -443,6 +443,11 @@ class BaseQuery(metaclass=LoginABCMeta):
                 return
             elif existing_file_length == 0:
                 open_mode = 'wb'
+                if head_safe:
+                    response = self._session.request(method, url,
+                                                     timeout=timeout, stream=True,
+                                                     auth=auth, **kwargs)
+                    response.raise_for_status()
             else:
                 log.info("Continuing download of file {0}, with {1} bytes to "
                          "go ({2}%)".format(local_filepath,
@@ -479,11 +484,11 @@ class BaseQuery(metaclass=LoginABCMeta):
                 return
         else:
             open_mode = 'wb'
-        if head_safe:
-            response = self._session.request(method, url,
-                                                timeout=timeout, stream=True,
-                                                auth=auth, **kwargs)
-            response.raise_for_status()
+            if head_safe:
+                response = self._session.request(method, url,
+                                                 timeout=timeout, stream=True,
+                                                 auth=auth, **kwargs)
+                response.raise_for_status()
 
         blocksize = astropy.utils.data.conf.download_block_size
 
