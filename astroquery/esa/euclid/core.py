@@ -1225,5 +1225,26 @@ class EuclidClass(TapPlus):
 
         return files
 
+    def get_datalinks(self, ids, *, linking_parameter='SOURCE_ID', verbose=False):
+        """Gets datalinks associated to the provided identifiers
+        TAP+ only
+
+        Parameters
+        ----------
+        ids : str, int, str list or int list, mandatory
+            list of identifiers
+        linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID
+            By default, all the identifiers are considered as source_id
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A table object
+
+        """
+
+        return self.__eucliddata.get_datalinks(ids=ids, linking_parameter=linking_parameter, verbose=verbose)
+
 
 Euclid = EuclidClass()

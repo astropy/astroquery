@@ -1177,8 +1177,18 @@ To find out the resources associated with a given source:
 .. doctest-skip::
 
   >>> from astroquery.esa.euclid import Euclid
-  >>> ids=["sedm -522481450274091664"]
+>>> Euclid.login()
+  >>> ids=["2707008224650763513"]
   >>> datalink = Euclid.get_datalinks(ids=ids)
+  >>> datatlink
+  <Table length=2>
+             ID            linking_parameter                                          access_url                                         service_def error_message semantics     description     content_type content_length
+                                                                                                                                                                                                                   byte
+           object                object                                                 object                                              object       object      object         object          object        int64
+  ------------------------ ----------------- ------------------------------------------------------------------------------------------- ----------- ------------- --------- ------------------- ------------ --------------
+  sedm 2707008224650763513         SOURCE_ID https://eas.esac.esa.int/sas-dd/data?ID=sedm+2707008224650763513&RETRIEVAL_TYPE=SPECTRA_RGS                               #this  Spectra Red Source                          --
+  sedm 2707008224650763513         SOURCE_ID https://eas.esac.esa.int/sas-dd/data?ID=sedm+2707008224650763513&RETRIEVAL_TYPE=SPECTRA_BGS                               #this Spectra Blue Source                          --
+
 
 
 The query below retrieves a random sample of Euclid sources having spectra.
