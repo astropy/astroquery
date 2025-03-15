@@ -1091,6 +1091,20 @@ def test_logout(mock_logout):
     assert (mock_logout.call_count == 4)
 
 
+def test_get_datalinks(monkeypatch):
+    def get_datalinks_monkeypatched(self, ids, linking_parameter, verbose):
+        return Table()
+
+    # `GaiaClass` is a subclass of `TapPlus`, but it does not inherit
+    # `get_datalinks()`, it replaces it with a call to the `get_datalinks()`
+    # of its `__gaiadata`.
+    monkeypatch.setattr(TapPlus, "get_datalinks", get_datalinks_monkeypatched)
+    euclid = EuclidClass(show_server_messages=False)
+
+    result = euclid.get_datalinks(ids=[12345678], verbose=True)
+    assert isinstance(result, Table)
+
+
 def test_load_async_job(mock_querier_async):
     jobid = '1479386030738O'
     name = None

@@ -1231,7 +1231,7 @@ class EuclidClass(TapPlus):
 
         Parameters
         ----------
-        ids : str, int, str list or int list, mandatory
+        ids : str, int, list of str or list of int, mandatory
             list of identifiers
         linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID
             By default, all the identifiers are considered as source_id
