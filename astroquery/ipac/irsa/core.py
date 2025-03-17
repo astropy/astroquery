@@ -102,7 +102,7 @@ class IrsaClass(BaseVOQuery):
 
         Returns
         -------
-        Results in `~astropy.table.QTable` format.
+        Results in `~astropy.table.Table` format.
 
         """
         results = self.sia.search(
@@ -126,7 +126,7 @@ class IrsaClass(BaseVOQuery):
             maxrec=maxrec,
             **kwargs)
 
-        return results.to_qtable()
+        return results.to_table()
 
     query_sia.__doc__ = query_sia.__doc__.replace('_SIA2_PARAMETERS', SIA2_PARAMETERS_DESC)
 
@@ -153,7 +153,7 @@ class IrsaClass(BaseVOQuery):
 
         Returns
         -------
-        Results in `~astropy.table.QTable` format.
+        Results in `~astropy.table.Table` format.
         """
 
         if radius is None:
@@ -163,7 +163,7 @@ class IrsaClass(BaseVOQuery):
 
         results = self.ssa.search(pos=pos, diameter=diameter, band=band, time=time,
                                   format='all', collection=collection)
-        return results.to_qtable()
+        return results.to_table()
 
     def list_collections(self, servicetype=None):
         """

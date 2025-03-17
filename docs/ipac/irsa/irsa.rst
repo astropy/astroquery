@@ -121,8 +121,8 @@ and width parameter of the box search must also be specified.
     >>> table = Irsa.query_region(coordinates=coord, spatial='Box',
     ...                           catalog='fp_psc', width=2 * u.arcmin)
     >>> print(table)
-        ra       dec    err_maj err_min err_ang   designation    ... ext_key scan_key coadd_key coadd        htm20       
-       deg       deg     arcsec  arcsec   deg                    ...                                                     
+        ra       dec    err_maj err_min err_ang   designation    ... ext_key scan_key coadd_key coadd        htm20
+       deg       deg     arcsec  arcsec   deg                    ...
     --------- --------- ------- ------- ------- ---------------- ... ------- -------- --------- ----- -------------------
     10.692216 41.260162    0.10    0.09      87 00424613+4115365 ...      --    69157   1590591    33 4805203678124326400
     10.700059 41.263481    0.31    0.30     155 00424801+4115485 ...      --    69157   1590591    33 4805203678125364736
@@ -229,8 +229,8 @@ the query is send in asynchronous mode.
     >>> from astroquery.ipac.irsa import Irsa
     >>> table = Irsa.query_region("HIP 12", catalog="allwise_p3as_psd", spatial="Cone", async_job=True)
     >>> print(table)
-        designation         ra        dec     sigra  ...         y                   z           spt_ind      htm20    
-                           deg        deg     arcsec ...                                                               
+        designation         ra        dec     sigra  ...         y                   z           spt_ind      htm20
+                           deg        deg     arcsec ...
     ------------------- --------- ----------- ------ ... ------------------ ------------------- --------- -------------
     J000009.78-355736.9 0.0407905 -35.9602605 0.0454 ... 0.0005762523295116 -0.5872239888098030 100102010 8873706189183
 
@@ -271,7 +271,7 @@ Simple image access queries
 
 `~astroquery.ipac.irsa.IrsaClass.query_sia` provides a way to access IRSA's Simple
 Image Access VO service. In the following example we are looking for Spitzer
-Enhanced Imaging products in the centre of the COSMOS field as a `~astropy.table.QTable`.
+Enhanced Imaging products in the centre of the COSMOS field as a `~astropy.table.Table`.
 
 .. doctest-remote-data::
 
@@ -356,7 +356,7 @@ Simple spectral access queries
 
 `~astroquery.ipac.irsa.IrsaClass.query_ssa` provides a way to access IRSA's Simple
 Spectral Access VO service. In the following example we are looking for Spitzer
-Enhanced Imaging products in the centre of the COSMOS field as a `~astropy.table.QTable`.
+Enhanced Imaging products in the centre of the COSMOS field as a `~astropy.table.Table`.
 
 .. doctest-remote-data::
 
