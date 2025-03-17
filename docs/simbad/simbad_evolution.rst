@@ -91,10 +91,10 @@ See a more elaborated example:
     >>> simbad.add_votable_fields("otype", "alltypes")
     >>> result = simbad.query_catalog("M", criteria=CriteriaTranslator.parse(old_criteria))
     >>> result.sort("catalog_id")
-    >>> result[["main_id", "catalog_id", "otype", "otypes"]]
+    >>> result[["main_id", "catalog_id", "otype", "alltypes.otypes"]]
     <Table length=11>
-     main_id  catalog_id otype                   otypes
-      object    object   object                  object
+     main_id  catalog_id otype              alltypes.otypes             
+      object    object   object                  object                 
     --------- ---------- ------ ----------------------------------------
         M   1      M   1    SNR                 HII|IR|Psr|Rad|SNR|X|gam
         M  24      M  24    As*                              As*|Cl*|GNe
@@ -249,26 +249,23 @@ A query for fluxes would then look like:
 However, this quick access does not allow to retrieve the flux error or the bibcode of the
 article from which the information is extracted. To do so, prefer the ``flux`` votable field:
 
-.. this will fail when upstream bug https://github.com/gmantele/vollt/issues/154 is fixed.
-.. "filter" should be replaced by "flux.filter" and "bibcode" by "flux.bibcode".
-
 .. doctest-remote-data::
 
     >>> from astroquery.simbad import Simbad
     >>> simbad = Simbad()
     >>> simbad.add_votable_fields("flux")
     >>> result = simbad.query_object("BD-16  5701")
-    >>> result[["main_id", "flux", "flux_err", "filter", "bibcode"]]
+    >>> result[["main_id", "flux", "flux_err", "flux.filter", "flux.bibcode"]]
     <Table length=6>
-      main_id      flux   flux_err filter       bibcode      
-       object    float32  float32  object        object      
-    ----------- --------- -------- ------ -------------------
-    BD-16  5701 10.322191 0.002762      G 2020yCat.1350....0G
-    BD-16  5701      10.6     0.06      V 2000A&A...355L..27H
-    BD-16  5701     9.205    0.023      J 2003yCat.2246....0C
-    BD-16  5701     8.879    0.042      H 2003yCat.2246....0C
-    BD-16  5701     8.777     0.02      K 2003yCat.2246....0C
-    BD-16  5701     11.15     0.07      B 2000A&A...355L..27H
+      main_id      flux   flux_err flux.filter     flux.bibcode   
+       object    float32  float32     object          object      
+    ----------- --------- -------- ----------- -------------------
+    BD-16  5701 10.322191 0.002762           G 2020yCat.1350....0G
+    BD-16  5701      10.6     0.06           V 2000A&A...355L..27H
+    BD-16  5701     9.205    0.023           J 2003yCat.2246....0C
+    BD-16  5701     8.879    0.042           H 2003yCat.2246....0C
+    BD-16  5701     8.777     0.02           K 2003yCat.2246....0C
+    BD-16  5701     11.15     0.07           B 2000A&A...355L..27H
 
 This gives more details than the quick view. Each line corresponds to a unique filter.
 The ``bibcode`` column corresponds to the article in which the flux information was found.
@@ -280,14 +277,12 @@ We could also add a criteria to restrict the filters in the output:
     >>> simbad = Simbad()
     >>> simbad.add_votable_fields("flux")
     >>> result = simbad.query_object("BD-16  5701", criteria="filter IN ('U', 'B', 'G')")
-    >>> result[["main_id", "flux", "flux_err", "filter", "bibcode"]]
+    >>> result[["main_id", "flux", "flux_err", "flux.filter", "flux.bibcode"]]
     <Table length=2>
-      main_id      flux   flux_err filter       bibcode
-       object    float32  float32  object        object
-    ----------- --------- -------- ------ -------------------
-    BD-16  5701     11.15     0.07      B 2000A&A...355L..27H
-    BD-16  5701 10.322191 0.002762      G 2020yCat.1350....0G
+      main_id      flux   flux_err flux.filter     flux.bibcode   
+       object    float32  float32     object          object      
+    ----------- --------- -------- ----------- -------------------
+    BD-16  5701     11.15     0.07           B 2000A&A...355L..27H
+    BD-16  5701 10.322191 0.002762           G 2020yCat.1350....0G
 
 There was no match for ``U``, but the information is there for ``B`` and ``G``.
-
-.. replace ``bibcode`` by ``flux.bibcode`` here when https://github.com/gmantele/vollt/issues/154 is fixed.

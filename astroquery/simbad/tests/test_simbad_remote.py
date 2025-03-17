@@ -116,11 +116,8 @@ class TestSimbad:
         simbad_instance = Simbad()
         simbad_instance.add_votable_fields("flux")
         response = simbad_instance.query_object('algol', criteria="filter='V'")
-        # this is bugged, it should be "flux.qual", see https://github.com/gmantele/vollt/issues/154
-        # when the issue upstream in vollt (the TAP software used in SIMBAD) is fixed we can rewrite this test
-        assert "qual" in response.colnames
-        # replace "filter" by "flux.filter" when upstream bug is fixed
-        assert response["filter"][0] == "V"
+        assert "flux.qual" in response.colnames
+        assert response["flux.filter"][0] == "V"
 
     def test_query_object(self):
         self.simbad.ROW_LIMIT = 5
