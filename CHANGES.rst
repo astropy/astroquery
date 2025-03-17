@@ -35,28 +35,15 @@ simbad
 Service fixes and enhancements
 ------------------------------
 
-mast
-^^^^
-
-- Handle a MAST URI string as input for ``Observations.get_cloud_uri`` and a list of MAST URIs as input for
-  ``Observations.get_cloud_uris``. [#3193]
-
-simbad
-^^^^^^
-
-- The detailed hierarchy is now returned by default in ``query_hierarchy``
-  (it was hidden by default in the previous versions) [#3195]
-
-Service fixes and enhancements
-------------------------------
-
 gaia
 ^^^^
 
-- Update DR4 retrieval_type names and include the new one EPOCH_ASTROMETRY_BRIGHT [#3207]
+- Update DR4 retrieval_type names and include the new one EPOCH_ASTROMETRY_BRIGHT [#3207, #3238]
 
 ipac.irsa
 ^^^^^^^^^
+
+- Method to run Simple Spectral Access (SSA) VO queries, ``query_ssa``, is added. [#3076]
 
 - Adding the "servicetype" kwarg to ``list_collections`` to be able to list SIA
   and SSA collections separately. [#3200]
