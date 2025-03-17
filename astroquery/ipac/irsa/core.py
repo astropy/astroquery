@@ -315,7 +315,7 @@ class IrsaClass(BaseVOQuery):
         filter : str or None
             If specified we only return catalogs with names containing the filter string.
         """
-        tap_tables = Irsa.query_tap("SELECT * FROM TAP_SCHEMA.tables").to_table()
+        tap_tables = self.query_tap("SELECT * FROM TAP_SCHEMA.tables").to_table()
 
         if filter:
             mask = [filter in name for name in tap_tables['table_name']]
