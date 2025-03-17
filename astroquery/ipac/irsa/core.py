@@ -10,7 +10,7 @@ Module to query the IRSA archive.
 import warnings
 from astropy.coordinates import SkyCoord, Angle
 from astropy import units as u
-from astropy.utils.decorators import deprecated_renamed_argument
+from astropy.utils.decorators import deprecated, deprecated_renamed_argument
 
 from pyvo.dal import TAPService, SIA2Service, SSAService
 from pyvo.dal.sia2 import SIA2_PARAMETERS_DESC
@@ -314,7 +314,7 @@ class IrsaClass(BaseVOQuery):
         else:
             return {tap_table['table_name']: tap_table['description'] for tap_table in tap_tables}
 
-    # TODO, deprecate this as legacy
+    @deprecated(since="0.4.10", alternative="list_catalogs")
     def print_catalogs(self):
         catalogs = self.list_catalogs()
 
