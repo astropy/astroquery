@@ -250,7 +250,6 @@ class SimbadClass(BaseVOQuery):
            dimensions                 all fields related to object dimensions
             morphtype            all fields related to the morphological type
              parallax                        all fields related to parallaxes
-                   pm proper motion values in right ascension and declination
         propermotions              all fields related with the proper motions
                    sp               all fields related with the spectral type
              velocity    all fields related with radial velocity and redshift
