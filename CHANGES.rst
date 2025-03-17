@@ -53,6 +53,9 @@ ipac.irsa
 
 - Making ``'spatial'`` keyword in ``query_region`` case insensitive. [#3224]
 
+- Adding new ``list_columns`` method to list available columns for a given
+  catalog. [#3265]
+
 ipac.nexsci.nasa_exoplanet_archive
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
