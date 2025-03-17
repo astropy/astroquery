@@ -652,10 +652,10 @@ class AlmaClass(QueryWithLogin):
 
         Returns
         -------
-        Results in `~pyvo.dal.sia2.SIA2Results` format.
-        result.to_qtable in `~astropy.table.QTable` format
+        Results in `~astropy.table.QTable` format.
+
         """
-        return self.sia.search(
+        results = self.sia.search(
             pos=pos,
             band=band,
             time=time,
@@ -675,6 +675,8 @@ class AlmaClass(QueryWithLogin):
             res_format=res_format,
             maxrec=maxrec,
             **kwargs)
+
+        return results.to_qtable()
 
     query_sia.__doc__ = query_sia.__doc__.replace('_SIA2_PARAMETERS', SIA2_PARAMETERS_DESC)
 
