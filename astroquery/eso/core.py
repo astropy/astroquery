@@ -52,9 +52,8 @@ class CalSelectorError(Exception):
 
 
 class AuthInfo:
-    def __init__(self, username: str, password: str, token: str):
+    def __init__(self, username: str, token: str):
         self.username = username
-        self.password = password
         self.token = token
         self.expiration_time = self._get_exp_time_from_token()
 
@@ -147,7 +146,7 @@ class EsoClass(QueryWithLogin):
         response = self._request('GET', self.AUTH_URL, params=url_params)
         if response.status_code == 200:
             token = json.loads(response.content)['id_token']
-            self._auth_info = AuthInfo(username=username, password=password, token=token)
+            self._auth_info = AuthInfo(username=username, token=token)
             log.info("Authentication successful!")
             return True
         else:
@@ -204,9 +203,9 @@ class EsoClass(QueryWithLogin):
 
     def _get_auth_header(self) -> Dict[str, str]:
         if self._auth_info and self._auth_info.expired():
-            log.info("Authentication token has expired! Re-authenticating ...")
-            self._authenticate(username=self._auth_info.username,
-                               password=self._auth_info.password)
+            raise LoginError(
+                "Authentication token has expired! Please log in again."
+            )
         if self._auth_info and not self._auth_info.expired():
             return {'Authorization': 'Bearer ' + self._auth_info.token}
         else:
@@ -247,8 +246,30 @@ class EsoClass(QueryWithLogin):
 
         return table_to_return
 
+    def _tap_service(self, authenticated: bool = False) -> TAPService:
+
+        if authenticated and not self.authenticated():
+            raise LoginError(
+                "It seems you are trying to issue an authenticated query without "
+                "being authenticated. Possible solutions:\n"
+                "1. Set the query function argument authenticated=False"
+                " OR\n"
+                "2. Login with your username and password: "
+                "<eso_class_instance>.login(username=<your_username>"
+            )
+
+        if authenticated:
+            h = self._get_auth_header()
+            self._session.headers = {**self._session.headers, **h}
+            tap_service = TAPService(self.tap_url(), session=self._session)
+        else:
+            tap_service = TAPService(self.tap_url())
+
+        return tap_service
+
     def query_tap_service(self,
                           query_str: str,
+                          authenticated: bool = False,
                           ) -> Optional[astropy.table.Table]:
         """
         returns an astropy.table.Table from an adql query string
@@ -257,8 +278,9 @@ class EsoClass(QueryWithLogin):
         """
         table_to_return = None
 
-        table_to_return = self._try_download_pyvo_table(query_str,
-                                                        TAPService(self.tap_url()))
+        tap_service = self._tap_service(authenticated)
+
+        table_to_return = self._try_download_pyvo_table(query_str, tap_service)
 
         self._maybe_warn_about_table_length(table_to_return)
 
@@ -339,6 +361,7 @@ class EsoClass(QueryWithLogin):
             count_only: bool = False,
             query_str_only: bool = False,
             print_help: bool = False,
+            authenticated: bool = False,
             **kwargs) -> Union[astropy.table.Table, int, str]:
         """
         Query instrument- or collection-specific data contained in the ESO archive.
@@ -382,7 +405,8 @@ class EsoClass(QueryWithLogin):
         if query_str_only:
             return query  # string
 
-        retval = self.query_tap_service(query_str=query)  # table
+        retval = self.query_tap_service(query_str=query,
+                                        authenticated=authenticated)  # table
         if count_only:
             retval = list(retval[0].values())[0]  # int
 
@@ -396,7 +420,8 @@ class EsoClass(QueryWithLogin):
             top: int = None,
             count_only: bool = False,
             query_str_only: bool = False,
-            print_help=False,
+            print_help: bool = False,
+            authenticated: bool = False,
             **kwargs) -> Union[astropy.table.Table, int, str]:
         return self._query_on_allowed_values(table_name=EsoNames.phase3_table,
                                              column_name=EsoNames.phase3_collections_column,
@@ -407,6 +432,7 @@ class EsoClass(QueryWithLogin):
                                              count_only=count_only,
                                              query_str_only=query_str_only,
                                              print_help=print_help,
+                                             authenticated=authenticated,
                                              **kwargs)
 
     def query_main(
@@ -417,7 +443,8 @@ class EsoClass(QueryWithLogin):
             top: int = None,
             count_only: bool = False,
             query_str_only: bool = False,
-            print_help=False,
+            print_help: bool = False,
+            authenticated: bool = False,
             **kwargs) -> Union[astropy.table.Table, int, str]:
         return self._query_on_allowed_values(table_name=EsoNames.raw_table,
                                              column_name=EsoNames.raw_instruments_column,
@@ -428,6 +455,7 @@ class EsoClass(QueryWithLogin):
                                              count_only=count_only,
                                              query_str_only=query_str_only,
                                              print_help=print_help,
+                                             authenticated=authenticated,
                                              **kwargs)
 
     # ex query_instrument
@@ -439,7 +467,8 @@ class EsoClass(QueryWithLogin):
             top: int = None,
             count_only: bool = False,
             query_str_only: bool = False,
-            print_help=False,
+            print_help: bool = False,
+            authenticated: bool = False,
             **kwargs) -> Union[astropy.table.Table, int, str]:
         return self._query_on_allowed_values(table_name=EsoNames.ist_table(instrument),
                                              column_name=None,
@@ -450,6 +479,7 @@ class EsoClass(QueryWithLogin):
                                              count_only=count_only,
                                              query_str_only=query_str_only,
                                              print_help=print_help,
+                                             authenticated=authenticated,
                                              **kwargs)
 
     def get_headers(self, product_ids, *, cache=True):
