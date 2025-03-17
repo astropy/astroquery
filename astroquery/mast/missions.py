@@ -132,7 +132,7 @@ class MastMissionsClass(MastQueryWithLogin):
         # Check each criteria argument for validity
         valid_cols = list(self.columns[self.mission]['name']) + self._search_option_fields
         for kwd in criteria.keys():
-            col = next((name for name in valid_cols if name.lower() == kwd.lower()), None)
+            col = next((name for name in valid_cols if name == kwd), None)
             if not col:
                 closest_match = difflib.get_close_matches(kwd, valid_cols, n=1)
                 error_msg = (
@@ -499,7 +499,7 @@ class MastMissionsClass(MastQueryWithLogin):
 
         try:
             # Attempt file download
-            self._download_file(escaped_url, local_path, cache=cache, continuation=False, verbose=verbose)
+            self._download_file(escaped_url, local_path, cache=cache, verbose=verbose)
 
             # Check if file exists
             if not local_path.is_file() and status != 'SKIPPED':
