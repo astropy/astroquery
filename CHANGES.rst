@@ -18,7 +18,7 @@ esa.euclid
 ipac.irsa
 ^^^^^^^^^
 
-- ``query_sia`` now returns the results as an astropy QTable. [#3252]
+- ``query_sia`` now returns the results as an astropy Table. [#3252, #3263]
 
 mast
 ^^^^
