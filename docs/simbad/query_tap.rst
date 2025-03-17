@@ -142,8 +142,9 @@ some tables, add their name. To get the columns of the tables ``ref`` and ``bibl
     table_name column_name   datatype  ...  unit          ucd
       object      object      object   ... object        object
     ---------- ----------- ----------- ... ------ --------------------
-        biblio      biblio        TEXT ...        meta.record;meta.bib
+        biblio      biblio     VARCHAR ...        meta.record;meta.bib
         biblio      oidref      BIGINT ...         meta.record;meta.id
+           ref      "year"    SMALLINT ...          meta.note;meta.bib
            ref    abstract UNICODECHAR ...                 meta.record
            ref     bibcode        CHAR ...            meta.bib.bibcode
            ref         doi     VARCHAR ...          meta.code;meta.bib
@@ -154,7 +155,6 @@ some tables, add their name. To get the columns of the tables ``ref`` and ``bibl
            ref        page     INTEGER ...               meta.bib.page
            ref       title UNICODECHAR ...                  meta.title
            ref      volume     INTEGER ...             meta.bib.volume
-           ref        year    SMALLINT ...          meta.note;meta.bib
 
 `~astroquery.simbad.SimbadClass.list_columns` can also be called with a keyword argument.
 This returns columns from any table for witch the given keyword is either in the table name,

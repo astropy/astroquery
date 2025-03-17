@@ -2,7 +2,7 @@ graph "Simbad Relational Database" {
 	node [color=lightgray penwidth=6 shape=box style=filled]
 	graph [esep="+0" mode=major overlap=false sep=0 splines=polyline]
 	edge [color=lightgray labelOverlay="100%" penwidth=7]
-	"Measurement tables" [label="{mesHerschel | mesXmm | mesVelocities | mesVar | mesRot | mesPM | mesPLX | mesIUE | mesISO | mesFe_h | mesDiameter | mesDistance | mesSpT }" fontsize=16 shape=record]
+	"Measurement tables" [label="{mesHerschel | mesXmm | mesVelocities | mesVar | mesRot | mesPM | mesPLX | mesIUE | mesISO | mesFe_h | mesDiameter | mesDistance | mesSpT | mesOtype }" fontsize=16 shape=record]
 	basic -- "Measurement tables" [color="#9EADC8" tooltip="oid:oidref"]
 	allfluxes [fontsize=16 tooltip="all flux/magnitudes U,B,V,I,J,H,K,u_,g_,r_,i_,z_"]
 	alltypes [fontsize=16 tooltip="all object types concatenated with pipe"]
