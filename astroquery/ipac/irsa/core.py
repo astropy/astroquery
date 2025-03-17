@@ -165,7 +165,7 @@ class IrsaClass(BaseVOQuery):
                                   format='all', collection=collection)
         return results.to_table()
 
-    def list_collections(self, servicetype=None):
+    def list_collections(self, *, servicetype=None, filter=None):
         """
         Return information of available IRSA SIAv2 collections to be used in ``query_sia`` queries.
 
@@ -174,6 +174,8 @@ class IrsaClass(BaseVOQuery):
         servicetype : str or None
             Service type to list collections for. Returns all collections when not provided.
             Currently supported service types are: 'SIA', 'SSA'.
+        filter : str or None
+            If specified we only return collections with names containing the filter string.
 
         Returns
         -------
@@ -198,8 +200,12 @@ class IrsaClass(BaseVOQuery):
             else:
                 raise ValueError("if specified, servicetype should be 'SIA' or 'SSA'")
 
-        collections = self.query_tap(query=query)
-        return collections.to_table()
+        collections = self.query_tap(query=query).to_table()
+
+        if filter:
+            mask = [filter in collection for collection in collections['collection']]
+            collections = collections[mask]
+        return collections
 
     @deprecated_renamed_argument(("selcols", "cache", "verbose"), ("columns", None, None), since="0.4.7")
     def query_region(self, coordinates=None, *, catalog=None, spatial='Cone',
@@ -297,7 +303,7 @@ class IrsaClass(BaseVOQuery):
         return response.to_table()
 
     @deprecated_renamed_argument("cache", None, since="0.4.7")
-    def list_catalogs(self, full=False, cache=False):
+    def list_catalogs(self, *, full=False, filter=None, cache=False):
         """
         Return information of available IRSA catalogs.
 
@@ -306,8 +312,14 @@ class IrsaClass(BaseVOQuery):
         full : bool
             If True returns the full schema as a `~astropy.table.Table`.
             If False returns a dictionary of the table names and their description.
+        filter : str or None
+            If specified we only return catalogs with names containing the filter string.
         """
         tap_tables = Irsa.query_tap("SELECT * FROM TAP_SCHEMA.tables").to_table()
+
+        if filter:
+            mask = [filter in name for name in tap_tables['table_name']]
+            tap_tables = tap_tables[mask]
 
         if full:
             return tap_tables
