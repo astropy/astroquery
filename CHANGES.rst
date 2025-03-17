@@ -71,6 +71,8 @@ simbad
 - perf: use a TAP upload in ``query_region`` when there are more than 300 coordinates.
   This prevents timeouts. [#3235]
 
+- fix: remove ``pm`` from the votable_fields list (bug introduced in v0.4.9) [#3259]
+
 xmatch
 ^^^^^^
 
