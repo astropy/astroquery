@@ -465,7 +465,7 @@ def test_sia():
     empty_result = Table.read(os.path.join(DATA_DIR, 'alma-empty.txt'),
                               format='ascii')
     mock_result = Mock()
-    mock_result.to_qtable.return_value = empty_result
+    mock_result.to_table.return_value = empty_result
     sia_mock.search.return_value = mock_result
     alma = Alma()
     alma._get_dataarchive_url = Mock()

@@ -642,7 +642,7 @@ class AlmaClass(QueryWithLogin):
                   instrument=None, data_type=None,
                   calib_level=None, target_name=None,
                   res_format=None, maxrec=None,
-                  **kwargs):
+                  enhanced_results=False, **kwargs):
         """
         Use standard SIA2 attributes to query the ALMA SIA service.
 
@@ -655,7 +655,7 @@ class AlmaClass(QueryWithLogin):
         Results in `~astropy.table.QTable` format.
 
         """
-        results = self.sia.search(
+        result = self.sia.search(
             pos=pos,
             band=band,
             time=time,
@@ -676,7 +676,13 @@ class AlmaClass(QueryWithLogin):
             maxrec=maxrec,
             **kwargs)
 
-        return results.to_qtable()
+        if result is not None:
+            if enhanced_results:
+                result = get_enhanced_table(result)
+            else:
+                result = result.to_table()
+
+        return result
 
     query_sia.__doc__ = query_sia.__doc__.replace('_SIA2_PARAMETERS', SIA2_PARAMETERS_DESC)
 
