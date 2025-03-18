@@ -425,7 +425,7 @@ class BaseQuery(metaclass=LoginABCMeta):
         if 'content-length' in response.headers:
             length = int(response.headers['content-length'])
             if length == 0:
-                log.warn('URL {0} has length=0'.format(url))
+                log.warning('URL {0} has length=0'.format(url))
         else:
             length = None
 
@@ -436,12 +436,7 @@ class BaseQuery(metaclass=LoginABCMeta):
             open_mode = 'ab'
 
             existing_file_length = os.stat(local_filepath).st_size
-            if length is not None and existing_file_length >= length:
-                # all done!
-                log.info("Found cached file {0} with expected size {1}."
-                         .format(local_filepath, existing_file_length))
-                return
-            elif existing_file_length == 0:
+            if existing_file_length == 0:
                 log.info(f"Found existing {local_filepath} file with length 0.  Overwriting.")
                 open_mode = 'wb'
                 if head_safe:
@@ -449,6 +444,10 @@ class BaseQuery(metaclass=LoginABCMeta):
                                                      timeout=timeout, stream=True,
                                                      auth=auth, **kwargs)
                     response.raise_for_status()
+            elif existing_file_length >= length:
+                # all done!
+                log.info(f"Found cached file {local_filepath} with size {existing_file_length} = {length}.")
+                return local_filepath
             else:
                 log.info("Continuing download of file {0}, with {1} bytes to "
                          "go ({2}%)".format(local_filepath,
@@ -487,11 +486,11 @@ class BaseQuery(metaclass=LoginABCMeta):
                     log.info("Found cached file {0} with expected size {1}."
                              .format(local_filepath, statinfo.st_size))
                     response.close()
-                    return
+                    return local_filepath
             else:
                 log.info("Found cached file {0}.".format(local_filepath))
                 response.close()
-                return
+                return local_filepath
         else:
             open_mode = 'wb'
             if head_safe:
@@ -529,7 +528,7 @@ class BaseQuery(metaclass=LoginABCMeta):
                 f.write(response.content)
 
         response.close()
-        return response
+        return local_filepath
 
 
 @deprecated(since="v0.4.7", message=("The suspend_cache function is deprecated,"

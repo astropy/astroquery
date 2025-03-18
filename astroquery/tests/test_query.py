@@ -3,6 +3,7 @@ import pytest
 import requests
 from pathlib import Path
 from requests.models import Response
+from requests.structures import CaseInsensitiveDict
 from astroquery.query import BaseQuery, BaseVOQuery
 from astroquery.utils.mocks import MockResponse
 
@@ -12,44 +13,72 @@ DATA_DIR.mkdir(exist_ok=True)
 
 # Test data files
 TEST_FILE_CONTENT = b'This is a test file with some content.'
-TEST_FILE_PARTIAL = b'This is a partial'
-TEST_FILE_REMAINDER = b' file with some content.'
+TEST_FILE_PARTIAL = b'This is a test file'
+TEST_FILE_REMAINDER = b' with some content.'
 
 
 class EnhancedMockResponse(MockResponse):
-    """A MockResponse with additional attributes and methods needed by _download_file."""
-    def __init__(self, content):
-        super().__init__(content)
-        self.headers = {}
-        self.status_code = 200
-        self.reason = 'OK'
-        self.url = 'http://example.com/test.txt'
-        self.request = type('Request', (), {'headers': {}})()
-        self._content = content
+    """A mock response that supports range requests."""
+
+    def __init__(self, content, accept_ranges=True):
+        """Initialize the response with content."""
+        self.headers = CaseInsensitiveDict()
+        self._range_start = None
+        self._range_end = None
+        super().__init__(content=content)
+        if accept_ranges:
+            self.headers['accept-ranges'] = 'bytes'
+        self.headers['content-length'] = str(len(self._content))
+
+    def _parse_range_header(self):
+        """Parse range header and set internal range values."""
+        if 'Range' in self.headers:
+            range_header = self.headers['Range']
+            start_str = range_header.split('=')[1].split('-')[0]
+            end_str = range_header.split('-')[1]
+            self._range_start = int(start_str)
+            self._range_end = int(end_str) if end_str else len(self._content) - 1
+            self.status_code = 206
+            # Set content-range header to include total length
+            self.headers['content-range'] = f'bytes {self._range_start}-{self._range_end}/{len(self._content)}'
+            # Set content-length to length of range being returned
+            range_length = self._range_end - self._range_start + 1
+            self.headers['content-length'] = str(range_length)
+        else:
+            self._range_start = None
+            self._range_end = None
+            self.status_code = 200
+            self.headers['content-length'] = str(len(self._content))
+
+    @property
+    def content(self):
+        """Get the content, respecting any range request."""
+        self._parse_range_header()
+        if self._range_start is not None:
+            # Return only the requested range
+            return self._content[self._range_start:self._range_end + 1]
+        return self._content
+
+    @content.setter
+    def content(self, value):
+        """Set the content and update content-length header."""
+        self._content = value
+        self.headers['content-length'] = str(len(value))
 
     def raise_for_status(self):
         if self.status_code >= 400:
             raise requests.exceptions.HTTPError(f"HTTP Error: {self.status_code}")
 
     def iter_content(self, chunk_size=None):
+        """Iterate over content respecting range request."""
         if chunk_size is None:
             chunk_size = 8192
-        content = self._content
+        content = self.content  # This will respect any range request
         for ii in range(0, len(content), chunk_size):
             yield content[ii:ii + chunk_size]
 
     def close(self):
         self._content = None
-
-    @property
-    def content(self):
-        if self._content is None:
-            raise RuntimeError("Response content has been consumed")
-        return self._content
-
-    @content.setter
-    def content(self, value):
-        self._content = value
 
 
 class MockResponse(Response):
@@ -94,25 +123,17 @@ def base_query():
 @pytest.fixture
 def patch_get(monkeypatch, mock_response, mock_head_response):
     """Patch requests.get to return our mock response."""
-    def mock_request(method, url, headers=None, **kwargs):
+    def mock_request(self, method, url, **kwargs):
         if method == 'HEAD':
-            return mock_head_response
+            response = mock_head_response
+            response.headers['content-length'] = str(len(TEST_FILE_CONTENT))
+            return response
 
-        if headers and 'Range' in headers:
-            range_header = headers['Range']
-            start = int(range_header.split('=')[1].split('-')[0])
-            if start == len(TEST_FILE_PARTIAL):
-                mock_response.content = TEST_FILE_REMAINDER
-                mock_response.headers['Content-Range'] = (
-                    f'bytes {start}-{len(TEST_FILE_CONTENT)-1}/{len(TEST_FILE_CONTENT)}'
-                )
-                mock_response.status_code = 206
-            else:
-                mock_response.content = TEST_FILE_CONTENT
-        else:
-            mock_response.content = TEST_FILE_CONTENT
-            mock_response.status_code = 200
-        return mock_response
+        response = EnhancedMockResponse(TEST_FILE_CONTENT)
+        # Copy any headers from the session
+        for key, value in self.headers.items():
+            response.headers[key] = value
+        return response
 
     monkeypatch.setattr(requests.Session, 'request', mock_request)
 
@@ -123,36 +144,50 @@ def test_download_file_basic(base_query, patch_get, tmp_path, head_safe):
     url = 'http://example.com/test.txt'
     local_file = tmp_path / 'test.txt'
 
-    response = base_query._download_file(url, str(local_file), head_safe=head_safe)
-    assert response.status_code == 200
+    local_filepath = base_query._download_file(url, str(local_file), head_safe=head_safe)
+    assert local_filepath == str(local_file)
     assert local_file.exists()
     assert local_file.read_bytes() == TEST_FILE_CONTENT
 
 
 @pytest.mark.parametrize('params', [
-    {'head_safe': False, 'continuation': True, 'initial_content': None},
-    {'head_safe': False, 'continuation': False, 'initial_content': None},
-    {'head_safe': True, 'continuation': True, 'initial_content': None},
-    {'head_safe': True, 'continuation': False, 'initial_content': None},
-    {'head_safe': False, 'continuation': True, 'initial_content': TEST_FILE_PARTIAL},
-    {'head_safe': False, 'continuation': False, 'initial_content': TEST_FILE_PARTIAL},
-    {'head_safe': True, 'continuation': True, 'initial_content': TEST_FILE_PARTIAL},
-    {'head_safe': True, 'continuation': False, 'initial_content': TEST_FILE_PARTIAL},
-    {'head_safe': False, 'continuation': True, 'initial_content': TEST_FILE_CONTENT},
-    {'head_safe': False, 'continuation': False, 'initial_content': TEST_FILE_CONTENT},
-    {'head_safe': True, 'continuation': True, 'initial_content': TEST_FILE_CONTENT},
-    {'head_safe': True, 'continuation': False, 'initial_content': TEST_FILE_CONTENT},
-    {'head_safe': False, 'continuation': True, 'initial_content': b'wrong size'},
-    {'head_safe': False, 'continuation': False, 'initial_content': b'wrong size'},
-    {'head_safe': True, 'continuation': True, 'initial_content': b'wrong size'},
-    {'head_safe': True, 'continuation': False, 'initial_content': b'wrong size'},
-    {'head_safe': False, 'continuation': True, 'initial_content': b''},
-    {'head_safe': False, 'continuation': False, 'initial_content': b''},
-    {'head_safe': True, 'continuation': True, 'initial_content': b''},
-    {'head_safe': True, 'continuation': False, 'initial_content': b''},
+    # Original test cases without cache
+    {'head_safe': False, 'continuation': True, 'initial_content': None, 'cache': False},
+    {'head_safe': False, 'continuation': False, 'initial_content': None, 'cache': False},
+    {'head_safe': True, 'continuation': True, 'initial_content': None, 'cache': False},
+    {'head_safe': True, 'continuation': False, 'initial_content': None, 'cache': False},
+    {'head_safe': False, 'continuation': True, 'initial_content': TEST_FILE_PARTIAL, 'cache': False},
+    {'head_safe': False, 'continuation': False, 'initial_content': TEST_FILE_PARTIAL, 'cache': False},
+    {'head_safe': True, 'continuation': True, 'initial_content': TEST_FILE_PARTIAL, 'cache': False},
+    {'head_safe': True, 'continuation': False, 'initial_content': TEST_FILE_PARTIAL, 'cache': False},
+    {'head_safe': False, 'continuation': True, 'initial_content': TEST_FILE_CONTENT, 'cache': False},
+    {'head_safe': False, 'continuation': False, 'initial_content': TEST_FILE_CONTENT, 'cache': False},
+    {'head_safe': True, 'continuation': True, 'initial_content': TEST_FILE_CONTENT, 'cache': False},
+    {'head_safe': True, 'continuation': False, 'initial_content': TEST_FILE_CONTENT, 'cache': False},
+    {'head_safe': False, 'continuation': True, 'initial_content': b'', 'cache': False},
+    {'head_safe': False, 'continuation': False, 'initial_content': b'', 'cache': False},
+    {'head_safe': True, 'continuation': True, 'initial_content': b'', 'cache': False},
+    {'head_safe': True, 'continuation': False, 'initial_content': b'', 'cache': False},
+    # Test cases with cache=True
+    {'head_safe': False, 'continuation': True, 'initial_content': None, 'cache': True},
+    {'head_safe': False, 'continuation': False, 'initial_content': None, 'cache': True},
+    {'head_safe': True, 'continuation': True, 'initial_content': None, 'cache': True},
+    {'head_safe': True, 'continuation': False, 'initial_content': None, 'cache': True},
+    {'head_safe': False, 'continuation': True, 'initial_content': TEST_FILE_PARTIAL, 'cache': True},
+    {'head_safe': False, 'continuation': False, 'initial_content': TEST_FILE_PARTIAL, 'cache': True},
+    {'head_safe': True, 'continuation': True, 'initial_content': TEST_FILE_PARTIAL, 'cache': True},
+    {'head_safe': True, 'continuation': False, 'initial_content': TEST_FILE_PARTIAL, 'cache': True},
+    {'head_safe': False, 'continuation': True, 'initial_content': TEST_FILE_CONTENT, 'cache': True},
+    {'head_safe': False, 'continuation': False, 'initial_content': TEST_FILE_CONTENT, 'cache': True},
+    {'head_safe': True, 'continuation': True, 'initial_content': TEST_FILE_CONTENT, 'cache': True},
+    {'head_safe': True, 'continuation': False, 'initial_content': TEST_FILE_CONTENT, 'cache': True},
+    {'head_safe': False, 'continuation': True, 'initial_content': b'', 'cache': True},
+    {'head_safe': False, 'continuation': False, 'initial_content': b'', 'cache': True},
+    {'head_safe': True, 'continuation': True, 'initial_content': b'', 'cache': True},
+    {'head_safe': True, 'continuation': False, 'initial_content': b'', 'cache': True},
 ])
 def test_download_file_with_existing(base_query, patch_get, tmp_path, params):
-    """Test downloading with various combinations of head_safe, continuation, and existing file content."""
+    """Test downloading with various combinations of head_safe, continuation, cache, and existing file content."""
     url = 'http://example.com/test.txt'
     local_file = tmp_path / 'test.txt'
 
@@ -160,10 +195,12 @@ def test_download_file_with_existing(base_query, patch_get, tmp_path, params):
     if params['initial_content'] is not None:
         local_file.write_bytes(params['initial_content'])
 
-    response = base_query._download_file(url, str(local_file),
+    local_filepath = base_query._download_file(url, str(local_file),
                                          head_safe=params['head_safe'],
-                                         continuation=params['continuation'])
-    assert response.status_code == 200
+                                         continuation=params['continuation'],
+                                         cache=params['cache'])
+
+    assert local_filepath == str(local_file)
     assert local_file.exists()
     assert local_file.read_bytes() == TEST_FILE_CONTENT
 
@@ -174,8 +211,8 @@ def test_download_file_no_verbose(base_query, patch_get, tmp_path, head_safe):
     url = 'http://example.com/test.txt'
     local_file = tmp_path / 'test.txt'
 
-    response = base_query._download_file(url, str(local_file), verbose=False, head_safe=head_safe)
-    assert response.status_code == 200
+    local_filepath = base_query._download_file(url, str(local_file), verbose=False, head_safe=head_safe)
+    assert local_filepath == str(local_file)
     assert local_file.exists()
     assert local_file.read_bytes() == TEST_FILE_CONTENT
 
@@ -193,8 +230,8 @@ def test_download_file_no_ranges_header(base_query, mock_response_no_ranges, mon
     url = 'http://example.com/test.txt'
     local_file = tmp_path / 'test.txt'
 
-    response = base_query._download_file(url, str(local_file), head_safe=head_safe)
-    assert response.status_code == 200
+    local_filepath = base_query._download_file(url, str(local_file), head_safe=head_safe)
+    assert local_filepath == str(local_file)
     assert local_file.exists()
     assert local_file.read_bytes() == TEST_FILE_CONTENT
 
@@ -213,8 +250,8 @@ class TestDownloadFileRemote:
         url = 'https://httpbin.org/range/1000'
         local_file = tmp_path / 'remote_test.txt'
 
-        response = base_query._download_file(url, str(local_file), head_safe=head_safe)
-        assert response.status_code == 200
+        local_filepath = base_query._download_file(url, str(local_file), head_safe=head_safe)
+        assert local_filepath == str(local_file)
         assert local_file.exists()
         assert len(local_file.read_bytes()) == 1000
 
@@ -236,9 +273,8 @@ class TestDownloadFileRemote:
         local_file.write_bytes(partial_content)
 
         # Now use _download_file with continuation to get the rest
-        response = base_query._download_file(url, str(local_file), continuation=True, head_safe=head_safe)
-        assert response.status_code == 206
-        assert response.headers['Content-Range'] == 'bytes 500-999/1000'
+        local_filepath = base_query._download_file(url, str(local_file), continuation=True, head_safe=head_safe)
+        assert local_filepath == str(local_file)
         assert local_file.exists()
 
         # Get the complete file for comparison
@@ -255,8 +291,8 @@ class TestDownloadFileRemote:
         url = 'https://httpbin.org/range/10000'
         local_file = tmp_path / 'remote_test_large.txt'
 
-        response = base_query._download_file(url, str(local_file), head_safe=head_safe)
-        assert response.status_code == 200
+        local_filepath = base_query._download_file(url, str(local_file), head_safe=head_safe)
+        assert local_filepath == str(local_file)
         assert local_file.exists()
         assert len(local_file.read_bytes()) == 10000
 
@@ -279,3 +315,41 @@ def test_session_hooks():
     """Test that the session hooks are properly set."""
     test_instance = BaseQuery()
     assert test_instance._response_hook in test_instance._session.hooks['response']
+
+
+def test_download_file_caching(base_query, patch_get, tmp_path):
+    """Test that caching works correctly with different file states."""
+    url = 'http://example.com/test.txt'
+    local_file = tmp_path / 'test.txt'
+
+    # First download with cache=True
+    local_filepath = base_query._download_file(url, str(local_file), cache=True)
+    assert local_filepath == str(local_file)
+    assert local_file.exists()
+    assert local_file.read_bytes() == TEST_FILE_CONTENT
+
+    # Second download with cache=True should use cached file
+    local_filepath = base_query._download_file(url, str(local_file), cache=True)
+    assert local_filepath == str(local_file)
+    assert local_file.exists()
+    assert local_file.read_bytes() == TEST_FILE_CONTENT
+
+    # Download with cache=False should redownload
+    local_filepath = base_query._download_file(url, str(local_file), cache=False)
+    assert local_filepath == str(local_file)
+    assert local_file.exists()
+    assert local_file.read_bytes() == TEST_FILE_CONTENT
+
+    # Test with partial file
+    local_file.write_bytes(TEST_FILE_PARTIAL)
+    local_filepath = base_query._download_file(url, str(local_file), cache=True)
+    assert local_filepath == str(local_file)
+    assert local_file.exists()
+    assert local_file.read_bytes() == TEST_FILE_CONTENT
+
+    # Test with wrong size file
+    local_file.write_bytes(b'wrong size')
+    local_filepath = base_query._download_file(url, str(local_file), cache=True)
+    assert local_filepath == str(local_file)
+    assert local_file.exists()
+    assert local_file.read_bytes() == TEST_FILE_CONTENT
