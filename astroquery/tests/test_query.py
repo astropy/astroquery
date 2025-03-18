@@ -167,9 +167,9 @@ def test_download_file_with_existing(base_query, patch_get, tmp_path, head_safe,
         local_file.write_bytes(initial_content)
 
     local_filepath = base_query._download_file(url, str(local_file),
-                                         head_safe=head_safe,
-                                         continuation=continuation,
-                                         cache=cache)
+                                               head_safe=head_safe,
+                                               continuation=continuation,
+                                               cache=cache)
 
     assert local_filepath == str(local_file)
     assert local_file.exists()
