@@ -175,7 +175,8 @@ class IrsaClass(BaseVOQuery):
             Service type to list collections for. Returns all collections when not provided.
             Currently supported service types are: 'SIA', 'SSA'.
         filter : str or None
-            If specified we only return collections with names containing the filter string.
+            If specified we only return collections then their collection_name
+            contains the filter string.
 
         Returns
         -------
@@ -313,7 +314,8 @@ class IrsaClass(BaseVOQuery):
             If True returns the full schema as a `~astropy.table.Table`.
             If False returns a dictionary of the table names and their description.
         filter : str or None
-            If specified we only return catalogs with names containing the filter string.
+            If specified we only return catalogs when their catalog_name
+            contains the filter string.
         """
         tap_tables = self.query_tap("SELECT * FROM TAP_SCHEMA.tables").to_table()
 

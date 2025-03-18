@@ -25,23 +25,27 @@ Available IRSA catalogs
 
 To get a concise list of IRSA catalogs available to query, use the
 `~.astroquery.ipac.irsa.IrsaClass.list_catalogs` method.
-The output consists of two fields for each catalog. To query a
+The output consists of two fields for each catalog, the name of the catalog
+and a very short description. To query a
 specific catalog, the first field can be entered as the value of the
 ``catalog`` parameter in the `~.astroquery.ipac.irsa.IrsaClass.query_region` method.
+You can also use the ``filter`` argument to return only the catalogs with
+name matches to the specified string.
+
 
 .. doctest-remote-data::
 
     >>> from astroquery.ipac.irsa import Irsa
-    >>> Irsa.list_catalogs()   # doctest: +IGNORE_OUTPUT
-    {'a1763t2': 'Abell 1763 Source Catalog',
-     'a1763t3': 'Abell 1763 MIPS 70 micron Catalog',
-     'acs_iphot_sep07': 'COSMOS ACS I-band photometry catalog September 2007',
-     'akari_fis': 'Akari/FIS Bright Source Catalogue',
-     'akari_irc': 'Akari/IRC Point Source Catalogue',
-     'astsight': 'IRAS Minor Planet Survey',
+    >>> Irsa.list_catalogs(filter='spitzer')   # doctest: +IGNORE_OUTPUT
+    {'spitzer.safires_images': 'Spitzer Archival FIR Extragalactic Survey (SAFIRES) Images',
+     'spitzer.safires_science': 'Spitzer SAFIRES Science Image Metadata',
+     'spitzer.safires_ancillary': 'Spitzer SAFIRES Ancillary Image Metadata',
+     'spitzer.sage_images': 'SAGE Images',
+     'spitzer.sage_mips_mos': 'Spitzer SAGE MIPS Mosaic Image Metadata',
      ...
-     ...
-     'xmm_cat_s05': "SWIRE XMM_LSS Region Spring '05 Spitzer Catalog"}
+     'spitzer.ssgss_irs_sl_ll': 'SSGSS IRS SL LL Spectra',
+     'spitzer.swire_images': 'Spitzer Wide-area InfraRed Extragalactic Survey (SWIRE) Images',
+     'herschel.hops_spitzer': 'HOPS Spitzer Metadata'}
 
 To get a full list of information available for each available
 catalog, use the ``full`` keyword argument. The output consists of many columns for each catalog.
@@ -52,14 +56,16 @@ the `~astroquery.ipac.irsa.IrsaClass.query_region` method.
 
     >>> from astroquery.ipac.irsa import Irsa
     >>> Irsa.list_catalogs(full=True)  # doctest: +IGNORE_OUTPUT
-    <DALResultsTable length=934>
-    table_index schema_name             table_name                              description                  ... irsa_access_flag irsa_nrows irsa_odbc_datasource irsa_spatial_idx_name
-       int32       object                 object                                   object                    ...      int32         int64           object                object
-    ----------- ----------- ---------------------------------- --------------------------------------------- ... ---------------- ---------- -------------------- ---------------------
-            303     spitzer              spitzer.m31irac_image                                M31IRAC Images ...               30          4             postgres
-            304     spitzer                             mipslg                   MIPS Local Galaxies Catalog ...               30        240              spitzer        SPT_IND_MIPSLG
-            305     spitzer             spitzer.mips_lg_images                    MIPS Local Galaxies Images ...               30        606             postgres
-    ...
+    <Table length=951>
+    table_index schema_name          table_name          ... irsa_nrows irsa_odbc_datasource irsa_spatial_idx_name
+       int32       object              object            ...   int64           object                object
+    ----------- ----------- ---------------------------- ... ---------- -------------------- ---------------------
+            101         wax                      cf_info ...     456480                  wax                SPTC01
+            102         wax                      cf_link ...  204143440                  wax
+            103     twomass                    ext_src_c ...     403811              twomass        EXT_SRC_CIX413
+            104         wax                     ecf_info ...       2146                  wax              SPTETC01
+            105         wax                     ecf_link ...     473971                  wax
+            ...
 
 
 Spatial search types
@@ -286,29 +292,28 @@ To list available collections for SIA queries, the
 `~astroquery.ipac.irsa.IrsaClass.list_collections` method is provided, and
 will return a `~astropy.table.Table`. You can use the ``servicetype``
 argument to filter for image or spectral collections using ``'SIA'`` or
-``'SSA'`` respectively:
+``'SSA'`` respectively. You can also use the ``filter`` argument to show
+only the collections with the given filter strings in the collection names.
 
 .. doctest-remote-data::
 
    >>> from astroquery.ipac.irsa import Irsa
-   >>> Irsa.list_collections(servicetype='SIA')
-   <Table length=104>
-         collection
-           object
-   ---------------------
-        akari_allskymaps
-                   blast
-             bolocam_gps
-              bolocam_lh
-       bolocam_planck_sz
-                     ...
-             wise_allsky
-            wise_allwise
-              wise_fdepa
-             wise_prelim
-   wise_prelim_2bandcryo
-             wise_unwise
-              wise_z0mgs
+   >>> Irsa.list_collections(servicetype='SIA', filter='spitzer')
+   <Table length=38>
+        collection
+          object
+   -------------------
+     spitzer_abell1763
+         spitzer_clash
+   spitzer_cosmic_dawn
+          spitzer_cygx
+     spitzer_deepdrill
+                   ...
+         spitzer_spuds
+       spitzer_srelics
+          spitzer_ssdf
+         spitzer_swire
+        spitzer_taurus
 
 Now open a cutout image for one of the science images. You could either use
 the the IRSA on-premise data or the cloud version of it using the
