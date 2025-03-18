@@ -20,6 +20,8 @@ ipac.irsa
 
 - ``query_sia`` now returns the results as an astropy Table. [#3252, #3263]
 
+- Deprecate ``print_catalogs`` in favour of ``list_catalogs``. [#3266]
+
 mast
 ^^^^
 
