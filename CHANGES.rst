@@ -106,6 +106,8 @@ Infrastructure, Utility and Other Changes and Additions
 - Removed usage of the astropy TestRunner, therefore the unadvertised
   ``astroquery.test()`` functionality. [#3215]
 
+- ``return_frame`` parameter in ``utils.commons.parse_coordinates`` returns coordinates in the specified frame. [#3164]
+
 
 0.4.9 (2025-01-24)
 ==================
