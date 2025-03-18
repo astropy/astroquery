@@ -11,7 +11,6 @@ DATA_DIR = Path(__file__).parent / 'data'
 DATA_DIR.mkdir(exist_ok=True)
 
 # Test data files
-TEST_FILE = DATA_DIR / 'test_file.txt'
 TEST_FILE_CONTENT = b'This is a test file with some content.'
 TEST_FILE_PARTIAL = b'This is a partial'
 TEST_FILE_REMAINDER = b' file with some content.'
