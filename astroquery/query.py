@@ -431,6 +431,7 @@ class BaseQuery(metaclass=LoginABCMeta):
 
         if ((os.path.exists(local_filepath)
              and ('Accept-Ranges' in response.headers)
+             and length is not None
              and continuation)):
             open_mode = 'ab'
 
