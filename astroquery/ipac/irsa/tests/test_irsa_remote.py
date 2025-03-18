@@ -61,6 +61,14 @@ class TestIrsa:
         assert isinstance(result, Table)
         assert len(result) == 7
 
+    def test_list_columns(self):
+        columns = Irsa.list_columns('slphotdr4')
+        assert len(columns) == 203
+        assert isinstance(columns, dict)
+
+        full_columns = Irsa.list_columns('slphotdr4', full=True)
+        assert isinstance(full_columns, Table)
+
     def test_list_catalogs(self):
         catalogs = Irsa.list_catalogs()
         # Number of available catalogs may change over time, test only for significant drop.
