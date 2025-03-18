@@ -6,6 +6,7 @@ from requests.models import Response
 from requests.structures import CaseInsensitiveDict
 from astroquery.query import BaseQuery, BaseVOQuery
 from astroquery.utils.mocks import MockResponse
+from itertools import product
 
 # Test data directory
 DATA_DIR = Path(__file__).parent / 'data'
@@ -150,55 +151,25 @@ def test_download_file_basic(base_query, patch_get, tmp_path, head_safe):
     assert local_file.read_bytes() == TEST_FILE_CONTENT
 
 
-@pytest.mark.parametrize('params', [
-    # Original test cases without cache
-    {'head_safe': False, 'continuation': True, 'initial_content': None, 'cache': False},
-    {'head_safe': False, 'continuation': False, 'initial_content': None, 'cache': False},
-    {'head_safe': True, 'continuation': True, 'initial_content': None, 'cache': False},
-    {'head_safe': True, 'continuation': False, 'initial_content': None, 'cache': False},
-    {'head_safe': False, 'continuation': True, 'initial_content': TEST_FILE_PARTIAL, 'cache': False},
-    {'head_safe': False, 'continuation': False, 'initial_content': TEST_FILE_PARTIAL, 'cache': False},
-    {'head_safe': True, 'continuation': True, 'initial_content': TEST_FILE_PARTIAL, 'cache': False},
-    {'head_safe': True, 'continuation': False, 'initial_content': TEST_FILE_PARTIAL, 'cache': False},
-    {'head_safe': False, 'continuation': True, 'initial_content': TEST_FILE_CONTENT, 'cache': False},
-    {'head_safe': False, 'continuation': False, 'initial_content': TEST_FILE_CONTENT, 'cache': False},
-    {'head_safe': True, 'continuation': True, 'initial_content': TEST_FILE_CONTENT, 'cache': False},
-    {'head_safe': True, 'continuation': False, 'initial_content': TEST_FILE_CONTENT, 'cache': False},
-    {'head_safe': False, 'continuation': True, 'initial_content': b'', 'cache': False},
-    {'head_safe': False, 'continuation': False, 'initial_content': b'', 'cache': False},
-    {'head_safe': True, 'continuation': True, 'initial_content': b'', 'cache': False},
-    {'head_safe': True, 'continuation': False, 'initial_content': b'', 'cache': False},
-    # Test cases with cache=True
-    {'head_safe': False, 'continuation': True, 'initial_content': None, 'cache': True},
-    {'head_safe': False, 'continuation': False, 'initial_content': None, 'cache': True},
-    {'head_safe': True, 'continuation': True, 'initial_content': None, 'cache': True},
-    {'head_safe': True, 'continuation': False, 'initial_content': None, 'cache': True},
-    {'head_safe': False, 'continuation': True, 'initial_content': TEST_FILE_PARTIAL, 'cache': True},
-    {'head_safe': False, 'continuation': False, 'initial_content': TEST_FILE_PARTIAL, 'cache': True},
-    {'head_safe': True, 'continuation': True, 'initial_content': TEST_FILE_PARTIAL, 'cache': True},
-    {'head_safe': True, 'continuation': False, 'initial_content': TEST_FILE_PARTIAL, 'cache': True},
-    {'head_safe': False, 'continuation': True, 'initial_content': TEST_FILE_CONTENT, 'cache': True},
-    {'head_safe': False, 'continuation': False, 'initial_content': TEST_FILE_CONTENT, 'cache': True},
-    {'head_safe': True, 'continuation': True, 'initial_content': TEST_FILE_CONTENT, 'cache': True},
-    {'head_safe': True, 'continuation': False, 'initial_content': TEST_FILE_CONTENT, 'cache': True},
-    {'head_safe': False, 'continuation': True, 'initial_content': b'', 'cache': True},
-    {'head_safe': False, 'continuation': False, 'initial_content': b'', 'cache': True},
-    {'head_safe': True, 'continuation': True, 'initial_content': b'', 'cache': True},
-    {'head_safe': True, 'continuation': False, 'initial_content': b'', 'cache': True},
-])
-def test_download_file_with_existing(base_query, patch_get, tmp_path, params):
+@pytest.mark.parametrize('head_safe,continuation,initial_content,cache', list(product(
+    [False, True],  # head_safe
+    [False, True],  # continuation
+    [None, TEST_FILE_PARTIAL, TEST_FILE_CONTENT, b''],  # initial_content
+    [False, True],  # cache
+)))
+def test_download_file_with_existing(base_query, patch_get, tmp_path, head_safe, continuation, initial_content, cache):
     """Test downloading with various combinations of head_safe, continuation, cache, and existing file content."""
     url = 'http://example.com/test.txt'
     local_file = tmp_path / 'test.txt'
 
     # Create initial file state if initial_content is not None
-    if params['initial_content'] is not None:
-        local_file.write_bytes(params['initial_content'])
+    if initial_content is not None:
+        local_file.write_bytes(initial_content)
 
     local_filepath = base_query._download_file(url, str(local_file),
-                                         head_safe=params['head_safe'],
-                                         continuation=params['continuation'],
-                                         cache=params['cache'])
+                                         head_safe=head_safe,
+                                         continuation=continuation,
+                                         cache=cache)
 
     assert local_filepath == str(local_file)
     assert local_file.exists()
