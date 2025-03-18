@@ -26,8 +26,6 @@ class EnhancedMockResponse(MockResponse):
         self.url = 'http://example.com/test.txt'
         self.request = type('Request', (), {'headers': {}})()
         self._content = content
-        self._content_consumed = False
-        self._original_content = content  # Keep original content for assertions
 
     def raise_for_status(self):
         if self.status_code >= 400:
@@ -41,19 +39,17 @@ class EnhancedMockResponse(MockResponse):
             yield content[ii:ii + chunk_size]
 
     def close(self):
-        self._content_consumed = True
+        self._content = None
 
     @property
     def content(self):
-        if self._content_consumed:
-            return self._original_content  # Return original content for assertions
+        if self._content is None:
+            raise RuntimeError("Response content has been consumed")
         return self._content
 
     @content.setter
     def content(self, value):
         self._content = value
-        self._original_content = value
-        self._content_consumed = False
 
 # Mock responses for different scenarios
 @pytest.fixture
