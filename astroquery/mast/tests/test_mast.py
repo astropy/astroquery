@@ -344,6 +344,11 @@ def test_missions_get_product_list(patch_post):
     result = mast.MastMissions.get_product_list(datasets[0])
     assert isinstance(result, Table)
 
+    # Batching
+    dataset_list = [f'{i}' for i in range(1001)]
+    result = mast.MastMissions.get_product_list(dataset_list)
+    assert isinstance(result, Table)
+
 
 def test_missions_get_unique_product_list(patch_post, caplog):
     unique_products = mast.MastMissions.get_unique_product_list('Z14Z0104T')

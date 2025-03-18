@@ -75,6 +75,9 @@ mast
 
 - Corrected parameter checking in ``MastMissions`` to ensure case-sensitive comparisons. [#3260]
 
+- Add batching to ``MastMissions.get_product_list`` to avoid server errors and allow for a larger number of input datasets. [#3230]
+
+
 simbad
 ^^^^^^
 
