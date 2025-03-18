@@ -483,12 +483,13 @@ class BaseQuery(metaclass=LoginABCMeta):
                                                      auth=auth, **kwargs)
                     response.raise_for_status()
                 else:
-                    log.info("Found cached file {0} with expected size {1}."
-                             .format(local_filepath, statinfo.st_size))
+                    log.info(f"Found cached file {local_filepath} with expected size {statinfo.st_size}.")
                     response.close()
                     return local_filepath
             else:
-                log.info("Found cached file {0}.".format(local_filepath))
+                # This case doesn't appear reachable under normal circumstances
+                # It is not covered by tests, and probably indicates a badly-behaved server
+                log.info(f"Found cached file {local_filepath}.  Could not verify length.")
                 response.close()
                 return local_filepath
         else:
