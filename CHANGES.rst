@@ -48,6 +48,9 @@ ipac.irsa
 - Adding the "servicetype" kwarg to ``list_collections`` to be able to list SIA
   and SSA collections separately. [#3200]
 
+- Addding "filter" kwarg to ``list_collections`` and ``list_catalogs`` to
+  filter out collections/catalogs with names containing the filter string. [#3264]
+
 - Adding support for asynchronous queries using the new ``async_job``
   keyword. [#3201]
 
