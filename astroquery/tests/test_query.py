@@ -146,6 +146,10 @@ def test_download_file_basic(base_query, patch_get, tmp_path, head_safe):
     {'head_safe': False, 'continuation': False, 'initial_content': b'wrong size'},
     {'head_safe': True, 'continuation': True, 'initial_content': b'wrong size'},
     {'head_safe': True, 'continuation': False, 'initial_content': b'wrong size'},
+    {'head_safe': False, 'continuation': True, 'initial_content': b''},
+    {'head_safe': False, 'continuation': False, 'initial_content': b''},
+    {'head_safe': True, 'continuation': True, 'initial_content': b''},
+    {'head_safe': True, 'continuation': False, 'initial_content': b''},
 ])
 def test_download_file_with_existing(base_query, patch_get, tmp_path, params):
     """Test downloading with various combinations of head_safe, continuation, and existing file content."""
