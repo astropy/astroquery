@@ -123,12 +123,11 @@ class TestConeSearch:
 
     def test_timeout_classic(self):
         """Test timed out query."""
-        with pytest.warns(W25, match='timed out'):
-            with pytest.warns(NoResultsWarning):
-                with conf.set_temp('timeout', 1e-6):
-                    result = conesearch.conesearch(
-                        SCS_CENTER, SCS_RADIUS, cache=False,
-                        verbose=self.verbose, catalog_db=self.url)
+        with (pytest.warns(W25, match='timed out'), pytest.warns(NoResultsWarning),
+              conf.set_temp('timeout', 1e-19)):
+            result = conesearch.conesearch(
+                SCS_CENTER, SCS_RADIUS, cache=False,
+                verbose=self.verbose, catalog_db=self.url)
         assert result is None
 
     def test_searches_classic(self):
