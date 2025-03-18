@@ -335,5 +335,27 @@ class IrsaClass(BaseVOQuery):
         for catname in catalogs:
             print("{:30s}  {:s}".format(catname, catalogs[catname]))
 
+    def list_columns(self, catalog, *, full=False):
+        """
+        Return list of columns of a given IRSA catalog.
+
+        Parameters
+        ----------
+        catalog : str
+            The name of the catalog.
+        full : bool
+            If True returns the full schema as a `~astropy.table.Table`.
+            If False returns a dictionary of the column names and their description.
+        """
+
+        query = f"SELECT * from TAP_SCHEMA.columns where table_name='{catalog}'"
+
+        column_table = self.query_tap(query).to_table()
+
+        if full:
+            return column_table
+        else:
+            return {column['column_name']: column['description'] for column in column_table}
+
 
 Irsa = IrsaClass()

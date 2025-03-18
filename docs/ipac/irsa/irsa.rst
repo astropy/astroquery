@@ -224,6 +224,26 @@ star HIP 12 with just the ra, dec and w1mpro columns would be:
     --------- ----------- ------
     0.0407905 -35.9602605  4.837
 
+
+You can use the `~astroquery.ipac.irsa.IrsaClass.list_columns` method to
+list all available columns for a given catalog. This method behaves
+similarly to what we saw above with ``list_catalogs`` and either returns
+pairs of column names and column descriptions; or a full list of information
+available about the columns in a `~astropy.table.Table`.
+
+.. doctest-remote-data::
+
+    >>> from astroquery.ipac.irsa import Irsa
+    >>> Irsa.list_columns(catalog="allwise_p3as_psd")
+    {'designation': 'WISE source designation',
+     'ra': 'right ascension (J2000)',
+     'dec': 'declination (J2000)',
+     'sigra': 'uncertainty in RA',
+     'sigdec': 'uncertainty in DEC',
+     ...
+     'htm20': 'HTM20 spatial index key'}
+
+
 Async queries
 --------------
 
