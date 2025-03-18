@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import pytest
 import requests
+import logging
 from pathlib import Path
 from requests.models import Response
 from requests.structures import CaseInsensitiveDict
@@ -16,6 +17,9 @@ DATA_DIR.mkdir(exist_ok=True)
 TEST_FILE_CONTENT = b'This is a test file with some content.'
 TEST_FILE_PARTIAL = b'This is a test file'
 TEST_FILE_REMAINDER = b' with some content.'
+
+# Get the logger for astroquery
+log = logging.getLogger('astroquery')
 
 
 class EnhancedMockResponse(MockResponse):
@@ -84,6 +88,7 @@ class EnhancedMockResponse(MockResponse):
 
 class MockResponse(Response):
     """A mocked Response object for testing."""
+
     def __init__(self, content=None):
         super().__init__()
         self._content = content
@@ -124,6 +129,7 @@ def base_query():
 @pytest.fixture
 def patch_get(monkeypatch, mock_response, mock_head_response):
     """Patch requests.get to return our mock response."""
+
     def mock_request(self, method, url, **kwargs):
         if method == 'HEAD':
             response = mock_head_response
@@ -139,9 +145,55 @@ def patch_get(monkeypatch, mock_response, mock_head_response):
     monkeypatch.setattr(requests.Session, 'request', mock_request)
 
 
-@pytest.mark.parametrize('head_safe', [True, False])
-def test_download_file_basic(base_query, patch_get, tmp_path, head_safe):
+@pytest.mark.parametrize(
+    'head_safe,continuation,initial_content,cache,log_level',
+    list(product(
+        [False, True],  # head_safe
+        [False, True],  # continuation
+        [None, TEST_FILE_PARTIAL, TEST_FILE_CONTENT, b''],  # initial_content
+        [False, True],  # cache
+        ['DEBUG', 'INFO'],  # log_level
+    ))
+)
+def test_download_file_with_existing(base_query, patch_get, tmp_path, head_safe,
+                                     continuation, initial_content, cache, log_level):
+    """Test downloading with various combinations of head_safe, continuation, cache, and existing file content."""
+    # Set logging level for this test
+    log.setLevel(log_level)
+
+    url = 'http://example.com/test.txt'
+    local_file = tmp_path / 'test.txt'
+
+    # Create initial file state if initial_content is not None
+    if initial_content is not None:
+        local_file.write_bytes(initial_content)
+
+    local_filepath = base_query._download_file(
+        url, str(local_file),
+        head_safe=head_safe,
+        continuation=continuation,
+        cache=cache)
+
+    assert local_filepath == str(local_file)
+    assert local_file.exists()
+    assert local_file.read_bytes() == TEST_FILE_CONTENT
+
+    # Reset logging level after test
+    log.setLevel('INFO')
+
+
+@pytest.mark.parametrize(
+    'head_safe,log_level',
+    list(product(
+        [True, False],  # head_safe
+        ['DEBUG', 'INFO'],  # log_level
+    ))
+)
+def test_download_file_basic(base_query, patch_get, tmp_path, head_safe, log_level):
     """Test basic file download functionality."""
+    # Set logging level for this test
+    log.setLevel(log_level)
+
     url = 'http://example.com/test.txt'
     local_file = tmp_path / 'test.txt'
 
@@ -150,35 +202,22 @@ def test_download_file_basic(base_query, patch_get, tmp_path, head_safe):
     assert local_file.exists()
     assert local_file.read_bytes() == TEST_FILE_CONTENT
 
-
-@pytest.mark.parametrize('head_safe,continuation,initial_content,cache', list(product(
-    [False, True],  # head_safe
-    [False, True],  # continuation
-    [None, TEST_FILE_PARTIAL, TEST_FILE_CONTENT, b''],  # initial_content
-    [False, True],  # cache
-)))
-def test_download_file_with_existing(base_query, patch_get, tmp_path, head_safe, continuation, initial_content, cache):
-    """Test downloading with various combinations of head_safe, continuation, cache, and existing file content."""
-    url = 'http://example.com/test.txt'
-    local_file = tmp_path / 'test.txt'
-
-    # Create initial file state if initial_content is not None
-    if initial_content is not None:
-        local_file.write_bytes(initial_content)
-
-    local_filepath = base_query._download_file(url, str(local_file),
-                                               head_safe=head_safe,
-                                               continuation=continuation,
-                                               cache=cache)
-
-    assert local_filepath == str(local_file)
-    assert local_file.exists()
-    assert local_file.read_bytes() == TEST_FILE_CONTENT
+    # Reset logging level after test
+    log.setLevel('INFO')
 
 
-@pytest.mark.parametrize('head_safe', [True, False])
-def test_download_file_no_verbose(base_query, patch_get, tmp_path, head_safe):
+@pytest.mark.parametrize(
+    'head_safe,log_level',
+    list(product(
+        [True, False],  # head_safe
+        ['DEBUG', 'INFO'],  # log_level
+    ))
+)
+def test_download_file_no_verbose(base_query, patch_get, tmp_path, head_safe, log_level):
     """Test downloading without progress bar."""
+    # Set logging level for this test
+    log.setLevel(log_level)
+
     url = 'http://example.com/test.txt'
     local_file = tmp_path / 'test.txt'
 
@@ -187,10 +226,23 @@ def test_download_file_no_verbose(base_query, patch_get, tmp_path, head_safe):
     assert local_file.exists()
     assert local_file.read_bytes() == TEST_FILE_CONTENT
 
+    # Reset logging level after test
+    log.setLevel('INFO')
 
-@pytest.mark.parametrize('head_safe', [True, False])
-def test_download_file_no_ranges_header(base_query, mock_response_no_ranges, monkeypatch, tmp_path, head_safe):
+
+@pytest.mark.parametrize(
+    'head_safe,log_level',
+    list(product(
+        [True, False],  # head_safe
+        ['DEBUG', 'INFO'],  # log_level
+    ))
+)
+def test_download_file_no_ranges_header(base_query, mock_response_no_ranges, monkeypatch,
+                                        tmp_path, head_safe, log_level):
     """Test downloading when server doesn't support range requests."""
+    # Set logging level for this test
+    log.setLevel(log_level)
+
     def mock_request(method, url, headers=None, **kwargs):
         if method == 'HEAD':
             return mock_response_no_ranges
@@ -205,6 +257,9 @@ def test_download_file_no_ranges_header(base_query, mock_response_no_ranges, mon
     assert local_filepath == str(local_file)
     assert local_file.exists()
     assert local_file.read_bytes() == TEST_FILE_CONTENT
+
+    # Reset logging level after test
+    log.setLevel('INFO')
 
 
 @pytest.mark.remote_data
@@ -288,8 +343,12 @@ def test_session_hooks():
     assert test_instance._response_hook in test_instance._session.hooks['response']
 
 
-def test_download_file_caching(base_query, patch_get, tmp_path):
+@pytest.mark.parametrize('log_level', ['DEBUG', 'INFO'])
+def test_download_file_caching(base_query, patch_get, tmp_path, log_level):
     """Test that caching works correctly with different file states."""
+    # Set logging level for this test
+    log.setLevel(log_level)
+
     url = 'http://example.com/test.txt'
     local_file = tmp_path / 'test.txt'
 
@@ -324,3 +383,6 @@ def test_download_file_caching(base_query, patch_get, tmp_path):
     assert local_filepath == str(local_file)
     assert local_file.exists()
     assert local_file.read_bytes() == TEST_FILE_CONTENT
+
+    # Reset logging level after test
+    log.setLevel('INFO')
