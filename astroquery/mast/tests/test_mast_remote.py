@@ -154,6 +154,11 @@ class TestMast:
             MastMissions.query_criteria(search_position='30 30')
         assert 'search_pos' in str(err_with_alt.value)
 
+        # Should be case sensitive
+        with pytest.raises(InvalidQueryError) as err_case:
+            MastMissions.query_criteria(Search_Pos='30 30')
+        assert 'search_pos' in str(err_case.value)
+
     def test_missions_get_product_list_async(self):
         datasets = MastMissions.query_object("M4", radius=0.1)
 
@@ -315,7 +320,7 @@ class TestMast:
 
     @pytest.mark.parametrize("mission, query_params", [
         ('jwst', {'fileSetName': 'jw01189001001_02101_00001'}),
-        ('classy', {'target': 'J0021+0052'}),
+        ('classy', {'Target': 'J0021+0052'}),
         ('ullyses', {'host_galaxy_name': 'WLM', 'select_cols': ['observation_id']})
     ])
     def test_missions_workflow(self, tmp_path, mission, query_params):

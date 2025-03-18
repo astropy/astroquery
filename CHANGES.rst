@@ -73,6 +73,8 @@ mast
 
 - Bugfix where ``Observations.get_cloud_uri`` and ``Observations.get_cloud_uris`` fail if the MAST relative path is not found. [#3193]
 
+- Corrected parameter checking in ``MastMissions`` to ensure case-sensitive comparisons. [#3260]
+
 simbad
 ^^^^^^
 
