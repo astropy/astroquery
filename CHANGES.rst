@@ -1,19 +1,17 @@
-0.4.10 (unreleased)
+0.4.10 (2025-03-18)
 ===================
 
 New Tools and Services
 ----------------------
 
-
-API changes
------------
-
 esa.euclid
-^^^^^^^^^^^^
+^^^^^^^^^^
 
 - New module to access the ESA Euclid Archive. [#3216]
 
-- Tests remove temp directories. [#3226]
+
+API changes
+-----------
 
 ipac.irsa
 ^^^^^^^^^
@@ -22,17 +20,12 @@ ipac.irsa
 
 - Deprecate ``print_catalogs`` in favour of ``list_catalogs``. [#3266]
 
-mast
-^^^^
-
-- Handle a MAST URI string as input for ``Observations.get_cloud_uri`` and a list of MAST URIs as input for
-  ``Observations.get_cloud_uris``. [#3193]
-
 simbad
 ^^^^^^
 
 - The detailed hierarchy is now returned by default in ``query_hierarchy``
-  (it was hidden by default in the previous versions) [#3195]
+  (it was hidden in the previous versions). [#3195]
+
 
 Service fixes and enhancements
 ------------------------------
@@ -40,23 +33,25 @@ Service fixes and enhancements
 gaia
 ^^^^
 
-- Update DR4 retrieval_type names and include the new one EPOCH_ASTROMETRY_BRIGHT [#3207, #3238]
+- Update DR4 retrieval_type names and include the new one
+  EPOCH_ASTROMETRY_BRIGHT. [#3207, #3238]
 
 ipac.irsa
 ^^^^^^^^^
 
-- Method to run Simple Spectral Access (SSA) VO queries, ``query_ssa``, is added. [#3076]
+- Method to run Simple Spectral Access (SSA) VO queries, ``query_ssa``,
+  is added. [#3076]
 
 - Adding the "servicetype" kwarg to ``list_collections`` to be able to list SIA
   and SSA collections separately. [#3200]
 
-- Addding "filter" kwarg to ``list_collections`` and ``list_catalogs`` to
-  filter out collections/catalogs with names containing the filter string. [#3264]
+- Adding "filter" kwarg to ``list_collections`` and ``list_catalogs`` to filter
+  for collections/catalogs with names containing the filter string. [#3264]
 
 - Adding support for asynchronous queries using the new ``async_job``
-  keyword. [#3201]
+  keyword argument. [#3201]
 
-- Making ``'spatial'`` keyword in ``query_region`` case insensitive. [#3224]
+- Making the ``'spatial'`` keyword in ``query_region`` case insensitive. [#3224]
 
 - Adding new ``list_columns`` method to list available columns for a given
   catalog. [#3265]
@@ -69,34 +64,41 @@ ipac.nexsci.nasa_exoplanet_archive
 mast
 ^^^^
 
-- Bugfix where users are unnecessarily warned about a query limit while fetching products in ``MastMissions.get_product_list``. [#3193]
+- Bugfix where users are unnecessarily warned about a query limit while
+  fetching products in ``MastMissions.get_product_list``. [#3193]
 
-- Bugfix where ``Observations.get_cloud_uri`` and ``Observations.get_cloud_uris`` fail if the MAST relative path is not found. [#3193]
+- Bugfix where ``Observations.get_cloud_uri`` and
+  ``Observations.get_cloud_uris`` fail if the MAST relative path is not
+  found. [#3193]
 
-- Corrected parameter checking in ``MastMissions`` to ensure case-sensitive comparisons. [#3260]
+- Corrected parameter checking in ``MastMissions`` to ensure case-sensitive
+  comparisons. [#3260]
 
-- Add batching to ``MastMissions.get_product_list`` to avoid server errors and allow for a larger number of input datasets. [#3230]
+- Add batching to ``MastMissions.get_product_list`` to avoid server errors
+  and allow for a larger number of input datasets. [#3230]
 
+- Handle a MAST URI string as input for ``Observations.get_cloud_uri`` and
+  a list of MAST URIs as input for ``Observations.get_cloud_uris``. [#3193]
 
 simbad
 ^^^^^^
 
-- fix: when adding a measurement table in the votable_fields, if a measurement table is
-  empty for an object, there will now be a line with masked values instead of no line in
-  the result [#3199]
+- Fixing joining measurement with basic votable-fields and masking values
+  instead of not returning lines in the result if a measurement fields are
+  empty for an object. [#3199]
 
-- perf: use a TAP upload in ``query_region`` when there are more than 300 coordinates.
-  This prevents timeouts. [#3235]
+- Performance improvements to prevent timeouts to ``query_region`` when
+  there are more than 300 coordinates. [#3235]
 
-- fix: remove ``pm`` from the votable_fields list (bug introduced in v0.4.9) [#3259]
+- Removed ``'pm'`` from the votable_fields list. [#3259]
 
 xmatch
 ^^^^^^
 
-- the API is more flexible: you can now ommit the ``vizier:`` before the catalog name
-  when crossmatching with a vizier table [#3194]
+- Fixing the API to be more flexible, it is now possible to ommit the
+  ``'vizier:'`` sting before the catalog name when crossmatching with a
+  vizier table. [#3194]
 
-- add a help message when people are banned instead of returning error code 403 [#3225]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
