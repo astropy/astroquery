@@ -476,12 +476,12 @@ class BaseQuery(metaclass=LoginABCMeta):
                                 f"that is different from expected size {length}.  ")
                     if continuation:
                         log.warning(
-                                "Continuation was requested but is not possible because "
-                                "'Accepts-Ranges' is not in the response headers.")
+                            "Continuation was requested but is not possible because "
+                            "'Accepts-Ranges' is not in the response headers.")
                     open_mode = 'wb'
                     response = self._session.request(method, url,
-                                                    timeout=timeout, stream=True,
-                                                    auth=auth, **kwargs)
+                                                     timeout=timeout, stream=True,
+                                                     auth=auth, **kwargs)
                     response.raise_for_status()
                 else:
                     log.info("Found cached file {0} with expected size {1}."

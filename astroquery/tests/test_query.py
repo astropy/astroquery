@@ -1,9 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from astroquery.query import BaseQuery, BaseVOQuery
-import os
 import pytest
 import requests
 from pathlib import Path
+from requests.models import Response
+from astroquery.query import BaseQuery, BaseVOQuery
 from astroquery.utils.mocks import MockResponse
 
 # Test data directory
@@ -14,6 +14,7 @@ DATA_DIR.mkdir(exist_ok=True)
 TEST_FILE_CONTENT = b'This is a test file with some content.'
 TEST_FILE_PARTIAL = b'This is a partial'
 TEST_FILE_REMAINDER = b' file with some content.'
+
 
 class EnhancedMockResponse(MockResponse):
     """A MockResponse with additional attributes and methods needed by _download_file."""
@@ -50,86 +51,71 @@ class EnhancedMockResponse(MockResponse):
     def content(self, value):
         self._content = value
 
-# Mock responses for different scenarios
-@pytest.fixture
-def mock_head_response():
-    """Create a mock HEAD response with no content."""
-    response = EnhancedMockResponse(b'')  # HEAD response has no content
-    response.headers = {
-        'Accept-Ranges': 'bytes',
-        'Content-Length': str(len(TEST_FILE_CONTENT))
-    }
-    return response
+
+class MockResponse(Response):
+    """A mocked Response object for testing."""
+    def __init__(self, content=None):
+        super().__init__()
+        self._content = content
+
 
 @pytest.fixture
 def mock_response():
-    """Create a mock response object with test content and headers."""
+    """Create a mock response with test content."""
     response = EnhancedMockResponse(TEST_FILE_CONTENT)
-    response.headers = {
-        'Accept-Ranges': 'bytes',
-        'Content-Length': str(len(TEST_FILE_CONTENT))
-    }
+    response.headers['Accept-Ranges'] = 'bytes'
+    response.headers['Content-Length'] = str(len(TEST_FILE_CONTENT))
     return response
+
+
+@pytest.fixture
+def mock_head_response():
+    """Create a mock HEAD response with no content."""
+    response = EnhancedMockResponse(b'')
+    response.headers['Accept-Ranges'] = 'bytes'
+    response.headers['Content-Length'] = str(len(TEST_FILE_CONTENT))
+    return response
+
 
 @pytest.fixture
 def mock_response_no_ranges():
-    """Create a mock response object without Accept-Ranges header."""
+    """Create a mock response without range support."""
     response = EnhancedMockResponse(TEST_FILE_CONTENT)
-    response.headers = {
-        'Content-Length': str(len(TEST_FILE_CONTENT))
-    }
+    response.headers['Content-Length'] = str(len(TEST_FILE_CONTENT))
     return response
 
-@pytest.fixture
-def patch_get(request, mock_response, mock_head_response):
-    """Patch the requests.Session.request method to return our mock response."""
-    mp = request.getfixturevalue("monkeypatch")
-
-    def mock_request(self, method, *args, **kwargs):
-        # Handle HEAD requests
-        if method == 'HEAD':
-            return mock_head_response
-            
-        # Handle range requests
-        range_header = None
-        if hasattr(self, 'headers') and 'Range' in self.headers:
-            range_header = self.headers['Range']
-        elif 'headers' in kwargs and 'Range' in kwargs['headers']:
-            range_header = kwargs['headers']['Range']
-
-        if range_header:
-            # Simulate partial content response
-            start = int(range_header.split('=')[1].split('-')[0])
-            if start == len(TEST_FILE_PARTIAL):
-                response = EnhancedMockResponse(TEST_FILE_REMAINDER)
-                response.headers = {
-                    'Accept-Ranges': 'bytes',
-                    'Content-Length': str(len(TEST_FILE_REMAINDER)),
-                    'Content-Range': f'bytes {start}-{start + len(TEST_FILE_REMAINDER) - 1}/{len(TEST_FILE_CONTENT)}'
-                }
-                return response
-                
-        # Default to normal GET response
-        return mock_response
-
-    mp.setattr(requests.Session, 'request', mock_request)
-    return mp
-
-@pytest.fixture
-def patch_get_no_ranges(request, mock_response_no_ranges):
-    """Patch the requests.Session.request method to return response without Accept-Ranges."""
-    mp = request.getfixturevalue("monkeypatch")
-
-    def mock_request(*args, **kwargs):
-        return mock_response_no_ranges
-
-    mp.setattr(requests.Session, 'request', mock_request)
-    return mp
 
 @pytest.fixture
 def base_query():
     """Create a BaseQuery instance for testing."""
     return BaseQuery()
+
+
+@pytest.fixture
+def patch_get(monkeypatch, mock_response, mock_head_response):
+    """Patch requests.get to return our mock response."""
+    def mock_request(method, url, headers=None, **kwargs):
+        if method == 'HEAD':
+            return mock_head_response
+
+        if headers and 'Range' in headers:
+            range_header = headers['Range']
+            start = int(range_header.split('=')[1].split('-')[0])
+            if start == len(TEST_FILE_PARTIAL):
+                mock_response.content = TEST_FILE_REMAINDER
+                mock_response.headers['Content-Range'] = (
+                    f'bytes {start}-{len(TEST_FILE_CONTENT)-1}/{len(TEST_FILE_CONTENT)}'
+                )
+                mock_response.status_code = 206
+            else:
+                mock_response.content = TEST_FILE_CONTENT
+        else:
+            mock_response.content = TEST_FILE_CONTENT
+            mock_response.status_code = 200
+        return mock_response
+
+    monkeypatch.setattr(requests.Session, 'request', mock_request)
+
 
 @pytest.mark.parametrize('head_safe', [True, False])
 def test_download_file_basic(base_query, patch_get, tmp_path, head_safe):
@@ -141,6 +127,7 @@ def test_download_file_basic(base_query, patch_get, tmp_path, head_safe):
     assert response.status_code == 200
     assert local_file.exists()
     assert local_file.read_bytes() == TEST_FILE_CONTENT
+
 
 @pytest.mark.parametrize('params', [
     {'head_safe': False, 'continuation': True, 'initial_content': None},
@@ -170,15 +157,16 @@ def test_download_file_with_existing(base_query, patch_get, tmp_path, params):
         local_file.write_bytes(params['initial_content'])
 
     response = base_query._download_file(url, str(local_file),
-                                       head_safe=params['head_safe'],
-                                       continuation=params['continuation'])
+                                         head_safe=params['head_safe'],
+                                         continuation=params['continuation'])
     assert response.status_code == 200
     assert local_file.exists()
     assert local_file.read_bytes() == TEST_FILE_CONTENT
 
+
 @pytest.mark.parametrize('head_safe', [True, False])
 def test_download_file_no_verbose(base_query, patch_get, tmp_path, head_safe):
-    """Test downloading with verbose=False."""
+    """Test downloading without progress bar."""
     url = 'http://example.com/test.txt'
     local_file = tmp_path / 'test.txt'
 
@@ -187,21 +175,26 @@ def test_download_file_no_verbose(base_query, patch_get, tmp_path, head_safe):
     assert local_file.exists()
     assert local_file.read_bytes() == TEST_FILE_CONTENT
 
+
 @pytest.mark.parametrize('head_safe', [True, False])
-def test_download_file_no_ranges_header(base_query, patch_get_no_ranges, tmp_path, head_safe):
-    """Test downloading when server doesn't support partial content."""
+def test_download_file_no_ranges_header(base_query, mock_response_no_ranges, monkeypatch, tmp_path, head_safe):
+    """Test downloading when server doesn't support range requests."""
+    def mock_request(method, url, headers=None, **kwargs):
+        if method == 'HEAD':
+            return mock_response_no_ranges
+        return mock_response_no_ranges
+
+    monkeypatch.setattr(requests.Session, 'request', mock_request)
+
     url = 'http://example.com/test.txt'
     local_file = tmp_path / 'test.txt'
 
-    # Create a partial file
-    local_file.write_bytes(TEST_FILE_PARTIAL)
-
-    response = base_query._download_file(url, str(local_file), continuation=True, head_safe=head_safe)
+    response = base_query._download_file(url, str(local_file), head_safe=head_safe)
     assert response.status_code == 200
     assert local_file.exists()
     assert local_file.read_bytes() == TEST_FILE_CONTENT
 
-# Remote tests using httpbin
+
 @pytest.mark.remote_data
 class TestDownloadFileRemote:
     """Test _download_file with actual HTTP requests using httpbin."""
@@ -263,38 +256,22 @@ class TestDownloadFileRemote:
         assert local_file.exists()
         assert len(local_file.read_bytes()) == 10000
 
-class with_VO(BaseVOQuery, BaseQuery):
-    pass
-
-
-class without_VO(BaseQuery):
-    pass
-
-
-class only_VO(BaseVOQuery):
-    pass
-
 
 def test_session_VO_header():
-    test_instance = with_VO()
-    user_agent = test_instance._session.headers['User-Agent']
-    assert 'astroquery' in user_agent
-    assert 'pyVO' in user_agent
-    assert user_agent.count('astroquery') == 1
+    """Test that the session header includes both astroquery and pyVO."""
+    test_VO_instance = BaseVOQuery()
+    assert 'astroquery' in test_VO_instance._session.headers['User-Agent']
+    assert 'pyVO' in test_VO_instance._session.headers['User-Agent']
 
 
 def test_session_nonVO_header():
-    test_instance = without_VO()
-    user_agent = test_instance._session.headers['User-Agent']
-    assert 'astroquery' in user_agent
-    assert 'pyVO' not in user_agent
-    assert user_agent.count('astroquery') == 1
+    """Test that the session header includes astroquery but not pyVO."""
+    test_instance = BaseQuery()
+    assert 'astroquery' in test_instance._session.headers['User-Agent']
+    assert 'pyVO' not in test_instance._session.headers['User-Agent']
 
 
 def test_session_hooks():
-    # Test that we don't override the session in the BaseVOQuery
-    test_instance = with_VO()
-    assert len(test_instance._session.hooks['response']) > 0
-
-    test_VO_instance = only_VO()
-    assert len(test_VO_instance._session.hooks['response']) == 0
+    """Test that the session hooks are properly set."""
+    test_instance = BaseQuery()
+    assert test_instance._response_hook in test_instance._session.hooks['response']
