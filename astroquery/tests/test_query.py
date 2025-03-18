@@ -37,8 +37,8 @@ class EnhancedMockResponse(MockResponse):
         if chunk_size is None:
             chunk_size = 8192
         content = self._content
-        for i in range(0, len(content), chunk_size):
-            yield content[i:i + chunk_size]
+        for ii in range(0, len(content), chunk_size):
+            yield content[ii:ii + chunk_size]
 
     def close(self):
         self._content_consumed = True
@@ -55,14 +55,24 @@ class EnhancedMockResponse(MockResponse):
         self._original_content = value
         self._content_consumed = False
 
+# Mock responses for different scenarios
+@pytest.fixture
+def mock_head_response():
+    """Create a mock HEAD response with no content."""
+    response = EnhancedMockResponse(b'')  # HEAD response has no content
+    response.headers = {
+        'Accept-Ranges': 'bytes',
+        'Content-Length': str(len(TEST_FILE_CONTENT))
+    }
+    return response
+
 @pytest.fixture
 def mock_response():
     """Create a mock response object with test content and headers."""
     response = EnhancedMockResponse(TEST_FILE_CONTENT)
     response.headers = {
         'Accept-Ranges': 'bytes',
-        'Content-Length': str(len(TEST_FILE_CONTENT)),
-        'Content-Type': 'application/octet-stream'
+        'Content-Length': str(len(TEST_FILE_CONTENT))
     }
     return response
 
@@ -71,18 +81,21 @@ def mock_response_no_ranges():
     """Create a mock response object without Accept-Ranges header."""
     response = EnhancedMockResponse(TEST_FILE_CONTENT)
     response.headers = {
-        'Content-Length': str(len(TEST_FILE_CONTENT)),
-        'Content-Type': 'application/octet-stream'
+        'Content-Length': str(len(TEST_FILE_CONTENT))
     }
     return response
 
 @pytest.fixture
-def patch_get(request, mock_response):
+def patch_get(request, mock_response, mock_head_response):
     """Patch the requests.Session.request method to return our mock response."""
     mp = request.getfixturevalue("monkeypatch")
 
-    def mock_request(self, *args, **kwargs):
-        # Check for Range header in both session and request headers
+    def mock_request(self, method, *args, **kwargs):
+        # Handle HEAD requests
+        if method == 'HEAD':
+            return mock_head_response
+            
+        # Handle range requests
         range_header = None
         if hasattr(self, 'headers') and 'Range' in self.headers:
             range_header = self.headers['Range']
@@ -97,10 +110,11 @@ def patch_get(request, mock_response):
                 response.headers = {
                     'Accept-Ranges': 'bytes',
                     'Content-Length': str(len(TEST_FILE_REMAINDER)),
-                    'Content-Range': f'bytes {start}-{start + len(TEST_FILE_REMAINDER) - 1}/{len(TEST_FILE_CONTENT)}',
-                    'Content-Type': 'application/octet-stream'
+                    'Content-Range': f'bytes {start}-{start + len(TEST_FILE_REMAINDER) - 1}/{len(TEST_FILE_CONTENT)}'
                 }
                 return response
+                
+        # Default to normal GET response
         return mock_response
 
     mp.setattr(requests.Session, 'request', mock_request)
@@ -122,88 +136,64 @@ def base_query():
     """Create a BaseQuery instance for testing."""
     return BaseQuery()
 
-def test_download_file_basic(base_query, patch_get, tmp_path):
+@pytest.mark.parametrize('head_safe', [True, False])
+def test_download_file_basic(base_query, patch_get, tmp_path, head_safe):
     """Test basic file download functionality."""
     url = 'http://example.com/test.txt'
     local_file = tmp_path / 'test.txt'
 
-    response = base_query._download_file(url, str(local_file))
-    assert response.content == TEST_FILE_CONTENT
+    response = base_query._download_file(url, str(local_file), head_safe=head_safe)
+    assert response.status_code == 200
     assert local_file.exists()
     assert local_file.read_bytes() == TEST_FILE_CONTENT
 
-def test_download_file_continuation(base_query, patch_get, tmp_path):
-    """Test downloading with continuation (partial file exists)."""
+@pytest.mark.parametrize('params', [
+    {'head_safe': False, 'continuation': True, 'initial_content': None},
+    {'head_safe': False, 'continuation': False, 'initial_content': None},
+    {'head_safe': True, 'continuation': True, 'initial_content': None},
+    {'head_safe': True, 'continuation': False, 'initial_content': None},
+    {'head_safe': False, 'continuation': True, 'initial_content': TEST_FILE_PARTIAL},
+    {'head_safe': False, 'continuation': False, 'initial_content': TEST_FILE_PARTIAL},
+    {'head_safe': True, 'continuation': True, 'initial_content': TEST_FILE_PARTIAL},
+    {'head_safe': True, 'continuation': False, 'initial_content': TEST_FILE_PARTIAL},
+    {'head_safe': False, 'continuation': True, 'initial_content': TEST_FILE_CONTENT},
+    {'head_safe': False, 'continuation': False, 'initial_content': TEST_FILE_CONTENT},
+    {'head_safe': True, 'continuation': True, 'initial_content': TEST_FILE_CONTENT},
+    {'head_safe': True, 'continuation': False, 'initial_content': TEST_FILE_CONTENT},
+    {'head_safe': False, 'continuation': True, 'initial_content': b'wrong size'},
+    {'head_safe': False, 'continuation': False, 'initial_content': b'wrong size'},
+    {'head_safe': True, 'continuation': True, 'initial_content': b'wrong size'},
+    {'head_safe': True, 'continuation': False, 'initial_content': b'wrong size'},
+])
+def test_download_file_with_existing(base_query, patch_get, tmp_path, params):
+    """Test downloading with various combinations of head_safe, continuation, and existing file content."""
     url = 'http://example.com/test.txt'
     local_file = tmp_path / 'test.txt'
 
-    # Create a partial file with only the first part
-    local_file.write_bytes(TEST_FILE_PARTIAL)
+    # Create initial file state if initial_content is not None
+    if params['initial_content'] is not None:
+        local_file.write_bytes(params['initial_content'])
 
-    response = base_query._download_file(url, str(local_file), continuation=True)
+    response = base_query._download_file(url, str(local_file),
+                                       head_safe=params['head_safe'],
+                                       continuation=params['continuation'])
+    assert response.status_code == 200
     assert local_file.exists()
     assert local_file.read_bytes() == TEST_FILE_CONTENT
 
-def test_download_file_no_continuation(base_query, patch_get, tmp_path):
-    """Test downloading without continuation (partial file exists)."""
-    url = 'http://example.com/test.txt'
-    local_file = tmp_path / 'test.txt'
-
-    # Create a partial file
-    local_file.write_bytes(b'This is a partial')
-
-    response = base_query._download_file(url, str(local_file), continuation=False)
-    assert response.content == TEST_FILE_CONTENT
-    assert local_file.exists()
-    assert local_file.read_bytes() == TEST_FILE_CONTENT
-
-def test_download_file_existing_complete(base_query, patch_get, tmp_path):
-    """Test downloading when file already exists with correct size."""
-    url = 'http://example.com/test.txt'
-    local_file = tmp_path / 'test.txt'
-
-    # Create a complete file with correct size
-    local_file.write_bytes(TEST_FILE_CONTENT)
-
-    response = base_query._download_file(url, str(local_file))
-    assert response.content == TEST_FILE_CONTENT
-    assert local_file.exists()
-    assert local_file.read_bytes() == TEST_FILE_CONTENT
-
-def test_download_file_existing_wrong_size(base_query, patch_get, tmp_path):
-    """Test downloading when file exists but has wrong size."""
-    url = 'http://example.com/test.txt'
-    local_file = tmp_path / 'test.txt'
-
-    # Create a file with wrong size
-    local_file.write_bytes(b'Wrong size content')
-
-    response = base_query._download_file(url, str(local_file))
-    assert response.content == TEST_FILE_CONTENT
-    assert local_file.exists()
-    assert local_file.read_bytes() == TEST_FILE_CONTENT
-
-def test_download_file_head_safe(base_query, patch_get, tmp_path):
-    """Test downloading with head_safe=True."""
-    url = 'http://example.com/test.txt'
-    local_file = tmp_path / 'test.txt'
-
-    response = base_query._download_file(url, str(local_file), head_safe=True)
-    assert response.content == TEST_FILE_CONTENT
-    assert local_file.exists()
-    assert local_file.read_bytes() == TEST_FILE_CONTENT
-
-def test_download_file_no_verbose(base_query, patch_get, tmp_path):
+@pytest.mark.parametrize('head_safe', [True, False])
+def test_download_file_no_verbose(base_query, patch_get, tmp_path, head_safe):
     """Test downloading with verbose=False."""
     url = 'http://example.com/test.txt'
     local_file = tmp_path / 'test.txt'
 
-    response = base_query._download_file(url, str(local_file), verbose=False)
-    assert response.content == TEST_FILE_CONTENT
+    response = base_query._download_file(url, str(local_file), verbose=False, head_safe=head_safe)
+    assert response.status_code == 200
     assert local_file.exists()
     assert local_file.read_bytes() == TEST_FILE_CONTENT
 
-def test_download_file_no_ranges_header(base_query, patch_get_no_ranges, tmp_path):
+@pytest.mark.parametrize('head_safe', [True, False])
+def test_download_file_no_ranges_header(base_query, patch_get_no_ranges, tmp_path, head_safe):
     """Test downloading when server doesn't support partial content."""
     url = 'http://example.com/test.txt'
     local_file = tmp_path / 'test.txt'
@@ -211,8 +201,8 @@ def test_download_file_no_ranges_header(base_query, patch_get_no_ranges, tmp_pat
     # Create a partial file
     local_file.write_bytes(TEST_FILE_PARTIAL)
 
-    response = base_query._download_file(url, str(local_file), continuation=True)
-    assert response.content == TEST_FILE_CONTENT
+    response = base_query._download_file(url, str(local_file), continuation=True, head_safe=head_safe)
+    assert response.status_code == 200
     assert local_file.exists()
     assert local_file.read_bytes() == TEST_FILE_CONTENT
 
@@ -225,17 +215,19 @@ class TestDownloadFileRemote:
     def base_query(self):
         return BaseQuery()
 
-    def test_download_file_remote(self, base_query, tmp_path):
+    @pytest.mark.parametrize('head_safe', [True, False])
+    def test_download_file_remote(self, base_query, tmp_path, head_safe):
         """Test downloading from httpbin."""
         url = 'https://httpbin.org/range/1000'
         local_file = tmp_path / 'remote_test.txt'
 
-        response = base_query._download_file(url, str(local_file))
+        response = base_query._download_file(url, str(local_file), head_safe=head_safe)
         assert response.status_code == 200
         assert local_file.exists()
         assert len(local_file.read_bytes()) == 1000
 
-    def test_download_file_remote_continuation(self, base_query, tmp_path):
+    @pytest.mark.parametrize('head_safe', [True, False])
+    def test_download_file_remote_continuation(self, base_query, tmp_path, head_safe):
         """Test downloading with continuation from httpbin."""
         url = 'https://httpbin.org/range/1000'
         local_file = tmp_path / 'remote_test.txt'
@@ -252,7 +244,7 @@ class TestDownloadFileRemote:
         local_file.write_bytes(partial_content)
 
         # Now use _download_file with continuation to get the rest
-        response = base_query._download_file(url, str(local_file), continuation=True)
+        response = base_query._download_file(url, str(local_file), continuation=True, head_safe=head_safe)
         assert response.status_code == 206
         assert response.headers['Content-Range'] == 'bytes 500-999/1000'
         assert local_file.exists()
@@ -265,12 +257,13 @@ class TestDownloadFileRemote:
         # Verify that our partial + continuation matches the complete file
         assert local_file.read_bytes() == complete_content
 
-    def test_download_file_remote_large(self, base_query, tmp_path):
+    @pytest.mark.parametrize('head_safe', [True, False])
+    def test_download_file_remote_large(self, base_query, tmp_path, head_safe):
         """Test downloading a larger file from httpbin."""
         url = 'https://httpbin.org/range/10000'
         local_file = tmp_path / 'remote_test_large.txt'
 
-        response = base_query._download_file(url, str(local_file))
+        response = base_query._download_file(url, str(local_file), head_safe=head_safe)
         assert response.status_code == 200
         assert local_file.exists()
         assert len(local_file.read_bytes()) == 10000
