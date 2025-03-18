@@ -425,22 +425,18 @@ class BaseQuery(metaclass=LoginABCMeta):
         if 'content-length' in response.headers:
             length = int(response.headers['content-length'])
             if length == 0:
-                log.warn('URL {0} has length=0'.format(url))
+                log.warning('URL {0} has length=0'.format(url))
         else:
             length = None
 
         if ((os.path.exists(local_filepath)
              and ('Accept-Ranges' in response.headers)
+             and length is not None
              and continuation)):
             open_mode = 'ab'
 
             existing_file_length = os.stat(local_filepath).st_size
-            if length is not None and existing_file_length >= length:
-                # all done!
-                log.info("Found cached file {0} with expected size {1}."
-                         .format(local_filepath, existing_file_length))
-                return
-            elif existing_file_length == 0:
+            if existing_file_length == 0:
                 log.info(f"Found existing {local_filepath} file with length 0.  Overwriting.")
                 open_mode = 'wb'
                 if head_safe:
@@ -448,6 +444,10 @@ class BaseQuery(metaclass=LoginABCMeta):
                                                      timeout=timeout, stream=True,
                                                      auth=auth, **kwargs)
                     response.raise_for_status()
+            elif existing_file_length >= length:
+                # all done!
+                log.info(f"Found cached file {local_filepath} with size {existing_file_length} = {length}.")
+                return local_filepath
             else:
                 log.info("Continuing download of file {0}, with {1} bytes to "
                          "go ({2}%)".format(local_filepath,
@@ -475,22 +475,21 @@ class BaseQuery(metaclass=LoginABCMeta):
                                 f"that is different from expected size {length}.  ")
                     if continuation:
                         log.warning(
-                                "Continuation was requested but is not possible because "
-                                "'Accepts-Ranges' is not in the response headers.")
+                            "Continuation was requested but is not possible because "
+                            "'Accepts-Ranges' is not in the response headers.")
                     open_mode = 'wb'
                     response = self._session.request(method, url,
-                                                    timeout=timeout, stream=True,
-                                                    auth=auth, **kwargs)
+                                                     timeout=timeout, stream=True,
+                                                     auth=auth, **kwargs)
                     response.raise_for_status()
                 else:
-                    log.info("Found cached file {0} with expected size {1}."
-                             .format(local_filepath, statinfo.st_size))
+                    log.info(f"Found cached file {local_filepath} with expected size {statinfo.st_size}.")
                     response.close()
-                    return
+                    return local_filepath
             else:
-                log.info("Found cached file {0}.".format(local_filepath))
-                response.close()
-                return
+                # This case doesn't appear reachable under normal circumstances
+                # It is not covered by tests, and probably indicates a badly-behaved server
+                raise ValueError(f"Found cached file {local_filepath}.  Could not verify length.")
         else:
             open_mode = 'wb'
             if head_safe:
@@ -528,7 +527,7 @@ class BaseQuery(metaclass=LoginABCMeta):
                 f.write(response.content)
 
         response.close()
-        return response
+        return local_filepath
 
 
 @deprecated(since="v0.4.7", message=("The suspend_cache function is deprecated,"
