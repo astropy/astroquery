@@ -8,9 +8,14 @@ New Tools and Services
 API changes
 -----------
 
+query.py
+^^^^^^^^
+
+- ``_download_file`` now returns the local file path in all cases (formerly, it would return ``None`` if the file was already cached).  Some corner cases where downloads were not properly continued have been fixed [#3232]
+
 
 esa.euclid
-^^^^^^^^^^^^
+^^^^^^^^^^
 
 - New module to access the ESA Euclid Archive. [#3216]
 
