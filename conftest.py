@@ -14,9 +14,9 @@ def pytest_configure(config):
     PYTEST_HEADER_MODULES['astropy-healpix'] = 'astropy_healpix'
     PYTEST_HEADER_MODULES['vamdclib'] = 'vamdclib'
 
-    del PYTEST_HEADER_MODULES['h5py']
-    del PYTEST_HEADER_MODULES['Scipy']
-    del PYTEST_HEADER_MODULES['Pandas']
+    PYTEST_HEADER_MODULES.pop('h5py', None)
+    PYTEST_HEADER_MODULES.pop('Scipy', None)
+    PYTEST_HEADER_MODULES.pop('Pandas', None)
 
     # keyring doesn't provide __version__ any more
     # PYTEST_HEADER_MODULES['keyring'] = 'keyring'
