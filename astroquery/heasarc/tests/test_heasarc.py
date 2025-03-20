@@ -332,6 +332,25 @@ def test_download_data__outside_sciserver():
         )
 
 
+def test_download_data__table_row():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        datadir = f'{tmpdir}/data'
+        downloaddir = f'{tmpdir}/download'
+        os.makedirs(datadir, exist_ok=True)
+        with open(f'{datadir}/file.txt', 'w') as fp:
+            fp.write('data')
+        # include both a file and a directory
+        tab = Table({'sciserver': [f'{tmpdir}/data/file.txt', f'{tmpdir}/data']})
+        # The patch is to avoid the test that we are on sciserver
+        with patch('os.path.exists') as exists:
+            exists.return_value = True
+            Heasarc.download_data(tab[0], host="sciserver", location=downloaddir)
+            Heasarc.download_data(tab[1], host="sciserver", location=downloaddir)
+        assert os.path.exists(f'{downloaddir}/file.txt')
+        assert os.path.exists(f'{downloaddir}/data')
+        assert os.path.exists(f'{downloaddir}/data/file.txt')
+
+
 # S3 mock tests
 s3_bucket = "nasa-heasarc"
 s3_key1 = "some/location/file1.txt"

@@ -6,7 +6,7 @@ import requests
 import tarfile
 import warnings
 import numpy as np
-from astropy.table import Table
+from astropy.table import Table, Row
 from astropy import coordinates
 from astropy import units as u
 from astropy.utils.decorators import deprecated, deprecated_renamed_argument
@@ -582,7 +582,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         Parameters
         ----------
-        links : `astropy.table.Table`
+        links : `astropy.table.Table` or `astropy.table.Row`
             The result from locate_data
         host : str
             The data host. The options are: heasarc (default), sciserver, aws.
@@ -602,6 +602,9 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         if len(links) == 0:
             raise ValueError('Input links table is empty')
+
+        if isinstance(links, Row):
+            links = links.table[[links.index]]
 
         if host not in ['heasarc', 'sciserver', 'aws']:
             raise ValueError('host has to be one of heasarc, sciserver, aws')
