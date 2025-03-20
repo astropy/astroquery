@@ -17,7 +17,7 @@ Service fixes and enhancements
 heasarc
 ^^^^^^^
 
-- Add support for astropy.table.Row in Heasarc.download_data. [#3269]
+- Add support for astropy.table.Row in Heasarc.download_data. [#3270]
 
 
 Infrastructure, Utility and Other Changes and Additions
