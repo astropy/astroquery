@@ -14,6 +14,10 @@ API changes
 Service fixes and enhancements
 ------------------------------
 
+heasarc
+^^^^^^^
+
+- Add support for astropy.table.Row in Heasarc.download_data. [#3269]
 
 
 Infrastructure, Utility and Other Changes and Additions
