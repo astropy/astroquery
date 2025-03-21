@@ -470,7 +470,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         Parameters
         ----------
-        query_result : `astropy.table.Table`, optional
+        query_result : `astropy.table.Table` or `astropy.table.Row`, optional
             A table that contain the search results. Typically as
             returned by query_region. If None, use the table from the
             most recent query_region call.
@@ -492,8 +492,14 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             else:
                 query_result = self._last_result
 
+        if isinstance(query_result, Row):
+            query_result = query_result.table[[query_result.index]]
+
         if not isinstance(query_result, Table):
-            raise TypeError('query_result need to be an astropy.table.Table')
+            raise TypeError(
+                'query_result need to be an astropy.table.Table or '
+                'astropy.table.Row'
+            )
 
         # make sure we have a column __row
         if '__row' not in query_result.colnames:

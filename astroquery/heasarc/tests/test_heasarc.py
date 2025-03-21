@@ -274,12 +274,26 @@ def test_locate_data():
         Heasarc.locate_data()
 
     with pytest.raises(
-        TypeError, match="query_result need to be an astropy.table.Table"
+        TypeError, match=(
+            "query_result need to be an astropy.table.Table or astropy.table.Row"
+        )
     ):
         Heasarc.locate_data([1, 2])
 
     with pytest.raises(ValueError, match="No __row column found"):
         Heasarc.locate_data(Table({"id": [1, 2, 3.0]}), catalog_name="xray")
+
+
+def test_locate_data_row():
+    table = Table({"id": [1, 2, 3.0]})
+
+    # we cannot do full call as this is not remote,
+    # but if we check that we error on __row not input type
+    with pytest.raises(ValueError, match="No __row column found"):
+        Heasarc.locate_data(table[0], catalog_name="xray")
+
+    with pytest.raises(ValueError, match="No __row column found"):
+        Heasarc.locate_data(table[0:2], catalog_name="xray")
 
 
 def test_download_data__empty():
