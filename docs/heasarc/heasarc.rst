@@ -201,7 +201,7 @@ The first gives the url to the data from the main heasarc server. The second giv
 the local path to the data on Sciserver. The last gives the S3 URI to the data in the cloud.
 You can specify where the data are to be downloaded using the ``location`` parameter.
 
-To download the data, you can pass ``links`` table to `~astroquery.heasarc.HeasarcClass.download_data`,
+To download the data, you can pass ``links`` table (or row) to `~astroquery.heasarc.HeasarcClass.download_data`,
 specifying from where you want the data to be fetched by specifying the ``host`` parameter. By default,
 the data is fetched from the main HEASARC servers.
 The recommendation is to use different hosts depending on where your code is running:
