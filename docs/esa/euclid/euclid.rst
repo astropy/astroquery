@@ -259,7 +259,7 @@ In the following example, for the LE3 Weak-Lensing data, we retrieve all the Tom
 .. doctest-skip::
 
   >>> from astroquery.esa.euclid import Euclid
-  >>> results = euclid.get_scientific_data_product_list(category='Weak Lensing Products', group='2PCF', product_type='DpdCovarTwoPCFWLClPosPos2D')
+  >>> results = euclid.get_scientific_data_product_list(category='Weak Lensing Products', group='2PCF', product_type='DpdTwoPCFWLShearShear2D')
   >>> print("Found", len(le3_product_list), "results")
   Found 12 results
   >>> print(le3_product_list)
