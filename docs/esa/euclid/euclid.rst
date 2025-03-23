@@ -256,7 +256,7 @@ It is possible to retrieve LE3 data (scientific data) by observation_id or tile_
   Found 12 results
   >>> print(le3_product_list)
 
-In the following example, for the LE3 Weak-Lensing data, we retrieve all the Tomographic Cosmic Shear Correlation product (2PCF TwoPCFWLShearShear2D):
+In the following example, for the LE3 Weak-Lensing data, we retrieve all the Tomographic Cosmic Shear Correlation products (2PCF TwoPCFWLShearShear2D):
 
 .. Skipping authentication requiring examples
 .. doctest-skip::
