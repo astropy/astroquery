@@ -8,6 +8,7 @@ European Space Agency (ESA)
 """
 import binascii
 import os
+import pprint
 import tarfile
 import zipfile
 from collections.abc import Iterable
@@ -884,7 +885,7 @@ class EuclidClass(TapPlus):
                 #. NISP
                     DpdNispRawFrame: NISP Raw Frame Product
 
-            #. Euclid LE2/LE3 products:
+            #. Euclid LE2 products:
 
                 #. VIS
                     DpdVisCalibratedQuadFrame: VIS Calibrated Frame Product
@@ -1275,6 +1276,310 @@ class EuclidClass(TapPlus):
         """
 
         return self.__eucliddata.get_datalinks(ids=ids, linking_parameter=linking_parameter, verbose=verbose)
+
+    def get_scientific_data_product_list(self, *, observation_id=None, tile_index=None, category=None, group=None,
+                                         product_type=None,
+                                         release='LEVEL_3_RELEASE', verbose=False):
+        """ Gets the LE3 products (the high-level science data products).
+
+        Please note that not all combinations of category, group, and product_type are valid.
+
+        Parameters
+        ----------
+        observation_id: str, optional, default None.
+            It is not compatible with parameter tile_index.
+        tile_index: str, optional, default None.
+            It is not compatible with parameter observation_id.
+        category : str, optional, default None
+            Available categories:
+
+                #. 'Clusters of Galaxies'
+                #. 'External Data Products'
+                #. 'Galaxy Clustering Products'
+                #. 'Internal Data Products'
+                #. 'testCategory'
+                #. 'Weak Lensing Products'
+
+        group : str, optional, default None
+            Available groups:
+
+                #. '2D-MASS'
+                #. '2PCF'
+                #. '2PCF_PK'
+                #. '3PCF_BK'
+                #. 'CM-2PCF'
+                #. 'CM-PK'
+                #. 'GrpCatalog'
+                #. 'GrpClustering'
+                #. 'GrpCOMB'
+                #. 'GrpLMF'
+                #. 'GrpSEL'
+                #. 'GrpTiling'
+                #. 'LE3-ED configuration catalog'
+                #. 'LE3-ED match catalog'
+                #. 'PK'
+                #. 'SEL Config/Stats'
+                #. 'SEL Wide Main'
+                #. 'SEL Wide Post-recon'
+                #. 'SEL Wide Pre-recon'
+                #. 'testGroup'
+                #. 'testGroup2'
+                #. 'VMSP Group'
+
+        product_type : str, optional, default None
+            Available product types:
+
+                #. 'DDpdLE3clPkDOA'
+                #. 'DpdCovarTwoPCFWLClPosPos2D'
+                #. 'DpdCovarTwoPCFWLCOSEBIShearShear2D'
+                #. 'DpdCovarTwoPCFWLParams'
+                #. 'DpdCovarTwoPCFWLPEBPosShear2D'
+                #. 'DpdCovarTwoPCFWLPosPos2D'
+                #. 'DpdCovarTwoPCFWLPosShear2D'
+                #. 'DpdCovarTwoPCFWLResampleClPosPos2D'
+                #. 'DpdCovarTwoPCFWLResampleCOSEBIShearShear2D'
+                #. 'DpdCovarTwoPCFWLResamplePEBPosShear2D'
+                #. 'DpdCovarTwoPCFWLResamplePEBShearShear2D'
+                #. 'DpdCovarTwoPCFWLResamplePosPos2D'
+                #. 'DpdCovarTwoPCFWLResamplePosShear2D'
+                #. 'DpdCovarTwoPCFWLResampleShearShear2D'
+                #. 'DpdCovarTwoPCFWLShearShear2D'
+                #. 'DpdHealpixBitMaskVMPZ'
+                #. 'DpdLE3clAmicoAux'
+                #. 'DpdLE3clAMICOModel'
+                #. 'DpdLE3clAssociations'
+                #. 'DpdLE3clCatMergeParams'
+                #. 'DpdLE3clCATParams'
+                #. 'DpdLE3clCcpInputParams'
+                #. 'DpdLE3clCLTile'
+                #. 'DpdLE3clCombConfigurationSet'
+                #. 'DpdLE3clCombCovMatDeltaSigmaCosmoDep'
+                #. 'DpdLE3clCombCovMatReducedShearCosmoDep'
+                #. 'DpdLE3clCombCovMatReducedShearCosmoIndep'
+                #. 'DpdLE3clCombRedSheProf'
+                #. 'DpdLE3clCombStackingCosmoDep'
+                #. 'DpdLE3clCombStackingCosmoInd'
+                #. 'DpdLE3clCombUCovRedSheProf'
+                #. 'DpdLE3clCombWLME'
+                #. 'DpdLE3clCommon'
+                #. 'DpdLE3clConfigurationSet'
+                #. 'DpdLE3clCovmatTwoPointCov2'
+                #. 'DpdLE3clDetClusters'
+                #. 'DpdLE3clDetInputParams'
+                #. 'DpdLE3clDetMergeParams'
+                #. 'DpdLE3clDetOnMockParams'
+                #. 'DpdLE3clGlueMatchParams'
+                #. 'DpdLE3clLMFOutput'
+                #. 'DpdLE3clLMFParams'
+                #. 'DpdLE3clMatchForSelParams'
+                #. 'DpdLE3clMockClusters'
+                #. 'DpdLE3clMockGlueMatchParams'
+                #. 'DpdLE3clPkYam'
+                #. 'DpdLE3clPzwavAux'
+                #. 'DpdLE3clPZWAVDensity'
+                #. 'DpdLE3clRedshiftDistrib'
+                #. 'DpdLE3clRichMembers'
+                #. 'DpdLE3clSelRandom'
+                #. 'DpdLE3clSelRandomParams'
+                #. 'DpdLE3clSelSelFunc'
+                #. 'DpdLE3clSelSelFuncInputParams'
+                #. 'DpdLE3clSelSinfoniaIniClMockInputParams'
+                #. 'DpdLE3clSelSinfoniaMockInputParams'
+                #. 'DpdLE3clSelSubSample'
+                #. 'DpdLE3clSinfoniaEllipticity'
+                #. 'DpdLE3clTwoPointAutoCorrPol'
+                #. 'DpdLE3clZClParams'
+                #. 'DpdLE3edConfigurationFile'
+                #. 'DpdLE3edMatchedCatalog'
+                #. 'DpdLE3FullDet'
+                #. 'DpdLE3gcBkMonopole'
+                #. 'DpdLE3gcBkMultipole'
+                #. 'DpdLE3gcCovmatPKCov1D'
+                #. 'DpdLE3gcCovmatPKCov2Dcart'
+                #. 'DpdLE3gcCovmatPKCov2Dpol'
+                #. 'DpdLE3gcCovmatTwoPointCov1D'
+                #. 'DpdLE3gcCovmatTwoPointCov2Dcart'
+                #. 'DpdLE3gcCovmatTwoPointCov2Dpol'
+                #. 'DpdLE3gcCovmatTwoPointCovMu'
+                #. 'DpdLE3gcCovmatTwoPointCovPro'
+                #. 'DpdLE3gcPkCross'
+                #. 'DpdLE3gcPkDOA'
+                #. 'DpdLE3gcPkYam'
+                #. 'DpdLE3gcThreePointAll'
+                #. 'DpdLE3gcThreePointSin'
+                #. 'DpdLE3gcTwoPointAutoCorr'
+                #. 'DpdLE3gcTwoPointAutoCorrCart'
+                #. 'DpdLE3gcTwoPointAutoCorrPol'
+                #. 'DpdLE3gcTwoPointCrossCorr'
+                #. 'DpdLE3gcTwoPointCrossCorrCart'
+                #. 'DpdLE3gcTwoPointCrossCorrPol'
+                #. 'DpdLE3gcTwoPointRecAutoCorr'
+                #. 'DpdLE3gcTwoPointRecAutoCorrCart'
+                #. 'DpdLE3gcTwoPointRecAutoCorrPol'
+                #. 'DpdLE3gcTwoPointRecCrossCorr'
+                #. 'DpdLE3gcTwoPointRecCrossCorrCart'
+                #. 'DpdLE3gcTwoPointRecCrossCorrPol'
+                #. 'DpdLE3IDSELConfigurationSet'
+                #. 'DpdLE3IDSELIDCatalog'
+                #. 'DpdLE3IDSELIDStatistics'
+                #. 'DpdLE3IDSELIDSubsampledCatalog'
+                #. 'DpdLE3IDVMSPConfiguration'
+                #. 'DpdLE3IDVMSPDetectionModel'
+                #. 'DpdLE3IDVMSPDistModel'
+                #. 'DpdLE3IDVMSPRandomCatalog'
+                #. 'dpdMerFinalCatalog'
+                #. 'dpdPhzPfOutputCatalog'
+                #. 'DpdPKWLAlms'
+                #. 'DpdPKWLCovMatrix2D'
+                #. 'DpdPKWLEstimate2D'
+                #. 'DpdPKWLMaps'
+                #. 'DpdPKWLMixingMatrix2D'
+                #. 'dpdSheLensMcChains'
+                #. 'dpdSpePfOutputCatalog'
+                #. 'DpdTwoDMassConvergenceClusters'
+                #. 'DpdTwoDMassConvergencePatch'
+                #. 'DpdTwoDMassConvergencePatchesToSphere'
+                #. 'DpdTwoDMassConvergenceSphere'
+                #. 'DpdTwoDMassParamsConvergenceClusters'
+                #. 'DpdTwoDMassParamsConvergencePatch'
+                #. 'DpdTwoDMassParamsConvergencePatchesToSphere'
+                #. 'DpdTwoDMassParamsConvergenceSphere'
+                #. 'DpdTwoDMassParamsPeakCatalogConvergence'
+                #. 'DpdTwoDMassParamsPeakCatalogMassAperture'
+                #. 'DpdTwoDMassPeakCatalog'
+                #. 'DpdTwoPCFWLClPosPos2D'
+                #. 'DpdTwoPCFWLCOSEBIFilter'
+
+        release : str, mandatory.
+            Data release from which data should be taken.
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A table object
+
+        """
+
+        query_extra_condition = ""
+
+        if (observation_id is None and tile_index is None and category is None and group is None and product_type is
+                None):
+            raise ValueError("Include a valid parameter to retrieve a LE3 product.")
+
+        if release is None:
+            raise ValueError("The release is required.")
+
+        if observation_id is not None and tile_index is not None:
+            raise ValueError(self.__ERROR_MSG_REQUESTED_OBSERVATION_ID_AND_TILE_ID)
+
+        if tile_index is not None:
+            query_extra_condition = f" AND '{tile_index}' = ANY(tile_index_list) "
+
+        if observation_id is not None:
+            query_extra_condition = f" AND '{observation_id}' = ANY(observation_id_list) "
+
+        if category is not None:
+
+            try:
+                _ = conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[category]
+            except KeyError:
+                raise ValueError(
+                    f"Invalid combination of parameters: category={category}. Valid values:\n "
+                    f"{pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
+
+            if group is not None:
+
+                try:
+                    _ = conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[category][group]
+                except KeyError:
+                    raise ValueError(
+                        f"Invalid combination of parameters: category={category}; group={group}. Valid "
+                        f"values:\n {pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
+
+                if product_type is not None:
+
+                    if product_type not in conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[category][group]:
+                        raise ValueError(
+                            f"Invalid combination of parameters: category={category}; group={group}; "
+                            f"product_type={product_type}. Valid values:\n "
+                            f"{pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
+
+                    query_extra_condition = query_extra_condition + (f" AND category={category} AND group={group} AND "
+                                                                     f"product_type={product_type} ")
+                else:
+                    query_extra_condition = query_extra_condition + f" AND category={category} AND group={group} "
+            else:
+                if product_type is not None:
+
+                    product_type_list = [item for row in
+                                         conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[category].values()
+                                         for item in row]
+
+                    if product_type not in product_type_list:
+                        raise ValueError(
+                            f"Invalid combination of parameters: category={category}; product_type={product_type}."
+                            f" Valid values:\n {pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
+
+                    query_extra_condition = query_extra_condition + (f" AND category={category} AND product_type="
+                                                                     f"{product_type} ")
+
+                else:
+                    query_extra_condition = query_extra_condition + f" AND category={category} "
+        else:
+
+            category_group_dict = {}
+            for i in conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS.keys():
+                category_group_dict.update(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[i])
+
+            if group is not None:
+
+                try:
+                    _ = category_group_dict[group]
+                except KeyError:
+                    raise ValueError(
+                        f"Invalid combination of parameters: group={group}. Valid values:\n "
+                        f"{pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
+
+                if product_type is not None:
+
+                    if product_type not in category_group_dict[group]:
+                        raise ValueError(
+                            f"Invalid combination of parameters: group={group}; product_type={product_type}. Valid "
+                            f"values:\n {pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
+
+                    query_extra_condition = query_extra_condition + (f" AND group={group} AND product_type="
+                                                                     f"{product_type} ")
+                else:
+                    query_extra_condition = query_extra_condition + f" AND group={group} "
+
+            else:
+
+                product_type_list = [element for row in category_group_dict.values() for element in row]
+
+                if product_type is not None:
+                    if product_type not in product_type_list:
+                        raise ValueError(
+                            f"Invalid combination of parameters: product_type={product_type}. Valid values:\n "
+                            f"{pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
+
+                    query_extra_condition = query_extra_condition + f" AND product_type={product_type} "
+
+                else:
+                    query_extra_condition = query_extra_condition + ""
+
+        query = (
+            f"SELECT basic_download_data.basic_download_data_oid, basic_download_data.product_type, "
+            f"basic_download_data.product_id, CAST(basic_download_data.observation_id_list as text) AS "
+            f"observation_id_list, CAST(basic_download_data.tile_index_list as text) AS tile_index_list, "
+            f"CAST(basic_download_data.patch_id_list as text) AS patch_id_list, "
+            f"CAST(basic_download_data.filter_name as text) AS filter_name FROM sedm.basic_download_data WHERE "
+            f"release_name='{release}' {query_extra_condition} ORDER BY observation_id_list ASC")
+
+        job = super().launch_job(query=query, output_format='votable_plain', verbose=verbose,
+                                 format_with_results_compressed=('votable_gzip',))
+
+        return job.get_results()
 
 
 Euclid = EuclidClass()
