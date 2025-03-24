@@ -495,7 +495,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         if isinstance(query_result, Row):
             query_result = query_result.table[[query_result.index]]
 
-        if not isinstance(query_result, Table):
+        elif not isinstance(query_result, Table):
             raise TypeError(
                 'query_result need to be an astropy.table.Table or '
                 'astropy.table.Row'
