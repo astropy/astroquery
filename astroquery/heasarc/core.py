@@ -6,7 +6,7 @@ import requests
 import tarfile
 import warnings
 import numpy as np
-from astropy.table import Table
+from astropy.table import Table, Row
 from astropy import coordinates
 from astropy import units as u
 from astropy.utils.decorators import deprecated, deprecated_renamed_argument
@@ -470,7 +470,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         Parameters
         ----------
-        query_result : `astropy.table.Table`, optional
+        query_result : `astropy.table.Table` or `astropy.table.Row`, optional
             A table that contain the search results. Typically as
             returned by query_region. If None, use the table from the
             most recent query_region call.
@@ -492,8 +492,14 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             else:
                 query_result = self._last_result
 
-        if not isinstance(query_result, Table):
-            raise TypeError('query_result need to be an astropy.table.Table')
+        if isinstance(query_result, Row):
+            query_result = query_result.table[[query_result.index]]
+
+        elif not isinstance(query_result, Table):
+            raise TypeError(
+                'query_result need to be an astropy.table.Table or '
+                'astropy.table.Row'
+            )
 
         # make sure we have a column __row
         if '__row' not in query_result.colnames:
@@ -582,7 +588,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         Parameters
         ----------
-        links : `astropy.table.Table`
+        links : `astropy.table.Table` or `astropy.table.Row`
             The result from locate_data
         host : str
             The data host. The options are: heasarc (default), sciserver, aws.
@@ -602,6 +608,9 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         if len(links) == 0:
             raise ValueError('Input links table is empty')
+
+        if isinstance(links, Row):
+            links = links.table[[links.index]]
 
         if host not in ['heasarc', 'sciserver', 'aws']:
             raise ValueError('host has to be one of heasarc, sciserver, aws')
