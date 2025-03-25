@@ -249,7 +249,7 @@ class Conf(_config.ConfigNamespace):
                    'N_s': ('n_s', 'AU'),
                    'VR_s': ('vr_s', 'AU/d'),
                    'VT_s': ('vt_s', 'AU/d'),
-                   'VN_s': ('vn_s', 'AU/d'),
+                  # VN_s is repeated here.
 
                    # Note: A_s is duplicated for POS (p) and ACN (a) uncertainties. It 
                    # is up to the user to differentiate them! (They have the same units.)
