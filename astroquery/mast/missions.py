@@ -111,10 +111,16 @@ class MastMissionsClass(MastQueryWithLogin):
             if isinstance(response, list):  # multiple async responses from batching
                 combined_products = []
                 for resp in response:
-                    combined_products.extend(resp.json().get('products', []))
+                    if self.mission == 'roman':
+                        combined_products.extend(resp.json().get('products', [])[0])
+                    else:
+                        combined_products.extend(resp.json().get('products', []))
                 return Table(combined_products)
 
-            results = Table(response.json()['products'])  # single async response
+            if self.mission == 'roman':
+                results = Table(response.json()['products'][0])  # single async response
+            else:
+                results = Table(response.json()['products'])
 
         return results
 
