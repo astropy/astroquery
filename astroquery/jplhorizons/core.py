@@ -959,8 +959,8 @@ class HorizonsClass(BaseQuery):
     def vectors_async(self, *, get_query_payload=False,
                       closest_apparition=False, no_fragments=False,
                       get_raw_response=False, cache=True,
-                      refplane='ecliptic', aberrations='geometric',
-                      delta_T=False,):
+                      refplane='ecliptic', vec_table="3", 
+                      aberrations='geometric', delta_T=False,):
         """
         Query JPL Horizons for state vectors.
 
@@ -1057,6 +1057,14 @@ class HorizonsClass(BaseQuery):
 
             See :ref:`Horizons Reference Frames <jpl-horizons-reference-frames>`
             in the astroquery documentation for details.
+        
+        vec_table : string, optional
+            Selects the table of vectors to be returned. Options are numbers 1-6,
+            followed by any string of characters in the list [``'x'``, ``'a'``,
+            ``'r'``, ``'p'``]. Default: ``'3'``.
+
+            See `Horizons User Manual <https://ssd.jpl.nasa.gov/horizons/manual.html#vec_table>`_
+            for details.
 
         aberrations : string, optional
             Aberrations to be accounted for: [``'geometric'``,
@@ -1156,6 +1164,7 @@ class HorizonsClass(BaseQuery):
             ('VEC_CORR', {'geometric': '"NONE"',
                           'astrometric': '"LT"',
                           'apparent': '"LT+S"'}[aberrations]),
+            ('VEC_TABLE', vec_table),
             ('VEC_DELTA_T', {True: 'YES', False: 'NO'}[delta_T]),
             ('OBJ_DATA', 'YES')]
         )
@@ -1314,16 +1323,19 @@ class HorizonsClass(BaseQuery):
             elif (self.query_type == 'elements' and "JDTDB," in line):
                 headerline = str(line).split(',')
                 headerline[-1] = '_dump'
-            # read in vectors header line
-            elif (self.query_type == 'vectors' and "JDTDB," in line):
-                headerline = str(line).split(',')
-                headerline[-1] = '_dump'
             # identify end of data block
             if "$$EOE" in line:
                 data_end_idx = idx
             # identify start of data block
             if "$$SOE" in line:
                 data_start_idx = idx + 1
+
+                # read in vectors header line
+                # reading like this helps fix issues with commas after JDTDB
+                if self.query_type == 'vectors':
+                    headerline_raw = str(src[idx - 2]).replace("JDTDB,", "JDTDB")
+                    headerline = ["            JDTDB", *str(headerline_raw).split("JDTDB")[1].split(',')]
+                    headerline[-1] = '_dump'
             # read in targetname
             if "Target body name" in line:
                 targetname = line[18:50].strip()
