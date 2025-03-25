@@ -54,6 +54,7 @@ class MastMissionsClass(MastQueryWithLogin):
         self.dataset_kwds = {  # column keywords corresponding to dataset ID
             'hst': 'sci_data_set_name',
             'jwst': 'fileSetName',
+            'roman': 'fileSetName',
             'classy': 'Target',
             'ullyses': 'observation_id'
         }
@@ -536,7 +537,7 @@ class MastMissionsClass(MastQueryWithLogin):
         """
 
         # Construct the full data URL based on mission
-        if self.mission in ['hst', 'jwst']:
+        if self.mission in ['hst', 'jwst', 'roman']:
             # HST and JWST have a dedicated endpoint for retrieving products
             base_url = self._service_api_connection.MISSIONS_DOWNLOAD_URL + self.mission + '/api/v0.1/retrieve_product'
             keyword = 'product_name'
