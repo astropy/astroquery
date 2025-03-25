@@ -1416,6 +1416,20 @@ class HorizonsClass(BaseQuery):
         # strip whitespaces from column labels
         headerline = [h.strip() for h in headerline]
 
+        # add numbers to duplicates
+        headerline_seen = {} # format - column_name: [headerline_idx, count]
+        dup_col_to_orig = {} # format - remapped_column_name: [original_column_name, index], used for later processing
+        for i, col in enumerate(headerline):
+            if col in headerline_seen:
+                headerline_seen[col][1] += 1
+                headerline[headerline_seen[col][0]] = f"{col}_1"
+                dup_col_to_orig[f"{col}_1"] = [col, 1]
+
+                headerline[i] = f"{col}_{headerline_seen[col][1]}"
+                dup_col_to_orig[headerline[i]] = [col, headerline_seen[col][1]]
+            else:
+                headerline_seen[col] = [i, 1]
+
         # remove all 'Cut-off' messages
         raw_data = [line for line in src[data_start_idx:data_end_idx]
                     if 'Cut-off' not in line]
@@ -1481,14 +1495,22 @@ class HorizonsClass(BaseQuery):
         # set column units
         rename = []
         for col in data.columns:
-            data[col].unit = column_defs[col][1]
-            if data[col].name != column_defs[col][0]:
+            # fetch from original definition, not remapped
+            col_unit = column_defs[dup_col_to_orig[col][0] if col in dup_col_to_orig.keys() else col]
+
+            data[col].unit = col_unit[1]
+            if data[col].name != col_unit[0]:
                 rename.append(data[col].name)
 
         # rename columns
         for col in rename:
             try:
-                data.rename_column(data[col].name, column_defs[col][0])
+                if col in dup_col_to_orig.keys(): # preserve index on duplicate columns
+                    to_rename = f"{column_defs[dup_col_to_orig[col][0]][0]}_{dup_col_to_orig[col][1]}"
+                else:
+                    to_rename = column_defs[col][0]
+
+                data.rename_column(data[col].name, to_rename)
             except KeyError:
                 pass
 
