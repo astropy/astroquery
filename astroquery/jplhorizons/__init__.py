@@ -256,7 +256,7 @@ class Conf(_config.ConfigNamespace):
                    'D_s': ('d_s', 'AU'),
                    # R_s is repeated here.
                    'VA_RA_s': ('va_ra_s', 'AU/d'),
-                   'VA_DEC_s': ('va_dec_s', 'AU/d'),
+                   'VD_DEC_s': ('va_dec_s', 'AU/d'),
                    # VR_s is repeated here.
 
                    'LT': ('lighttime', 'd'),
