@@ -1351,7 +1351,7 @@ class EuclidClass(TapPlus):
                     #. 2PCF
                         #. 'DpdTwoPCFWLCOSEBIFilter': This product contains COSEBI filters
                         #. 'DpdTwoPCFWLParamsCOSEBIShearShear2D': This product contains parameters to compute the
-                        tomographic cosmic shear COSEBI modes   NO en GUI
+                        tomographic cosmic shear COSEBI modes.
                         #. 'DpdTwoPCFWLParamsClPosPos2D': This product contains parameters to compute the tomographic
                         angular power spectra.
                         #. 'DpdTwoPCFWLParamsPEBPosShear2D': This product contains parameters to compute the
@@ -1491,7 +1491,7 @@ class EuclidClass(TapPlus):
                         #. 'DpdLE3clMockGlueMatchParams': This product contains the input parameters for the mock
                         glue-match pipeline
                         #. 'DpdLE3clGlueMatchParams': This product contains the input parameters for the glue-match
-                        pipeline.   No en GUI
+                        pipeline.
                     #. GrpCOMB
                         #. 'DpdLE3clCombConfigurationSet': Configuration information for COMB-CL pipelines
                         #. 'DpdLE3clCombRedSheProf': Output Reduced shear profiles
@@ -1528,7 +1528,7 @@ class EuclidClass(TapPlus):
                     #. GrpClustering
                         #. 'DpdLE3clTwoPointAutoCorrPol': Cluster Clustering Two Point Correlation 2D polar data product
                         #. 'DpdLE3clCovmatTwoPointCov2': Cluster Clustering Covariance Matrix 2PCF 2D polar data product
-                        #. 'DpolDpdLE3clCovmatPKCov1':  NO en GUI
+                        #. 'DpolDpdLE3clCovmatPKCov1':
                         #. 'DDpdLE3clPkDOA':
                         #. 'DpdLE3clPkYam': Cluster Clustering Power Spectrum Yamamoto data product
                     #. GrpLMF
