@@ -18,6 +18,8 @@ heasarc
 ^^^^^^^
 
 - Add support for astropy.table.Row in Heasarc.download_data and Heasarc.locate_data. [#3270]
+- Heasarc.locate_data returns empty rows with an error in the error_message column if there are
+  no data associated with that row rather than filtering it out. [#3271]
 
 
 Infrastructure, Utility and Other Changes and Additions
