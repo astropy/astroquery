@@ -120,7 +120,9 @@ class Conf(_config.ConfigNamespace):
                      'DpdCovarTwoPCFWLResamplePEBPosShear2D', 'DpdCovarTwoPCFWLResamplePEBShearShear2D',
                      'DpdCovarTwoPCFWLResamplePosPos2D', 'DpdCovarTwoPCFWLResamplePosShear2D',
                      'DpdCovarTwoPCFWLResampleShearShear2D'],
-            'PK': ['DpdPKWLAlms', 'DpdPKWLCovMatrix2D', 'DpdPKWLEstimate2D', 'DpdPKWLMaps', 'DpdPKWLMixingMatrix2D']}
+            'PK': ['DpdPKWLAlms', 'DpdPKWLCovMatrix2D', 'DpdPKWLEstimate2D', 'DpdPKWLMaps', 'DpdPKWLMixingMatrix2D']},
+        'PHZ': {
+            'PHZ': ['DpdBinMeanRedshift', 'DpdReferenceSample', 'DpdTomographicBins']}
     }
 
     PRODUCT_TYPES = ['observation', 'mosaic']
