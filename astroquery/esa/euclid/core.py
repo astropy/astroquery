@@ -1591,36 +1591,39 @@ class EuclidClass(TapPlus):
                         f"Invalid combination of parameters: category={category}; group={group}. Valid "
                         f"values:\n {pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
 
+                product_type_for_category_list = conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[category][group]
+
                 if product_type is not None:
 
-                    if product_type not in conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[category][group]:
+                    if product_type not in product_type_for_category_list:
                         raise ValueError(
                             f"Invalid combination of parameters: category={category}; group={group}; "
                             f"product_type={product_type}. Valid values:\n "
                             f"{pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
 
-                    query_extra_condition = query_extra_condition + (f" AND category={category} AND group={group} AND "
-                                                                     f"product_type={product_type} ")
+                    query_extra_condition = query_extra_condition + f" AND product_type ='{product_type}' "
                 else:
-                    query_extra_condition = query_extra_condition + f" AND category={category} AND group={group} "
-            else:
+
+                    final_products = ', '.join(f"'{w}'" for w in product_type_for_category_list)
+                    query_extra_condition = query_extra_condition + f" AND product_type IN ({final_products}) "
+            else:  # category is not None and group is None
+
+                product_type_for_category_list = [item for row in
+                                                  conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[category].values()
+                                                  for item in row]
                 if product_type is not None:
 
-                    product_type_list = [item for row in
-                                         conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[category].values()
-                                         for item in row]
-
-                    if product_type not in product_type_list:
+                    if product_type not in product_type_for_category_list:
                         raise ValueError(
                             f"Invalid combination of parameters: category={category}; product_type={product_type}."
                             f" Valid values:\n {pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
 
-                    query_extra_condition = query_extra_condition + (f" AND category={category} AND product_type="
-                                                                     f"{product_type} ")
+                    query_extra_condition = query_extra_condition + f" AND product_type = '{product_type}' "
 
-                else:
-                    query_extra_condition = query_extra_condition + f" AND category={category} "
-        else:
+                else:  # category is not None and group is None and product_type is None
+                    final_products = ', '.join(f"'{w}'" for w in product_type_for_category_list)
+                    query_extra_condition = query_extra_condition + f" AND product_type IN ({final_products}) "
+        else:  # category is None
 
             category_group_dict = {}
             for i in conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS.keys():
@@ -1642,22 +1645,26 @@ class EuclidClass(TapPlus):
                             f"Invalid combination of parameters: group={group}; product_type={product_type}. Valid "
                             f"values:\n {pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
 
-                    query_extra_condition = query_extra_condition + (f" AND group={group} AND product_type="
-                                                                     f"{product_type} ")
-                else:
-                    query_extra_condition = query_extra_condition + f" AND group={group} "
+                    query_extra_condition = query_extra_condition + f" AND product_type = '{product_type}' "
+                else:  # product_type is None
 
-            else:
+                    product_type_for_category_list = [element for sublist in category_group_dict.values() for element in
+                                                      sublist]
+                    final_products = ', '.join(f"'{w}'" for w in product_type_for_category_list)
+                    query_extra_condition = query_extra_condition + f" AND product_type IN ({final_products}) "
 
-                product_type_list = [element for row in category_group_dict.values() for element in row]
+            else:  # category is None and group is None
+
+                product_type_for_category_list = [element for sublist in category_group_dict.values() for element in
+                                                  sublist]
 
                 if product_type is not None:
-                    if product_type not in product_type_list:
+                    if product_type not in product_type_for_category_list:
                         raise ValueError(
                             f"Invalid combination of parameters: product_type={product_type}. Valid values:\n "
                             f"{pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
 
-                    query_extra_condition = query_extra_condition + f" AND product_type={product_type} "
+                    query_extra_condition = query_extra_condition + f" AND product_type = '{product_type}' "
 
                 else:
                     query_extra_condition = query_extra_condition + ""
