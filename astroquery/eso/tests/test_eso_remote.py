@@ -113,8 +113,8 @@ class TestEso:
         # Equivalent, does not depend on SESAME:
         with pytest.warns(MaxResultsWarning):
             result_s = eso.query_surveys(surveys='VVV', ra=266.41681662,
-                                             dec=-29.00782497,
-                                             radius=1.0)
+                                         dec=-29.00782497,
+                                         radius=1.0)
 
         assert 'midi' in instruments
         assert result_i is not None
@@ -143,9 +143,9 @@ class TestEso:
         test_collections = ['VVV', 'XSHOOTER']
         with pytest.warns(MaxResultsWarning):
             result_s = eso.query_surveys(surveys=test_collections,
-                                             ra=266.41681662,
-                                             dec=-29.00782497,
-                                             radius=1.0)
+                                         ra=266.41681662,
+                                         dec=-29.00782497,
+                                         radius=1.0)
 
         assert result_s is not None
         assert 'target_name' in result_s.colnames
@@ -164,7 +164,7 @@ class TestEso:
         # Avoid SESAME
         with pytest.warns(NoResultsWarning):
             result_s = eso.query_surveys(surveys=collections[0], ra=202.469575,
-                                             dec=47.195258, radius=1.0)
+                                         dec=47.195258, radius=1.0)
 
         assert len(result_s) == 0
 
@@ -254,8 +254,8 @@ class TestEso:
             else:
                 with pytest.warns(NoResultsWarning):
                     result_s = eso.query_surveys(surveys=collection, ra=266.41681662,
-                                                     dec=-29.00782497,
-                                                     radius=0.1775)
+                                                 dec=-29.00782497,
+                                                 radius=0.1775)
                     assert len(result_s) == 0, f"Failed for collection {collection}"
 
                 with pytest.warns(MaxResultsWarning):

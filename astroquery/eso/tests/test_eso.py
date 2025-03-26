@@ -143,9 +143,9 @@ def test_vvv(monkeypatch):
     eso = Eso()
     monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
     result = eso.query_surveys(surveys='VVV',
-                                   ra=266.41681662, dec=-29.00782497,
-                                   radius=0.1775,
-                                   )
+                               ra=266.41681662, dec=-29.00782497,
+                               radius=0.1775,
+                               )
     # test all results are there and the expected target is present
     assert len(result) == 50
     assert 'target_name' in result.colnames
