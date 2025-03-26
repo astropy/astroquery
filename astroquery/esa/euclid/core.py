@@ -1278,8 +1278,7 @@ class EuclidClass(TapPlus):
         return self.__eucliddata.get_datalinks(ids=ids, linking_parameter=linking_parameter, verbose=verbose)
 
     def get_scientific_data_product_list(self, *, observation_id=None, tile_index=None, category=None, group=None,
-                                         product_type=None,
-                                         release='LEVEL_3_RELEASE', verbose=False):
+                                         product_type=None, dataset_release='LEVEL_3_RELEASE', verbose=False):
         """ Gets the LE3 products (the high-level science data products).
 
         Please note that not all combinations of category, group, and product_type are valid.
@@ -1547,7 +1546,7 @@ class EuclidClass(TapPlus):
                         #. 'DpdReferenceSample':
                         #. 'DpdTomographicBins':
 
-        release : str, mandatory.
+        dataset_release : str, mandatory. Default LEVEL_3_RELEASE
             Data release from which data should be taken.
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -1564,7 +1563,7 @@ class EuclidClass(TapPlus):
                 None):
             raise ValueError("Include a valid parameter to retrieve a LE3 product.")
 
-        if release is None:
+        if dataset_release is None:
             raise ValueError("The release is required.")
 
         if observation_id is not None and tile_index is not None:
@@ -1671,7 +1670,7 @@ class EuclidClass(TapPlus):
             f"observation_id_list, CAST(basic_download_data.tile_index_list as text) AS tile_index_list, "
             f"CAST(basic_download_data.patch_id_list as text) AS patch_id_list, "
             f"CAST(basic_download_data.filter_name as text) AS filter_name FROM sedm.basic_download_data WHERE "
-            f"release_name='{release}' {query_extra_condition} ORDER BY observation_id_list ASC")
+            f"release_name='{dataset_release}' {query_extra_condition} ORDER BY observation_id_list ASC")
 
         job = super().launch_job(query=query, output_format='votable_plain', verbose=verbose,
                                  format_with_results_compressed=('votable_gzip',))

@@ -1108,7 +1108,7 @@ def test_get_scientific_data_product_list_exceptions():
                                                 product_type=None)
 
     with pytest.raises(ValueError, match="The release is required."):
-        eculid.get_scientific_data_product_list(observation_id=11111, release=None)
+        eculid.get_scientific_data_product_list(observation_id=11111, dataset_release=None)
 
     with pytest.raises(ValueError, match="Incompatible: 'observation_id' and 'tile_id'. Use only one."):
         eculid.get_scientific_data_product_list(observation_id=11111, tile_index=1234567)
