@@ -129,12 +129,6 @@ class Conf(_config.ConfigNamespace):
             'PK': ['DpdPKWLAlms', 'DpdPKWLCovMatrix2D', 'DpdPKWLEstimate2D', 'DpdPKWLMaps', 'DpdPKWLMixingMatrix2D']}
     }
 
-    # . 'DpdHealpixBitMaskVMPZ'
-    # . 'dpdMerFinalCatalog'
-    # . 'dpdPhzPfOutputCatalog'
-    # . 'dpdSheLensMcChains'
-    # . 'dpdSpePfOutputCatalog'
-
     PRODUCT_TYPES = ['observation', 'mosaic']
 
     SCHEMAS = ['sedm']
