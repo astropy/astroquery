@@ -66,7 +66,7 @@ class TestEso:
             assert n == eso.maxrec, f"Expected {eso.maxrec}; Obtained {n}"
 
         with pytest.warns(MaxResultsWarning):
-            table = eso.query_collections('VVV')
+            table = eso.query_surveys('VVV')
             n = len(table)
             assert n == eso.maxrec, f"Expected {eso.maxrec}; Obtained {n}"
 
@@ -86,7 +86,7 @@ class TestEso:
         n = len(table)
         assert n == top, f"Expected {top}; Obtained {n}"
 
-        table = eso.query_collections('VVV', top=top)
+        table = eso.query_surveys('VVV', top=top)
         n = len(table)
         assert n == top, f"Expected {top}; Obtained {n}"
 
@@ -107,12 +107,12 @@ class TestEso:
             result_i = eso.query_instrument('midi', ra=266.41681662,
                                             dec=-29.00782497, radius=1.0)
 
-        collections = eso.list_collections()
+        collections = eso.list_surveys()
         assert len(collections) > 0
         # result_s = eso.query_collections('VVV', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
         with pytest.warns(MaxResultsWarning):
-            result_s = eso.query_collections(collections='VVV', ra=266.41681662,
+            result_s = eso.query_surveys(surveys='VVV', ra=266.41681662,
                                              dec=-29.00782497,
                                              radius=1.0)
 
@@ -142,7 +142,7 @@ class TestEso:
 
         test_collections = ['VVV', 'XSHOOTER']
         with pytest.warns(MaxResultsWarning):
-            result_s = eso.query_collections(collections=test_collections,
+            result_s = eso.query_surveys(surveys=test_collections,
                                              ra=266.41681662,
                                              dec=-29.00782497,
                                              radius=1.0)
@@ -158,12 +158,12 @@ class TestEso:
     def test_empty_return(self):
         # test for empty return with an object from the North
         eso = Eso()
-        collections = eso.list_collections()
+        collections = eso.list_surveys()
         assert len(collections) > 0
 
         # Avoid SESAME
         with pytest.warns(NoResultsWarning):
-            result_s = eso.query_collections(collections=collections[0], ra=202.469575,
+            result_s = eso.query_surveys(surveys=collections[0], ra=202.469575,
                                              dec=47.195258, radius=1.0)
 
         assert len(result_s) == 0
@@ -243,23 +243,23 @@ class TestEso:
         eso.cache_location = tmp_path
         eso.maxrec = 1
 
-        collections = eso.list_collections()
+        collections = eso.list_surveys()
         for collection in collections:
             if collection in SGRA_COLLECTIONS:
                 with pytest.warns(MaxResultsWarning):
-                    result_s = eso.query_collections(
-                        collections=collection,
+                    result_s = eso.query_surveys(
+                        surveys=collection,
                         ra=266.41681662, dec=-29.00782497, radius=0.1775)
                 assert len(result_s) > 0
             else:
                 with pytest.warns(NoResultsWarning):
-                    result_s = eso.query_collections(collections=collection, ra=266.41681662,
+                    result_s = eso.query_surveys(surveys=collection, ra=266.41681662,
                                                      dec=-29.00782497,
                                                      radius=0.1775)
                     assert len(result_s) == 0, f"Failed for collection {collection}"
 
                 with pytest.warns(MaxResultsWarning):
-                    generic_result = eso.query_collections(collections=collection)
+                    generic_result = eso.query_surveys(surveys=collection)
 
                     assert generic_result is not None, \
                         f"query_collection({collection}) returned None"
