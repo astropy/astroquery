@@ -1337,7 +1337,7 @@ class EuclidClass(TapPlus):
                     #. SEL Wide
                         #. 'DpdLE3IDSELIDSubsampledCatalog':
                     #. VMSP Group
-                        #. 'DpdLE3IDVMSPConfiguration' : VMSP Configuration
+                        #. 'DpdLE3IDVMSPConfiguration': VMSP Configuration
                         #. 'DpdLE3IDVMSPDetectionModel': VMSP ID Detection Model
                         #. 'DpdLE3IDVMSPDistModel': VMSP Distribution Model
                         #. 'DpdLE3IDVMSPRandomCatalog': Random Catalog Product
@@ -1429,7 +1429,7 @@ class EuclidClass(TapPlus):
                         #. 'DpdLE3gcTwoPointAutoCorr': 1D [Angle-averaged Auto-correlation Product]
                         #. 'DpdLE3gcTwoPointAutoCorrCart': 2D Cartesian [2D Cartesian and Projected Auto-corr. Product]
                         #. 'DpdLE3gcTwoPointAutoCorrPol': 2D Polar [2D Polar and Multipole Auto-correlation Product]
-                        #. 'DpdLE3gcTwoPointCrossCorr' : 1D [Angle-averaged Cross-correlation Product]
+                        #. 'DpdLE3gcTwoPointCrossCorr': 1D [Angle-averaged Cross-correlation Product]
                         #. 'DpdLE3gcTwoPointCrossCorrCart': 2D Cartesian [2D Cartesian and Projected Cross-corr.
                         Product]
                         #. 'DpdLE3gcTwoPointCrossCorrPol': 2D Polar [2D Polar and Multipole Cross-correlation Product]
@@ -1543,9 +1543,9 @@ class EuclidClass(TapPlus):
                         #. 'DpdLE3clConfigurationSet': Generic configuration information for CL PFs
                 #. PHZ
                     #. PHZ
-                        #. DpdBinMeanRedshift:
-                        #. DpdReferenceSample:
-                        #. DpdTomographicBins:
+                        #. 'DpdBinMeanRedshift':
+                        #. 'DpdReferenceSample':
+                        #. 'DpdTomographicBins':
 
         release : str, mandatory.
             Data release from which data should be taken.
