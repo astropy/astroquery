@@ -1353,22 +1353,20 @@ class EuclidClass(TapPlus):
                         #. 'DpdTwoPCFWLParamsCOSEBIShearShear2D': This product contains parameters to compute the
                         tomographic cosmic shear COSEBI modes   NO en GUI
                         #. 'DpdTwoPCFWLParamsClPosPos2D': This product contains parameters to compute the tomographic
-                        angular power spectra.	 NO en GUI
+                        angular power spectra.
                         #. 'DpdTwoPCFWLParamsPEBPosShear2D': This product contains parameters to compute the
-                        tomographic galaxy-galaxy lensing E/B power spectra.		 NO en GUI
+                        tomographic galaxy-galaxy lensing E/B power spectra.	
                         #. 'DpdTwoPCFWLParamsPEBShearShear2D': This product contains parameters to compute the
-                        tomographic cosmic shear E/B power spectra.	 NO en GUI
-                        #. 'DpdTwoPCFWLParamsPosPos2D': Input parameters to compute tomographic angular 2PCF.	 NO en
-                        GUI
+                        tomographic cosmic shear E/B power spectra.
+                        #. 'DpdTwoPCFWLParamsPosPos2D': Input parameters to compute tomographic angular 2PCF.
                         #. 'DpdTwoPCFWLParamsPosShear2D': Input parameters to compute the tomographic galaxy-galaxy
-                        lensing 2PCF.	 NO en GUI
+                        lensing 2PCF.
                         #. 'DpdTwoPCFWLParamsShearShear2D': Input parameters to compute tomographic cosmic shear 2PCF.
-                        	 NO en GUI
-                        #. 'DpdTwoPCFWLCOSEBIShearShear2D': Tomographic cosmic shear COSEBI modes.	 NO en GUI
+                        #. 'DpdTwoPCFWLCOSEBIShearShear2D': Tomographic cosmic shear COSEBI modes.
                         #. 'DpdTwoPCFWLClPosPos2D': This product contains the tomographic angular power spectra
-                        #. 'DpdTwoPCFWLPEBPosShear2D': Tomographic galaxy-galaxy lensing E/B power spectra	 NO en GUI
-                        #. 'DpdTwoPCFWLPEBShearShear2D': Tomographic cosmic shear E/B power spectra.	 NO en GUI
-                        #. 'DpdTwoPCFWLPosPos2D': Tomographic angular 2PCF.	 NO en GUI
+                        #. 'DpdTwoPCFWLPEBPosShear2D': Tomographic galaxy-galaxy lensing E/B power spectra
+                        #. 'DpdTwoPCFWLPEBShearShear2D': Tomographic cosmic shear E/B power spectra.
+                        #. 'DpdTwoPCFWLPosPos2D': Tomographic angular 2PCF.
                         #. 'DpdTwoPCFWLPosShear2D': Tomographic galaxy - galaxy lensing 2PCF.	 NO en GU
                         #. 'DpdTwoPCFWLShearShear2D': Tomographic cosmic shear 2PCF.	 NO en GU
                         #. 'DpdCovarTwoPCFWLParams': This product contains resampling parameters to compute the
@@ -1377,7 +1375,7 @@ class EuclidClass(TapPlus):
                         #. 'DpdCovarTwoPCFWLCOSEBIShearShear2D': Covariance of Tomographic Cosmic Shear COSEBI
                         #. 'DpdCovarTwoPCFWLPEBPosShear2D': Cov. of Tomo. Galaxy-Galaxy Lensing EB Power Spectra
                         #. 'DpdCovarTwoPCFWLPEBShearShear2D': Covariance of Tomographic Cosmic Shear EB Power
-                        Spectra	 NO en GUI
+                        Spectra
                         #. 'DpdCovarTwoPCFWLPosPos2D': Covariance of Tomographic Angular Correlation
                         #. 'DpdCovarTwoPCFWLPosShear2D': Cov. of Tomographic Galaxy-Galaxy Lensing Correlation
                         #. 'DpdCovarTwoPCFWLShearShear2D': Covariance of Tomographic Cosmic Shear Correlation
