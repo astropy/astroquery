@@ -23,6 +23,14 @@ heasarc
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
+query.py
+^^^^^^^^
+
+- ``BaseQuery._download_file`` now returns the local file path in all cases.
+  Some corner cases where downloads were not properly continued have been
+  fixed. [#3232]
+
+
 
 0.4.10 (2025-03-18)
 ===================
@@ -131,6 +139,7 @@ Infrastructure, Utility and Other Changes and Additions
 
 - Removed usage of the astropy TestRunner, therefore the unadvertised
   ``astroquery.test()`` functionality. [#3215]
+
 
 
 0.4.9 (2025-01-24)
