@@ -1290,166 +1290,254 @@ class EuclidClass(TapPlus):
             It is not compatible with parameter tile_index.
         tile_index: str, optional, default None.
             It is not compatible with parameter observation_id.
-        category : str, optional, default None
+        category: str, optional, default None.
             Available categories:
 
                 #. 'Clusters of Galaxies'
                 #. 'External Data Products'
                 #. 'Galaxy Clustering Products'
                 #. 'Internal Data Products'
-                #. 'testCategory'
                 #. 'Weak Lensing Products'
-
         group : str, optional, default None
-            Available groups:
+            Available groups per category:
 
-                #. '2D-MASS'
-                #. '2PCF'
-                #. '2PCF_PK'
-                #. '3PCF_BK'
-                #. 'CM-2PCF'
-                #. 'CM-PK'
-                #. 'GrpCatalog'
-                #. 'GrpClustering'
-                #. 'GrpCOMB'
-                #. 'GrpLMF'
-                #. 'GrpSEL'
-                #. 'GrpTiling'
-                #. 'LE3-ED configuration catalog'
-                #. 'LE3-ED match catalog'
-                #. 'PK'
-                #. 'SEL Config/Stats'
-                #. 'SEL Wide Main'
-                #. 'SEL Wide Post-recon'
-                #. 'SEL Wide Pre-recon'
-                #. 'testGroup'
-                #. 'testGroup2'
-                #. 'VMSP Group'
+                #. Internal Data Products
+                    #. 'SEL Wide Main'
+                    #. 'SEL Wide'
+                    #. 'VMSP Group'
+                    #. 'SEL Config/Stats'
+                #. External Data Products
+                    #. 'LE3-ED configuration catalog'
+                #. Weak Lensing Products
+                    #. '2PCF'
+                    #. 'PK'
+                    #. '2D-MASS'
+                #. Galaxy Clustering Products
+                    #. '2PCF_PK'
+                    #. '3PCF_BK'
+                    #. 'CM-2PCF'
+                    #. 'CM-PK'
+                #. Clusters of Galaxies
+                    #. 'GrpCatalog'
+                    #. 'GrpCOMB'
+                    #. 'GrpSEL'
+                    #. 'GrpClustering'
+                    #. 'GrpLMF'
+                    #. 'GrpTiling'
 
         product_type : str, optional, default None
-            Available product types:
+            Available product types per category and group:
 
-                #. 'DDpdLE3clPkDOA'
-                #. 'DpdCovarTwoPCFWLClPosPos2D'
-                #. 'DpdCovarTwoPCFWLCOSEBIShearShear2D'
-                #. 'DpdCovarTwoPCFWLParams'
-                #. 'DpdCovarTwoPCFWLPEBPosShear2D'
-                #. 'DpdCovarTwoPCFWLPosPos2D'
-                #. 'DpdCovarTwoPCFWLPosShear2D'
-                #. 'DpdCovarTwoPCFWLResampleClPosPos2D'
-                #. 'DpdCovarTwoPCFWLResampleCOSEBIShearShear2D'
-                #. 'DpdCovarTwoPCFWLResamplePEBPosShear2D'
-                #. 'DpdCovarTwoPCFWLResamplePEBShearShear2D'
-                #. 'DpdCovarTwoPCFWLResamplePosPos2D'
-                #. 'DpdCovarTwoPCFWLResamplePosShear2D'
-                #. 'DpdCovarTwoPCFWLResampleShearShear2D'
-                #. 'DpdCovarTwoPCFWLShearShear2D'
-                #. 'DpdHealpixBitMaskVMPZ'
-                #. 'DpdLE3clAmicoAux'
-                #. 'DpdLE3clAMICOModel'
-                #. 'DpdLE3clAssociations'
-                #. 'DpdLE3clCatMergeParams'
-                #. 'DpdLE3clCATParams'
-                #. 'DpdLE3clCcpInputParams'
-                #. 'DpdLE3clCLTile'
-                #. 'DpdLE3clCombConfigurationSet'
-                #. 'DpdLE3clCombCovMatDeltaSigmaCosmoDep'
-                #. 'DpdLE3clCombCovMatReducedShearCosmoDep'
-                #. 'DpdLE3clCombCovMatReducedShearCosmoIndep'
-                #. 'DpdLE3clCombRedSheProf'
-                #. 'DpdLE3clCombStackingCosmoDep'
-                #. 'DpdLE3clCombStackingCosmoInd'
-                #. 'DpdLE3clCombUCovRedSheProf'
-                #. 'DpdLE3clCombWLME'
-                #. 'DpdLE3clCommon'
-                #. 'DpdLE3clConfigurationSet'
-                #. 'DpdLE3clCovmatTwoPointCov2'
-                #. 'DpdLE3clDetClusters'
-                #. 'DpdLE3clDetInputParams'
-                #. 'DpdLE3clDetMergeParams'
-                #. 'DpdLE3clDetOnMockParams'
-                #. 'DpdLE3clGlueMatchParams'
-                #. 'DpdLE3clLMFOutput'
-                #. 'DpdLE3clLMFParams'
-                #. 'DpdLE3clMatchForSelParams'
-                #. 'DpdLE3clMockClusters'
-                #. 'DpdLE3clMockGlueMatchParams'
-                #. 'DpdLE3clPkYam'
-                #. 'DpdLE3clPzwavAux'
-                #. 'DpdLE3clPZWAVDensity'
-                #. 'DpdLE3clRedshiftDistrib'
-                #. 'DpdLE3clRichMembers'
-                #. 'DpdLE3clSelRandom'
-                #. 'DpdLE3clSelRandomParams'
-                #. 'DpdLE3clSelSelFunc'
-                #. 'DpdLE3clSelSelFuncInputParams'
-                #. 'DpdLE3clSelSinfoniaIniClMockInputParams'
-                #. 'DpdLE3clSelSinfoniaMockInputParams'
-                #. 'DpdLE3clSelSubSample'
-                #. 'DpdLE3clSinfoniaEllipticity'
-                #. 'DpdLE3clTwoPointAutoCorrPol'
-                #. 'DpdLE3clZClParams'
-                #. 'DpdLE3edConfigurationFile'
-                #. 'DpdLE3edMatchedCatalog'
-                #. 'DpdLE3FullDet'
-                #. 'DpdLE3gcBkMonopole'
-                #. 'DpdLE3gcBkMultipole'
-                #. 'DpdLE3gcCovmatPKCov1D'
-                #. 'DpdLE3gcCovmatPKCov2Dcart'
-                #. 'DpdLE3gcCovmatPKCov2Dpol'
-                #. 'DpdLE3gcCovmatTwoPointCov1D'
-                #. 'DpdLE3gcCovmatTwoPointCov2Dcart'
-                #. 'DpdLE3gcCovmatTwoPointCov2Dpol'
-                #. 'DpdLE3gcCovmatTwoPointCovMu'
-                #. 'DpdLE3gcCovmatTwoPointCovPro'
-                #. 'DpdLE3gcPkCross'
-                #. 'DpdLE3gcPkDOA'
-                #. 'DpdLE3gcPkYam'
-                #. 'DpdLE3gcThreePointAll'
-                #. 'DpdLE3gcThreePointSin'
-                #. 'DpdLE3gcTwoPointAutoCorr'
-                #. 'DpdLE3gcTwoPointAutoCorrCart'
-                #. 'DpdLE3gcTwoPointAutoCorrPol'
-                #. 'DpdLE3gcTwoPointCrossCorr'
-                #. 'DpdLE3gcTwoPointCrossCorrCart'
-                #. 'DpdLE3gcTwoPointCrossCorrPol'
-                #. 'DpdLE3gcTwoPointRecAutoCorr'
-                #. 'DpdLE3gcTwoPointRecAutoCorrCart'
-                #. 'DpdLE3gcTwoPointRecAutoCorrPol'
-                #. 'DpdLE3gcTwoPointRecCrossCorr'
-                #. 'DpdLE3gcTwoPointRecCrossCorrCart'
-                #. 'DpdLE3gcTwoPointRecCrossCorrPol'
-                #. 'DpdLE3IDSELConfigurationSet'
-                #. 'DpdLE3IDSELIDCatalog'
-                #. 'DpdLE3IDSELIDStatistics'
-                #. 'DpdLE3IDSELIDSubsampledCatalog'
-                #. 'DpdLE3IDVMSPConfiguration'
-                #. 'DpdLE3IDVMSPDetectionModel'
-                #. 'DpdLE3IDVMSPDistModel'
-                #. 'DpdLE3IDVMSPRandomCatalog'
-                #. 'dpdMerFinalCatalog'
-                #. 'dpdPhzPfOutputCatalog'
-                #. 'DpdPKWLAlms'
-                #. 'DpdPKWLCovMatrix2D'
-                #. 'DpdPKWLEstimate2D'
-                #. 'DpdPKWLMaps'
-                #. 'DpdPKWLMixingMatrix2D'
-                #. 'dpdSheLensMcChains'
-                #. 'dpdSpePfOutputCatalog'
-                #. 'DpdTwoDMassConvergenceClusters'
-                #. 'DpdTwoDMassConvergencePatch'
-                #. 'DpdTwoDMassConvergencePatchesToSphere'
-                #. 'DpdTwoDMassConvergenceSphere'
-                #. 'DpdTwoDMassParamsConvergenceClusters'
-                #. 'DpdTwoDMassParamsConvergencePatch'
-                #. 'DpdTwoDMassParamsConvergencePatchesToSphere'
-                #. 'DpdTwoDMassParamsConvergenceSphere'
-                #. 'DpdTwoDMassParamsPeakCatalogConvergence'
-                #. 'DpdTwoDMassParamsPeakCatalogMassAperture'
-                #. 'DpdTwoDMassPeakCatalog'
-                #. 'DpdTwoPCFWLClPosPos2D'
-                #. 'DpdTwoPCFWLCOSEBIFilter'
-
+                #. Internal Data Products
+                    #. SEL Wide Main
+                        #. 'DpdLE3IDSELIDCatalog'
+                    #. SEL Wide
+                        #. 'DpdLE3IDSELIDSubsampledCatalog':
+                    #. VMSP Group
+                        #. 'DpdLE3IDVMSPConfiguration' : VMSP Configuration
+                        #. 'DpdLE3IDVMSPDetectionModel': VMSP ID Detection Model
+                        #. 'DpdLE3IDVMSPDistModel': VMSP Distribution Model
+                        #. 'DpdLE3IDVMSPRandomCatalog': Random Catalog Product
+                    #. SEL Config/Stats
+                        #. 'DpdLE3IDSELIDStatistics': SEL-ID Purity and completeness statistics
+                        #. 'DpdLE3IDSELConfigurationSet': SEL Configuration
+                #. External Data Products
+                    #. LE3-ED configuration catalog
+                        #. 'DpdLE3edConfigurationFile': LE3-ED configuration catalog
+                        #. 'DpdLE3edMatchedCatalog': LE3-ED match catalog
+                #. Weak Lensing Products
+                    #. 2PCF
+                        #. 'DpdTwoPCFWLCOSEBIFilter': This product contains COSEBI filters
+                        #. 'DpdTwoPCFWLParamsCOSEBIShearShear2D': This product contains parameters to compute the
+                        tomographic cosmic shear COSEBI modes   NO en GUI
+                        #. 'DpdTwoPCFWLParamsClPosPos2D': This product contains parameters to compute the tomographic
+                        angular power spectra.	 NO en GUI
+                        #. 'DpdTwoPCFWLParamsPEBPosShear2D': This product contains parameters to compute the
+                        tomographic galaxy-galaxy lensing E/B power spectra.		 NO en GUI
+                        #. 'DpdTwoPCFWLParamsPEBShearShear2D': This product contains parameters to compute the
+                        tomographic cosmic shear E/B power spectra.	 NO en GUI
+                        #. 'DpdTwoPCFWLParamsPosPos2D': Input parameters to compute tomographic angular 2PCF.	 NO en
+                        GUI
+                        #. 'DpdTwoPCFWLParamsPosShear2D': Input parameters to compute the tomographic galaxy-galaxy
+                        lensing 2PCF.	 NO en GUI
+                        #. 'DpdTwoPCFWLParamsShearShear2D': Input parameters to compute tomographic cosmic shear 2PCF.
+                        	 NO en GUI
+                        #. 'DpdTwoPCFWLCOSEBIShearShear2D': Tomographic cosmic shear COSEBI modes.	 NO en GUI
+                        #. 'DpdTwoPCFWLClPosPos2D': This product contains the tomographic angular power spectra
+                        #. 'DpdTwoPCFWLPEBPosShear2D': Tomographic galaxy-galaxy lensing E/B power spectra	 NO en GUI
+                        #. 'DpdTwoPCFWLPEBShearShear2D': Tomographic cosmic shear E/B power spectra.	 NO en GUI
+                        #. 'DpdTwoPCFWLPosPos2D': Tomographic angular 2PCF.	 NO en GUI
+                        #. 'DpdTwoPCFWLPosShear2D': Tomographic galaxy - galaxy lensing 2PCF.	 NO en GU
+                        #. 'DpdTwoPCFWLShearShear2D': Tomographic cosmic shear 2PCF.	 NO en GU
+                        #. 'DpdCovarTwoPCFWLParams': This product contains resampling parameters to compute the
+                        covariance matrices.
+                        #. 'DpdCovarTwoPCFWLClPosPos2D': Covariance of Tomographic Angular Power Spectra
+                        #. 'DpdCovarTwoPCFWLCOSEBIShearShear2D': Covariance of Tomographic Cosmic Shear COSEBI
+                        #. 'DpdCovarTwoPCFWLPEBPosShear2D': Cov. of Tomo. Galaxy-Galaxy Lensing EB Power Spectra
+                        #. 'DpdCovarTwoPCFWLPEBShearShear2D': Covariance of Tomographic Cosmic Shear EB Power
+                        Spectra	 NO en GUI
+                        #. 'DpdCovarTwoPCFWLPosPos2D': Covariance of Tomographic Angular Correlation
+                        #. 'DpdCovarTwoPCFWLPosShear2D': Cov. of Tomographic Galaxy-Galaxy Lensing Correlation
+                        #. 'DpdCovarTwoPCFWLShearShear2D': Covariance of Tomographic Cosmic Shear Correlation
+                        #. 'DpdCovarTwoPCFWLResampleCOSEBIShearShear2D': This product contains a list of resampled
+                        tomographic cosmic shear COSEBI modes.
+                        #. 'DpdCovarTwoPCFWLResampleClPosPos2D': This product contains a list of resampled
+                        tomographic angular power spectrum.
+                        #. 'DpdCovarTwoPCFWLResamplePEBPosShear2D': This product contains a list of resampled
+                        tomographic galaxy-galaxy lensing E/B power spectra.
+                        #. 'DpdCovarTwoPCFWLResamplePEBShearShear2D': This product contains a list of resampled
+                        tomographic cosmic shear E/B power spectra.
+                        #. 'DpdCovarTwoPCFWLResamplePosPos2D': This product contains a list of resampled tomographic
+                        galaxy-galaxy lensing correlation function.
+                        #. 'DpdCovarTwoPCFWLResamplePosShear2D': This product contains a list of resampled
+                        tomographic galaxy-galaxy lensing correlation function.
+                        #. 'DpdCovarTwoPCFWLResampleShearShear2D': This product contains a list of resampled
+                        tomographic cosmic shear 2PCF.
+                    #. PK
+                        #. 'DpdPKWLAlms': Data product that contains the alms generated by PK-WL.
+                        #. 'DpdPKWLCovMatrix2D': This product contains the covariance matrix of angular power spectra.
+                        #. 'DpdPKWLEstimate2D': This product contains the tomographic angular clustering power spectra.
+                        #. 'DpdPKWLMaps': Data product that contains the FITS file with maps generated by PK-WL.
+                        #. 'DpdPKWLMixingMatrix2D': This product contains the mixing matrix components.
+                    #. 2D-MASS
+                        #. 'DpdTwoDMassParamsConvergenceClusters': This product contains input parameters to compute
+                        the 2D convergence maps for clusters studies.
+                        #. 'DpdTwoDMassParamsConvergencePatch': This product contains inputs to compute the 2D
+                        convergence maps for one or several patches.
+                        #. 'DpdTwoDMassParamsConvergencePatchesToSphere': This product contains inputs to compute the
+                        2D convergence maps on the sphere.
+                        #. 'DpdTwoDMassParamsConvergenceSphere': This product contains inputs to compute the 2D
+                        convergence maps on the sphere.
+                        #. 'DpdTwoDMassParamsPeakCatalogConvergence': This product contains inputs to perform peak
+                        counting on a convergence map.
+                        #. 'DpdTwoDMassParamsPeakCatalogMassAperture': This product contains inputs to perform peak
+                        counting on shear catalog for one or several patches
+                        #. 'DpdTwoDMassConvergenceClusters': E/B Convergence Maps for Clusters
+                        #. 'DpdTwoDMassConvergencePatchesToSphere': MultiPatch-Based E/B Convergence Maps for Large
+                        field
+                        #. 'DpdTwoDMassConvergencePatch': E/B Convergence Maps for Small Field
+                        #. 'DpdTwoDMassConvergenceSphere': Spherical E/B Convergence Maps
+                        #. 'DpdTwoDMassPeakCatalog': Peak Catalog
+                #. Galaxy Clustering Products
+                    #. 2PCF_PK
+                        #. 'DpdLE3gcPkCross': Cross [Power Spectrum Multipoles and Window Product]
+                        #. 'DpdLE3gcPkDOA': DOA [Power Spectrum Multipoles, 2Dpolar, 2Dcart and Window Product]
+                        #. 'DpdLE3gcPkYam': Yamamoto [Power Spectrum Multipoles and Window Product]
+                        #. 'DpdLE3gcTwoPointAutoCorr': 1D [Angle-averaged Auto-correlation Product]
+                        #. 'DpdLE3gcTwoPointAutoCorrCart': 2D Cartesian [2D Cartesian and Projected Auto-corr. Product]
+                        #. 'DpdLE3gcTwoPointAutoCorrPol': 2D Polar [2D Polar and Multipole Auto-correlation Product]
+                        #. 'DpdLE3gcTwoPointCrossCorr' : 1D [Angle-averaged Cross-correlation Product]
+                        #. 'DpdLE3gcTwoPointCrossCorrCart': 2D Cartesian [2D Cartesian and Projected Cross-corr.
+                        Product]
+                        #. 'DpdLE3gcTwoPointCrossCorrPol': 2D Polar [2D Polar and Multipole Cross-correlation Product]
+                        #. 'DpdLE3gcTwoPointRecAutoCorr': 1D [Post-reconstruction Angle-averaged Auto-correlation
+                        Product]
+                        #. 'DpdLE3gcTwoPointRecAutoCorrCart': 2D Cartesian [Post-reconstruction 2D Cartesian and
+                        Projected Auto-correlation Product]
+                        #. 'DpdLE3gcTwoPointRecAutoCorrPol': 2D Polar [Post-reconstruction 2D Polar and Multipole
+                        Auto-correlation Product]
+                        #. 'DpdLE3gcTwoPointRecCrossCorr': 1D [Post-reconstruction Angle-averaged Cross-corr. Product]
+                        #. 'DpdLE3gcTwoPointRecCrossCorrCart': 2D Cartesian [Post-reconstruction 2D Cartesian and
+                        Projected Cross-correlation Product]
+                        #. 'DpdLE3gcTwoPointRecCrossCorrPol': 2D Polar [Post-reconstruction 2D Polar and Multipole
+                        Cross-correlation Product]
+                    #. 3PCF_BK
+                        #. 'DpdLE3gcThreePointAll': 3PCF Triplets “ALL” Product
+                        #. 'DpdLE3gcThreePointSin': 3PCF Correlation “SINGLE” Product
+                        #. 'DpdLE3gcBkMonopole': Bispectrum Product Monopole
+                        #. 'DpdLE3gcBkMultipole': Bispectrum Product Multipoles
+                    #. CM-2PCF
+                        #. 'DpdLE3gcCovmatTwoPointCov1D': Output - 1D [Covariance Matrix of the Angle-averaged
+                        Auto-correlation Product]
+                        #. 'DpdLE3gcCovmatTwoPointCov2Dcart': Output - 2D cartesian [Covariance Matrix of the 2D
+                        Cartesian 2PCF Product]
+                        #. 'DpdLE3gcCovmatTwoPointCov2Dpol': Output - 2D Polar [Covariance Matrix of the 2D Polar
+                        2PCF Product]
+                        #. 'DpdLE3gcCovmatTwoPointCovMu': Output - Covariance Matrix of the Multipoles 0,1,2,3,
+                        4 2PCF Product
+                        #. 'DpdLE3gcCovmatTwoPointCovPro': Output - Projected [Covariance Matrix of the Projected
+                        2PCF Product]
+                    #. CM-PK
+                        #. 'DpdLE3gcCovmatPKCov1D': Output - Covariance Matrix of the Power Spectrum 0, 1, 2, 3,
+                        4 multipoles Product
+                        #. 'DpdLE3gcCovmatPKCov2Dcart': Output - Covariance Matrix of the Power Spectrum 2D Cartesian
+                        Product
+                        #. 'DpdLE3gcCovmatPKCov2Dpol': Output - Covariance Matrix of the Power Spectrum 2D Polar Product
+                #. Clusters of Galaxies
+                    #. GrpCatalog
+                        #. 'DpdLE3clAMICOModel': This product contains the Model for AMICO
+                        #. 'DpdLE3clDetMergeParams': This product contains the input parameters for DET
+                        #. 'DpdLE3clDetOnMockParams': This product contains the input parameters for DET_ON_MOCK
+                        pipeline
+                        #. 'DpdLE3clDetInputParams': This product contains the input parameters for DEt
+                        #. 'DpdLE3clAmicoAux': DET-CL AMICO auxiliary Data Product
+                        #. 'DpdLE3clAssociations': This output product contains the catalog of associations galaxy to
+                        clusters
+                        #. 'DpdLE3clPzwavAux': DET-CL PZWAV auxiliary Data Product
+                        #. 'DpdLE3clPZWAVDensity': This output product contains the intermediate Product "Density
+                        Map" from DET-CL/PZWAV
+                        #. 'DpdLE3clDetClusters': This output product contains the catalog of candidate clusters from
+                        DET-CL
+                        #. 'DpdLE3FullDet': This output product contains the merged catalog of candidate clusters
+                        #. 'DpdLE3clCatMergeParams': This product contains the input parameters for the merging in
+                        CAT-CL
+                        #. 'DpdLE3clCATParams': This product contains the configuration parameters for LE3 CAT-CL
+                        #. 'DpdLE3clCcpInputParams': This product contains the input parameters for Cluster
+                        Characterization Pipeline
+                        #. 'DpdLE3clRichMembers': Galaxy Membership Output Product
+                        #. 'DpdLE3clZClParams': This product contains the configuration parameters for LE3 Z-CL
+                        #. 'DpdLE3clGlueMatchParams': This product contains the input parameters for the glue-match
+                        pipeline
+                        #. 'DpdLE3clMockGlueMatchParams': This product contains the input parameters for the mock
+                        glue-match pipeline
+                        #. 'DpdLE3clGlueMatchParams': This product contains the input parameters for the glue-match
+                        pipeline.   No en GUI
+                    #. GrpCOMB
+                        #. 'DpdLE3clCombConfigurationSet': Configuration information for COMB-CL pipelines
+                        #. 'DpdLE3clCombRedSheProf': Output Reduced shear profiles
+                        #. 'DpdLE3clCombUCovRedSheProf': Output Uncertainty Covariance matrix of the reduced
+                        #. 'DpdLE3clCombWLME': Output Weak lensing mass estimates
+                        #. 'DpdLE3clCombCovMatDeltaSigmaCosmoDep': This output product contains the stacking
+                        covariance matrix of the differential surface density derived with a cosmology dependent
+                        binning.
+                        #. 'DpdLE3clCombCovMatReducedShearCosmoDep': This output product contains the stacking
+                        covariance matrix of the reduced shear derived with a cosmology dependent binning.
+                        #. 'DpdLE3clCombCovMatReducedShearCosmoIndep': This output product contains the stacking
+                        covariance matrix of the reduced shear derived with a cosmology independent binning.
+                        #. 'DpdLE3clCombStackingCosmoDep': This output product contains the stacking cosmology
+                        dependent binning.
+                        #. 'DpdLE3clCombStackingCosmoInd': This output product contains the stacking cosmology
+                        independent binning.
+                    #. GrpSEL
+                        #. 'DpdLE3clSelRandomParams': This output product contains the configuration parameters for
+                        SEL-CL to create the random catalogue
+                        #. 'DpdLE3clSelSelFuncInputParams': This product contains the input parameters for SEL SelFunc
+                        #. 'DpdLE3clSelSinfoniaIniClMockInputParams': This product contains the input parameters for
+                        SEL Sinfonia Cluster Mock pipeline
+                        #. 'DpdLE3clSelSinfoniaMockInputParams': This product contains the input parameters for SEL
+                        Sinfonia Mock pipeline
+                        #. 'DpdLE3clSelSelFunc': This output product contains the selection function of the galaxy
+                        cluster detections
+                        #. 'DpdLE3clSinfoniaEllipticity': This output product contains the file for the ellipticity
+                        #. 'DpdLE3clSelSubSample': Clusters Subsample Output Product
+                        #. 'DpdLE3clRedshiftDistrib': Redshift distribution of detections
+                        #. 'DpdLE3clSelRandom': Random for the CL clustering codes
+                        #. 'DpdLE3clMatchForSelParams': This product contains the input parameters for the
+                        match-for-sel pipeline
+                        #. 'DpdLE3clMockClusters': This output product contains the catalog of mock clusters
+                    #. GrpClustering
+                        #. 'DpdLE3clTwoPointAutoCorrPol': Cluster Clustering Two Point Correlation 2D polar data product
+                        #. 'DpdLE3clCovmatTwoPointCov2': Cluster Clustering Covariance Matrix 2PCF 2D polar data product
+                        #. 'DpolDpdLE3clCovmatPKCov1':  NO en GUI
+                        #. 'DDpdLE3clPkDOA':
+                        #. 'DpdLE3clPkYam': Cluster Clustering Power Spectrum Yamamoto data product
+                    #. GrpLMF
+                        #. 'DpdLE3clLMFParams': This product contains the configuration parameters for LE3 LMF-CL
+                        #. 'DpdLE3clLMFOutput': This product contains the output for LE3_CL LMF PF
+                    #. GrpTiling
+                        #. 'DpdLE3clCLTile': This product contains the information describing a CL tile
+                        #. 'DpdLE3clCommon': Common data product for CL
+                        #. 'DpdLE3clConfigurationSet': Generic configuration information for CL PFs
         release : str, mandatory.
             Data release from which data should be taken.
         verbose : bool, optional, default 'False'
