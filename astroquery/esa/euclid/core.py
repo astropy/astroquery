@@ -1298,6 +1298,7 @@ class EuclidClass(TapPlus):
                 #. 'Galaxy Clustering Products'
                 #. 'Internal Data Products'
                 #. 'Weak Lensing Products'
+                3. 'PHZ'
         group : str, optional, default None
             Available groups per category:
 
@@ -1324,6 +1325,8 @@ class EuclidClass(TapPlus):
                     #. 'GrpClustering'
                     #. 'GrpLMF'
                     #. 'GrpTiling'
+                #. PHZ
+                    #. 'PHZ'
 
         product_type : str, optional, default None
             Available product types per category and group:
@@ -1538,6 +1541,12 @@ class EuclidClass(TapPlus):
                         #. 'DpdLE3clCLTile': This product contains the information describing a CL tile
                         #. 'DpdLE3clCommon': Common data product for CL
                         #. 'DpdLE3clConfigurationSet': Generic configuration information for CL PFs
+                #. PHZ
+                    #. PHZ
+                        #. DpdBinMeanRedshift:
+                        #. DpdReferenceSample:
+                        #. DpdTomographicBins:
+
         release : str, mandatory.
             Data release from which data should be taken.
         verbose : bool, optional, default 'False'
