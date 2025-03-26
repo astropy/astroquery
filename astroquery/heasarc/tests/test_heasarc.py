@@ -365,6 +365,28 @@ def test_download_data__table_row():
         assert os.path.exists(f'{downloaddir}/data/file.txt')
 
 
+def test_download_data__exclude_rows_with_errors():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        datadir = f'{tmpdir}/data'
+        downloaddir = f'{tmpdir}/download'
+        os.makedirs(datadir, exist_ok=True)
+        with open(f'{datadir}/file.txt', 'w') as fp:
+            fp.write('data')
+        # include both a file and a directory
+        tab = Table({
+            'sciserver': [f'{tmpdir}/data/file.txt', f'{tmpdir}/data'],
+            'error_message': ['', 'Error']
+        })
+        # The patch is to avoid the test that we are on sciserver
+        with patch('os.path.exists') as exists:
+            exists.return_value = True
+            Heasarc.download_data(tab, host="sciserver", location=downloaddir)
+        assert os.path.exists(f'{downloaddir}/file.txt')
+        # data/ should be excluded because it has an error
+        assert not os.path.exists(f'{downloaddir}/data')
+        assert not os.path.exists(f'{downloaddir}/data/file.txt')
+
+
 # S3 mock tests
 s3_bucket = "nasa-heasarc"
 s3_key1 = "some/location/file1.txt"
