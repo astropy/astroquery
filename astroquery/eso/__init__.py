@@ -11,7 +11,7 @@ class Conf(_config.ConfigNamespace):
     """
 
     row_limit = _config.ConfigItem(
-        50,
+        1000,
         'Maximum number of rows returned (set to -1 for unlimited).')
     username = _config.ConfigItem(
         "",
