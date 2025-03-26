@@ -1293,12 +1293,12 @@ class EuclidClass(TapPlus):
         category: str, optional, default None.
             Available categories:
 
-                #. 'Clusters of Galaxies'
-                #. 'External Data Products'
-                #. 'Galaxy Clustering Products'
                 #. 'Internal Data Products'
+                #. 'External Data Products'
                 #. 'Weak Lensing Products'
-                3. 'PHZ'
+                #. 'Galaxy Clustering Products'
+                #. 'Clusters of Galaxies'
+                #. 'PHZ'
         group : str, optional, default None
             Available groups per category:
 
