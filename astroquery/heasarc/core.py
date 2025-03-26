@@ -524,8 +524,13 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             session=self._session
         )
         dl_result = query.execute().to_table()
-        dl_result = dl_result[dl_result['content_type'] == 'directory']
-        dl_result = dl_result[['ID', 'access_url', 'content_length']]
+        # include rows that have directory links (i.e. data) and those
+        # that report errors (usually means there are no data products)
+        dl_result = dl_result[np.ma.mask_or(
+            dl_result['content_type'] == 'directory',
+            dl_result['error_message'] != ''
+        )]
+        dl_result = dl_result[['ID', 'access_url', 'content_length', 'error_message']]
 
         # add sciserver and s3 columns
         newcol = [
@@ -621,6 +626,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                 f'No {host_column} column found in the table. Call '
                 '`~locate_data` first'
             )
+
+        # remove rows that dont have data, if any
+        if 'error_message' in links.colnames:
+            links = links[links['error_message'] == '']
 
         if host == 'heasarc':
 
