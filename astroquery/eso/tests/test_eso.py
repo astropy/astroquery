@@ -142,7 +142,7 @@ def test_vvv(monkeypatch):
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
     monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
-    result = eso.query_collections(collections='VVV',
+    result = eso.query_surveys(surveys='VVV',
                                    ra=266.41681662, dec=-29.00782497,
                                    radius=0.1775,
                                    )
@@ -155,7 +155,7 @@ def test_vvv(monkeypatch):
 def test_list_collections(monkeypatch):
     eso = Eso()
     monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
-    saved_list = eso.list_collections()
+    saved_list = eso.list_surveys()
     assert isinstance(saved_list, list)
     assert set(TEST_COLLECTIONS) <= set(saved_list)
 

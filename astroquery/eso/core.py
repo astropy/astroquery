@@ -71,7 +71,7 @@ class EsoNames:
     raw_table = "dbo.raw"
     phase3_table = "ivoa.ObsCore"
     raw_instruments_column = "instrument"
-    phase3_collections_column = "obs_collection"
+    phase3_surveys_column = "obs_collection"
 
     @staticmethod
     def ist_table(instrument_name):
@@ -108,7 +108,7 @@ class EsoClass(QueryWithLogin):
     def __init__(self):
         super().__init__()
         self._instruments: Optional[List[str]] = None
-        self._collections: Optional[List[str]] = None
+        self._surveys: Optional[List[str]] = None
         self._auth_info: Optional[AuthInfo] = None
         self._hash = None
         self._maxrec = None
@@ -305,8 +305,8 @@ class EsoClass(QueryWithLogin):
         return self._instruments
 
     @unlimited_max_rec
-    def list_collections(self) -> List[str]:
-        """ List all the available collections (phase 3) in the ESO archive.
+    def list_surveys(self) -> List[str]:
+        """ List all the available surveys (phase 3) in the ESO archive.
 
         Returns
         -------
@@ -315,14 +315,14 @@ class EsoClass(QueryWithLogin):
             Defaults to True. If set overrides global caching behavior.
             See :ref:`caching documentation <astroquery_cache>`.
         """
-        if self._collections is None:
-            self._collections = []
+        if self._surveys is None:
+            self._surveys = []
             t = EsoNames.phase3_table
-            c = EsoNames.phase3_collections_column
+            c = EsoNames.phase3_surveys_column
             query_str = f"select distinct {c} from {t}"
             res = self.query_tap_service(query_str)[c].data
-            self._collections = list(res)
-        return self._collections
+            self._surveys = list(res)
+        return self._surveys
 
     @unlimited_max_rec
     def print_table_help(self, table_name: str) -> None:
@@ -386,16 +386,16 @@ class EsoClass(QueryWithLogin):
             message += f"Values provided: ra = {ra}, dec = {dec}, radius = {radius}"
             raise ValueError(message)
 
-        where_collections_strlist = []
+        where_allowed_vals_strlist = []
         if allowed_values:
             if isinstance(allowed_values, str):
                 allowed_values = _split_str_as_list_of_str(allowed_values)
 
             allowed_values = list(map(lambda x: f"'{x.strip()}'", allowed_values))
-            where_collections_strlist = [f"{column_name} in (" + ", ".join(allowed_values) + ")"]
+            where_allowed_vals_strlist = [f"{column_name} in (" + ", ".join(allowed_values) + ")"]
 
         where_constraints_strlist = [f"{k} = {adql_sanitize_val(v)}" for k, v in filters.items()]
-        where_constraints = where_collections_strlist + where_constraints_strlist
+        where_constraints = where_allowed_vals_strlist + where_constraints_strlist
         query = py2adql(table=table_name, columns=columns,
                         ra=ra, dec=dec, radius=radius,
                         where_constraints=where_constraints,
@@ -412,9 +412,9 @@ class EsoClass(QueryWithLogin):
 
         return retval
 
-    def query_collections(
+    def query_surveys(
             self,
-            collections: Union[List[str], str] = None, *,
+            surveys: Union[List[str], str] = None, *,
             ra: float = None, dec: float = None, radius: float = None,
             columns: Union[List, str] = None,
             top: int = None,
@@ -424,8 +424,8 @@ class EsoClass(QueryWithLogin):
             authenticated: bool = False,
             **kwargs) -> Union[astropy.table.Table, int, str]:
         return self._query_on_allowed_values(table_name=EsoNames.phase3_table,
-                                             column_name=EsoNames.phase3_collections_column,
-                                             allowed_values=collections,
+                                             column_name=EsoNames.phase3_surveys_column,
+                                             allowed_values=surveys,
                                              ra=ra, dec=dec, radius=radius,
                                              columns=columns,
                                              top=top,
