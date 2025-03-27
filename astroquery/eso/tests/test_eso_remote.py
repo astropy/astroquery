@@ -169,27 +169,29 @@ class TestEso:
         assert len(result_s) == 0
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
-    def test_sgrastar_remote_vs_local(self, tmp_path):
+    def test_sgrastar_column_filters(self, tmp_path):
         eso = Eso()
-        # TODO originally it was 'gravity', but it is not yet ready in the TAP ISTs
-        instrument = 'uves'
 
-        # Remote version
-        with pytest.warns(MaxResultsWarning):
-            result1 = eso.query_instrument(instrument, ra=266.41681662,
-                                           dec=-29.00782497, radius=1.0)
-        # Local version
-        eso.cache_location = tmp_path
-        with pytest.warns(MaxResultsWarning):
-            result2 = eso.query_instrument(instrument, ra=266.41681662,
-                                           dec=-29.00782497, radius=1.0)
+        result1 = eso.query_surveys(["sphere", "vegas"],
+                                    columns="obs_collection, calib_level, multi_ob, filter, s_pixel_scale, instrument_name",
+                                    calib_level=3,
+                                    multi_ob='M'
+                                    )
+
+        result2 = eso.query_surveys("sphere, vegas",
+                                    columns="obs_collection, calib_level, multi_ob, filter, s_pixel_scale, instrument_name",
+                                    column_filters={
+                                        'calib_level': 3,
+                                        'multi_ob': 'M'
+                                    }
+                                    )
+
         assert all(result1.values_equal(result2))
 
     def test_list_instruments(self):
         # If this test fails, we may simply need to update it
         inst = set(Eso.list_instruments())
-        assert set(inst) == set(instrument_list), \
-            f"Expected result {instrument_list}; Obtained: {inst}"
+        assert set(inst) == set(instrument_list), f"Expected result {instrument_list}; Obtained: {inst}"
 
     def test_retrieve_data(self):
         eso = Eso()
@@ -217,7 +219,7 @@ class TestEso:
     @pytest.mark.parametrize('instrument', instrument_list)
     def test_help(self, instrument):
         eso = Eso()
-        eso.query_instrument(instrument, print_help=True)
+        eso.query_instrument(instrument, help=True)
 
     def test_apex_retrieval(self):
         raise NotImplementedError
@@ -261,10 +263,8 @@ class TestEso:
                 with pytest.warns(MaxResultsWarning):
                     generic_result = eso.query_surveys(surveys=collection)
 
-                    assert generic_result is not None, \
-                        f"query_collection({collection}) returned None"
-                    assert len(generic_result) > 0, \
-                        f"query_collection({collection}) returned no records"
+                    assert generic_result is not None, f"query_collection({collection}) returned None"
+                    assert len(generic_result) > 0, f"query_collection({collection}) returned no records"
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_mixed_case_instrument(self, tmp_path):
