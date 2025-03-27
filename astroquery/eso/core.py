@@ -412,6 +412,8 @@ class EsoClass(QueryWithLogin):
 
         return retval
 
+    @deprecated_renamed_argument(('open_form', 'cache'), (None, None),
+                                 since=['0.4.11', '0.4.11'])
     def query_surveys(
             self,
             surveys: Union[List[str], str] = None, *,
@@ -420,9 +422,14 @@ class EsoClass(QueryWithLogin):
             top: int = None,
             count_only: bool = False,
             query_str_only: bool = False,
-            print_help: bool = False,
+            help: bool = False,
             authenticated: bool = False,
+            column_filters: Optional[dict] = None,
+            open_form: bool = False, cache: bool = False,
             **kwargs) -> Union[astropy.table.Table, int, str]:
+        _ = open_form, cache  # make explicit that we are aware these arguments are unused
+        c = column_filters if column_filters else {}
+        kwargs = {**kwargs, **c}
         return self._query_on_allowed_values(table_name=EsoNames.phase3_table,
                                              column_name=EsoNames.phase3_surveys_column,
                                              allowed_values=surveys,
@@ -431,10 +438,12 @@ class EsoClass(QueryWithLogin):
                                              top=top,
                                              count_only=count_only,
                                              query_str_only=query_str_only,
-                                             print_help=print_help,
+                                             print_help=help,
                                              authenticated=authenticated,
                                              **kwargs)
 
+    @deprecated_renamed_argument(('open_form', 'cache'), (None, None),
+                                 since=['0.4.11', '0.4.11'])
     def query_main(
             self,
             instruments: Union[List[str], str] = None, *,
@@ -443,9 +452,14 @@ class EsoClass(QueryWithLogin):
             top: int = None,
             count_only: bool = False,
             query_str_only: bool = False,
-            print_help: bool = False,
+            help: bool = False,
             authenticated: bool = False,
+            column_filters: Optional[dict] = None,
+            open_form: bool = False, cache: bool = False,
             **kwargs) -> Union[astropy.table.Table, int, str]:
+        _ = open_form, cache  # make explicit that we are aware these arguments are unused
+        c = column_filters if column_filters else {}
+        kwargs = {**kwargs, **c}
         return self._query_on_allowed_values(table_name=EsoNames.raw_table,
                                              column_name=EsoNames.raw_instruments_column,
                                              allowed_values=instruments,
@@ -454,11 +468,12 @@ class EsoClass(QueryWithLogin):
                                              top=top,
                                              count_only=count_only,
                                              query_str_only=query_str_only,
-                                             print_help=print_help,
+                                             print_help=help,
                                              authenticated=authenticated,
                                              **kwargs)
 
-    # ex query_instrument
+    @deprecated_renamed_argument(('open_form', 'cache'), (None, None),
+                                 since=['0.4.11', '0.4.11'])
     def query_instrument(
             self,
             instrument: str, *,
@@ -467,9 +482,14 @@ class EsoClass(QueryWithLogin):
             top: int = None,
             count_only: bool = False,
             query_str_only: bool = False,
-            print_help: bool = False,
+            help: bool = False,
             authenticated: bool = False,
+            column_filters: Optional[dict] = None,
+            open_form: bool = False, cache: bool = False,
             **kwargs) -> Union[astropy.table.Table, int, str]:
+        _ = open_form, cache  # make explicit that we are aware these arguments are unused
+        c = column_filters if column_filters else {}
+        kwargs = {**kwargs, **c}
         return self._query_on_allowed_values(table_name=EsoNames.ist_table(instrument),
                                              column_name=None,
                                              allowed_values=None,
@@ -478,7 +498,7 @@ class EsoClass(QueryWithLogin):
                                              top=top,
                                              count_only=count_only,
                                              query_str_only=query_str_only,
-                                             print_help=print_help,
+                                             print_help=help,
                                              authenticated=authenticated,
                                              **kwargs)
 
@@ -786,10 +806,12 @@ class EsoClass(QueryWithLogin):
         log.info("Done!")
         return files[0] if files and len(files) == 1 and return_string else files
 
-    @deprecated_renamed_argument(('open_form', 'help'), (None, 'print_help'),
-                                 since=['0.4.8', '0.4.8'])
-    def query_apex_quicklooks(self, *, project_id=None, print_help=False,
-                              open_form=False, **kwargs):
+    @deprecated_renamed_argument(('open_form', 'cache'), (None, None),
+                                 since=['0.4.11', '0.4.11'])
+    def query_apex_quicklooks(self, *, project_id=None, help: bool = False,
+                              column_filters: Optional[dict] = None,
+                              open_form: bool = False, cache: bool = False,
+                              **kwargs):
         """
         APEX data are distributed with quicklook products identified with a
         different name than other ESO products.  This query tool searches by
@@ -801,7 +823,8 @@ class EsoClass(QueryWithLogin):
         >>> files = ...
         """
         # TODO All this function
-        _ = project_id, print_help, open_form, kwargs
+        # make explicit that we are aware these arguments are unused
+        _ = project_id, help, column_filters, open_form, cache, kwargs
         raise NotImplementedError
 
 
