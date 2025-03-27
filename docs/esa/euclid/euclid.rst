@@ -109,8 +109,8 @@ observations), the next campaign shall be run in March-April 2025.
 opened on the 6th of November 2024, with a first pass on the three Euclid deep fields (EDFN, EDFS and EDFF) as well as
 observations on the Lynds Dark Nebula LDN1641.
 
-4. The PDR (Public Data Release) environment of the Euclid science archive holds the public data. Euclid Q1 data will be publicly released on March 19,
-2025. The main component of the Q1 data shall contain Level 2 data of a single visit (at the depth of the Euclid Wide
+4. The PDR (Public Data Release) environment of the Euclid science archive holds the public data. Euclid Q1 data was publicly released on March 19,
+2025. The main component of the Q1 data contains Level 2 data of a single visit (at the depth of the Euclid Wide
 Survey) over the Euclid Deep Fields (EDFs): 20 deg\ :sup:`2` of the EDF North, 10 deg\ :sup:`2` of EDF Fornax, and
 23 deg\ :sup:`2` of the EDF South. The deep fields will be visited multiple times during the mission.
 
