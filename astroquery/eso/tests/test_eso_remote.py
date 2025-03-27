@@ -169,17 +169,19 @@ class TestEso:
         assert len(result_s) == 0
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
-    def test_sgrastar_column_filters(self, tmp_path):
+    def test_sgrastar_column_filters(self):
         eso = Eso()
 
         result1 = eso.query_surveys(["sphere", "vegas"],
-                                    columns="obs_collection, calib_level, multi_ob, filter, s_pixel_scale, instrument_name",
+                                    columns=("obs_collection, calib_level, "
+                                    "multi_ob, filter, s_pixel_scale, instrument_name"),
                                     calib_level=3,
                                     multi_ob='M'
                                     )
 
         result2 = eso.query_surveys("sphere, vegas",
-                                    columns="obs_collection, calib_level, multi_ob, filter, s_pixel_scale, instrument_name",
+                                    columns=("obs_collection, calib_level, "
+                                             "multi_ob, filter, s_pixel_scale, instrument_name"),
                                     column_filters={
                                         'calib_level': 3,
                                         'multi_ob': 'M'
