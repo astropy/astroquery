@@ -22,6 +22,8 @@ from ...eso.utils import py2adql, adql_sanitize_val
 from ...exceptions import NoResultsWarning, MaxResultsWarning
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+EXPECTED_MAXREC = 1000
+MONKEYPATCH_TABLE_LENGTH = 50
 
 
 def data_path(filename):
@@ -123,7 +125,7 @@ def test_sinfoni_sgr_a_star(monkeypatch):
     monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
     result = eso.query_instrument('sinfoni', target='SGRA')
     # test all results are there and the expected target is present
-    assert len(result) == 50
+    assert len(result) == MONKEYPATCH_TABLE_LENGTH
     assert 'SGRA' in result['target']
 
 
@@ -147,7 +149,7 @@ def test_vvv(monkeypatch):
                                radius=0.1775,
                                )
     # test all results are there and the expected target is present
-    assert len(result) == 50
+    assert len(result) == MONKEYPATCH_TABLE_LENGTH
     assert 'target_name' in result.colnames
     assert 'b333' in result['target_name']
 
@@ -216,7 +218,7 @@ def test_calselector(monkeypatch, tmp_path):
     monkeypatch.setattr(eso._session, 'post', calselector_request)
     result = eso.get_associated_files([dataset], savexml=True)
     assert isinstance(result, list)
-    assert len(result) == 50
+    assert len(result) == MONKEYPATCH_TABLE_LENGTH
     assert dataset not in result
 
 
@@ -276,9 +278,9 @@ def test_adql_sanitize_val():
 def test_maxrec():
     eso_instance = Eso()
 
-    # 50 is the default value in the conf
+    # EXPECTED_MAXREC is the default value in the conf
     maxrec = eso_instance.maxrec
-    assert maxrec == 50
+    assert maxrec == EXPECTED_MAXREC
 
     # we change it to 5
     eso_instance.maxrec = 5
@@ -321,8 +323,8 @@ def test_issue_table_length_warnings():
     with pytest.warns(NoResultsWarning):
         eso_instance._maybe_warn_about_table_length(t)
 
-    # should warn, since 50 = eso_instance.maxrec
-    t = Table({"col_name": [i for i in range(50)]})
+    # should warn, since EXPECTED_MAXREC = eso_instance.maxrec
+    t = Table({"col_name": [i for i in range(EXPECTED_MAXREC)]})
     with pytest.warns(MaxResultsWarning):
         eso_instance._maybe_warn_about_table_length(t)
 
