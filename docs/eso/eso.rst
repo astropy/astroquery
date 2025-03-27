@@ -11,7 +11,7 @@ This is a python interface for querying the ESO archive web service.
 For now, it supports the following:
 
 - listing available instruments
-- listing available surveys (phase 3)
+- listing available collections (phase 3)
 - searching all instrument specific raw data: http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html
 - searching data products (phase 3): http://archive.eso.org/wdb/wdb/adp/phase3_main/form
 - downloading data by dataset identifiers: http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html
@@ -276,21 +276,21 @@ Query the ESO archive for reduced data
 ======================================
 
 In addition to raw data, ESO makes available processed data.
-In this section, we show how to obtain these processed survey data from the archive.
+In this section, we show how to obtain these processed collection data from the archive.
 
-Identify available surveys
---------------------------
+Identify available collections
+------------------------------
 
-The list of available surveys can be obtained with :meth:`astroquery.eso.EsoClass.list_surveys` as follows:
+The list of available collections can be obtained with :meth:`astroquery.eso.EsoClass.list_surveys` as follows:
 
 .. doctest-remote-data::
 
-    >>> surveys = eso.list_surveys()
+    >>> collections = eso.list_surveys()
 
-Query a specific survey with constraints
-----------------------------------------
+Query a specific collection with constraints
+--------------------------------------------
 
-Let's assume that we work with the ``HARPS`` survey, and that we are interested in
+Let's assume that we work with the ``HARPS`` collection, and that we are interested in
 target ``HD203608``.
 The archive can be queried as follows:
 
@@ -356,7 +356,7 @@ Downloading datasets from the archive
 =====================================
 
 Continuing from the query with constraints example, the first two datasets are selected,
-using their data product IDs ``DP.ID`` (or ``ARCFILE`` for surveys), and retrieved from the ESO archive.
+using their data product IDs ``DP.ID`` (or ``ARCFILE`` for collections), and retrieved from the ESO archive.
 
 .. doctest-skip::
 
