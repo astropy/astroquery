@@ -281,11 +281,11 @@ In this section, we show how to obtain these processed collection data from the 
 Identify available collections
 ------------------------------
 
-The list of available collections can be obtained with :meth:`astroquery.eso.EsoClass.list_collections` as follows:
+The list of available collections can be obtained with :meth:`astroquery.eso.EsoClass.list_surveys` as follows:
 
 .. doctest-remote-data::
 
-    >>> collections = eso.list_collections()
+    >>> collections = eso.list_surveys()
 
 Query a specific collection with constraints
 --------------------------------------------
@@ -297,7 +297,7 @@ The archive can be queried as follows:
 
 .. doctest-remote-data::
 
-    >>> table = eso.query_collections(collections='HARPS', cache=False, target="HD203608")
+    >>> table = eso.query_surveys(surveys='HARPS', cache=False, target="HD203608")
 
 The returned table has an ``ARCFILE`` column. It can be used to retrieve the datasets with
 :meth:`astroquery.eso.EsoClass.retrieve_data` (see next section).
