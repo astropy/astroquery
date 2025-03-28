@@ -61,12 +61,11 @@ class Conf(_config.ConfigNamespace):
 
     VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS = {
         'Clusters of Galaxies': {
-            'GrpCatalog': ['DpdLE3clAmicoAux', 'DpdLE3clAMICOModel', 'DpdLE3clAssociations', 'DpdLE3clCatMergeParams',
-                           'DpdLE3clCATParams', 'DpdLE3clCcpInputParams', 'DpdLE3clDetClusters',
-                           'DpdLE3clDetInputParams', 'DpdLE3clDetMergeParams', 'DpdLE3clDetOnMockParams',
-                           'DpdLE3clGlueMatchParams', 'DpdLE3clMockGlueMatchParams', 'DpdLE3clPzwavAux',
-                           'DpdLE3clPZWAVDensity', 'DpdLE3clRichMembers', 'DpdLE3clZClParams', 'DpdLE3FullDet',
-                           'DpdLE3clMockGlueMatchParams'],
+            'GrpCatalog': ['DpdLE3clAMICOModel', 'DpdLE3clDetMergeParams', 'DpdLE3clDetOnMockParams',
+                           'DpdLE3clDetInputParams', 'DpdLE3clAmicoAux', 'DpdLE3clAssociations', 'DpdLE3clPzwavAux',
+                           'DpdLE3clPZWAVDensity', 'DpdLE3clDetClusters', 'DpdLE3FullDet', 'DpdLE3clCatMergeParams',
+                           'DpdLE3clCATParams', 'DpdLE3clCcpInputParams', 'DpdLE3clRichMembers', 'DpdLE3clZClParams',
+                           'DpdLE3clGlueMatchParams', 'DpdLE3clMockGlueMatchParams'],
             'GrpClustering': ['DDpdLE3clPkDOA', 'DpdLE3clCovmatTwoPointCov2', 'DpdLE3clPkYam',
                               'DpdLE3clTwoPointAutoCorrPol', 'DpolDpdLE3clCovmatPKCov1'],
             'GrpCOMB': ['DpdLE3clCombConfigurationSet', 'DpdLE3clCombCovMatDeltaSigmaCosmoDep',
@@ -97,8 +96,7 @@ class Conf(_config.ConfigNamespace):
         'Internal Data Products': {
             'SEL Config/Stats': ['DpdLE3IDSELConfigurationSet', 'DpdLE3IDSELIDStatistics'],
             'SEL Wide Main': ['DpdLE3IDSELIDCatalog'],
-            'SEL Wide Post-recon': ['DpdLE3IDSELIDSubsampledCatalog'],
-            'SEL Wide Pre-recon': [],
+            'SEL Wide': ['DpdLE3IDSELIDSubsampledCatalog'],
             'VMSP Group': ['DpdLE3IDVMSPConfiguration', 'DpdLE3IDVMSPDetectionModel', 'DpdLE3IDVMSPDistModel',
                            'DpdLE3IDVMSPRandomCatalog']},
         'Weak Lensing Products': {
