@@ -9,7 +9,11 @@ New Tools and Services
 API changes
 -----------
 
+gaia
+^^^^
 
+- Deprecated ``band`` from ``load_data`` as it has no effect on upstream
+  response any more. [#3278]
 
 Service fixes and enhancements
 ------------------------------

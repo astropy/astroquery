@@ -168,7 +168,7 @@ class GaiaClass(TapPlus):
         except HTTPError:
             log.error("Error logging out data server")
 
-    @deprecated_renamed_argument("output_file", None, since="0.4.8")
+    @deprecated_renamed_argument(("output_file", "band"), (None, None), since=("0.4.8", "0.4.11"))
     def load_data(self, ids, *, data_release=None, data_structure='INDIVIDUAL', retrieval_type="ALL",
                   linking_parameter='SOURCE_ID', valid_data=False, band=None, avoid_datatype_check=False,
                   format="votable", dump_to_file=False, overwrite_output_file=False, verbose=False,
@@ -212,10 +212,6 @@ class GaiaClass(TapPlus):
             In order to retrieve only valid data (data rows where flux is not null and/or the
             rejected_by_photometry flag is set to False) this request parameter should be included
             with valid_data=True.
-        band : str, optional, default None, valid values: G, BP, RP
-            By default, the epoch photometry service returns all the
-            available photometry bands for the requested source.
-            This parameter allows to filter the output lightcurve by its band.
         avoid_datatype_check: boolean, optional, default False.
             By default, this value will be set to False. If it is set to 'true'
             the Datalink items tags will not be checked.
@@ -281,11 +277,6 @@ class GaiaClass(TapPlus):
         elif valid_data:
             params_dict['VALID_DATA'] = "true"
 
-        if band is not None:
-            if band != 'G' and band != 'BP' and band != 'RP':
-                raise ValueError(f"Invalid band value '{band}' (Valid values: 'G', 'BP' and 'RP)")
-            else:
-                params_dict['BAND'] = band
         if isinstance(ids, str):
             ids_arg = ids
         else:
