@@ -31,7 +31,7 @@ import sys
 
 # Load all of the global Astropy configuration
 try:
-    from sphinx_astropy.conf.v1 import *  # noqa
+    from sphinx_astropy.conf.v2 import *  # noqa
 except ImportError:
     print('ERROR: the documentation requires the sphinx-astropy package to '
           'be installed')
@@ -72,6 +72,10 @@ intersphinx_mapping.update({
     'pyvo': ('https://pyvo.readthedocs.io/en/stable', None),
 })
 
+extensions += [
+    "sphinx_design",
+]
+
 # -- Project information ------------------------------------------------------
 
 # This does not *have* to match the package name, but typically does
@@ -102,11 +106,26 @@ release = package.__version__
 # variables set in the global configuration. The variables set in the
 # global configuration are listed below, commented out.
 
-html_theme_options = {
-    'logotext1': 'astro',  # white,  semi-bold
-    'logotext2': 'query',  # orange, light
-    'logotext3': ':docs',   # white,  light
-}
+
+
+html_theme_options.update(
+    {
+        "logo": {
+            "image_light": "_static/astroquery_banner.png",
+            "image_dark": "_static/astroquery_banner.png",
+        },
+        # https://github.com/pydata/pydata-sphinx-theme/issues/1492
+        "navigation_with_keys": False,
+        "navbar_align": "right"
+    }
+)
+
+
+
+html_favicon = "_static/astroquery_logo.ico"
+html_static_path = ["_static"]
+html_css_files = ["astroquery.css"]
+html_copy_source = False
 
 # Add any paths that contain custom themes here, relative to this directory.
 # To use a different custom theme, add the directory containing the theme.
@@ -175,9 +194,9 @@ class Mock(object):
             return Mock()
 
 
-MOCK_MODULES = ['atpy', 'beautifulsoup4', 'vo', 'lxml', 'keyring', 'bs4']
-for mod_name in MOCK_MODULES:
-    sys.modules[mod_name] = Mock()
+#MOCK_MODULES = ['atpy', 'beautifulsoup4', 'vo', 'lxml', 'keyring', 'bs4']
+#for mod_name in MOCK_MODULES:
+#    sys.modules[mod_name] = Mock()
 
 # -- Options for the edit_on_github extension ----------------------------------------
 #
