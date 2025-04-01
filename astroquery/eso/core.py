@@ -266,9 +266,23 @@ class EsoClass(QueryWithLogin):
                           authenticated: bool = False,
                           ) -> Optional[astropy.table.Table]:
         """
-        returns an astropy.table.Table from an adql query string
-        Example use:
-        eso._query_tap_service("Select * from ivoa.ObsCore")
+        Execute an ADQL query on the ESO TAP service and return the results
+        as an `~astropy.table.Table`.
+
+        :param query_str: The ADQL query string to be executed.
+        :type query_str: str
+
+        :param authenticated: If `True`, the query is run as an authenticated user.
+        Authentication must be done beforehand via :meth:`~astroquery.eso.EsoClass.login`.
+        Note that authenticated queries are slower. Default is `False`.
+        :type authenticated: bool
+
+        :returns: The query results in an `~astropy.table.Table`, or `None` if no data is found.
+        :rtype: Optional[`~astropy.table.Table`]
+
+        **Example usage**::
+            eso_instance = Eso()
+            eso_instance.query_tap_service("SELECT * FROM ivoa.ObsCore")
         """
         table_to_return = None
         tap_service = self._tap_service(authenticated)
@@ -457,7 +471,7 @@ class EsoClass(QueryWithLogin):
 
         :param authenticated: If `True`, runs the query as an authenticated user.
             Authentication must be done beforehand via :meth:`~astroquery.eso.EsoClass.login`.
-            Note that authenticated queries take longer. Default is `False`.
+            Note that authenticated queries are slower. Default is `False`.
         :type authenticated: bool
 
         :param column_filters: Constraints applied to the query. Default is `None`.
@@ -548,7 +562,7 @@ class EsoClass(QueryWithLogin):
 
         :param authenticated: If `True`, runs the query as an authenticated user.
             Authentication must be done beforehand via :meth:`~astroquery.eso.EsoClass.login`.
-            Note that authenticated queries take longer. Default is `False`.
+            Note that authenticated queries are slower. Default is `False`.
         :type authenticated: bool
 
         :param column_filters: Constraints applied to the query. Default is `None`.
@@ -638,7 +652,7 @@ class EsoClass(QueryWithLogin):
 
         :param authenticated: If `True`, runs the query as an authenticated user.
             Authentication must be done beforehand via :meth:`~astroquery.eso.EsoClass.login`.
-            Note that authenticated queries take longer. Default is `False`.
+            Note that authenticated queries are slower. Default is `False`.
         :type authenticated: bool
 
         :param column_filters: Constraints applied to the query. Default is `None`.
