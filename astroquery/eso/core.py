@@ -186,11 +186,11 @@ class EsoClass(QueryWithLogin):
             Username to the ESO Public Portal. If not given, it should be
             specified in the config file.
         store_password : bool, optional
-            Stores the password securely in your keyring. Default is False.
+            Stores the password securely in your keyring. Default is `False`.
         reenter_password : bool, optional
             Asks for the password even if it is already stored in the
             keyring. This is the way to overwrite an already stored passwork
-            on the keyring. Default is False.
+            on the keyring. Default is `False`.
         """
 
         username, password = self._get_auth_info(username=username,
@@ -447,42 +447,43 @@ class EsoClass(QueryWithLogin):
             it should be a comma-separated list of column names.
         :type columns: str or list of str
 
-        :param top: When set to `N`, returns only the top `N` records.
-        :type top: int, optional
+        :param top: When set to ``N``, returns only the top ``N`` records.
+        :type top: int
 
         :param count_only: If `True`, returns only an `int`: the count of the records
-            the query would return when set to `False`.
-        :type count_only: bool, default=False
+            the query would return when set to `False`. Default is `False`.
+        :type count_only: bool
 
         :param query_str_only: If `True`, returns only a `str`: the query string that
-            would be issued to the TAP service.
-        :type query_str_only: bool, default=False
+            would be issued to the TAP service. Default is `False`.
+        :type query_str_only: bool
 
         :param help: If `True`, prints all the parameters accepted in ``column_filters``
-            and ``columns``.
-        :type help: bool, optional
+            and ``columns``. Default is `False`.
+        :type help: bool
 
         :param authenticated: If `True`, runs the query as an authenticated user.
             Authentication must be done beforehand via :meth:`~astroquery.eso.EsoClass.login`.
-            Note that authenticated queries take longer.
-        :type authenticated: bool, optional
+            Note that authenticated queries take longer. Default is `False`.
+        :type authenticated: bool
 
-        :param column_filters: Constraints applied to the query.
-        :type column_filters: dict, optional
+        :param column_filters: Constraints applied to the query. Default is `None`.
+        :type column_filters: dict, `None`
 
         :param open_form: **Deprecated** - unused.
-        :type open_form: bool, deprecated
+        :type open_form: bool
 
         :param cache: **Deprecated** - unused.
-        :type cache: bool, deprecated
+        :type cache: bool
 
-        :returns: A table representing the data available in the archive for the specified
-            columns and constraints. Returns `None` when the query has no results.
-
+        :returns:
+            - By default, a `~astropy.table.Table` representing the data available in the archive for the specified
+              columns and constraints. Returns `None` when the query has no results.
             - When ``count_only`` is `True`, returns an `int` representing the
               record count for the specified filters.
             - When ``query_str_only`` is `True`, returns the query string that
               would be issued to the TAP service given the specified arguments.
+
         :rtype: `~astropy.table.Table`, `str`, `int`, or `None`
         """
         _ = open_form, cache  # make explicit that we are aware these arguments are unused
