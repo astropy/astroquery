@@ -107,8 +107,6 @@ class EsoClass(QueryWithLogin):
 
     def __init__(self):
         super().__init__()
-        self._instruments: Optional[List[str]] = None
-        self._surveys: Optional[List[str]] = None
         self._auth_info: Optional[AuthInfo] = None
         self._hash = None
         self._maxrec = None
@@ -287,45 +285,46 @@ class EsoClass(QueryWithLogin):
         return table_to_return
 
     @unlimited_max_rec
-    def list_instruments(self) -> List[str]:
-        """ List all the available instrument-specific queries offered by the ESO archive.
+    @deprecated_renamed_argument('cache', None, since='0.4.11')
+    def list_instruments(self, cache=True) -> List[str]:
+        """
+        List all the available instrument-specific queries offered by the ESO archive.
 
         Returns
         -------
         instrument_list : list of strings
+        cache : bool
+            Deprecated - unused.
         """
-        if self._instruments is None:
-            self._instruments = []
-            query_str = ("select table_name from TAP_SCHEMA.tables "
-                         "where schema_name='ist' order by table_name")
-            res = self.query_tap_service(query_str)["table_name"].data
-            self._instruments = list(map(lambda x: x.split(".")[1], res))
-        if len(self._instruments) < 1:
-            self._instruments = None
-        return self._instruments
+        _ = cache  # We're aware about disregarding the argument
+        query_str = ("select table_name from TAP_SCHEMA.tables "
+                     "where schema_name='ist' order by table_name")
+        res = self.query_tap_service(query_str)["table_name"].data
+        l_res = list(map(lambda x: x.split(".")[1], res))
+
+        return l_res
 
     @unlimited_max_rec
-    def list_surveys(self) -> List[str]:
-        """ List all the available surveys (phase 3) in the ESO archive.
+    @deprecated_renamed_argument('cache', None, since='0.4.11')
+    def list_surveys(self, *, cache=True) -> List[str]:
+        """
+        List all the available surveys (phase 3) in the ESO archive.
 
         Returns
         -------
         collection_list : list of strings
         cache : bool
-            Defaults to True. If set overrides global caching behavior.
-            See :ref:`caching documentation <astroquery_cache>`.
+            Deprecated - unused.
         """
-        if self._surveys is None:
-            self._surveys = []
-            t = EsoNames.phase3_table
-            c = EsoNames.phase3_surveys_column
-            query_str = f"select distinct {c} from {t}"
-            res = self.query_tap_service(query_str)[c].data
-            self._surveys = list(res)
-        return self._surveys
+        _ = cache  # We're aware about disregarding the argument
+        t = EsoNames.phase3_table
+        c = EsoNames.phase3_surveys_column
+        query_str = f"select distinct {c} from {t}"
+        res = list(self.query_tap_service(query_str)[c].data)
+        return res
 
     @unlimited_max_rec
-    def print_table_help(self, table_name: str) -> None:
+    def _print_table_help(self, table_name: str) -> None:
         """
         Prints the columns contained in a given table
         """
@@ -372,7 +371,7 @@ class EsoClass(QueryWithLogin):
         filters = {**dict(kwargs)}
 
         if print_help:
-            self.print_table_help(table_name)
+            self._print_table_help(table_name)
             return
 
         if (('box' in filters)
@@ -427,6 +426,65 @@ class EsoClass(QueryWithLogin):
             column_filters: Optional[dict] = None,
             open_form: bool = False, cache: bool = False,
             **kwargs) -> Union[astropy.table.Table, int, str]:
+        """
+        Query survey Phase 3 data contained in the ESO archive.
+
+        Parameters
+        ----------
+        survey : string or list
+            Name of the survey(s) to query.  Should be one or more of the
+            names returned by `~astroquery.eso.EsoClass.list_surveys`.  If
+            specified as a string, should be a comma-separated list of
+            survey names.
+        ra : float
+            Cone Search Center - Right Ascention in deg.
+        dec : float
+            Cone Search Center - Declination in deg.
+        radius : float
+            Cone Search Radius in deg.
+        columns: string or list of strings
+            Name of the columns the query should return.
+            If specified as a string, should be a comma-separated list
+            of column names.
+        top : int
+            When set top = N, returns only the top N records.
+        count_only : bool
+            Defaults to `False`.
+            When set to `True`, returns only an `int`: the count
+            of the records the query would return when set to `False`.
+        query_str_only : bool
+            Defaults to `False`.
+            When set to `True`, returns only a `str`: the query
+            string that would be issued to the TAP service.
+        help : bool
+            If `True`, prints all the parameters accepted in
+            ``column_filters`` and ``columns``.
+        authenticated : bool
+            If `True`, run the query as an authenticated user.
+            Authentication must be done beforehand via
+            `~astroquery.eso.EsoClass.login`
+            Note that authenticated queries take longer.
+        column_filters : dict
+            Constraints applied to the query.
+        open_form : bool
+            Deprecated - unused.
+        cache : bool
+            Deprecated - unused.
+
+        Returns
+        -------
+        table : `~astropy.table.Table`, `str`, `int` or `None`
+            A table representing the data available in the archive for the
+            specified columns and constraints.
+            `None` is returned when the query has no results.
+
+            When ``count_only`` is `True`, returns as an `int` record
+            count for the specified filters.
+
+            When ``query_str_only`` is `True`, returns the query string
+            that would be issued to the TAP service given the specified
+            arguments.
+        """
         _ = open_form, cache  # make explicit that we are aware these arguments are unused
         c = column_filters if column_filters else {}
         kwargs = {**kwargs, **c}
