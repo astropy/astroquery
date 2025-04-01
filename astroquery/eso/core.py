@@ -429,61 +429,61 @@ class EsoClass(QueryWithLogin):
         """
         Query survey Phase 3 data contained in the ESO archive.
 
-        Parameters
-        ----------
-        survey : string or list
-            Name of the survey(s) to query.  Should be one or more of the
-            names returned by `~astroquery.eso.EsoClass.list_surveys`.  If
-            specified as a string, should be a comma-separated list of
-            survey names.
-        ra : float
-            Cone Search Center - Right Ascention in deg.
-        dec : float
-            Cone Search Center - Declination in deg.
-        radius : float
-            Cone Search Radius in deg.
-        columns: string or list of strings
-            Name of the columns the query should return.
-            If specified as a string, should be a comma-separated list
-            of column names.
-        top : int
-            When set top = N, returns only the top N records.
-        count_only : bool
-            Defaults to `False`.
-            When set to `True`, returns only an `int`: the count
-            of the records the query would return when set to `False`.
-        query_str_only : bool
-            Defaults to `False`.
-            When set to `True`, returns only a `str`: the query
-            string that would be issued to the TAP service.
-        help : bool
-            If `True`, prints all the parameters accepted in
-            ``column_filters`` and ``columns``.
-        authenticated : bool
-            If `True`, run the query as an authenticated user.
-            Authentication must be done beforehand via
-            `~astroquery.eso.EsoClass.login`
+        :param surveys: Name of the survey(s) to query. Should be one or more of the
+            names returned by :meth:`~astroquery.eso.EsoClass.list_surveys`. If specified
+            as a string, it should be a comma-separated list of survey names.
+        :type surveys: str or list
+
+        :param ra: Cone Search Center - Right Ascension in degrees.
+        :type ra: float
+
+        :param dec: Cone Search Center - Declination in degrees.
+        :type dec: float
+
+        :param radius: Cone Search Radius in degrees.
+        :type radius: float
+
+        :param columns: Name of the columns the query should return. If specified as a string,
+            it should be a comma-separated list of column names.
+        :type columns: str or list of str
+
+        :param top: When set to `N`, returns only the top `N` records.
+        :type top: int, optional
+
+        :param count_only: If `True`, returns only an `int`: the count of the records
+            the query would return when set to `False`.
+        :type count_only: bool, default=False
+
+        :param query_str_only: If `True`, returns only a `str`: the query string that
+            would be issued to the TAP service.
+        :type query_str_only: bool, default=False
+
+        :param help: If `True`, prints all the parameters accepted in ``column_filters``
+            and ``columns``.
+        :type help: bool, optional
+
+        :param authenticated: If `True`, runs the query as an authenticated user.
+            Authentication must be done beforehand via :meth:`~astroquery.eso.EsoClass.login`.
             Note that authenticated queries take longer.
-        column_filters : dict
-            Constraints applied to the query.
-        open_form : bool
-            Deprecated - unused.
-        cache : bool
-            Deprecated - unused.
+        :type authenticated: bool, optional
 
-        Returns
-        -------
-        table : `~astropy.table.Table`, `str`, `int` or `None`
-            A table representing the data available in the archive for the
-            specified columns and constraints.
-            `None` is returned when the query has no results.
+        :param column_filters: Constraints applied to the query.
+        :type column_filters: dict, optional
 
-            When ``count_only`` is `True`, returns as an `int` record
-            count for the specified filters.
+        :param open_form: **Deprecated** - unused.
+        :type open_form: bool, deprecated
 
-            When ``query_str_only`` is `True`, returns the query string
-            that would be issued to the TAP service given the specified
-            arguments.
+        :param cache: **Deprecated** - unused.
+        :type cache: bool, deprecated
+
+        :returns: A table representing the data available in the archive for the specified
+            columns and constraints. Returns `None` when the query has no results.
+
+            - When ``count_only`` is `True`, returns an `int` representing the
+              record count for the specified filters.
+            - When ``query_str_only`` is `True`, returns the query string that
+              would be issued to the TAP service given the specified arguments.
+        :rtype: `~astropy.table.Table`, `str`, `int`, or `None`
         """
         _ = open_form, cache  # make explicit that we are aware these arguments are unused
         c = column_filters if column_filters else {}
