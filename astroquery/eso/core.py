@@ -121,7 +121,7 @@ class EsoClass(QueryWithLogin):
                 mr = value
         self._maxrec = mr
 
-    def tap_url(self) -> str:
+    def _tap_url(self) -> str:
         url = os.environ.get('ESO_TAP_URL', conf.tap_url)
         return url
 
@@ -255,9 +255,9 @@ class EsoClass(QueryWithLogin):
         if authenticated:
             h = self._get_auth_header()
             self._session.headers = {**self._session.headers, **h}
-            tap_service = TAPService(self.tap_url(), session=self._session)
+            tap_service = TAPService(self._tap_url(), session=self._session)
         else:
-            tap_service = TAPService(self.tap_url())
+            tap_service = TAPService(self._tap_url())
 
         return tap_service
 

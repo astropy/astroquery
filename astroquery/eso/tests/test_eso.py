@@ -250,11 +250,11 @@ def test_tap_url():
     eso_instance = Eso()
 
     # ESO_TAP_URL not set
-    assert eso_instance.tap_url() == prod_url
+    assert eso_instance._tap_url() == prod_url
 
     # ESO_TAP_URL set
     os.environ[tap_url_env_var] = dev_url
-    assert eso_instance.tap_url() == dev_url
+    assert eso_instance._tap_url() == dev_url
 
     # set again the env vars, in case we deleted it earlier
     if tmpvar:
@@ -305,7 +305,7 @@ def test_maxrec():
 
 def test_download_pyvo_table():
     eso_instance = Eso()
-    dal = pyvo.dal.TAPService(eso_instance.tap_url())
+    dal = pyvo.dal.TAPService(eso_instance._tap_url())
 
     q_str = "select * from ivoa.ObsCore"
     table = None
