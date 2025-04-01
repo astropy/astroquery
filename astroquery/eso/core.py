@@ -3,9 +3,7 @@
 =====================
 ESO Astroquery Module
 =====================
-
 European Southern Observatory (ESO)
-
 """
 
 import base64
@@ -80,8 +78,7 @@ class EsoNames:
 
 def unlimited_max_rec(func):
     """
-    decorator to overwrite maxrec
-    for specific queries
+    decorator to overwrite maxrec for specific queries
     """
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
@@ -110,7 +107,6 @@ class EsoClass(QueryWithLogin):
         self._auth_info: Optional[AuthInfo] = None
         self._hash = None
         self._maxrec = None
-
         self.maxrec = conf.row_limit
 
     @property
@@ -275,13 +271,9 @@ class EsoClass(QueryWithLogin):
         eso._query_tap_service("Select * from ivoa.ObsCore")
         """
         table_to_return = None
-
         tap_service = self._tap_service(authenticated)
-
         table_to_return = self._try_download_pyvo_table(query_str, tap_service)
-
         self._maybe_warn_about_table_length(table_to_return)
-
         return table_to_return
 
     @unlimited_max_rec
@@ -432,6 +424,7 @@ class EsoClass(QueryWithLogin):
         :param surveys: Name of the survey(s) to query. Should be one or more of the
             names returned by :meth:`~astroquery.eso.EsoClass.list_surveys`. If specified
             as a string, it should be a comma-separated list of survey names.
+            If not specified, returns records relative to all surveys. Default is `None`.
         :type surveys: str or list
 
         :param ra: Cone Search Center - Right Ascension in degrees.
@@ -477,7 +470,7 @@ class EsoClass(QueryWithLogin):
         :type cache: bool
 
         :returns:
-            - By default, a `~astropy.table.Table` representing the data available in the archive for the specified
+            - By default, a `~astropy.table.Table` containing records based on the specified
               columns and constraints. Returns `None` when the query has no results.
             - When ``count_only`` is `True`, returns an `int` representing the
               record count for the specified filters.
@@ -516,6 +509,67 @@ class EsoClass(QueryWithLogin):
             column_filters: Optional[dict] = None,
             open_form: bool = False, cache: bool = False,
             **kwargs) -> Union[astropy.table.Table, int, str]:
+        """
+        Query raw data from all instruments contained in the ESO archive.
+
+        :param instruments: Name of the instruments to filter. Should be one or more of the
+            names returned by :meth:`~astroquery.eso.EsoClass.list_instruments`. If specified
+            as a string, it should be a comma-separated list of instrument names.
+            If not specified, returns records relative to all instruments. Default is `None`.
+        :type instruments: str or list
+
+        :param ra: Cone Search Center - Right Ascension in degrees.
+        :type ra: float
+
+        :param dec: Cone Search Center - Declination in degrees.
+        :type dec: float
+
+        :param radius: Cone Search Radius in degrees.
+        :type radius: float
+
+        :param columns: Name of the columns the query should return. If specified as a string,
+            it should be a comma-separated list of column names.
+        :type columns: str or list of str
+
+        :param top: When set to ``N``, returns only the top ``N`` records.
+        :type top: int
+
+        :param count_only: If `True`, returns only an `int`: the count of the records
+            the query would return when set to `False`. Default is `False`.
+        :type count_only: bool
+
+        :param query_str_only: If `True`, returns only a `str`: the query string that
+            would be issued to the TAP service. Default is `False`.
+        :type query_str_only: bool
+
+        :param help: If `True`, prints all the parameters accepted in ``column_filters``
+            and ``columns``. Default is `False`.
+        :type help: bool
+
+        :param authenticated: If `True`, runs the query as an authenticated user.
+            Authentication must be done beforehand via :meth:`~astroquery.eso.EsoClass.login`.
+            Note that authenticated queries take longer. Default is `False`.
+        :type authenticated: bool
+
+        :param column_filters: Constraints applied to the query. Default is `None`.
+        :type column_filters: dict, `None`
+
+        :param open_form: **Deprecated** - unused.
+        :type open_form: bool
+
+        :param cache: **Deprecated** - unused.
+        :type cache: bool
+
+        :returns:
+            - By default, a `~astropy.table.Table` containing records based on the specified
+              columns and constraints. Returns `None` when the query has no results.
+            - When ``count_only`` is `True`, returns an `int` representing the
+              record count for the specified filters.
+            - When ``query_str_only`` is `True`, returns the query string that
+              would be issued to the TAP service given the specified arguments.
+
+        :rtype: `~astropy.table.Table`, `str`, `int`, or `None`
+        """
         _ = open_form, cache  # make explicit that we are aware these arguments are unused
         c = column_filters if column_filters else {}
         kwargs = {**kwargs, **c}
@@ -546,6 +600,66 @@ class EsoClass(QueryWithLogin):
             column_filters: Optional[dict] = None,
             open_form: bool = False, cache: bool = False,
             **kwargs) -> Union[astropy.table.Table, int, str]:
+        """
+        Query instrument-specific raw data contained in the ESO archive.
+
+        :param instrument: Name of the instrument from which raw data is to be queried.
+            Should be ONLY ONE of the names returned by
+            :meth:`~astroquery.eso.EsoClass.list_instruments`.
+        :type instruments: str
+
+        :param ra: Cone Search Center - Right Ascension in degrees.
+        :type ra: float
+
+        :param dec: Cone Search Center - Declination in degrees.
+        :type dec: float
+
+        :param radius: Cone Search Radius in degrees.
+        :type radius: float
+
+        :param columns: Name of the columns the query should return. If specified as a string,
+            it should be a comma-separated list of column names.
+        :type columns: str or list of str
+
+        :param top: When set to ``N``, returns only the top ``N`` records.
+        :type top: int
+
+        :param count_only: If `True`, returns only an `int`: the count of the records
+            the query would return when set to `False`. Default is `False`.
+        :type count_only: bool
+
+        :param query_str_only: If `True`, returns only a `str`: the query string that
+            would be issued to the TAP service. Default is `False`.
+        :type query_str_only: bool
+
+        :param help: If `True`, prints all the parameters accepted in ``column_filters``
+            and ``columns``. Default is `False`.
+        :type help: bool
+
+        :param authenticated: If `True`, runs the query as an authenticated user.
+            Authentication must be done beforehand via :meth:`~astroquery.eso.EsoClass.login`.
+            Note that authenticated queries take longer. Default is `False`.
+        :type authenticated: bool
+
+        :param column_filters: Constraints applied to the query. Default is `None`.
+        :type column_filters: dict, `None`
+
+        :param open_form: **Deprecated** - unused.
+        :type open_form: bool
+
+        :param cache: **Deprecated** - unused.
+        :type cache: bool
+
+        :returns:
+            - By default, a `~astropy.table.Table` containing records based on the specified
+              columns and constraints. Returns `None` when the query has no results.
+            - When ``count_only`` is `True`, returns an `int` representing the
+              record count for the specified filters.
+            - When ``query_str_only`` is `True`, returns the query string that
+              would be issued to the TAP service given the specified arguments.
+
+        :rtype: `~astropy.table.Table`, `str`, `int`, or `None`
+        """
         _ = open_form, cache  # make explicit that we are aware these arguments are unused
         c = column_filters if column_filters else {}
         kwargs = {**kwargs, **c}
