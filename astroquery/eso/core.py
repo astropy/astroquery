@@ -336,7 +336,9 @@ class EsoClass(QueryWithLogin):
         Prints the columns contained in a given table
         """
         help_query = (
-            f"select column_name, datatype, xtype, unit, description from TAP_SCHEMA.columns "
+            f"select column_name, datatype, xtype, unit "
+            # f", description "  ## TODO: The column description renders output unmanageable
+            f"from TAP_SCHEMA.columns "
             f"where table_name = '{table_name}'")
         available_cols = self.query_tap_service(help_query)
 
