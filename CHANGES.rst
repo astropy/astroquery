@@ -14,6 +14,11 @@ API changes
 Service fixes and enhancements
 ------------------------------
 
+eso
+^^^
+
+- Use TAP backend instead of WDB. [#3141]
+
 heasarc
 ^^^^^^^
 
