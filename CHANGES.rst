@@ -27,6 +27,10 @@ linelists.cdms
 ^^^^^^^^^^^^^^
 
 - Add a keyword to control writing of new species cache files.  This is needed to prevent tests from overwriting those files. [#3297]
+eso
+^^^
+
+- Use TAP backend instead of WDB. [#3141]
 
 heasarc
 ^^^^^^^
@@ -369,13 +373,6 @@ esasky
 ^^^^^^
 
 - Added support for eROSITA downloads. [#3111]
-
-eso
-^^^
-
-- Deprecate functions ``list_surveys`` and ``query_surveys`` in favor of ``list_collections`` and ``query_collections``. [#3138]
-
-- Use TAP backend instead of WDB. [#3141]
 
 gaia
 ^^^^
