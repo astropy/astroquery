@@ -11,11 +11,13 @@ This is a python interface for querying the ESO archive web service.
 For now, it supports the following:
 
 - listing available instruments
-- listing available collections (phase 3)
-- searching all instrument specific raw data: http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html
-- searching data products (phase 3): http://archive.eso.org/wdb/wdb/adp/phase3_main/form
+- listing available surveys (phase 3)
+- searching INSTRUMENT SPECIFIC raw data (table ``ist.<instrument_name>``) via the ESO TAP service*
+- searching data products (phase 3; table ``ivoa.ObsCore``) via the ESO TAP service*
+- searching raw data (table ``dbo.raw``)via the ESO TAP service*
 - downloading data by dataset identifiers: http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html
 
+\* ESO TAP website: https://archive.eso.org/programmatic/#TAP
 
 Requirements
 ============
@@ -125,110 +127,100 @@ list of available instrument-specific queries can be obtained with the
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
     >>> eso.list_instruments()
-    ['fors1', 'fors2', 'sphere', 'vimos', 'omegacam', 'eris', 'hawki', 'isaac', 'naco', 'visir',
-     'vircam', 'apex', 'giraffe', 'uves', 'xshooter', 'espresso', 'muse', 'crires',
-     'kmos', 'sinfoni', 'amber', 'gravity', 'matisse', 'midi', 'pionier', 'wlgsu']
+    ['alpaca', 'amber', 'apex', 'crires', 'efosc', 'eris', 'espresso', 'fiat',
+     'fors1', 'fors2', 'giraffe', 'gravity', 'harps', 'hawki', 'isaac', 'kmos',
+     'matisse', 'midi', 'muse', 'naco', 'nirps', 'omegacam', 'pionier', 'sinfoni',
+     'sofi', 'sphere', 'uves', 'vimos', 'vircam', 'visir', 'wlgsu', 'xshooter']
 
+In the example above, the instruments listed correspond to those retrieved by running the
+following query on the ESO **Programmatic Access** website (https://archive.eso.org/programmatic/#TAP):
 
-In the example above, 22 instruments are available, they correspond to the instruments listed on
-the following web page: http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html.
+``select table_name from TAP_SCHEMA.tables where schema_name='ist' order by table_name``
+
 
 Inspecting available query options
 ----------------------------------
 
-Once an instrument is chosen, ``midi`` in our case, the query options for that instrument can be
+Once an instrument is chosen, ``midi`` for example, the columns available for that instrument can be
 inspected by setting the ``help=True`` keyword of the :meth:`~astroquery.eso.EsoClass.query_instrument`
-method.
+method. The list of columns contains its datatype and unit. The xtype is to be more specific,
+as certain columns with datatype ``char`` actually define timestamps or regions in the sky.
 
 .. doctest-remote-data::
 
     >>> eso.query_instrument('midi', help=True)  # doctest: +IGNORE_OUTPUT
-    List of the column_filters parameters accepted by the midi instrument query.
-    The presence of a column in the result table can be controlled if prefixed with a [ ] checkbox.
-    The default columns in the result table are shown as already ticked: [x].
+    INFO: 
+    Columns present in the table ist.midi:
+        column_name     datatype    xtype     unit 
+    ------------------- -------- ----------- ------
+         access_estsize     long              kbyte
+             access_url     char                   
+           datalink_url     char                   
+               date_obs     char                   
+                    dec   double                deg
+          del_ft_sensor     char                   
+          del_ft_status     char                   
+                det_dit    float                  s
+               det_ndit      int                   
+          dimm_fwhm_avg    float             arcsec
+          dimm_fwhm_rms    float             arcsec
+                 dp_cat     char                   
+                  dp_id     char                   
+                    ...      ...
+           release_date     char   timestamp       
+               s_region     char adql:REGION    
+                    ...      ...
+              telescope     char                   
+              tpl_expno      int                   
+                 tpl_id     char                   
+               tpl_name     char                   
+               tpl_nexp      int                   
+              tpl_start     char                   
+                    utc    float                  s
+    
+    Number of records present in the table ist.midi:
+    421764
+     [astroquery.eso.core]
 
-    Target Information
-    ------------------
-        target:
-        resolver: simbad (SIMBAD name), ned (NED name), none (OBJECT as specified by the observer)
-        coord_sys: eq (Equatorial (FK5)), gal (Galactic)
-        coord1:
-        coord2:
-        box:
-        format: sexagesimal (Sexagesimal), decimal (Decimal)
-    [x] wdb_input_file:
+**Note:** for a deeper description of each column, the following query can be issued
+on the ESO **Programmatic Access** website (https://archive.eso.org/programmatic/#TAP):
 
-    Observation  and proposal parameters
-    ------------------------------------
-    [ ] night:
-        stime:
-        starttime: 00 (00 hrs [UT]), 01 (01 hrs [UT]), 02 (02 hrs [UT]), 03 (03 hrs [UT]), 04 (04 hrs [UT]), 05 (05 hrs [UT]), 06 (06 hrs [UT]), 07 (07 hrs [UT]), 08 (08 hrs [UT]), 09 (09 hrs [UT]), 10 (10 hrs [UT]), 11 (11 hrs [UT]), 12 (12 hrs [UT]), 13 (13 hrs [UT]), 14 (14 hrs [UT]), 15 (15 hrs [UT]), 16 (16 hrs [UT]), 17 (17 hrs [UT]), 18 (18 hrs [UT]), 19 (19 hrs [UT]), 20 (20 hrs [UT]), 21 (21 hrs [UT]), 22 (22 hrs [UT]), 23 (23 hrs [UT]), 24 (24 hrs [UT])
-        etime:
-        endtime: 00 (00 hrs [UT]), 01 (01 hrs [UT]), 02 (02 hrs [UT]), 03 (03 hrs [UT]), 04 (04 hrs [UT]), 05 (05 hrs [UT]), 06 (06 hrs [UT]), 07 (07 hrs [UT]), 08 (08 hrs [UT]), 09 (09 hrs [UT]), 10 (10 hrs [UT]), 11 (11 hrs [UT]), 12 (12 hrs [UT]), 13 (13 hrs [UT]), 14 (14 hrs [UT]), 15 (15 hrs [UT]), 16 (16 hrs [UT]), 17 (17 hrs [UT]), 18 (18 hrs [UT]), 19 (19 hrs [UT]), 20 (20 hrs [UT]), 21 (21 hrs [UT]), 22 (22 hrs [UT]), 23 (23 hrs [UT]), 24 (24 hrs [UT])
-    [x] prog_id:
-    [ ] prog_type: % (Any), 0 (Normal), 1 (GTO), 2 (DDT), 3 (ToO), 4 (Large), 5 (Short), 6 (Calibration)
-    [ ] obs_mode: % (All modes), s (Service), v (Visitor)
-    [ ] pi_coi:
-        pi_coi_name: PI_only (as PI only), none (as PI or CoI)
-    [ ] prog_title:
-    ...
-
-Only the first two sections, of the parameters accepted by the ``midi`` instrument query,
-are shown in the example above: ``Target Information`` and ``Observation and proposal parameters``.
-
-As stated at the beginning of the help message, the parameters accepted by the query are given just before
-the first ``:`` sign (e.g. ``target``, ``resolver``, ``stime``, ``etime``...). When a parameter is prefixed
-by ``[ ]``, the presence of the associated column in the query result can be controlled.
-
-Note: the instrument query forms can be opened in your web browser directly using the ``open_form`` option of
-the :meth:`~astroquery.eso.EsoClass.query_instrument` method. This should also help with the identification of
-acceptable keywords.
+``select column_name, description from TAP_SCHEMA.columns where table_name = 'ist.midi'``
 
 Querying with constraints
 -------------------------
 
 It is now time to query the ``midi`` instrument for datasets. In the following example, observations of
-target ``NGC 4151`` between ``2007-01-01`` and ``2008-01-01`` are searched, and the query is configured to
-return the observation date column.
+target ``NGC 4151`` between ``2008-01-01`` and ``2009-05-12`` are searched, and the query is configured to
+return two columns: the date of observation and the name of the object.
 
 .. doctest-remote-data::
+    >>> table = eso.query_instrument('midi', column_filters={'object':'NGC4151'}, columns=['object', 'date_obs'])
+    >>> t_left = table[table["date_obs"] >= "2008-01-01"]
+    >>> t_2008_2009 = t_left[t_left["date_obs"] <= "2009-05-12"]
+    >>> t_2008_2009
+    <Table length=196>
+    object         date_obs       
+    ------- -----------------------
+    NGC4151 2008-04-22T02:07:50.154
+    NGC4151 2008-04-22T02:08:20.345
+    NGC4151 2008-04-22T02:09:47.846
+    NGC4151 2008-04-22T02:10:18.038
+        ...                     ...
+    NGC4151 2009-05-11T01:39:09.750
+    NGC4151 2009-05-11T01:40:24.235
+    NGC4151 2009-05-11T01:41:38.742
+    NGC4151 2009-05-11T01:42:08.432
 
-    >>> table = eso.query_instrument('midi', column_filters={'target':'NGC 4151',
-    ...                                                      'stime':'2007-01-01',
-    ...                                                      'etime':'2008-01-01'},
-    ...                              columns=['night'])
-    >>> print(len(table))
-    38
-    >>> print(table.columns)
-    <TableColumns names=('Release Date','Object','RA','DEC','Target Ra Dec','Target l b','DATE OBS','Program ID','DP.ID','OB.ID','OBS.TARG.NAME','DPR.CATG','DPR.TYPE','DPR.TECH','INS.MODE','DIMM Seeing-avg')>
-    >>> table.pprint(max_width=100)
-    Release Date          Object             RA     ...       DPR.TECH       INS.MODE DIMM Seeing-avg
-    ------------ ----------------------- ---------- ... -------------------- -------- ---------------
-      2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.69 [0.03]
-      2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.68 [0.01]
-      2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.68 [0.01]
-      2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.69 [0.06]
-      2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.69 [0.05]
-      2008-02-07                 NGC4151 182.635969 ...         IMAGE,WINDOW STARINTF     0.74 [0.01]
-             ...                     ...        ... ...                  ...      ...             ...
-      2007-02-07 SEARCH,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.54 [0.03]
-      2007-02-07 SEARCH,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.53 [0.04]
-      2007-02-07  TRACK,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.51 [0.02]
-      2007-02-07  TRACK,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.51 [0.02]
-      2007-02-07  TRACK,OBJECT,DISPERSED 182.635969 ...       INTERFEROMETRY STARINTF     0.51 [0.01]
-      2007-02-07       PHOTOMETRY,OBJECT 182.635969 ... IMAGE,WINDOW,CHOPNOD STARINTF     0.54 [0.02]
-      2007-02-07       PHOTOMETRY,OBJECT 182.635969 ... IMAGE,WINDOW,CHOPNOD STARINTF     0.54 [0.03]
-    Length = 38 rows
-
-And indeed, 38 datasets are found, and the ``DATE OBS`` column is in the result table.
 
 Querying all instruments
 ------------------------
 
 The ESO database can also be queried without a specific instrument in mind.
 This is what the method :meth:`~astroquery.eso.EsoClass.query_main` is for.
-The associated query form on the ESO archive website is http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form.
-Except for the keyword specifying the instrument the behaviour of :meth:`~astroquery.eso.EsoClass.query_main`
+The associated table on the ESO **Programmatic Access** website (https://archive.eso.org/programmatic/#TAP)
+is ``dbo.raw``, and the simplest query would be: ``select * from dbo.raw``.
+Except for the keyword specifying the instrument,the behaviour of :meth:`~astroquery.eso.EsoClass.query_main`
 is identical to :meth:`~astroquery.eso.EsoClass.query_instrument`.
 
 ESO instruments without a specific query interface can be queried with
@@ -238,69 +230,87 @@ query all-sky images from APICAM with ``luminance`` filter.
 
 .. doctest-remote-data::
 
-    >>> eso.ROW_LIMIT = -1   # Return all results
-    >>> table = eso.query_main(column_filters={'instrument': 'APICAM', 'filter_path': 'LUMINANCE',
-    ...                                        'stime':'2019-04-26', 'etime':'2019-04-27'}, cache=False)
+    >>> eso.maxrec = -1   # Return all results
+                          #(i.e. do not truncate the query even if it is slow)
+    >>> table = eso.query_main(column_filters={'instrument': 'APICAM',
+                                               'filter_path': 'LUMINANCE'})
     >>> print(len(table))
-    207
+    102147
+    >>> table_filtered = table[table['date_obs']>='2019-04-26']
+    >>> table_filtered = table_filtered[table_filtered['date_obs']<='2019-04-27']
+    >>> len(table_filtered)
+    215
     >>> print(table.columns)
-    <TableColumns names=('OBJECT','RA','DEC','Program_ID','Instrument','Category','Type','Mode','Dataset ID','Release_Date','TPL ID','TPL START','Exptime','Exposure','filter_lambda_min','filter_lambda_max','MJD-OBS','Airmass','DIMM Seeing at Start')>
-    >>> table.pprint(max_width=100)
-     OBJECT      RA         DEC      Program_ID  ...   MJD-OBS    Airmass DIMM Seeing at Start
-    ------- ----------- ----------- ------------ ... ------------ ------- --------------------
-    ALL SKY 09:18:37.39 -24:32:32.7 60.A-9008(A) ... 58599.987766     1.0                  N/A
-    ALL SKY 09:21:07.68 -24:32:30.1 60.A-9008(A) ... 58599.989502     1.0                  N/A
-    ALL SKY 09:23:38.98 -24:32:27.5 60.A-9008(A) ...  58599.99125     1.0                  N/A
-    ALL SKY 09:26:10.28 -24:32:24.9 60.A-9008(A) ... 58599.992998     1.0                  N/A
-    ALL SKY 09:28:40.58 -24:32:22.4 60.A-9008(A) ... 58599.994734     1.0                  N/A
-    ALL SKY 09:31:43.93 -24:32:19.4 60.A-9008(A) ... 58599.996852     1.0                  N/A
-    ALL SKY 09:34:15.23 -24:32:17.0 60.A-9008(A) ...   58599.9986     1.0                  N/A
-    ALL SKY 09:36:47.53 -24:32:14.5 60.A-9008(A) ... 58600.000359     1.0                  N/A
-    ALL SKY 09:39:18.82 -24:32:12.2 60.A-9008(A) ... 58600.002106     1.0                  N/A
-    ALL SKY 09:41:49.11 -24:32:09.9 60.A-9008(A) ... 58600.003843     1.0                  N/A
-        ...         ...         ...          ... ...          ...     ...                  ...
-    ALL SKY 19:07:39.21 -24:39:35.1 60.A-9008(A) ... 58600.395914     1.0                  N/A
-    ALL SKY 19:10:11.68 -24:39:39.1 60.A-9008(A) ... 58600.397674     1.0                  N/A
-    ALL SKY 19:12:44.15 -24:39:43.2 60.A-9008(A) ... 58600.399433     1.0                  N/A
-    ALL SKY 19:15:15.62 -24:39:47.1 60.A-9008(A) ... 58600.401181     1.0                  N/A
-    ALL SKY 19:17:46.09 -24:39:51.1 60.A-9008(A) ... 58600.402917     1.0                  N/A
-    ALL SKY 19:20:46.65 -24:39:55.8 60.A-9008(A) ...    58600.405     1.0                  N/A
-    ALL SKY 19:23:18.12 -24:39:59.7 60.A-9008(A) ... 58600.406748     1.0                  N/A
-    ALL SKY 19:25:51.60 -24:40:03.7 60.A-9008(A) ... 58600.408519     1.0                  N/A
-    ALL SKY 19:28:22.08 -24:40:07.6 60.A-9008(A) ... 58600.410255     1.0                  N/A
-    ALL SKY 19:30:52.55 -24:40:11.4 60.A-9008(A) ... 58600.411991     1.0                  N/A
-    Length = 207 rows
+    <TableColumns names=('access_estsize','access_url','datalink_url','date_obs',
+            'dec','dec_pnt','det_chip1id','det_chop_ncycles','det_dit','det_expid','det_ndit',
+            'dp_cat','dp_id','dp_tech','dp_type','ecl_lat','ecl_lon','exp_start','exposure',
+            'filter_path','gal_lat','gal_lon','grat_path','gris_path','ins_mode','instrument',
+            'lambda_max','lambda_min','last_mod_date','mjd_obs','ob_id','ob_name','object',
+            'obs_mode','origfile','period','pi_coi','prog_id','prog_title','prog_type','ra',
+            'ra_pnt','release_date','s_region','slit_path','target','tel_airm_end',
+            'tel_airm_start','tel_alt','tel_ambi_fwhm_end','tel_ambi_fwhm_start',
+            'tel_ambi_pres_end','tel_ambi_pres_start','tel_ambi_rhum','tel_az','telescope',
+            'tpl_expno','tpl_id','tpl_name','tpl_nexp','tpl_seqno','tpl_start')>
+    >>> table_filtered[["object", "ra", "dec", "date_obs", "prog_id"]].pprint(max_width=200)
+     object      ra          dec              date_obs          prog_id   
+                deg          deg                                          
+    ------- ------------ ------------ ----------------------- ------------
+    ALL SKY 145.29212694 -24.53624194 2019-04-26T00:08:49.000 60.A-9008(A)
+    ALL SKY 145.92251305 -24.53560305 2019-04-26T00:11:20.000 60.A-9008(A)
+    ALL SKY    146.55707 -24.53497111 2019-04-26T00:13:52.000 60.A-9008(A)
+    ALL SKY    147.18745 -24.53435388 2019-04-26T00:16:23.000 60.A-9008(A)
+    ALL SKY 147.81365305 -24.53375305 2019-04-26T00:18:53.000 60.A-9008(A)
+    ALL SKY 148.56509194   -24.533045 2019-04-26T00:21:53.000 60.A-9008(A)
+    ALL SKY 149.19963805    -24.53246 2019-04-26T00:24:25.000 60.A-9008(A)
+    ALL SKY 149.83418111 -24.53188611 2019-04-26T00:26:57.000 60.A-9008(A)
+    ALL SKY 150.46037194 -24.53133111 2019-04-26T00:29:27.000 60.A-9008(A)
+    ALL SKY 151.08656111 -24.53078805 2019-04-26T00:31:57.000 60.A-9008(A)
+    ALL SKY 151.85050805    -24.53014 2019-04-26T00:35:00.000 60.A-9008(A)
+    ALL SKY    152.48504   -24.529615 2019-04-26T00:37:32.000 60.A-9008(A)
+        ...          ...          ...                     ...          ...
+    ALL SKY 289.40910694 -24.66412305 2019-04-26T09:44:00.000 60.A-9008(A)
+    ALL SKY 290.04024305 -24.66522194 2019-04-26T09:46:31.000 60.A-9008(A)
+    ALL SKY 290.67974305    -24.66633 2019-04-26T09:49:04.000 60.A-9008(A)
+    ALL SKY    291.30671 -24.66741111 2019-04-26T09:51:34.000 60.A-9008(A)
+    ALL SKY 291.93786305 -24.66849388 2019-04-26T09:54:05.000 60.A-9008(A)
+    ALL SKY   139.655775   -24.542425 2019-04-26T23:42:23.000 60.A-9008(A)
+    ALL SKY   140.282015 -24.54169694 2019-04-26T23:44:53.000 60.A-9008(A)
+    ALL SKY 140.91242694 -24.54097305 2019-04-26T23:47:24.000 60.A-9008(A)
+    ALL SKY 141.54283388    -24.54026 2019-04-26T23:49:55.000 60.A-9008(A)
+    ALL SKY 142.16906388 -24.53956194 2019-04-26T23:52:25.000 60.A-9008(A)
+    ALL SKY    142.93306 -24.53872388 2019-04-26T23:55:28.000 60.A-9008(A)
+    ALL SKY 143.56345694 -24.53804388 2019-04-26T23:57:59.000 60.A-9008(A)
+    Length = 215 rows
 
 
 Query the ESO archive for reduced data
 ======================================
 
 In addition to raw data, ESO makes available processed data.
-In this section, we show how to obtain these processed collection data from the archive.
+In this section, we show how to obtain these processed survey data from the archive.
 
-Identify available collections
-------------------------------
+Identify available surveys
+--------------------------
 
-The list of available collections can be obtained with :meth:`astroquery.eso.EsoClass.list_surveys` as follows:
-
-.. doctest-remote-data::
-
-    >>> collections = eso.list_surveys()
-
-Query a specific collection with constraints
---------------------------------------------
-
-Let's assume that we work with the ``HARPS`` collection, and that we are interested in
-target ``HD203608``.
-The archive can be queried as follows:
-
+The list of available surveys can be obtained with :meth:`astroquery.eso.EsoClass.list_surveys` as follows:
 
 .. doctest-remote-data::
 
-    >>> table = eso.query_surveys(surveys='HARPS', cache=False, target="HD203608")
+    >>> surveys = eso.list_surveys()
 
-The returned table has an ``ARCFILE`` column. It can be used to retrieve the datasets with
-:meth:`astroquery.eso.EsoClass.retrieve_data` (see next section).
+Query a specific survey with constraints
+----------------------------------------
+
+Let's assume that we work with the ``HARPS`` survey, and that we are interested in
+target ``HD203608``. The archive can be queried as follows:
+
+.. doctest-remote-data::
+
+    >>> table = eso.query_surveys(surveys='HARPS', target_name="HD203608")
+
+The returned table has a ``dp_id`` column, which can be used to retrieve the datasets with
+:meth:`astroquery.eso.EsoClass.retrieve_data`: ``eso.retrieve_data(table["dp_id"][0])``.
+More details about this method in the next section.
 
 
 Obtaining extended information on data products
@@ -315,61 +325,59 @@ This method is detailed in the example below.
 
 .. doctest-remote-data::
 
-    >>> table = eso.query_instrument('midi', column_filters={'target':'NGC 4151',
-    ...                                                      'stime':'2007-01-01',
-    ...                                                      'etime':'2008-01-01'},
-    ...                              columns=['night'])
-    >>> table_headers = eso.get_headers(table['DP.ID'])
-    >>> table_headers.pprint()  # doctest: +IGNORE_OUTPUT
-               DP.ID             SIMPLE BITPIX ... HIERARCH ESO OCS TPL NFILE   HIERARCH ESO OCS EXPO1 FNAME3
-    ---------------------------- ------ ------ ... -------------------------- ---------------------------------
-    MIDI.2007-02-07T07:01:51.000   True     16 ...                          0
-    MIDI.2007-02-07T07:02:49.000   True     16 ...                          0
-    MIDI.2007-02-07T07:03:30.695   True     16 ...                          0
-    MIDI.2007-02-07T07:05:47.000   True     16 ...                          0
-    MIDI.2007-02-07T07:06:28.695   True     16 ...                          0
-    MIDI.2007-02-07T07:09:03.000   True     16 ...                          0
-    MIDI.2007-02-07T07:09:44.695   True     16 ...                          0
-    MIDI.2007-02-07T07:13:09.000   True     16 ...                          0
-    MIDI.2007-02-07T07:13:50.695   True     16 ...                          0
-    MIDI.2007-02-07T07:15:55.000   True     16 ...                          0
-                             ...    ...    ... ...                        ...                               ...
-    MIDI.2007-02-07T07:52:27.992   True     16 ...                          8 MIDI.2007-02-07T07:52:27.992.fits
-    MIDI.2007-02-07T07:56:21.000   True     16 ...                          0
-    MIDI.2007-02-07T07:57:35.485   True     16 ...                          0
-    MIDI.2007-02-07T07:59:46.000   True     16 ...                          0
-    MIDI.2007-02-07T08:01:00.486   True     16 ...                          0
-    MIDI.2007-02-07T08:03:42.000   True     16 ...                          8
-    MIDI.2007-02-07T08:04:56.506   True     16 ...                          8
-    MIDI.2007-02-07T08:06:11.013   True     16 ...                          8 MIDI.2007-02-07T08:06:11.013.fits
-    MIDI.2007-02-07T08:08:19.000   True     16 ...                          8 MIDI.2007-02-07T08:06:11.013.fits
-    MIDI.2007-02-07T08:09:33.506   True     16 ...                          8 MIDI.2007-02-07T08:06:11.013.fits
-    Length = 38 rows
+    >>> table = eso.query_instrument('midi', column_filters={'object':'NGC4151'},
+    ...                                      columns=['object', 'date_obs', 'dp_id'])
+    >>> table_filtered = table[table['date_obs']<='2008-01-01']
+    >>> table_headers = eso.get_headers(table_filtered["dp_id"])
+    >>> table_headers.pprint()
+               DP.ID             SIMPLE BITPIX ...   HIERARCH ESO OCS EXPO7 FNAME2     HIERARCH ESO OCS EXPO8 FNAME1     HIERARCH ESO OCS EXPO8 FNAME2  
+    ---------------------------- ------ ------ ... --------------------------------- --------------------------------- ---------------------------------
+    MIDI.2007-02-07T07:01:51.000   True     16 ...                                                                                                      
+    MIDI.2007-02-07T07:02:49.000   True     16 ...                                                                                                      
+    MIDI.2007-02-07T07:03:30.695   True     16 ...                                                                                                      
+    MIDI.2007-02-07T07:05:47.000   True     16 ...                                                                                                      
+    MIDI.2007-02-07T07:06:28.695   True     16 ...                                                                                                      
+    MIDI.2007-02-07T07:09:03.000   True     16 ...                                                                                                      
+    MIDI.2007-02-07T07:09:44.695   True     16 ...                                                                                                      
+    MIDI.2007-02-07T07:13:09.000   True     16 ...                                                                                                      
+    MIDI.2007-02-07T07:13:50.695   True     16 ...                                                                                                      
+    MIDI.2007-02-07T07:15:55.000   True     16 ...                                                                                                      
+    MIDI.2007-02-07T07:16:36.694   True     16 ...                                                                                                      
+    MIDI.2007-02-07T07:19:25.000   True     16 ...                                                                                                      
+    MIDI.2007-02-07T07:20:06.695   True     16 ... MIDI.2007-02-07T07:20:06.695.fits                                                                    
+    MIDI.2007-02-07T07:22:57.000   True     16 ... MIDI.2007-02-07T07:20:06.695.fits MIDI.2007-02-07T07:22:57.000.fits                                  
+    MIDI.2007-02-07T07:23:38.695   True     16 ... MIDI.2007-02-07T07:20:06.695.fits MIDI.2007-02-07T07:22:57.000.fits MIDI.2007-02-07T07:23:38.695.fits
     >>> len(table_headers.columns)
-    340
+    336
 
-As shown above, for each data product ID (``DP.ID``), the full header (570 columns in our case) of the archive
-FITS file is collected. In the above table ``table_headers``, there are as many rows as in the column ``table['DP.ID']``.
+
+..    
+   ## TODO ... Is this paragraph true?? What does it actually mean? To me it does not make sense.
+   ## As shown above, for each data product ID (``DP.ID``), the full header (336 columns in our case) of the archive
+   ## FITS file is collected. In the above table ``table_headers``, there are as many rows as in the column ``table['DP.ID']``.
+   ## The original paragraph reads:
+   ## As shown above, for each data product ID (``DP.ID``), the full header (570 columns in our case) of the archive
+   ## FITS file is collected. In the above table ``table_headers``, there are as many rows as in the column ``table['DP.ID']``.
 
 
 Downloading datasets from the archive
 =====================================
 
 Continuing from the query with constraints example, the first two datasets are selected,
-using their data product IDs ``DP.ID`` (or ``ARCFILE`` for collections), and retrieved from the ESO archive.
+using their data product IDs ``dp_id``, and retrieved from the ESO archive.
 
 .. doctest-skip::
 
-    >>> data_files = eso.retrieve_data(table['DP.ID'][:2])
-    INFO: Downloading datasets ...
-    INFO: Downloading 2 files ...
-    INFO: Downloading file 1/2 https://dataportal.eso.org/dataPortal/file/MIDI.2007-02-07T07:01:51.000 to ...
-    INFO: Successfully downloaded dataset MIDI.2007-02-07T07:01:51.000 to ...
-    INFO: Downloading file 2/2 https://dataportal.eso.org/dataPortal/file/MIDI.2007-02-07T07:02:49.000 to ...
-    INFO: Successfully downloaded dataset MIDI.2007-02-07T07:02:49.000 to ...
-    INFO: Uncompressing file /Users/szampier/.astropy/cache/astroquery/Eso/MIDI.2007-02-07T07:01:51.000.fits.Z
-    INFO: Uncompressing file /Users/szampier/.astropy/cache/astroquery/Eso/MIDI.2007-02-07T07:02:49.000.fits.Z
-    INFO: Done!
+    >>> data_files = eso.retrieve_data(table['dp_id'][:2])
+    INFO: Downloading datasets ... [astroquery.eso.core]
+    INFO: Downloading 2 files ... [astroquery.eso.core]
+    INFO: Downloading file 1/2 https://dataportal.eso.org/dataPortal/file/MIDI.2007-02-07T07:01:51.000 to /Users/foobar/.astropy/cache/astroquery/Eso [astroquery.eso.core]
+    INFO: Successfully downloaded dataset MIDI.2007-02-07T07:01:51.000 to /Users/foobar/.astropy/cache/astroquery/Eso/MIDI.2007-02-07T07:01:51.000.fits.Z [astroquery.eso.core]
+    INFO: Downloading file 2/2 https://dataportal.eso.org/dataPortal/file/MIDI.2007-02-07T07:02:49.000 to /Users/foobar/.astropy/cache/astroquery/Eso [astroquery.eso.core]
+    INFO: Successfully downloaded dataset MIDI.2007-02-07T07:02:49.000 to /Users/foobar/.astropy/cache/astroquery/Eso/MIDI.2007-02-07T07:02:49.000.fits.Z [astroquery.eso.core]
+    INFO: Uncompressing file /Users/foobar/.astropy/cache/astroquery/Eso/MIDI.2007-02-07T07:01:51.000.fits.Z [astroquery.eso.core]
+    INFO: Uncompressing file /Users/foobar/.astropy/cache/astroquery/Eso/MIDI.2007-02-07T07:02:49.000.fits.Z [astroquery.eso.core]
+    INFO: Done! [astroquery.eso.core]
 
 The file names, returned in data_files, points to the decompressed datasets
 (without the .Z extension) that have been locally downloaded.
