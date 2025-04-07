@@ -26,6 +26,7 @@ def async_to_sync(cls):
             response = getattr(self, async_method_name)(*args, **kwargs)
             if kwargs.get('get_query_payload') or kwargs.get('field_help'):
                 return response
+            response.raise_for_status()
             result = self._parse_result(response, verbose=verbose)
             self.table = result
             return result
