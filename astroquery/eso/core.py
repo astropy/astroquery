@@ -1010,7 +1010,6 @@ class EsoClass(QueryWithLogin):
                                  since=['0.4.11', '0.4.11'])
     def query_apex_quicklooks(self,
                               project_id: Union[List[str], str] = None, *,
-                              ra: float = None, dec: float = None, radius: float = None,
                               columns: Union[List, str] = None,
                               top: int = None,
                               count_only: bool = False,
@@ -1027,15 +1026,6 @@ class EsoClass(QueryWithLogin):
 
         :param project_id: ID of the project from which apex quicklooks data is to be queried.
         :type  project_id: str
-
-        :param ra: Cone Search Center - Right Ascension in degrees.
-        :type ra: float
-
-        :param dec: Cone Search Center - Declination in degrees.
-        :type dec: float
-
-        :param radius: Cone Search Radius in degrees.
-        :type radius: float
 
         :param columns: Name of the columns the query should return. If specified as a string,
             it should be a comma-separated list of column names.
@@ -1087,7 +1077,7 @@ class EsoClass(QueryWithLogin):
         return self._query_on_allowed_values(table_name=EsoNames.apex_quicklooks_table,
                                              column_name=EsoNames.apex_quicklooks_pid_column,
                                              allowed_values=project_id,
-                                             ra=ra, dec=dec, radius=radius,
+                                             ra=None, dec=None, radius=None,
                                              columns=columns,
                                              top=top,
                                              count_only=count_only,
