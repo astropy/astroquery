@@ -224,7 +224,21 @@ class TestEso:
         eso.query_instrument(instrument, help=True)
 
     def test_apex_retrieval(self):
-        raise NotImplementedError
+        eso = Eso()
+
+        tblb = eso.query_apex_quicklooks(project_id='E-095.F-9802A-2015')
+        tbla = eso.query_apex_quicklooks(prog_id='095.F-9802(A)')
+
+        assert len(tbla) == 5
+        assert set(tbla['release_date']) == {
+            '2015-07-17T03:06:23.280Z',
+            '2015-07-18T12:07:32.713Z',
+            '2015-09-18T11:31:15.867Z',
+            '2015-09-15T11:06:55.663Z',
+            '2015-09-18T11:46:19.970Z'
+        }
+
+        assert all(tbla.values_equal(tblb))
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     @pytest.mark.parametrize('instrument', instrument_list)
