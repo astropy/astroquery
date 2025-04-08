@@ -349,6 +349,9 @@ class MiriadeClass(BaseQuery):
                 data['vy_h'].unit = u.au/u.day
                 data['vz_h'].unit = u.au/u.day
 
+        if 'dobs' in data.columns:
+            data.rename_column('dobs', 'delta')
+
         if 'distance' in data.columns:
             data.rename_column('distance', 'delta')
 
@@ -365,8 +368,8 @@ class MiriadeClass(BaseQuery):
             data.rename_column('azimut', 'AZ')
             data.rename_column('elevation', 'EL')
 
-        if 'mv' in data.columns:
-            data.rename_column('mv', 'V')
+        if 'vmag' in data.columns:
+            data.rename_column('vmag', 'V')
             data['V'].unit = u.mag
 
         if 'phase' in data.columns:
@@ -375,14 +378,14 @@ class MiriadeClass(BaseQuery):
         if 'elongation' in data.columns:
             data.rename_column('elongation', 'elong')
 
-        if 'dracosdec' in data.columns:
-            data.rename_column('dracosdec', 'RAcosD_rate')
+        if 'dRAcosDEC' in data.columns:
+            data.rename_column('dRAcosDEC', 'RAcosD_rate')
 
-        if 'ddec' in data.columns:
-            data.rename_column('ddec', 'DEC_rate')
+        if 'dDEC' in data.columns:
+            data.rename_column('dDEC', 'DEC_rate')
 
-        if 'dist_dot' in data.columns:
-            data.rename_column('dist_dot', 'delta_rate')
+        if 'rv' in data.columns:
+            data.rename_column('rv', 'delta_rate')
 
         if 'lst' in data.columns:
             data.rename_column('lst', 'siderealtime')
