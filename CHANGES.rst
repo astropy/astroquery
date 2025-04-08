@@ -32,6 +32,10 @@ query.py
   Some corner cases where downloads were not properly continued have been
   fixed. [#3232]
 
+utils
+^^^^^
+
+- Raising cleaner errors earlier when server returns with error. [#3284]
 
 
 0.4.10 (2025-03-18)
