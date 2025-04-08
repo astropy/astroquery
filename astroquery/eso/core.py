@@ -373,7 +373,7 @@ class EsoClass(QueryWithLogin):
             table_name: str,
             column_name: str,
             allowed_values: Union[List[str], str] = None, *,
-            ra: float = None, dec: float = None, radius: float = None,
+            cone_ra: float = None, cone_dec: float = None, cone_radius: float = None,
             columns: Union[List, str] = None,
             top: int = None,
             count_only: bool = False,
@@ -396,12 +396,15 @@ class EsoClass(QueryWithLogin):
         if (('box' in filters)
             or ('coord1' in filters)
                 or ('coord2' in filters)):
-            message = 'box, coord1 and coord2 are deprecated; use ra, dec and radius instead'
+            message = ('box, coord1 and coord2 are deprecated; '
+                       'use cone_ra, cone_dec and cone_radius instead')
             raise ValueError(message)
 
-        if not are_coords_valid(ra, dec, radius):
-            message = "Either all three (ra, dec, radius) must be present or none of them.\n"
-            message += f"Values provided: ra = {ra}, dec = {dec}, radius = {radius}"
+        if not are_coords_valid(cone_ra, cone_dec, cone_radius):
+            message = ("Either all three (cone_ra, cone_dec, cone_radius) "
+                       "must be present or none of them.\n"
+                       "Values provided: "
+                       f"cone_ra = {cone_ra}, cone_dec = {cone_dec}, cone_radius = {cone_radius}")
             raise ValueError(message)
 
         where_allowed_vals_strlist = []
@@ -415,7 +418,7 @@ class EsoClass(QueryWithLogin):
         where_constraints_strlist = [f"{k} = {adql_sanitize_val(v)}" for k, v in filters.items()]
         where_constraints = where_allowed_vals_strlist + where_constraints_strlist
         query = py2adql(table=table_name, columns=columns,
-                        ra=ra, dec=dec, radius=radius,
+                        cone_ra=cone_ra, cone_dec=cone_dec, cone_radius=cone_radius,
                         where_constraints=where_constraints,
                         count_only=count_only,
                         top=top)
@@ -435,7 +438,7 @@ class EsoClass(QueryWithLogin):
     def query_surveys(
             self,
             surveys: Union[List[str], str] = None, *,
-            ra: float = None, dec: float = None, radius: float = None,
+            cone_ra: float = None, cone_dec: float = None, cone_radius: float = None,
             columns: Union[List, str] = None,
             top: int = None,
             count_only: bool = False,
@@ -454,13 +457,13 @@ class EsoClass(QueryWithLogin):
             If not specified, returns records relative to all surveys. Default is `None`.
         :type surveys: str or list
 
-        :param ra: Cone Search Center - Right Ascension in degrees.
+        :param cone_ra: Cone Search Center - Right Ascension in degrees.
         :type ra: float
 
-        :param dec: Cone Search Center - Declination in degrees.
+        :param cone_dec: Cone Search Center - Declination in degrees.
         :type dec: float
 
-        :param radius: Cone Search Radius in degrees.
+        :param cone_radius: Cone Search Radius in degrees.
         :type radius: float
 
         :param columns: Name of the columns the query should return. If specified as a string,
@@ -512,7 +515,9 @@ class EsoClass(QueryWithLogin):
         return self._query_on_allowed_values(table_name=EsoNames.phase3_table,
                                              column_name=EsoNames.phase3_surveys_column,
                                              allowed_values=surveys,
-                                             ra=ra, dec=dec, radius=radius,
+                                             cone_ra=cone_ra,
+                                             cone_dec=cone_dec,
+                                             cone_radius=cone_radius,
                                              columns=columns,
                                              top=top,
                                              count_only=count_only,
@@ -526,7 +531,7 @@ class EsoClass(QueryWithLogin):
     def query_main(
             self,
             instruments: Union[List[str], str] = None, *,
-            ra: float = None, dec: float = None, radius: float = None,
+            cone_ra: float = None, cone_dec: float = None, cone_radius: float = None,
             columns: Union[List, str] = None,
             top: int = None,
             count_only: bool = False,
@@ -545,13 +550,13 @@ class EsoClass(QueryWithLogin):
             If not specified, returns records relative to all instruments. Default is `None`.
         :type instruments: str or list
 
-        :param ra: Cone Search Center - Right Ascension in degrees.
+        :param cone_ra: Cone Search Center - Right Ascension in degrees.
         :type ra: float
 
-        :param dec: Cone Search Center - Declination in degrees.
+        :param cone_dec: Cone Search Center - Declination in degrees.
         :type dec: float
 
-        :param radius: Cone Search Radius in degrees.
+        :param cone_radius: Cone Search Radius in degrees.
         :type radius: float
 
         :param columns: Name of the columns the query should return. If specified as a string,
@@ -603,7 +608,9 @@ class EsoClass(QueryWithLogin):
         return self._query_on_allowed_values(table_name=EsoNames.raw_table,
                                              column_name=EsoNames.raw_instruments_column,
                                              allowed_values=instruments,
-                                             ra=ra, dec=dec, radius=radius,
+                                             cone_ra=cone_ra,
+                                             cone_dec=cone_dec,
+                                             cone_radius=cone_radius,
                                              columns=columns,
                                              top=top,
                                              count_only=count_only,
@@ -617,7 +624,7 @@ class EsoClass(QueryWithLogin):
     def query_instrument(
             self,
             instrument: str, *,
-            ra: float = None, dec: float = None, radius: float = None,
+            cone_ra: float = None, cone_dec: float = None, cone_radius: float = None,
             columns: Union[List, str] = None,
             top: int = None,
             count_only: bool = False,
@@ -635,13 +642,13 @@ class EsoClass(QueryWithLogin):
             :meth:`~astroquery.eso.EsoClass.list_instruments`.
         :type instruments: str
 
-        :param ra: Cone Search Center - Right Ascension in degrees.
+        :param cone_ra: Cone Search Center - Right Ascension in degrees.
         :type ra: float
 
-        :param dec: Cone Search Center - Declination in degrees.
+        :param cone_dec: Cone Search Center - Declination in degrees.
         :type dec: float
 
-        :param radius: Cone Search Radius in degrees.
+        :param cone_radius: Cone Search Radius in degrees.
         :type radius: float
 
         :param columns: Name of the columns the query should return. If specified as a string,
@@ -693,7 +700,9 @@ class EsoClass(QueryWithLogin):
         return self._query_on_allowed_values(table_name=EsoNames.ist_table(instrument),
                                              column_name=None,
                                              allowed_values=None,
-                                             ra=ra, dec=dec, radius=radius,
+                                             cone_ra=cone_ra,
+                                             cone_dec=cone_dec,
+                                             cone_radius=cone_radius,
                                              columns=columns,
                                              top=top,
                                              count_only=count_only,
@@ -1077,7 +1086,7 @@ class EsoClass(QueryWithLogin):
         return self._query_on_allowed_values(table_name=EsoNames.apex_quicklooks_table,
                                              column_name=EsoNames.apex_quicklooks_pid_column,
                                              allowed_values=project_id,
-                                             ra=None, dec=None, radius=None,
+                                             cone_ra=None, cone_dec=None, cone_radius=None,
                                              columns=columns,
                                              top=top,
                                              count_only=count_only,
