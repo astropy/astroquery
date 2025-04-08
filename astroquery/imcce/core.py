@@ -25,7 +25,7 @@ __all__ = ['Miriade', 'MiriadeClass', 'Skybot', 'SkybotClass']
 class MiriadeClass(BaseQuery):
     """
     A class for querying the
-    `IMCCE/Miriade <http://vo.imcce.fr/webservices/miriade/>`_ service.
+    `IMCCE/Miriade <https://ssp.imcce.fr/webservices/miriade/>`_ service.
     """
 
     _query_uri = None  # uri used in query
@@ -51,8 +51,8 @@ class MiriadeClass(BaseQuery):
                               get_raw_response=False, cache=True):
         """
         Query the
-        `IMCCE Miriade <http://vo.imcce.fr/webservices/miriade/>`_
-        `ephemcc <http://vo.imcce.fr/webservices/miriade/?ephemcc>`_
+        `IMCCE Miriade <https://ssp.imcce.fr/webservices/miriade/>`_
+        `ephemcc <https://ssp.imcce.fr/webservices/miriade/api/ephemcc>`_
         service.
 
 
@@ -87,7 +87,7 @@ class MiriadeClass(BaseQuery):
         location : str, optional
             Location of the observer on Earth as a code or a set of
             coordinates. See the
-            `Miriade manual <http://vo.imcce.fr/webservices/miriade/?documentation#field_7>`_
+            `Miriade manual <https://ssp.imcce.fr/webservices/miriade/?documentation#field_7>`_
             for details. Default: geocentric location (``'500'``)
 
         coordtype : int, optional
@@ -301,17 +301,27 @@ class MiriadeClass(BaseQuery):
         votable = parse(voraw)
         data = votable.get_first_table().to_table()
 
-        # modify table columns
+        # modify table columns. This is an ugly hack as astropy's votable parser
+        # is not yet capable of parsing some of these properly.
+        # Also, not clear why some of the columns are now parsed as object as
+        # opposed to strings, workaround here is to do .astype()
+
+        data['date'] = Time(data['date'].astype('str'), format='isot')
+
+        # Adding for backwards compatibility
+        data['epoch'] = data['date'].jd
         data['epoch'].unit = u.d
 
-        if 'ra' in data.columns:
-            data['ra'] = Angle(data['ra'], unit=u.hourangle).deg*u.deg
-            data.rename_column('ra', 'RA')
+        if 'RA' in data.columns:
+            data['RA'] = Angle(data['RA'].astype('str'), unit=u.hourangle).deg*u.deg
+
+        if 'DEC' in data.columns:
+            data['DEC'] = Angle(data['DEC'], unit=u.deg).deg*u.deg
 
         if 'dec' in data.columns:
-            data['dec'] = Angle(data['dec'], unit=u.deg).deg*u.deg
             data.rename_column('dec', 'DEC')
 
+        # These don't seem to be returned with the new API/url, as of 2025-04-07
         if 'raJ2000' in data.columns and 'decJ2000' in data.columns:
             data['raJ2000'] = Angle(
                 data['raJ2000'], unit=u.hourangle).deg*u.deg
