@@ -29,13 +29,15 @@ def are_coords_valid(ra: Optional[float] = None,
     or absent all three. Moreover, they must be float
     """
     are_all_none = (ra is None) and (dec is None) and (radius is None)
-    are_all_float = isinstance(ra, (float, int)) and isinstance(dec, (float, int)) and isinstance(radius, (float, int))
+    are_all_float = isinstance(ra, (float, int)) and \
+        isinstance(dec, (float, int)) and \
+        isinstance(radius, (float, int))
     is_a_valid_combination = are_all_none or are_all_float
     return is_a_valid_combination
 
 
 def py2adql(table: str, columns: Union[List, str] = None,
-            ra: float = None, dec: float = None, radius: float = None,
+            cone_ra: float = None, cone_dec: float = None, cone_radius: float = None,
             where_constraints: List = None,
             order_by: str = '', order_by_desc=True,
             count_only: bool = False, top: int = None):
@@ -45,8 +47,9 @@ def py2adql(table: str, columns: Union[List, str] = None,
     """
     # We assume the coordinates passed are valid
     where_circle = []
-    if ra:
-        where_circle += [f'intersects(s_region, circle(\'ICRS\', {ra}, {dec}, {radius}))=1']
+    if cone_ra:
+        where_circle += [
+            f'intersects(s_region, circle(\'ICRS\', {cone_ra}, {cone_dec}, {cone_radius}))=1']
 
     # Initialize / validate
     query_string = None

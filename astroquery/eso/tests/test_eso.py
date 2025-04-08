@@ -145,8 +145,8 @@ def test_vvv(monkeypatch):
     eso = Eso()
     monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
     result = eso.query_surveys(surveys='VVV',
-                               ra=266.41681662, dec=-29.00782497,
-                               radius=0.1775,
+                               cone_ra=266.41681662, cone_dec=-29.00782497,
+                               cone_radius=0.1775,
                                )
     # test all results are there and the expected target is present
     assert len(result) == MONKEYPATCH_TABLE_LENGTH
@@ -419,7 +419,7 @@ def test_py2adql():
     q = py2adql(columns=columns, table=table,
                 where_constraints=and_c_list,
                 order_by='snr', order_by_desc=False,
-                ra=1, dec=2, radius=3)
+                cone_ra=1, cone_dec=2, cone_radius=3)
     expected_query = 'select ' + columns + ' from ' + table + \
         ' where ' + and_c_list[0] + ' and ' + and_c_list[1] + ' and ' + and_c_list[2] + \
         ' and intersects(s_region, circle(\'ICRS\', 1, 2, 3))=1' + \
@@ -430,7 +430,7 @@ def test_py2adql():
     q = py2adql(columns=columns, table=table,
                 where_constraints=and_c_list,
                 order_by='snr', order_by_desc=False,
-                ra=1.23, dec=2.34, radius=3.45)
+                cone_ra=1.23, cone_dec=2.34, cone_radius=3.45)
     expected_query = 'select ' + columns + ' from ' + table + \
         ' where ' + and_c_list[0] + ' and ' + and_c_list[1] + ' and ' + and_c_list[2] + \
         ' and intersects(s_region, circle(\'ICRS\', 1.23, 2.34, 3.45))=1' + \
@@ -440,7 +440,7 @@ def test_py2adql():
     q = py2adql(columns=columns, table=table,
                 where_constraints=and_c_list,
                 order_by='snr', order_by_desc=False,
-                ra=1.23, dec=2.34, radius=3.45, count_only=True)
+                cone_ra=1.23, cone_dec=2.34, cone_radius=3.45, count_only=True)
     expected_query = ("select count(*) from ivoa.ObsCore where "
                       "em_min>4.0e-7 and em_max<1.2e-6 and asdasdads "
                       "and intersects(s_region, circle('ICRS', 1.23, 2.34, 3.45))=1 "
@@ -450,7 +450,7 @@ def test_py2adql():
     q = py2adql(columns=columns, table=table,
                 where_constraints=and_c_list,
                 order_by='snr', order_by_desc=False,
-                ra=1.23, dec=2.34, radius=3.45, top=5)
+                cone_ra=1.23, cone_dec=2.34, cone_radius=3.45, top=5)
     expected_query = 'select top 5 ' + columns + ' from ' + table + \
         ' where ' + and_c_list[0] + ' and ' + and_c_list[1] + ' and ' + and_c_list[2] + \
         ' and intersects(s_region, circle(\'ICRS\', 1.23, 2.34, 3.45))=1' + \

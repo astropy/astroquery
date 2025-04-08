@@ -104,17 +104,17 @@ class TestEso:
         # result_i = eso.query_instrument('midi', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
         with pytest.warns(MaxResultsWarning):
-            result_i = eso.query_instrument('midi', ra=266.41681662,
-                                            dec=-29.00782497, radius=1.0)
+            result_i = eso.query_instrument('midi', cone_ra=266.41681662,
+                                            cone_dec=-29.00782497, cone_radius=1.0)
 
         collections = eso.list_surveys()
         assert len(collections) > 0
         # result_s = eso.query_collections('VVV', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
         with pytest.warns(MaxResultsWarning):
-            result_s = eso.query_surveys(surveys='VVV', ra=266.41681662,
-                                         dec=-29.00782497,
-                                         radius=1.0)
+            result_s = eso.query_surveys(surveys='VVV', cone_ra=266.41681662,
+                                         cone_dec=-29.00782497,
+                                         cone_radius=1.0)
 
         assert 'midi' in instruments
         assert result_i is not None
@@ -143,9 +143,9 @@ class TestEso:
         test_collections = ['VVV', 'XSHOOTER']
         with pytest.warns(MaxResultsWarning):
             result_s = eso.query_surveys(surveys=test_collections,
-                                         ra=266.41681662,
-                                         dec=-29.00782497,
-                                         radius=1.0)
+                                         cone_ra=266.41681662,
+                                         cone_dec=-29.00782497,
+                                         cone_radius=1.0)
 
         assert result_s is not None
         assert 'target_name' in result_s.colnames
@@ -163,8 +163,8 @@ class TestEso:
 
         # Avoid SESAME
         with pytest.warns(NoResultsWarning):
-            result_s = eso.query_surveys(surveys=collections[0], ra=202.469575,
-                                         dec=47.195258, radius=1.0)
+            result_s = eso.query_surveys(surveys=collections[0], cone_ra=202.469575,
+                                         cone_dec=47.195258, cone_radius=1.0)
 
         assert len(result_s) == 0
 
@@ -193,7 +193,8 @@ class TestEso:
     def test_list_instruments(self):
         # If this test fails, we may simply need to update it
         inst = set(Eso.list_instruments())
-        assert set(inst) == set(instrument_list), f"Expected result {instrument_list}; Obtained: {inst}"
+        assert set(inst) == set(instrument_list), \
+            f"Expected result {instrument_list}; Obtained: {inst}"
 
     def test_retrieve_data(self):
         eso = Eso()
@@ -248,7 +249,9 @@ class TestEso:
         try:
             with pytest.warns(MaxResultsWarning):
                 result = eso.query_instrument(instrument,
-                                              ra=266.41681662, dec=-29.00782497, radius=1.0)
+                                              cone_ra=266.41681662,
+                                              cone_dec=-29.00782497,
+                                              cone_radius=1.0)
         except NoResultsWarning:  # we don't care if there are no results
             pass
         else:
@@ -267,20 +270,22 @@ class TestEso:
                 with pytest.warns(MaxResultsWarning):
                     result_s = eso.query_surveys(
                         surveys=collection,
-                        ra=266.41681662, dec=-29.00782497, radius=0.1775)
+                        cone_ra=266.41681662, cone_dec=-29.00782497, cone_radius=0.1775)
                 assert len(result_s) > 0
             else:
                 with pytest.warns(NoResultsWarning):
-                    result_s = eso.query_surveys(surveys=collection, ra=266.41681662,
-                                                 dec=-29.00782497,
-                                                 radius=0.1775)
+                    result_s = eso.query_surveys(surveys=collection, cone_ra=266.41681662,
+                                                 cone_dec=-29.00782497,
+                                                 cone_radius=0.1775)
                     assert len(result_s) == 0, f"Failed for collection {collection}"
 
                 with pytest.warns(MaxResultsWarning):
                     generic_result = eso.query_surveys(surveys=collection)
 
-                    assert generic_result is not None, f"query_collection({collection}) returned None"
-                    assert len(generic_result) > 0, f"query_collection({collection}) returned no records"
+                    assert generic_result is not None, \
+                        f"query_collection({collection}) returned None"
+                    assert len(generic_result) > 0, \
+                        f"query_collection({collection}) returned no records"
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_mixed_case_instrument(self, tmp_path):
@@ -289,10 +294,10 @@ class TestEso:
         eso.maxrec = 5
 
         with pytest.warns(MaxResultsWarning):
-            result1 = eso.query_instrument('midi', ra=266.41681662,
-                                           dec=-29.00782497, radius=1.0)
-            result2 = eso.query_instrument('MiDi', ra=266.41681662,
-                                           dec=-29.00782497, radius=1.0)
+            result1 = eso.query_instrument('midi', cone_ra=266.41681662,
+                                           cone_dec=-29.00782497, cone_radius=1.0)
+            result2 = eso.query_instrument('MiDi', cone_ra=266.41681662,
+                                           cone_dec=-29.00782497, cone_radius=1.0)
 
         assert all(result1.values_equal(result2))
 
