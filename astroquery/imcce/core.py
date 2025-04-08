@@ -94,7 +94,7 @@ class MiriadeClass(BaseQuery):
             Type of coordinates to be calculated: ``1``: spherical, ``2``:
             rectangular, ``3``: local coordinates (azimuth and elevation),
             ``4``: hour angle coordinates, ``5``: dedicated to observation,
-            ``6``: dedicated to AO observation. Default: ``1``
+            Default: ``1``
 
         timescale : str, optional
             The time scale used in the computation of the ephemerides:
@@ -146,40 +146,38 @@ class MiriadeClass(BaseQuery):
         +==================+===============================================+
         | ``target``       | Target name (str, 1, 2, 3, 4, 5, 6 )          |
         +------------------+-----------------------------------------------+
-        | ``epoch``        | Ephemerides epoch (JD, float, 1, 2, 3, 4, 5,  |
-        |                  | 6)                                            |
+        | ``epoch``        | Ephemerides epoch (JD, float, 1, 2, 3, 4, 5)  |
         +------------------+-----------------------------------------------+
         | ``RA``           | Target RA at ``ephtype`` (deg, float, 1)      |
         +------------------+-----------------------------------------------+
         | ``DEC``          | Target declination at ``ephtype`` (deg,       |
         |                  | float, 1, 4, 5)                               |
         +------------------+-----------------------------------------------+
-        | ``RAJ2000``      | Target RA at J2000 (deg, float, 5, 6)         |
+        | ``RAJ2000``      | Target RA at J2000 (deg, float, 5)            |
         +------------------+-----------------------------------------------+
-        | ``DECJ2000``     | Target declination at J2000 (deg, float, 5, 6)|
+        | ``DECJ2000``     | Target declination at J2000 (deg, float, 5)   |
         +------------------+-----------------------------------------------+
         | ``AZ``           | Target azimuth (deg, float, 3, 5)             |
         +------------------+-----------------------------------------------+
         | ``EL``           | Target elevation (deg, float, 3, 5)           |
         +------------------+-----------------------------------------------+
         | ``delta``        | Distance from observer (au, float, 1, 2, 3,   |
-        |                  | 4, 5, 6)                                      |
+        |                  | 4, 5)                                         |
         +------------------+-----------------------------------------------+
-        | ``delta_rate``   | Rate in observer distance (km/s, float,       |
-        |                  | 1, 5, 6)                                      |
+        | ``delta_rate``   | Rate in observer distance (km/s, float, 1, 5) |
         +------------------+-----------------------------------------------+
         | ``V``            | Apparent visual magnitude (mag, float, 1, 2,  |
-        |                  | 3, 4, 5, 6)                                   |
+        |                  | 3, 4, 5)                                      |
         +------------------+-----------------------------------------------+
-        | ``alpha``        | Solar phase angle (deg, 1, 2, 3, 4, 5, 6)     |
+        | ``alpha``        | Solar phase angle (deg, 1, 2, 3, 4, 5)        |
         +------------------+-----------------------------------------------+
-        | ``elong``        | Solar elongation angle (deg, 1, 2, 3, 4, 5, 6)|
+        | ``elong``        | Solar elongation angle (deg, 1, 2, 3, 4, 5)   |
         +------------------+-----------------------------------------------+
         | ``RAcosD_rate``  | Rate of motion in RA * cos(DEC) (arcsec/min,  |
-        |                  | float, 1, 5, 6)                               |
+        |                  | float, 1, 5)                                  |
         +------------------+-----------------------------------------------+
         | ``DEC_rate``     | Rate of motion in DEC (arcsec/min, float, 1,  |
-        |                  | 5, 6)                                         |
+        |                  | 5)                                            |
         +------------------+-----------------------------------------------+
         | ``x``            | X position state vector (au, float, 2)        |
         +------------------+-----------------------------------------------+
@@ -195,8 +193,7 @@ class MiriadeClass(BaseQuery):
         +------------------+-----------------------------------------------+
         | ``rv``           | Radial velocity (km/s, float, 2)              |
         +------------------+-----------------------------------------------+
-        | ``heldist``      | Target heliocentric distance (au, float, 2,   |
-        |                  | 5, 6)                                         |
+        | ``heldist``      | Target heliocentric distance (au, float, 2, 5)|
         +------------------+-----------------------------------------------+
         | ``x_h``          | X heliocentric position vector (au, float, 2) |
         +------------------+-----------------------------------------------+
@@ -212,13 +209,13 @@ class MiriadeClass(BaseQuery):
         +------------------+-----------------------------------------------+
         | ``hourangle``    | Target hour angle (deg, float, 4, 5)          |
         +------------------+-----------------------------------------------+
-        | ``siderealtime`` | Local sidereal time (hr, float, 5, 6)         |
+        | ``siderealtime`` | Local sidereal time (hr, float, 5)            |
         +------------------+-----------------------------------------------+
-        | ``refraction``   | Atmospheric refraction (arcsec, float, 5, 6)  |
+        | ``refraction``   | Atmospheric refraction (arcsec, float, 5)     |
         +------------------+-----------------------------------------------+
-        | ``airmass``      | Target airmass (float, 5, 6)                  |
+        | ``airmass``      | Target airmass (float, 5)                     |
         +------------------+-----------------------------------------------+
-        | ``posunc``       | Positional uncertainty (arcsec, float, 5, 6)  |
+        | ``posunc``       | Positional uncertainty (arcsec, float, 5)     |
         +------------------+-----------------------------------------------+
 
 
