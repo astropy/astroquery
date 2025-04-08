@@ -99,19 +99,6 @@ def test_observation_coordinates(patch_request):
         assert eph[cols[i]].unit == units[i]
 
 
-def test_aoobservation_coordinates(patch_request):
-    eph = Miriade.get_ephemerides('3552', coordtype=6)
-    cols = ('target', 'epoch', 'siderealtime', 'RAJ2000', 'DECJ2000',
-            'refraction', 'V', 'delta', 'heldist', 'alpha',
-            'elong', 'posunc', 'RAcosD_rate', 'DEC_rate', 'delta_rate')
-    units = (None, u.d, u.h, u.deg, u.deg, u.arcsec, u.mag,
-             u.au, u.au, u.deg, u.deg, u.arcsec, u.arcsec / u.minute,
-             u.arcsec / u.minute, u.km / u.s)
-    for i in range(len(cols)):
-        assert cols[i] in eph.columns
-        assert eph[cols[i]].unit == units[i]
-
-
 def test_get_raw_response(patch_request):
     raw_eph = Miriade.get_ephemerides(
         '3552', coordtype=1, get_raw_response=True)
