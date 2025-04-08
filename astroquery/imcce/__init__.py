@@ -21,7 +21,7 @@ class Conf(_config.ConfigNamespace):
         'http://vo.imcce.fr/webservices/miriade/ephemcc_query.php',
         'IMCCE/Miriade.ephemcc base server')
     skybot_server = _config.ConfigItem(
-        ['http://vo.imcce.fr/webservices/skybot/skybotconesearch_query.php'],
+        ['https://ssp.imcce.fr/webservices/skybot/api/conesearch.php'],
         'SkyBoT')
 
     timeout = _config.ConfigItem(

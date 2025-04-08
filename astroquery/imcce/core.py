@@ -418,7 +418,7 @@ class SkybotClass(BaseQuery):
         >>> skybot = Skybot()
         >>> obj = skybot.cone_search(field, 0.1*u.deg, epoch) # doctest: +SKIP
         >>> skybot.uri # doctest: +SKIP
-        'http://vo.imcce.fr/webservices/skybot/skybotconesearch_query.php?-ra=1.0&-dec=1.0&-rd=0.1&-ep=2458633.404166667&-loc=500&-filter=120.0&-objFilter=111&-refsys=EQJ2000&-output=all&-mime=text'
+        'https://ssp.imcce.fr/webservices/skybot/skybotconesearch_query.php?-ra=1.0&-dec=1.0&-rd=0.1&-ep=2458633.404166667&-loc=500&-filter=120.0&-objFilter=111&-refsys=EQJ2000&-output=all&-mime=text'
         """
         return self._uri
 
@@ -437,7 +437,7 @@ class SkybotClass(BaseQuery):
                           cache=True):
         """
         This method queries the IMCCE
-        `SkyBoT <http://vo.imcce.fr/webservices/skybot/?conesearch>`_
+        `SkyBoT <https://ssp.imcce.fr/webservices/skybot/api/conesearch>`_
         cone search service and produces a `~astropy.table.QTable` object
         containing all Solar System bodies that might be in the cone
         defined by the cone center coordinates and epoch provided.
