@@ -224,17 +224,20 @@ class EsoClass(QueryWithLogin):
     def _try_download_pyvo_table(self,
                                  query_str: str,
                                  tap: TAPService) -> Optional[astropy.table.Table]:
-        table_to_return = None
+        table_to_return = Table()
 
         def message(query_str):
             return (f"Error executing the following query:\n\n"
                     f"{query_str}\n\n"
-                    "See examples here: https://archive.eso.org/tap_obs/examples\n\n")
+                    "See examples here: https://archive.eso.org/tap_obs/examples\n\n"
+                    f"For maximum query freedom use the query_tap_service method:\n\n"
+                    f' >>> Eso().query_tap_service( "{query_str}" )\n\n')
 
         try:
             table_to_return = tap.search(query_str, maxrec=self.maxrec).to_table()
-        except pde.DALQueryError as e:
-            raise pde.DALQueryError(message(query_str)) from e
+            self._maybe_warn_about_table_length(table_to_return)
+        except pde.DALQueryError:
+            log.error(message(query_str))
         except pde.DALFormatError as e:
             raise pde.DALFormatError(message(query_str) + f"cause: {e.cause}") from e
         except Exception as e:
@@ -291,7 +294,6 @@ class EsoClass(QueryWithLogin):
         table_to_return = None
         tap_service = self._tap_service(authenticated)
         table_to_return = self._try_download_pyvo_table(query_str, tap_service)
-        self._maybe_warn_about_table_length(table_to_return)
         return table_to_return
 
     @unlimited_max_rec
