@@ -97,3 +97,19 @@ def test_footprint_to_reg_pointing(pointing_footprint_str=pointing_footprint_str
     assert actual_reg.center.ra == reg_output[0].center.ra
     assert actual_reg.center.dec == reg_output[0].center.dec
     assert actual_reg.radius == reg_output[0].radius
+
+
+@pytest.mark.skipif(not HAS_REGIONS, reason="regions is required")
+def test_footprint_to_reg_plot(pointing_footprint_str=pointing_footprint_str):
+    reg_output = utils.footprint_to_reg(pointing_footprint_str)
+
+    from astropy.wcs import WCS
+    ww = WCS(naxis=2)
+    ww.wcs.crpix = [250.0, 250.0]
+    ww.wcs.cdelt = [-7.500000005754e-05, 7.500000005754e-05]
+    ww.wcs.ctype = ['RA---SIN', 'DEC--SIN']
+    ww.wcs.crval = [reg_output[0].center.ra.value, reg_output[0].center.dec.value]
+
+    pix_region = reg_output[0].to_pixel(ww)
+    artist = pix_region.as_artist()
+    assert artist is not None

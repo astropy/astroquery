@@ -14,6 +14,11 @@ API changes
 Service fixes and enhancements
 ------------------------------
 
+alma
+^^^^
+
+- Bug fix in ``footprint_to_reg`` that did not allow regions to be plotted. [#3285]
+
 heasarc
 ^^^^^^^
 
