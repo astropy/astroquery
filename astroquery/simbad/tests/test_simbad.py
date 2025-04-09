@@ -563,14 +563,16 @@ def test_query_tap_errors():
 @pytest.mark.usefixtures("_mock_simbad_class")
 def test_query_tap_cache_call(monkeypatch):
     msg = "called_cached_query_tap"
-    monkeypatch.setattr(simbad.core, "_cached_query_tap", lambda tap, query, maxrec: msg)
+    monkeypatch.setattr(simbad.core, "_cached_query_tap",
+                        lambda tap, query, maxrec, async_job: msg)
     assert simbad.Simbad.query_tap("select top 1 * from basic") == msg
 
 
 @pytest.mark.usefixtures("_mock_simbad_class")
 def test_empty_response_warns(monkeypatch):
     # return something of length zero
-    monkeypatch.setattr(simbad.core.Simbad, "query_tap", lambda _, get_query_payload, maxrec: [])
+    monkeypatch.setattr(simbad.core.Simbad, "query_tap",
+                        lambda _, get_query_payload, maxrec, async_job: [])
     msg = ("The request executed correctly, but there was no data corresponding to these"
            " criteria in SIMBAD")
     with pytest.warns(NoResultsWarning, match=msg):

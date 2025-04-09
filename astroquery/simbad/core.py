@@ -242,18 +242,18 @@ class SimbadClass(BaseVOQuery):
         >>> options = Simbad.list_votable_fields() # doctest: +REMOTE_DATA
         >>> # to print only the available bundles of columns
         >>> options[options["type"] == "bundle of basic columns"][["name", "description"]] # doctest: +REMOTE_DATA
-        <Table length=9>
-             name                           description
-            object                             object
-        ------------- -------------------------------------------------------
-          coordinates                     all fields related with coordinates
-                  dim             major and minor axis, angle and inclination
-           dimensions                 all fields related to object dimensions
-            morphtype            all fields related to the morphological type
-             parallax                        all fields related to parallaxes
-        propermotions              all fields related with the proper motions
-                   sp               all fields related with the spectral type
-             velocity    all fields related with radial velocity and redshift
+        <Table length=8>
+             name                         description
+            object                           object
+        ------------- ----------------------------------------------------
+          coordinates                  all fields related with coordinates
+                  dim          major and minor axis, angle and inclination
+           dimensions              all fields related to object dimensions
+            morphtype         all fields related to the morphological type
+             parallax                     all fields related to parallaxes
+        propermotions           all fields related with the proper motions
+                   sp            all fields related with the spectral type
+             velocity all fields related with radial velocity and redshift
         """
         # get the tables with a simple link to basic
         query_tables = """SELECT DISTINCT table_name AS name, tables.description
@@ -1276,37 +1276,37 @@ class SimbadClass(BaseVOQuery):
         >>> from astroquery.simbad import Simbad
         >>> Simbad.list_columns("ids", "ident") # doctest: +REMOTE_DATA
         <Table length=4>
-        table_name column_name datatype ...  unit    ucd
-          object      object    object  ... object  object
-        ---------- ----------- -------- ... ------ -------
-             ident          id  VARCHAR ...        meta.id
-             ident      oidref   BIGINT ...
-               ids         ids  VARCHAR ...        meta.id
-               ids      oidref   BIGINT ...
+        table_name column_name datatype ...  unit      ucd
+          object      object    object  ... object    object
+        ---------- ----------- -------- ... ------ -----------
+             ident          id  VARCHAR ...            meta.id
+             ident      oidref   BIGINT ...        meta.record
+               ids         ids  VARCHAR ...            meta.id
+               ids      oidref   BIGINT ...        meta.record
 
 
         >>> from astroquery.simbad import Simbad
         >>> Simbad.list_columns(keyword="filter") # doctest: +REMOTE_DATA
         <Table length=5>
-         table_name column_name   datatype  ...  unit           ucd
-           object      object      object   ... object         object
-        ----------- ----------- ----------- ... ------ ----------------------
-             filter description UNICODECHAR ...        meta.note;instr.filter
-             filter  filtername     VARCHAR ...                  instr.filter
-             filter        unit     VARCHAR ...                     meta.unit
-               flux      filter     VARCHAR ...                  instr.filter
-        mesDiameter      filter        CHAR ...                  instr.filter
+         table_name column_name   datatype  ...  unit              ucd
+           object      object      object   ... object            object
+        ----------- ----------- ----------- ... ------ ---------------------------
+             filter description UNICODECHAR ...             meta.note;instr.filter
+             filter  filtername     VARCHAR ...        instr.bandpass;instr.filter
+             filter        unit     VARCHAR ...                          meta.unit
+               flux      filter     VARCHAR ...        instr.bandpass;instr.filter
+        mesDiameter      filter        CHAR ...        instr.bandpass;instr.filter
 
         >>> from astroquery.simbad import Simbad
         >>> Simbad.list_columns("basic", keyword="object") # doctest: +REMOTE_DATA
         <Table length=4>
-        table_name column_name datatype ...  unit          ucd
-          object      object    object  ... object        object
-        ---------- ----------- -------- ... ------ -------------------
-             basic     main_id  VARCHAR ...          meta.id;meta.main
-             basic   otype_txt  VARCHAR ...                  src.class
-             basic         oid   BIGINT ...        meta.record;meta.id
-             basic       otype  VARCHAR ...                  src.class
+        table_name column_name datatype ...  unit         ucd
+          object      object    object  ... object       object
+        ---------- ----------- -------- ... ------ -----------------
+             basic     main_id  VARCHAR ...        meta.id;meta.main
+             basic   otype_txt  VARCHAR ...                src.class
+             basic         oid   BIGINT ...              meta.record
+             basic       otype  VARCHAR ...                src.class
         """
         query = ("SELECT table_name, column_name, datatype, description, unit, ucd"
                  " FROM TAP_SCHEMA.columns"
