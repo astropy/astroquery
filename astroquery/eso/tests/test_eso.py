@@ -415,7 +415,7 @@ def test_py2adql():
         " order by snr asc"
     assert expected_query == q, f"Expected:\n{expected_query}\n\nObtained:\n{q}\n\n"
 
-    # ra, dec, radius
+    # ra, dec, radius, all int
     q = py2adql(columns=columns, table=table,
                 where_constraints=and_c_list,
                 order_by='snr', order_by_desc=False,
@@ -426,7 +426,7 @@ def test_py2adql():
         " order by snr asc"
     assert expected_query == q, f"Expected:\n{expected_query}\n\nObtained:\n{q}\n\n"
 
-    # ra, dec, radius
+    # ra, dec, radius, all float
     q = py2adql(columns=columns, table=table,
                 where_constraints=and_c_list,
                 order_by='snr', order_by_desc=False,
@@ -435,6 +435,18 @@ def test_py2adql():
         ' where ' + and_c_list[0] + ' and ' + and_c_list[1] + ' and ' + and_c_list[2] + \
         ' and intersects(s_region, circle(\'ICRS\', 1.23, 2.34, 3.45))=1' + \
         " order by snr asc"
+    assert expected_query == q, f"Expected:\n{expected_query}\n\nObtained:\n{q}\n\n"
+
+    # ra, dec, radius, all zero
+    q = py2adql(columns=columns, table=table,
+                where_constraints=and_c_list,
+                order_by='snr', order_by_desc=False,
+                cone_ra=0, cone_dec=0, cone_radius=0)
+    expected_query = 'select ' + columns + ' from ' + table + \
+        ' where ' + and_c_list[0] + ' and ' + and_c_list[1] + ' and ' + and_c_list[2] + \
+        ' and intersects(s_region, circle(\'ICRS\', 0, 0, 0))=1' + \
+        " order by snr asc"
+    assert expected_query == q, f"Expected:\n{expected_query}\n\nObtained:\n{q}\n\n"
 
     # count only
     q = py2adql(columns=columns, table=table,
@@ -445,6 +457,7 @@ def test_py2adql():
                       "em_min>4.0e-7 and em_max<1.2e-6 and asdasdads "
                       "and intersects(s_region, circle('ICRS', 1.23, 2.34, 3.45))=1 "
                       "order by snr asc")
+    assert expected_query == q, f"Expected:\n{expected_query}\n\nObtained:\n{q}\n\n"
 
     # top
     q = py2adql(columns=columns, table=table,
