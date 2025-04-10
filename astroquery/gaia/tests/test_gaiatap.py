@@ -821,7 +821,7 @@ def test_datalink_querier_load_data_vot_exception(mock_datalink_querier, overwri
             mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
                                             data_structure='INDIVIDUAL',
                                             retrieval_type="ALL",
-                                            linking_parameter='SOURCE_ID', valid_data=False, band=None,
+                                            linking_parameter='SOURCE_ID', valid_data=False,
                                             avoid_datatype_check=False,
                                             format="votable", dump_to_file=True,
                                             overwrite_output_file=overwrite_output_file,
@@ -835,7 +835,7 @@ def test_datalink_querier_load_data_vot_exception(mock_datalink_querier, overwri
         mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
                                         data_structure='INDIVIDUAL',
                                         retrieval_type="ALL",
-                                        linking_parameter='SOURCE_ID', valid_data=False, band=None,
+                                        linking_parameter='SOURCE_ID', valid_data=False,
                                         avoid_datatype_check=False,
                                         format="votable", dump_to_file=True,
                                         overwrite_output_file=overwrite_output_file,
@@ -850,7 +850,7 @@ def test_datalink_querier_load_data_vot(mock_datalink_querier):
     result_dict = mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
                                                   data_structure='INDIVIDUAL',
                                                   retrieval_type="ALL",
-                                                  linking_parameter='SOURCE_ID', valid_data=False, band=None,
+                                                  linking_parameter='SOURCE_ID', valid_data=False,
                                                   avoid_datatype_check=False,
                                                   format="votable", dump_to_file=True, overwrite_output_file=True,
                                                   verbose=False)
@@ -888,7 +888,7 @@ def test_datalink_querier_load_data_ecsv(mock_datalink_querier_ecsv):
     result_dict = mock_datalink_querier_ecsv.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
                                                        data_structure='INDIVIDUAL',
                                                        retrieval_type="ALL",
-                                                       linking_parameter='SOURCE_ID', valid_data=False, band=None,
+                                                       linking_parameter='SOURCE_ID', valid_data=False,
                                                        avoid_datatype_check=False,
                                                        format="ecsv", dump_to_file=True, overwrite_output_file=True,
                                                        verbose=False)
@@ -926,7 +926,7 @@ def test_datalink_querier_load_data_csv(mock_datalink_querier_csv):
     result_dict = mock_datalink_querier_csv.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
                                                       data_structure='INDIVIDUAL',
                                                       retrieval_type="ALL",
-                                                      linking_parameter='SOURCE_ID', valid_data=False, band=None,
+                                                      linking_parameter='SOURCE_ID', valid_data=False,
                                                       avoid_datatype_check=False,
                                                       format="csv", dump_to_file=True, overwrite_output_file=True,
                                                       verbose=False)
@@ -965,7 +965,7 @@ def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
     result_dict = mock_datalink_querier_fits.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
                                                        data_structure='INDIVIDUAL',
                                                        retrieval_type="ALL",
-                                                       linking_parameter='SOURCE_ID', valid_data=False, band=None,
+                                                       linking_parameter='SOURCE_ID', valid_data=False,
                                                        avoid_datatype_check=False,
                                                        format="fits", dump_to_file=True, overwrite_output_file=True,
                                                        verbose=False)
