@@ -47,7 +47,7 @@ def py2adql(table: str, columns: Union[List, str] = None,
     """
     # We assume the coordinates passed are valid
     where_circle = []
-    if cone_ra:
+    if cone_radius is not None:
         where_circle += [
             f'intersects(s_region, circle(\'ICRS\', {cone_ra}, {cone_dec}, {cone_radius}))=1']
 
