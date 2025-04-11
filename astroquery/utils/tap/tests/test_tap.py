@@ -4,22 +4,22 @@
 TAP plus
 =============
 
-@author: Juan Carlos Segovia
-@contact: juan.carlos.segovia@sciops.esa.int
-
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
-
-Created on 30 jun. 2016
 """
 import gzip
+import os
+
 from pathlib import Path
 from unittest.mock import patch
 from urllib.parse import quote_plus, urlencode
 
 import numpy as np
 import pytest
+from astropy.io.registry import IORegistryError
 from astropy.table import Table
+from astropy.utils.data import get_pkg_data_filename
+
 from requests import HTTPError
 
 from astroquery.utils.tap import taputils
@@ -37,7 +37,7 @@ def read_file(filename):
         return filename.read_text()
 
 
-TEST_DATA = {f.name: read_file(f) for f in Path(__file__).with_name("data").iterdir()}
+TEST_DATA = {f.name: read_file(f) for f in Path(__file__).with_name("data").iterdir() if os.path.isfile(f)}
 
 
 def test_load_tables():
@@ -938,7 +938,7 @@ def test_logout(mock_logout):
     assert (mock_logout.call_count == 2)
 
 
-def test_upload_table():
+def test_upload_table_exception():
     conn_handler = DummyConnHandler()
     tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     a = [1, 2, 3]
@@ -980,3 +980,59 @@ def test___findCookieInHeader():
     result = tap._Tap__findCookieInHeader(headers)
 
     assert (result == "JSESSIONID=E677B51BA5C4837347D1E17D4E36647E")
+
+
+def test_upload_table():
+    conn_handler = DummyConnHandler()
+    tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+
+    jobid = '12345'
+    dummyResponse = DummyResponse(303)
+    conn_handler.set_default_response(dummyResponse)
+    launchResponseHeaders = [
+        ['location', f'http://test:1111/tap/async/{jobid}']
+    ]
+    dummyResponse.set_data(method='POST', headers=launchResponseHeaders)
+
+    package = "astroquery.utils.tap.tests"
+
+    table_name = 'my_table'
+    file_csv = get_pkg_data_filename(os.path.join("data", 'test_upload_file', '1744351221317O-result.csv'),
+                                     package=package)
+    job = tap.upload_table(upload_resource=file_csv, table_name=table_name)
+
+    assert (job.jobid == jobid)
+
+    file_ecsv = get_pkg_data_filename(os.path.join("data", 'test_upload_file', '1744351221317O-result.ecsv'),
+                                      package=package)
+    job = tap.upload_table(upload_resource=file_ecsv, table_name=table_name)
+
+    assert (job.jobid == jobid)
+
+    file_fits = get_pkg_data_filename(os.path.join("data", 'test_upload_file', '1744351221317O-result.fits'),
+                                      package=package)
+    job = tap.upload_table(upload_resource=file_fits, table_name=table_name)
+
+    assert (job.jobid == jobid)
+
+    file_vot = get_pkg_data_filename(os.path.join("data", 'test_upload_file', '1744351221317O-result.vot'),
+                                     package=package)
+    job = tap.upload_table(upload_resource=file_vot, table_name=table_name)
+
+    assert (job.jobid == jobid)
+
+    file_plain_vot = get_pkg_data_filename(os.path.join("data", 'test_upload_file', '1744351221317O-result_plain.vot'),
+                                           package=package)
+    job = tap.upload_table(upload_resource=file_plain_vot, table_name=table_name)
+
+    assert (job.jobid == jobid)
+
+    file_json = get_pkg_data_filename(os.path.join("data", 'test_upload_file', '1744351221317O-result.json'),
+                                      package=package)
+    with pytest.raises(IORegistryError) as exc_info:
+        job = tap.upload_table(upload_resource=file_json, table_name=table_name)
+
+    assert (
+                "Format could not be identified based on the file name or contents, please provide a 'format' "
+                "argument." in str(
+            exc_info.value))

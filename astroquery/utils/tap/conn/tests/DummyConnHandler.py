@@ -14,9 +14,10 @@ Created on 30 jun. 2016
 
 
 """
-from astroquery.utils.tap import taputils
-
 import requests
+
+from astroquery.utils.tap import taputils
+from astroquery.utils.tap.conn.tapconn import TapConn
 
 
 class DummyConnHandler:
@@ -158,3 +159,12 @@ class DummyConnHandler:
 
     def get_host_url(self):
         return "my fake object"
+
+    def encode_multipart(self, fields, files):
+        tap = TapConn(ishttps=False, host='host')
+        return tap.encode_multipart(fields, files)
+
+    def execute_upload(self, data,
+                       content_type="application/x-www-form-urlencoded", *,
+                       verbose=False):
+        return self.defaultResponse

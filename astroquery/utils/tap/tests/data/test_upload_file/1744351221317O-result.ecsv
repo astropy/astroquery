@@ -1,0 +1,41 @@
+# %ECSV 1.0
+# ---
+# delimiter: ','
+# datatype:
+# -
+#   name: source_id
+#   datatype: int64
+#   description: Unique source identifier (unique within a particular Data Release)
+#   meta:
+#     ucd: meta.id
+# -
+#   name: ra
+#   datatype: float64
+#   unit: deg
+#   description: Right ascension
+#   meta:
+#     ucd: pos.eq.ra;meta.main
+#     utype: stc:AstroCoords.Position3D.Value3.C1
+#     CoosysSystem: ICRS
+#     CoosysEpoch: J2016.0
+# -
+#   name: dec
+#   datatype: float64
+#   unit: deg
+#   description: Declination
+#   meta:
+#     ucd: pos.eq.dec;meta.main
+#     utype: stc:AstroCoords.Position3D.Value3.C2
+#     CoosysSystem: ICRS
+#     CoosysEpoch: J2016.0
+# meta:
+#   name: votable
+#   QUERY_STATUS: OK
+#   QUERY: 'SELECT TOP 2 source_id, ra, dec FROM gaiadr3.gaia_source '
+#   CAPTION: 'How to cite and acknowledge Gaia: https://gea.esac.esa.int/archive/documentation/credits.html'
+#   CITATION: 'How to cite and acknowledge Gaia: https://gea.esac.esa.int/archive/documentation/credits.html'
+#   JOBID: 1744351221317O
+#   RELEASE: Gaia DR3
+source_id,ra,dec
+3834447128563320320,149.8678677871318,1.12773018116361
+3834447162923057280,149.8953864417848,1.1345712682426434
