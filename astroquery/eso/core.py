@@ -118,10 +118,17 @@ class EsoClass(QueryWithLogin):
 
     @maxrec.setter
     def maxrec(self, value):
-        mr = sys.maxsize
-        if value:
-            if value > 0:
-                mr = value
+        mr = self._maxrec
+
+        # type check
+        if not (value is None or isinstance(value, int)):
+            raise TypeError(f"maxrec attribute must be of type int or None; found {type(value)}")
+
+        if value is None or value < 1:
+            mr = sys.maxsize
+        else:
+            mr = value
+
         self._maxrec = mr
 
     def _tap_url(self) -> str:
