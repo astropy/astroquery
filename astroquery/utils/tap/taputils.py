@@ -49,6 +49,28 @@ def taputil_find_header(headers, key):
     return None
 
 
+def taputil_find_all_headers(headers, key):
+    """Searches for the specified keyword
+
+    Parameters
+    ----------
+    headers : HTTP(s) headers object, mandatory
+        HTTP(s) response headers
+    key : str, mandatory
+        header key to be searched for
+
+    Returns
+    -------
+    A list of requested header values or an empty list if not header is found
+    """
+
+    result = list()
+    for entry in headers:
+        if key.lower() == entry[0].lower():
+            result.append(entry[1])
+    return result
+
+
 def taputil_create_sorted_dict_key(dictionaryObject):
     """Searches for the specified keyword
 
