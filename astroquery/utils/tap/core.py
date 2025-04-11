@@ -15,11 +15,10 @@ Modified on 1 jun. 2021 by mhsarmiento
 """
 import getpass
 import os
-import tempfile
-from urllib.parse import urlencode
-
 import requests
+import tempfile
 from astropy.table.table import Table
+from urllib.parse import urlencode
 
 from astroquery import log
 from astroquery.utils.tap import taputils
@@ -661,16 +660,23 @@ class Tap:
         return location[pos:]
 
     def __findCookieInHeader(self, headers, *, verbose=False):
-        cookies = self.__connHandler.find_header(headers, 'Set-Cookie')
+        cookies = self.__connHandler.find_all_headers(headers, 'Set-Cookie')
         if verbose:
             print(cookies)
-        if cookies is None:
+        if not cookies:
             return None
         else:
-            items = cookies.split(';')
-            for i in items:
-                if i.startswith("JSESSIONID="):
-                    return i
+            for cook in cookies:
+                items = cook.split(';')
+                for item in items:
+                    if item.startswith("SESSION="):
+                        return item
+
+            for cook in cookies:
+                items = cook.split(';')
+                for item in items:
+                    if item.startswith("JSESSIONID="):
+                        return item
         return None
 
     def __parseUrl(self, url, *, verbose=False):

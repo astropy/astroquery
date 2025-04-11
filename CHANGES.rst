@@ -27,6 +27,12 @@ heasarc
   no data associated with that row rather than filtering it out. [#3275]
 
 
+utils.tap
+^^^^^^^^^
+
+- Get the cookie associated to the keys JSESSIONID or SESSION due to the tap library release at ESAC. [#3289]
+
+
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
