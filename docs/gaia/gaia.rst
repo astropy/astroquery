@@ -581,7 +581,9 @@ surrounded by quotation marks, i.e.: *user_<your_login_name>."<table_name>"*)::
 2.3.2. Uploading table from file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A file containing a table (votable, fits or csv) can be uploaded to the user private area.
+A file containing a table can be uploaded to the user private area. Only the formats described https://docs.astropy.org/en/stable/io/unified.html#built-in-table-readers-writers,
+and automatically identified by its suffix or content can be used. Note that for a multi-extension fits file with multiple
+tables, the first table found will be read.
 
 The parameter 'format' must be provided when the input file is not a votable file.
 
@@ -665,7 +667,7 @@ A table from the user private area can be deleted as follows::
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login_gui()
-  >>> job = Gaia.delete_user_table("table_test_from_file")
+  >>> job = Gaia.delete_user_table(table_name="table_test_from_file")
   Table 'table_test_from_file' deleted.
 
 2.5. Updating table metadata
