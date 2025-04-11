@@ -138,6 +138,9 @@ class DummyConnHandler:
     def find_header(self, headers, key):
         return taputils.taputil_find_header(headers, key)
 
+    def find_all_headers(self, headers, key):
+        return taputils.taputil_find_all_headers(headers, key)
+
     def execute_table_edit(self, data,
                            content_type="application/x-www-form-urlencoded",
                            verbose=False):
