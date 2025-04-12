@@ -12,22 +12,21 @@ European Space Agency (ESA)
 
 Created on 30 jun. 2016
 """
+import gzip
 from pathlib import Path
 from unittest.mock import patch
 from urllib.parse import quote_plus, urlencode
 
-import gzip
 import numpy as np
 import pytest
+from astropy.table import Table
 from requests import HTTPError
 
-from astroquery.utils.tap.model.tapcolumn import TapColumn
-
+from astroquery.utils.tap import taputils
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.core import TapPlus
-from astroquery.utils.tap import taputils
-from astropy.table import Table
+from astroquery.utils.tap.model.tapcolumn import TapColumn
 
 
 def read_file(filename):
@@ -115,8 +114,8 @@ def test_load_tables_parameters():
 
 
 def test_load_table():
-    connHandler = DummyConnHandler()
-    tap = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
+    conn_handler = DummyConnHandler()
+    tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
 
     # No arguments
     with pytest.raises(Exception):
@@ -128,7 +127,7 @@ def test_load_table():
     tableName = "table1"
     fullQualifiedTableName = f"{tableSchema}.{tableName}"
     tableRequest = f"tables?tables={fullQualifiedTableName}"
-    connHandler.set_response(tableRequest, responseLoadTable)
+    conn_handler.set_response(tableRequest, responseLoadTable)
 
     with pytest.raises(Exception):
         tap.load_table(fullQualifiedTableName)
@@ -871,26 +870,26 @@ def test_rename_table():
 
 
 def __find_table(schemaName, tableName, tables):
-    qualifiedName = f"{schemaName}.{tableName}"
-    for table in (tables):
-        if table.get_qualified_name() == qualifiedName:
+    qualified_name = f"{schemaName}.{tableName}"
+    for table in tables:
+        if table.get_qualified_name() == qualified_name:
             return table
     # not found: raise exception
-    pytest.fail(f"Table '{qualifiedName}' not found")
+    pytest.fail(f"Table '{qualified_name}' not found")
 
 
-def __find_column(columnName, columns):
-    for c in (columns):
-        if c.name == columnName:
+def __find_column(column_name, columns):
+    for c in columns:
+        if c.name == column_name:
             return c
     # not found: raise exception
-    pytest.fail(f"Column '{columnName}' not found")
+    pytest.fail(f"Column '{column_name}' not found")
 
 
-def __check_column(column, description, unit, dataType, flag):
+def __check_column(column, description, unit, data_type, flag):
     assert column.description == description
     assert column.unit == unit
-    assert column.data_type == dataType
+    assert column.data_type == data_type
     assert column.flag == flag
 
 
@@ -906,11 +905,11 @@ def __check_results_column(results, columnName, description, unit,
 def test_login(mock_login):
     conn_handler = DummyConnHandler()
     tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
-    tap.login("user", "password")
+    tap.login(user="user", password="password")
     assert (mock_login.call_count == 1)
     mock_login.side_effect = HTTPError("Login error")
     with pytest.raises(HTTPError):
-        tap.login("user", "password")
+        tap.login(user="user", password="password")
     assert (mock_login.call_count == 2)
 
 
@@ -923,7 +922,7 @@ def test_login_gui(mock_login_gui, mock_login):
     assert (mock_login_gui.call_count == 0)
     mock_login_gui.side_effect = HTTPError("Login error")
     with pytest.raises(HTTPError):
-        tap.login("user", "password")
+        tap.login(user="user", password="password")
     assert (mock_login.call_count == 1)
 
 
@@ -951,3 +950,33 @@ def test_upload_table():
         tap.upload_table(upload_resource=table, table_name=table_name)
 
     assert str(exc_info.value) == f"Table name is not allowed to contain a dot: {table_name}"
+
+
+def test___findCookieInHeader():
+    conn_handler = DummyConnHandler()
+    tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+
+    headers = [('Date', 'Sat, 12 Apr 2025 05:10:47 GMT'),
+               ('Server', 'Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips mod_jk/1.2.43'),
+               ('Set-Cookie', 'JSESSIONID=E677B51BA5C4837347D1E17D4E36647E; Path=/data-server; Secure; HttpOnly'),
+               ('X-Content-Type-Options', 'nosniff'), ('X-XSS-Protection', '0'),
+               ('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate'), ('Pragma', 'no-cache'),
+               ('Expires', '0'), ('X-Frame-Options', 'SAMEORIGIN'),
+               ('Set-Cookie', 'SESSION=ZjQ3MjIzMDAtNjNiYy00Mj; Path=/data-server; Secure; HttpOnly; SameSite=Lax'),
+               ('Transfer-Encoding', 'chunked'), ('Content-Type', 'text/plain; charset=UTF-8')]
+
+    result = tap._Tap__findCookieInHeader(headers)
+
+    assert (result == "SESSION=ZjQ3MjIzMDAtNjNiYy00Mj")
+
+    headers = [('Date', 'Sat, 12 Apr 2025 05:10:47 GMT'),
+               ('Server', 'Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips mod_jk/1.2.43'),
+               ('Set-Cookie', 'JSESSIONID=E677B51BA5C4837347D1E17D4E36647E; Path=/data-server; Secure; HttpOnly'),
+               ('X-Content-Type-Options', 'nosniff'), ('X-XSS-Protection', '0'),
+               ('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate'), ('Pragma', 'no-cache'),
+               ('Expires', '0'), ('X-Frame-Options', 'SAMEORIGIN'),
+               ('Transfer-Encoding', 'chunked'), ('Content-Type', 'text/plain; charset=UTF-8')]
+
+    result = tap._Tap__findCookieInHeader(headers)
+
+    assert (result == "JSESSIONID=E677B51BA5C4837347D1E17D4E36647E")
