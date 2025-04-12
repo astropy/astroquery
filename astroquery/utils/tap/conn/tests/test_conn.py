@@ -126,8 +126,8 @@ def test_find_header():
                ('Set-Cookie', 'JSESSIONID=E677B51BA5C4837347D1E17D4E36647E; Path=/data-server; Secure; HttpOnly'),
                ('X-Content-Type-Options', 'nosniff'), ('X-XSS-Protection', '0'),
                ('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate'), ('Pragma', 'no-cache'),
-               ('Expires', '0'), ('X-Frame-Options', 'SAMEORIGIN'), ('Set-Cookie',
-                                                                     'SESSION=ZjQ3MjIzMDAtNjNiYy00Mjk3LTk5YzctNjczMGY5NWMxOGU3; Path=/data-server; Secure; HttpOnly; SameSite=Lax'),
+               ('Expires', '0'), ('X-Frame-Options', 'SAMEORIGIN'),
+               ('Set-Cookie', 'SESSION=ZjQ3MjIzMDAt; Path=/data-server; Secure; HttpOnly; SameSite=Lax'),
                ('Transfer-Encoding', 'chunked'), ('Content-Type', 'text/plain; charset=UTF-8')]
     key = 'Set-Cookie'
     result = tap.find_header(headers, key)
