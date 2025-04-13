@@ -1381,7 +1381,7 @@ class TapPlus(Tap):
             log.info(f"Uploaded table '{table_name}'.")
             return None
 
-    def __uploadTableMultipart(self, resource, *, table_name=None, table_description=None,  resource_format="votable",
+    def __uploadTableMultipart(self, resource, *, table_name=None, table_description=None, resource_format="votable",
                                verbose=False):
         connHandler = self.__getconnhandler()
         if isinstance(resource, Table):
@@ -1410,17 +1410,21 @@ class TapPlus(Tap):
                     "TABLE_DESC": str(table_description),
                     "FORMAT": 'votable'}
                 log.info(f"Sending file: {resource}")
+                if resource.lower() == 'votable':
+                    with open(resource, "r") as f:
+                        chunk = f.read()
+                    files = [['FILE', os.path.basename(resource), chunk]]
+                else:
+                    table = Table.read(str(resource))
+                    fh = tempfile.NamedTemporaryFile(delete=False)
+                    table.write(fh, format='votable')
+                    fh.close()
 
-                t = Table.read(str(resource) )
-                fh = tempfile.NamedTemporaryFile(delete=False)
-                t.write(fh, format='votable')
-                fh.close()
+                    with open(fh.name, "r") as f:
+                        chunk = f.read()
 
-                with open(fh.name, "r") as f:
-                    chunk = f.read()
-
-                os.unlink(fh.name)
-                files = [['FILE', 'pytable', chunk]]
+                    os.unlink(fh.name)
+                    files = [['FILE', 'pytable', chunk]]
 
                 content_type, body = connHandler.encode_multipart(args, files)
             else:  # upload from URL

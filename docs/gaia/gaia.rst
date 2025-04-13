@@ -581,9 +581,11 @@ surrounded by quotation marks, i.e.: *user_<your_login_name>."<table_name>"*)::
 2.3.2. Uploading table from file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A file containing a table can be uploaded to the user private area. Only a file associated to any of the formats described
+A file containing a table can be uploaded to the user private area. Only a file associated to any of the formats described in
 https://docs.astropy.org/en/stable/io/unified.html#built-in-table-readers-writers, and automatically identified by its suffix
-or content can be used. Note that for a multi-extension fits file with multiple tables, the first table found will be read.
+or content can be used. Note that for a multi-extension fits file with multiple tables, the first table found will be used.
+For any other format, the file can be transformed into an astropy Table (https://docs.astropy.org/en/stable/io/unified.html#getting-started-with-table-i-o)
+and passed to the method.
 
 The parameter 'format' must be provided when the input file is not a votable file.
 
