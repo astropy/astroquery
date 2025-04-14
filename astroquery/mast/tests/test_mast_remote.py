@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+import logging
 from pathlib import Path
 import numpy as np
 import os
@@ -768,6 +769,23 @@ class TestMast:
         # check that downloaded file is a valid FITS file
         f = fits.open(Path(tmp_path, filename))
         f.close()
+
+    def test_observations_download_file_no_length(self, tmp_path, caplog):
+        # test that `download_file` correctly handles the case where the server
+        # does not return a Content-Length header for a cached file
+        # initial download
+        in_uri = "mast:HLA/url/cgi-bin/getdata.cgi?filename=hst_05206_01_wfpc2_f375n_wf_daophot_trm.cat"
+        filename = Path(in_uri).name
+        result = Observations.download_file(uri=in_uri, local_path=tmp_path)
+        assert result == ("COMPLETE", None, None)
+        assert Path(tmp_path, filename).exists()
+
+        # download again, should warn and re-download file
+        with caplog.at_level(logging.WARNING):
+            result = Observations.download_file(uri=in_uri, local_path=tmp_path)
+        assert "Could not verify length of cached file" in caplog.text
+        assert result == ("COMPLETE", None, None)
+        assert Path(tmp_path, filename).exists()
 
     @pytest.mark.parametrize("test_data_uri, expected_cloud_uri", [
         ("mast:HST/product/u24r0102t_c1f.fits",

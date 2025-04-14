@@ -487,9 +487,17 @@ class BaseQuery(metaclass=LoginABCMeta):
                     response.close()
                     return local_filepath
             else:
-                # This case doesn't appear reachable under normal circumstances
-                # It is not covered by tests, and probably indicates a badly-behaved server
-                raise ValueError(f"Found cached file {local_filepath}.  Could not verify length.")
+                # This is a special case where the server doesn't return a
+                # Content-Length header, but the file is already cached.
+                # One such case is dynamically generated files in the MAST Archive.
+                # In this case, we warn the user and re-download the file.
+                log.warning(f"Could not verify length of cached file {local_filepath}. "
+                            "Re-downloading the file.")
+                open_mode = 'wb'
+                response = self._session.request(method, url,
+                                                 timeout=timeout, stream=True,
+                                                 auth=auth, **kwargs)
+                response.raise_for_status()
         else:
             open_mode = 'wb'
             if head_safe:
