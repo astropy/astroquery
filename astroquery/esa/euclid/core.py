@@ -42,7 +42,8 @@ class EuclidClass(TapPlus):
     __VALID_DATALINK_RETRIEVAL_TYPES = conf.VALID_DATALINK_RETRIEVAL_TYPES
 
     def __init__(self, *, environment='PDR', tap_plus_conn_handler=None, datalink_handler=None, cutout_handler=None,
-                 verbose=False, show_server_messages=True):
+                 euclid_tap_server=None, euclid_data_server=None, euclid_cutout_server=None, verbose=False,
+                 show_server_messages=True):
         """Constructor for EuclidClass.
 
         Parameters
@@ -55,6 +56,12 @@ class EuclidClass(TapPlus):
             HTTP(s) connection hander (creator). If no handler is provided, a new one is created.
         cutout_handler : cutout connection handler object, optional, default None
             HTTP(s) connection hander (creator). If no handler is provided, a new one is created.
+        euclid_tap_server : str, optional, default None
+            the TAP url
+        euclid_data_server : str, optional, default None
+            the datalink url
+        euclid_cutout_server : str, optional, default None
+            the cutout url
         verbose : bool, optional, default 'True'
             flag to display information about the process
         show_server_messages : bool, optional, default 'True'
@@ -72,7 +79,16 @@ class EuclidClass(TapPlus):
 
         url_server = conf.ENVIRONMENTS[environment]['url_server']
 
-        super(EuclidClass, self).__init__(url=url_server,
+        if euclid_tap_server is None:
+            euclid_tap_server = url_server
+
+        if euclid_data_server is None:
+            euclid_data_server = url_server
+
+        if euclid_cutout_server is None:
+            euclid_cutout_server = url_server
+
+        super(EuclidClass, self).__init__(url=euclid_tap_server,
                                           server_context='tap-server',
                                           tap_context="tap",
                                           upload_context="Upload",
@@ -85,7 +101,7 @@ class EuclidClass(TapPlus):
                                           use_names_over_ids=conf.USE_NAMES_OVER_IDS)
 
         if datalink_handler is None:
-            self.__eucliddata = TapPlus(url=url_server,
+            self.__eucliddata = TapPlus(url=euclid_data_server,
                                         server_context="sas-dd",
                                         tap_context="tap-server",
                                         upload_context="Upload",
@@ -99,7 +115,7 @@ class EuclidClass(TapPlus):
             self.__eucliddata = datalink_handler
 
         if cutout_handler is None:
-            self.__euclidcutout = TapPlus(url=url_server,
+            self.__euclidcutout = TapPlus(url=euclid_cutout_server,
                                           server_context="sas-cutout",
                                           tap_context="tap-server",
                                           upload_context="Upload",
