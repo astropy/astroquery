@@ -867,6 +867,7 @@ The following example shows how to retrieve the DataLink products associated wit
   ...                           data_release=data_release, retrieval_type=retrieval_type, data_structure=data_structure)
 
 The DataLink products are stored inside a Python Dictionary. Each of its elements (keys) contains a one-element list that can be extracted as follows:
+
 .. code-block:: python
 
   >>> dl_keys  = [inp for inp in datalink.keys()]

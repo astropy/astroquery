@@ -115,3 +115,59 @@ def test_login():
     assert r.get_method() == 'POST'
     assert r.get_context() == context
     assert r.get_body() == data
+
+
+def test_find_header():
+    host = "testHost"
+    tap = TapConn(ishttps=False, host=host)
+
+    headers = [('Date', 'Sat, 12 Apr 2025 05:10:47 GMT'),
+               ('Server', 'Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips mod_jk/1.2.43'),
+               ('Set-Cookie', 'JSESSIONID=E677B51BA5C4837347D1E17D4E36647E; Path=/data-server; Secure; HttpOnly'),
+               ('X-Content-Type-Options', 'nosniff'), ('X-XSS-Protection', '0'),
+               ('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate'), ('Pragma', 'no-cache'),
+               ('Expires', '0'), ('X-Frame-Options', 'SAMEORIGIN'),
+               ('Set-Cookie', 'SESSION=ZjQ3MjIzMDAt; Path=/data-server; Secure; HttpOnly; SameSite=Lax'),
+               ('Transfer-Encoding', 'chunked'), ('Content-Type', 'text/plain; charset=UTF-8')]
+    key = 'Set-Cookie'
+    result = tap.find_header(headers, key)
+
+    assert (result == "JSESSIONID=E677B51BA5C4837347D1E17D4E36647E; Path=/data-server; Secure; HttpOnly")
+
+
+def test_find_all_headers():
+    host = "testHost"
+    tap = TapConn(ishttps=False, host=host)
+
+    headers = [('Date', 'Sat, 12 Apr 2025 05:10:47 GMT'),
+               ('Server', 'Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips mod_jk/1.2.43'),
+               ('Set-Cookie', 'JSESSIONID=E677B51BA5C4837347D1E17D4E36647E; Path=/data-server; Secure; HttpOnly'),
+               ('X-Content-Type-Options', 'nosniff'), ('X-XSS-Protection', '0'),
+               ('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate'), ('Pragma', 'no-cache'),
+               ('Expires', '0'), ('X-Frame-Options', 'SAMEORIGIN'),
+               ('Set-Cookie', 'SESSION=ZjQ3MjIzMDAtNjNiYy00Mj; Path=/data-server; Secure; HttpOnly; SameSite=Lax'),
+               ('Transfer-Encoding', 'chunked'), ('Content-Type', 'text/plain; charset=UTF-8')]
+    key = 'Set-Cookie'
+    result = tap.find_all_headers(headers, key)
+
+    assert (result[0] == "JSESSIONID=E677B51BA5C4837347D1E17D4E36647E; Path=/data-server; Secure; HttpOnly")
+    assert (result[1] == "SESSION=ZjQ3MjIzMDAtNjNiYy00Mj; Path=/data-server; Secure; HttpOnly; SameSite=Lax")
+
+
+def test_get_file_from_header():
+    host = "testHost"
+    tap = TapConn(ishttps=False, host=host)
+
+    headers = [('Date', 'Sat, 12 Apr 2025 05:10:47 GMT'),
+               ('Server', 'Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips mod_jk/1.2.43'),
+               ('Set-Cookie', 'JSESSIONID=E677B51BA5C4837347D1E17D4E36647E; Path=/data-server; Secure; HttpOnly'),
+               ('X-Content-Type-Options', 'nosniff'), ('X-XSS-Protection', '0'),
+               ('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate'), ('Pragma', 'no-cache'),
+               ('Expires', '0'), ('X-Frame-Options', 'SAMEORIGIN'),
+               ('Set-Cookie', 'SESSION=ZjQ3MjIzMDAtNjNiYy00Mj; Path=/data-server; Secure; HttpOnly; SameSite=Lax'),
+               ('Transfer-Encoding', 'chunked'), ('Content-Type', 'text/plain; charset=UTF-8'),
+               ('Content-Disposition', 'filename="my_file.vot.gz"'), ('Content-Encoding', "gzip")]
+
+    result = tap.get_file_from_header(headers)
+
+    assert (result == "my_file.vot.gz")
