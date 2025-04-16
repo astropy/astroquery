@@ -38,7 +38,7 @@ from ..exceptions import RemoteServiceError, LoginError, \
 from ..query import QueryWithLogin
 from ..utils import schema
 from .utils import py2adql, _split_str_as_list_of_str, \
-    adql_sanitize_val, are_coords_valid
+    adql_sanitize_val, are_coords_valid, reorder_columns
 
 __doctest_skip__ = ['EsoClass.*']
 
@@ -301,6 +301,7 @@ class EsoClass(QueryWithLogin):
         table_to_return = None
         tap_service = self._tap_service(authenticated)
         table_to_return = self._try_download_pyvo_table(query_str, tap_service)
+        table_to_return = reorder_columns(table_to_return)
         return table_to_return
 
     @unlimited_max_rec
