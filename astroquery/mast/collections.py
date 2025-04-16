@@ -294,7 +294,7 @@ class CatalogsClass(MastQueryWithLogin):
 
     @class_or_instance
     def query_object_async(self, objectname, *, radius=0.2*u.deg, catalog="Hsc",
-                           pagesize=None, page=None, version=None, **criteria):
+                           pagesize=None, page=None, version=None, resolver=None, **criteria):
         """
         Given an object name, returns a list of catalog entries.
         See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.html>`__.
@@ -316,11 +316,16 @@ class CatalogsClass(MastQueryWithLogin):
             Can be used to override the default pagesize for (set in configs) this query only.
             E.g. when using a slow internet connection.
         page : int, optional
-            Defaulte None.
+            Default None.
             Can be used to override the default behavior of all results being returned
             to obtain a specific page of results.
         version : int, optional
             Version number for catalogs that have versions. Default is highest version.
+        resolver : str, optional
+            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+            If not specified, the default resolver order will be used. Please see the
+            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+            for more information. Default is None.
         **criteria
             Catalog-specific keyword args.
             These can be found in the `service documentation <https://mast.stsci.edu/api/v0/_services.html>`__.
@@ -339,7 +344,7 @@ class CatalogsClass(MastQueryWithLogin):
         response : list of `~requests.Response`
         """
 
-        coordinates = utils.resolve_object(objectname)
+        coordinates = utils.resolve_object(objectname, resolver)
 
         return self.query_region_async(coordinates,
                                        radius=radius,
@@ -350,7 +355,7 @@ class CatalogsClass(MastQueryWithLogin):
                                        **criteria)
 
     @class_or_instance
-    def query_criteria_async(self, catalog, *, pagesize=None, page=None, **criteria):
+    def query_criteria_async(self, catalog, *, pagesize=None, page=None, resolver=None, **criteria):
         """
         Given an set of filters, returns a list of catalog entries.
         See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.html>`__.
@@ -365,6 +370,11 @@ class CatalogsClass(MastQueryWithLogin):
         page : int, optional
             Can be used to override the default behavior of all results being returned to obtain
             one specific page of results.
+        resolver : str, optional
+            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+            If not specified, the default resolver order will be used. Please see the
+            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+            for more information. Default is None.
         **criteria
             Criteria to apply. At least one non-positional criteria must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
@@ -395,7 +405,7 @@ class CatalogsClass(MastQueryWithLogin):
         radius = criteria.pop('radius', 0.2*u.deg)
 
         if objectname or coordinates:
-            coordinates = utils.parse_input_location(coordinates, objectname)
+            coordinates = utils.parse_input_location(coordinates, objectname, resolver)
 
         # if radius is just a number we assume degrees
         radius = coord.Angle(radius, u.deg)

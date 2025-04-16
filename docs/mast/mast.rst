@@ -80,6 +80,39 @@ This token can be overwritten using the ``reenter_token`` argument.
 To logout before a session expires, the `~astroquery.mast.MastClass.logout` method may be used.
 
 
+Resolving Object Names
+=======================
+
+Each of the MAST query classes has a `~astroquery.mast.MastClass.resolve_object` method that translates named targets into
+coordinates. This method uses the `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`_
+service.
+
+The `~astroquery.mast.MastClass.resolve_object` method accepts an object name to resolve into coordinates. If the ``resolver``
+parameter is specified, then only that resolver will be queried. If the ``resolver`` parameter is not specified, then all available resolvers 
+will be queried in a default order, and the first one to return a result will be used. 
+Options for the ``resolver`` parameter are "SIMBAD" and "NED".
+
+.. doctest-remote-data::
+   
+   >>> from astroquery.mast import Mast
+   >>> mast = Mast()
+   >>> coords = mast.resolve_object("M101", resolver="NED")
+   >>> print(coords)
+   <SkyCoord (ICRS): (ra, dec) in deg
+    (210.80227, 54.34895)>
+
+If the ``resolve_all`` parameter is set to ``True``, all resolvers will be queried, and those that give a result will be returned.
+The ``resolver`` parameter is ignored in this case. The results are returned as a dictionary, with the resolver name as the key and 
+the coordinates as the value.
+
+.. doctest-remote-data::
+
+   >>> coords = mast.resolve_object("TIC 441662144", resolve_all=True)
+   >>> print(coords)
+   {'TIC': <SkyCoord (ICRS): (ra, dec) in deg
+    (210.75138371, 54.49144496)>}
+
+
 Additional Resources
 ====================
 

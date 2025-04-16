@@ -110,7 +110,7 @@ class MastQueryWithLogin(QueryWithLogin):
         """
         pass
 
-    def resolve_object(self, objectname):
+    def resolve_object(self, objectname, resolver=None, resolve_all=False):
         """
         Resolves an object name to a position on the sky.
 
@@ -118,10 +118,19 @@ class MastQueryWithLogin(QueryWithLogin):
         ----------
         objectname : str
             Name of astronomical object to resolve.
+        resolver : str, optional
+            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+            If not specified, the default resolver order will be used. Please see the
+            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+            for more information. Default is None.
+        resolve_all : bool, optional
+            If True, will try to resolve the object name using all available resolvers ("NED", "SIMBAD").
+            Function will return a dictionary where the keys are the resolver names and the values are the
+            resolved coordinates. Default is False.
 
         Returns
         -------
         response : `~astropy.coordinates.SkyCoord`
             The sky position of the given object.
         """
-        return utils.resolve_object(objectname)
+        return utils.resolve_object(objectname, resolver, resolve_all)

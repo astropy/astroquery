@@ -119,13 +119,18 @@ class ObservationsClass(MastQueryWithLogin):
 
         return self._portal_api_connection._get_columnsconfig_metadata(colconf_name)
 
-    def _parse_caom_criteria(self, **criteria):
+    def _parse_caom_criteria(self, resolver=None, **criteria):
         """
         Helper function that takes dictionary of criteria and parses them into
         position (none if there are no coordinates/object name) and a filter set.
 
         Parameters
         ----------
+        resolver : str, optional
+            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+            If not specified, the default resolver order will be used. Please see the
+            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+            for more information. Default is None.
         **criteria
             Criteria to apply.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
@@ -154,7 +159,7 @@ class ObservationsClass(MastQueryWithLogin):
             mashup_filters = self._portal_api_connection.build_filter_set(self._caom_cone,
                                                                           self._caom_filtered_position,
                                                                           **criteria)
-            coordinates = utils.parse_input_location(coordinates, objectname)
+            coordinates = utils.parse_input_location(coordinates, objectname, resolver)
         else:
             mashup_filters = self._portal_api_connection.build_filter_set(self._caom_cone,
                                                                           self._caom_filtered,
@@ -240,7 +245,7 @@ class ObservationsClass(MastQueryWithLogin):
         return self._portal_api_connection.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def query_object_async(self, objectname, *, radius=0.2*u.deg, pagesize=None, page=None):
+    def query_object_async(self, objectname, *, radius=0.2*u.deg, pagesize=None, page=None, resolver=None):
         """
         Given an object name, returns a list of MAST observations.
         See column documentation `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
@@ -262,18 +267,23 @@ class ObservationsClass(MastQueryWithLogin):
             Defaulte None.
             Can be used to override the default behavior of all results being returned
             to obtain a specific page of results.
+        resolver : str, optional
+            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+            If not specified, the default resolver order will be used. Please see the
+            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+            for more information. Default is None.
 
         Returns
         -------
         response : list of `~requests.Response`
         """
 
-        coordinates = utils.resolve_object(objectname)
+        coordinates = utils.resolve_object(objectname, resolver)
 
         return self.query_region_async(coordinates, radius=radius, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def query_criteria_async(self, *, pagesize=None, page=None, **criteria):
+    def query_criteria_async(self, *, pagesize=None, page=None, resolver=None, **criteria):
         """
         Given an set of criteria, returns a list of MAST observations.
         Valid criteria are returned by ``get_metadata("observations")``
@@ -286,6 +296,11 @@ class ObservationsClass(MastQueryWithLogin):
         page : int, optional
             Can be used to override the default behavior of all results being returned to obtain
             one specific page of results.
+        resolver : str, optional
+            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+            If not specified, the default resolver order will be used. Please see the
+            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+            for more information. Default is None.
         **criteria
             Criteria to apply. At least one non-positional criteria must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
@@ -303,7 +318,7 @@ class ObservationsClass(MastQueryWithLogin):
         response : list of `~requests.Response`
         """
 
-        position, mashup_filters = self._parse_caom_criteria(**criteria)
+        position, mashup_filters = self._parse_caom_criteria(resolver, **criteria)
 
         if not mashup_filters:
             raise InvalidQueryError("At least one non-positional criterion must be supplied.")
@@ -361,7 +376,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return int(self._portal_api_connection.service_request(service, params, pagesize, page)[0][0])
 
-    def query_object_count(self, objectname, *, radius=0.2*u.deg, pagesize=None, page=None):
+    def query_object_count(self, objectname, *, radius=0.2*u.deg, pagesize=None, page=None, resolver=None):
         """
         Given an object name, returns the number of MAST observations.
 
@@ -379,17 +394,22 @@ class ObservationsClass(MastQueryWithLogin):
         page : int, optional
             Can be used to override the default behavior of all results being returned to obtain
             one specific page of results.
+        resolver : str, optional
+            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+            If not specified, the default resolver order will be used. Please see the
+            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+            for more information. Default is None.
 
         Returns
         -------
         response : int
         """
 
-        coordinates = utils.resolve_object(objectname)
+        coordinates = utils.resolve_object(objectname, resolver)
 
         return self.query_region_count(coordinates, radius=radius, pagesize=pagesize, page=page)
 
-    def query_criteria_count(self, *, pagesize=None, page=None, **criteria):
+    def query_criteria_count(self, *, pagesize=None, page=None, resolver=None, **criteria):
         """
         Given an set of filters, returns the number of MAST observations meeting those criteria.
 
@@ -401,6 +421,11 @@ class ObservationsClass(MastQueryWithLogin):
         page : int, optional
             Can be used to override the default behavior of all results being returned to obtain
             one specific page of results.
+        resolver : str, optional
+            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+            If not specified, the default resolver order will be used. Please see the
+            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+            for more information. Default is None.
         **criteria
             Criteria to apply. At least one non-positional criterion must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
@@ -418,7 +443,7 @@ class ObservationsClass(MastQueryWithLogin):
         response : int
         """
 
-        position, mashup_filters = self._parse_caom_criteria(**criteria)
+        position, mashup_filters = self._parse_caom_criteria(resolver, **criteria)
 
         # send query
         if position:

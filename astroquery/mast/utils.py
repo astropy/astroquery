@@ -10,19 +10,15 @@ import warnings
 import numpy as np
 
 import requests
-import json
 import platform
-from urllib import parse
 
 import astropy.coordinates as coord
 from astropy.table import unique, Table
 
 from .. import log
 from ..version import version
-from ..exceptions import NoResultsWarning, ResolverError, InvalidQueryError
+from ..exceptions import InputWarning, NoResultsWarning, ResolverError, InvalidQueryError
 from ..utils import commons
-
-from . import conf
 
 
 __all__ = []
@@ -90,7 +86,7 @@ def _simple_request(url, params=None):
     return response
 
 
-def resolve_object(objectname):
+def resolve_object(objectname, resolver=None, resolve_all=False):
     """
     Resolves an object name to a position on the sky.
 
@@ -98,6 +94,17 @@ def resolve_object(objectname):
     ----------
     objectname : str
         Name of astronomical object to resolve.
+    resolver : str, List, optional
+        Name of resolver. Must be "NED" or "SIMBAD". This parameter is case-insensitive.
+    resolver : str, optional
+        The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+        If not specified, the default resolver order will be used. Please see the
+        `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+        for more information. Default is None.
+    resolve_all : bool, optional
+        If True, will try to resolve the object name using all available resolvers ("NED", "SIMBAD").
+        Function will return a dictionary where the keys are the resolver names and the values are the
+        resolved coordinates. Default is False.
 
     Returns
     -------
@@ -105,16 +112,43 @@ def resolve_object(objectname):
         The sky position of the given object.
     """
 
-    request_args = {"service": "Mast.Name.Lookup",
-                    "params": {'input': objectname, 'format': 'json'}}
-    request_string = 'request={}'.format(parse.quote(json.dumps(request_args)))
+    # Check that resolver is valid
+    valid_resolvers = ['ned', 'simbad']
+    if resolver:
+        if resolver.lower() not in valid_resolvers:
+            raise ResolverError('Invalid resolver. Must be "NED" or "SIMBAD".')
 
-    response = _simple_request("{}/api/v0/invoke".format(conf.server), request_string)
+        if resolve_all:
+            warnings.warn('The resolver parameter is ignored when resolve_all is True. '
+                          'Coordinates will be resolved using all available resolvers.', InputWarning)
+            resolver = None
+
+    # Send request to STScI Archive Name Translation Application (SANTA)
+    params = {'name': objectname, 'outputFormat': 'json', 'resolveAll': str(resolve_all).lower()}
+    if resolver:
+        params['resolver'] = resolver
+    response = _simple_request('http://mastresolver.stsci.edu/Santa-war/query', params)
+    response.raise_for_status()  # Raise any errors
     result = response.json()
 
     if len(result['resolvedCoordinate']) == 0:
-        raise ResolverError("Could not resolve {} to a sky position.".format(objectname))
+        if resolver:
+            raise ResolverError("Could not resolve {} to a sky position using {}. "
+                                "Please try another resolver or set ``resolver=None`` to use the first "
+                                "compatible resolver.".format(objectname, resolver))
+        else:
+            raise ResolverError("Could not resolve {} to a sky position.".format(objectname))
 
+    if resolve_all:
+        # Return results for all compatible resolvers
+        coordinates = {}
+        for res in result['resolvedCoordinate']:
+            ra = res['ra']
+            dec = res['decl']
+            coordinates[res['resolver']] = coord.SkyCoord(ra, dec, unit="deg")
+        return coordinates
+
+    # Return coordinates for a single resolver
     ra = result['resolvedCoordinate'][0]['ra']
     dec = result['resolvedCoordinate'][0]['decl']
     coordinates = coord.SkyCoord(ra, dec, unit="deg")
@@ -122,7 +156,7 @@ def resolve_object(objectname):
     return coordinates
 
 
-def parse_input_location(coordinates=None, objectname=None):
+def parse_input_location(coordinates=None, objectname=None, resolver=None):
     """
     Convenience function to parse user input of coordinates and objectname.
 
@@ -136,6 +170,11 @@ def parse_input_location(coordinates=None, objectname=None):
         The target around which to search, by name (objectname="M104")
         or TIC ID (objectname="TIC 141914082").
         One and only one of coordinates and objectname must be supplied.
+    resolver : str, optional
+        The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+        If not specified, the default resolver order will be used. Please see the
+        `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+        for more information. Default is None.
 
     Returns
     -------
@@ -150,8 +189,11 @@ def parse_input_location(coordinates=None, objectname=None):
     if not (objectname or coordinates):
         raise InvalidQueryError("One of objectname and coordinates must be specified.")
 
+    if not objectname and resolver:
+        warnings.warn("Resolver is only used when resolving object names. It will be ignored.", InputWarning)
+
     if objectname:
-        obj_coord = resolve_object(objectname)
+        obj_coord = resolve_object(objectname, resolver)
 
     if coordinates:
         obj_coord = commons.parse_coordinates(coordinates)

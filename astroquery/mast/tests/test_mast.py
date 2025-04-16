@@ -18,7 +18,7 @@ from requests import HTTPError, Response
 from astroquery.mast.services import _json_to_table
 from astroquery.utils.mocks import MockResponse
 from astroquery.exceptions import (InvalidQueryError, InputWarning, MaxResultsWarning, NoResultsWarning,
-                                   RemoteServiceError)
+                                   RemoteServiceError, ResolverError)
 
 from astroquery import mast
 
@@ -141,7 +141,7 @@ def service_mockreturn(self, method="POST", url=None, data=None, params=None, ti
 def request_mockreturn(url, params={}):
     if 'column_list' in url:
         filename = data_path(DATA_FILES['mission_columns'])
-    elif 'Mast.Name.Lookup' in params:
+    elif 'mastresolver' in url:
         filename = data_path(DATA_FILES["Mast.Name.Lookup"])
     elif 'panstarrs' in url:
         filename = data_path(DATA_FILES['panstarrs_columns'])
@@ -492,8 +492,27 @@ def test_mast_query(patch_post):
 
 
 def test_resolve_object(patch_post):
+    coord = SkyCoord(23.34086, 60.658, unit='deg')
     m103_loc = mast.Mast.resolve_object("M103")
-    assert round(m103_loc.separation(SkyCoord("23.34086 60.658", unit='deg')).value, 10) == 0
+    assert round(m103_loc.separation(coord).value, 10) == 0
+
+    # resolve using a specific resolver
+    m103_loc_ned = mast.Mast.resolve_object("M103", resolver="NED")
+    assert round(m103_loc_ned.separation(coord).value, 10) == 0
+
+    # resolve using all resolvers
+    m103_loc_dict = mast.Mast.resolve_object("M103", resolve_all=True)
+    assert isinstance(m103_loc_dict, dict)
+    assert round(m103_loc_dict['NED'].separation(coord).value, 10) == 0
+
+    # error with invalid resolver
+    with pytest.raises(ResolverError, match="Invalid resolver"):
+        mast.Mast.resolve_object("M103", resolver="invalid")
+
+    # warn if specifying both resolver and resolve_all
+    with pytest.warns(InputWarning, match="The resolver parameter is ignored when resolve_all is True"):
+        loc = mast.Mast.resolve_object("m103", resolver="NED", resolve_all=True)
+        assert isinstance(loc, dict)
 
 
 def test_login_logout(patch_post):

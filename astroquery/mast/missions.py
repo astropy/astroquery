@@ -222,7 +222,7 @@ class MastMissionsClass(MastQueryWithLogin):
 
     @class_or_instance
     def query_criteria_async(self, *, coordinates=None, objectname=None, radius=3*u.arcmin,
-                             limit=5000, offset=0, select_cols=None, **criteria):
+                             limit=5000, offset=0, select_cols=None, resolver=None, **criteria):
         """
         Given a set of search criteria, returns a list of mission metadata.
 
@@ -246,6 +246,11 @@ class MastMissionsClass(MastQueryWithLogin):
             the number of records you wish to skip before selecting records.
         select_cols: list, None
             Default None. Names of columns that will be included in the astropy table
+        resolver : str, optional
+            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+            If not specified, the default resolver order will be used. Please see the
+            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+            for more information. Default is None.
         **criteria
             Criteria to apply. At least one non-positional criterion must be supplied.
             Valid criteria are coordinates, objectname, radius (as in
@@ -268,7 +273,7 @@ class MastMissionsClass(MastQueryWithLogin):
 
         # Parse user input location
         if objectname or coordinates:
-            coordinates = utils.parse_input_location(coordinates, objectname)
+            coordinates = utils.parse_input_location(coordinates, objectname, resolver)
 
         # if radius is just a number we assume degrees
         radius = coord.Angle(radius, u.arcmin)
@@ -300,7 +305,7 @@ class MastMissionsClass(MastQueryWithLogin):
 
     @class_or_instance
     def query_object_async(self, objectname, *, radius=3*u.arcmin, limit=5000, offset=0,
-                           select_cols=None, **criteria):
+                           select_cols=None, resolver=None, **criteria):
         """
         Given an object name, returns a list of matching rows.
 
@@ -321,6 +326,11 @@ class MastMissionsClass(MastQueryWithLogin):
             the number of records you wish to skip before selecting records.
         select_cols: list, None
             Default None. Names of columns that will be included in the astropy table
+        resolver : str, optional
+            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+            If not specified, the default resolver order will be used. Please see the
+            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+            for more information. Default is None.
         **criteria
             Other mission-specific criteria arguments.
             All valid filters can be found using `~astroquery.mast.missions.MastMissionsClass.get_column_list`
@@ -332,7 +342,7 @@ class MastMissionsClass(MastQueryWithLogin):
         response : list of `~requests.Response`
         """
 
-        coordinates = utils.resolve_object(objectname)
+        coordinates = utils.resolve_object(objectname, resolver)
 
         return self.query_region_async(coordinates, radius=radius, limit=limit, offset=offset,
                                        select_cols=select_cols, **criteria)
