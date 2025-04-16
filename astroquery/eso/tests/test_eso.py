@@ -18,7 +18,8 @@ from astropy.table import Table
 
 from astroquery.utils.mocks import MockResponse
 from ...eso import Eso
-from ...eso.utils import py2adql, adql_sanitize_val
+from ...eso.utils import py2adql, adql_sanitize_val, reorder_columns, \
+    DEFAULT_LEAD_COLS_RAW
 from ...exceptions import NoResultsWarning, MaxResultsWarning
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
@@ -331,6 +332,24 @@ def test_issue_table_length_warnings():
     # should not warn
     t = Table({"col_name": [i for i in range(51)]})
     eso_instance._maybe_warn_about_table_length(t)
+
+
+def test_reorder_columns(monkeypatch):
+    eso = Eso()
+    monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
+    table = eso.query_main(target='SGR A', object='SGR A')
+    names_before = table.colnames[:]
+    table2 = reorder_columns(table)
+    names_after = table2.colnames[:]
+
+    assert set(DEFAULT_LEAD_COLS_RAW).issubset(names_before)
+    assert set(DEFAULT_LEAD_COLS_RAW).issubset(names_after)
+    assert set(names_before) == set(names_after)
+    assert table != table2
+    assert names_before[:5] != names_after[:5]
+
+    for n in table.colnames:
+        assert table[[n]].values_equal(table2[[n]]), n
 
 
 def test_py2adql():
