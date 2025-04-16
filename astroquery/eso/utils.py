@@ -3,6 +3,10 @@ utils.py: helper functions for the astropy.eso module
 """
 
 from typing import Union, List, Optional
+from astropy.table import Table
+
+DEFAULT_LEAD_COLS_RAW = ['object', 'ra', 'dec', 'dp_id', 'date_obs', 'prog_id']
+DEFAULT_LEAD_COLS_PHASE3 = ['target_name', 's_ra', 's_dec', 'dp_id', 'date_obs', 'proposal_id']
 
 
 def _split_str_as_list_of_str(column_str: str):
@@ -11,6 +15,27 @@ def _split_str_as_list_of_str(column_str: str):
     else:
         column_list = list(map(lambda x: x.strip(), column_str.split(',')))
     return column_list
+
+
+def reorder_columns(table: Table,
+                    leading_cols: Optional[List[str]] = None):
+    """
+    Reorders the columns of the pased table so that the
+    colums given by the list leading_cols are first.
+    If no leading cols are passed, it defaults to
+    ['object', 'ra', 'dec', 'dp_id', 'date_obs']
+    Returns a table with the columns reordered.
+    """
+    leading_cols = leading_cols or DEFAULT_LEAD_COLS_RAW
+    first_cols = []
+    last_cols = table.colnames[:]
+    for x in leading_cols:
+        if x in last_cols:
+            last_cols.remove(x)
+            first_cols.append(x)
+    last_cols = first_cols + last_cols
+    table = table[last_cols]
+    return table
 
 
 def adql_sanitize_val(x):
