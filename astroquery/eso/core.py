@@ -38,7 +38,9 @@ from ..exceptions import RemoteServiceError, LoginError, \
 from ..query import QueryWithLogin
 from ..utils import schema
 from .utils import py2adql, _split_str_as_list_of_str, \
-    adql_sanitize_val, are_coords_valid, reorder_columns
+    adql_sanitize_val, are_coords_valid, reorder_columns, \
+    DEFAULT_LEAD_COLS_PHASE3, DEFAULT_LEAD_COLS_RAW
+
 
 __doctest_skip__ = ['EsoClass.*']
 
@@ -301,7 +303,6 @@ class EsoClass(QueryWithLogin):
         table_to_return = None
         tap_service = self._tap_service(authenticated)
         table_to_return = self._try_download_pyvo_table(query_str, tap_service)
-        table_to_return = reorder_columns(table_to_return)
         return table_to_return
 
     @unlimited_max_rec
@@ -522,7 +523,7 @@ class EsoClass(QueryWithLogin):
         _ = open_form, cache  # make explicit that we are aware these arguments are unused
         c = column_filters if column_filters else {}
         kwargs = {**kwargs, **c}
-        return self._query_on_allowed_values(table_name=EsoNames.phase3_table,
+        t = self._query_on_allowed_values(table_name=EsoNames.phase3_table,
                                              column_name=EsoNames.phase3_surveys_column,
                                              allowed_values=surveys,
                                              cone_ra=cone_ra,
@@ -535,6 +536,8 @@ class EsoClass(QueryWithLogin):
                                              print_help=help,
                                              authenticated=authenticated,
                                              **kwargs)
+        t = reorder_columns(t, DEFAULT_LEAD_COLS_PHASE3)
+        return t
 
     @deprecated_renamed_argument(('open_form', 'cache'), (None, None),
                                  since=['0.4.11', '0.4.11'])
@@ -615,7 +618,7 @@ class EsoClass(QueryWithLogin):
         _ = open_form, cache  # make explicit that we are aware these arguments are unused
         c = column_filters if column_filters else {}
         kwargs = {**kwargs, **c}
-        return self._query_on_allowed_values(table_name=EsoNames.raw_table,
+        t = self._query_on_allowed_values(table_name=EsoNames.raw_table,
                                              column_name=EsoNames.raw_instruments_column,
                                              allowed_values=instruments,
                                              cone_ra=cone_ra,
@@ -628,6 +631,8 @@ class EsoClass(QueryWithLogin):
                                              print_help=help,
                                              authenticated=authenticated,
                                              **kwargs)
+        t = reorder_columns(t, DEFAULT_LEAD_COLS_RAW)
+        return t
 
     @deprecated_renamed_argument(('open_form', 'cache'), (None, None),
                                  since=['0.4.11', '0.4.11'])
@@ -707,19 +712,21 @@ class EsoClass(QueryWithLogin):
         _ = open_form, cache  # make explicit that we are aware these arguments are unused
         c = column_filters if column_filters else {}
         kwargs = {**kwargs, **c}
-        return self._query_on_allowed_values(table_name=EsoNames.ist_table(instrument),
-                                             column_name=None,
-                                             allowed_values=None,
-                                             cone_ra=cone_ra,
-                                             cone_dec=cone_dec,
-                                             cone_radius=cone_radius,
-                                             columns=columns,
-                                             top=top,
-                                             count_only=count_only,
-                                             query_str_only=query_str_only,
-                                             print_help=help,
-                                             authenticated=authenticated,
-                                             **kwargs)
+        t = self._query_on_allowed_values(table_name=EsoNames.ist_table(instrument),
+                                          column_name=None,
+                                          allowed_values=None,
+                                          cone_ra=cone_ra,
+                                          cone_dec=cone_dec,
+                                          cone_radius=cone_radius,
+                                          columns=columns,
+                                          top=top,
+                                          count_only=count_only,
+                                          query_str_only=query_str_only,
+                                          print_help=help,
+                                          authenticated=authenticated,
+                                          **kwargs)
+        t = reorder_columns(t, DEFAULT_LEAD_COLS_RAW)
+        return t
 
     def get_headers(self, product_ids, *, cache=True):
         """

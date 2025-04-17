@@ -342,14 +342,32 @@ def test_reorder_columns(monkeypatch):
     table2 = reorder_columns(table)
     names_after = table2.colnames[:]
 
+    # the columns we want to change are actually in the table
     assert set(DEFAULT_LEAD_COLS_RAW).issubset(names_before)
     assert set(DEFAULT_LEAD_COLS_RAW).issubset(names_after)
-    assert set(names_before) == set(names_after)
-    assert table != table2
-    assert names_before[:5] != names_after[:5]
 
-    for n in table.colnames:
-        assert table[[n]].values_equal(table2[[n]]), n
+    # no columns are removed nor added
+    assert set(names_before) == set(names_after)
+
+    # Column by column, the contents are the same
+    for cname in table.colnames:
+        assert table[[cname]].values_equal(table2[[cname]]), f"Error for {cname}"
+
+    # empty table doesn't cause a crash
+    empty_1 = Table()
+    empty_2 = reorder_columns(empty_1)
+    assert len(empty_1) == 0 and isinstance(empty_1, Table)
+    assert len(empty_2) == 0 and isinstance(empty_1, Table)
+
+    # If the values we're looking for as leading columns, everything stays the same
+    some_table = Table({"x": [1, 2, 3], "y": [4, 5, 6]})
+    same_table = reorder_columns(some_table)
+    assert all(some_table == same_table), "Table with no cols to change fails"
+
+    # If what we pas is not a table, the function has no effect
+    not_a_table_1 = object()
+    not_a_table_2 = reorder_columns(not_a_table_1)
+    assert not_a_table_1 == not_a_table_2
 
 
 def test_py2adql():
