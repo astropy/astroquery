@@ -358,7 +358,8 @@ class EsoClass(QueryWithLogin):
         """
         help_query = (
             f"select column_name, datatype, xtype, unit "
-            # f", description "  ## TODO: The column description renders output unmanageable
+            # TODO: The column description renders output unmanageable
+            # f", description "
             f"from TAP_SCHEMA.columns "
             f"where table_name = '{table_name}'")
         available_cols = self.query_tap_service(help_query)
@@ -524,18 +525,18 @@ class EsoClass(QueryWithLogin):
         c = column_filters if column_filters else {}
         kwargs = {**kwargs, **c}
         t = self._query_on_allowed_values(table_name=EsoNames.phase3_table,
-                                             column_name=EsoNames.phase3_surveys_column,
-                                             allowed_values=surveys,
-                                             cone_ra=cone_ra,
-                                             cone_dec=cone_dec,
-                                             cone_radius=cone_radius,
-                                             columns=columns,
-                                             top=top,
-                                             count_only=count_only,
-                                             query_str_only=query_str_only,
-                                             print_help=help,
-                                             authenticated=authenticated,
-                                             **kwargs)
+                                          column_name=EsoNames.phase3_surveys_column,
+                                          allowed_values=surveys,
+                                          cone_ra=cone_ra,
+                                          cone_dec=cone_dec,
+                                          cone_radius=cone_radius,
+                                          columns=columns,
+                                          top=top,
+                                          count_only=count_only,
+                                          query_str_only=query_str_only,
+                                          print_help=help,
+                                          authenticated=authenticated,
+                                          **kwargs)
         t = reorder_columns(t, DEFAULT_LEAD_COLS_PHASE3)
         return t
 
@@ -619,18 +620,18 @@ class EsoClass(QueryWithLogin):
         c = column_filters if column_filters else {}
         kwargs = {**kwargs, **c}
         t = self._query_on_allowed_values(table_name=EsoNames.raw_table,
-                                             column_name=EsoNames.raw_instruments_column,
-                                             allowed_values=instruments,
-                                             cone_ra=cone_ra,
-                                             cone_dec=cone_dec,
-                                             cone_radius=cone_radius,
-                                             columns=columns,
-                                             top=top,
-                                             count_only=count_only,
-                                             query_str_only=query_str_only,
-                                             print_help=help,
-                                             authenticated=authenticated,
-                                             **kwargs)
+                                          column_name=EsoNames.raw_instruments_column,
+                                          allowed_values=instruments,
+                                          cone_ra=cone_ra,
+                                          cone_dec=cone_dec,
+                                          cone_radius=cone_radius,
+                                          columns=columns,
+                                          top=top,
+                                          count_only=count_only,
+                                          query_str_only=query_str_only,
+                                          print_help=help,
+                                          authenticated=authenticated,
+                                          **kwargs)
         t = reorder_columns(t, DEFAULT_LEAD_COLS_RAW)
         return t
 
