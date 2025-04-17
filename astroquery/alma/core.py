@@ -594,6 +594,11 @@ class AlmaClass(QueryWithLogin):
         if science is not None:
             payload['science_observation'] = science
         if public is not None:
+            if 'public_data' in kwargs:
+                warnings.warn("Both public and public_data are set. "
+                              "The ``public`` kwarg takes precedence. "
+                              "If you want ``public_data`` to be respected, "
+                              "set ``public=None``.")
             payload['public_data'] = public
 
         query = _gen_sql(payload)
