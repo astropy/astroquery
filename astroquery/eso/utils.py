@@ -26,6 +26,9 @@ def reorder_columns(table: Table,
     ['object', 'ra', 'dec', 'dp_id', 'date_obs']
     Returns a table with the columns reordered.
     """
+    if not isinstance(table, Table):
+        return table
+
     leading_cols = leading_cols or DEFAULT_LEAD_COLS_RAW
     first_cols = []
     last_cols = table.colnames[:]
