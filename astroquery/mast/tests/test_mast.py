@@ -492,26 +492,32 @@ def test_mast_query(patch_post):
 
 
 def test_resolve_object(patch_post):
-    coord = SkyCoord(23.34086, 60.658, unit='deg')
-    m103_loc = mast.Mast.resolve_object("M103")
-    assert round(m103_loc.separation(coord).value, 10) == 0
+    obj = "TIC 307210830"
+    tic_coord = SkyCoord(124.531756290083, -68.3129998725044, unit="deg")
+    simbad_coord = SkyCoord(124.5317560026638, -68.3130014904408, unit="deg")
+    obj_loc = mast.Mast.resolve_object(obj)
+    assert round(obj_loc.separation(tic_coord).value, 10) == 0
 
-    # resolve using a specific resolver
-    m103_loc_ned = mast.Mast.resolve_object("M103", resolver="NED")
-    assert round(m103_loc_ned.separation(coord).value, 10) == 0
+    # resolve using a specific resolver and an object that belongs to a MAST catalog
+    obj_loc_simbad = mast.Mast.resolve_object(obj, resolver="SIMBAD")
+    assert round(obj_loc_simbad.separation(simbad_coord).value, 10) == 0
+
+    # resolve using a specific resolver and an object that does not belong to a MAST catalog
+    obj_loc_simbad = mast.Mast.resolve_object("M101", resolver="SIMBAD")
+    assert round(obj_loc_simbad.separation(simbad_coord).value, 10) == 0
 
     # resolve using all resolvers
-    m103_loc_dict = mast.Mast.resolve_object("M103", resolve_all=True)
-    assert isinstance(m103_loc_dict, dict)
-    assert round(m103_loc_dict['NED'].separation(coord).value, 10) == 0
+    obj_loc_dict = mast.Mast.resolve_object(obj, resolve_all=True)
+    assert isinstance(obj_loc_dict, dict)
+    assert round(obj_loc_dict["SIMBAD"].separation(simbad_coord).value, 10) == 0
 
     # error with invalid resolver
     with pytest.raises(ResolverError, match="Invalid resolver"):
-        mast.Mast.resolve_object("M103", resolver="invalid")
+        mast.Mast.resolve_object(obj, resolver="invalid")
 
     # warn if specifying both resolver and resolve_all
     with pytest.warns(InputWarning, match="The resolver parameter is ignored when resolve_all is True"):
-        loc = mast.Mast.resolve_object("m103", resolver="NED", resolve_all=True)
+        loc = mast.Mast.resolve_object(obj, resolver="NED", resolve_all=True)
         assert isinstance(loc, dict)
 
 

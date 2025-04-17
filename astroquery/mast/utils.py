@@ -12,8 +12,9 @@ import numpy as np
 import requests
 import platform
 
-import astropy.coordinates as coord
+from astropy.coordinates import SkyCoord
 from astropy.table import unique, Table
+from astropy import units as u
 
 from .. import log
 from ..version import version
@@ -111,49 +112,82 @@ def resolve_object(objectname, resolver=None, resolve_all=False):
     response : `~astropy.coordinates.SkyCoord`
         The sky position of the given object.
     """
+    is_catalog = False  # Flag to check if object name belongs to a MAST catalog
+    catalog = None  # Variable to store the catalog name
+    objectname = objectname.strip()
+    catalog_prefixes = {
+        'TIC ': 'TIC',
+        'KIC ': 'KEPLER',
+        'EPIC ': 'K2'
+    }
 
-    # Check that resolver is valid
-    valid_resolvers = ['ned', 'simbad']
     if resolver:
-        if resolver.lower() not in valid_resolvers:
+        # Check that resolver is valid
+        resolver = resolver.upper()
+        if resolver not in ('NED', 'SIMBAD'):
             raise ResolverError('Invalid resolver. Must be "NED" or "SIMBAD".')
 
         if resolve_all:
+            # Warn if user is trying to use a resolver with resolve_all
             warnings.warn('The resolver parameter is ignored when resolve_all is True. '
                           'Coordinates will be resolved using all available resolvers.', InputWarning)
-            resolver = None
+
+        # Check if object belongs to a MAST catalog
+        for prefix, name in catalog_prefixes.items():
+            if objectname.startswith(prefix):
+                is_catalog = True
+                catalog = name
+                break
+
+    # Whether to set resolveAll to True when making the HTTP request
+    # Should be True when resolve_all = True or when object name belongs to a MAST catalog (TIC, KIC, EPIC, K2)
+    use_resolve_all = resolve_all or is_catalog
 
     # Send request to STScI Archive Name Translation Application (SANTA)
-    params = {'name': objectname, 'outputFormat': 'json', 'resolveAll': str(resolve_all).lower()}
-    if resolver:
+    params = {'name': objectname,
+              'outputFormat': 'json',
+              'resolveAll': use_resolve_all}
+    if resolver and not use_resolve_all:
         params['resolver'] = resolver
     response = _simple_request('http://mastresolver.stsci.edu/Santa-war/query', params)
     response.raise_for_status()  # Raise any errors
-    result = response.json()
+    result = response.json().get('resolvedCoordinate', [])
 
-    if len(result['resolvedCoordinate']) == 0:
-        if resolver:
-            raise ResolverError("Could not resolve {} to a sky position using {}. "
-                                "Please try another resolver or set ``resolver=None`` to use the first "
-                                "compatible resolver.".format(objectname, resolver))
-        else:
-            raise ResolverError("Could not resolve {} to a sky position.".format(objectname))
+    # If a resolver is specified and resolve_all is False, find and return the result for that resolver
+    if resolver and not resolve_all:
+        resolver_result = next((res for res in result if res.get('resolver') == resolver), None)
+        if not resolver_result:
+            raise ResolverError(f'Could not resolve {objectname} to a sky position using {resolver}. '
+                                'Please try another resolver or set ``resolver=None`` to use the first '
+                                'compatible resolver.')
+        resolver_coord = SkyCoord(resolver_result['ra'], resolver_result['decl'], unit='deg')
 
+        # If object belongs to a MAST catalog, check the separation between the coordinates from the
+        # resolver and the catalog
+        if is_catalog:
+            catalog_result = next((res for res in result if res.get('resolver') == catalog), None)
+            if catalog_result:
+                catalog_coord = SkyCoord(catalog_result['ra'], catalog_result['decl'], unit='deg')
+                if resolver_coord.separation(catalog_coord) > 1 * u.arcsec:
+                    # Warn user if the coordinates differ by more than 1 arcsec
+                    warnings.warn(f'Resolver {resolver} returned coordinates that differ from MAST {catalog} catalog '
+                                  'by more than 0.1 arcsec. ', InputWarning)
+
+        return resolver_coord
+
+    if not result:
+        raise ResolverError('Could not resolve {} to a sky position.'.format(objectname))
+
+    # Return results for all compatible resolvers
     if resolve_all:
-        # Return results for all compatible resolvers
-        coordinates = {}
-        for res in result['resolvedCoordinate']:
-            ra = res['ra']
-            dec = res['decl']
-            coordinates[res['resolver']] = coord.SkyCoord(ra, dec, unit="deg")
-        return coordinates
+        return {
+            res['resolver']: SkyCoord(res['ra'], res['decl'], unit='deg')
+            for res in result
+        }
 
-    # Return coordinates for a single resolver
-    ra = result['resolvedCoordinate'][0]['ra']
-    dec = result['resolvedCoordinate'][0]['decl']
-    coordinates = coord.SkyCoord(ra, dec, unit="deg")
-
-    return coordinates
+    # Case when resolve_all is False and no resolver is specified
+    # SANTA returns result from first compatible resolver
+    return SkyCoord(result[0]['ra'], result[0]['decl'], unit='deg')
 
 
 def parse_input_location(coordinates=None, objectname=None, resolver=None):

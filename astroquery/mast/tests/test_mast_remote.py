@@ -60,6 +60,10 @@ class TestMast:
         simbad_loc = utils.resolve_object("jw100", resolver="simbad")
         assert round(simbad_loc.separation(SkyCoord("83.70341477 -5.55918309", unit="deg")).value, 4) == 0
 
+        # Try an object from a MAST catalog with a resolver
+        catalog_loc = utils.resolve_object("TIC 307210830", resolver="SIMBAD")
+        assert round(catalog_loc.separation(SkyCoord("124.5317560 -68.31300149", unit="deg")).value, 4) == 0
+
         # Use resolve_all to get all resolvers
         loc_dict = utils.resolve_object("jw100", resolve_all=True)
         assert isinstance(loc_dict, dict)

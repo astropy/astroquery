@@ -43,6 +43,14 @@ utils.tap
 - The method ``upload_table`` accepts file formats accepted by astropy's
   ``Table.read()``. [#3295]
 
+mast
+^^^^
+
+- Added ``resolver`` parameter to query methods to specify the resolver to use when resolving object names to coordinates. [#3292]
+
+- Added ``resolve_all`` parameter to ``MastClass.resolve_object`` to resolve object names and return 
+  coordinates for all available resolvers. [#3292]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
