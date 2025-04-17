@@ -196,8 +196,8 @@ return two columns: the date of observation and the name of the object.
 
 .. doctest-remote-data::
     >>> table = eso.query_instrument('midi', column_filters={'object':'NGC4151'}, columns=['object', 'date_obs'])
-    >>> t_left = table[table["date_obs"] >= "2008-01-01"]
-    >>> t_2008_2009 = t_left[t_left["date_obs"] <= "2009-05-12"]
+    >>> t_2008 = table[table["date_obs"] >= "2008-01-01"]
+    >>> t_2008_2009 = t_2008[t_2008["date_obs"] <= "2009-05-12"]
     >>> t_2008_2009
     <Table length=196>
     object         date_obs       
