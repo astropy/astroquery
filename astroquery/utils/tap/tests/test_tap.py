@@ -1029,10 +1029,9 @@ def test_upload_table():
 
     file_json = get_pkg_data_filename(os.path.join("data", 'test_upload_file', '1744351221317O-result.json'),
                                       package=package)
+
     with pytest.raises(IORegistryError) as exc_info:
         job = tap.upload_table(upload_resource=file_json, table_name=table_name)
 
-    assert (
-                "Format could not be identified based on the file name or contents, please provide a 'format' "
-                "argument." in str(
-            exc_info.value))
+    argument_ = "Format could not be identified based on the file name or contents, please provide a 'format' argument."
+    assert (argument_ in str(exc_info.value))
