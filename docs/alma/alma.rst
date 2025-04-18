@@ -181,8 +181,8 @@ or if you wanted all projects by a given PI:
 Querying For Proprietary Data
 -----------------------------
 
-To query for proprietary data (non-public data), you need to first authenticate using the ``login`` method,
-and then set ``public=False`` in your query:
+To query for proprietary (non-public) data, set ``public=False`` or ``public=None``.
+If you want to download the products, you need to first authenticate using the ``login`` method.
 
 .. doctest-skip::
 
@@ -190,12 +190,14 @@ and then set ``public=False`` in your query:
     >>> alma = Alma()
     >>> # First login to access proprietary data
     >>> alma.login("username")  # Will prompt for password
-    >>> # Now query including proprietary data
-    >>> proprietary_data = alma.query(payload=dict(project_code='2017.1.01355.L', public=False))
-    >>> # Or restrict to only proprietary data
+    >>> # include both public and proprietary data using public=None
+    >>> proprietary_data = alma.query(payload=dict(project_code='2017.1.01355.L', public=None))
+    >>> # restrict to only proprietary data with public=False
     >>> only_proprietary = alma.query_region('W51', radius=25*u.arcmin, public=False)
 
-When you set ``public=False``, the query will include only proprietary data by adding a condition equivalent to ``data_rights='Proprietary'`` in the underlying SQL query.
+Setting ``public=False`` will include only proprietary data, while
+``public=None`` will include both public and proprietary data.
+
 
 The ``query_sia`` method offers another way to query ALMA using the IVOA SIA
 subset of keywords returning results in 'ObsCore' format.  For example,
