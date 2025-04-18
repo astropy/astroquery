@@ -26,11 +26,13 @@ heasarc
 - Heasarc.locate_data returns empty rows with an error in the error_message column if there are
   no data associated with that row rather than filtering it out. [#3275]
 
-
 utils.tap
 ^^^^^^^^^
 
 - Get the cookie associated to the keys JSESSIONID or SESSION due to the tap library release at ESAC. [#3289]
+
+- The method ``upload_table`` accepts file formats accepted by astropy's
+  ``Table.read()``. [#3295]
 
 
 Infrastructure, Utility and Other Changes and Additions
