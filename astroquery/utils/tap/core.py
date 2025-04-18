@@ -1410,7 +1410,7 @@ class TapPlus(Tap):
                     "TABLE_DESC": str(table_description),
                     "FORMAT": 'votable'}
                 log.info(f"Sending file: {resource}")
-                if resource.lower() == 'votable':
+                if resource_format.lower() == 'votable':
                     with open(resource, "r") as f:
                         chunk = f.read()
                     files = [['FILE', os.path.basename(resource), chunk]]

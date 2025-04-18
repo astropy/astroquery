@@ -969,6 +969,10 @@ def test___findCookieInHeader():
 
     assert (result == "SESSION=ZjQ3MjIzMDAtNjNiYy00Mj")
 
+    result = tap._Tap__findCookieInHeader(headers, verbose=True)
+
+    assert (result == "SESSION=ZjQ3MjIzMDAtNjNiYy00Mj")
+
     headers = [('Date', 'Sat, 12 Apr 2025 05:10:47 GMT'),
                ('Server', 'Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips mod_jk/1.2.43'),
                ('Set-Cookie', 'JSESSIONID=E677B51BA5C4837347D1E17D4E36647E; Path=/data-server; Secure; HttpOnly'),
@@ -980,6 +984,29 @@ def test___findCookieInHeader():
     result = tap._Tap__findCookieInHeader(headers)
 
     assert (result == "JSESSIONID=E677B51BA5C4837347D1E17D4E36647E")
+
+    headers = [('Date', 'Sat, 12 Apr 2025 05:10:47 GMT'),
+               ('Server', 'Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips mod_jk/1.2.43'),
+               ('X-Content-Type-Options', 'nosniff'), ('X-XSS-Protection', '0'),
+               ('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate'), ('Pragma', 'no-cache'),
+               ('Expires', '0'), ('X-Frame-Options', 'SAMEORIGIN'),
+               ('Transfer-Encoding', 'chunked'), ('Content-Type', 'text/plain; charset=UTF-8')]
+
+    result = tap._Tap__findCookieInHeader(headers)
+
+    assert (result is None)
+
+    headers = [('Date', 'Sat, 12 Apr 2025 05:10:47 GMT'),
+               ('Server', 'Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips mod_jk/1.2.43'),
+               ('Set-Cookie', 'HOLA=E677B51BA5C4837347D1E17D4E36647E; Path=/data-server; Secure; HttpOnly'),
+               ('X-Content-Type-Options', 'nosniff'), ('X-XSS-Protection', '0'),
+               ('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate'), ('Pragma', 'no-cache'),
+               ('Expires', '0'), ('X-Frame-Options', 'SAMEORIGIN'),
+               ('Transfer-Encoding', 'chunked'), ('Content-Type', 'text/plain; charset=UTF-8')]
+
+    result = tap._Tap__findCookieInHeader(headers)
+
+    assert (result is None)
 
 
 def test_upload_table():
@@ -999,19 +1026,19 @@ def test_upload_table():
     table_name = 'my_table'
     file_csv = get_pkg_data_filename(os.path.join("data", 'test_upload_file', '1744351221317O-result.csv'),
                                      package=package)
-    job = tap.upload_table(upload_resource=file_csv, table_name=table_name)
+    job = tap.upload_table(upload_resource=file_csv, table_name=table_name, format='csv')
 
     assert (job.jobid == jobid)
 
     file_ecsv = get_pkg_data_filename(os.path.join("data", 'test_upload_file', '1744351221317O-result.ecsv'),
                                       package=package)
-    job = tap.upload_table(upload_resource=file_ecsv, table_name=table_name)
+    job = tap.upload_table(upload_resource=file_ecsv, table_name=table_name, format='ecsv')
 
     assert (job.jobid == jobid)
 
     file_fits = get_pkg_data_filename(os.path.join("data", 'test_upload_file', '1744351221317O-result.fits'),
                                       package=package)
-    job = tap.upload_table(upload_resource=file_fits, table_name=table_name)
+    job = tap.upload_table(upload_resource=file_fits, table_name=table_name, format='fits')
 
     assert (job.jobid == jobid)
 
@@ -1023,15 +1050,57 @@ def test_upload_table():
 
     file_plain_vot = get_pkg_data_filename(os.path.join("data", 'test_upload_file', '1744351221317O-result_plain.vot'),
                                            package=package)
-    job = tap.upload_table(upload_resource=file_plain_vot, table_name=table_name)
+    job = tap.upload_table(upload_resource=file_plain_vot, table_name=table_name, table_description="my description")
 
     assert (job.jobid == jobid)
 
+    # check invalid file
     file_json = get_pkg_data_filename(os.path.join("data", 'test_upload_file', '1744351221317O-result.json'),
                                       package=package)
 
     with pytest.raises(IORegistryError) as exc_info:
-        job = tap.upload_table(upload_resource=file_json, table_name=table_name)
+        job = tap.upload_table(upload_resource=file_json, table_name=table_name, format='json')
 
     argument_ = "Format could not be identified based on the file name or contents, please provide a 'format' argument."
+    assert (argument_ in str(exc_info.value))
+
+    # Make use of an astropy table
+    table = Table.read(str(file_ecsv))
+    job = tap.upload_table(upload_resource=table, table_name=table_name, table_description="my description",
+                           format='ecsv')
+
+    assert (job.jobid == jobid)
+
+    # check missing parameters
+    with pytest.raises(ValueError) as exc_info:
+        job = tap.upload_table(upload_resource=file_json, table_name=None)
+
+    argument_ = "Missing mandatory argument 'table_name'"
+    assert (argument_ in str(exc_info.value))
+
+    with pytest.raises(ValueError) as exc_info:
+        job = tap.upload_table(upload_resource=None, table_name="my_table")
+
+    argument_ = "Missing mandatory argument 'upload_resource'"
+    assert (argument_ in str(exc_info.value))
+
+    job = tap.upload_table(upload_resource="https://gea.esa.esac.int", table_name=table_name,
+                           table_description="my description",
+                           format='ecsv')
+
+    assert (job.jobid == jobid)
+
+    # check exception
+    dummyResponse = DummyResponse(500)
+    conn_handler.set_default_response(dummyResponse)
+    launchResponseHeaders = [
+        ['location', f'http://test:1111/tap/async/{jobid}'],
+        ['multipart/form-data', 'boundary={aaaaaaaaaaaaaa}']
+    ]
+    dummyResponse.set_data(method='POST', headers=launchResponseHeaders)
+
+    with pytest.raises(AttributeError) as exc_info:
+        job = tap.upload_table(upload_resource=file_csv, table_name=table_name, format='csv')
+
+    argument_ = "'NoneType' object has no attribute 'decode'"
     assert (argument_ in str(exc_info.value))
