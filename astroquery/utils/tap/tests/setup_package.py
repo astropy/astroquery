@@ -25,11 +25,14 @@ def get_package_data():
              os.path.join('data', '*.xml'),
              os.path.join('data', '*.csv'),
              os.path.join('data', '*.ecsv'),
+             os.path.join('data', '*.json'),
              os.path.join('data', '*.fits'),
              os.path.join('data', '*.fits.gz'),
              os.path.join('data/test_upload_file', '*.vot'),
+             os.path.join('data/test_upload_file', '*.xml'),
              os.path.join('data/test_upload_file', '*.csv'),
              os.path.join('data/test_upload_file', '*.ecsv'),
+             os.path.join('data/test_upload_file', '*.json'),
              os.path.join('data/test_upload_file', '*.fits'),
              ]  # etc, add other extensions
     # you can also enlist files individually by names
