@@ -127,7 +127,7 @@ def test_regression_allcats():
     """
     Expensive test - try all the molecules
     """
-    species_table = CDMS.get_species_table()
+    species_table = CDMS.get_species_table(write=False)
     for row in species_table:
         tag = f"{row['tag']:06d}"
         result = CDMS.get_molecule(tag)
