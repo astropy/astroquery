@@ -113,7 +113,7 @@ def test_complex_molecule_remote():
 
 @pytest.mark.remote_data
 def test_retrieve_species_table():
-    species_table = CDMS.get_species_table(use_cached=False)
+    species_table = CDMS.get_species_table(use_cached=False, write=False)
     # as of 2025/01/16
     assert len(species_table) >= 1293
     assert 'int' in species_table['tag'].dtype.name

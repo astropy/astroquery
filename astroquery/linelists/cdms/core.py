@@ -294,7 +294,8 @@ class CDMSClass(BaseQuery):
 
     def get_species_table(self, *, catfile='partfunc.cat', use_cached=True,
                           catfile_url=conf.catfile_url,
-                          catfile2='catdir.cat', catfile_url2=conf.catfile_url2):
+                          catfile2='catdir.cat', catfile_url2=conf.catfile_url2,
+                          write=True):
         """
         A directory of the catalog is found in a file called 'catdir.cat.'
 
@@ -304,6 +305,13 @@ class CDMSClass(BaseQuery):
         ----------
         catfile : str, name of file, default 'catdir.cat'
             The catalog file, installed locally along with the package
+        use_cached : bool, optional
+            If True, use the cached file if it exists.  If False, download the
+            file from the CDMS server and save it to the cache (if ``write`` is set).
+        write : bool, optional
+            If True, and if ``use_cached`` is set, write the file to the cache.  Use this
+            option if you need to update the index from CDMS; this should be set to False
+            for testing.
 
         Returns
         -------
@@ -332,8 +340,9 @@ class CDMSClass(BaseQuery):
         else:
             result = retrieve_catfile(catfile_url)
             result2 = retrieve_catfile2(catfile_url2)
-            result.write(data_path(catfile), format='ascii.fixed_width', delimiter='|', overwrite=True)
-            result2.write(data_path(catfile2), format='ascii.fixed_width', delimiter='|', overwrite=True)
+            if write:
+                result.write(data_path(catfile), format='ascii.fixed_width', delimiter='|', overwrite=True)
+                result2.write(data_path(catfile2), format='ascii.fixed_width', delimiter='|', overwrite=True)
 
         merged = table.join(result, result2, keys=['tag'])
         if not all(merged['#lines'] == merged['# lines']):
