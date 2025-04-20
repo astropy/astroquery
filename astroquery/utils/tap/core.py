@@ -15,10 +15,11 @@ Modified on 1 jun. 2021 by mhsarmiento
 """
 import getpass
 import os
-import requests
 import tempfile
-from astropy.table.table import Table
 from urllib.parse import urlencode
+
+import requests
+from astropy.table.table import Table
 
 from astroquery import log
 from astroquery.utils.tap import taputils
@@ -1342,7 +1343,8 @@ class TapPlus(Tap):
         table_description : str, optional, default None
             table description
         format : str, optional, default 'votable'
-            resource format
+            resource format.  Only formats described in
+            https://docs.astropy.org/en/stable/io/unified.html#built-in-table-readers-writers are accepted.
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
@@ -1415,7 +1417,7 @@ class TapPlus(Tap):
                         chunk = f.read()
                     files = [['FILE', os.path.basename(resource), chunk]]
                 else:
-                    table = Table.read(str(resource))
+                    table = Table.read(str(resource), format=resource_format)
                     fh = tempfile.NamedTemporaryFile(delete=False)
                     table.write(fh, format='votable')
                     fh.close()

@@ -1032,7 +1032,7 @@ def test_upload_table():
 
     file_ecsv = get_pkg_data_filename(os.path.join("data", 'test_upload_file', '1744351221317O-result.ecsv'),
                                       package=package)
-    job = tap.upload_table(upload_resource=file_ecsv, table_name=table_name, format='ecsv')
+    job = tap.upload_table(upload_resource=file_ecsv, table_name=table_name, format='ascii.ecsv')
 
     assert (job.jobid == jobid)
 
@@ -1061,7 +1061,7 @@ def test_upload_table():
     with pytest.raises(IORegistryError) as exc_info:
         job = tap.upload_table(upload_resource=file_json, table_name=table_name, format='json')
 
-    argument_ = "Format could not be identified based on the file name or contents, please provide a 'format' argument."
+    argument_ = "No reader defined for format 'json' and class 'Table'."
     assert (argument_ in str(exc_info.value))
 
     # Make use of an astropy table
