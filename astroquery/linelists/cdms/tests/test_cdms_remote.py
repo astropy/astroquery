@@ -113,7 +113,7 @@ def test_complex_molecule_remote():
 
 @pytest.mark.remote_data
 def test_retrieve_species_table():
-    species_table = CDMS.get_species_table(use_cached=False)
+    species_table = CDMS.get_species_table(use_cached=False, write_new_species_cache=False)
     # as of 2025/01/16
     assert len(species_table) >= 1293
     assert 'int' in species_table['tag'].dtype.name
@@ -127,7 +127,7 @@ def test_regression_allcats():
     """
     Expensive test - try all the molecules
     """
-    species_table = CDMS.get_species_table()
+    species_table = CDMS.get_species_table(write_new_species_cache=False)
     for row in species_table:
         tag = f"{row['tag']:06d}"
         result = CDMS.get_molecule(tag)

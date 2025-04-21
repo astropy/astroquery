@@ -294,7 +294,8 @@ class CDMSClass(BaseQuery):
 
     def get_species_table(self, *, catfile='partfunc.cat', use_cached=True,
                           catfile_url=conf.catfile_url,
-                          catfile2='catdir.cat', catfile_url2=conf.catfile_url2):
+                          catfile2='catdir.cat', catfile_url2=conf.catfile_url2,
+                          write_new_species_cache=False):
         """
         A directory of the catalog is found in a file called 'catdir.cat.'
 
@@ -304,6 +305,15 @@ class CDMSClass(BaseQuery):
         ----------
         catfile : str, name of file, default 'catdir.cat'
             The catalog file, installed locally along with the package
+        use_cached : bool, optional
+            If True, use the cached file if it exists.  If False, download the
+            file from the CDMS server and save it to the cache if
+            ``write_new_species_cache`` is set.
+        write_new_species_cache : bool, optional
+            *Overrides ``use_cached=True``*.
+            If True, write the species data table files to the CDMS data
+            directory.  Use this option if you need to update the index from
+            CDMS; this should be set to False for testing.
 
         Returns
         -------
@@ -316,7 +326,7 @@ class CDMSClass(BaseQuery):
 
         """
 
-        if use_cached:
+        if use_cached and not write_new_species_cache:
             try:
                 result = ascii.read(data_path(catfile), format='fixed_width', delimiter='|')
                 result2 = ascii.read(data_path(catfile2), format='fixed_width', delimiter='|')
@@ -332,8 +342,9 @@ class CDMSClass(BaseQuery):
         else:
             result = retrieve_catfile(catfile_url)
             result2 = retrieve_catfile2(catfile_url2)
-            result.write(data_path(catfile), format='ascii.fixed_width', delimiter='|', overwrite=True)
-            result2.write(data_path(catfile2), format='ascii.fixed_width', delimiter='|', overwrite=True)
+            if write_new_species_cache:
+                result.write(data_path(catfile), format='ascii.fixed_width', delimiter='|', overwrite=True)
+                result2.write(data_path(catfile2), format='ascii.fixed_width', delimiter='|', overwrite=True)
 
         merged = table.join(result, result2, keys=['tag'])
         if not all(merged['#lines'] == merged['# lines']):
