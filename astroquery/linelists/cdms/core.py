@@ -13,7 +13,6 @@ from astroquery.utils import async_to_sync
 from astroquery.linelists.cdms import conf
 from astroquery.exceptions import InvalidQueryError, EmptyResponseError
 
-import warnings
 import re
 import string
 
@@ -296,7 +295,7 @@ class CDMSClass(BaseQuery):
     def get_species_table(self, *, catfile='partfunc.cat', use_cached=True,
                           catfile_url=conf.catfile_url,
                           catfile2='catdir.cat', catfile_url2=conf.catfile_url2,
-                          write_new_species_cache=True):
+                          write_new_species_cache=False):
         """
         A directory of the catalog is found in a file called 'catdir.cat.'
 
@@ -308,12 +307,13 @@ class CDMSClass(BaseQuery):
             The catalog file, installed locally along with the package
         use_cached : bool, optional
             If True, use the cached file if it exists.  If False, download the
-            file from the CDMS server and save it to the cache (if ``write`` is set).
+            file from the CDMS server and save it to the cache if
+            ``write_new_species_cache`` is set.
         write_new_species_cache : bool, optional
-            If True, and if ``use_cached`` is False, write the species data
-            table files to the CDMS data directory.  Use this option if you need
-            to update the index from CDMS; this should be set to False for
-            testing.
+            *Overrides ``use_cached=True``*.
+            If True, write the species data table files to the CDMS data
+            directory.  Use this option if you need to update the index from
+            CDMS; this should be set to False for testing.
 
         Returns
         -------
@@ -326,9 +326,7 @@ class CDMSClass(BaseQuery):
 
         """
 
-        if use_cached:
-            if write_new_species_cache:
-                warnings.warn("use_cached and write_new_species_cache are both set to True; write_new_species_cache will be ignored.  If you meant to update the cache, set use_cached to False.")
+        if use_cached and not write_new_species_cache:
             try:
                 result = ascii.read(data_path(catfile), format='fixed_width', delimiter='|')
                 result2 = ascii.read(data_path(catfile2), format='fixed_width', delimiter='|')
