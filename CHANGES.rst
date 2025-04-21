@@ -19,6 +19,11 @@ alma
 
 - Bug fix in ``footprint_to_reg`` that did not allow regions to be plotted. [#3285]
 
+linelists.cdms
+^^^^^^^^^^^^^^
+
+- Add a keyword to control writing of new species cache files.  This is needed to prevent tests from overwriting those files. [#3300]
+
 heasarc
 ^^^^^^^
 

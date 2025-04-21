@@ -13,6 +13,7 @@ from astroquery.utils import async_to_sync
 from astroquery.linelists.cdms import conf
 from astroquery.exceptions import InvalidQueryError, EmptyResponseError
 
+import warnings
 import re
 import string
 
@@ -295,7 +296,7 @@ class CDMSClass(BaseQuery):
     def get_species_table(self, *, catfile='partfunc.cat', use_cached=True,
                           catfile_url=conf.catfile_url,
                           catfile2='catdir.cat', catfile_url2=conf.catfile_url2,
-                          write=True):
+                          write_new_species_cache=True):
         """
         A directory of the catalog is found in a file called 'catdir.cat.'
 
@@ -308,10 +309,11 @@ class CDMSClass(BaseQuery):
         use_cached : bool, optional
             If True, use the cached file if it exists.  If False, download the
             file from the CDMS server and save it to the cache (if ``write`` is set).
-        write : bool, optional
-            If True, and if ``use_cached`` is set, write the file to the cache.  Use this
-            option if you need to update the index from CDMS; this should be set to False
-            for testing.
+        write_new_species_cache : bool, optional
+            If True, and if ``use_cached`` is False, write the species data
+            table files to the CDMS data directory.  Use this option if you need
+            to update the index from CDMS; this should be set to False for
+            testing.
 
         Returns
         -------
@@ -325,6 +327,8 @@ class CDMSClass(BaseQuery):
         """
 
         if use_cached:
+            if write_new_species_cache:
+                warnings.warn("use_cached and write_new_species_cache are both set to True; write_new_species_cache will be ignored.  If you meant to update the cache, set use_cached to False.")
             try:
                 result = ascii.read(data_path(catfile), format='fixed_width', delimiter='|')
                 result2 = ascii.read(data_path(catfile2), format='fixed_width', delimiter='|')
@@ -340,7 +344,7 @@ class CDMSClass(BaseQuery):
         else:
             result = retrieve_catfile(catfile_url)
             result2 = retrieve_catfile2(catfile_url2)
-            if write:
+            if write_new_species_cache:
                 result.write(data_path(catfile), format='ascii.fixed_width', delimiter='|', overwrite=True)
                 result2.write(data_path(catfile2), format='ascii.fixed_width', delimiter='|', overwrite=True)
 
