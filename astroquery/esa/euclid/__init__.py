@@ -15,12 +15,6 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.esa.euclid`.
     """
 
-    URL_BASE = _config.ConfigItem('https://eas.esac.esa.int/', 'Euclid base URL')
-
-    EUCLID_TAP_SERVER = _config.ConfigItem('https://easidr.esac.esa.int/tap-server/tap', 'Euclid TAP Server')
-    EUCLID_DATALINK_SERVER = _config.ConfigItem("https://easidr.esac.esa.int/sas-dd/data?", "Euclid DataLink Server")
-    EUCLID_CUTOUT_SERVER = _config.ConfigItem("https://easidr.esac.esa.int/sas-cutout/cutout?", "Euclid Cutout Server")
-
     ROW_LIMIT = _config.ConfigItem(50,
                                    "Number of rows to return from database query (set to -1 for unlimited).")
 

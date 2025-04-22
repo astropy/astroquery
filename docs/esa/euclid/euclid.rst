@@ -37,7 +37,7 @@ Agency EUCLID Archive using a TAP+ REST service. TAP+ is an extension of Table A
 specified by the International Virtual Observatory Alliance (IVOA: http://www.ivoa.net).
 
 
-The TAP query language is Astronomical Data Query Language 
+The TAP query language is Astronomical Data Query Language
 (ADQL: https://www.ivoa.net/documents/ADQL/20231215/index.html ), which is similar to Structured Query Language (SQL),
 widely used to query databases.
 
@@ -863,7 +863,11 @@ surrounded by quotation marks, i.e.: *user_<your_login_name>."<table_name>"*):
 2.5.2. Uploading table from file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A file containing a table (votable, fits or csv) can be uploaded to the user's private area.
+A file containing a table can be uploaded to the user private area. Only a file associated to any of the formats described in
+https://docs.astropy.org/en/stable/io/unified.html#built-in-table-readers-writers, and automatically identified by its suffix
+or content can be used. Note that for a multi-extension fits file with multiple tables, the first table found will be used.
+For any other format, the file can be transformed into an astropy Table (https://docs.astropy.org/en/stable/io/unified.html#getting-started-with-table-i-o)
+and passed to the method.
 
 The parameter 'format' must be provided when the input file is not a votable file.
 
@@ -874,7 +878,7 @@ Your schema name will be automatically added to the provided table name.
 
   >>> from astroquery.esa.euclid import Euclid
   >>> Euclid.login()
-  >>> job = Euclid.upload_table(upload_resource="1535553556177O-result.vot", table_name="table_test_from_file", format="VOTable")
+  >>> job = Euclid.upload_table(upload_resource="1535553556177O-result.vot", table_name="table_test_from_file", format="votable")
   Sending file: 1535553556177O-result.vot
   Uploaded table 'table_test_from_file'.
 

@@ -15,10 +15,11 @@ Modified on 1 jun. 2021 by mhsarmiento
 """
 import getpass
 import os
-import requests
 import tempfile
-from astropy.table.table import Table
 from urllib.parse import urlencode
+
+import requests
+from astropy.table.table import Table
 
 from astroquery import log
 from astroquery.utils.tap import taputils
@@ -1341,8 +1342,9 @@ class TapPlus(Tap):
             resource temporary table name associated to the uploaded resource
         table_description : str, optional, default None
             table description
-        format : str, optional, default 'VOTable'
-            resource format
+        format : str, optional, default 'votable'
+            resource format.  Only formats described in
+            https://docs.astropy.org/en/stable/io/unified.html#built-in-table-readers-writers are accepted.
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
@@ -1381,9 +1383,7 @@ class TapPlus(Tap):
             log.info(f"Uploaded table '{table_name}'.")
             return None
 
-    def __uploadTableMultipart(self, resource, *, table_name=None,
-                               table_description=None,
-                               resource_format="VOTable",
+    def __uploadTableMultipart(self, resource, *, table_name=None, table_description=None, resource_format="votable",
                                verbose=False):
         connHandler = self.__getconnhandler()
         if isinstance(resource, Table):
@@ -1397,24 +1397,38 @@ class TapPlus(Tap):
             fh = tempfile.NamedTemporaryFile(delete=False)
             resource.write(fh, format='votable')
             fh.close()
-            f = open(fh.name, "r")
-            chunk = f.read()
-            f.close()
+
+            with open(fh.name, "r") as f:
+                chunk = f.read()
+
             os.unlink(fh.name)
             files = [['FILE', 'pytable', chunk]]
-            contentType, body = connHandler.encode_multipart(args, files)
+            content_type, body = connHandler.encode_multipart(args, files)
         else:
             if not (str(resource).startswith("http")):  # upload from file
                 args = {
                     "TASKID": str(-1),
                     "TABLE_NAME": str(table_name),
                     "TABLE_DESC": str(table_description),
-                    "FORMAT": str(resource_format)}
+                    "FORMAT": 'votable'}
                 log.info(f"Sending file: {resource}")
-                with open(resource, "r") as f:
-                    chunk = f.read()
-                files = [['FILE', os.path.basename(resource), chunk]]
-                contentType, body = connHandler.encode_multipart(args, files)
+                if resource_format.lower() == 'votable':
+                    with open(resource, "r") as f:
+                        chunk = f.read()
+                    files = [['FILE', os.path.basename(resource), chunk]]
+                else:
+                    table = Table.read(str(resource), format=resource_format)
+                    fh = tempfile.NamedTemporaryFile(delete=False)
+                    table.write(fh, format='votable')
+                    fh.close()
+
+                    with open(fh.name, "r") as f:
+                        chunk = f.read()
+
+                    os.unlink(fh.name)
+                    files = [['FILE', 'pytable', chunk]]
+
+                content_type, body = connHandler.encode_multipart(args, files)
             else:  # upload from URL
                 args = {
                     "TASKID": str(-1),
@@ -1423,8 +1437,8 @@ class TapPlus(Tap):
                     "FORMAT": str(resource_format),
                     "URL": str(resource)}
                 files = [['FILE', "", ""]]
-                contentType, body = connHandler.encode_multipart(args, files)
-        response = connHandler.execute_upload(body, contentType)
+                content_type, body = connHandler.encode_multipart(args, files)
+        response = connHandler.execute_upload(body, content_type)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())

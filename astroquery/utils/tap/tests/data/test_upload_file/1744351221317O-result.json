@@ -1,0 +1,95 @@
+{
+	"VOTABLE": {
+		"RESOURCE": {
+			"INFO": [
+				{
+					"_name": "QUERY_STATUS",
+					"_value": "OK"
+				},
+				{
+					"_name": "QUERY",
+					"_value": "SELECT TOP 20 * FROM user_jferna01.my_votable_fits ",
+					"__cdata": "SELECT TOP 20 *\nFROM user_jferna01.my_votable_fits "
+				},
+				{
+					"_name": "CAPTION",
+					"_value": "How to cite and acknowledge Gaia: https://gea.esac.esa.int/archive/documentation/credits.html",
+					"__cdata": "How to cite and acknowledge Gaia: https://gea.esac.esa.int/archive/documentation/credits.html"
+				},
+				{
+					"_name": "CITATION",
+					"_value": "How to cite and acknowledge Gaia: https://gea.esac.esa.int/archive/documentation/credits.html",
+					"_ucd": "meta.bib",
+					"__cdata": "How to cite and acknowledge Gaia: https://gea.esac.esa.int/archive/documentation/credits.html"
+				},
+				{
+					"_name": "PAGE",
+					"_value": ""
+				},
+				{
+					"_name": "PAGE_SIZE",
+					"_value": ""
+				},
+				{
+					"_name": "JOBID",
+					"_value": "1744360074103O",
+					"__cdata": "1744360074103O"
+				},
+				{
+					"_name": "JOBNAME",
+					"_value": ""
+				}
+			],
+			"TABLE": {
+				"FIELD": [
+					{
+						"DESCRIPTION": "Object Identifier",
+						"_datatype": "int",
+						"_name": "my_votable_fits_oid"
+					},
+					{
+						"_datatype": "long",
+						"_name": "source_id"
+					},
+					{
+						"_datatype": "double",
+						"_name": "ra",
+						"_unit": "deg"
+					},
+					{
+						"_datatype": "double",
+						"_name": "dec",
+						"_unit": "deg"
+					}
+				],
+				"DATA": {
+					"TABLEDATA": {
+						"TR": [
+							{
+								"TD": [
+									"1",
+									"3834447128563320320",
+									"149.8678677871318",
+									"1.12773018116361"
+								]
+							},
+							{
+								"TD": [
+									"2",
+									"3834447162923057280",
+									"149.8953864417848",
+									"1.1345712682426434"
+								]
+							}
+						]
+					}
+				}
+			},
+			"_type": "results"
+		},
+		"_version": "1.4",
+		"_xmlns": "http://www.ivoa.net/xml/VOTable/v1.3",
+		"_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+		"_xsi:schemaLocation": "http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/votable-1.4.xsd"
+	}
+}
