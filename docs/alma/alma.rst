@@ -178,6 +178,27 @@ or if you wanted all projects by a given PI:
 
     >>> Alma.query(payload=dict(pi_name='Ginsburg, Adam'))
 
+Querying For Proprietary Data
+-----------------------------
+
+To query for proprietary (non-public) data, set ``public=False`` or ``public=None``.
+If you want to download the products, you need to first authenticate using the ``login`` method.
+
+.. doctest-skip::
+
+    >>> from astroquery.alma import Alma
+    >>> alma = Alma()
+    >>> # First login to access proprietary data
+    >>> alma.login("username")  # Will prompt for password
+    >>> # include both public and proprietary data using public=None
+    >>> proprietary_data = alma.query(payload=dict(project_code='2017.1.01355.L', public=None))
+    >>> # restrict to only proprietary data with public=False
+    >>> only_proprietary = alma.query_region('W51', radius=25*u.arcmin, public=False)
+
+Setting ``public=False`` will include only proprietary data, while
+``public=None`` will include both public and proprietary data.
+
+
 The ``query_sia`` method offers another way to query ALMA using the IVOA SIA
 subset of keywords returning results in 'ObsCore' format.  For example,
 to query for all images that have ``'XX'`` polarization (note that this query is too large
