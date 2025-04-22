@@ -1,5 +1,4 @@
 .. _astroquery.esa.euclid:
-.. _astroquery.esa.euclid:
 
 ********************************************
 ESA EUCLID Archive (`astroquery.esa.euclid`)
@@ -38,7 +37,7 @@ Agency EUCLID Archive using a TAP+ REST service. TAP+ is an extension of Table A
 specified by the International Virtual Observatory Alliance (IVOA: http://www.ivoa.net).
 
 
-The TAP query language is Astronomical Data Query Language 
+The TAP query language is Astronomical Data Query Language
 (ADQL: https://www.ivoa.net/documents/ADQL/20231215/index.html ), which is similar to Structured Query Language (SQL),
 widely used to query databases.
 
