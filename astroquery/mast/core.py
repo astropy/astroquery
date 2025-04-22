@@ -122,7 +122,7 @@ class MastQueryWithLogin(QueryWithLogin):
             The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
             If not specified, the default resolver order will be used. Please see the
             `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
-            for more information. Default is None.
+            for more information. If ``resolve_all`` is True, this parameter will be ignored. Default is None.
         resolve_all : bool, optional
             If True, will try to resolve the object name using all available resolvers ("NED", "SIMBAD").
             Function will return a dictionary where the keys are the resolver names and the values are the
@@ -130,7 +130,9 @@ class MastQueryWithLogin(QueryWithLogin):
 
         Returns
         -------
-        response : `~astropy.coordinates.SkyCoord`
-            The sky position of the given object.
+        response : `~astropy.coordinates.SkyCoord`, dict
+            If `resolve_all` is False, returns a `~astropy.coordinates.SkyCoord` object with the resolved coordinates.
+            If `resolve_all` is True, returns a dictionary where the keys are the resolver names and the values are
+            `~astropy.coordinates.SkyCoord` objects with the resolved coordinates.
         """
         return utils.resolve_object(objectname, resolver, resolve_all)

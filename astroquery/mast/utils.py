@@ -101,7 +101,7 @@ def resolve_object(objectname, resolver=None, resolve_all=False):
         The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
         If not specified, the default resolver order will be used. Please see the
         `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
-        for more information. Default is None.
+        for more information. If ``resolve_all`` is True, this parameter will be ignored. Default is None.
     resolve_all : bool, optional
         If True, will try to resolve the object name using all available resolvers ("NED", "SIMBAD").
         Function will return a dictionary where the keys are the resolver names and the values are the
@@ -109,8 +109,10 @@ def resolve_object(objectname, resolver=None, resolve_all=False):
 
     Returns
     -------
-    response : `~astropy.coordinates.SkyCoord`
-        The sky position of the given object.
+    response : `~astropy.coordinates.SkyCoord`, dict
+        If `resolve_all` is False, returns a `~astropy.coordinates.SkyCoord` object with the resolved coordinates.
+        If `resolve_all` is True, returns a dictionary where the keys are the resolver names and the values are
+        `~astropy.coordinates.SkyCoord` objects with the resolved coordinates.
     """
     is_catalog = False  # Flag to check if object name belongs to a MAST catalog
     catalog = None  # Variable to store the catalog name
@@ -171,8 +173,9 @@ def resolve_object(objectname, resolver=None, resolve_all=False):
                 if resolver_coord.separation(catalog_coord) > 1 * u.arcsec:
                     # Warn user if the coordinates differ by more than 1 arcsec
                     warnings.warn(f'Resolver {resolver} returned coordinates that differ from MAST {catalog} catalog '
-                                  'by more than 0.1 arcsec. ', InputWarning)
+                                  'by more than 1 arcsec. ', InputWarning)
 
+        log.debug(f'Coordinates resolved using {resolver}: {resolver_coord}')
         return resolver_coord
 
     if not result:
@@ -187,7 +190,9 @@ def resolve_object(objectname, resolver=None, resolve_all=False):
 
     # Case when resolve_all is False and no resolver is specified
     # SANTA returns result from first compatible resolver
-    return SkyCoord(result[0]['ra'], result[0]['decl'], unit='deg')
+    coord = SkyCoord(result[0]['ra'], result[0]['decl'], unit='deg')
+    log.debug(f'Coordinates resolved using {result[0]["resolver"]}: {coord}')
+    return coord
 
 
 def parse_input_location(coordinates=None, objectname=None, resolver=None):
@@ -224,7 +229,7 @@ def parse_input_location(coordinates=None, objectname=None, resolver=None):
         raise InvalidQueryError("One of objectname and coordinates must be specified.")
 
     if not objectname and resolver:
-        warnings.warn("Resolver is only used when resolving object names. It will be ignored.", InputWarning)
+        warnings.warn("Resolver is only used when resolving object names and will be ignored.", InputWarning)
 
     if objectname:
         obj_coord = resolve_object(objectname, resolver)
