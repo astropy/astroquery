@@ -131,8 +131,8 @@ class MastQueryWithLogin(QueryWithLogin):
         Returns
         -------
         response : `~astropy.coordinates.SkyCoord`, dict
-            If `resolve_all` is False, returns a `~astropy.coordinates.SkyCoord` object with the resolved coordinates.
-            If `resolve_all` is True, returns a dictionary where the keys are the resolver names and the values are
+            If ``resolve_all`` is False, returns a `~astropy.coordinates.SkyCoord` object with the resolved coordinates.
+            If ``resolve_all`` is True, returns a dictionary where the keys are the resolver names and the values are
             `~astropy.coordinates.SkyCoord` objects with the resolved coordinates.
         """
         return utils.resolve_object(objectname, resolver, resolve_all)
