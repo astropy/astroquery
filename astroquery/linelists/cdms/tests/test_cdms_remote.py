@@ -123,12 +123,14 @@ def test_retrieve_species_table():
 
 @pytest.mark.bigdata
 @pytest.mark.remote_data
-def test_regression_allcats():
-    """
-    Expensive test - try all the molecules
-    """
+class TestRegressionAllCats:
     species_table = CDMS.get_species_table(write_new_species_cache=False)
-    for row in species_table:
+
+    @pytest.mark.parametrize('row', species_table)
+    def test_regression_allcats(self, row):
+        """
+        Expensive test - try all the molecules
+        """
         tag = f"{row['tag']:06d}"
         result = CDMS.get_molecule(tag)
         assert len(result) >= 1
