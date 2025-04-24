@@ -18,7 +18,8 @@ from astropy.table import Table
 
 from astroquery.utils.mocks import MockResponse
 from ...eso import Eso
-from ...eso.utils import py2adql, adql_sanitize_val, reorder_columns, \
+from ...eso.utils import _UserParams, \
+    _py2adql, _adql_sanitize_op_val, reorder_columns, \
     DEFAULT_LEAD_COLS_RAW
 from ...exceptions import NoResultsWarning, MaxResultsWarning
 
@@ -44,8 +45,6 @@ DATA_FILES = {
         },
     'ADQL':
         {
-            # TODO: Point the second query to an IST when the ISTs are available.
-            # TODO: Fix the apex query when the backend is available.
             "select * from ivoa.ObsCore where obs_collection in ('VVV') and "
             "intersects(s_region, circle('ICRS', 266.41681662, -29.00782497, 0.1775))=1":
             "query_coll_vvv_sgra.pickle",
@@ -60,8 +59,6 @@ DATA_FILES = {
 
             "select table_name from TAP_SCHEMA.tables where schema_name='ist' order by table_name":
             "query_list_instruments.pickle",
-
-            "APEX_QUERY_PLACEHOLDER": "query_apex_ql_5.pickle",
 
             "generic cached query":
             "fd303fa27993048bd2393af067fe5ceccf4817c288ce5c0b4343386f.pickle",
@@ -124,7 +121,11 @@ def test_sinfoni_sgr_a_star(monkeypatch):
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
     monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
-    result = eso.query_instrument('sinfoni', target='SGRA')
+    result = eso.query_instrument('sinfoni',
+                                  column_filters={
+                                      'target': "SGRA"
+                                  }
+                                  )
     # test all results are there and the expected target is present
     assert len(result) == MONKEYPATCH_TABLE_LENGTH
     assert 'SGRA' in result['target']
@@ -134,7 +135,11 @@ def test_main_sgr_a_star(monkeypatch):
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
     monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
-    result = eso.query_main(target='SGR A', object='SGR A')
+    result = eso.query_main(
+        column_filters={
+            'target': "SGR A",
+            'object': "SGR A"
+        })
     # test all results are there and the expected target is present
     assert len(result) == 23
     assert 'SGR A' in result['object']
@@ -262,18 +267,51 @@ def test_tap_url():
         os.environ[tap_url_env_var] = tmpvar
 
 
-def test_adql_sanitize_val():
-    # adql queries are themselves strings.
-    # field that are strings are surrounded by single quotes ('')
-    # This function sanitizes values so that the following queries
-    # are correctly written:
-    # select [...] where x_int = 9
-    # select [...] where x_str = '9'
+@pytest.mark.parametrize("input_val, expected", [
+    # Numeric values
+    (1, "= 1"),
+    (1.5, "= 1.5"),
+    (None, "= None"),
 
-    assert adql_sanitize_val("ciao") == "'ciao'"
-    assert adql_sanitize_val(1) == "1"
-    assert adql_sanitize_val(1.5) == "1.5"
-    assert adql_sanitize_val("1.5") == "'1.5'"
+    # String values
+    ("ciao", "= 'ciao'"),
+    ("1.5", "= '1.5'"),
+    ("ciao  ", "= 'ciao'"),
+    ("  ciao", "= 'ciao'"),
+    ("  ciao  ", "= 'ciao'"),
+    ("1.5 ", "= '1.5'"),
+    (" a string with spaces ", "= 'a string with spaces'"),
+    ("SGR A", "= 'SGR A'"),
+    ("'SGR A'", "= 'SGR A'"),
+
+    # Operator-based queries
+    ("< 5", "< 5"),
+    ("> 1.23", "> 1.23"),
+    ("< '5'", "< '5'"),
+    ("> '1.23'", "> '1.23'"),
+    ("like '%John%'", "like '%John%'"),
+    ("in ('apple', 'mango', 'orange')", "in ('apple', 'mango', 'orange')"),
+    ("in (1, 2, 3)", "in (1, 2, 3)"),
+
+    # Operator-based queries
+    ("<5", "< 5"),
+    (">1.23", "> 1.23"),
+    ("<'5'", "< '5'"),
+    (">'1.23'", "> '1.23'"),
+    ("like'%John%'", "like '%John%'"),
+
+    # Strings that look like operators but should be treated as strings
+    ("'like %John%'", "= 'like %John%'"),
+    ("'= something'", "= '= something'"),
+    ("'> 5'", "= '> 5'"),
+    ("' > 1.23 '", "= ' > 1.23 '"),
+
+    # Ill-formed queries: not sanitized but expected to be passed through as-is
+    ("like %John%", "like %John%"),
+    ("= SGR A", "= SGR A"),
+])
+def test_adql_sanitize_op_val(input_val, expected):
+    assert _adql_sanitize_op_val(input_val) == expected
 
 
 def test_maxrec():
@@ -337,7 +375,11 @@ def test_issue_table_length_warnings():
 def test_reorder_columns(monkeypatch):
     eso = Eso()
     monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
-    table = eso.query_main(target='SGR A', object='SGR A')
+    table = eso.query_main(
+        column_filters={
+            'target': "SGR A",
+            'object': "SGR A"}
+    )
     names_before = table.colnames[:]
     table2 = reorder_columns(table)
     names_after = table2.colnames[:]
@@ -370,140 +412,133 @@ def test_reorder_columns(monkeypatch):
     assert not_a_table_1 == not_a_table_2
 
 
-def test_py2adql():
+@pytest.mark.parametrize("params, expected", [
+    # Basic SELECT * cases
+    (_UserParams(table_name="ivoa.ObsCore"),
+     "select * from ivoa.ObsCore"),
+
+    (_UserParams(table_name="ivoa.ObsCore", columns=''),
+     "select * from ivoa.ObsCore"),
+
+    (_UserParams(table_name="ivoa.ObsCore", columns='*'),
+     "select * from ivoa.ObsCore"),
+
+    # Basic column selection
+    (_UserParams(table_name="my.Table", columns="a, b, c"),
+     "select a, b, c from my.Table"),
+
+    (_UserParams(table_name="my.Table", columns=["a", "b", "c"]),
+     "select a, b, c from my.Table"),
+
+    # With filters and order
+    (_UserParams(
+        table_name="my.Table",
+        columns=["a", "b", "c"],
+        column_filters={"x": "> 1", "y": "< 2"},
+        order_by="z"),
+     "select a, b, c from my.Table where x > 1 and y < 2 order by z desc"),
+
+    # With cone search
+    (_UserParams(
+        table_name="galaxies",
+        columns="name, ra, dec",
+        cone_ra=150.1, cone_dec=2.3, cone_radius=0.1),
+     "select name, ra, dec from galaxies where "
+     "intersects(s_region, circle('ICRS', 150.1, 2.3, 0.1))=1"),
+
+    # With count_only
+    (_UserParams(
+        table_name="galaxies",
+        cone_ra=10, cone_dec=20, cone_radius=0.5,
+        count_only=True),
+     "select count(*) from galaxies where intersects(s_region, circle('ICRS', 10, 20, 0.5))=1"),
+
+    # With top
+    (_UserParams(
+        table_name="stars",
+        columns="name, mag",
+        top=10,
+        order_by="mag",
+        order_by_desc=False),
+     "select top 10 name, mag from stars order by mag asc"),
+
+    # With multiple filters including IN
+    (_UserParams(
+        table_name="beautiful.Stars",
+        columns=["id", "instrument"],
+        column_filters={"instrument": "in ('MUSE', 'UVES')", "t_exptime": "> 100"},
+        order_by="t_exptime"),
+     "select id, instrument from beautiful.Stars where instrument in ('MUSE', 'UVES') "
+     "and t_exptime > 100 order by t_exptime desc"),
+
+    # With all params 1
+    (
+        _UserParams(
+            table_name="ivoa.ObsCore",
+            cone_ra=180.0,
+            cone_dec=-45.0,
+            cone_radius=0.05,
+            columns=["target_name", "s_ra", "s_dec", "em_min", "em_max"],
+            column_filters={
+                "em_min": "> 4e-7",
+                "em_max": "< 1.2e-6",
+                "dataproduct_type": "in ('spectrum')"
+            },
+            top=100,
+            order_by="em_min",
+            order_by_desc=True,
+            count_only=False,
+            query_str_only=True,
+        ),
+        "select top 100 target_name, s_ra, s_dec, em_min, em_max from ivoa.ObsCore "
+        "where em_min > 4e-7 and em_max < 1.2e-6 and dataproduct_type in ('spectrum') "
+        "and intersects(s_region, circle('ICRS', 180.0, -45.0, 0.05))=1 "
+        "order by em_min desc"
+    ),
+
+    # With all params 2
+    (
+        _UserParams(
+            table_name="ivoa.ObsCore",
+            cone_ra=180.0,
+            cone_dec=-45.0,
+            cone_radius=0.05,
+            columns=["target_name", "s_ra", "s_dec", "em_min", "em_max"],
+            column_filters={
+                "em_min": "> 4e-7",
+                "em_max": "< 1.2e-6",
+                "dataproduct_type": "in ('spectrum')"
+            },
+            top=100,
+            order_by="em_min",
+            order_by_desc=False,
+            count_only=True,
+            query_str_only=True,
+        ),
+        "select top 100 count(*) from ivoa.ObsCore "
+        "where em_min > 4e-7 and em_max < 1.2e-6 and dataproduct_type in ('spectrum') "
+        "and intersects(s_region, circle('ICRS', 180.0, -45.0, 0.05))=1"
+    ),
+])
+def test_py2adql(params, expected):
     """
-    #  Example query:
-    #
-    #  SELECT
-    #      target_name, dp_id, s_ra, s_dec, t_exptime, em_min, em_max,
-    #      dataproduct_type, instrument_name, obstech, abmaglim,
-    #      proposal_id, obs_collection
-    #  FROM
-    #      ivoa.ObsCore
-    #  WHERE
-    #      intersects(s_region, circle('ICRS', 109.668246, -24.558700, 0.001389))=1
-    #  AND
-    #      dataproduct_type in ('spectrum')
-    #  AND
-    #      em_min>4.0e-7
-    #  AND
-    #      em_max<1.2e-6
-    #  ORDER BY SNR DESC
+    Tests that the ADQL query builder generates the expected query.
+
+    Example of typical adql query:
+
+        SELECT
+            target_name, dp_id, s_ra, s_dec, t_exptime, em_min, em_max,
+            dataproduct_type, instrument_name, obstech, abmaglim,
+            proposal_id, obs_collection
+        FROM
+            ivoa.ObsCore
+        WHERE
+            intersects(s_region, circle('ICRS', 109.668246, -24.558700, 0.001389)) = 1
+            AND dataproduct_type IN ('spectrum')
+            AND em_min > 4.0e-7
+            AND em_max < 1.2e-6
+        ORDER BY
+            em_min DESC
     """
-
-    # Simple tests
-    q = py2adql('ivoa.ObsCore')
-    eq = "select * from ivoa.ObsCore"
-    assert eq == q, f"Expected:\n{eq}\n\nObtained:\n{q}\n\n"
-
-    q = py2adql('ivoa.ObsCore', columns='')
-    eq = "select * from ivoa.ObsCore"
-    assert eq == q, f"Expected:\n{eq}\n\nObtained:\n{q}\n\n"
-
-    q = py2adql('ivoa.ObsCore', columns='*')
-    eq = "select * from ivoa.ObsCore"
-    assert eq == q, f"Expected:\n{eq}\n\nObtained:\n{q}\n\n"
-
-    q = py2adql('pinko.Pallino', ['pippo', 'tizio', 'caio'])
-    eq = "select pippo, tizio, caio from pinko.Pallino"
-    assert eq == q, f"Expected:\n{eq}\n\nObtained:\n{q}\n\n"
-
-    q = py2adql('pinko.Pallino', ['pippo', 'tizio', 'caio'])
-    eq = "select pippo, tizio, caio from pinko.Pallino"
-    assert eq == q, f"Expected:\n{eq}\n\nObtained:\n{q}\n\n"
-
-    q = py2adql('pinko.Pallino', ['pippo', 'tizio', 'caio'],
-                where_constraints=['asdf > 1', 'asdf < 2', 'asdf = 3', 'asdf != 4'],
-                order_by='order_col')
-    eq = "select pippo, tizio, caio from pinko.Pallino " + \
-        "where asdf > 1 and asdf < 2 and asdf = 3 and asdf != 4 " + \
-        "order by order_col desc"
-    assert eq == q, f"Expected:\n{eq}\n\nObtained:\n{q}\n\n"
-
-    q = py2adql('pinko.Pallino', ['pippo', 'tizio', 'caio'],
-                where_constraints=["asdf = 'ASDF'", "bcd = 'BCD'"],
-                order_by='order_col')
-    eq = "select pippo, tizio, caio from pinko.Pallino " + \
-        "where asdf = 'ASDF' and bcd = 'BCD' " + \
-        "order by order_col desc"
-    assert eq == q, f"Expected:\n{eq}\n\nObtained:\n{q}\n\n"
-
-    # All arguments
-    columns = 'target_name, dp_id, s_ra, s_dec, t_exptime, em_min, em_max, ' + \
-        'dataproduct_type, instrument_name, obstech, abmaglim, ' + \
-        'proposal_id, obs_collection'
-    table = 'ivoa.ObsCore'
-    and_c_list = ['em_min>4.0e-7', 'em_max<1.2e-6', 'asdasdads']
-
-    q = py2adql(columns=columns, table=table,
-                where_constraints=and_c_list,
-                order_by='snr', order_by_desc=True)
-    expected_query = 'select ' + columns + ' from ' + table + \
-        ' where ' + and_c_list[0] + ' and ' + and_c_list[1] + ' and ' + and_c_list[2] + \
-        " order by snr desc"
-    assert expected_query == q, f"Expected:\n{expected_query}\n\nObtained:\n{q}\n\n"
-
-    # All arguments
-    q = py2adql(columns=columns, table=table,
-                where_constraints=and_c_list,
-                order_by='snr', order_by_desc=False)
-    expected_query = 'select ' + columns + ' from ' + table + \
-        ' where ' + and_c_list[0] + ' and ' + and_c_list[1] + ' and ' + and_c_list[2] + \
-        " order by snr asc"
-    assert expected_query == q, f"Expected:\n{expected_query}\n\nObtained:\n{q}\n\n"
-
-    # ra, dec, radius, all int
-    q = py2adql(columns=columns, table=table,
-                where_constraints=and_c_list,
-                order_by='snr', order_by_desc=False,
-                cone_ra=1, cone_dec=2, cone_radius=3)
-    expected_query = 'select ' + columns + ' from ' + table + \
-        ' where ' + and_c_list[0] + ' and ' + and_c_list[1] + ' and ' + and_c_list[2] + \
-        ' and intersects(s_region, circle(\'ICRS\', 1, 2, 3))=1' + \
-        " order by snr asc"
-    assert expected_query == q, f"Expected:\n{expected_query}\n\nObtained:\n{q}\n\n"
-
-    # ra, dec, radius, all float
-    q = py2adql(columns=columns, table=table,
-                where_constraints=and_c_list,
-                order_by='snr', order_by_desc=False,
-                cone_ra=1.23, cone_dec=2.34, cone_radius=3.45)
-    expected_query = 'select ' + columns + ' from ' + table + \
-        ' where ' + and_c_list[0] + ' and ' + and_c_list[1] + ' and ' + and_c_list[2] + \
-        ' and intersects(s_region, circle(\'ICRS\', 1.23, 2.34, 3.45))=1' + \
-        " order by snr asc"
-    assert expected_query == q, f"Expected:\n{expected_query}\n\nObtained:\n{q}\n\n"
-
-    # ra, dec, radius, all zero
-    q = py2adql(columns=columns, table=table,
-                where_constraints=and_c_list,
-                order_by='snr', order_by_desc=False,
-                cone_ra=0, cone_dec=0, cone_radius=0)
-    expected_query = 'select ' + columns + ' from ' + table + \
-        ' where ' + and_c_list[0] + ' and ' + and_c_list[1] + ' and ' + and_c_list[2] + \
-        ' and intersects(s_region, circle(\'ICRS\', 0, 0, 0))=1' + \
-        " order by snr asc"
-    assert expected_query == q, f"Expected:\n{expected_query}\n\nObtained:\n{q}\n\n"
-
-    # count only
-    q = py2adql(columns=columns, table=table,
-                where_constraints=and_c_list,
-                order_by='snr', order_by_desc=False,
-                cone_ra=1.23, cone_dec=2.34, cone_radius=3.45, count_only=True)
-    expected_query = ("select count(*) from ivoa.ObsCore where "
-                      "em_min>4.0e-7 and em_max<1.2e-6 and asdasdads "
-                      "and intersects(s_region, circle('ICRS', 1.23, 2.34, 3.45))=1 "
-                      "order by snr asc")
-    assert expected_query == q, f"Expected:\n{expected_query}\n\nObtained:\n{q}\n\n"
-
-    # top
-    q = py2adql(columns=columns, table=table,
-                where_constraints=and_c_list,
-                order_by='snr', order_by_desc=False,
-                cone_ra=1.23, cone_dec=2.34, cone_radius=3.45, top=5)
-    expected_query = 'select top 5 ' + columns + ' from ' + table + \
-        ' where ' + and_c_list[0] + ' and ' + and_c_list[1] + ' and ' + and_c_list[2] + \
-        ' and intersects(s_region, circle(\'ICRS\', 1.23, 2.34, 3.45))=1' + \
-        " order by snr asc"
-
-    assert expected_query == q, f"Expected:\n{expected_query}\n\nObtained:\n{q}\n\n"
+    query = _py2adql(params)
+    assert query == expected, f"Expected:\n{expected}\n\nGot:\n{query}\n"
