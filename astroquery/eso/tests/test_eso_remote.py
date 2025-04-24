@@ -172,11 +172,12 @@ class TestEso:
     def test_sgrastar_column_filters(self):
         eso = Eso()
 
-        result1 = eso.query_surveys(["sphere", "vegas"],
+        result1 = eso.query_surveys("sphere, vegas",
                                     columns=("obs_collection, calib_level, "
-                                    "multi_ob, filter, s_pixel_scale, instrument_name"),
-                                    calib_level=3,
-                                    multi_ob='M'
+                                             "multi_ob, filter, s_pixel_scale, instrument_name"),
+                                    column_filters={
+                                        'calib_level': "= 3",
+                                        'multi_ob': "like '%M%'"}
                                     )
 
         result2 = eso.query_surveys("sphere, vegas",
@@ -227,8 +228,16 @@ class TestEso:
     def test_apex_retrieval(self):
         eso = Eso()
 
-        tblb = eso.query_apex_quicklooks(project_id='E-095.F-9802A-2015')
-        tbla = eso.query_apex_quicklooks(prog_id='095.F-9802(A)')
+        tblb = eso.query_apex_quicklooks(
+            column_filters={
+                "project_id": 'E-095.F-9802A-2015'
+            }
+        )
+        tbla = eso.query_apex_quicklooks(
+            column_filters={
+                "prog_id": '095.F-9802(A)'
+            }
+        )
 
         assert len(tbla) == 5
         assert set(tbla['release_date']) == {
@@ -307,7 +316,11 @@ class TestEso:
         eso.maxrec = 5
 
         with pytest.warns(MaxResultsWarning):
-            result = eso.query_main(target='SGR A', object='SGR A')
+            result = eso.query_main(
+                column_filters={
+                    'target': "SGR A",
+                    'object': "SGR A"}
+            )
 
         assert len(result) == 5
         assert 'SGR A' in result['object']
