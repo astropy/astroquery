@@ -1,12 +1,34 @@
 """
 utils.py: helper functions for the astropy.eso module
 """
-
-from typing import Union, List, Optional
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Union
 from astropy.table import Table
 
 DEFAULT_LEAD_COLS_RAW = ['object', 'ra', 'dec', 'dp_id', 'date_obs', 'prog_id']
 DEFAULT_LEAD_COLS_PHASE3 = ['target_name', 's_ra', 's_dec', 'dp_id', 'date_obs', 'proposal_id']
+
+
+@dataclass
+class _UserParams:
+    """
+    Parameters set by the user
+    """
+    table_name: str
+    column_name: str = None
+    allowed_values: Union[List[str], str] = None
+    cone_ra: float = None
+    cone_dec: float = None
+    cone_radius: float = None
+    columns: Union[List, str] = None
+    column_filters: Dict[str, str] = None
+    top: int = None
+    order_by: str = ''
+    order_by_desc: bool = True
+    count_only: bool = False
+    query_str_only: bool = False
+    print_help: bool = False
+    authenticated: bool = False
 
 
 def _split_str_as_list_of_str(column_str: str):
@@ -15,6 +37,47 @@ def _split_str_as_list_of_str(column_str: str):
     else:
         column_list = list(map(lambda x: x.strip(), column_str.split(',')))
     return column_list
+
+
+def _raise_if_has_deprecated_keys(filters: Optional[Dict[str, str]]) -> bool:
+    if not filters:
+        return
+
+    if any(k in filters for k in ("box", "coord1", "coord2")):
+        raise ValueError(
+            "box, coord1 and coord2 are deprecated; "
+            "use cone_ra, cone_dec and cone_radius instead."
+        )
+
+    if any(k in filters for k in ("etime", "stime")):
+        raise ValueError(
+            "'stime' and 'etime' are deprecated; "
+            "use instead 'exp_time' together with '<', '>', 'between'. Examples:\n"
+            "\tcolumn_filters = {'exp_time': '< 2024-01-01'}\n"
+            "\tcolumn_filters = {'exp_time': '>= 2023-01-01'}\n"
+            "\tcolumn_filters = {'exp_time': between '2023-01-01' and '2024-01-01'}\n"
+        )
+
+
+def _build_where_constraints(
+        column_name: str,
+        allowed_values: Union[List[str], str],
+        column_filters: Dict[str, str]) -> str:
+    def _format_helper(av):
+        if isinstance(av, str):
+            av = _split_str_as_list_of_str(av)
+        quoted_values = [f"'{v.strip()}'" for v in av]
+        return f"{column_name} in ({', '.join(quoted_values)})"
+
+    column_filters = column_filters or {}
+    where_constraints = []
+    if allowed_values:
+        where_constraints.append(_format_helper(allowed_values))
+
+    where_constraints += [
+        f"{k} {_adql_sanitize_op_val(v)}" for k, v in column_filters.items()
+    ]
+    return where_constraints
 
 
 def reorder_columns(table: Table,
@@ -41,68 +104,98 @@ def reorder_columns(table: Table,
     return table
 
 
-def adql_sanitize_val(x):
+def _adql_sanitize_op_val(op_val):
     """
-    If the value is a string, put it into single quotes
+    Expected input:
+        "= 5", "< 3.14", "like '%John Doe%'", "in ('item1', 'item2')"
+        or just string values like "ESO", "ALMA", "'ALMA'", "John Doe"
+
+    Logic:
+        returns "<operator> <value>" if operator is provided.
+        Defaults to "= <value>" otherwise.
     """
-    retval = f"'{x}'" if isinstance(x, str) else f"{x}"
-    return retval
+    supported_operators = {"=", ">", "<", "<=", ">=", "!=", "like", "between", "in"}
+
+    if not isinstance(op_val, str):
+        return f"= {op_val}"
+
+    op_val = op_val.strip()
+    parts = op_val.split(" ", 1)
+
+    if len(parts) == 1:
+        for s in supported_operators:
+            if op_val.startswith(s):
+                operator, value = s, op_val.split(s, 1)[-1]
+                return f"{operator} {value}"
+
+    if len(parts) == 2 and parts[0].lower() in supported_operators:
+        operator, value = parts
+        return f"{operator} {value}"
+
+    # Default case: no operator. Assign "="
+    value = op_val if (op_val.startswith("'") and op_val.endswith("'")) else f"'{op_val}'"
+    return f"= {value}"
 
 
-def are_coords_valid(ra: Optional[float] = None,
-                     dec: Optional[float] = None,
-                     radius: Optional[float] = None) -> bool:
+def raise_if_coords_not_valid(cone_ra: Optional[float] = None,
+                              cone_dec: Optional[float] = None,
+                              cone_radius: Optional[float] = None) -> bool:
     """
     ra, dec, radius must be either present all three
     or absent all three. Moreover, they must be float
     """
-    are_all_none = (ra is None) and (dec is None) and (radius is None)
-    are_all_float = isinstance(ra, (float, int)) and \
-        isinstance(dec, (float, int)) and \
-        isinstance(radius, (float, int))
+    are_all_none = (cone_ra is None) and (cone_dec is None) and (cone_radius is None)
+    are_all_float = isinstance(cone_ra, (float, int)) and \
+        isinstance(cone_dec, (float, int)) and \
+        isinstance(cone_radius, (float, int))
     is_a_valid_combination = are_all_none or are_all_float
-    return is_a_valid_combination
+    if not is_a_valid_combination:
+        raise ValueError(
+            "Either all three (cone_ra, cone_dec, cone_radius) must be present or none.\n"
+            "Values provided:\n"
+            f"\tcone_ra = {cone_ra}, cone_dec = {cone_dec}, cone_radius = {cone_radius}"
+        )
 
 
-def py2adql(table: str, columns: Union[List, str] = None,
-            cone_ra: float = None, cone_dec: float = None, cone_radius: float = None,
-            where_constraints: List = None,
-            order_by: str = '', order_by_desc=True,
-            count_only: bool = False, top: int = None):
+def _py2adql(user_params: _UserParams) -> str:
     """
     Return the adql string corresponding to the parameters passed
     See adql examples at https://archive.eso.org/tap_obs/examples
     """
+    up = user_params
+    query_string = None
+    columns = up.columns or []
+
     # We assume the coordinates passed are valid
     where_circle = []
-    if cone_radius is not None:
+    if up.cone_radius is not None:
         where_circle += [
-            f'intersects(s_region, circle(\'ICRS\', {cone_ra}, {cone_dec}, {cone_radius}))=1']
+            'intersects(s_region, circle(\'ICRS\', '
+            f'{up.cone_ra}, {up.cone_dec}, {up.cone_radius}))=1']
 
-    # Initialize / validate
-    query_string = None
-    # do not modify the original list
-    wc = [] if where_constraints is None else where_constraints[:]
-    wc += where_circle
+    wc = _build_where_constraints(up.column_name,
+                                  up.allowed_values,
+                                  up.column_filters) + where_circle
+
     if isinstance(columns, str):
         columns = _split_str_as_list_of_str(columns)
     if columns is None or len(columns) < 1:
         columns = ['*']
-    if count_only:
+    if up.count_only:
         columns = ['count(*)']
 
     # Build the query
-    query_string = ', '.join(columns) + ' from ' + table
+    query_string = ', '.join(columns) + ' from ' + up.table_name
     if len(wc) > 0:
         where_string = ' where ' + ' and '.join(wc)
         query_string += where_string
 
-    if len(order_by) > 0:
-        order_string = ' order by ' + order_by + (' desc ' if order_by_desc else ' asc ')
+    if len(up.order_by) > 0 and not up.count_only:
+        order_string = ' order by ' + up.order_by + (' desc ' if up.order_by_desc else ' asc ')
         query_string += order_string
 
-    if top is not None:
-        query_string = f"select top {top} " + query_string
+    if up.top is not None:
+        query_string = f"select top {up.top} " + query_string
     else:
         query_string = "select " + query_string
 
