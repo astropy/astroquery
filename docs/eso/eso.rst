@@ -12,11 +12,11 @@ ESO Queries (`astroquery.eso`)
     **The WDB (Web DataBase) API is being deprecated and replaced by TAP (Table Access Protocol)**,
     a standardized interface for querying astronomical datasets using ADQL (Astronomical Data Query Language).
     While the Python interface remains the same, the values accepted by the ``columns`` and ``column_filters``
-    parameters must reflect TAP's field names and ADQL syntax. This means that
+    parameters must reflect TAP field names and ADQL syntax. This means that,
     although the structure of your code won't need to change, **the values you pass to the arguments**
     ``columns`` **and** ``column_filters`` **must be revised** to comply with the new format.
 
-    In TAP, column_filters accepts SQL-like ADQL expressions. For example:
+    In TAP, ``column_filters`` accepts ADQL expressions. For example:
 
     .. doctest-skip::
 
@@ -29,6 +29,7 @@ ESO Queries (`astroquery.eso`)
         }
 
     Please review your queries carefully and update them accordingly to ensure compatibility with the new astroquery versions.
+    See section :ref:`column-filters-fix`
 
 
 Getting started
@@ -223,12 +224,13 @@ return two columns: the date of observation and the name of the object.
 
 .. doctest-remote-data::
     >>> table = eso.query_instrument(
-        'midi',
-        column_filters={
-            'object':'NGC4151',
-            'exp_start': "between '2008-01-01' and '2009-05-12'"
-        },
-        columns=['object', 'date_obs'])
+    ...             'midi',
+    ...             column_filters={
+    ...                 'object':'NGC4151',
+    ...                 'exp_start': "between '2008-01-01' and '2009-05-12'"
+    ...             },
+    ...             columns=['object', 'date_obs']
+    ...         )
     >>> table
     <Table length=196>
     object         date_obs
@@ -263,16 +265,13 @@ query all-sky images from APICAM with ``luminance`` filter.
 
     >>> eso.maxrec = -1   # Return all results
                           # (i.e. do not truncate the query even if it is slow)
-    >>> table = eso.query_main(column_filters={'instrument': 'APICAM',
-                                               'filter_path': 'LUMINANCE'})
-
     >>> table = eso.query_main(
-                    column_filters={
-                        'instrument': 'APICAM',
-                        'filter_path': 'LUMINANCE',
-                        'exp_start': "between '2019-04-26' and '2019-04-27'"
-                    }
-                )
+    ...                     column_filters={
+    ...                         'instrument': 'APICAM',
+    ...                         'filter_path': 'LUMINANCE',
+    ...                         'exp_start': "between '2019-04-26' and '2019-04-27'"
+    ...                     }
+    ...                 )
     >>> print(len(table))
     215
     >>> print(table.columns)
@@ -361,12 +360,11 @@ This method is detailed in the example below.
 .. doctest-remote-data::
 
     >>> table = eso.query_instrument('midi',
-                             column_filters={
-                                 'object': 'NGC4151',
-                                 'date_obs': "<='2008-01-01'"
-                            },
-                             columns=['object', 'date_obs', 'dp_id'])
-
+    ...                     column_filters={
+    ...                         'object': 'NGC4151',
+    ...                         'date_obs': "<='2008-01-01'"
+    ...                     },
+    ...                     columns=['object', 'date_obs', 'dp_id'])
     >>> table_headers = eso.get_headers(table["dp_id"])
     >>> len(table_headers.columns)
     336
@@ -431,6 +429,9 @@ in the call to :meth:`~astroquery.eso.EsoClass.retrieve_data`.
 Troubleshooting
 ===============
 
+Clearing the cache
+------------------
+
 If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing your cache:
 
 .. code-block:: python
@@ -440,6 +441,52 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
 
 If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
+
+.. _column-filters-fix:
+
+Using the correct ``column_filters``
+------------------------------------
+
+Two concrete and relevant examples of fields present in WDB but not present in TAP/ADQL
+are ``stime`` and ``etime``. The following snippet shows how to adapt the filters to
+the TAP / ADQL syntax:
+
+.. doctest-skip::
+
+    # The following filters won't work:
+    column_filters = {
+        'stime': '2024-01-01'
+        'etime': '2024-12-31'
+    }
+
+    # Replace by:
+    column_filters = {
+        'exp_start': "between '2024-01-01' and '2024-12-31'"
+    }
+
+    # --- #
+
+    # The following filters won't work:
+    column_filters = {
+        'stime': '2024-01-01'
+    }
+
+    # Replace by:
+    column_filters = {
+        'exp_start': "> '2024-01-01'"
+    }
+
+    # --- #
+
+    # The following filters won't work:
+    column_filters = {
+        'etime': '2024-12-31'
+    }
+
+    # Replace by:
+    column_filters = {
+        'exp_start': "< '2024-12-31'"
+    }
 
 
 Reference/API
