@@ -114,23 +114,17 @@ def _adql_sanitize_op_val(op_val):
         returns "<operator> <value>" if operator is provided.
         Defaults to "= <value>" otherwise.
     """
-    supported_operators = {"=", ">", "<", "<=", ">=", "!=", "like", "between", "in"}
+    supported_operators = {"=", ">", "<", "<=", ">=", "!=", "like", "between", "in",
+                           "not like", "not in"}
 
     if not isinstance(op_val, str):
         return f"= {op_val}"
 
     op_val = op_val.strip()
-    parts = op_val.split(" ", 1)
-
-    if len(parts) == 1:
-        for s in supported_operators:
-            if op_val.startswith(s):
-                operator, value = s, op_val.split(s, 1)[-1]
-                return f"{operator} {value}"
-
-    if len(parts) == 2 and parts[0].lower() in supported_operators:
-        operator, value = parts
-        return f"{operator} {value}"
+    for s in supported_operators:
+        if op_val.lower().startswith(s):
+            operator, value = s, op_val[len(s):].strip()
+            return f"{operator} {value}"
 
     # Default case: no operator. Assign "="
     value = op_val if (op_val.startswith("'") and op_val.endswith("'")) else f"'{op_val}'"
