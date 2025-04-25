@@ -290,8 +290,11 @@ def test_tap_url():
     ("< '5'", "< '5'"),
     ("> '1.23'", "> '1.23'"),
     ("like '%John%'", "like '%John%'"),
+    ("not like '%John%'", "not like '%John%'"),
     ("in ('apple', 'mango', 'orange')", "in ('apple', 'mango', 'orange')"),
+    ("not in ('apple', 'mango', 'orange')", "not in ('apple', 'mango', 'orange')"),
     ("in (1, 2, 3)", "in (1, 2, 3)"),
+    ("not in (1, 2, 3)", "not in (1, 2, 3)"),
 
     # Operator-based queries
     ("<5", "< 5"),
@@ -308,6 +311,7 @@ def test_tap_url():
 
     # Ill-formed queries: not sanitized but expected to be passed through as-is
     ("like %John%", "like %John%"),
+    ("not like %John%", "not like %John%"),
     ("= SGR A", "= SGR A"),
 ])
 def test_adql_sanitize_op_val(input_val, expected):
