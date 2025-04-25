@@ -32,7 +32,7 @@ def msa_product_table():
     products = Observations.get_product_list(obs['obsid'][0])
 
     # Filter out everything but the MSA config file
-    mask = np.char.find(products["dataURI"], "_msa.fits") != -1
+    mask = np.char.find(np.char.asarray(products["dataURI"]), "_msa.fits") != -1
     products = products[mask]
 
     return products
@@ -622,7 +622,7 @@ class TestMast:
 
         # Should only return products corresponding to target 429031146
         assert len(prods) > 0
-        assert (np.char.find(prods['obs_id'], '429031146') != -1).all()
+        assert (np.char.find(np.char.asarray(prods['obs_id']), '429031146') != -1).all()
 
     def test_observations_get_unique_product_list(self, caplog):
         # Check that no rows are filtered out when all products are unique
