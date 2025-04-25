@@ -9,13 +9,12 @@ ESO Queries (`astroquery.eso`)
     Backward Compatibility Notice
     ==============================
 
-    On replacing the backend WDB by TAP
-    The WDB (Web DataBase) API is being deprecated and replaced by TAP (Table Access Protocol),
+    **The WDB (Web DataBase) API is being deprecated and replaced by TAP (Table Access Protocol)**,
     a standardized interface for querying astronomical datasets using ADQL (Astronomical Data Query Language).
-    While the Python interface remains the same, the ``columns`` and ``column_filters``
-    parameters have been updated to reflect TAP's field names and ADQL syntax. This means that
-    although the structure of your code won't need to change,
-    the values passed to these arguments must be revised to comply with the new format.
+    While the Python interface remains the same, the values accepted by the ``columns`` and ``column_filters``
+    parameters must reflect TAP's field names and ADQL syntax. This means that
+    although the structure of your code won't need to change, **the values you pass to the arguments**
+    ``columns`` **and** ``column_filters`` **must be revised** to comply with the new format.
 
     In TAP, column_filters accepts SQL-like ADQL expressions. For example:
 
