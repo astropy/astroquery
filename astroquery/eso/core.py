@@ -277,6 +277,7 @@ class EsoClass(QueryWithLogin):
                 "<eso_class_instance>.login(username=<your_username>"
             )
 
+        log.debug(f"Querying from {self._tap_url()}")
         if authenticated:
             h = self._get_auth_header()
             self._session.headers = {**self._session.headers, **h}
@@ -469,7 +470,10 @@ class EsoClass(QueryWithLogin):
             Note that authenticated queries are slower. Default is `False`.
         :type authenticated: bool
 
-        :param column_filters: Constraints applied to the query. Default is `None`.
+        :param column_filters: Constraints applied to the query in ADQL syntax,
+            ``{"column_name": "<adql_operator> <value>"}``. For example:
+            ``{"exp_start": "between '2024-12-31' and '2025-12-31'"}``
+            Default is `None`.
         :type column_filters: dict, `None`
 
         :param open_form: **Deprecated** - unused.
@@ -565,7 +569,10 @@ class EsoClass(QueryWithLogin):
             Note that authenticated queries are slower. Default is `False`.
         :type authenticated: bool
 
-        :param column_filters: Constraints applied to the query. Default is `None`.
+        :param column_filters: Constraints applied to the query in ADQL syntax,
+            ``{"column_name": "<adql_operator> <value>"}``. For example:
+            ``{"exp_start": "between '2024-12-31' and '2025-12-31'"}``
+            Default is `None`.
         :type column_filters: dict, `None`
 
         :param open_form: **Deprecated** - unused.
@@ -660,7 +667,10 @@ class EsoClass(QueryWithLogin):
             Note that authenticated queries are slower. Default is `False`.
         :type authenticated: bool
 
-        :param column_filters: Constraints applied to the query. Default is `None`.
+        :param column_filters: Constraints applied to the query in ADQL syntax,
+            ``{"column_name": "<adql_operator> <value>"}``. For example:
+            ``{"exp_start": "between '2024-12-31' and '2025-12-31'"}``
+            Default is `None`.
         :type column_filters: dict, `None`
 
         :param open_form: **Deprecated** - unused.
@@ -1047,7 +1057,10 @@ class EsoClass(QueryWithLogin):
             Note that authenticated queries are slower. Default is `False`.
         :type authenticated: bool
 
-        :param column_filters: Constraints applied to the query. Default is `None`.
+        :param column_filters: Constraints applied to the query in ADQL syntax,
+            ``{"column_name": "<adql_operator> <value>"}``. For example:
+            ``{"exp_start": "between '2024-12-31' and '2025-12-31'"}``
+            Default is `None`.
         :type column_filters: dict, `None`
 
         :param open_form: **Deprecated** - unused.
