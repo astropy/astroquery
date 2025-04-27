@@ -99,7 +99,8 @@ def test_parseletternumber():
     assert parse_letternumber("Z9") == 359
 
     # inferred?
-    assert parse_letternumber("z9") == -359
+    assert parse_letternumber("a0") == -10
+    assert parse_letternumber("b0") == -20
     assert parse_letternumber("ZZ") == 3535
 
 
