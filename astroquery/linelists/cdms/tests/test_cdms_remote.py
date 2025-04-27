@@ -42,14 +42,23 @@ def test_remote_300K():
 
 
 @pytest.mark.remote_data
+def test_co_basics():
+    tbl = CDMS.get_molecule('028503')
+    assert tbl['Q1'][0] == 1
+    assert tbl['Q7'][0] == 0
+    assert tbl['Q1'][10] == 11
+    assert tbl['Q7'][10] == 10
+    assert tbl['MOLWT'][0] == 28
+
+
+@pytest.mark.remote_data
 def test_propanediol():
     tbl1 = CDMS.get_molecule('076513')
     assert 'int' in tbl1['Q2'].dtype.name
 
     tbl = CDMS.query_lines(min_frequency=100.3 * u.GHz,
                            max_frequency=100.5 * u.GHz,
-                           molecule='076513',
-    )
+                           molecule='076513')
     assert isinstance(tbl, Table)
     assert len(tbl) >= 1
     assert 'aG\'g-1,2-Propanediol' in tbl['name']
@@ -146,8 +155,8 @@ def test_remote_all_species():
                            min_strength=-5)
     assert isinstance(tbl, Table)
 
-    AlS_is_in_table = np.char.find(tbl['name'], 'AlS') != -1
-    Propanediol_is_in_table = np.char.find(tbl['name'], "aG'g-1,2-Propanediol") != -1
+    AlS_is_in_table = (tbl['name'] == 'AlS').sum() > 0
+    Propanediol_is_in_table = (tbl['name'] == "aG'g-1,2-Propanediol").sum() > 0
 
     assert AlS_is_in_table
     assert Propanediol_is_in_table

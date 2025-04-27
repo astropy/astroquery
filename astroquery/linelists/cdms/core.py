@@ -148,7 +148,7 @@ class CDMSClass(BaseQuery):
                                                 'refine your search or read the Docs '
                                                 'for pointers on how to search.')
                     payload['Molecules'] = tuple(f"{val:06d} {key}"
-                                                for key, val in luts.items())[0]
+                                                 for key, val in luts.items())[0]
                 else:
                     payload['Molecules'] = molecule
 
@@ -453,19 +453,19 @@ class CDMSClass(BaseQuery):
                   'TAG': 44,
                   'QNFMT': 52,
                   'Q1': 55,
-                  'Q2': 58,
-                  'Q3': 60,
-                  'Q4': 62,
-                  'Q5': 64,
-                  'Q6': 66,
-                  'Q7': 68,
-                  'Q8': 70,
-                  'Q9': 72,
-                  'Q10': 74,
-                  'Q11': 76,
-                  'Q12': 78,
-                  'Q13': 80,
-                  'Q14': 82,
+                  'Q2': 57,
+                  'Q3': 59,
+                  'Q4': 61,
+                  'Q5': 63,
+                  'Q6': 65,
+                  'Q7': 67,
+                  'Q8': 69,
+                  'Q9': 71,
+                  'Q10': 73,
+                  'Q11': 75,
+                  'Q12': 77,
+                  'Q13': 79,
+                  'Q14': 81,
                   }
 
         result = ascii.read(text, header_start=None, data_start=0,
