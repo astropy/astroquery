@@ -54,7 +54,8 @@ class CDMSClass(BaseQuery):
         min_strength : int, optional
             Minimum strength in catalog units, the default is -500
 
-        molecule : list, string of regex if parse_name_locally=True, optional
+        molecule : list or string if parse_name_locally=False,
+            string of regex if parse_name_locally=True, optional
             Identifiers of the molecules to search for. If this parameter
             is not provided the search will match any species. Default is 'All'.
             As a first pass, the molecule will be searched for with a direct
@@ -134,18 +135,21 @@ class CDMSClass(BaseQuery):
         # changes interpretation of query
         self._last_query_temperature = temperature_for_intensity
 
-        if molecule is not None:
-            if parse_name_locally:
-                self.lookup_ids = build_lookup()
-                luts = self.lookup_ids.find(molecule, flags)
-                if len(luts) == 0:
-                    raise InvalidQueryError('No matching species found. Please '
-                                            'refine your search or read the Docs '
-                                            'for pointers on how to search.')
-                payload['Molecules'] = tuple(f"{val:06d} {key}"
-                                             for key, val in luts.items())[0]
-            else:
-                payload['Molecules'] = molecule
+        if molecule == 'All':
+            payload['Moleculesgrp'] = 'all species'
+        else:
+            if molecule is not None:
+                if parse_name_locally:
+                    self.lookup_ids = build_lookup()
+                    luts = self.lookup_ids.find(molecule, flags)
+                    if len(luts) == 0:
+                        raise InvalidQueryError('No matching species found. Please '
+                                                'refine your search or read the Docs '
+                                                'for pointers on how to search.')
+                    payload['Molecules'] = tuple(f"{val:06d} {key}"
+                                                for key, val in luts.items())[0]
+                else:
+                    payload['Molecules'] = molecule
 
         if get_query_payload:
             return payload
@@ -180,7 +184,7 @@ class CDMSClass(BaseQuery):
         # accounts for three formats, e.g.: '058501' or 'H2C2S' or '058501 H2C2S'
         badlist = (self.MALFORMATTED_MOLECULE_LIST +  # noqa
                    [y for x in self.MALFORMATTED_MOLECULE_LIST for y in x.split()])
-        if payload['Molecules'] in badlist:
+        if 'Moleculesgrp' not in payload.keys() and payload['Molecules'] in badlist:
             raise ValueError(f"Molecule {payload['Molecules']} is known not to comply with standard CDMS format.  "
                              f"Try get_molecule({payload['Molecules']}) instead.")
 
@@ -233,13 +237,31 @@ class CDMSClass(BaseQuery):
         soup = BeautifulSoup(response.text, 'html.parser')
         text = soup.find('pre').text
 
+        need_to_filter_bad_molecules = False
+        for bad_molecule in self.MALFORMATTED_MOLECULE_LIST:
+            if text.find(bad_molecule.split()[1]) > -1:
+                need_to_filter_bad_molecules = True
+                break
+        if need_to_filter_bad_molecules:
+            text_new = ''
+            text = text.split('\n')
+            for line in text:
+                need_to_include_line = True
+                for bad_molecule in self.MALFORMATTED_MOLECULE_LIST:
+                    if line.find(bad_molecule.split()[1]) > -1:
+                        need_to_include_line = False
+                        break
+                if need_to_include_line:
+                    text_new = text_new + '\n' + line
+            text = text_new
+
         starts = {'FREQ': 0,
                   'ERR': 14,
                   'LGINT': 25,
                   'DR': 36,
                   'ELO': 38,
                   'GUP': 47,
-                  'MOLWT': 51,
+                  'MOLWT': 50,
                   'TAG': 54,
                   'QNFMT': 58,
                   'Ju': 61,
@@ -486,13 +508,13 @@ def parse_letternumber(st):
     From the CDMS docs:
     "Exactly two characters are available for each quantum number. Therefore, half
     integer quanta are rounded up ! In addition, capital letters are used to
-    indicate quantum numbers larger than 99. E. g. A0 is 100, Z9 is 359. Small
-    types are used to signal corresponding negative quantum numbers."
+    indicate quantum numbers larger than 99. E. g. A0 is 100, Z9 is 359. Lower case characters 
+    are used similarly to signal negative quantum numbers smaller than –9. e. g., a0 is –10, b0 is –20, etc."
     """
     asc = string.ascii_lowercase
     ASC = string.ascii_uppercase
-    newst = ''.join(['-' + str(asc.index(x)+10) if x in asc else
-                     str(ASC.index(x)+10) if x in ASC else
+    newst = ''.join(['-' + str((asc.index(x)+1)) if x in asc else
+                     str((ASC.index(x)+10)) if x in ASC else
                      x for x in st])
     return int(newst)
 
