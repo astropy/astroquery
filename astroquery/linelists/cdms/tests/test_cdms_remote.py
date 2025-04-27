@@ -58,8 +58,7 @@ def test_propanediol():
 
     tbl = CDMS.query_lines(min_frequency=100.3 * u.GHz,
                            max_frequency=100.5 * u.GHz,
-                           molecule='076513',
-    )
+                           molecule='076513')
     assert isinstance(tbl, Table)
     assert len(tbl) >= 1
     assert 'aG\'g-1,2-Propanediol' in tbl['name']

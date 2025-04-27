@@ -148,7 +148,7 @@ class CDMSClass(BaseQuery):
                                                 'refine your search or read the Docs '
                                                 'for pointers on how to search.')
                     payload['Molecules'] = tuple(f"{val:06d} {key}"
-                                                for key, val in luts.items())[0]
+                                                 for key, val in luts.items())[0]
                 else:
                     payload['Molecules'] = molecule
 
