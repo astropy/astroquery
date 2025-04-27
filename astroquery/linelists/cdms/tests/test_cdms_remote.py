@@ -157,7 +157,6 @@ def test_remote_all_species():
 
     AlS_is_in_table = (tbl['name'] == 'AlS').sum() > 0
     Propanediol_is_in_table = (tbl['name'] == "aG'g-1,2-Propanediol").sum() > 0
-    Propanediol_is_in_table = (np.char.find(tbl['name'], "aG'g-1,2-Propanediol") != -1).sum() > 0
 
     assert AlS_is_in_table
     assert Propanediol_is_in_table
