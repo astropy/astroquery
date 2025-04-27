@@ -121,6 +121,20 @@ def test_retrieve_species_table():
     assert 'float' in species_table['lg(Q(1000))'].dtype.name
 
 
+@pytest.mark.remote_data
+def test_remote_all_species():
+    tbl = CDMS.query_lines(min_frequency=100.3 * u.GHz,
+                           max_frequency=100.5 * u.GHz,
+                           min_strength=-5)
+    assert isinstance(tbl, Table)
+
+    AlS_is_in_table = np.char.find(tbl['name'], 'AlS') != -1
+    Propanediol_is_in_table = np.char.find(tbl['name'], "aG'g-1,2-Propanediol") != -1
+
+    assert AlS_is_in_table
+    assert Propanediol_is_in_table
+
+
 @pytest.mark.bigdata
 @pytest.mark.remote_data
 class TestRegressionAllCats:
@@ -134,21 +148,3 @@ class TestRegressionAllCats:
         tag = f"{row['tag']:06d}"
         result = CDMS.get_molecule(tag)
         assert len(result) >= 1
-
-@pytest.mark.remote_data
-def test_remote_all_species():
-    tbl = CDMS.query_lines(min_frequency=100.3 * u.GHz,
-                           max_frequency=100.5 * u.GHz,
-                           min_strength=-5)
-    assert isinstance(tbl, Table)
-
-    AlS_is_in_table = False
-    Propanediol_is_in_table = False
-    for row in tbl:
-        if row['name'].strip() == 'AlS':
-            AlS_is_in_table = True
-        if row['name'].strip() == "aG'g-1,2-Propanediol":
-            Propanediol_is_in_table = True
-
-    assert AlS_is_in_table
-    assert Propanediol_is_in_table
