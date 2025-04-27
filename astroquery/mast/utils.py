@@ -140,7 +140,8 @@ def parse_input_location(coordinates=None, objectname=None):
     Returns
     -------
     response : `~astropy.coordinates.SkyCoord`
-        The given coordinates, or object's location as an `~astropy.coordinates.SkyCoord` object.
+        The given coordinates, or object's location as an `~astropy.coordinates.SkyCoord` object
+        in the ICRS frame.
     """
 
     # Checking for valid input
@@ -150,11 +151,13 @@ def parse_input_location(coordinates=None, objectname=None):
     if not (objectname or coordinates):
         raise InvalidQueryError("One of objectname and coordinates must be specified.")
 
+    # Resolve object, if given
     if objectname:
         obj_coord = resolve_object(objectname)
 
+    # Parse coordinates, if given
     if coordinates:
-        obj_coord = commons.parse_coordinates(coordinates)
+        obj_coord = commons.parse_coordinates(coordinates, 'icrs')
 
     return obj_coord
 
