@@ -42,6 +42,16 @@ def test_remote_300K():
 
 
 @pytest.mark.remote_data
+def test_co_basics():
+    tbl = CDMS.get_molecule('028503')
+    assert tbl['Q1'][0] == 1
+    assert tbl['Q7'][0] == 0
+    assert tbl['Q1'][10] == 11
+    assert tbl['Q7'][10] == 10
+    assert tbl['MOLWT'][0] == 28
+
+
+@pytest.mark.remote_data
 def test_propanediol():
     tbl1 = CDMS.get_molecule('076513')
     assert 'int' in tbl1['Q2'].dtype.name
