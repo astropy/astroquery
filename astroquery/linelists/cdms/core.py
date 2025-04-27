@@ -12,6 +12,7 @@ from astroquery.utils import async_to_sync
 # import configurable items declared in __init__.py
 from astroquery.linelists.cdms import conf
 from astroquery.exceptions import InvalidQueryError, EmptyResponseError
+from astroquery import log
 
 import re
 import string
@@ -409,7 +410,7 @@ class CDMSClass(BaseQuery):
 
         return result
 
-    def get_molecule(self, molecule_id, *, cache=True):
+    def get_molecule(self, molecule_id, *, cache=True, return_response=False):
         """
         Retrieve the whole molecule table for a given molecule id
         """
@@ -418,6 +419,8 @@ class CDMSClass(BaseQuery):
         url = f'{self.CLASSIC_URL}/entries/c{molecule_id}.cat'
         response = self._request(method='GET', url=url,
                                  timeout=self.TIMEOUT, cache=cache)
+        if return_response:
+            return response
         result = self._parse_cat(response)
 
         species_table = self.get_species_table()
@@ -449,7 +452,7 @@ class CDMSClass(BaseQuery):
                   'GUP': 42,
                   'TAG': 44,
                   'QNFMT': 52,
-                  'Q1': 56,
+                  'Q1': 55,
                   'Q2': 58,
                   'Q3': 60,
                   'Q4': 62,
@@ -472,7 +475,7 @@ class CDMSClass(BaseQuery):
                             format='fixed_width', fast_reader=False)
 
         # int truncates - which is what we want
-        result['MOLWT'] = [int(x/1e4) for x in result['TAG']]
+        result['MOLWT'] = [int(x/1e3) for x in result['TAG']]
 
         result['FREQ'].unit = u.MHz
         result['ERR'].unit = u.MHz
@@ -482,15 +485,18 @@ class CDMSClass(BaseQuery):
         result['MOLWT'].unit = u.Da
 
         fix_keys = ['GUP']
-        for suf in '':
-            for qn in (f'Q{ii}' for ii in range(1, 15)):
-                qnind = qn+suf
-                fix_keys.append(qnind)
+        for qn in (f'Q{ii}' for ii in range(1, 15)):
+            fix_keys.append(qn)
+        log.debug(f"fix_keys: {fix_keys} should include Q1, Q2, ..., Q14 and GUP")
         for key in fix_keys:
             if not np.issubdtype(result[key].dtype, np.integer):
                 intcol = np.array(list(map(parse_letternumber, result[key])),
                                   dtype=int)
+                if any(intcol == -999999):
+                    intcol = np.ma.masked_where(intcol == -999999, intcol)
                 result[key] = intcol
+                if not np.issubdtype(result[key].dtype, np.integer):
+                    raise ValueError(f"Failed to parse {key} as integer")
 
         result['LGINT'].unit = u.nm**2 * u.MHz
         result['ELO'].unit = u.cm**(-1)
@@ -508,9 +514,12 @@ def parse_letternumber(st):
     From the CDMS docs:
     "Exactly two characters are available for each quantum number. Therefore, half
     integer quanta are rounded up ! In addition, capital letters are used to
-    indicate quantum numbers larger than 99. E. g. A0 is 100, Z9 is 359. Lower case characters 
+    indicate quantum numbers larger than 99. E. g. A0 is 100, Z9 is 359. Lower case characters
     are used similarly to signal negative quantum numbers smaller than –9. e. g., a0 is –10, b0 is –20, etc."
     """
+    if np.ma.is_masked(st):
+        return -999999
+
     asc = string.ascii_lowercase
     ASC = string.ascii_uppercase
     newst = ''.join(['-' + str((asc.index(x)+1)) if x in asc else

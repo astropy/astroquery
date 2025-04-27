@@ -38,6 +38,24 @@ def test_remote_300K():
     assert tbl['FREQ'][0] == 505366.7875
     assert tbl['ERR'][0] == 49.13
     assert tbl['LGINT'][0] == -4.2182
+    assert tbl['MOLWT'][0] == 18
+
+
+@pytest.mark.remote_data
+def test_propanediol():
+    tbl1 = CDMS.get_molecule('076513')
+    assert 'int' in tbl1['Q2'].dtype.name
+
+    tbl = CDMS.query_lines(min_frequency=100.3 * u.GHz,
+                           max_frequency=100.5 * u.GHz,
+                           molecule='076513',
+    )
+    assert isinstance(tbl, Table)
+    assert len(tbl) >= 1
+    assert 'aG\'g-1,2-Propanediol' in tbl['name']
+    # check that the parser worked - this will be string or obj otherwise
+    assert 'int' in tbl['Ku'].dtype.name
+    assert tbl['MOLWT'][0] == 76
 
 
 @pytest.mark.remote_data
