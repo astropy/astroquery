@@ -12,7 +12,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.svo_fps`.
     """
     base_url = _config.ConfigItem(
-        ['http://svo2.cab.inta-csic.es/theory/fps/fps.php'],
+        ['https://svo2.cab.inta-csic.es/theory/fps/fps.php'],
         'SVO FPS base query URL')
 
     timeout = _config.ConfigItem(
