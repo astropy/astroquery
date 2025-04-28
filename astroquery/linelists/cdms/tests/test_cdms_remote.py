@@ -57,6 +57,11 @@ def test_ch3cn_negqn():
     tbl = CDMS.get_molecule('041501')
     fourtominusthree = tbl[(tbl['Q1'] == 4) & (tbl['Q2'] == -3)]
     assert len(fourtominusthree) >= 1
+
+    # check specifically for -21, which is encoded as `b1`
+    twentytwominustwentyone = tbl[(tbl['Q1'] == 22) & (tbl['Q2'] == -21)]
+    assert len(twentytwominustwentyone) >= 1
+
     assert tbl['TAG'][0] == -41501
 
 
