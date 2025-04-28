@@ -41,6 +41,7 @@ def test_remote_300K():
     assert tbl['MOLWT'][0] == 18
     assert tbl['TAG'][0] == 18505
 
+
 @pytest.mark.remote_data
 def test_co_basics():
     tbl = CDMS.get_molecule('028503')
