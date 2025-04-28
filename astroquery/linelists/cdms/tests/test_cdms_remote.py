@@ -41,6 +41,7 @@ def test_remote_300K():
     assert tbl['MOLWT'][0] == 18
     assert tbl['TAG'][0] == 18505
 
+
 @pytest.mark.remote_data
 def test_co_basics():
     tbl = CDMS.get_molecule('028503')
@@ -49,7 +50,7 @@ def test_co_basics():
     assert tbl['Q1'][10] == 11
     assert tbl['Q7'][10] == 10
     assert tbl['MOLWT'][0] == 28
-    assert tbl['TAG'][0] == 28503
+    assert tbl['TAG'][0] == -28503
 
 
 @pytest.mark.remote_data
@@ -57,7 +58,12 @@ def test_ch3cn_negqn():
     tbl = CDMS.get_molecule('041501')
     fourtominusthree = tbl[(tbl['Q1'] == 4) & (tbl['Q2'] == -3)]
     assert len(fourtominusthree) >= 1
-    assert tbl['TAG'][0] == 41501
+
+    # check specifically for -21, which is encoded as `b1`
+    twentytwominustwentyone = tbl[(tbl['Q1'] == 22) & (tbl['Q2'] == -21)]
+    assert len(twentytwominustwentyone) >= 1
+
+    assert tbl['TAG'][0] == -41501
 
 
 @pytest.mark.remote_data
@@ -103,16 +109,16 @@ def test_molecule_with_parens():
 
     MC = np.ma.core.MaskedConstant()
 
-    for col, val in zip(tbl[0].colnames, (232588.7246, 0.2828, -4.1005, 3, 293.8540, 445, 66,
-                        506, 303, 44, 14, 30, MC, MC, MC, 45, 13, 33, MC, MC, MC, 'H2C(CN)2', False)):
+    for col, val in zip(tbl[0].colnames, (232588.7246, 0.2828, -4.1005, 3, 293.8540, 445, 66506,
+                        303, 44, 14, 30, MC, MC, MC, 45, 13, 33, MC, MC, MC, 'H2C(CN)2', 66, False)):
         if val is MC:
             assert tbl[0][col].mask
         else:
             assert tbl[0][col] == val
 
     # this test row includes degeneracy = 1225, which covers one of the weird letter-is-number parser cases
-    for col, val in zip(tbl[16].colnames, (233373.369, 10.26, -4.8704, 3, 1229.0674, 1125, 66,
-                        506, 303, 112, 10, 102, MC, MC, MC, 112, 9, 103, MC, MC, MC, 'H2C(CN)2', False),):
+    for col, val in zip(tbl[16].colnames, (233373.369, 10.26, -4.8704, 3, 1229.0674, 1125, 66506,
+                        303, 112, 10, 102, MC, MC, MC, 112, 9, 103, MC, MC, MC, 'H2C(CN)2', 66, False),):
         if val is MC:
             assert tbl[16][col].mask
         else:

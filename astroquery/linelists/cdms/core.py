@@ -262,9 +262,8 @@ class CDMSClass(BaseQuery):
                   'DR': 36,
                   'ELO': 38,
                   'GUP': 47,
-                  'MOLWT': 50,
-                  'TAG': 54,
-                  'QNFMT': 58,
+                  'TAG': 50,
+                  'QNFMT': 57,
                   'Ju': 61,
                   'Ku': 63,
                   'vu': 65,
@@ -288,6 +287,7 @@ class CDMSClass(BaseQuery):
         result['FREQ'].unit = u.MHz
         result['ERR'].unit = u.MHz
 
+        result['MOLWT'] = [int(x/1e3) for x in result['TAG']]
         result['Lab'] = result['MOLWT'] < 0
         result['MOLWT'] = np.abs(result['MOLWT'])
         result['MOLWT'].unit = u.Da
