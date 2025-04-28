@@ -192,7 +192,9 @@ class TesscutClass(MastQueryWithLogin):
         else:
 
             # Get Skycoord object for coordinates/object
-            coordinates = parse_input_location(coordinates, objectname, resolver)
+            coordinates = parse_input_location(coordinates=coordinates,
+                                               objectname=objectname,
+                                               resolver=resolver)
 
             # If radius is just a number we assume degrees
             radius = Angle(radius, u.deg)
@@ -321,7 +323,9 @@ class TesscutClass(MastQueryWithLogin):
         else:
 
             # Get Skycoord object for coordinates/object
-            coordinates = parse_input_location(coordinates, objectname, resolver)
+            coordinates = parse_input_location(coordinates=coordinates,
+                                               objectname=objectname,
+                                               resolver=resolver)
 
             astrocut_request = f"astrocut?ra={coordinates.ra.deg}&dec={coordinates.dec.deg}"
 
@@ -473,7 +477,9 @@ class TesscutClass(MastQueryWithLogin):
             param_dict['product'] = product.upper()
 
             # Get Skycoord object for coordinates/object
-            coordinates = parse_input_location(coordinates, objectname, resolver)
+            coordinates = parse_input_location(coordinates=coordinates,
+                                               objectname=objectname,
+                                               resolver=resolver)
 
             param_dict["ra"] = coordinates.ra.deg
             param_dict["dec"] = coordinates.dec.deg
@@ -547,7 +553,7 @@ class ZcutClass(MastQueryWithLogin):
         """
 
         # Get Skycoord object for coordinates/object
-        coordinates = parse_input_location(coordinates)
+        coordinates = parse_input_location(coordinates=coordinates)
         radius = Angle(radius, u.deg)
 
         params = {"ra": coordinates.ra.deg,
@@ -612,7 +618,7 @@ class ZcutClass(MastQueryWithLogin):
             Cutout file(s) for given coordinates
         """
         # Get Skycoord object for coordinates/object
-        coordinates = parse_input_location(coordinates)
+        coordinates = parse_input_location(coordinates=coordinates)
         size_dict = _parse_cutout_size(size)
 
         path = os.path.join(path, '')
@@ -691,7 +697,7 @@ class ZcutClass(MastQueryWithLogin):
         """
 
         # Get Skycoord object for coordinates/object
-        coordinates = parse_input_location(coordinates)
+        coordinates = parse_input_location(coordinates=coordinates)
 
         param_dict = _parse_cutout_size(size)
         param_dict["ra"] = coordinates.ra.deg
@@ -776,7 +782,7 @@ class HapcutClass(MastQueryWithLogin):
         """
 
         # Get Skycoord object for coordinates/object
-        coordinates = parse_input_location(coordinates)
+        coordinates = parse_input_location(coordinates=coordinates)
 
         # Build initial astrocut request
         astrocut_request = f"astrocut?ra={coordinates.ra.deg}&dec={coordinates.dec.deg}"
@@ -845,7 +851,7 @@ class HapcutClass(MastQueryWithLogin):
         """
 
         # Get Skycoord object for coordinates/object
-        coordinates = parse_input_location(coordinates)
+        coordinates = parse_input_location(coordinates=coordinates)
 
         param_dict = _parse_cutout_size(size)
 

@@ -344,7 +344,7 @@ class CatalogsClass(MastQueryWithLogin):
         response : list of `~requests.Response`
         """
 
-        coordinates = utils.resolve_object(objectname, resolver)
+        coordinates = utils.resolve_object(objectname, resolver=resolver)
 
         return self.query_region_async(coordinates,
                                        radius=radius,
@@ -405,7 +405,9 @@ class CatalogsClass(MastQueryWithLogin):
         radius = criteria.pop('radius', 0.2*u.deg)
 
         if objectname or coordinates:
-            coordinates = utils.parse_input_location(coordinates, objectname, resolver)
+            coordinates = utils.parse_input_location(coordinates=coordinates,
+                                                     objectname=objectname,
+                                                     resolver=resolver)
 
         # if radius is just a number we assume degrees
         radius = coord.Angle(radius, u.deg)

@@ -119,7 +119,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return self._portal_api_connection._get_columnsconfig_metadata(colconf_name)
 
-    def _parse_caom_criteria(self, resolver=None, **criteria):
+    def _parse_caom_criteria(self, *, resolver=None, **criteria):
         """
         Helper function that takes dictionary of criteria and parses them into
         position (none if there are no coordinates/object name) and a filter set.
@@ -159,7 +159,9 @@ class ObservationsClass(MastQueryWithLogin):
             mashup_filters = self._portal_api_connection.build_filter_set(self._caom_cone,
                                                                           self._caom_filtered_position,
                                                                           **criteria)
-            coordinates = utils.parse_input_location(coordinates, objectname, resolver)
+            coordinates = utils.parse_input_location(coordinates=coordinates,
+                                                     objectname=objectname,
+                                                     resolver=resolver)
         else:
             mashup_filters = self._portal_api_connection.build_filter_set(self._caom_cone,
                                                                           self._caom_filtered,
@@ -278,7 +280,7 @@ class ObservationsClass(MastQueryWithLogin):
         response : list of `~requests.Response`
         """
 
-        coordinates = utils.resolve_object(objectname, resolver)
+        coordinates = utils.resolve_object(objectname, resolver=resolver)
 
         return self.query_region_async(coordinates, radius=radius, pagesize=pagesize, page=page)
 
@@ -318,7 +320,7 @@ class ObservationsClass(MastQueryWithLogin):
         response : list of `~requests.Response`
         """
 
-        position, mashup_filters = self._parse_caom_criteria(resolver, **criteria)
+        position, mashup_filters = self._parse_caom_criteria(resolver=resolver, **criteria)
 
         if not mashup_filters:
             raise InvalidQueryError("At least one non-positional criterion must be supplied.")
@@ -405,7 +407,7 @@ class ObservationsClass(MastQueryWithLogin):
         response : int
         """
 
-        coordinates = utils.resolve_object(objectname, resolver)
+        coordinates = utils.resolve_object(objectname, resolver=resolver)
 
         return self.query_region_count(coordinates, radius=radius, pagesize=pagesize, page=page)
 
@@ -443,7 +445,7 @@ class ObservationsClass(MastQueryWithLogin):
         response : int
         """
 
-        position, mashup_filters = self._parse_caom_criteria(resolver, **criteria)
+        position, mashup_filters = self._parse_caom_criteria(resolver=resolver, **criteria)
 
         # send query
         if position:

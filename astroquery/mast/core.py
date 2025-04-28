@@ -110,7 +110,7 @@ class MastQueryWithLogin(QueryWithLogin):
         """
         pass
 
-    def resolve_object(self, objectname, resolver=None, resolve_all=False):
+    def resolve_object(self, objectname, *, resolver=None, resolve_all=False):
         """
         Resolves an object name to a position on the sky.
 
@@ -135,4 +135,6 @@ class MastQueryWithLogin(QueryWithLogin):
             If ``resolve_all`` is True, returns a dictionary where the keys are the resolver names and the values are
             `~astropy.coordinates.SkyCoord` objects with the resolved coordinates.
         """
-        return utils.resolve_object(objectname, resolver, resolve_all)
+        return utils.resolve_object(objectname,
+                                    resolver=resolver,
+                                    resolve_all=resolve_all)

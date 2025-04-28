@@ -87,7 +87,7 @@ def _simple_request(url, params=None):
     return response
 
 
-def resolve_object(objectname, resolver=None, resolve_all=False):
+def resolve_object(objectname, *, resolver=None, resolve_all=False):
     """
     Resolves an object name to a position on the sky.
 
@@ -95,8 +95,6 @@ def resolve_object(objectname, resolver=None, resolve_all=False):
     ----------
     objectname : str
         Name of astronomical object to resolve.
-    resolver : str, List, optional
-        Name of resolver. Must be "NED" or "SIMBAD". This parameter is case-insensitive.
     resolver : str, optional
         The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
         If not specified, the default resolver order will be used. Please see the
@@ -195,7 +193,7 @@ def resolve_object(objectname, resolver=None, resolve_all=False):
     return coord
 
 
-def parse_input_location(coordinates=None, objectname=None, resolver=None):
+def parse_input_location(*, coordinates=None, objectname=None, resolver=None):
     """
     Convenience function to parse user input of coordinates and objectname.
 
@@ -232,7 +230,7 @@ def parse_input_location(coordinates=None, objectname=None, resolver=None):
         warnings.warn("Resolver is only used when resolving object names and will be ignored.", InputWarning)
 
     if objectname:
-        obj_coord = resolve_object(objectname, resolver)
+        obj_coord = resolve_object(objectname, resolver=resolver)
 
     if coordinates:
         obj_coord = commons.parse_coordinates(coordinates)
