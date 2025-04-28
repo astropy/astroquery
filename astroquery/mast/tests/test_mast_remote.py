@@ -32,7 +32,7 @@ def msa_product_table():
     products = Observations.get_product_list(obs['obsid'][0])
 
     # Filter out everything but the MSA config file
-    mask = np.char.find(products["dataURI"], "_msa.fits") != -1
+    mask = np.char.find(np.char.asarray(products["dataURI"]), "_msa.fits") != -1
     products = products[mask]
 
     return products
@@ -51,6 +51,32 @@ class TestMast:
 
         ticobj_loc = utils.resolve_object("TIC 141914082")
         assert round(ticobj_loc.separation(SkyCoord("94.6175354 -72.04484622", unit='deg')).value, 4) == 0
+
+        # Try the same object with different resolvers
+        # The position of objects can change with different resolvers
+        ned_loc = utils.resolve_object("jw100", resolver="NED")
+        assert round(ned_loc.separation(SkyCoord("354.10436 21.15083", unit='deg')).value, 4) == 0
+
+        simbad_loc = utils.resolve_object("jw100", resolver="simbad")
+        assert round(simbad_loc.separation(SkyCoord("83.70341477 -5.55918309", unit="deg")).value, 4) == 0
+
+        # Try an object from a MAST catalog with a resolver
+        catalog_loc = utils.resolve_object("TIC 307210830", resolver="SIMBAD")
+        assert round(catalog_loc.separation(SkyCoord("124.5317560 -68.31300149", unit="deg")).value, 4) == 0
+
+        # Use resolve_all to get all resolvers
+        loc_dict = utils.resolve_object("jw100", resolve_all=True)
+        assert isinstance(loc_dict, dict)
+        assert loc_dict['NED'] == ned_loc
+        assert loc_dict['SIMBAD'] == simbad_loc
+
+        # Error if coordinates cannot be resolved
+        with pytest.raises(ResolverError, match="Could not resolve invalid to a sky position."):
+            utils.resolve_object("invalid")
+
+        # Error if coordinates cannot be resolved with a specific resolver
+        with pytest.raises(ResolverError, match="Could not resolve invalid to a sky position using NED"):
+            utils.resolve_object("invalid", resolver="NED")
 
     ###########################
     # MissionSearchClass Test #
@@ -596,7 +622,7 @@ class TestMast:
 
         # Should only return products corresponding to target 429031146
         assert len(prods) > 0
-        assert (np.char.find(prods['obs_id'], '429031146') != -1).all()
+        assert (np.char.find(np.char.asarray(prods['obs_id']), '429031146') != -1).all()
 
     def test_observations_get_unique_product_list(self, caplog):
         # Check that no rows are filtered out when all products are unique

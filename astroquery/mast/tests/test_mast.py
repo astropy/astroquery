@@ -18,7 +18,7 @@ from requests import HTTPError, Response
 from astroquery.mast.services import _json_to_table
 from astroquery.utils.mocks import MockResponse
 from astroquery.exceptions import (InvalidQueryError, InputWarning, MaxResultsWarning, NoResultsWarning,
-                                   RemoteServiceError)
+                                   RemoteServiceError, ResolverError)
 
 from astroquery import mast
 
@@ -141,7 +141,7 @@ def service_mockreturn(self, method="POST", url=None, data=None, params=None, ti
 def request_mockreturn(url, params={}):
     if 'column_list' in url:
         filename = data_path(DATA_FILES['mission_columns'])
-    elif 'Mast.Name.Lookup' in params:
+    elif 'mastresolver' in url:
         filename = data_path(DATA_FILES["Mast.Name.Lookup"])
     elif 'panstarrs' in url:
         filename = data_path(DATA_FILES['panstarrs_columns'])
@@ -492,8 +492,33 @@ def test_mast_query(patch_post):
 
 
 def test_resolve_object(patch_post):
-    m103_loc = mast.Mast.resolve_object("M103")
-    assert round(m103_loc.separation(SkyCoord("23.34086 60.658", unit='deg')).value, 10) == 0
+    obj = "TIC 307210830"
+    tic_coord = SkyCoord(124.531756290083, -68.3129998725044, unit="deg")
+    simbad_coord = SkyCoord(124.5317560026638, -68.3130014904408, unit="deg")
+    obj_loc = mast.Mast.resolve_object(obj)
+    assert round(obj_loc.separation(tic_coord).value, 10) == 0
+
+    # resolve using a specific resolver and an object that belongs to a MAST catalog
+    obj_loc_simbad = mast.Mast.resolve_object(obj, resolver="SIMBAD")
+    assert round(obj_loc_simbad.separation(simbad_coord).value, 10) == 0
+
+    # resolve using a specific resolver and an object that does not belong to a MAST catalog
+    obj_loc_simbad = mast.Mast.resolve_object("M101", resolver="SIMBAD")
+    assert round(obj_loc_simbad.separation(simbad_coord).value, 10) == 0
+
+    # resolve using all resolvers
+    obj_loc_dict = mast.Mast.resolve_object(obj, resolve_all=True)
+    assert isinstance(obj_loc_dict, dict)
+    assert round(obj_loc_dict["SIMBAD"].separation(simbad_coord).value, 10) == 0
+
+    # error with invalid resolver
+    with pytest.raises(ResolverError, match="Invalid resolver"):
+        mast.Mast.resolve_object(obj, resolver="invalid")
+
+    # warn if specifying both resolver and resolve_all
+    with pytest.warns(InputWarning, match="The resolver parameter is ignored when resolve_all is True"):
+        loc = mast.Mast.resolve_object(obj, resolver="NED", resolve_all=True)
+        assert isinstance(loc, dict)
 
 
 def test_login_logout(patch_post):
@@ -1162,3 +1187,37 @@ def test_zcut_get_cutouts(patch_post, tmpdir):
     assert isinstance(cutout_list, list)
     assert len(cutout_list) == 1
     assert isinstance(cutout_list[0], fits.HDUList)
+
+
+################
+# Utils tests #
+################
+
+
+def test_parse_input_location(patch_post):
+    # Test with coordinates
+    coord = SkyCoord(23.34086, 60.658, unit="deg")
+    loc = mast.utils.parse_input_location(coordinates=coord)
+    assert isinstance(loc, SkyCoord)
+    assert loc.ra == coord.ra
+    assert loc.dec == coord.dec
+
+    # Test with object name
+    obj_coord = SkyCoord(124.531756290083, -68.3129998725044, unit="deg")
+    loc = mast.utils.parse_input_location(objectname="TIC 307210830")
+    assert isinstance(loc, SkyCoord)
+    assert loc.ra == obj_coord.ra
+    assert loc.dec == obj_coord.dec
+
+    # Error if both coordinates and object name are provided
+    with pytest.raises(InvalidQueryError, match="Only one of objectname and coordinates may be specified"):
+        mast.utils.parse_input_location(coordinates=coord, objectname="M101")
+
+    # Error if neither coordinates nor object name is provided
+    with pytest.raises(InvalidQueryError, match="One of objectname and coordinates must be specified"):
+        mast.utils.parse_input_location()
+
+    # Warn if resolver is specified without an object name
+    with pytest.warns(InputWarning, match="Resolver is only used when resolving object names"):
+        loc = mast.utils.parse_input_location(coordinates=coord, resolver="SIMBAD")
+        assert isinstance(loc, SkyCoord)

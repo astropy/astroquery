@@ -29,7 +29,7 @@ If no catalog is specified, the Hubble Source Catalog will be queried.
 
    >>> from astroquery.mast import Catalogs
    ...
-   >>> catalog_data = Catalogs.query_object("158.47924 -7.30962", catalog="Galex")
+   >>> catalog_data = Catalogs.query_region("158.47924 -7.30962", catalog="Galex")
    >>> print(catalog_data[:10])  # doctest: +IGNORE_OUTPUT
     distance_arcmin          objID        survey ... fuv_flux_aper_7 fuv_artifact
    ------------------ ------------------- ------ ... --------------- ------------

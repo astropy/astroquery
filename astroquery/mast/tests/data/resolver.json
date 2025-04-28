@@ -1,1 +1,39 @@
-{"resolvedCoordinate":[{"searchString":"m103","resolver":"NED","cached":true,"resolverTime":114,"cacheDate":"Apr 19, 2017 2:32:38 PM","searchRadius":-1.0,"canonicalName":"MESSIER 103","ra":23.34086,"decl":60.658,"objectType":"*Cl"}],"status":""}
+{
+    "resolvedCoordinate": [
+        {
+            "searchString": "tic 307210830",
+            "resolver": "TIC",
+            "cached": false,
+            "resolverTime": 3,
+            "searchRadius": 0.000333,
+            "canonicalName": "TIC 307210830",
+            "ra": 124.531756290083,
+            "decl": -68.3129998725044
+        },
+        {
+            "searchString": "tic 307210830",
+            "resolver": "SIMBADCFA",
+            "cached": true,
+            "resolverTime": 289,
+            "cacheDate": "Mar 19, 2025, 4:36:27 PM",
+            "searchRadius": -1.0,
+            "canonicalName": "L   98-59",
+            "ra": 124.5317560026638,
+            "decl": -68.3130014904408,
+            "objectType": "HighPM*"
+        },
+        {
+            "searchString": "tic 307210830",
+            "resolver": "SIMBAD",
+            "cached": true,
+            "resolverTime": 299,
+            "cacheDate": "Apr 17, 2025, 3:47:59 PM",
+            "searchRadius": -1.0,
+            "canonicalName": "L   98-59",
+            "ra": 124.5317560026638,
+            "decl": -68.3130014904408,
+            "objectType": "HighPM*"
+        }
+    ],
+    "status": ""
+}
