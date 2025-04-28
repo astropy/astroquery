@@ -262,7 +262,7 @@ class CDMSClass(BaseQuery):
                   'DR': 36,
                   'ELO': 38,
                   'GUP': 47,
-                  'TAG': 51,
+                  'TAG': 50,
                   'QNFMT': 57,
                   'Ju': 61,
                   'Ku': 63,
