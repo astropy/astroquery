@@ -39,7 +39,7 @@ def test_remote_300K():
     assert tbl['ERR'][0] == 49.13
     assert tbl['LGINT'][0] == -4.2182
     assert tbl['MOLWT'][0] == 18
-
+    assert tbl['TAG'][0] == 18505
 
 @pytest.mark.remote_data
 def test_co_basics():
@@ -49,6 +49,15 @@ def test_co_basics():
     assert tbl['Q1'][10] == 11
     assert tbl['Q7'][10] == 10
     assert tbl['MOLWT'][0] == 28
+    assert tbl['TAG'][0] == 28503
+
+
+@pytest.mark.remote_data
+def test_ch3cn_negqn():
+    tbl = CDMS.get_molecule('041501')
+    fourtominusthree = tbl[(tbl['Q1'] == 4) & (tbl['Q2'] == -3)]
+    assert len(fourtominusthree) >= 1
+    assert tbl['TAG'][0] == 41501
 
 
 @pytest.mark.remote_data
@@ -65,6 +74,7 @@ def test_propanediol():
     # check that the parser worked - this will be string or obj otherwise
     assert 'int' in tbl['Ku'].dtype.name
     assert tbl['MOLWT'][0] == 76
+    assert tbl['TAG'][0] == 76513
 
 
 @pytest.mark.remote_data
