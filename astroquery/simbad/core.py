@@ -50,7 +50,7 @@ def _adql_parameter(entry: str):
 
 
 @lru_cache(256)
-def _cached_query_tap(tap, query: str, *, maxrec=10000):
+def _cached_query_tap(tap, query: str, *, maxrec=10000, async_job=False, timeout=None):
     """Cache version of query TAP.
 
     This private function is called when query_tap is executed without an
@@ -67,12 +67,22 @@ def _cached_query_tap(tap, query: str, *, maxrec=10000):
         Astronomical Data Query Language (ADQL).
     maxrec : int, optional
         The number of records to be returned. Its maximum value is 2000000.
+    async_job: bool, optional
+        When set to `True`, the query will be executed in asynchronous mode. This is
+        better for very long queries, as it prevents transient failures to abort the
+        query execution.
+        Defaults to `False`.
+    timeout: int, optional
+        The execution duration for the asynchronous query. If 'async_job' is true, then
+        this has to be provided.
 
     Returns
     -------
     `~astropy.table.Table`
         The response returned by SIMBAD.
     """
+    if async_job:
+        return tap.run_async(query, maxrec=maxrec, execution_duration=timeout).to_table()
     return tap.search(query, maxrec=maxrec).to_table()
 
 
@@ -103,7 +113,7 @@ class SimbadClass(BaseVOQuery):
     """
     SIMBAD_URL = 'https://' + conf.server + '/simbad/sim-script'
 
-    def __init__(self, ROW_LIMIT=None):
+    def __init__(self, ROW_LIMIT=None, *, timeout=None):
         super().__init__()
         # to create the TAPService
         self._server = conf.server
@@ -115,6 +125,7 @@ class SimbadClass(BaseVOQuery):
         self.joins = []  # a list of _Join
         self.criteria = []  # a list of strings
         self.ROW_LIMIT = ROW_LIMIT
+        self.timeout = timeout
 
     @property
     def ROW_LIMIT(self):
@@ -130,6 +141,28 @@ class SimbadClass(BaseVOQuery):
             raise ValueError("ROW_LIMIT can be either -1 to set the limit to SIMBAD's "
                              "maximum capability, 0 to retrieve an empty table, "
                              "or a positive integer.")
+
+    @property
+    def timeout(self):
+        """The execution time for asynchronous queries.
+
+        Returns
+        -------
+        int
+            The execution time before the query times out, in seconds.
+        """
+        return self._timeout
+
+    @timeout.setter
+    def timeout(self, timeout):
+        if timeout is None:
+            self._timeout = conf.timeout
+        elif timeout <= self.tap.capabilities[0].executionduration.hard:
+            self._timeout = timeout
+        else:
+            raise ValueError(
+                "'timeout' cannot exceed the maximum time duration set by this mirror: "
+                f"{self.tap.capabilities[0].executionduration.hard} seconds.")
 
     @property
     def server(self):
@@ -539,8 +572,8 @@ class SimbadClass(BaseVOQuery):
 
     @deprecated_renamed_argument(["verbose"], new_name=[None],
                                  since=['0.4.8'], relax=True)
-    def query_object(self, object_name, *, wildcard=False,
-                     criteria=None, get_query_payload=False, verbose=False):
+    def query_object(self, object_name, *, wildcard=False, criteria=None,
+                     get_query_payload=False, async_job=False, verbose=False):
         """Query SIMBAD for the given object.
 
         Object names may also be specified with wildcards. See examples below.
@@ -559,6 +592,11 @@ class SimbadClass(BaseVOQuery):
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
+        async_job: bool, optional
+            When set to `True`, the query will be executed in asynchronous mode. This is
+            better for very long queries, as it prevents transient failures to abort the
+            query execution.
             Defaults to `False`.
 
         Returns
@@ -616,12 +654,13 @@ class SimbadClass(BaseVOQuery):
             instance_criteria.append(f"({criteria})")
 
         return self._query(top, columns, joins, instance_criteria,
-                           get_query_payload=get_query_payload)
+                           get_query_payload=get_query_payload, async_job=async_job)
 
     @deprecated_renamed_argument(["verbose", "cache"], new_name=[None, None],
                                  since=['0.4.8', '0.4.8'], relax=True)
     def query_objects(self, object_names, *, wildcard=False, criteria=None,
-                      get_query_payload=False, verbose=False, cache=False):
+                      get_query_payload=False, async_job=False, verbose=False,
+                      cache=False):
         """Query SIMBAD for the specified list of objects.
 
         Object names may be specified with wildcards.
@@ -642,6 +681,11 @@ class SimbadClass(BaseVOQuery):
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
+        async_job: bool, optional
+            When set to `True`, the query will be executed in asynchronous mode. This is
+            better for very long queries, as it prevents transient failures to abort the
+            query execution.
             Defaults to `False`.
         cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
             end of the python session. It can also be emptied manually with
@@ -681,7 +725,7 @@ class SimbadClass(BaseVOQuery):
             instance_criteria += [f'({" OR ".join(list_criteria)})']
 
             return self._query(top, columns, joins, instance_criteria,
-                               get_query_payload=get_query_payload)
+                               get_query_payload=get_query_payload, async_job=async_job)
 
         # There is a faster way to do the query if there is no wildcard: the first table
         # can be the uploaded one and we use a LEFT JOIN for the other ones.
@@ -707,7 +751,7 @@ class SimbadClass(BaseVOQuery):
                                  new_name=[None]*3,
                                  since=['0.4.8']*3, relax=True)
     def query_region(self, coordinates, radius=2*u.arcmin, *,
-                     criteria=None, get_query_payload=False,
+                     criteria=None, get_query_payload=False, async_job=False,
                      equinox=None, epoch=None, cache=None):
         """Query SIMBAD in a cone around the specified coordinates.
 
@@ -723,6 +767,11 @@ class SimbadClass(BaseVOQuery):
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
+        async_job: bool, optional
+            When set to `True`, the query will be executed in asynchronous mode. This is
+            better for very long queries, as it prevents transient failures to abort the
+            query execution.
             Defaults to `False`.
         cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
             end of the python session. It can also be emptied manually with
@@ -820,13 +869,13 @@ class SimbadClass(BaseVOQuery):
                                  "('ICRS', centers.ra, centers.dec, centers.radius)) = 1 ")
 
         return self._query(top, columns, joins, instance_criteria,
-                           from_table=f"{sub_query}, basic",
+                           from_table=f"{sub_query}, basic", async_job=async_job,
                            get_query_payload=get_query_payload, centers=upload_centers)
 
     @deprecated_renamed_argument(["verbose", "cache"], new_name=[None, None],
                                  since=['0.4.8', '0.4.8'], relax=True)
     def query_catalog(self, catalog, *, criteria=None, get_query_payload=False,
-                      verbose=False, cache=True):
+                      async_job=False, verbose=False, cache=True):
         """Query a whole catalog.
 
         Parameters
@@ -839,6 +888,11 @@ class SimbadClass(BaseVOQuery):
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
+        async_job: bool, optional
+            When set to `True`, the query will be executed in asynchronous mode. This is
+            better for very long queries, as it prevents transient failures to abort the
+            query execution.
             Defaults to `False`.
         cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
             end of the python session. It can also be emptied manually with
@@ -883,11 +937,11 @@ class SimbadClass(BaseVOQuery):
             instance_criteria.append(f"({criteria})")
 
         return self._query(top, columns, joins, instance_criteria,
-                           get_query_payload=get_query_payload)
+                           get_query_payload=get_query_payload, async_job=async_job)
 
     def query_hierarchy(self, name, hierarchy, *,
                         detailed_hierarchy=True,
-                        criteria=None, get_query_payload=False):
+                        criteria=None, get_query_payload=False, async_job=False):
         """Query either the parents or the children of the object.
 
         Parameters
@@ -913,6 +967,11 @@ class SimbadClass(BaseVOQuery):
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
+        async_job: bool, optional
+            When set to `True`, the query will be executed in asynchronous mode. This is
+            better for very long queries, as it prevents transient failures to abort the
+            query execution.
             Defaults to `False`.
 
         Returns
@@ -964,12 +1023,12 @@ class SimbadClass(BaseVOQuery):
 
         return self._query(top, columns, joins, instance_criteria,
                            from_table=f"{sub_query}, basic", distinct=True,
-                           get_query_payload=get_query_payload)
+                           get_query_payload=get_query_payload, async_job=async_job)
 
     @deprecated_renamed_argument(["verbose"], new_name=[None],
                                  since=['0.4.8'], relax=True)
     def query_bibobj(self, bibcode, *, criteria=None,
-                     get_query_payload=False,
+                     get_query_payload=False, async_job=False,
                      verbose=False):
         """Query all the objects mentioned in an article.
 
@@ -980,6 +1039,11 @@ class SimbadClass(BaseVOQuery):
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
+        async_job: bool, optional
+            When set to `True`, the query will be executed in asynchronous mode. This is
+            better for very long queries, as it prevents transient failures to abort the
+            query execution.
             Defaults to `False`.
 
         Returns
@@ -1000,13 +1064,13 @@ class SimbadClass(BaseVOQuery):
             instance_criteria.append(f"({criteria})")
 
         return self._query(top, columns, joins, instance_criteria,
-                           get_query_payload=get_query_payload)
+                           get_query_payload=get_query_payload, async_job=async_job)
 
     @deprecated_renamed_argument(["verbose", "cache"], new_name=[None, None],
                                  since=['0.4.8', '0.4.8'], relax=True)
     def query_bibcode(self, bibcode, *, wildcard=False,
-                      abstract=False, get_query_payload=False, criteria=None,
-                      verbose=None, cache=None, ):
+                      abstract=False, criteria=None, get_query_payload=False,
+                      async_job=False, verbose=None, cache=None, ):
         """Query the references corresponding to a given bibcode.
 
         Wildcards may be used to specify bibcodes.
@@ -1027,6 +1091,11 @@ class SimbadClass(BaseVOQuery):
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
+        async_job: bool, optional
+            When set to `True`, the query will be executed in asynchronous mode. This is
+            better for very long queries, as it prevents transient failures to abort the
+            query execution.
             Defaults to `False`.
         cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
             end of the python session. It can also be emptied manually with
@@ -1073,12 +1142,13 @@ class SimbadClass(BaseVOQuery):
 
         query += " ORDER BY bibcode"
 
-        return self.query_tap(query, get_query_payload=get_query_payload)
+        return self.query_tap(query, get_query_payload=get_query_payload,
+                              async_job=async_job)
 
     @deprecated_renamed_argument(["verbose", "cache"], new_name=[None, None],
                                  since=['0.4.8', '0.4.8'], relax=True)
-    def query_objectids(self, object_name, *, verbose=None, cache=None,
-                        get_query_payload=False, criteria=None):
+    def query_objectids(self, object_name, *, criteria=None, get_query_payload=False,
+                        async_job=False, verbose=None, cache=None):
         """Query SIMBAD with an object name.
 
         This returns a table of all names associated with that object.
@@ -1094,6 +1164,11 @@ class SimbadClass(BaseVOQuery):
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
+        async_job: bool, optional
+            When set to `True`, the query will be executed in asynchronous mode. This is
+            better for very long queries, as it prevents transient failures to abort the
+            query execution.
             Defaults to `False`.
         cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
             end of the python session. It can also be emptied manually with
@@ -1137,7 +1212,8 @@ class SimbadClass(BaseVOQuery):
                  f"WHERE id_typed.id = '{_adql_parameter(object_name)}'")
         if criteria is not None:
             query += f" AND {criteria}"
-        return self.query_tap(query, get_query_payload=get_query_payload)
+        return self.query_tap(query, get_query_payload=get_query_payload,
+                              async_job=async_job)
 
     @deprecated(since="v0.4.8",
                 message=("'query_criteria' is deprecated. It uses the former sim-script "
@@ -1365,7 +1441,8 @@ class SimbadClass(BaseVOQuery):
                  f" OR (target_table = '{_adql_parameter(table)}')")
         return self.query_tap(query, get_query_payload=get_query_payload)
 
-    def query_tap(self, query: str, *, maxrec=10000, get_query_payload=False, **uploads):
+    def query_tap(self, query: str, *, maxrec=10000, async_job=False,
+                  get_query_payload=False, **uploads):
         """Query SIMBAD TAP service.
 
         Parameters
@@ -1380,10 +1457,14 @@ class SimbadClass(BaseVOQuery):
             Any number of local tables to be used in the *query*. In the *query*, these tables
             are referred as *TAP_UPLOAD.table_alias* where *TAP_UPLOAD* is imposed and *table_alias*
             is the keyword name you chose. The maximum number of lines for the uploaded tables is 200000.
-        get_query_payload : bool, optional
-            When set to `True` the method returns the HTTP request parameters without
-            querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+        async_job: bool, optional
+            When set to `True`, the query will be executed in asynchronous mode. This is
+            better for very long queries, as it prevents transient failures to abort the
+            query execution.
             Defaults to `False`.
+        get_query_payload : bool, default=False
+            When set to ``True`` the method returns the HTTP request parameters without
+            querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
 
         Returns
         -------
@@ -1462,9 +1543,14 @@ class SimbadClass(BaseVOQuery):
             return dict(TAPQuery(self.SIMBAD_URL, query, maxrec=maxrec, uploads=uploads))
         # without uploads we call the version with cache
         if uploads == {}:
-            return _cached_query_tap(self.tap, query, maxrec=maxrec)
+            return _cached_query_tap(self.tap, query, maxrec=maxrec,
+                                     async_job=async_job, timeout=self.timeout)
         # with uploads it has to be without cache
-        return self.tap.run_async(query, maxrec=maxrec, uploads=uploads).to_table()
+        if async_job:
+            return self.tap.run_async(query, maxrec=maxrec,
+                                      execution_duration=self.timeout,
+                                      uploads=uploads).to_table()
+        return self.tap.run_sync(query, maxrec=maxrec, uploads=uploads).to_table()
 
     @staticmethod
     def clear_cache():
@@ -1481,7 +1567,7 @@ class SimbadClass(BaseVOQuery):
         return tuple(map(copy.deepcopy, (self.ROW_LIMIT, self.columns_in_output, self.joins, self.criteria)))
 
     def _query(self, top, columns, joins, criteria, from_table="basic", distinct=False,
-               get_query_payload=False, **uploads):
+               async_job=False, get_query_payload=False, **uploads):
         """Generate an ADQL string from the given query parameters and executes the query.
 
         Parameters
@@ -1502,6 +1588,11 @@ class SimbadClass(BaseVOQuery):
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
+            Defaults to `False`.
+        async_job: bool, optional
+            When set to `True`, the query will be executed in asynchronous mode. This is
+            better for very long queries, as it prevents transient failures to abort the
+            query execution.
             Defaults to `False`.
         uploads : `~astropy.table.Table`
             Any number of local tables to be used in the *query*. In the *query*, these tables
@@ -1550,7 +1641,7 @@ class SimbadClass(BaseVOQuery):
         query = f"SELECT{distinct_results}{top_part}{columns} FROM {from_table}{join}{criteria}"
 
         response = self.query_tap(query, get_query_payload=get_query_payload,
-                                  maxrec=self.hardlimit,
+                                  maxrec=self.hardlimit, async_job=async_job,
                                   **uploads)
 
         if len(response) == 0 and top != 0:

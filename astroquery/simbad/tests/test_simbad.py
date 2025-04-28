@@ -8,9 +8,11 @@ from astropy.table import Table
 import astropy.units as u
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from pyvo.dal.tap import TAPService
+from pyvo.io.vosi import tapregext
 
 import pytest
 
+from .. import conf
 from ... import simbad
 from .test_simbad_remote import multicoords
 from astroquery.exceptions import NoResultsWarning
@@ -154,6 +156,26 @@ def test_mocked_simbad():
     assert simbad_instance.hardlimit == 2000000
     # and the uploadlimit
     assert simbad_instance.uploadlimit == 200000
+
+
+def test_simbad_timeout(monkeypatch):
+    simbad_instance = simbad.Simbad()
+    assert simbad_instance.timeout == conf.timeout  # default value
+
+    class PatchedCapability:
+        @property
+        def executionduration(self):
+            time_limit = tapregext.TimeLimits()
+            time_limit.hard = 2000
+            return time_limit
+
+    monkeypatch.setattr(TAPService, "capabilities", [PatchedCapability()])
+    # good value
+    simbad_instance.timeout = 10
+    assert simbad_instance.timeout == 10
+    # too high
+    with pytest.raises(ValueError, match="'timeout' cannot exceed*"):
+        simbad_instance.timeout = 10000
 
 # ----------------------------
 # Test output options settings
@@ -564,7 +586,7 @@ def test_query_tap_errors():
 def test_query_tap_cache_call(monkeypatch):
     msg = "called_cached_query_tap"
     monkeypatch.setattr(simbad.core, "_cached_query_tap",
-                        lambda tap, query, maxrec, async_job: msg)
+                        lambda tap, query, maxrec, async_job, timeout: msg)
     assert simbad.Simbad.query_tap("select top 1 * from basic") == msg
 
 
