@@ -8,7 +8,7 @@ Getting started
 ===============
 
 This is a python interface for querying the Spanish Virtual Observatory's
-Filter Profile Service (`SVO FPS <http://svo2.cab.inta-csic.es/theory/fps/>`_).
+Filter Profile Service (`SVO FPS <https://svo2.cab.inta-csic.es/theory/fps/>`_).
 It allows retrieval of filter data (index, transmission data, filter list, etc.)
 from the service as astropy tables.
 
