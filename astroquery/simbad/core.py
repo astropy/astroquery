@@ -13,8 +13,9 @@ import warnings
 import astropy.coordinates as coord
 from astropy.table import Table, Column, vstack
 import astropy.units as u
-from astropy.utils import isiterable, deprecated
+from astropy.utils import deprecated
 from astropy.utils.decorators import deprecated_renamed_argument
+import numpy as np
 
 from astroquery.query import BaseVOQuery
 from astroquery.utils import commons
@@ -791,7 +792,7 @@ class SimbadClass(BaseVOQuery):
                              "centers. For larger queries, split your centers list.")
 
         # `radius` as `str` is iterable, but contains only one value.
-        if isiterable(radius) and not isinstance(radius, str):
+        if np.iterable(radius) and not isinstance(radius, str):
             if len(radius) != len(center):
                 raise ValueError(f"Mismatch between radii of length {len(radius)}"
                                  f" and center coordinates of length {len(center)}.")
