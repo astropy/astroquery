@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<vot:VOTABLE version="1.3" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/VOTable-1.3.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:vot="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:stc="http://www.ivoa.net/xml/STC">
+<vot:COOSYS ID="J2000" equinox="J2000" epoch="J2000" system="eq_FK5"/>
+<vot:INFO ID="status" name="QUERY_STATUS" value="OK"/>
+<vot:INFO ID="ticket" name="Ticket" value="183080492634082511"/>
+<vot:INFO ID="reqTarget" name="-c" value="81.283299999999997+4.4927799999999998,rs=720"/>
+<vot:INFO ID="reqEpoch" name="Epoch" value="2025-01-02"/>
+<vot:INFO ID="supplier" name="Supplier" value="Provided by IMCCE/OBSPM/CNRS"/>
+<vot:GROUP utype="stc:AstroCoordSystem" ID="IMCCE-INPOP-GEO"><vot:GROUP utype="stc:AstroCoordSystem.TimeFrame"><vot:PARAM name="TimeScale" datatype="char" arraysize="*" utype="stc:AstroCoordSystem.TimeFrame.TimeScale" value="UTC"/>
+<vot:PARAM name="RefPosition" datatype="char" arraysize="*" utype="stc:AstroCoordSystem.TimeFrame.ReferencePosition" value="GEOCENTER"/>
+</vot:GROUP>
+<vot:GROUP utype="stc:AstroCoordSystem.SpaceFrame"><vot:PARAM name="CooFrame" datatype="char" arraysize="*" utype="stc:AstroCoordSystem.SpaceFrame.CoordRefFrame" value="ICRS"/>
+<vot:PARAM name="CooFrameOrigin" datatype="char" arraysize="*" utype="stc:AstroCoordSystem.SpaceFrame.ReferencePosition" value="GEOCENTER"/>
+<vot:PARAM name="Ephemeris" datatype="char" arraysize="*" utype="stc:AstroCoordSystem.SpaceFrame.ReferencePosition.PlanetaryEphem" value="IMCCE-INPOP"><vot:DESCRIPTION>Planetary theory used to compute the ephemeris</vot:DESCRIPTION>
+</vot:PARAM>
+<vot:PARAM name="CooType" datatype="char" arraysize="*" utype="stc:AstroCoordSystem.SpaceFrame.CoordFlavor" value="SPHERICAL"/>
+<vot:PARAM name="Naxes" datatype="char" arraysize="*" utype="stc:AstroCoordSystem.SpaceFrame.coord_naxes" value="3"/>
+</vot:GROUP>
+</vot:GROUP>
+<vot:RESOURCE name="Skybot.ConeSearch"><vot:DESCRIPTION>SkyBoT - List of the targets located in the FOV</vot:DESCRIPTION>
+<vot:INFO name="QUERY_STATUS" value="OK"/>
+<vot:PARAM ID="epoch" name="Epoch" datatype="char" arraysize="*" ucd="time.epoch" unit="d" value="2025-01-02 00:00:00.00"><vot:DESCRIPTION>Requested epoch</vot:DESCRIPTION>
+</vot:PARAM>
+<vot:PARAM ID="fovRA" name="RA" datatype="double" ucd="pos.eq.ra" unit="deg" value="81.283299999999997"><vot:DESCRIPTION>Right ascension of the FOV center</vot:DESCRIPTION>
+</vot:PARAM>
+<vot:PARAM ID="fovDEC" name="DEC" datatype="double" ucd="pos.eq.dec" unit="deg" value="4.4927799999999998"><vot:DESCRIPTION>Declination of the FOV center</vot:DESCRIPTION>
+</vot:PARAM>
+<vot:PARAM ID="fovSR" name="FOV" datatype="double" ucd="instr.fov" unit="arcsec" value="720"><vot:DESCRIPTION>Size of the FOV</vot:DESCRIPTION>
+</vot:PARAM>
+<vot:PARAM ID="filter" name="Filter" datatype="double" ucd="pos.angDistance;stat.max" unit="arcsec" value="120"/>
+<vot:PARAM ID="observer" name="Observer" datatype="char" arraysize="*" ucd="meta.code;obs.observer" value="500"><vot:DESCRIPTION>Observer location code</vot:DESCRIPTION>
+</vot:PARAM>
+<vot:PARAM ID="refsys" name="RefSys" datatype="char" ucd="meta.code;obs.observer" value="EQJ2000"><vot:DESCRIPTION>Reference system (EQJ2000|ECJ2000)</vot:DESCRIPTION>
+</vot:PARAM>
+<vot:TABLE ID="SkybotConeSearch_results" name="SkybotConeSearch" nrows="4"><vot:GROUP ID="Ephemeris" utype="stc:AstroCoords" ref="IMCCE-INPOP-GEO"><vot:PARAM name="GeoCoordinates" datatype="char" arraysize="*" utype="stc:AstroCoords.coord_sys_id" value="UTC-ICRS-GEO"/>
+</vot:GROUP>
+<vot:FIELD ID="num" name="Num" ucd="meta.id;meta.number" datatype="char" arraysize="6"><vot:DESCRIPTION>Solar system object number</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID="name" name="Name" ucd="meta.id;meta.main" datatype="char" arraysize="32"><vot:DESCRIPTION>Solar system object name</vot:DESCRIPTION>
+<vot:LINK href="https://ssp.imcce.fr/webservices/ssodnet/api/ssocard/${Name}"/>
+</vot:FIELD>
+<vot:FIELD ID="ra" name="RA" ucd="pos.eq.ra;meta.main" ref="Ephemeris" utype="stc:AstroCoords.Position3D.Value3.C1" datatype="char" arraysize="13" unit="h:m:s"><vot:DESCRIPTION>Astrometric J2000 right ascension</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID="de" name="DEC" ucd="pos.eq.dec;meta.main" ref="Ephemeris" utype="stc:AstroCoords.Position3D.Value3.C2" datatype="char" arraysize="13" unit="d:m:s"><vot:DESCRIPTION>Astrometric J2000 declination</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID="class" name="Class" ucd="meta.code.class;src.class" datatype="char" arraysize="24"><vot:DESCRIPTION>Object classification</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID="magV" name="Mv" ucd="phot.mag;em.opt.V" datatype="float" width="13" precision="2"><vot:DESCRIPTION>Visual magnitude</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID="errpos" name="ErrPos" ucd="stat.error.sys" datatype="float" width="10" precision="3" unit="arcsec"><vot:DESCRIPTION>Uncertainty on the (RA,DEC) coordinates</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID="angdist" name="d" ucd="pos.ang" datatype="float" width="8" precision="3" unit="arcsec"><vot:DESCRIPTION>Body-to-center angular distance</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID="dracosdec" name="dRAcosDec" ucd="pos.pm;pos.eq.ra" datatype="double" width="12" unit="arcsec/h"><vot:DESCRIPTION>Motion in right ascension d(RA)cos(DEC)</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID="ddec" name="dDEC" ucd="pos.pm;pos.eq.dec" datatype="double" width="12" unit="arcsec/h"><vot:DESCRIPTION>Motion in declination d(DEC)</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID="dgeo" name="Dgeo" ucd="phys.distance" ref="Ephemeris" utype="stc:AstroCoords.Position3D.Value3.C3" datatype="double" width="15" unit="AU"><vot:DESCRIPTION>Distance from observer</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID="dhelio" name="Dhelio" ucd="phys.distance" datatype="double" width="15" unit="AU"><vot:DESCRIPTION>Distance from the Sun</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID="_raj2000" name="_RAJ2000" ucd="pos.eq.ra" ref="Ephemeris" utype="stc:AstroCoords.Position3D.Value3.C1" datatype="double" precision="9" width="13" unit="deg" type="hidden"><vot:DESCRIPTION>Astrometric J2000 right ascension</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID="_decj2000" name="_DECJ2000" ucd="pos.eq.dec" ref="Ephemeris" utype="stc:AstroCoords.Position3D.Value3.C2" datatype="double" precision="9" width="13" unit="deg" type="hidden"><vot:DESCRIPTION>Astrometric J2000 declination</vot:DESCRIPTION>
+</vot:FIELD>
+<vot:FIELD ID="externallink" name="ExternalLink" ucd="meta.ref.url" datatype="char" arraysize="*" type="hidden"><vot:DESCRIPTION>External link to hint the target</vot:DESCRIPTION>
+<vot:LINK href="${ExternalLink}"/>
+</vot:FIELD>
+<vot:DATA><vot:TABLEDATA><vot:TR><vot:TD>229762</vot:TD>
+<vot:TD>G!kun||'homdima</vot:TD>
+<vot:TD>05 25 12.7657</vot:TD>
+<vot:TD>+04 29 25.081</vot:TD>
+<vot:TD>KBO>Detached</vot:TD>
+<vot:TD>19.600000000000001</vot:TD>
+<vot:TD>0.025</vot:TD>
+<vot:TD>71.942</vot:TD>
+<vot:TD>-2.9183</vot:TD>
+<vot:TD>0.419</vot:TD>
+<vot:TD>39.584007991</vot:TD>
+<vot:TD>40.458336172</vot:TD>
+<vot:TD>81.303190599627357</vot:TD>
+<vot:TD>4.4903001723284355</vot:TD>
+<vot:TD>https://ssp.imcce.fr/webservices/ssodnet/api/ssocard/G!kun||'homdima</vot:TD>
+</vot:TR>
+<vot:TR><vot:TD>523748</vot:TD>
+<vot:TD>2014 UP224</vot:TD>
+<vot:TD>05 25 5.8105</vot:TD>
+<vot:TD>+04 31 3.866</vot:TD>
+<vot:TD>KBO>Classical>Main</vot:TD>
+<vot:TD>22.100000000000001</vot:TD>
+<vot:TD>0.070</vot:TD>
+<vot:TD>95.597</vot:TD>
+<vot:TD>-2.9962</vot:TD>
+<vot:TD>0.215</vot:TD>
+<vot:TD>39.394867849</vot:TD>
+<vot:TD>40.269194433</vot:TD>
+<vot:TD>81.274210256266798</vot:TD>
+<vot:TD>4.5177406268703377</vot:TD>
+<vot:TD>https://ssp.imcce.fr/webservices/ssodnet/api/ssocard/2014_UP224</vot:TD>
+</vot:TR>
+<vot:TR><vot:TD>-</vot:TD>
+<vot:TD>2019 RB21</vot:TD>
+<vot:TD>05 24 50.9495</vot:TD>
+<vot:TD>+04 37 58.166</vot:TD>
+<vot:TD>MB>Middle</vot:TD>
+<vot:TD>22.100000000000001</vot:TD>
+<vot:TD>0.077</vot:TD>
+<vot:TD>564.902</vot:TD>
+<vot:TD>-28.3830</vot:TD>
+<vot:TD>8.157</vot:TD>
+<vot:TD>1.594366842</vot:TD>
+<vot:TD>2.507917866</vot:TD>
+<vot:TD>81.212289469185208</vot:TD>
+<vot:TD>4.6328239647393916</vot:TD>
+<vot:TD>https://ssp.imcce.fr/webservices/ssodnet/api/ssocard/2019_RB21</vot:TD>
+</vot:TR>
+<vot:TR><vot:TD>-</vot:TD>
+<vot:TD>2007 TE366</vot:TD>
+<vot:TD>05 25 50.2836</vot:TD>
+<vot:TD>+04 30 33.419</vot:TD>
+<vot:TD>Mars-Crosser</vot:TD>
+<vot:TD>21.600000000000001</vot:TD>
+<vot:TD>0.148</vot:TD>
+<vot:TD>635.204</vot:TD>
+<vot:TD>-30.6513</vot:TD>
+<vot:TD>-6.155</vot:TD>
+<vot:TD>1.831819272</vot:TD>
+<vot:TD>2.742262868</vot:TD>
+<vot:TD>81.459514920490165</vot:TD>
+<vot:TD>4.5092830524710497</vot:TD>
+<vot:TD>https://ssp.imcce.fr/webservices/ssodnet/api/ssocard/2007_TE366</vot:TD>
+</vot:TR>
+</vot:TABLEDATA>
+</vot:DATA>
+</vot:TABLE>
+</vot:RESOURCE>
+</vot:VOTABLE>

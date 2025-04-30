@@ -622,8 +622,13 @@ class SkybotClass(BaseQuery):
 
         if self._get_raw_response:
             return response.text
-
-        results = QTable.read(BytesIO(response.content), format='votable')
+        import warnings
+        from astropy.utils.exceptions import AstropyUserWarning
+        with warnings.catch_warnings():
+            # We deal with RA/DEC manually
+            warnings.filterwarnings("ignore", category=AstropyUserWarning,
+                                    message=r"column ra|(column de) has a unit but is kept as a MaskedColumn")
+            results = QTable.read(BytesIO(response.content), format='votable')
 
         # convert coordinates to degrees
         coo = SkyCoord(ra=results['ra'], dec=results['de'],

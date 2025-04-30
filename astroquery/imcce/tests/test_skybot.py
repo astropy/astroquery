@@ -12,7 +12,7 @@ from astropy.table import MaskedColumn
 from .. import core, SkybotClass
 
 # files in data/
-DATA_FILE = 'skybot_query.dat'
+DATA_FILE = 'skybot_query.vot'
 
 
 def data_path(filename):
@@ -21,10 +21,11 @@ def data_path(filename):
 
 
 # monkeypatch replacement request function
-def nonremote_request(self, url, **kwargs):
+def nonremote_request(self, method='GET', url='', **kwargs):
 
     with open(data_path(DATA_FILE), 'rb') as f:
-        response = MockResponse(content=f.read(), url=url)
+        a = f.read()
+        response = MockResponse(content=a, url=url)
     return response
 
 
@@ -116,7 +117,7 @@ def general_query(patch_request):
 def test_get_raw_response(patch_request):
     raw = core.Skybot.cone_search(
         (0, 0), 0.5, 2451200, get_raw_response=True)
-    assert " 299383 | 2005 VC73 | 23 59 45.7861 |" in raw
+    assert "G!kun||'homdima" in raw
 
 
 def test_parsing_unnumbered_asteroids(patch_request):
