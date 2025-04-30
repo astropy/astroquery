@@ -5,6 +5,7 @@ import os
 
 
 def get_package_data():
-    paths = [os.path.join('data', '*.dat')]  # etc, add other extensions
+    paths = [os.path.join('data', '*.dat'),
+             os.path.join('data', '*.vot')]
 
     return {'astroquery.imcce.tests': paths}
