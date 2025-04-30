@@ -103,15 +103,16 @@ def test_input():
     assert (a['-refsys'] == 'EQJ2000')
 
 
-def general_query(patch_request):
+def test_general_query(patch_request):
     """test a mock query"""
 
-    a = core.Skybot.cone_search((0, 0), 0.5, 2451200)
+    results = core.Skybot.cone_search((0, 0), 0.5, 2451200)
 
-    assert (len(a) == 141)
-    assert isinstance(a['Number'][0], int)
-    assert (a['RA'][0] == 359.94077541666667*u.deg)
-    assert (a['DEC'][0] == -0.013904166666666667*u.deg)
+    assert len(results) == 4
+    assert results['Number'][0] == 229762
+
+    # mock data serves as a regression for #3301
+    assert results['Name'][0] == "G!kun||'homdima"
 
 
 def test_get_raw_response(patch_request):
