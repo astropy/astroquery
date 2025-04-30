@@ -599,7 +599,7 @@ class SkybotClass(BaseQuery):
                            + str(int(find_comets)),
                            '-refsys': 'EQJ2000',
                            '-output': 'all',
-                           '-mime': 'text'}
+                           '-mime': 'votable'}
 
         # check for diagnostic flags
         if get_query_payload:
@@ -617,36 +617,26 @@ class SkybotClass(BaseQuery):
 
     def _parse_result(self, response, *, verbose=False):
         """
-        internal wrapper to parse queries
+        internal wrapper to parse queries.
         """
 
         if self._get_raw_response:
             return response.text
 
-        # intercept error messages
-        response_txt = response.text.split('\n')[2:-1]
-        if len(response_txt) < 3 and len(response_txt[-1].split('|')) < 21:
-            raise RuntimeError(response_txt[-1])
-
-        names = response_txt[0].replace('# ', '').strip().split(' | ')
-        results = ascii.read(response_txt[1:], delimiter='|',
-                             names=names, fast_reader=False)
-        results = QTable(results)
+        results = QTable.read(BytesIO(response.content), format='votable')
 
         # convert coordinates to degrees
-        coo = SkyCoord(ra=results['RA(h)'], dec=results['DE(deg)'],
+        coo = SkyCoord(ra=results['ra'], dec=results['de'],
                        unit=(u.hourangle, u.deg), frame='icrs')
-        results['RA(h)'] = coo.ra.deg
-        results['DE(deg)'] = coo.dec.deg
+        results['ra'] = coo.ra.deg
+        results['ra'].unit = u.deg
+        results['de'] = coo.dec.deg
+        results['de'].unit = u.deg
 
         colnames = results.columns[:]
         for fieldname in colnames:
             # apply field name change
             results.rename_column(fieldname, conf.field_names[fieldname])
-            # apply unit, if available
-            if conf.field_names[fieldname] in conf.field_units:
-                results[conf.field_names[fieldname]].unit = conf.field_units[
-                    conf.field_names[fieldname]]
 
         # convert object numbers to int
         # unnumbered asteroids return as non numeric values ('-')
