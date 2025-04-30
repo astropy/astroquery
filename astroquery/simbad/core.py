@@ -687,9 +687,6 @@ class SimbadClass(BaseVOQuery):
             better for very long queries, as it prevents transient failures to abort the
             query execution.
             Defaults to `False`.
-        cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
-            end of the python session. It can also be emptied manually with
-            `~astroquery.simbad.SimbadClass.clear_cache` but cannot be deactivated.
 
         Returns
         -------
@@ -773,9 +770,6 @@ class SimbadClass(BaseVOQuery):
             better for very long queries, as it prevents transient failures to abort the
             query execution.
             Defaults to `False`.
-        cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
-            end of the python session. It can also be emptied manually with
-            `~astroquery.simbad.SimbadClass.clear_cache` but cannot be deactivated.
 
         Returns
         -------
@@ -894,9 +888,6 @@ class SimbadClass(BaseVOQuery):
             better for very long queries, as it prevents transient failures to abort the
             query execution.
             Defaults to `False`.
-        cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
-            end of the python session. It can also be emptied manually with
-            `~astroquery.simbad.SimbadClass.clear_cache` but cannot be deactivated.
 
         Returns
         -------
@@ -1097,9 +1088,6 @@ class SimbadClass(BaseVOQuery):
             better for very long queries, as it prevents transient failures to abort the
             query execution.
             Defaults to `False`.
-        cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
-            end of the python session. It can also be emptied manually with
-            `~astroquery.simbad.SimbadClass.clear_cache` but cannot be deactivated.
 
         Returns
         -------
@@ -1170,9 +1158,6 @@ class SimbadClass(BaseVOQuery):
             better for very long queries, as it prevents transient failures to abort the
             query execution.
             Defaults to `False`.
-        cache : Deprecated since 0.4.8. The cache is now automatically emptied at the
-            end of the python session. It can also be emptied manually with
-            `~astroquery.simbad.SimbadClass.clear_cache` but cannot be deactivated.
 
         Returns
         -------
