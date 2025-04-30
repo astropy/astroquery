@@ -6,14 +6,16 @@ import warnings
 from io import BytesIO
 
 from astropy.table import QTable, MaskedColumn
-from astropy.io import ascii
 from astropy.time import Time
 from astropy.io.votable import parse
 import astropy.units as u
 from astropy.coordinates import SkyCoord, Angle
+from astropy.utils.exceptions import AstropyUserWarning
 
-from ..query import BaseQuery
-from ..utils import async_to_sync, commons
+from astroquery.exceptions import NoResultsWarning
+from astroquery.query import BaseQuery
+from astroquery.utils import async_to_sync, commons
+
 from . import conf
 
 __all__ = ['Miriade', 'MiriadeClass', 'Skybot', 'SkybotClass']
@@ -611,6 +613,8 @@ class SkybotClass(BaseQuery):
                                  params=request_payload,
                                  timeout=TIMEOUT, cache=cache)
 
+        response.raise_for_status()
+
         self._uri = response.url
 
         return response
@@ -622,13 +626,16 @@ class SkybotClass(BaseQuery):
 
         if self._get_raw_response:
             return response.text
-        import warnings
-        from astropy.utils.exceptions import AstropyUserWarning
+
         with warnings.catch_warnings():
             # We deal with RA/DEC manually
             warnings.filterwarnings("ignore", category=AstropyUserWarning,
                                     message=r"column ra|(column de) has a unit but is kept as a MaskedColumn")
             results = QTable.read(BytesIO(response.content), format='votable')
+
+        if len(results) == 0:
+            warnings.warn("No objects were found with the query constraints.", NoResultsWarning)
+            return results
 
         # convert coordinates to degrees
         coo = SkyCoord(ra=results['ra'], dec=results['de'],
