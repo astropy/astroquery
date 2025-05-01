@@ -959,7 +959,7 @@ class HorizonsClass(BaseQuery):
     def vectors_async(self, *, get_query_payload=False,
                       closest_apparition=False, no_fragments=False,
                       get_raw_response=False, cache=True,
-                      refplane='ecliptic', vec_table="3", 
+                      refplane='ecliptic', vector_table="3", 
                       aberrations='geometric', delta_T=False,):
         """
         Query JPL Horizons for state vectors.
@@ -1058,12 +1058,12 @@ class HorizonsClass(BaseQuery):
             See :ref:`Horizons Reference Frames <jpl-horizons-reference-frames>`
             in the astroquery documentation for details.
         
-        vec_table : string, optional
+        vector_table : string, optional
             Selects the table of vectors to be returned. Options are numbers 1-6,
             followed by any string of characters in the list [``'x'``, ``'a'``,
             ``'r'``, ``'p'``]. Default: ``'3'``.
 
-            See `Horizons User Manual <https://ssd.jpl.nasa.gov/horizons/manual.html#vec_table>`_
+            See `Horizons User Manual <https://ssd-api.jpl.nasa.gov/doc/horizons.html#vec_table>`_
             for details.
 
         aberrations : string, optional
@@ -1164,7 +1164,7 @@ class HorizonsClass(BaseQuery):
             ('VEC_CORR', {'geometric': '"NONE"',
                           'astrometric': '"LT"',
                           'apparent': '"LT+S"'}[aberrations]),
-            ('VEC_TABLE', vec_table),
+            ('VEC_TABLE', vector_table),
             ('VEC_DELTA_T', {True: 'YES', False: 'NO'}[delta_T]),
             ('OBJ_DATA', 'YES')]
         )

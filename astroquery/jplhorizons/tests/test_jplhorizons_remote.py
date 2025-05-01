@@ -355,11 +355,11 @@ class TestHorizonsClass:
              res['range_rate']], rtol=1e-3)
     
     def test_vectors_query_two(self):
-        # check values of Ceres for a given epoch, with vec_table="2xarp" to get all possible information
+        # check values of Ceres for a given epoch, with vector_table="2xarp" to get all possible information
         # orbital uncertainty of Ceres is basically zero
         res = jplhorizons.Horizons(id='Ceres', location='500@10',
                                    id_type='smallbody',
-                                   epochs=2451544.5).vectors(vec_table="2xarp",)[0]
+                                   epochs=2451544.5).vectors(vector_table="2xarp",)[0]
         
         assert res['targetname'] == "1 Ceres (A801 AA)"
         assert res['datetime_str'] == "A.D. 2000-Jan-01 00:00:00.0000"
