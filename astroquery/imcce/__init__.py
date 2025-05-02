@@ -8,7 +8,6 @@ IMCCE
 """
 
 from astropy import config as _config
-import astropy.units as u
 
 
 class Conf(_config.ConfigNamespace):
