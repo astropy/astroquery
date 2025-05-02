@@ -35,6 +35,15 @@ heasarc
 - Heasarc.locate_data returns empty rows with an error in the error_message column if there are
   no data associated with that row rather than filtering it out. [#3275]
 
+imcce
+^^^^^
+
+- Fix parsing SkyBot results that include objects with special characters in
+  their names. [#3307]
+
+- Changing RuntimeError to NoResultsWarning when an empty result is
+  returned. [#3307]
+
 utils.tap
 ^^^^^^^^^
 
@@ -48,7 +57,7 @@ mast
 
 - Added ``resolver`` parameter to query methods to specify the resolver to use when resolving object names to coordinates. [#3292]
 
-- Added ``resolve_all`` parameter to ``MastClass.resolve_object`` to resolve object names and return 
+- Added ``resolve_all`` parameter to ``MastClass.resolve_object`` to resolve object names and return
   coordinates for all available resolvers. [#3292]
 
 
