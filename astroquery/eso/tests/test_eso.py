@@ -309,7 +309,7 @@ def test_tap_url():
     ("' > 1.23 '", "= ' > 1.23 '"),
     ("likewise", "= 'likewise'"),
     ("INfinity", "= 'INfinity'"),
-    ("like'%John%'", "= 'like'%John%''"), #pathologic case
+    ("like'%John%'", "= 'like'%John%''"),  # pathologic case
 
     # Ill-formed queries: Operator, but not sanitized. Expected to be passed through as-is
     ("like %John%", "like %John%"),
