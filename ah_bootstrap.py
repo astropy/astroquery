@@ -53,7 +53,6 @@ from configparser import ConfigParser, RawConfigParser
 import pkg_resources
 
 from setuptools import Distribution
-from setuptools.package_index import PackageIndex
 
 # This is the minimum Python version required for astropy-helpers
 __minimum_python_version__ = (3, 5)
@@ -416,12 +415,6 @@ class _Bootstrapper(object):
                 'The requested path {0!r} for importing {1} does not '
                 'exist, or does not contain a copy of the {1} '
                 'package.'.format(self.path, PACKAGE_NAME))
-        elif self.auto_upgrade and not self.is_submodule:
-            # A version of astropy-helpers was found on the available path, but
-            # check to see if a bugfix release is available on PyPI
-            upgrade = self._do_upgrade(dist)
-            if upgrade is not None:
-                dist = upgrade
 
         return dist
 
@@ -447,13 +440,6 @@ class _Bootstrapper(object):
                 'Failed to import {0} from the specified archive {1!r}: '
                 '{2}'.format(PACKAGE_NAME, self.path, str(e)))
             dist = None
-
-        if dist is not None and self.auto_upgrade:
-            # A version of astropy-helpers was found on the available path, but
-            # check to see if a bugfix release is available on PyPI
-            upgrade = self._do_upgrade(dist)
-            if upgrade is not None:
-                dist = upgrade
 
         return dist
 
@@ -587,21 +573,6 @@ class _Bootstrapper(object):
                 source = 'PyPI'
 
             raise Exception(msg.format(DIST_NAME, source, repr(e)))
-
-    def _do_upgrade(self, dist):
-        # Build up a requirement for a higher bugfix release but a lower minor
-        # release (so API compatibility is guaranteed)
-        next_version = _next_version(dist.parsed_version)
-
-        req = pkg_resources.Requirement.parse(
-            '{0}>{1},<{2}'.format(DIST_NAME, dist.version, next_version))
-
-        package_index = PackageIndex(index_url=self.index_url)
-
-        upgrade = package_index.obtain(req)
-
-        if upgrade is not None:
-            return self._do_download(version=upgrade.version)
 
     def _check_submodule(self):
         """
