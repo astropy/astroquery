@@ -44,6 +44,13 @@ imcce
 - Changing RuntimeError to NoResultsWarning when an empty result is
   returned. [#3307]
 
+SIMBAD
+^^^^^^
+
+- add ``async_job`` option in all query methods. This executes the query in asynchronous
+  mode. It provides slower to start, but more robust queries for which the timeout can
+  be increased (with the ``timeout`` property or with the configuration file) [#3305]
+
 utils.tap
 ^^^^^^^^^
 

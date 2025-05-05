@@ -139,22 +139,22 @@ some tables, add their name. To get the columns of the tables ``ref`` and ``bibl
     >>> from astroquery.simbad import Simbad
     >>> Simbad.list_columns("ref", "biblio")
     <Table length=13>
-    table_name column_name   datatype  ...  unit          ucd
-      object      object      object   ... object        object
-    ---------- ----------- ----------- ... ------ --------------------
-        biblio      biblio     VARCHAR ...        meta.record;meta.bib
-        biblio      oidref      BIGINT ...         meta.record;meta.id
-           ref      "year"    SMALLINT ...          meta.note;meta.bib
-           ref    abstract UNICODECHAR ...                 meta.record
-           ref     bibcode        CHAR ...            meta.bib.bibcode
-           ref         doi     VARCHAR ...          meta.code;meta.bib
-           ref     journal     VARCHAR ...            meta.bib.journal
-           ref   last_page     INTEGER ...               meta.bib.page
-           ref    nbobject     INTEGER ...                 meta.number
-           ref      oidbib      BIGINT ...        meta.record;meta.bib
-           ref        page     INTEGER ...               meta.bib.page
-           ref       title UNICODECHAR ...                  meta.title
-           ref      volume     INTEGER ...             meta.bib.volume
+    table_name column_name   datatype  ...  unit         ucd       
+      object      object      object   ... object       object     
+    ---------- ----------- ----------- ... ------ -----------------
+        biblio      biblio     VARCHAR ...         meta.bib.bibcode
+        biblio      oidref      BIGINT ...              meta.record
+           ref      "year"    SMALLINT ...           time.publiYear
+           ref    abstract UNICODECHAR ...              meta.record
+           ref     bibcode        CHAR ...         meta.bib.bibcode
+           ref         doi     VARCHAR ...             meta.ref.doi
+           ref     journal     VARCHAR ...         meta.bib.journal
+           ref   last_page     INTEGER ...            meta.bib.page
+           ref    nbobject     INTEGER ...        meta.id;arith.sum
+           ref      oidbib      BIGINT ...              meta.record
+           ref        page     INTEGER ...            meta.bib.page
+           ref       title UNICODECHAR ...               meta.title
+           ref      volume     INTEGER ...          meta.bib.volume
 
 `~astroquery.simbad.SimbadClass.list_columns` can also be called with a keyword argument.
 This returns columns from any table for witch the given keyword is either in the table name,
