@@ -301,15 +301,17 @@ def test_tap_url():
     (">1.23", "> 1.23"),
     ("<'5'", "< '5'"),
     (">'1.23'", "> '1.23'"),
-    ("like'%John%'", "like '%John%'"),
 
     # Strings that look like operators but should be treated as strings
     ("'like %John%'", "= 'like %John%'"),
     ("'= something'", "= '= something'"),
     ("'> 5'", "= '> 5'"),
     ("' > 1.23 '", "= ' > 1.23 '"),
+    ("likewise", "= 'likewise'"),
+    ("INfinity", "= 'INfinity'"),
+    ("like'%John%'", "= 'like'%John%''"), #pathologic case
 
-    # Ill-formed queries: not sanitized but expected to be passed through as-is
+    # Ill-formed queries: Operator, but not sanitized. Expected to be passed through as-is
     ("like %John%", "like %John%"),
     ("not like %John%", "not like %John%"),
     ("= SGR A", "= SGR A"),
