@@ -289,16 +289,20 @@ def test_tap_url():
     ("> 1.23", "> 1.23"),
     ("< '5'", "< '5'"),
     ("> '1.23'", "> '1.23'"),
-    ("like '%John%'", "like '%John%'"),
-    ("not like '%John%'", "not like '%John%'"),
-    ("in ('apple', 'mango', 'orange')", "in ('apple', 'mango', 'orange')"),
-    ("not in ('apple', 'mango', 'orange')", "not in ('apple', 'mango', 'orange')"),
-    ("in (1, 2, 3)", "in (1, 2, 3)"),
-    ("not in (1, 2, 3)", "not in (1, 2, 3)"),
+
+    ("like '%John%'", "like  '%John%'"),
+    ("not like '%John%'", "not like  '%John%'"),
+    ("in ('apple', 'mango', 'orange')", "in  ('apple', 'mango', 'orange')"),
+    ("not in ('apple', 'mango', 'orange')", "not in  ('apple', 'mango', 'orange')"),
+    ("in (1, 2, 3)", "in  (1, 2, 3)"),
+    ("not in (1, 2, 3)", "not in  (1, 2, 3)"),
 
     # Operator-based queries
     ("<5", "< 5"),
     (">1.23", "> 1.23"),
+    (">=1.23", ">= 1.23"),
+    ("<=1.23", "<= 1.23"),
+    ("!=1.23", "!= 1.23"),
     ("<'5'", "< '5'"),
     (">'1.23'", "> '1.23'"),
 
@@ -312,8 +316,8 @@ def test_tap_url():
     ("like'%John%'", "= 'like'%John%''"),  # pathologic case
 
     # Ill-formed queries: Operator, but not sanitized. Expected to be passed through as-is
-    ("like %John%", "like %John%"),
-    ("not like %John%", "not like %John%"),
+    ("like %John%", "like  %John%"),
+    ("not like %John%", "not like  %John%"),
     ("= SGR A", "= SGR A"),
 ])
 def test_adql_sanitize_op_val(input_val, expected):
@@ -474,7 +478,7 @@ def test_reorder_columns(monkeypatch):
         columns=["id", "instrument"],
         column_filters={"instrument": "in ('MUSE', 'UVES')", "t_exptime": "> 100"},
         order_by="t_exptime"),
-     "select id, instrument from beautiful.Stars where instrument in ('MUSE', 'UVES') "
+     "select id, instrument from beautiful.Stars where instrument in  ('MUSE', 'UVES') "
      "and t_exptime > 100 order by t_exptime desc"),
 
     # With all params 1
@@ -497,7 +501,7 @@ def test_reorder_columns(monkeypatch):
             query_str_only=True,
         ),
         "select top 100 target_name, s_ra, s_dec, em_min, em_max from ivoa.ObsCore "
-        "where em_min > 4e-7 and em_max < 1.2e-6 and dataproduct_type in ('spectrum') "
+        "where em_min > 4e-7 and em_max < 1.2e-6 and dataproduct_type in  ('spectrum') "
         "and intersects(s_region, circle('ICRS', 180.0, -45.0, 0.05))=1 "
         "order by em_min desc"
     ),
@@ -522,7 +526,7 @@ def test_reorder_columns(monkeypatch):
             query_str_only=True,
         ),
         "select top 100 count(*) from ivoa.ObsCore "
-        "where em_min > 4e-7 and em_max < 1.2e-6 and dataproduct_type in ('spectrum') "
+        "where em_min > 4e-7 and em_max < 1.2e-6 and dataproduct_type in  ('spectrum') "
         "and intersects(s_region, circle('ICRS', 180.0, -45.0, 0.05))=1"
     ),
 ])
