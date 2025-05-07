@@ -780,7 +780,7 @@ class EuclidClass(TapPlus):
 
         Returns
         -------
-        The list of products (astropy.table)
+        The products in an astropy.table.Table
         """
 
         if tile_index is None:
@@ -1553,7 +1553,7 @@ class EuclidClass(TapPlus):
 
         Returns
         -------
-        The list of products (astropy.table)
+        The products in an astropy.table.Table
 
         """
 

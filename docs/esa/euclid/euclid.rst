@@ -240,7 +240,7 @@ To get the list of products associated with a given Euclid observation_id or til
   EUC_MER_BGSUB-MOSAIC-DES-Z_TILE102018211-83C32F_20241018T143526.104818Z_00.00.fits               1398  102018211           DECAM     DECAM_z  SCIENCE         SKY 57.9990741   -51.5     IMAGE
 
 
-The method returns a list of products as an astropy.table. It is also possible to search by observation_id, but not by both parameters simultaneously.
+The method returns a list of products as an `~astropy.table.Table`. It is also possible to search by observation_id, but not by both parameters simultaneously.
 
 It is possible to retrieve LE3 data (scientific data) by observation_id or tile_index (but not by both simultaneously) and/or for different categories, groups and  product types:
 
@@ -248,21 +248,31 @@ It is possible to retrieve LE3 data (scientific data) by observation_id or tile_
 .. doctest-skip::
 
   >>> from astroquery.esa.euclid import Euclid
-    >>> le3_product_list = Euclid.get_scientific_product_list(tile_index=102034414)
-    >>> print("Found", len(le3_product_list), "results")
-    Found 12 results
-    >>> print(le3_product_list)
+  >>> le3_product_list = Euclid.get_scientific_product_list(tile_index=22)
+  >>> print("Found", len(le3_product_list), "results")
+  Found 3 results
+  >>> print(le3_product_list)
+  basic_download_data_oid  product_type                            product_id                          observation_id_list tile_index_list patch_id_list filter_name
+  ----------------------- -------------- ------------------------------------------------------------- ------------------- --------------- ------------- -----------
+                    47191 DpdLE3clCLTile       PPO_REGREPROC1_R2_CLTEST_R0_CLTILING_R5-output_tiles-27                  {}            {22}            {}
+                    47132 DpdLE3clCLTile PPO_REGREPROC1_R2_CLTEST_R0_CLTILINGPOLYHR_R2-output_tiles-27                  {}            {22}            {}
+                    47233 DpdLE3clCLTile       PPO_REGREPROC1_R2_CLTEST_R0_CLTILING_R6-output_tiles-27                  {}            {22}            {}
 
-In the following example, for the LE3 Weak-Lensing data, we retrieve all the Tomographic Cosmic Shear Correlation products (2PCF TwoPCFWLShearShear2D):
+
+In the following example, for the Clusters of Galaxies category, and the group GrpCatalog, we retrieve all the DET-CL AMICO auxiliary Data Product products (DpdLE3clAmicoAux):
 
 .. Skipping authentication requiring examples
 .. doctest-skip::
 
   >>> from astroquery.esa.euclid import Euclid
-    >>> results = euclid.get_scientific_product_list(category='Weak Lensing Products', group='2PCF', product_type='DpdTwoPCFWLShearShear2D')
-    >>> print("Found", len(le3_product_list), "results")
-    Found 12 results
-    >>> print(le3_product_list)
+  >>> results = euclid.get_scientific_product_list(category='Clusters of Galaxies', group='GrpCatalog', product_type='DpdLE3clAmicoAux')
+  >>> print("Found", len(le3_product_list), "results")
+  Found 2 results
+  >>> print(le3_product_list)
+  basic_download_data_oid   product_type                      product_id                    observation_id_list tile_index_list patch_id_list filter_name
+  ----------------------- ---------------- ------------------------------------------------ ------------------- --------------- ------------- -----------
+                    47257 DpdLE3clAmicoAux PPO_REGREPROC1_R2_CLTEST_R0_CLDET_R3-amico_aux-0                  {}              {}            {}
+                    47258 DpdLE3clAmicoAux PPO_REGREPROC1_R2_CLTEST_R0_CLDET_R7-amico_aux-0                  {}              {}            {}
 
 
 1.2. Cone search
@@ -690,7 +700,7 @@ To get the list of products associated with a given EUCLID observation_id or til
   EUC_MER_BGSUB-MOSAIC-DES-R_TILE102018211-1078B7_20241018T142927.232351Z_00.00.fits               1401  102018211           DECAM     DECAM_r  SCIENCE         SKY 57.9990741   -51.5     IMAGE
   EUC_MER_BGSUB-MOSAIC-DES-Z_TILE102018211-83C32F_20241018T143526.104818Z_00.00.fits               1398  102018211           DECAM     DECAM_z  SCIENCE         SKY 57.9990741   -51.5     IMAGE
 
-The method returns a list of products as an astropy.table.
+The method returns a list of products as an `~astropy.table.Table`.
 
 
 It is possible to download a product given its file name or product id:
