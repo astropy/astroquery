@@ -9,15 +9,84 @@ New Tools and Services
 API changes
 -----------
 
+gaia
+^^^^
 
+- Deprecated ``band`` from ``load_data`` as it has no effect on upstream
+  response any more. [#3278]
 
 Service fixes and enhancements
 ------------------------------
 
+alma
+^^^^
+
+- Bug fix in ``footprint_to_reg`` that did not allow regions to be plotted. [#3285]
+
+esa.euclid
+^^^^^^^^^^
+
+- New module to access the ESA Euclid Archive. [#3216]
+
+linelists.cdms
+^^^^^^^^^^^^^^
+
+- Add a keyword to control writing of new species cache files.  This is needed to prevent tests from overwriting those files. [#3297]
+
+heasarc
+^^^^^^^
+
+- Add support for astropy.table.Row in Heasarc.download_data and Heasarc.locate_data. [#3270]
+- Heasarc.locate_data returns empty rows with an error in the error_message column if there are
+  no data associated with that row rather than filtering it out. [#3275]
+
+imcce
+^^^^^
+
+- Fix parsing SkyBot results that include objects with special characters in
+  their names. [#3307]
+
+- Changing RuntimeError to NoResultsWarning when an empty result is
+  returned. [#3307]
+
+SIMBAD
+^^^^^^
+
+- add ``async_job`` option in all query methods. This executes the query in asynchronous
+  mode. It provides slower to start, but more robust queries for which the timeout can
+  be increased (with the ``timeout`` property or with the configuration file) [#3305]
+
+utils.tap
+^^^^^^^^^
+
+- Get the cookie associated to the keys JSESSIONID or SESSION due to the tap library release at ESAC. [#3289]
+
+- The method ``upload_table`` accepts file formats accepted by astropy's
+  ``Table.read()``. [#3295]
+
+mast
+^^^^
+
+- Added ``resolver`` parameter to query methods to specify the resolver to use when resolving object names to coordinates. [#3292]
+
+- Added ``resolve_all`` parameter to ``MastClass.resolve_object`` to resolve object names and return
+  coordinates for all available resolvers. [#3292]
 
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
+
+query.py
+^^^^^^^^
+
+- ``BaseQuery._download_file`` now returns the local file path in all cases.
+  Some corner cases where downloads were not properly continued have been
+  fixed. [#3232]
+
+utils
+^^^^^
+
+- Raising cleaner errors earlier when server returns with error. [#3284]
 
 
 0.4.10 (2025-03-18)
@@ -127,6 +196,7 @@ Infrastructure, Utility and Other Changes and Additions
 
 - Removed usage of the astropy TestRunner, therefore the unadvertised
   ``astroquery.test()`` functionality. [#3215]
+
 
 
 0.4.9 (2025-01-24)
