@@ -330,11 +330,11 @@ def remove_duplicate_products(data_products, uri_key):
         Table containing products with unique dataURIs.
     """
     # Get unique products based on input type
-    seen = set()
     if isinstance(data_products, Table):
-        unique_rows = [row for row in data_products if not (row[uri_key] in seen or seen.add(row[uri_key]))]
-        unique_products = type(data_products)(rows=unique_rows)
-    else:  # Assume data_products is a list of URIs
+        _, unique_indices = np.unique(data_products[uri_key], return_index=True)
+        unique_products = data_products[np.sort(unique_indices)]
+    else:  # list of URIs
+        seen = set()
         unique_products = [uri for uri in data_products if not (uri in seen or seen.add(uri))]
 
     duplicates_removed = len(data_products) - len(unique_products)

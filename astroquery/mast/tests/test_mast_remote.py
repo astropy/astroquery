@@ -570,7 +570,7 @@ class TestMast:
         responses = Observations.get_product_list_async(test_obs[2:3])
         assert isinstance(responses, list)
 
-        observations = Observations.query_object("M8", radius=".02 deg")
+        observations = Observations.query_criteria(objectname="M8", obs_collection=["K2", "IUE"])
         responses = Observations.get_product_list_async(observations[0])
         assert isinstance(responses, list)
 
@@ -578,7 +578,7 @@ class TestMast:
         assert isinstance(responses, list)
 
     def test_observations_get_product_list(self):
-        observations = Observations.query_object("M8", radius=".04 deg")
+        observations = Observations.query_criteria(objectname='M8', obs_collection=['K2', 'IUE'])
         test_obs_id = str(observations[0]['obsid'])
         mult_obs_ids = str(observations[0]['obsid']) + ',' + str(observations[1]['obsid'])
 
@@ -598,7 +598,7 @@ class TestMast:
         assert len(result1) == len(result2)
         assert set(filenames1) == set(filenames2)
 
-        obsLoc = np.where(observations["obs_id"] == 'ktwo200071160-c92_lc')
+        obsLoc = np.where(observations['obs_id'] == 'ktwo200071160-c92_lc')
         result = Observations.get_product_list(observations[obsLoc])
         assert isinstance(result, Table)
         assert len(result) == 1
