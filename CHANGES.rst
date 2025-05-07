@@ -24,6 +24,12 @@ alma
 - Bug fix in ``footprint_to_reg`` that did not allow regions to be plotted. [#3285]
 
 
+esa.euclid
+^^^^^^^^^^
+
+- New method, get_scientific_product_list, to retrieve scientific LE3
+  products. [#3313]
+
 gaia
 ^^^^
 
@@ -82,10 +88,10 @@ mast
 
 - Fix bug in ``utils.remove_duplicate_products`` that does not retain the order of the products in an input table. [#3314]
 
-- Added ``return_uri_map`` parameter to ``Observations.get_cloud_uris`` to return a mapping of the input data product URIs 
+- Added ``return_uri_map`` parameter to ``Observations.get_cloud_uris`` to return a mapping of the input data product URIs
   to the returned cloud URIs. [#3314]
 
-- Added ``verbose`` parameter to ``Observations.get_cloud_uris`` to control whether warnings are logged when a product cannot 
+- Added ``verbose`` parameter to ``Observations.get_cloud_uris`` to control whether warnings are logged when a product cannot
   be found in the cloud. [#3314]
 
 
