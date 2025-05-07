@@ -13,7 +13,7 @@ import requests
 import platform
 
 from astropy.coordinates import SkyCoord
-from astropy.table import unique, Table
+from astropy.table import Table
 from astropy import units as u
 
 from .. import log
@@ -273,9 +273,9 @@ def mast_relative_path(mast_uri):
         The associated relative path(s).
     """
     if isinstance(mast_uri, str):
-        uri_list = [("uri", mast_uri)]
-    else:  # mast_uri parameter is a list
-        uri_list = [("uri", uri) for uri in mast_uri]
+        uri_list = [mast_uri]
+    else:
+        uri_list = list(mast_uri)
 
     # Split the list into chunks of 50 URIs; this is necessary
     # to avoid "414 Client Error: Request-URI Too Large".
@@ -284,7 +284,7 @@ def mast_relative_path(mast_uri):
     result = []
     for chunk in uri_list_chunks:
         response = _simple_request("https://mast.stsci.edu/api/v0.1/path_lookup/",
-                                   {"uri": [mast_uri[1] for mast_uri in chunk]})
+                                   {"uri": [mast_uri for mast_uri in chunk]})
 
         json_response = response.json()
 
@@ -292,11 +292,11 @@ def mast_relative_path(mast_uri):
             # Chunk is a list of tuples where the tuple is
             # ("uri", "/path/to/product")
             # so we index for path (index=1)
-            path = json_response.get(uri[1])["path"]
+            path = json_response.get(uri)["path"]
             if path is None:
-                warnings.warn(f"Failed to retrieve MAST relative path for {uri[1]}. Skipping...", NoResultsWarning)
-                continue
-            if 'galex' in path:
+                warnings.warn(f"Failed to retrieve MAST relative path for {uri}. Skipping...", NoResultsWarning)
+                path = None
+            elif 'galex' in path:
                 path = path.lstrip("/mast/")
             elif '/ps1/' in path:
                 path = path.replace("/ps1/", "panstarrs/ps1/public/")
@@ -330,20 +330,16 @@ def remove_duplicate_products(data_products, uri_key):
         Table containing products with unique dataURIs.
     """
     # Get unique products based on input type
+    seen = set()
     if isinstance(data_products, Table):
-        unique_products = unique(data_products, keys=uri_key)
-    else:  # data_products is a list
-        seen = set()
-        unique_products = []
-        for uri in data_products:
-            if uri not in seen:
-                seen.add(uri)
-                unique_products.append(uri)
+        unique_rows = [row for row in data_products if not (row[uri_key] in seen or seen.add(row[uri_key]))]
+        unique_products = type(data_products)(rows=unique_rows)
+    else:  # Assume data_products is a list of URIs
+        unique_products = [uri for uri in data_products if not (uri in seen or seen.add(uri))]
 
-    number = len(data_products)
-    number_unique = len(unique_products)
-    if number_unique < number:
-        log.info(f"{number - number_unique} of {number} products were duplicates. "
-                 f"Only returning {number_unique} unique product(s).")
+    duplicates_removed = len(data_products) - len(unique_products)
+    if duplicates_removed > 0:
+        log.info(f"{duplicates_removed} of {len(data_products)} products were duplicates. "
+                 f"Only returning {len(unique_products)} unique product(s).")
 
     return unique_products

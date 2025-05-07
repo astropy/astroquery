@@ -269,7 +269,7 @@ class TestMast:
         # Unique product list should have fewer rows
         assert len(products) > len(unique_products)
         # Rows should be unique based on filename
-        assert (unique_products == unique(unique_products, keys='filename')).all()
+        assert (len(unique_products) == len(unique(unique_products, keys='filename')))
         # Check that INFO messages were logged
         with caplog.at_level('INFO', logger='astroquery'):
             assert 'products were duplicates' in caplog.text
@@ -644,7 +644,7 @@ class TestMast:
         # Unique product list should have fewer rows
         assert len(products) > len(unique_products)
         # Rows should be unique based on dataURI
-        assert (unique_products == unique(unique_products, keys='dataURI')).all()
+        assert (len(unique_products) == len(unique(unique_products, keys='dataURI')))
         # Check that INFO messages were logged
         with caplog.at_level('INFO', logger='astroquery'):
             assert 'products were duplicates' in caplog.text
@@ -877,6 +877,13 @@ class TestMast:
         uris = Observations.get_cloud_uris(uri_list)
         assert len(uris) > 0, f'Products for URI list {uri_list} were not found in the cloud.'
         assert uris == expected
+
+        # return map of dataURI to cloud URI
+        uri_map = Observations.get_cloud_uris(uri_list, return_uri_map=True)
+        assert isinstance(uri_map, dict)
+        assert len(uri_map) == 2
+        for i, uri in enumerate(uri_list):
+            assert uri_map[uri] == expected[i]
 
         # check for warning if filters are provided with list input
         with pytest.warns(InputWarning, match='Filtering is not supported'):

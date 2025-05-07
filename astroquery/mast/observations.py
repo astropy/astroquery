@@ -874,7 +874,7 @@ class ObservationsClass(MastQueryWithLogin):
         return manifest
 
     def get_cloud_uris(self, data_products=None, *, include_bucket=True, full_url=False, pagesize=None, page=None,
-                       mrp_only=False, extension=None, filter_products={}, **criteria):
+                       mrp_only=False, extension=None, filter_products={}, return_uri_map=False, **criteria):
         """
         Given an `~astropy.table.Table` of data products or query criteria and filter parameters,
         returns the associated cloud data URIs.
@@ -908,6 +908,10 @@ class ObservationsClass(MastQueryWithLogin):
             or more acceptable values for that parameter.
             Filter behavior is AND between the filters and OR within a filter set.
             For example: {"productType": "SCIENCE", "extension"=["fits","jpg"]}
+        return_uri_map : bool, optional
+            Default False. If set to True, returns a dictionary mapping the original data product
+            URIs to their corresponding cloud URIs. This is useful for tracking which products were
+            successfully converted to cloud URIs.
         **criteria
             Criteria to apply. At least one non-positional criteria must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
@@ -951,20 +955,31 @@ class ObservationsClass(MastQueryWithLogin):
             # Filter product list
             data_products = self.filter_products(data_products, mrp_only=mrp_only, extension=extension,
                                                  **filter_products)
+            data_uris = data_products['dataURI']
         else:  # data_products is a list of URIs
             # Warn if trying to supply filters
             if filter_products or extension or mrp_only:
                 warnings.warn('Filtering is not supported when providing a list of MAST URIs. '
                               'To apply filters, please provide query criteria or a table of data products '
                               'as returned by `Observations.get_product_list`', InputWarning)
+            data_uris = data_products
 
-        if not len(data_products):
+        if not len(data_uris):
             warnings.warn('No matching products to fetch associated cloud URIs.', NoResultsWarning)
             return
 
         # Remove duplicate products
-        data_products = utils.remove_duplicate_products(data_products, 'dataURI')
-        return self._cloud_connection.get_cloud_uri_list(data_products, include_bucket, full_url)
+        data_uris = utils.remove_duplicate_products(data_uris, 'dataURI')
+
+        # Get cloud URIS
+        cloud_uris = self._cloud_connection.get_cloud_uri_list(data_uris, include_bucket, full_url)
+
+        # If return_uri_map is True, create a mapping of dataURIs to cloud URIs
+        if return_uri_map:
+            uri_map = dict(zip(data_uris, cloud_uris))
+            return uri_map
+
+        return cloud_uris
 
     def get_cloud_uri(self, data_product, *, include_bucket=True, full_url=False):
         """
