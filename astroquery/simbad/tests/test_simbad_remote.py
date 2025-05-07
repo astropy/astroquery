@@ -168,6 +168,12 @@ class TestSimbad:
         Simbad.clear_cache()
         assert _cached_query_tap.cache_info().currsize == 0
 
+    def test_async_query(self):
+        adql = "select top 1 main_id from basic"
+        sync_job = Simbad.query_tap(adql)
+        async_job = Simbad.query_tap(adql, async_job=True)
+        assert sync_job["main_id"] == async_job["main_id"]
+
     def test_empty_response_warns(self):
         with pytest.warns(NoResultsWarning, match="The request executed correctly, but *"):
             # a catalog that does not exists should return an empty response

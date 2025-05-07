@@ -17,14 +17,14 @@ Created on 30 jun. 2016
 
 import http.client as httplib
 import mimetypes
-import platform
-import time
 import os
-from astroquery.utils.tap.xmlparser import utils
-from astroquery.utils.tap import taputils
-from astroquery import version
-
+import platform
 import requests
+import time
+
+from astroquery import version
+from astroquery.utils.tap import taputils
+from astroquery.utils.tap.xmlparser import utils
 
 __all__ = ['TapConn']
 
@@ -485,6 +485,22 @@ class TapConn:
         """
         return taputils.taputil_find_header(headers, key)
 
+    def find_all_headers(self, headers, key):
+        """Searches for the specified keyword
+
+        Parameters
+        ----------
+        headers : HTTP(s) headers object, mandatory
+            HTTP(s) response headers
+        key : str, mandatory
+            header key to be searched for
+
+        Returns
+        -------
+        A list of requested header values or an emtpy list if no header is found
+        """
+        return taputils.taputil_find_all_headers(headers, key)
+
     def dump_to_file(self, output, response):
         """Writes the connection response into the specified output
 
@@ -585,7 +601,7 @@ class TapConn:
         if content_disposition is not None:
             p = content_disposition.find('filename="')
             if p >= 0:
-                filename = os.path.basename(content_disposition[p+10:len(content_disposition)-1])
+                filename = os.path.basename(content_disposition[p + 10:len(content_disposition) - 1])
                 content_encoding = self.find_header(headers, 'Content-Encoding')
 
                 if content_encoding is not None:
@@ -722,7 +738,7 @@ class TapConn:
 
     def __str__(self):
         return f"\tHost: {self.__connHost}\n\tUse HTTPS: {self.__isHttps}" \
-            f"\n\tPort: {self.__connPort}\n\tSSL Port: {self.__connPortSsl}"
+               f"\n\tPort: {self.__connPort}\n\tSSL Port: {self.__connPortSsl}"
 
 
 class ConnectionHandler:

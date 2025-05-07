@@ -412,7 +412,6 @@ class BaseQuery(metaclass=LoginABCMeta):
         verbose : bool
             Whether to show download progress. Defaults to True.
         """
-
         if head_safe:
             response = self._session.request("HEAD", url,
                                              timeout=timeout, stream=True,
@@ -426,23 +425,29 @@ class BaseQuery(metaclass=LoginABCMeta):
         if 'content-length' in response.headers:
             length = int(response.headers['content-length'])
             if length == 0:
-                log.warn('URL {0} has length=0'.format(url))
+                log.warning('URL {0} has length=0'.format(url))
         else:
             length = None
 
         if ((os.path.exists(local_filepath)
              and ('Accept-Ranges' in response.headers)
+             and length is not None
              and continuation)):
             open_mode = 'ab'
 
             existing_file_length = os.stat(local_filepath).st_size
-            if length is not None and existing_file_length >= length:
-                # all done!
-                log.info("Found cached file {0} with expected size {1}."
-                         .format(local_filepath, existing_file_length))
-                return
-            elif existing_file_length == 0:
+            if existing_file_length == 0:
+                log.info(f"Found existing {local_filepath} file with length 0.  Overwriting.")
                 open_mode = 'wb'
+                if head_safe:
+                    response = self._session.request(method, url,
+                                                     timeout=timeout, stream=True,
+                                                     auth=auth, **kwargs)
+                    response.raise_for_status()
+            elif existing_file_length >= length:
+                # all done!
+                log.info(f"Found cached file {local_filepath} with size {existing_file_length} = {length}.")
+                return local_filepath
             else:
                 log.info("Continuing download of file {0}, with {1} bytes to "
                          "go ({2}%)".format(local_filepath,
@@ -454,6 +459,7 @@ class BaseQuery(metaclass=LoginABCMeta):
                 end = "{0}".format(length-1) if length is not None else ""
                 self._session.headers['Range'] = "bytes={0}-{1}".format(existing_file_length,
                                                                         end)
+                log.debug(f"Continuing with range={self._session.headers['Range']}")
 
                 response = self._session.request(method, url,
                                                  timeout=timeout, stream=True,
@@ -466,17 +472,32 @@ class BaseQuery(metaclass=LoginABCMeta):
                 statinfo = os.stat(local_filepath)
                 if statinfo.st_size != length:
                     log.warning(f"Found cached file {local_filepath} with size {statinfo.st_size} "
-                                f"that is different from expected size {length}")
+                                f"that is different from expected size {length}.  ")
+                    if continuation:
+                        log.warning(
+                            "Continuation was requested but is not possible because "
+                            "'Accepts-Ranges' is not in the response headers.")
                     open_mode = 'wb'
+                    response = self._session.request(method, url,
+                                                     timeout=timeout, stream=True,
+                                                     auth=auth, **kwargs)
+                    response.raise_for_status()
                 else:
-                    log.info("Found cached file {0} with expected size {1}."
-                             .format(local_filepath, statinfo.st_size))
+                    log.info(f"Found cached file {local_filepath} with expected size {statinfo.st_size}.")
                     response.close()
-                    return
+                    return local_filepath
             else:
-                log.info("Found cached file {0}.".format(local_filepath))
-                response.close()
-                return
+                # This is a special case where the server doesn't return a
+                # Content-Length header, but the file is already cached.
+                # One such case is dynamically generated files in the MAST Archive.
+                # In this case, we warn the user and re-download the file.
+                log.warning(f"Could not verify length of cached file {local_filepath}. "
+                            "Re-downloading the file.")
+                open_mode = 'wb'
+                response = self._session.request(method, url,
+                                                 timeout=timeout, stream=True,
+                                                 auth=auth, **kwargs)
+                response.raise_for_status()
         else:
             open_mode = 'wb'
             if head_safe:
@@ -488,7 +509,7 @@ class BaseQuery(metaclass=LoginABCMeta):
         blocksize = astropy.utils.data.conf.download_block_size
 
         log.debug(f"Downloading URL {url} to {local_filepath} with size {length} "
-                  f"by blocks of {blocksize}")
+                  f"by blocks of {blocksize} with open_mode={open_mode}")
 
         bytes_read = 0
 
@@ -514,7 +535,7 @@ class BaseQuery(metaclass=LoginABCMeta):
                 f.write(response.content)
 
         response.close()
-        return response
+        return local_filepath
 
 
 @deprecated(since="v0.4.7", message=("The suspend_cache function is deprecated,"

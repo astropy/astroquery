@@ -8,7 +8,6 @@ IMCCE
 """
 
 from astropy import config as _config
-import astropy.units as u
 
 
 class Conf(_config.ConfigNamespace):
@@ -21,7 +20,7 @@ class Conf(_config.ConfigNamespace):
         'http://vo.imcce.fr/webservices/miriade/ephemcc_query.php',
         'IMCCE/Miriade.ephemcc base server')
     skybot_server = _config.ConfigItem(
-        ['http://vo.imcce.fr/webservices/skybot/skybotconesearch_query.php'],
+        ['https://ssp.imcce.fr/webservices/skybot/api/conesearch.php'],
         'SkyBoT')
 
     timeout = _config.ConfigItem(
@@ -31,45 +30,30 @@ class Conf(_config.ConfigNamespace):
     # SkyBoT configuration
 
     # dictionary for field name and unit conversions using 'output=all`
-    field_names = {'Num': 'Number',
-                   'Name': 'Name',
-                   'RA(h)': 'RA',
-                   'DE(deg)': 'DEC',
-                   'Class': 'Type',
-                   'Mv': 'V',
-                   'Err(arcsec)': 'posunc',
-                   'd(arcsec)': 'centerdist',
-                   'dRA(arcsec/h)': 'RA_rate',
-                   'dDEC(arcsec/h)': 'DEC_rate',
-                   'Dg(ua)': 'geodist',
-                   'Dh(ua)': 'heliodist',
-                   'Phase(deg)': 'alpha',
-                   'SunElong(deg)': 'elong',
-                   'x(au)': 'x',
-                   'y(au)': 'y',
-                   'z(au)': 'z',
-                   'vx(au/d)': 'vx',
-                   'vy(au/d)': 'vy',
-                   'vz(au/d)': 'vz',
-                   'Ref. Epoch(JD)': 'epoch'}
-    field_units = {'RA': u.deg,  # after conversion to deg
-                   'DEC': u.deg,  # after conversion to deg
-                   'V': u.mag,
-                   'posunc': u.arcsec,
-                   'centerdist': u.arcsec,
-                   'RA_rate': u.arcsec/u.hour,
-                   'DEC_rate': u.arcsec/u.hour,
-                   'geodist': u.au,
-                   'heliodist': u.au,
-                   'alpha': u.degree,
-                   'elong': u.degree,
-                   'x': u.au,
-                   'y': u.au,
-                   'z': u.au,
-                   'vx': u.au/u.day,
-                   'vy': u.au/u.day,
-                   'vz': u.au/u.day,
-                   'epoch': u.day}
+    field_names = {'num': 'Number',
+                   'name': 'Name',
+                   'ra': 'RA',
+                   'de': 'DEC',
+                   'class': 'Type',
+                   'magV': 'V',
+                   'errpos': 'posunc',
+                   'angdist': 'centerdist',
+                   'dracosdec': 'RA_rate',
+                   'ddec': 'DEC_rate',
+                   'dgeo': 'geodist',
+                   'dhelio': 'heliodist',
+                   'phase': 'alpha',
+                   'solelong': 'elong',
+                   'px': 'x',
+                   'py': 'y',
+                   'pz': 'z',
+                   'vx': 'vx',
+                   'vy': 'vy',
+                   'vz': 'vz',
+                   'jdref': 'epoch',
+                   '_raj2000': '_raj2000',
+                   '_decj2000': '_decj2000',
+                   'externallink': 'externallink'}
 
 
 conf = Conf()

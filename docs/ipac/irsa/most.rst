@@ -91,8 +91,8 @@ Image_ID       A unique identifier for the image data, not necessarily the
 date_obs       Date (UTC) of the observation.
 time_obs       Time (UTC) of the midpoint of the observation.
 mjd_obs        Modified Julian Date (days) of the midpoint of the observation.
-ra_obs         Ephemeris of the object's right ascension (deg, J2000).
-dec_obs        Ephemeris of the object's declination (deg, J2000).
+ra_obj         Ephemeris of the object's right ascension (deg, J2000).
+dec_obj        Ephemeris of the object's declination (deg, J2000).
 sun_dist       Heliocentric distance of the object (AU).
 geo_dist       Geocentric distance of the object (AU).
 dist_ctr       Projected distance  from the center of the image (deg).

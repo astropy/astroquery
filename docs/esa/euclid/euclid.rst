@@ -37,7 +37,7 @@ Agency EUCLID Archive using a TAP+ REST service. TAP+ is an extension of Table A
 specified by the International Virtual Observatory Alliance (IVOA: http://www.ivoa.net).
 
 
-The TAP query language is Astronomical Data Query Language 
+The TAP query language is Astronomical Data Query Language
 (ADQL: https://www.ivoa.net/documents/ADQL/20231215/index.html ), which is similar to Structured Query Language (SQL),
 widely used to query databases.
 
@@ -62,9 +62,6 @@ ESA EUCLID TAP+ server provides two access modes: public and authenticated:
   user).
 
   * ADQL queries and results are saved in a user private area.
-
-  * Cross-match operations: a catalog cross-match operation can be executed.
-    Cross-match operations results are saved in a user private area.
 
   * Persistence of uploaded tables: a user can upload a table in a private space.
     These tables can be used in queries as well as in cross-matches operations.
@@ -899,7 +896,11 @@ surrounded by quotation marks, i.e.: *user_<your_login_name>."<table_name>"*):
 2.5.2. Uploading table from file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A file containing a table (votable, fits or csv) can be uploaded to the user's private area.
+A file containing a table can be uploaded to the user private area. Only a file associated to any of the formats described in
+https://docs.astropy.org/en/stable/io/unified.html#built-in-table-readers-writers, and automatically identified by its suffix
+or content can be used. Note that for a multi-extension fits file with multiple tables, the first table found will be used.
+For any other format, the file can be transformed into an astropy Table (https://docs.astropy.org/en/stable/io/unified.html#getting-started-with-table-i-o)
+and passed to the method.
 
 The parameter 'format' must be provided when the input file is not a votable file.
 
@@ -910,7 +911,7 @@ Your schema name will be automatically added to the provided table name.
 
   >>> from astroquery.esa.euclid import Euclid
   >>> Euclid.login()
-  >>> job = Euclid.upload_table(upload_resource="1535553556177O-result.vot", table_name="table_test_from_file", format="VOTable")
+  >>> job = Euclid.upload_table(upload_resource="1535553556177O-result.vot", table_name="table_test_from_file", format="votable")
   Sending file: 1535553556177O-result.vot
   Uploaded table 'table_test_from_file'.
 
@@ -1064,60 +1065,14 @@ We can type the following:
   Table 'user_joe.table' updated.
 
 
-2.8. Cross match
-^^^^^^^^^^^^^^^^
-
-It is possible to run a geometric cross-match between the ra/dec coordinates of two tables
-using the crossmatch function provided by the archive. In order to do so, the user must be
-logged in. This is required because the cross match operation will generate a join table
-in the user private area. That table contains the identifiers of both tables and the separation,
-in degrees, between ra/dec coordinates of each source in the first table and its associated
-source in the second table. Later, the table can be used to obtain the actual data from both tables.
-
-In order to perform a cross match, both tables must have defined RA and Dec columns
-(ra/dec column flags must be set: see previous section to know how to assign those flags).
-
-The following example uploads a table and then, the table is used in a cross match:
-
-.. Skipping authentication requiring examples
-.. doctest-skip::
-
-  >>> from astroquery.esa.euclid import Euclid
-  >>> Euclid.login()
-  >>> table = file or astropy.table
-  >>> Euclid.upload_table(upload_resource=table, table_name='my_sources')
-  >>> # the table will be uploaded into the user private space into the database
-  >>> # the table can be referenced as <database user schema>.<table_name>
-  >>> full_qualified_table_name = 'user_<your_login_name>.my_sources'
-  >>> xmatch_table_name = 'xmatch_table'
-  >>> Euclid.cross_match(full_qualified_table_name_a=full_qualified_table_name,
-  ...                  full_qualified_table_name_b='Eucliddr3.Euclid_source',
-  ...                  results_table_name=xmatch_table_name, radius=1.0)
-
-
-Once you have your cross match finished, you can obtain the results:
-
-.. Skipping authentication requiring examples
-.. doctest-skip::
-
-  >>> from astroquery.esa.euclid import Euclid
-  >>> xmatch_table = 'user_<your_login_name>.' + xmatch_table_name
-  >>> query = (f"SELECT c.separation*3600 AS separation_arcsec, a.*, b.* FROM Eucliddr3.Euclid_source AS a, "
-  ...          f"{full_qualified_table_name} AS b, {xmatch_table} AS c WHERE c.Euclid_source_source_id = a.source_id AND "
-  ...          f"c.my_sources_my_sources_oid = b.my_sources_oid")
-  >>> job = Euclid.launch_job(query=query)
-  >>> results = job.get_results()
-
-Cross-matching catalogues is one of the most popular operations executed in the Euclid archive.
-
-2.9. Tables sharing
+2.8. Tables sharing
 ^^^^^^^^^^^^^^^^^^^
 
 It is possible to share tables with other users. You have to create a group, populate that
 group with users, and share your table to that group. Then, any user belonging to that group
 will be able to access your shared table in a query.
 
-2.9.1. Creating a group
+2.8.1. Creating a group
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. Skipping authentication requiring examples
@@ -1127,7 +1082,7 @@ will be able to access your shared table in a query.
   >>> Euclid.login()
   >>> Euclid.share_group_create(group_name="my_group", description="description")
 
-2.9.2. Removing a group
+2.8.2. Removing a group
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. Skipping authentication requiring examples
@@ -1137,7 +1092,7 @@ will be able to access your shared table in a query.
   >>> Euclid.login()
   >>> Euclid.share_group_delete(group_name="my_group")
 
-2.9.3. Listing groups
+2.8.3. Listing groups
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. Skipping authentication requiring examples
@@ -1149,7 +1104,7 @@ will be able to access your shared table in a query.
   >>> for group in groups:
   ...     print(group.title)
 
-2.9.4. Adding users to a group
+2.8.4. Adding users to a group
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. Skipping authentication requiring examples
@@ -1159,7 +1114,7 @@ will be able to access your shared table in a query.
   >>> Euclid.login()
   >>> Euclid.share_group_add_user(group_name="my_group",user_id="<user_login_name")
 
-2.9.5. Removing users from a group
+2.8.5. Removing users from a group
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. Skipping authentication requiring examples
@@ -1169,7 +1124,7 @@ will be able to access your shared table in a query.
   >>> Euclid.login()
   >>> Euclid.share_group_delete_user(group_name="my_group",user_id="<user_login_name>")
 
-2.9.6. Sharing a table to a group
+2.8.6. Sharing a table to a group
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. Skipping authentication requiring examples
@@ -1181,7 +1136,7 @@ will be able to access your shared table in a query.
   ...                  table_name="user_<user_login_name>.my_table",
   ...                  description="description")
 
-2.9.7. Stop sharing a table
+2.8.7. Stop sharing a table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. Skipping authentication requiring examples

@@ -82,33 +82,45 @@ However, only one wildcarded value can be processed per criterion.
 
 RA and Dec must be given in decimal degrees, and datetimes in MJD.
 
+`~astroquery.mast.ObservationsClass.query_criteria` can be used to perform non-positional criteria queries.
+
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Observations
    ...
-   >>> obs_table = Observations.query_criteria(dataproduct_type=["image"],
-   ...                                         proposal_pi="Osten*",
-   ...                                         s_dec=[43.5,45.5])
-   >>> print(obs_table)  # doctest: +IGNORE_OUTPUT
-   dataproduct_type calib_level obs_collection ... intentType   obsid      objID
-   ---------------- ----------- -------------- ... ---------- ---------- ----------
-              image           1            HST ...    science 2003520267 2023816094
-              image           1            HST ...    science 2003520266 2023816134
-              image           1            HST ...    science 2003520268 2025756935
+   >>> obs_table = Observations.query_criteria(dataproduct_type="image",
+   ...                                         proposal_pi="Osten*")
+   >>> print(obs_table[:5])  # doctest: +IGNORE_OUTPUT
+   intentType obs_collection provenance_name ... srcDen  obsid     objID  
+   ---------- -------------- --------------- ... ------ -------- ---------
+      science            HST          CALCOS ...    nan 24139596 144540274
+      science            HST          CALCOS ...    nan 24139591 144540276
+      science            HST          CALCOS ...    nan 24139580 144540277
+      science            HST          CALCOS ...    nan 24139597 144540280
+      science            HST          CALCOS ...    nan 24139575 144540281
    ...
-   >>> obs_table = Observations.query_criteria(filters=["*UV","Kepler"],
-   ...                                         objectname="M10",
+
+You can also perform positional queries with additional criteria by passing in ``objectname``, ``coordinates``,
+and/or ``radius`` as keyword arguments.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.mast import Observations
+   ...
+   >>> obs_table = Observations.query_criteria(objectname="M10",
+   ...                                         radius="0.1 deg",
+   ...                                         filters=["*UV","Kepler"],
    ...                                         obs_collection="GALEX")
    >>> print(obs_table)  # doctest: +IGNORE_OUTPUT
    intentType obs_collection provenance_name ... objID objID1 distance
    ---------- -------------- --------------- ... ----- ------ --------
-      science          GALEX             GII ...  7022   7022      0.0
-      science          GALEX             GII ...  7023   7023      0.0
-      science          GALEX             AIS ... 61673  61673      0.0
-      science          GALEX             AIS ... 61674  61674      0.0
       science          GALEX             AIS ... 61675  61675      0.0
-      science          GALEX             AIS ... 61676  61676      0.0
+      science          GALEX             GII ...  7022   7022      0.0
       science          GALEX             GII ... 78941  78941      0.0
+      science          GALEX             AIS ... 61673  61673      0.0
+      science          GALEX             GII ...  7023   7023      0.0
+      science          GALEX             AIS ... 61676  61676      0.0
+      science          GALEX             AIS ... 61674  61674      0.0
 
 We encourage the use of wildcards particularly when querying for JWST instruments
 with the instrument_name criteria. This is because of the varying instrument names

@@ -60,8 +60,7 @@ def footprint_to_reg(footprint):
     reglist = []
 
     meta = {'source': 1, 'include': 1, 'fixed': 0, 'text': ''}
-    visual = {'color': 'green', 'dash': '0', 'dashlist': '8 3',
-              'font': '"helvetica 10 normal roman"', 'width': '1'}
+    visual = {'color': 'green', 'linestyle': 'solid', 'linewidth': 1.0}
 
     entries = footprint.split()
     if entries[0] == 'Circle':
