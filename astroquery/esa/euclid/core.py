@@ -1357,7 +1357,7 @@ class EuclidClass(TapPlus):
                         #. 'DpdTwoPCFWLParamsClPosPos2D': This product contains parameters to compute the tomographic
                         angular power spectra.
                         #. 'DpdTwoPCFWLParamsPEBPosShear2D': This product contains parameters to compute the
-                        tomographic galaxy-galaxy lensing E/B power spectra.	
+                        tomographic galaxy-galaxy lensing E/B power spectra.
                         #. 'DpdTwoPCFWLParamsPEBShearShear2D': This product contains parameters to compute the
                         tomographic cosmic shear E/B power spectra.
                         #. 'DpdTwoPCFWLParamsPosPos2D': Input parameters to compute tomographic angular 2PCF.
