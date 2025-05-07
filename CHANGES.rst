@@ -26,7 +26,7 @@ alma
 esa.euclid
 ^^^^^^^^^^
 
-- New module to access the ESA Euclid Archive. [#3216]
+- New method, get_scientific_product_list, to retrieve scientific LE3 products. [#3313]
 
 linelists.cdms
 ^^^^^^^^^^^^^^
