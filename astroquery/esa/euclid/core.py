@@ -1277,8 +1277,8 @@ class EuclidClass(TapPlus):
 
         return self.__eucliddata.get_datalinks(ids=ids, linking_parameter=linking_parameter, verbose=verbose)
 
-    def get_scientific_data_product_list(self, *, observation_id=None, tile_index=None, category=None, group=None,
-                                         product_type=None, dataset_release='LEVEL_3_RELEASE', verbose=False):
+    def get_scientific_product_list(self, *, observation_id=None, tile_index=None, category=None, group=None,
+                                    product_type=None, dataset_release='REGREPROC1_R2', verbose=False):
         """ Gets the LE3 products (the high-level science data products).
 
         Please note that not all combinations of category, group, and product_type are valid.
@@ -1308,6 +1308,7 @@ class EuclidClass(TapPlus):
                     #. 'SEL Config/Stats'
                 #. External Data Products
                     #. 'LE3-ED configuration catalog'
+                    #. 'LE3-ED match catalog'
                 #. Weak Lensing Products
                     #. '2PCF'
                     #. 'PK'
@@ -1346,6 +1347,7 @@ class EuclidClass(TapPlus):
                 #. External Data Products
                     #. LE3-ED configuration catalog
                         #. 'DpdLE3edConfigurationFile': LE3-ED configuration catalog
+                    #. LE3-ED match catalog #
                         #. 'DpdLE3edMatchedCatalog': LE3-ED match catalog
                 #. Weak Lensing Products
                     #. 2PCF
@@ -1442,8 +1444,8 @@ class EuclidClass(TapPlus):
                         #. 'DpdLE3gcTwoPointRecCrossCorrPol': 2D Polar [Post-reconstruction 2D Polar and Multipole
                         Cross-correlation Product]
                     #. 3PCF_BK
-                        #. 'DpdLE3gcThreePointAll': 3PCF Triplets “ALL” Product
-                        #. 'DpdLE3gcThreePointSin': 3PCF Correlation “SINGLE” Product
+                        #. 'DpdLE3gcThreePointAll': 3PCF Triplets "ALL" Product
+                        #. 'DpdLE3gcThreePointSin': 3PCF Correlation "SINGLE" Product
                         #. 'DpdLE3gcBkMonopole': Bispectrum Product Monopole
                         #. 'DpdLE3gcBkMultipole': Bispectrum Product Multipoles
                     #. CM-2PCF
@@ -1544,14 +1546,14 @@ class EuclidClass(TapPlus):
                         #. 'DpdReferenceSample':
                         #. 'DpdTomographicBins':
 
-        dataset_release : str, mandatory. Default LEVEL_3_RELEASE
+        dataset_release : str, mandatory. Default REGREPROC1_R2
             Data release from which data should be taken.
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
         Returns
         -------
-        A table object
+        The list of products (astropy.table)
 
         """
 

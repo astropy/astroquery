@@ -248,6 +248,12 @@ It is possible to retrieve LE3 data (scientific data) by observation_id or tile_
 .. doctest-skip::
 
   >>> from astroquery.esa.euclid import Euclid
+    >>> le3_product_list = Euclid.get_scientific_product_list(tile_index=102034414)
+    >>> print("Found", len(le3_product_list), "results")
+    Found 12 results
+    >>> print(le3_product_list)
+
+  In the following example, for the LE3 Weak-Lensing data, we retrieve all the Tomographic Cosmic Shear Correlation products (2PCF TwoPCFWLShearShear2D):
   >>> le3_product_list = Euclid.get_scientific_data_product_list(tile_index=102034414)
   >>> print("Found", len(le3_product_list), "results")
   Found 12 results
@@ -259,6 +265,10 @@ In the following example, for the LE3 Weak-Lensing data, we retrieve all the Tom
 .. doctest-skip::
 
   >>> from astroquery.esa.euclid import Euclid
+    >>> results = euclid.get_scientific_product_list(category='Weak Lensing Products', group='2PCF', product_type='DpdTwoPCFWLShearShear2D')
+    >>> print("Found", len(le3_product_list), "results")
+    Found 12 results
+    >>> print(le3_product_list)
   >>> results = euclid.get_scientific_data_product_list(category='Weak Lensing Products', group='2PCF', product_type='DpdTwoPCFWLShearShear2D')
   >>> print("Found", len(le3_product_list), "results")
   Found 12 results

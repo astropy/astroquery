@@ -1060,42 +1060,42 @@ def test_get_scientific_data_product_list():
 
     euclid = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
-    results = euclid.get_scientific_data_product_list(observation_id=11111)
+    results = euclid.get_scientific_product_list(observation_id=11111)
 
     assert results is not None, "Expected a valid table"
 
-    results = euclid.get_scientific_data_product_list(tile_index=11111)
+    results = euclid.get_scientific_product_list(tile_index=11111)
 
     assert results is not None, "Expected a valid table"
 
-    results = euclid.get_scientific_data_product_list(category='Clusters of Galaxies', group='GrpCatalog',
-                                                      product_type='DpdLE3clAmicoAux')
+    results = euclid.get_scientific_product_list(category='Clusters of Galaxies', group='GrpCatalog',
+                                                 product_type='DpdLE3clAmicoAux')
 
     assert results is not None, "Expected a valid table"
 
-    results = euclid.get_scientific_data_product_list(category='Weak Lensing Products', group='2PCF',
-                                                      product_type='DpdCovarTwoPCFWLClPosPos2D')
+    results = euclid.get_scientific_product_list(category='Weak Lensing Products', group='2PCF',
+                                                 product_type='DpdCovarTwoPCFWLClPosPos2D')
 
     assert results is not None, "Expected a valid table"
 
-    results = euclid.get_scientific_data_product_list(category='Weak Lensing Products')
+    results = euclid.get_scientific_product_list(category='Weak Lensing Products')
 
     assert results is not None, "Expected a valid table"
 
-    results = euclid.get_scientific_data_product_list(category='Weak Lensing Products', group='2PCF')
+    results = euclid.get_scientific_product_list(category='Weak Lensing Products', group='2PCF')
 
     assert results is not None, "Expected a valid table"
 
-    results = euclid.get_scientific_data_product_list(group='2PCF', product_type='DpdCovarTwoPCFWLClPosPos2D')
+    results = euclid.get_scientific_product_list(group='2PCF', product_type='DpdCovarTwoPCFWLClPosPos2D')
 
     assert results is not None, "Expected a valid table"
 
-    results = euclid.get_scientific_data_product_list(category='Weak Lensing Products',
-                                                      product_type='DpdCovarTwoPCFWLClPosPos2D')
+    results = euclid.get_scientific_product_list(category='Weak Lensing Products',
+                                                 product_type='DpdCovarTwoPCFWLClPosPos2D')
 
     assert results is not None, "Expected a valid table"
 
-    results = euclid.get_scientific_data_product_list(product_type='DpdCovarTwoPCFWLClPosPos2D')
+    results = euclid.get_scientific_product_list(product_type='DpdCovarTwoPCFWLClPosPos2D')
 
     assert results is not None, "Expected a valid table"
 
@@ -1104,43 +1104,43 @@ def test_get_scientific_data_product_list_exceptions():
     eculid = EuclidClass()
 
     with pytest.raises(ValueError, match="Include a valid parameter to retrieve a LE3 product."):
-        eculid.get_scientific_data_product_list(observation_id=None, tile_index=None, category=None, group=None,
-                                                product_type=None)
+        eculid.get_scientific_product_list(observation_id=None, tile_index=None, category=None, group=None,
+                                           product_type=None)
 
     with pytest.raises(ValueError, match="The release is required."):
-        eculid.get_scientific_data_product_list(observation_id=11111, dataset_release=None)
+        eculid.get_scientific_product_list(observation_id=11111, dataset_release=None)
 
     with pytest.raises(ValueError, match="Incompatible: 'observation_id' and 'tile_id'. Use only one."):
-        eculid.get_scientific_data_product_list(observation_id=11111, tile_index=1234567)
+        eculid.get_scientific_product_list(observation_id=11111, tile_index=1234567)
 
     with pytest.raises(ValueError, match=r"Invalid combination of parameters: category=not_valid. *."):
-        eculid.get_scientific_data_product_list(observation_id=11111, category='not_valid')
+        eculid.get_scientific_product_list(observation_id=11111, category='not_valid')
 
     with pytest.raises(ValueError, match=r"Invalid combination of parameters: group=not_valid.  *."):
-        eculid.get_scientific_data_product_list(observation_id=11111, group='not_valid')
+        eculid.get_scientific_product_list(observation_id=11111, group='not_valid')
 
     with pytest.raises(ValueError, match=r"Invalid combination of parameters: product_type=not_valid.  *."):
-        eculid.get_scientific_data_product_list(observation_id=11111, product_type='not_valid')
+        eculid.get_scientific_product_list(observation_id=11111, product_type='not_valid')
 
     with pytest.raises(ValueError, match=r"Invalid combination of parameters: category=Clusters of Galaxies.  *."):
-        eculid.get_scientific_data_product_list(observation_id=11111, category='Clusters of Galaxies',
-                                                group='not_valid')
+        eculid.get_scientific_product_list(observation_id=11111, category='Clusters of Galaxies',
+                                           group='not_valid')
 
     with pytest.raises(ValueError, match=r"Invalid combination of parameters: category=Clusters of Galaxies; "
                                          r"group=GrpCatalog; product_type=not_valid. *."):
-        eculid.get_scientific_data_product_list(observation_id=11111, category='Clusters of Galaxies',
-                                                group='GrpCatalog',
-                                                product_type='not_valid')
+        eculid.get_scientific_product_list(observation_id=11111, category='Clusters of Galaxies',
+                                           group='GrpCatalog',
+                                           product_type='not_valid')
 
     with pytest.raises(ValueError,
                        match=r"Invalid combination of parameters: category=Clusters of Galaxies; "
                              r"product_type=not_valid.  *."):
-        eculid.get_scientific_data_product_list(observation_id=11111, category='Clusters of Galaxies',
-                                                product_type='not_valid')
+        eculid.get_scientific_product_list(observation_id=11111, category='Clusters of Galaxies',
+                                           product_type='not_valid')
 
     with pytest.raises(ValueError,
                        match=r"Invalid combination of parameters: group=GrpCatalog; product_type=not_valid. *."):
-        eculid.get_scientific_data_product_list(observation_id=11111, group='GrpCatalog', product_type='not_valid')
+        eculid.get_scientific_product_list(observation_id=11111, group='GrpCatalog', product_type='not_valid')
 
 
 @patch.object(TapPlus, 'login')
