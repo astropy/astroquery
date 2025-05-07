@@ -1298,6 +1298,7 @@ class EuclidClass(TapPlus):
                 #. 'Galaxy Clustering Products'
                 #. 'Clusters of Galaxies'
                 #. 'PHZ'
+
         group : str, optional, default None
             Available groups per category:
 
@@ -1347,7 +1348,7 @@ class EuclidClass(TapPlus):
                 #. External Data Products
                     #. LE3-ED configuration catalog
                         #. 'DpdLE3edConfigurationFile': LE3-ED configuration catalog
-                    #. LE3-ED match catalog #
+                    #. LE3-ED match catalog
                         #. 'DpdLE3edMatchedCatalog': LE3-ED match catalog
                 #. Weak Lensing Products
                     #. 2PCF
@@ -1376,8 +1377,7 @@ class EuclidClass(TapPlus):
                         #. 'DpdCovarTwoPCFWLClPosPos2D': Covariance of Tomographic Angular Power Spectra
                         #. 'DpdCovarTwoPCFWLCOSEBIShearShear2D': Covariance of Tomographic Cosmic Shear COSEBI
                         #. 'DpdCovarTwoPCFWLPEBPosShear2D': Cov. of Tomo. Galaxy-Galaxy Lensing EB Power Spectra
-                        #. 'DpdCovarTwoPCFWLPEBShearShear2D': Covariance of Tomographic Cosmic Shear EB Power
-                        Spectra
+                        #. 'DpdCovarTwoPCFWLPEBShearShear2D': Covariance of Tomographic Cosmic Shear EB Power Spectra
                         #. 'DpdCovarTwoPCFWLPosPos2D': Covariance of Tomographic Angular Correlation
                         #. 'DpdCovarTwoPCFWLPosShear2D': Cov. of Tomographic Galaxy-Galaxy Lensing Correlation
                         #. 'DpdCovarTwoPCFWLShearShear2D': Covariance of Tomographic Cosmic Shear Correlation
@@ -1455,7 +1455,7 @@ class EuclidClass(TapPlus):
                         Cartesian 2PCF Product]
                         #. 'DpdLE3gcCovmatTwoPointCov2Dpol': Output - 2D Polar [Covariance Matrix of the 2D Polar
                         2PCF Product]
-                        #. 'DpdLE3gcCovmatTwoPointCovMu': Output - Covariance Matrix of the Multipoles 0,1,2,3,
+                        #. 'DpdLE3gcCovmatTwoPointCovMu': Output - Covariance Matrix of the Multipoles 0, 1, 2, 3,
                         4 2PCF Product
                         #. 'DpdLE3gcCovmatTwoPointCovPro': Output - Projected [Covariance Matrix of the Projected
                         2PCF Product]
