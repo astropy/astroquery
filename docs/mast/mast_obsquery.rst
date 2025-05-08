@@ -223,64 +223,20 @@ The product fields are documented `here <https://mast.stsci.edu/api/v0/_products
 
    >>> from astroquery.mast import Observations
    ...
-   >>> obs_table = Observations.query_object("M8",radius=".02 deg")
+   >>> obs_table = Observations.query_criteria(objectname="M8", obs_collection=["K2", "IUE"])
    >>> data_products_by_obs = Observations.get_product_list(obs_table[0:2])
    >>> print(data_products_by_obs)  # doctest: +IGNORE_OUTPUT
-      obsID    obs_collection dataproduct_type ...   size  parent_obsid
-   ----------- -------------- ---------------- ... ------- ------------
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-           ...            ...              ... ...     ...          ...
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ... 8648640  19000016510
-   Length = 1153 rows
-   ...
+   obsID  obs_collection dataproduct_type ... dataRights calib_level filters
+   ------ -------------- ---------------- ... ---------- ----------- -------
+   664784             K2       timeseries ...     PUBLIC           2  KEPLER
+   664785             K2       timeseries ...     PUBLIC           2  KEPLER
    >>> obsids = obs_table[0:2]['obsid']
    >>> data_products_by_id = Observations.get_product_list(obsids)
    >>> print(data_products_by_id)  # doctest: +IGNORE_OUTPUT
-      obsID    obs_collection dataproduct_type ...   size  parent_obsid
-   ----------- -------------- ---------------- ... ------- ------------
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-           ...            ...              ... ...     ...          ...
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ... 8648640  19000016510
-   Length = 1153 rows
-   ...
+   obsID  obs_collection dataproduct_type ... dataRights calib_level filters
+   ------ -------------- ---------------- ... ---------- ----------- -------
+   664784             K2       timeseries ...     PUBLIC           2  KEPLER
+   664785             K2       timeseries ...     PUBLIC           2  KEPLER
    >>> print((data_products_by_obs == data_products_by_id).all())
    True
 
@@ -309,18 +265,18 @@ To return only unique data products for an observation, use `~astroquery.mast.Ob
    INFO: 180 of 370 products were duplicates. Only returning 190 unique product(s). [astroquery.mast.utils]
    INFO: To return all products, use `Observations.get_product_list` [astroquery.mast.observations]
    >>> print(unique_products[:10]['dataURI'])
-                                 dataURI                              
-   -------------------------------------------------------------------
-           mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveo_drc.fits
-            mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveo_drc.jpg
-     mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveo_point-cat.ecsv
-   mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveo_segment-cat.ecsv
-            mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveo_trl.txt
-         mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveoes_drc.fits
-          mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveoes_drc.jpg
-         mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveoes_flc.fits
-        mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveoes_hlet.fits
-          mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveoes_trl.txt
+                   dataURI                 
+   ----------------------------------------
+   mast:HST/product/jbeveoesq_flt_hlet.fits
+      mast:HST/product/jbeveoesq_spt.fits
+      mast:HST/product/jbeveoesq_trl.fits
+         mast:HST/product/jbeveoesq_log.txt
+         mast:HST/product/jbeveoesq_raw.jpg
+         mast:HST/product/jbeveoesq_flc.jpg
+         mast:HST/product/jbeveoesq_flt.jpg
+      mast:HST/product/jbeveoesq_flc.fits
+      mast:HST/product/jbeveoesq_flt.fits
+      mast:HST/product/jbeveoesq_raw.fits
 
 Filtering
 ---------

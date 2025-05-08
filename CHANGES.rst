@@ -67,6 +67,11 @@ mast
 - Added ``resolve_all`` parameter to ``MastClass.resolve_object`` to resolve object names and return
   coordinates for all available resolvers. [#3292]
 
+- Fix bug in ``utils.remove_duplicate_products`` that does not retain the order of the products in an input table. [#3314]
+
+- Added ``return_uri_map`` parameter to ``Observations.get_cloud_uris`` to return a mapping of the input data product URIs 
+  to the returned cloud URIs. [#3314]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
