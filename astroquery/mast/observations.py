@@ -979,6 +979,9 @@ class ObservationsClass(MastQueryWithLogin):
             uri_map = dict(zip(data_uris, cloud_uris))
             return uri_map
 
+        # Remove None values from the list
+        cloud_uris = [uri for uri in cloud_uris if uri is not None]
+
         return cloud_uris
 
     def get_cloud_uri(self, data_product, *, include_bucket=True, full_url=False):

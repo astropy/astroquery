@@ -295,7 +295,6 @@ def mast_relative_path(mast_uri):
             path = json_response.get(uri)["path"]
             if path is None:
                 warnings.warn(f"Failed to retrieve MAST relative path for {uri}. Skipping...", NoResultsWarning)
-                path = None
             elif 'galex' in path:
                 path = path.lstrip("/mast/")
             elif '/ps1/' in path:
