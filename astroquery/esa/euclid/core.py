@@ -1647,11 +1647,10 @@ class EuclidClass(TapPlus):
                             f"values:\n {pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
 
                     query_extra_condition = query_extra_condition + f" AND product_type = '{product_type}' "
-                else:  # product_type is None
+                else:  # group is not None and product_type is None
 
-                    product_type_for_category_group_list = [element for sublist in all_groups_dict.values() for element
-                                                            in sublist]
-                    final_products = ', '.join(f"'{w}'" for w in product_type_for_category_group_list)
+                    product_type_for_group_list = all_groups_dict[group]
+                    final_products = ', '.join(f"'{w}'" for w in product_type_for_group_list)
                     query_extra_condition = query_extra_condition + f" AND product_type IN ({final_products}) "
 
             else:  # category is None and group is None

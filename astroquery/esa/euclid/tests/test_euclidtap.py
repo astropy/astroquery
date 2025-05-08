@@ -1088,6 +1088,10 @@ def test_get_scientific_data_product_list():
 
     assert results is not None, "Expected a valid table"
 
+    results = euclid.get_scientific_product_list(group='GrpCatalog')
+
+    assert results is not None, "Expected a valid table"
+
     results = euclid.get_scientific_product_list(category='Weak Lensing Products', group='2PCF')
 
     assert results is not None, "Expected a valid table"
