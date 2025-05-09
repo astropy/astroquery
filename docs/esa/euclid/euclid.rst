@@ -242,7 +242,9 @@ To get the list of products associated with a given Euclid observation_id or til
 
 The method returns a list of products as an `~astropy.table.Table`. It is also possible to search by observation_id, but not by both parameters simultaneously.
 
-It is possible to retrieve LE3 data (scientific data) by observation_id or tile_index (but not by both simultaneously) and/or for different categories, groups and  product types:
+It is possible to retrieve LE3 data (scientific data) by observation_id or tile_index (but not by both simultaneously) and/or for different categories, groups and product types. The available values
+for these parameters are summarized in section :ref:`appendix`.
+
 
 .. Skipping authentication requiring examples
 .. doctest-skip::
@@ -1239,6 +1241,18 @@ A fits file is made if no file name is provided.
 
 .. _DataLink: https://www.ivoa.net/documents/DataLink/
 
+.. _appendix:
+
+========
+Appendix
+========
+
+The following table summarises the available values of the parameters of the method get_scientific_product_list.
+
+.. csv-table:: Valid values for the parameters of the method get_scientific_product_list
+    :file: table_values.csv
+    :header-rows: 1
+    :widths: auto
 
 =============
 Reference/API
