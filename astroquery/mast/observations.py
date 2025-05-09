@@ -874,7 +874,8 @@ class ObservationsClass(MastQueryWithLogin):
         return manifest
 
     def get_cloud_uris(self, data_products=None, *, include_bucket=True, full_url=False, pagesize=None, page=None,
-                       mrp_only=False, extension=None, filter_products={}, return_uri_map=False, **criteria):
+                       mrp_only=False, extension=None, filter_products={}, return_uri_map=False, verbose=True,
+                       **criteria):
         """
         Given an `~astropy.table.Table` of data products or query criteria and filter parameters,
         returns the associated cloud data URIs.
@@ -912,6 +913,8 @@ class ObservationsClass(MastQueryWithLogin):
             Default False. If set to True, returns a dictionary mapping the original data product
             URIs to their corresponding cloud URIs. This is useful for tracking which products were
             successfully converted to cloud URIs.
+        verbose : bool, optional
+            Default True. Whether to issue warnings if a product cannot be found in the cloud.
         **criteria
             Criteria to apply. At least one non-positional criteria must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
@@ -972,7 +975,10 @@ class ObservationsClass(MastQueryWithLogin):
         data_uris = utils.remove_duplicate_products(data_uris, 'dataURI')
 
         # Get cloud URIS
-        cloud_uris = self._cloud_connection.get_cloud_uri_list(data_uris, include_bucket, full_url)
+        cloud_uris = self._cloud_connection.get_cloud_uri_list(data_uris,
+                                                               include_bucket=include_bucket,
+                                                               full_url=full_url,
+                                                               verbose=verbose)
 
         # If return_uri_map is True, create a mapping of dataURIs to cloud URIs
         if return_uri_map:

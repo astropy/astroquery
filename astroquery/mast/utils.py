@@ -258,7 +258,7 @@ def split_list_into_chunks(input_list, chunk_size):
         yield input_list[idx:idx + chunk_size]
 
 
-def mast_relative_path(mast_uri):
+def mast_relative_path(mast_uri, *, verbose=True):
     """
     Given one or more MAST dataURI(s), return the associated relative path(s).
 
@@ -266,6 +266,8 @@ def mast_relative_path(mast_uri):
     ----------
     mast_uri : str, list of str
         The MAST uri(s).
+    verbose : bool, optional
+        Default True. Whether to issue warnings if the MAST relative path cannot be found for a product.
 
     Returns
     -------
@@ -294,7 +296,8 @@ def mast_relative_path(mast_uri):
             # so we index for path (index=1)
             path = json_response.get(uri)["path"]
             if path is None:
-                warnings.warn(f"Failed to retrieve MAST relative path for {uri}. Skipping...", NoResultsWarning)
+                if verbose:
+                    warnings.warn(f"Failed to retrieve MAST relative path for {uri}. Skipping...", NoResultsWarning)
             elif 'galex' in path:
                 path = path.lstrip("/mast/")
             elif '/ps1/' in path:

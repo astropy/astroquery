@@ -117,7 +117,7 @@ class CloudAccess:  # pragma:no-cover
             # Output from ``get_cloud_uri_list`` is always a list even when it's only 1 URI
             return uri_list[0]
 
-    def get_cloud_uri_list(self, data_products, include_bucket=True, full_url=False):
+    def get_cloud_uri_list(self, data_products, *, include_bucket=True, full_url=False, verbose=True):
         """
         Takes an `~astropy.table.Table` of data products and returns the associated cloud data uris.
 
@@ -132,6 +132,8 @@ class CloudAccess:  # pragma:no-cover
         full_url : bool
             Default False. Return an HTTP fetchable url instead of a cloud uri.
             Must set include_bucket to False to use this option.
+        verbose : bool
+            Default True. Whether to issue warnings if a product cannot be found in the cloud.
 
         Returns
         -------
@@ -141,7 +143,7 @@ class CloudAccess:  # pragma:no-cover
         """
         s3_client = self.boto3.client('s3', config=self.config)
         data_uris = data_products if isinstance(data_products, list) else data_products['dataURI']
-        paths = utils.mast_relative_path(data_uris)
+        paths = utils.mast_relative_path(data_uris, verbose=verbose)
         if isinstance(paths, str):  # Handle the case where only one product was requested
             paths = [paths]
 
@@ -164,7 +166,8 @@ class CloudAccess:  # pragma:no-cover
                 except self.botocore.exceptions.ClientError as e:
                     if e.response['Error']['Code'] != "404":
                         raise
-                    warnings.warn("Unable to locate file {}.".format(path), NoResultsWarning)
+                    if verbose:
+                        warnings.warn("Unable to locate file {}.".format(path), NoResultsWarning)
                     uri_list.append(None)
 
         return uri_list
