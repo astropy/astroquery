@@ -1,7 +1,18 @@
-# Duplicate pytest header config here for tox.
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+import os
+from pathlib import Path
+
+from astropy.utils import minversion
+import numpy as np
+import pytest
 from pytest_astropy_header.display import (PYTEST_HEADER_MODULES,
                                            TESTED_VERSIONS)
+
+
+# Keep this until we require numpy to be >=2.0
+if minversion(np, "2.0.0.dev0+git20230726"):
+    np.set_printoptions(legacy="1.25")
 
 
 def pytest_configure(config):
@@ -28,3 +39,24 @@ def pytest_configure(config):
 
     TESTED_VERSIONS['astroquery'] = version.version
     TESTED_VERSIONS['astropy_helpers'] = version.astropy_helpers_version
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        '--alma-site',
+        action='store',
+        default='almascience.eso.org',
+        help='ALMA site (almascience.nrao.edu, almascience.eso.org or '
+             'almascience.nao.ac.jp for example)'
+    )
+
+
+@pytest.fixture(scope='function')
+def tmp_cwd(tmp_path):
+    """Perform test in a pristine temporary working directory."""
+    old_dir = Path.cwd()
+    os.chdir(tmp_path)
+    try:
+        yield tmp_path
+    finally:
+        os.chdir(old_dir)
