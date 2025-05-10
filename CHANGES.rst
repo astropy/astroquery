@@ -23,6 +23,11 @@ alma
 
 - Bug fix in ``footprint_to_reg`` that did not allow regions to be plotted. [#3285]
 
+esa.euclid
+^^^^^^^^^^
+
+- New method, get_scientific_product_list, to retrieve scientific LE3 products. [#3313]
+
 linelists.cdms
 ^^^^^^^^^^^^^^
 
