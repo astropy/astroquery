@@ -269,7 +269,7 @@ class TestMast:
         # Unique product list should have fewer rows
         assert len(products) > len(unique_products)
         # Rows should be unique based on filename
-        assert (unique_products == unique(unique_products, keys='filename')).all()
+        assert (len(unique_products) == len(unique(unique_products, keys='filename')))
         # Check that INFO messages were logged
         with caplog.at_level('INFO', logger='astroquery'):
             assert 'products were duplicates' in caplog.text
@@ -570,7 +570,7 @@ class TestMast:
         responses = Observations.get_product_list_async(test_obs[2:3])
         assert isinstance(responses, list)
 
-        observations = Observations.query_object("M8", radius=".02 deg")
+        observations = Observations.query_criteria(objectname="M8", obs_collection=["K2", "IUE"])
         responses = Observations.get_product_list_async(observations[0])
         assert isinstance(responses, list)
 
@@ -578,7 +578,7 @@ class TestMast:
         assert isinstance(responses, list)
 
     def test_observations_get_product_list(self):
-        observations = Observations.query_object("M8", radius=".04 deg")
+        observations = Observations.query_criteria(objectname='M8', obs_collection=['K2', 'IUE'])
         test_obs_id = str(observations[0]['obsid'])
         mult_obs_ids = str(observations[0]['obsid']) + ',' + str(observations[1]['obsid'])
 
@@ -598,7 +598,7 @@ class TestMast:
         assert len(result1) == len(result2)
         assert set(filenames1) == set(filenames2)
 
-        obsLoc = np.where(observations["obs_id"] == 'ktwo200071160-c92_lc')
+        obsLoc = np.where(observations['obs_id'] == 'ktwo200071160-c92_lc')
         result = Observations.get_product_list(observations[obsLoc])
         assert isinstance(result, Table)
         assert len(result) == 1
@@ -644,7 +644,7 @@ class TestMast:
         # Unique product list should have fewer rows
         assert len(products) > len(unique_products)
         # Rows should be unique based on dataURI
-        assert (unique_products == unique(unique_products, keys='dataURI')).all()
+        assert (len(unique_products) == len(unique(unique_products, keys='dataURI')))
         # Check that INFO messages were logged
         with caplog.at_level('INFO', logger='astroquery'):
             assert 'products were duplicates' in caplog.text
@@ -877,6 +877,13 @@ class TestMast:
         uris = Observations.get_cloud_uris(uri_list)
         assert len(uris) > 0, f'Products for URI list {uri_list} were not found in the cloud.'
         assert uris == expected
+
+        # return map of dataURI to cloud URI
+        uri_map = Observations.get_cloud_uris(uri_list, return_uri_map=True)
+        assert isinstance(uri_map, dict)
+        assert len(uri_map) == 2
+        for i, uri in enumerate(uri_list):
+            assert uri_map[uri] == expected[i]
 
         # check for warning if filters are provided with list input
         with pytest.warns(InputWarning, match='Filtering is not supported'):

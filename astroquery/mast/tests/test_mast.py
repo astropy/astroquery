@@ -353,7 +353,7 @@ def test_missions_get_product_list(patch_post):
 def test_missions_get_unique_product_list(patch_post, caplog):
     unique_products = mast.MastMissions.get_unique_product_list('Z14Z0104T')
     assert isinstance(unique_products, Table)
-    assert (unique_products == unique(unique_products, keys='filename')).all()
+    assert (len(unique_products) == len(unique(unique_products, keys='filename')))
     # No INFO messages should be logged
     with caplog.at_level('INFO', logger='astroquery'):
         assert caplog.text == ''
@@ -769,6 +769,12 @@ def test_observations_get_cloud_uris(mock_client, patch_post):
     assert isinstance(uris, list)
     assert len(uris) == 1
     assert uris[0] == expected
+
+    # Return a map of URIs
+    uri_map = mast.Observations.get_cloud_uris([mast_uri], return_uri_map=True)
+    assert isinstance(uri_map, dict)
+    assert len(uri_map) == 1
+    assert uri_map[mast_uri] == expected
 
     # Warn if attempting to filter with list input
     with pytest.warns(InputWarning, match='Filtering is not supported'):
