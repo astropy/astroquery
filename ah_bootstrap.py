@@ -411,7 +411,7 @@ class _Bootstrapper(object):
         dist = self._directory_import()
 
         if dist is None:
-            log.warn(
+            log.warning(
                 'The requested path {0!r} for importing {1} does not '
                 'exist, or does not contain a copy of the {1} '
                 'package.'.format(self.path, PACKAGE_NAME))
@@ -436,7 +436,7 @@ class _Bootstrapper(object):
             if DEBUG:
                 raise
 
-            log.warn(
+            log.warning(
                 'Failed to import {0} from the specified archive {1!r}: '
                 '{2}'.format(PACKAGE_NAME, self.path, str(e)))
             dist = None
@@ -445,10 +445,10 @@ class _Bootstrapper(object):
 
     def get_index_dist(self):
         if not self.download:
-            log.warn('Downloading {0!r} disabled.'.format(DIST_NAME))
+            log.warning('Downloading {0!r} disabled.'.format(DIST_NAME))
             return None
 
-        log.warn(
+        log.warning(
             "Downloading {0!r}; run setup.py with the --offline option to "
             "force offline installation.".format(DIST_NAME))
 
@@ -457,7 +457,7 @@ class _Bootstrapper(object):
         except Exception as e:
             if DEBUG:
                 raise
-            log.warn(
+            log.warning(
                 'Failed to download and/or install {0!r} from {1!r}:\n'
                 '{2}'.format(DIST_NAME, self.index_url, str(e)))
             dist = None
@@ -630,7 +630,7 @@ class _Bootstrapper(object):
                             '("C").')
             if not stderr.strip().endswith(perl_warning):
                 # Some other unknown error condition occurred
-                log.warn('git submodule command failed '
+                log.warning('git submodule command failed '
                          'unexpectedly:\n{0}'.format(stderr))
                 return False
 
@@ -661,7 +661,7 @@ class _Bootstrapper(object):
             self._update_submodule(m.group('submodule'), m.group('status'))
             return True
         else:
-            log.warn(
+            log.warning(
                 'Unexpected output from `git submodule status`:\n{0}\n'
                 'Will attempt import from {1!r} regardless.'.format(
                     stdout, self.path))
@@ -709,7 +709,7 @@ class _Bootstrapper(object):
         try:
             cfg.readfp(gitmodules_fileobj)
         except Exception as exc:
-            log.warn('Malformatted .gitmodules file: {0}\n'
+            log.warning('Malformatted .gitmodules file: {0}\n'
                      '{1} cannot be assumed to be a git submodule.'.format(
                          exc, self.path))
             return False
@@ -748,7 +748,7 @@ class _Bootstrapper(object):
                 'Please complete or abandon any changes in the submodule so that '
                 'it is in a usable state, then try again.'.format(submodule))
         else:
-            log.warn('Unknown status {0!r} for git submodule {1!r}.  Will '
+            log.warning('Unknown status {0!r} for git submodule {1!r}.  Will '
                      'attempt to use the submodule as-is, but try to ensure '
                      'that the submodule is in a clean state and contains no '
                      'conflicts or errors.\n{2}'.format(status, submodule,
@@ -757,7 +757,7 @@ class _Bootstrapper(object):
 
         err_msg = None
         cmd = ['git', 'submodule'] + cmd + ['--', submodule]
-        log.warn('{0} {1} submodule with: `{2}`'.format(
+        log.warning('{0} {1} submodule with: `{2}`'.format(
             action, submodule, ' '.join(cmd)))
 
         try:
@@ -771,7 +771,7 @@ class _Bootstrapper(object):
                 err_msg = stderr
 
         if err_msg is not None:
-            log.warn('An unexpected error occurred updating the git submodule '
+            log.warning('An unexpected error occurred updating the git submodule '
                      '{0!r}:\n{1}\n{2}'.format(submodule, err_msg,
                                                _err_help_msg))
 
