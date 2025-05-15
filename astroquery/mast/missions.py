@@ -149,6 +149,34 @@ class MastMissionsClass(MastQueryWithLogin):
                 )
                 raise InvalidQueryError(error_msg)
 
+    def _build_params_from_criteria(self, params, **criteria):
+        """
+        Build the parameters for the API request based on the provided criteria.
+
+        Parameters
+        ----------
+        params : dict
+            Dictionary to store the parameters for the API request.
+        **criteria
+            Keyword arguments representing criteria filters to apply.
+        """
+        # Add each criterion to the params dictionary
+        params['conditions'] = []
+        for prop, value in criteria.items():
+            if prop not in self._search_option_fields:
+                if isinstance(value, list):
+                    # Convert to comma-separated string if passed as a list
+                    value = ','.join(str(item) for item in value)
+                params['conditions'].append({prop: value})
+            else:
+                if prop == 'sort_by' and isinstance(value, str):
+                    # Convert to list if passed as a string
+                    value = [value]
+                if prop == 'sort_desc' and isinstance(value, bool):
+                    # Convert to list if passed as a boolean
+                    value = [value]
+                params[prop] = value
+
     @class_or_instance
     def query_region_async(self, coordinates, *, radius=3*u.arcmin, limit=5000, offset=0,
                            select_cols=None, **criteria):
@@ -172,12 +200,15 @@ class MastMissionsClass(MastQueryWithLogin):
             Optional and default is 0
             the number of records you wish to skip before selecting records.
         select_cols: list, None
-            Default None. Names of columns that will be included in the astropy table
+            Default None. Names of columns that will be included in the result table.
+            If None, a default set of columns will be returned.
         **criteria
             Other mission-specific criteria arguments.
             All valid filters can be found using `~astroquery.mast.missions.MastMissionsClass.get_column_list`
             function.
             For example, one can specify the output columns(select_cols) or use other filters(conditions).
+            To filter by multiple values for a single column, pass in a list of values or
+            a comma-separated string of values.
 
         Returns
         -------
@@ -210,13 +241,7 @@ class MastMissionsClass(MastQueryWithLogin):
                   'offset': offset,
                   'select_cols': select_cols}
 
-        params['conditions'] = []
-        # adding additional user specified parameters
-        for prop, value in criteria.items():
-            if prop not in self._search_option_fields:
-                params['conditions'].append({prop: value})
-            else:
-                params[prop] = value
+        self._build_params_from_criteria(params, **criteria)
 
         return self._service_api_connection.missions_request_async(self.service, params)
 
@@ -245,7 +270,8 @@ class MastMissionsClass(MastQueryWithLogin):
             Optional and default is 0.
             the number of records you wish to skip before selecting records.
         select_cols: list, None
-            Default None. Names of columns that will be included in the astropy table
+            Default None. Names of columns that will be included in the result table.
+            If None, a default set of columns will be returned.
         resolver : str, optional
             The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
             If not specified, the default resolver order will be used. Please see the
@@ -259,6 +285,8 @@ class MastMissionsClass(MastQueryWithLogin):
             and all fields listed in the column documentation for the mission being queried.
             List of all valid fields that can be used to match results on criteria can be retrieved by calling
             `~astroquery.mast.missions.MastMissionsClass.get_column_list` function.
+            To filter by multiple values for a single column, pass in a list of values or
+            a comma-separated string of values.
 
         Returns
         -------
@@ -296,12 +324,7 @@ class MastMissionsClass(MastQueryWithLogin):
         if not self._service_api_connection.check_catalogs_criteria_params(criteria):
             raise InvalidQueryError("At least one non-positional criterion must be supplied.")
 
-        params['conditions'] = []
-        for prop, value in criteria.items():
-            if prop not in self._search_option_fields:
-                params['conditions'].append({prop: value})
-            else:
-                params[prop] = value
+        self._build_params_from_criteria(params, **criteria)
 
         return self._service_api_connection.missions_request_async(self.service, params)
 
@@ -327,7 +350,8 @@ class MastMissionsClass(MastQueryWithLogin):
             Optional and default is 0.
             the number of records you wish to skip before selecting records.
         select_cols: list, None
-            Default None. Names of columns that will be included in the astropy table
+            Default None. Names of columns that will be included in the result table.
+            If None, a default set of columns will be returned.
         resolver : str, optional
             The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
             If not specified, the default resolver order will be used. Please see the
@@ -338,6 +362,8 @@ class MastMissionsClass(MastQueryWithLogin):
             All valid filters can be found using `~astroquery.mast.missions.MastMissionsClass.get_column_list`
             function.
             For example, one can specify the output columns(select_cols) or use other filters(conditions).
+            To filter by multiple values for a single column, pass in a list of values or
+            a comma-separated string of values.
 
         Returns
         -------

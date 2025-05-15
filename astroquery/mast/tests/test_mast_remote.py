@@ -98,15 +98,17 @@ class TestMast:
         select_cols = ['sci_targname', 'sci_instrume']
         result = MastMissions.query_region("245.89675 -26.52575",
                                            radius=0.1,
-                                           sci_instrume="WFC3, ACS",
-                                           select_cols=select_cols
-                                           )
+                                           sci_instrume=["WFC3", "ACS"],
+                                           select_cols=select_cols,
+                                           sort_by="sci_data_set_name",
+                                           sort_desc=True)
         assert isinstance(result, Table)
         assert len(result) > 0
         assert (result['ang_sep'].data.data.astype('float') < 0.1).all()
         ins_strip = np.char.strip(result['sci_instrume'].data)
         assert ((ins_strip == 'WFC3') | (ins_strip == 'ACS')).all()
         assert all(c in list(result.columns.keys()) for c in select_cols)
+        assert list(result['sci_data_set_name']) == sorted(result['sci_data_set_name'], reverse=True)
 
     def test_missions_query_object_async(self):
         response = MastMissions.query_object_async("M4", radius=0.1)
@@ -162,6 +164,12 @@ class TestMast:
         with pytest.raises(InvalidQueryError):
             MastMissions.query_criteria(coordinates="245.89675 -26.52575",
                                         radius=1)
+
+        # Raise error if invalid input is given
+        with pytest.raises(InvalidQueryError):
+            MastMissions.query_criteria(coordinates="245.89675 -26.52575",
+                                        radius=1,
+                                        sci_pep_id="invalid")
 
     def test_missions_query_criteria_invalid_keyword(self):
         # Attempt to make a criteria query with invalid keyword

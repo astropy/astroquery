@@ -227,8 +227,10 @@ def test_missions_query_object(patch_post):
 
 def test_missions_query_region(patch_post):
     result = mast.MastMissions.query_region(regionCoords,
+                                            sci_instrume=['ACS', 'WFPC'],
                                             radius=0.002 * u.deg,
-                                            select_cols=['sci_pep_id'])
+                                            select_cols=['sci_pep_id'],
+                                            sort_by=['sci_pep_id'])
     assert isinstance(result, Table)
     assert len(result) > 0
 
@@ -263,11 +265,13 @@ def test_missions_query_criteria(patch_post):
     result = mast.MastMissions.query_criteria(
         coordinates=regionCoords,
         radius=3,
-        sci_pep_id=12556,
+        sci_pep_id=[12556, 8794],
         sci_obs_type='SPECTRUM',
         sci_instrume='stis,acs,wfc3,cos,fos,foc,nicmos,ghrs',
         sci_aec='S',
-        select_cols=['sci_pep_id', 'sci_instrume']
+        select_cols=['sci_pep_id', 'sci_instrume'],
+        sort_by='sci_pep_id',
+        sort_desc=True
     )
     assert isinstance(result, Table)
     assert len(result) > 0

@@ -18,7 +18,7 @@ from .. import log
 from ..query import BaseQuery
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
-from ..exceptions import TimeoutError, NoResultsWarning
+from ..exceptions import InvalidQueryError, TimeoutError, NoResultsWarning
 
 from . import conf
 
@@ -202,6 +202,12 @@ class ServiceAPI(BaseQuery):
 
         if (time.time() - start_time) >= self.TIMEOUT:
             raise TimeoutError("Timeout limit of {} exceeded.".format(self.TIMEOUT))
+
+        if response.status_code in [400, 500]:
+            raise InvalidQueryError('The server was unable to process the request due to invalid input. '
+                                    'Please check the query parameters and try again. Use the '
+                                    '`MastMissions.get_column_list` method to see the available searchable '
+                                    'columns and their expected data types.')
 
         response.raise_for_status()
         return response
