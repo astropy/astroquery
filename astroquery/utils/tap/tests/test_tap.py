@@ -778,7 +778,7 @@ def test_get_current_column_values_for_update():
 
 
 def test_update_user_table():
-    tableName = 'table'
+    tableName = 'schema.table'
     conn_handler = DummyConnHandler()
     tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     dummyResponse = DummyResponse(200)

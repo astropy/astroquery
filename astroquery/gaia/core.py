@@ -1026,6 +1026,9 @@ class GaiaClass(TapPlus):
 
         table_b = taputils.get_table_name(full_qualified_table_name_b)
 
+        if taputils.get_schema_name(results_table_name) is not None:
+            raise ValueError("Please, do not specify schema for 'results_table_name'")
+
         query = f"SELECT crossmatch_positional('{schema_a}','{table_a}','{schema_b}','{table_b}',{radius}, " \
                 f"'{results_table_name}') FROM dual;"
 
