@@ -4,14 +4,9 @@
 Gaia TAP plus
 =============
 
-@author: Juan Carlos Segovia
-@contact: juan.carlos.segovia@sciops.esa.int
-
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
-Created on 30 jun. 2016
-Modified on 18 Ene. 2022 by mhsarmiento
 """
 import datetime
 import json
@@ -919,12 +914,12 @@ class GaiaClass(TapPlus):
         self.__check_columns_exist(table_metadata_a, table_a_full_qualified_name, table_a_column_ra, table_a_column_dec)
 
         self.__update_ra_dec_columns(table_a_full_qualified_name, table_a_column_ra, table_a_column_dec,
-                                     table_metadata_a)
+                                     table_metadata_a, verbose)
 
         self.__check_columns_exist(table_metadata_b, table_b_full_qualified_name, table_b_column_ra, table_b_column_dec)
 
         self.__update_ra_dec_columns(table_b_full_qualified_name, table_b_column_ra, table_b_column_dec,
-                                     table_metadata_b)
+                                     table_metadata_b, verbose)
 
         query = (
             f"SELECT a.*, b.*, DISTANCE(a.{table_a_column_ra}, a.{table_a_column_dec}, b.{table_b_column_ra}, "
@@ -943,20 +938,21 @@ class GaiaClass(TapPlus):
                                      upload_resource=None,
                                      upload_table_name=None)
 
-    def __update_ra_dec_columns(self, full_qualified_table_name, column_ra, column_dec, table_metadata):
+    def __update_ra_dec_columns(self, full_qualified_table_name, column_ra, column_dec, table_metadata, verbose):
         """
         Update table metadata for the ‘ra’ and the ‘dec’ columns in the input table
         """
         if full_qualified_table_name.startswith("user_"):
-            list_of_changes_a = list()
+            list_of_changes = list()
             for column in table_metadata.columns:
-                if column.name == column_ra and column.flags != 1:
-                    list_of_changes_a.append([column_ra, "flags", "Ra"])
-                if column.name == column_dec and column.flags != 2:
-                    list_of_changes_a.append([column_dec, "flags", "Dec"])
+                if column.name == column_ra and column.flags != '1':
+                    list_of_changes.append([column_ra, "flags", "Ra"])
+                if column.name == column_dec and column.flags != '2':
+                    list_of_changes.append([column_dec, "flags", "Dec"])
 
-            if not list_of_changes_a:
-                self.update_user_table(table_name=full_qualified_table_name, list_of_changes=list_of_changes_a)
+            if list_of_changes:
+                TapPlus.update_user_table(self, table_name=full_qualified_table_name, list_of_changes=list_of_changes,
+                                          verbose=verbose)
 
     def __check_columns_exist(self, table_metadata_a, full_qualified_table_name, column_ra, column_dec):
         """
