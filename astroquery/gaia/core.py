@@ -859,8 +859,15 @@ class GaiaClass(TapPlus):
                            radius=1.0, background=False, verbose=False):
         """Performs a positional cross-match between the specified tables.
 
+        This methods simples the execution of the method `cross_match` since it carries out the following steps in one
+        step:
+
+            #. updates the user table metadata to flag the positional RA/Dec columns;
+            #. launches a positional cross-match as an asynchronous query;
+            #. returns all the columns from both tables plus the angular distance (deg) for the cross-matched sources.
+
         The result is a join table with the identifies of both tables and the distance. To speed up the cross-match,
-        pass the biggest table to the `full_qualified_table_name_b` parameter.
+        pass the biggest table to the ``table_b_full_qualified_name`` parameter.
         TAP+ only
 
         Parameters
@@ -868,15 +875,15 @@ class GaiaClass(TapPlus):
         table_a_full_qualified_name : str, mandatory
             a full qualified table name (i.e. schema name and table name)
         table_a_column_ra : str, mandatory
-            the ‘ra’ column in the table full_qualified_table_name_a
+            the ‘ra’ column in the table table_a_full_qualified_name
         table_a_column_dec :  str, mandatory
-            the ‘dec’ column in the table full_qualified_table_name_a
+            the ‘dec’ column in the table table_a_full_qualified_name
         table_b_full_qualified_name : str, optional, default MAIN_GAIA_TABLE
             a full qualified table name (i.e. schema name and table name)
         table_b_column_ra : str, optional, default MAIN_GAIA_TABLE_RA
-            the ‘ra’ column in the table full_qualified_table_name_b
+            the ‘ra’ column in the table table_b_full_qualified_name
         table_b_column_dec :  str, default MAIN_GAIA_TABLE_DEC
-            the ‘dec’ column in the table full_qualified_table_name_b
+            the ‘dec’ column in the table table_b_full_qualified_name
         results_name : str, optional, default None
             custom name defined by the user for the job that is going to be created
         radius : float (arc. seconds), optional, default 1.0
@@ -949,7 +956,7 @@ class GaiaClass(TapPlus):
                     list_of_changes_a.append([column_dec, "flags", "Dec"])
 
             if not list_of_changes_a:
-                Gaia.update_user_table(table_name=full_qualified_table_name, list_of_changes=list_of_changes_a)
+                self.update_user_table(table_name=full_qualified_table_name, list_of_changes=list_of_changes_a)
 
     def __check_columns_exist(self, table_metadata_a, full_qualified_table_name, column_ra, column_dec):
         """

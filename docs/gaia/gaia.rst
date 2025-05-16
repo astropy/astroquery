@@ -747,9 +747,11 @@ source in the second table.
 
 The cross-match requires 3 steps:
 
-# Update the user table metadata to flag the positional RA/Dec columns using the dedicated method `update_user_table`,
-since both tables must have defined RA and Dec columns. See previous section to know how to assign those flags;
-# Launch the built-in cross-match method `cross_match`, the makes a table in the user's private area;
+# Update the user table metadata to flag the positional RA/Dec columns using the dedicated method
+`~astroquery.utils.tap.core.TapPlus.update_user_table`, since both tables must have defined RA and Dec columns. See
+previous section to know how to assign those flags;
+# Launch the built-in cross-match method `~astroquery.gaia.GaiaClass.cross_match`, the makes a table in the user's
+private area;
 # Later, this table can be used to obtain the actual data from both tables, launching an ADQL query using the
 "launch_job" or "launch_job_async" method.
 
@@ -784,8 +786,8 @@ The previous 3-step cross-match can be executed in one step by the following met
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
-  >>> job = Gaia.cross_match_stream(full_qualified_table_name_a=full_qualified_table_name, table_a_column_ra='raj2000',
-                       table_a_column_dec='dej2000', full_qualified_table_name_b='gaiadr3.gaia_source',
+  >>> job = Gaia.cross_match_stream(table_a_full_qualified_name=full_qualified_table_name, table_a_column_ra='raj2000',
+                       table_a_column_dec='dej2000', table_b_full_qualified_name='gaiadr3.gaia_source',
                        table_b_column_ra='ra', table_b_column_dec='dec, radius=1.0, background=True):
   >>> print(job)
   Jobid: 1611860482314O
