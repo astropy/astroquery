@@ -743,10 +743,15 @@ using the crossmatch function provided by the archive. In order to do so the use
 logged in. This is required because the cross match operation will generate a join table
 in the user private area. That table contains the identifiers of both tables and the separation,
 in degrees, between RA/Dec coordinates of each source in the first table and its associated
-source in the second table. Later, the table can be used to obtain the actual data from both tables.
+source in the second table.
 
-In order to perform a cross match, both tables must have defined RA and Dec columns
-(Ra/Dec column flags must be set: see previous section to know how to assign those flags).
+The cross-match requires 3 steps:
+
+# Update the user table metadata to flag the positional RA/Dec columns using the dedicated method `update_user_table`,
+since both tables must have defined RA and Dec columns. See previous section to know how to assign those flags;
+# Launch the built-in cross-match method `cross_match`, the makes a table in the user's private area;
+# Later, this table can be used to obtain the actual data from both tables, launching an ADQL query using the
+"launch_job" or "launch_job_async" method.
 
 The following example uploads a table and then, the table is used in a cross match::
 
@@ -758,13 +763,13 @@ The following example uploads a table and then, the table is used in a cross mat
   >>> # the table can be referenced as <database user schema>.<table_name>
   >>> full_qualified_table_name = 'user_<your_login_name>.my_sources'
   >>> xmatch_table_name = 'xmatch_table'
-  >>> Gaia.cross_match(full_qualified_table_name_a=full_qualified_table_name,
+  >>> job = Gaia.cross_match(full_qualified_table_name_a=full_qualified_table_name,
   ...                  full_qualified_table_name_b='gaiadr3.gaia_source',
   ...                  results_table_name=xmatch_table_name, radius=1.0)
 
-
-Once you have your cross match finished, you can obtain the results::
-
+The cross-match launches an asynchronous query that saves the results at the user's private area, so it depends on the
+user files quota. This table only contains 3 columns: first table column id, second table column id and the angular
+separation (ded) between each source. Once you have your cross match finished, you can access to this table::
 
   >>> xmatch_table = 'user_<your_login_name>.' + xmatch_table_name
   >>> query = (f"SELECT c.separation*3600 AS separation_arcsec, a.*, b.* FROM gaiadr3.gaia_source AS a, "
@@ -774,6 +779,26 @@ Once you have your cross match finished, you can obtain the results::
   >>> results = job.get_results()
 
 Cross-matching catalogues is one of the most popular operations executed in the Gaia archive.
+
+The previous 3-step cross-match can be executed in one step by the following method::
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> job = Gaia.cross_match_stream(full_qualified_table_name_a=full_qualified_table_name, table_a_column_ra='raj2000',
+                       table_a_column_dec='dej2000', full_qualified_table_name_b='gaiadr3.gaia_source',
+                       table_b_column_ra='ra', table_b_column_dec='dec, radius=1.0, background=True):
+  >>> print(job)
+  Jobid: 1611860482314O
+  Phase: COMPLETED
+  Owner: None
+  Output file: 1611860482314O-result.vot.gz
+  Results: None
+
+This method updates all the user table metadata to flag the positional RA/Dec columns, launches the positional
+cross-match as an asynchronous query. The returned job provides information for all the columns in both input tables
+plus the angular distance (deg) between each cross-matched source. Unlike the previous 3-step method, the output table
+contains all the columns from each table, so that size of the cross-match output could be pretty large.
+
 
 2.7. Tables sharing
 ^^^^^^^^^^^^^^^^^^^
