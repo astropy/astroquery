@@ -1344,16 +1344,14 @@ def test_cross_match(background, cross_match_kwargs, mock_querier_async):
     "kwarg,invalid_value,error_message",
     [("full_qualified_table_name_a",
       "tableA",
-      "^Not found schema name in full qualified table A: 'tableA'$"),
+      "^Not found schema name in full qualified table: 'tableA'$"),
      ("full_qualified_table_name_b",
       "tableB",
-      "^Not found schema name in full qualified table B: 'tableB'$"),
+      "^Not found schema name in full qualified table: 'tableB'$"),
      ("results_table_name",
       "schema.results",
       "^Please, do not specify schema for 'results_table_name'$")])
-def test_cross_match_invalid_mandatory_kwarg(
-        cross_match_kwargs, kwarg, invalid_value, error_message
-):
+def test_cross_match_invalid_mandatory_kwarg(cross_match_kwargs, kwarg, invalid_value, error_message):
     cross_match_kwargs[kwarg] = invalid_value
     with pytest.raises(ValueError, match=error_message):
         GAIA_QUERIER.cross_match(**cross_match_kwargs)
@@ -1417,7 +1415,11 @@ def test_cross_match_stream_2(monkeypatch, background, cross_match_stream_2_kwar
         return_val = {"user_hola.tableA": tap_table_a, "user_hola.tableB": tap_table_b}
         return return_val[table]
 
+    def update_user_table(self, table_name, list_of_changes, verbose):
+        return None
+
     monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched)
+    monkeypatch.setattr(TapPlus, "update_user_table", update_user_table)
 
     job = mock_querier_async.cross_match_stream(**cross_match_stream_2_kwargs, background=background)
     assert job.async_ is True
@@ -1427,14 +1429,20 @@ def test_cross_match_stream_2(monkeypatch, background, cross_match_stream_2_kwar
 
 @pytest.mark.parametrize("background", [False, True])
 def test_cross_match_stream_3(monkeypatch, background, mock_querier_async):
-    def load_table_monkeypatched(self, table, verbose):
+    mock_querier_async.MAIN_GAIA_TABLE = None
+
+    def load_table_monkeypatched_2(self, table, verbose):
         tap_table_a = make_table_metadata("user_hola.tableA")
         tap_table_b = make_table_metadata("gaiadr3.gaia_source")
 
         return_val = {"user_hola.tableA": tap_table_a, "gaiadr3.gaia_source": tap_table_b}
         return return_val[table]
 
-    monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched)
+    def update_user_table(self, table_name, list_of_changes, verbose):
+        return None
+
+    monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched_2)
+    monkeypatch.setattr(TapPlus, "update_user_table", update_user_table)
 
     job = mock_querier_async.cross_match_stream(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
                                                 table_a_column_dec="dec", background=background)
