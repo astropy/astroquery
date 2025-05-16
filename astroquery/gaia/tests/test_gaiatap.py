@@ -1451,7 +1451,52 @@ def test_cross_match_stream_3(monkeypatch, background, mock_querier_async):
     assert job.failed is False
 
 
-def test_cross_match_stream_exceptions():
+@pytest.mark.parametrize("background", [False, True])
+def test_cross_match_stream_wrong_column(monkeypatch, background, mock_querier_async):
+    mock_querier_async.MAIN_GAIA_TABLE = None
+
+    def load_table_monkeypatched(self, table, verbose):
+        tap_table_a = make_table_metadata("user_hola.tableA")
+        tap_table_b = make_table_metadata("gaiadr3.gaia_source")
+
+        return_val = {"user_hola.tableA": tap_table_a, "gaiadr3.gaia_source": tap_table_b}
+        return return_val[table]
+
+    def update_user_table(self, table_name, list_of_changes, verbose):
+        return None
+
+    monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched)
+    monkeypatch.setattr(TapPlus, "update_user_table", update_user_table)
+
+    error_message = "Please, columns Wrong_ra or dec  not available in the table 'user_hola.tableA'"
+    with pytest.raises(ValueError, match=error_message):
+        mock_querier_async.cross_match_stream(table_a_full_qualified_name="user_hola.tableA",
+                                              table_a_column_ra="Wrong_ra", table_a_column_dec="dec",
+                                              background=background)
+
+    error_message = "Please, columns ra or Wrong_dec  not available in the table 'user_hola.tableA'"
+    with pytest.raises(ValueError, match=error_message):
+        mock_querier_async.cross_match_stream(table_a_full_qualified_name="user_hola.tableA",
+                                              table_a_column_ra="ra", table_a_column_dec="Wrong_dec",
+                                              background=background)
+
+
+def test_cross_match_stream_exceptions(monkeypatch):
+    def load_table_monkeypatched(self, table, verbose):
+        raise ValueError(f"Not found schema name in full qualified table: '{table}'")
+
+    def update_user_table(self, table_name, list_of_changes, verbose):
+        return None
+
+    monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched)
+    monkeypatch.setattr(TapPlus, "update_user_table", update_user_table)
+
+    error_message = "Not found table 'user_hola.tableA' in the archive"
+    with pytest.raises(ValueError, match=error_message):
+        GAIA_QUERIER.cross_match_stream(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
+                                        table_a_column_dec="dec", background=True)
+
+    # Check invalid input values
     error_message = "Not found schema name in full qualified table: 'hola'"
     with pytest.raises(ValueError, match=error_message):
         GAIA_QUERIER.cross_match_stream(table_a_full_qualified_name="hola", table_a_column_ra="ra",
