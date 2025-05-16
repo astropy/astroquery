@@ -181,18 +181,30 @@ class Tap:
         """
         if table is None:
             raise ValueError("Table name is required")
+
+        schema = taputils.get_schema_name(table)
+        if schema is None:
+            raise ValueError(f"Not found schema name in full qualified table: '{table}'")
+
         if verbose:
             print(f"Retrieving table '{table}'")
+
         response = self.__connHandler.execute_tapget(f"tables?tables={table}", verbose=verbose)
+
         if verbose:
             print(response.status, response.reason)
+
         self.__connHandler.check_launch_response_status(response, verbose, 200)
+
         if verbose:
             print(f"Parsing table '{table}'...")
+
         tsp = TableSaxParser()
         tsp.parseData(response)
+
         if verbose:
             print("Done.")
+
         return tsp.get_table()
 
     def __load_tables(self, *, only_names=False, include_shared_tables=False, verbose=False):
