@@ -23,6 +23,12 @@ alma
 
 - Bug fix in ``footprint_to_reg`` that did not allow regions to be plotted. [#3285]
 
+
+gaia
+^^^^
+
+- New method cross_match_stream that simplifies the positional x-match method [#3320]
+
 linelists.cdms
 ^^^^^^^^^^^^^^
 
