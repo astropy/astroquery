@@ -854,10 +854,8 @@ def test_datalink_querier_load_data_vot_exception(mock_datalink_querier, overwri
                                             overwrite_output_file=overwrite_output_file,
                                             verbose=False)
 
-        assert str(
-            excinfo.value) == (
-                   f"{file_final} file already exists. Please use overwrite_output_file='True' to overwrite output "
-                   f"file.")
+        messg = f"{file_final} file already exists. Please use overwrite_output_file='True' to overwrite output file."
+        assert str(excinfo.value) == messg
 
     else:
         mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
