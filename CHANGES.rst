@@ -51,6 +51,13 @@ SIMBAD
   mode. It provides slower to start, but more robust queries for which the timeout can
   be increased (with the ``timeout`` property or with the configuration file) [#3305]
 
+skyview
+^^^^^^^
+
+
+- Added ``get_query_payload`` kwarg to ``Skyview.get_images()`` and ``Skyview.get_images_list()``
+  to return the query payload [#3318]
+
 utils.tap
 ^^^^^^^^^
 

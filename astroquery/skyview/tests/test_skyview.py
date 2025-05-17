@@ -76,6 +76,18 @@ def test_get_image_list_local(patch_get, patch_fromname):
         assert url.startswith('../../tempspace/fits/')
 
 
+def test_get_image_list_payload(patch_get, patch_fromname):
+    surveys = ['Fermi 5', 'HRI', 'NVSS']
+    payload = SkyView.get_image_list(position='Eta Carinae',
+                                     survey=surveys,
+                                     get_query_payload=True)
+    assert len(payload) == 14
+    assert payload["Position"] == '161.265 -59.6844'
+    assert len(payload["survey"]) == 3
+    for survey in surveys:
+        assert survey in payload["survey"]
+
+
 def test_survey_validation(patch_get):
     with pytest.raises(ValueError) as ex:
         SkyView.get_image_list(position='doesnt matter',
