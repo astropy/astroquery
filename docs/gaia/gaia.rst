@@ -738,21 +738,22 @@ We can type the following::
 2.6. Cross match
 ^^^^^^^^^^^^^^^^
 
-It is possible to run a geometric cross-match between the RA/Dec coordinates of two tables
-using the crossmatch function provided by the archive. In order to do so the user must be
-logged in. This is required because the cross match operation will generate a join table
-in the user private area. That table contains the identifiers of both tables and the separation,
-in degrees, between RA/Dec coordinates of each source in the first table and its associated
-source in the second table.
+It is possible to run a geometric cross-match between the RA/Dec coordinates of two tables using the crossmatch function
+provided by the archive. To do so, the user must be logged in. This is necessary as the cross-match process will create
+a join table within the user's private space. That table includes the identifiers from both tables and the angular
+separation, in degrees, between the RA/Dec coordinates of each source in the first table and its corresponding source
+in the second table.
 
 The cross-match requires 3 steps:
 
-# Update the user table metadata to flag the positional RA/Dec columns using the dedicated method
-`~astroquery.utils.tap.core.TapPlus.update_user_table`, since both tables must have defined RA and Dec columns. See
-previous section to know how to assign those flags;
-# Launch the built-in cross-match method `~astroquery.gaia.GaiaClass.cross_match`, the makes a table in the user's
+1. Update the user table metadata to flag the positional RA/Dec columns using the dedicated method
+`~astroquery.utils.tap.core.TapPlus.update_user_table`, as both tables must have defined RA and Dec columns. See
+previous section to learn how to assign those flags;
+
+2. Launch the built-in cross-match method `~astroquery.gaia.GaiaClass.cross_match`, which creates a table in the user's
 private area;
-# Later, this table can be used to obtain the actual data from both tables, launching an ADQL query using the
+
+3. Subsequently, this table can be employed to retrieve the data from both tables, launching an ADQL query with the
 "launch_job" or "launch_job_async" method.
 
 The following example uploads a table and then, the table is used in a cross match::
@@ -771,7 +772,7 @@ The following example uploads a table and then, the table is used in a cross mat
 
 The cross-match launches an asynchronous query that saves the results at the user's private area, so it depends on the
 user files quota. This table only contains 3 columns: first table column id, second table column id and the angular
-separation (ded) between each source. Once you have your cross match finished, you can access to this table::
+separation (degrees) between each source. Once you have your cross match finished, you can access to this table::
 
   >>> xmatch_table = 'user_<your_login_name>.' + xmatch_table_name
   >>> query = (f"SELECT c.separation*3600 AS separation_arcsec, a.*, b.* FROM gaiadr3.gaia_source AS a, "
@@ -796,10 +797,10 @@ The previous 3-step cross-match can be executed in one step by the following met
   Output file: 1611860482314O-result.vot.gz
   Results: None
 
-This method updates all the user table metadata to flag the positional RA/Dec columns, launches the positional
-cross-match as an asynchronous query. The returned job provides information for all the columns in both input tables
-plus the angular distance (deg) between each cross-matched source. Unlike the previous 3-step method, the output table
-contains all the columns from each table, so that size of the cross-match output could be pretty large.
+This method updates the user table metadata to flag the positional RA/Dec columns and launches the positional
+cross-match as an asynchronous query. Unlike the previous 3-step cross-match method, the returned job provides direct
+access to the output of the cross-match information: for each matched source, all the columns from the input tables plus
+the angular distance (degrees). Therefore, the size of the output can be quite large.
 
 
 2.7. Tables sharing

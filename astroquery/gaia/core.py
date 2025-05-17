@@ -922,8 +922,8 @@ class GaiaClass(TapPlus):
                                      table_metadata_b, verbose)
 
         query = (
-            f"SELECT a.*, b.*, DISTANCE(a.{table_a_column_ra}, a.{table_a_column_dec}, b.{table_b_column_ra}, "
-            f"b.{table_b_column_dec}) AS ang_sep_arcsec "
+            f"SELECT a.*, DISTANCE(a.{table_a_column_ra}, a.{table_a_column_dec}, b.{table_b_column_ra}, "
+            f"b.{table_b_column_dec}) AS separation, b.* "
             f"FROM {table_a_full_qualified_name} AS a JOIN {table_b_full_qualified_name} AS b "
             f"ON DISTANCE(a.{table_a_column_ra}, a.{table_a_column_dec}, b.{table_b_column_ra}, b.{table_b_column_dec})"
             f" < {radius} / 3600.")
@@ -961,7 +961,7 @@ class GaiaClass(TapPlus):
         column_names = [column.name for column in table_metadata_a.columns]
         if column_ra not in column_names or column_dec not in column_names:
             raise ValueError(
-                f"Please, columns {column_ra} or {column_dec}  not available in the table '"
+                f"Please check: columns {column_ra} or {column_dec} not available in the table '"
                 f"{full_qualified_table_name}'")
 
     def __get_table_metadata(self, full_qualified_table_name, verbose):
