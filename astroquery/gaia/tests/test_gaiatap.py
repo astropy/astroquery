@@ -1468,13 +1468,13 @@ def test_cross_match_stream_wrong_column(monkeypatch, background, mock_querier_a
     monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched)
     monkeypatch.setattr(TapPlus, "update_user_table", update_user_table)
 
-    error_message = "Please, columns Wrong_ra or dec  not available in the table 'user_hola.tableA'"
+    error_message = "Please check: columns Wrong_ra or dec not available in the table 'user_hola.tableA'"
     with pytest.raises(ValueError, match=error_message):
         mock_querier_async.cross_match_stream(table_a_full_qualified_name="user_hola.tableA",
                                               table_a_column_ra="Wrong_ra", table_a_column_dec="dec",
                                               background=background)
 
-    error_message = "Please, columns ra or Wrong_dec  not available in the table 'user_hola.tableA'"
+    error_message = "Please check: columns ra or Wrong_dec not available in the table 'user_hola.tableA'"
     with pytest.raises(ValueError, match=error_message):
         mock_querier_async.cross_match_stream(table_a_full_qualified_name="user_hola.tableA",
                                               table_a_column_ra="ra", table_a_column_dec="Wrong_dec",
