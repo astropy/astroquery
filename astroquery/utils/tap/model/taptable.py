@@ -34,7 +34,7 @@ class TapTableMeta:
 
         Returns
         -------
-        The the qualified TAP table name (schema+table)
+        The qualified TAP table name (schema+table)
         """
         if '.' in self.name:
             return self.name
