@@ -447,7 +447,7 @@ def cross_match_kwargs():
 
 
 @pytest.fixture
-def cross_match_stream_kwargs():
+def cross_match_basic_kwargs():
     return {"table_a_full_qualified_name": "schemaA.tableA",
             "table_a_column_ra": "ra",
             "table_a_column_dec": "dec",
@@ -457,7 +457,7 @@ def cross_match_stream_kwargs():
 
 
 @pytest.fixture
-def cross_match_stream_2_kwargs():
+def cross_match_basic_2_kwargs():
     return {"table_a_full_qualified_name": "user_hola.tableA",
             "table_a_column_ra": "ra",
             "table_a_column_dec": "dec",
@@ -1390,7 +1390,7 @@ def make_table_metadata(table_name):
 
 
 @pytest.mark.parametrize("background", [False, True])
-def test_cross_match_stream(monkeypatch, background, cross_match_stream_kwargs, mock_querier_async):
+def test_cross_match_basic(monkeypatch, background, cross_match_basic_kwargs, mock_querier_async):
     def load_table_monkeypatched(self, table, verbose):
         tap_table_a = make_table_metadata("schemaA.tableA")
         tap_table_b = make_table_metadata("schemaB.tableB")
@@ -1400,14 +1400,14 @@ def test_cross_match_stream(monkeypatch, background, cross_match_stream_kwargs, 
 
     monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched)
 
-    job = mock_querier_async.cross_match_stream(**cross_match_stream_kwargs, background=background)
+    job = mock_querier_async.cross_match_basic(**cross_match_basic_kwargs, background=background)
     assert job.async_ is True
     assert job.get_phase() == "EXECUTING" if background else "COMPLETED"
     assert job.failed is False
 
 
 @pytest.mark.parametrize("background", [False, True])
-def test_cross_match_stream_2(monkeypatch, background, cross_match_stream_2_kwargs, mock_querier_async):
+def test_cross_match_basic_2(monkeypatch, background, cross_match_basic_2_kwargs, mock_querier_async):
     def load_table_monkeypatched(self, table, verbose):
         tap_table_a = make_table_metadata("user_hola.tableA")
         tap_table_b = make_table_metadata("user_hola.tableB")
@@ -1421,14 +1421,14 @@ def test_cross_match_stream_2(monkeypatch, background, cross_match_stream_2_kwar
     monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched)
     monkeypatch.setattr(TapPlus, "update_user_table", update_user_table)
 
-    job = mock_querier_async.cross_match_stream(**cross_match_stream_2_kwargs, background=background)
+    job = mock_querier_async.cross_match_basic(**cross_match_basic_2_kwargs, background=background)
     assert job.async_ is True
     assert job.get_phase() == "EXECUTING" if background else "COMPLETED"
     assert job.failed is False
 
 
 @pytest.mark.parametrize("background", [False, True])
-def test_cross_match_stream_3(monkeypatch, background, mock_querier_async):
+def test_cross_match_basic_3(monkeypatch, background, mock_querier_async):
     mock_querier_async.MAIN_GAIA_TABLE = None
 
     def load_table_monkeypatched_2(self, table, verbose):
@@ -1444,15 +1444,15 @@ def test_cross_match_stream_3(monkeypatch, background, mock_querier_async):
     monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched_2)
     monkeypatch.setattr(TapPlus, "update_user_table", update_user_table)
 
-    job = mock_querier_async.cross_match_stream(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
-                                                table_a_column_dec="dec", background=background)
+    job = mock_querier_async.cross_match_basic(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
+                                               table_a_column_dec="dec", background=background)
     assert job.async_ is True
     assert job.get_phase() == "EXECUTING" if background else "COMPLETED"
     assert job.failed is False
 
 
 @pytest.mark.parametrize("background", [False, True])
-def test_cross_match_stream_wrong_column(monkeypatch, background, mock_querier_async):
+def test_cross_match_basic_wrong_column(monkeypatch, background, mock_querier_async):
     mock_querier_async.MAIN_GAIA_TABLE = None
 
     def load_table_monkeypatched(self, table, verbose):
@@ -1470,18 +1470,18 @@ def test_cross_match_stream_wrong_column(monkeypatch, background, mock_querier_a
 
     error_message = "Please check: columns Wrong_ra or dec not available in the table 'user_hola.tableA'"
     with pytest.raises(ValueError, match=error_message):
-        mock_querier_async.cross_match_stream(table_a_full_qualified_name="user_hola.tableA",
-                                              table_a_column_ra="Wrong_ra", table_a_column_dec="dec",
-                                              background=background)
+        mock_querier_async.cross_match_basic(table_a_full_qualified_name="user_hola.tableA",
+                                             table_a_column_ra="Wrong_ra", table_a_column_dec="dec",
+                                             background=background)
 
     error_message = "Please check: columns ra or Wrong_dec not available in the table 'user_hola.tableA'"
     with pytest.raises(ValueError, match=error_message):
-        mock_querier_async.cross_match_stream(table_a_full_qualified_name="user_hola.tableA",
-                                              table_a_column_ra="ra", table_a_column_dec="Wrong_dec",
-                                              background=background)
+        mock_querier_async.cross_match_basic(table_a_full_qualified_name="user_hola.tableA",
+                                             table_a_column_ra="ra", table_a_column_dec="Wrong_dec",
+                                             background=background)
 
 
-def test_cross_match_stream_exceptions(monkeypatch):
+def test_cross_match_basic_exceptions(monkeypatch):
     def load_table_monkeypatched(self, table, verbose):
         raise ValueError(f"Not found schema name in full qualified table: '{table}'")
 
@@ -1493,41 +1493,41 @@ def test_cross_match_stream_exceptions(monkeypatch):
 
     error_message = "Not found table 'user_hola.tableA' in the archive"
     with pytest.raises(ValueError, match=error_message):
-        GAIA_QUERIER.cross_match_stream(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
-                                        table_a_column_dec="dec", background=True)
+        GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
+                                       table_a_column_dec="dec", background=True)
 
     # Check invalid input values
     error_message = "Not found schema name in full qualified table: 'hola'"
     with pytest.raises(ValueError, match=error_message):
-        GAIA_QUERIER.cross_match_stream(table_a_full_qualified_name="hola", table_a_column_ra="ra",
-                                        table_a_column_dec="dec")
+        GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name="hola", table_a_column_ra="ra",
+                                       table_a_column_dec="dec")
 
     error_message = "Schema name is empty in full qualified table: '.table_name'"
     with pytest.raises(ValueError, match=error_message):
-        GAIA_QUERIER.cross_match_stream(table_a_full_qualified_name=".table_name", table_a_column_ra="ra",
-                                        table_a_column_dec="dec")
+        GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name=".table_name", table_a_column_ra="ra",
+                                       table_a_column_dec="dec")
 
     error_message = "Not found schema name in full qualified table: 'hola'"
     with pytest.raises(ValueError, match=error_message):
-        GAIA_QUERIER.cross_match_stream(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
-                                        table_a_column_dec="dec", table_b_full_qualified_name="hola")
+        GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                       table_a_column_dec="dec", table_b_full_qualified_name="hola")
 
     error_message = "Schema name is empty in full qualified table: '.table_name'"
     with pytest.raises(ValueError, match=error_message):
-        GAIA_QUERIER.cross_match_stream(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
-                                        table_a_column_dec="dec", table_b_full_qualified_name=".table_name")
+        GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                       table_a_column_dec="dec", table_b_full_qualified_name=".table_name")
 
     error_message = "Invalid radius value. Found 50.0, valid range is: 0.1 to 10.0"
     with pytest.raises(ValueError, match=error_message):
-        GAIA_QUERIER.cross_match_stream(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
-                                        table_a_column_dec="dec", table_b_full_qualified_name="schema.table_name",
-                                        radius=50.0)
+        GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                       table_a_column_dec="dec", table_b_full_qualified_name="schema.table_name",
+                                       radius=50.0)
 
     error_message = "Invalid radius value. Found 0.01, valid range is: 0.1 to 10.0"
     with pytest.raises(ValueError, match=error_message):
-        GAIA_QUERIER.cross_match_stream(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
-                                        table_a_column_dec="dec", table_b_full_qualified_name="schema.table_name",
-                                        radius=0.01)
+        GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                       table_a_column_dec="dec", table_b_full_qualified_name="schema.table_name",
+                                       radius=0.01)
 
 
 @patch.object(TapPlus, 'login')

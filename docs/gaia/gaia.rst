@@ -787,7 +787,7 @@ The previous 3-step cross-match can be executed in one step by the following met
 
   >>> from astroquery.gaia import Gaia
   >>> Gaia.login()
-  >>> job = Gaia.cross_match_stream(table_a_full_qualified_name=full_qualified_table_name, table_a_column_ra='raj2000',
+  >>> job = Gaia.cross_match_basic(table_a_full_qualified_name=full_qualified_table_name, table_a_column_ra='raj2000',
                        table_a_column_dec='dej2000', table_b_full_qualified_name='gaiadr3.gaia_source',
                        table_b_column_ra='ra', table_b_column_dec='dec, radius=1.0, background=True):
   >>> print(job)
