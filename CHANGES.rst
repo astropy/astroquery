@@ -27,7 +27,7 @@ alma
 gaia
 ^^^^
 
-- New method cross_match_stream that simplifies the positional x-match method [#3320]
+- New method cross_match_basic that simplifies the positional x-match method [#3320]
 
 linelists.cdms
 ^^^^^^^^^^^^^^
