@@ -949,8 +949,10 @@ class GaiaClass(TapPlus):
             for column in table_metadata.columns:
                 if column.name == column_ra and column.flags != '1':
                     list_of_changes.append([column_ra, "flags", "Ra"])
+                    list_of_changes.append([column_ra, "indexed", True])
                 if column.name == column_dec and column.flags != '2':
                     list_of_changes.append([column_dec, "flags", "Dec"])
+                    list_of_changes.append([column_dec, "indexed", True])
 
             if list_of_changes:
                 TapPlus.update_user_table(self, table_name=full_qualified_table_name, list_of_changes=list_of_changes,
