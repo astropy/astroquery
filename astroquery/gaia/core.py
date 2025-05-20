@@ -259,7 +259,7 @@ class GaiaClass(TapPlus):
                 try:
                     os.mkdir(path)
                 except FileExistsError:
-                    log.warn("Path %s already exist" % path)
+                    log.warning("Path %s already exist" % path)
                 except OSError:
                     log.error("Creation of the directory %s failed" % path)
 
