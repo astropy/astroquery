@@ -27,6 +27,7 @@ linelists.cdms
 ^^^^^^^^^^^^^^
 
 - Add a keyword to control writing of new species cache files.  This is needed to prevent tests from overwriting those files. [#3297]
+- Add more complete support for CDMS quantum number and other value parsing. [#3302]
 
 heasarc
 ^^^^^^^
@@ -76,10 +77,10 @@ mast
 
 - Fix bug in ``utils.remove_duplicate_products`` that does not retain the order of the products in an input table. [#3314]
 
-- Added ``return_uri_map`` parameter to ``Observations.get_cloud_uris`` to return a mapping of the input data product URIs 
+- Added ``return_uri_map`` parameter to ``Observations.get_cloud_uris`` to return a mapping of the input data product URIs
   to the returned cloud URIs. [#3314]
 
-- Added ``verbose`` parameter to ``Observations.get_cloud_uris`` to control whether warnings are logged when a product cannot 
+- Added ``verbose`` parameter to ``Observations.get_cloud_uris`` to control whether warnings are logged when a product cannot
   be found in the cloud. [#3314]
 
 
