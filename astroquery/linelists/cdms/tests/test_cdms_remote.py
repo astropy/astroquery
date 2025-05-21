@@ -55,7 +55,9 @@ def test_co_basics():
 
 @pytest.mark.remote_data
 def test_ch3cn_negqn():
-    tbl = CDMS.get_molecule('041501')
+    # 041505 = CH3CN on 2025-05-21
+    tbl = CDMS.get_molecule('041505')
+    assert tbl.meta['molecule'] == 'CH3CN, v=0'
     fourtominusthree = tbl[(tbl['Q1'] == 4) & (tbl['Q2'] == -3)]
     assert len(fourtominusthree) >= 1
 
@@ -63,7 +65,11 @@ def test_ch3cn_negqn():
     twentytwominustwentyone = tbl[(tbl['Q1'] == 22) & (tbl['Q2'] == -21)]
     assert len(twentytwominustwentyone) >= 1
 
-    assert tbl['TAG'][0] == -41501
+    assert tbl['TAG'][0] == 41505
+
+    twentythreeminustwentyone = tbl[(tbl['Q1'] == 23) & (tbl['Q2'] == -21)]
+    assert len(twentythreeminustwentyone) >= 1
+    assert twentythreeminustwentyone['TAG'][0] == -41505
 
 
 @pytest.mark.remote_data
