@@ -63,9 +63,9 @@ Keyword arguments can also be used to refine results further. The following para
 
 - ``offset``: Skip the first ***n*** results. Useful for paging through results.
 
-- ``sort_by``: A list of field names to sort by.
+- ``sort_by``: A string or list of field names to sort by.
 
-- ``sort_desc``: A list of booleans (one for each field specified in ``sort_by``),
+- ``sort_desc``: A boolean or list of booleans (one for each field specified in ``sort_by``),
   describing if each field should be sorted in descending order (``True``) or ascending order (``False``).
 
 - ``select_cols``: A list of columns to be returned in the response.
@@ -88,7 +88,7 @@ certain radius value of that point. This type of search is also known as a cone 
    ...                                 radius=3,
    ...                                 sci_pep_id=12556,
    ...                                 select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"],
-   ...                                 sort_by=['sci_targname'])
+   ...                                 sort_by='sci_targname')
    >>> results[:5]   # doctest: +IGNORE_OUTPUT
    <Table masked=True length=5>
     search_pos     sci_data_set_name   sci_targname         sci_start_time             sci_stop_time              ang_sep        sci_status
@@ -123,7 +123,7 @@ function.
    >>> results = missions.query_object('M101', 
    ...                                 radius=3, 
    ...                                 select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"],
-   ...                                 sort_by=['sci_targname'])
+   ...                                 sort_by='sci_targname')
    >>> results[:5]  # doctest: +IGNORE_OUTPUT
    <Table masked=True length=5>
     search_pos     sci_data_set_name sci_targname       sci_start_time             sci_stop_time             ang_sep       sci_status
@@ -145,7 +145,7 @@ function.
 
    >>> results = missions.query_criteria(sci_start_time=">=2021-01-01 00:00:00",
    ...                                   select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status", "sci_pep_id"],
-   ...                                   sort_by=['sci_pep_id'],
+   ...                                   sort_by='sci_pep_id',
    ...                                   limit=1000,
    ...                                   offset=1000)  # doctest: +IGNORE_WARNINGS
    ... # MaxResultsWarning('Maximum results returned, may not include all sources within radius.')
@@ -156,7 +156,7 @@ Here are some tips and tricks for writing more advanced queries:
 
 - To exclude and filter out a certain value from the results, prepend the value with ``!``.
 
-- To filter by multiple values for a single column, use a string of values delimited by commas.
+- To filter by multiple values for a single column, use a list of values or a string of values delimited by commas.
 
 - For columns with numeric or date data types, filter using comparison values (``<``, ``>``, ``<=``, ``>=``).
 
@@ -178,7 +178,7 @@ Here are some tips and tricks for writing more advanced queries:
 
    >>> results = missions.query_criteria(sci_obs_type="IMAGE",
    ...                                   sci_instrume="!COS",
-   ...                                   sci_spec_1234="F150W, F105W, F110W",
+   ...                                   sci_spec_1234=["F150W", "F105W", "F110W"],
    ...                                   sci_dec=">0",
    ...                                   sci_actual_duration="1000..2000",
    ...                                   sci_targname="*GAL*",
