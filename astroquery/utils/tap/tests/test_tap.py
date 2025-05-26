@@ -658,7 +658,7 @@ def test_get_new_column_values_for_update():
     assert ucd == c_ucd
     assert utype == c_utype
 
-    # Modifciations
+    # Modifications
     list_of_changes = [['column2', 'flags', 'Dec'],
                        ['column2', 'indexed', 'true'],
                        ['column2', 'ucd', 'new_ucd_column2'],

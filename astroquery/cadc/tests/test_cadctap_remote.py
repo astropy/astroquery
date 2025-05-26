@@ -69,7 +69,7 @@ class TestCadcClass:
         # urls are a subset of the results that match target_name==Nr3491_1
         assert len(result) >= len(urls)
         urls_data_only = len(urls)
-        # now get the auxilary files too
+        # now get the auxiliary files too
         urls = cadc.get_data_urls(result[result['target_name'] == 'Nr3491_1'],
                                   include_auxiliaries=True)
         assert urls_data_only <= len(urls)

@@ -621,7 +621,7 @@ class XMMNewtonClass(BaseQuery):
         ----------
         target_name : string, optional, default None
             The name of the target
-        coordinates : `~astropy.coordinates.SkyCoord`, optinal, default None
+        coordinates : `~astropy.coordinates.SkyCoord`, optional, default None
             The coordinates of the target in a SkyCoord object
         radius : float, optional, default None
             The radius to query the target in degrees

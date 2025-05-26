@@ -20,11 +20,11 @@ class Conf(_config.ConfigNamespace):
                                      "Main url for retriving XSA files")
     DATA_ACTION_AIO = _config.ConfigItem("https://nxsa.esac.esa.int/"
                                          "nxsa-sl/servlet/data-action-aio?",
-                                         "Main url for retriving XSA files")
+                                         "Main url for retrieving XSA files")
     METADATA_ACTION = _config.ConfigItem("https://nxsa.esac.esa.int/"
                                          "nxsa-sl/servlet/"
                                          "metadata-action?",
-                                         "Main url for retriving XSA metadata")
+                                         "Main url for retrieving XSA metadata")
     TIMEOUT = 60
 
 

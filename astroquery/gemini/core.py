@@ -126,7 +126,7 @@ class ObservationsClass(QueryWithLogin):
         """
         params = dict(username=username, password=password)
         r = self._session.request('POST', 'https://archive.gemini.edu/login/', params=params)
-        if b'<P>Welcome, you are sucessfully logged in' not in r.content:
+        if b'<P>Welcome, you are successfully logged in' not in r.content:
             log.error('Unable to login, please check your credentials')
             return False
         return True
@@ -379,7 +379,7 @@ class ObservationsClass(QueryWithLogin):
 
         This is a more flexible query method.  This method will do special handling for
         coordinates and radius if present in kwargs.  However, for the remaining arguments
-        it assumes all of args are useable as query path elements.  For kwargs, it assumes
+        it assumes all of args are usable as query path elements.  For kwargs, it assumes
         all of the elements can be passed as name=value within the query path to Gemini.
 
         This method does not do any validation checking or attempt to interperet the
@@ -404,7 +404,7 @@ class ObservationsClass(QueryWithLogin):
         kwargs :
             The dictionary of parameters to be passed by name=value within the query
             path to the webserver.  The ``orderby`` key value pair has a special
-            intepretation and is appended as a query parameter like the one used
+            interpretation and is appended as a query parameter like the one used
             in the archive website for sorting results.
 
         Returns

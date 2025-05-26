@@ -103,7 +103,7 @@ def _gen_numeric_sql(field, value):
             int_min, int_max = interval
             if int_min is None:
                 if int_max is None:
-                    # no constraints on bandwith
+                    # no constraints on bandwidth
                     pass
                 else:
                     result += '{}<={}'.format(field, int_max)

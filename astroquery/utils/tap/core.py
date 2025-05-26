@@ -512,7 +512,7 @@ class Tap:
         jsp = JobSaxParser(async_job=True)
         job = jsp.parseData(response)[0]
         job.connHandler = self.__connHandler
-        # load resulst
+        # load results
         if load_results:
             job.get_results()
         return job

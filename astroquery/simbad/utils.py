@@ -223,7 +223,7 @@ def _convert_column(column, operator=None, value=None):
     was different from the name that wes used in votable_field (ex: flux(V) to add the
     column and Vmag to add in a criteria).
     """
-    # handle the change of syntax on otypes manually because they are difficult to automatize
+    # handle the change of syntax on otypes manually because they are difficult to automate
     if column == "maintype":
         column = "basic.otype"
     elif column == "otype":

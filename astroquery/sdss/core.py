@@ -1076,7 +1076,7 @@ class SDSSClass(BaseQuery):
 
         with warnings.catch_warnings():
             # Capturing the warning and converting the objid column to int64 is necessary for consistency as
-            # it was convereted to string on systems with defaul integer int32 due to an overflow.
+            # it was converted to string on systems with defaul integer int32 due to an overflow.
             if sys.platform.startswith('win'):
                 warnings.filterwarnings("ignore", category=AstropyWarning,
                                         message=r'OverflowError converting to IntType in column.*')

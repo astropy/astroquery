@@ -361,7 +361,7 @@ class AlmaAuth(BaseVOQuery, BaseQuery):
                     break
 
         if self._auth_host is None:
-            raise LoginError(f'No useable hosts to login to: {self._auth_hosts}')
+            raise LoginError(f'No usable hosts to login to: {self._auth_hosts}')
         else:
             return self._auth_host
 

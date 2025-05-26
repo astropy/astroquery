@@ -972,7 +972,7 @@ class JwstClass(BaseQuery):
             If the string or at least one element of the list is empty, the value is replaced by None.
             With None, all products will be downloaded.
             Possible string values: 'thumbnail', 'preview', 'auxiliary', 'science' or 'info'.
-            Posible list values: any combination of string values.
+            Possible list values: any combination of string values.
         output_file : str, optional
             Output file. If no value is provided, a temporary one is created.
 
@@ -1047,7 +1047,7 @@ class JwstClass(BaseQuery):
             the value is replaced by None.
             With None, all products will be downloaded.
             Possible string values: 'thumbnail', 'preview', 'auxiliary', 'science' or 'info'.
-            Posible list values: any combination of string values.
+            Possible list values: any combination of string values.
         verbose : bool, optional, default 'False'
             flag to display information about the process
 

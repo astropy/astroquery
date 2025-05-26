@@ -122,7 +122,7 @@ if SETUP_CFG.has_option('options', 'python_requires'):
 
     # We want the Python version as a string, which we can get from the platform module
     import platform
-    # strip off trailing '+' incase this is a dev install of python
+    # strip off trailing '+' in case this is a dev install of python
     python_version = platform.python_version().strip('+')
     # allow pre-releases to count as 'new enough'
     if not req.specifier.contains(python_version, True):
@@ -149,7 +149,7 @@ _str_types = (str, bytes)
 
 
 # What follows are several import statements meant to deal with install-time
-# issues with either missing or misbehaving pacakges (including making sure
+# issues with either missing or misbehaving packages (including making sure
 # setuptools itself is installed):
 
 # Check that setuptools 30.3 or later is present
