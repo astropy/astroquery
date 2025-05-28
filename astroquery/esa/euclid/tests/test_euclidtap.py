@@ -205,26 +205,6 @@ def test_query_object_async_radius(column_attrs, mock_querier_async):
     for colname, attrs in column_attrs.items():
         assert table[colname].attrs_equal(attrs)
 
-        def test_query_object_radius(column_attrs, mock_querier):
-            coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
-            table = mock_querier.query_object(coordinate=coord, radius=RADIUS)
-
-            assert table is not None
-
-            assert len(table) == 3
-            for colname, attrs in column_attrs.items():
-                assert table[colname].attrs_equal(attrs)
-
-
-def test_query_object_async_radius_columns(column_attrs, mock_querier_async):
-    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
-    table = mock_querier_async.query_object(coordinate=coord, radius=RADIUS, columns=("alpha",), async_job=True)
-
-    assert table is not None
-
-    assert len(table) == 3
-    assert table["alpha"].attrs_equal(column_attrs["alpha"])
-
 
 def test_query_object_radius(column_attrs, mock_querier):
     coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
@@ -235,6 +215,16 @@ def test_query_object_radius(column_attrs, mock_querier):
     assert len(table) == 3
     for colname, attrs in column_attrs.items():
         assert table[colname].attrs_equal(attrs)
+
+
+def test_query_object_async_radius_columns(column_attrs, mock_querier_async):
+    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
+    table = mock_querier_async.query_object(coordinate=coord, radius=RADIUS, columns=("alpha",), async_job=True)
+
+    assert table is not None
+
+    assert len(table) == 3
+    assert table["alpha"].attrs_equal(column_attrs["alpha"])
 
 
 def test_query_object_radius_columns(column_attrs, mock_querier):
