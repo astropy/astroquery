@@ -31,6 +31,7 @@ from requests import HTTPError
 
 from astroquery.gaia import conf
 from astroquery.gaia.core import GaiaClass
+from astroquery.utils.commons import ASTROPY_LT_7_1_1
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.core import TapPlus
@@ -112,9 +113,14 @@ def column_attrs():
         "source_id": object,
         "table1_oid": np.int32
     }
+
     columns = {k: Column(name=k, description=k, dtype=v) for k, v in dtypes.items()}
 
-    columns["source_id"].meta = {"_votable_string_dtype": "char"}
+    if ASTROPY_LT_7_1_1:
+        columns["source_id"].meta = {"_votable_string_dtype": "char"}
+    else:
+        columns["source_id"].meta = {"_votable_string_dtype": "char", "_votable_arraysize": "*"}
+
     return columns
 
 
