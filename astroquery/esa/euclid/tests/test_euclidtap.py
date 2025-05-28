@@ -24,6 +24,7 @@ from requests import HTTPError
 
 from astroquery.esa.euclid.core import EuclidClass
 from astroquery.esa.euclid.core import conf
+from astroquery.utils.commons import ASTROPY_LT_7_1_1
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.core import TapPlus
@@ -116,7 +117,10 @@ def column_attrs():
     }
     columns = {k: Column(name=k, description=k, dtype=v) for k, v in dtypes.items()}
 
-    columns["source_id"].meta = {"_votable_string_dtype": "char"}
+    if ASTROPY_LT_7_1_1:
+        columns["source_id"].meta = {"_votable_string_dtype": "char"}
+    else:
+        columns["source_id"].meta = {"_votable_string_dtype": "char", "_votable_arraysize": "*"}
     return columns
 
 
