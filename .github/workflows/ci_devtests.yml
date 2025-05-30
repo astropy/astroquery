@@ -5,11 +5,13 @@ on:
   push:
     branches:
     - main
+    - develop
     tags:
     - '*'
   pull_request:
     branches:
     - main
+    - develop
   schedule:
     # run every Monday at 5am UTC
     - cron: '0 5 * * 1'
