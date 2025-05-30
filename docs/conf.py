@@ -197,7 +197,9 @@ if eval(setup_cfg.get('edit_on_github')):
     edit_on_github_doc_root = "docs"
 
 nitpicky = True
-nitpick_ignore = [('py:class', 'astroquery.mast.core.MastQueryWithLogin')]
+nitpick_ignore = [('py:class', 'astroquery.mast.core.MastQueryWithLogin'),
+                  # astropy interited type annotations
+                  ('py:class', 'ConfigItem')]
 
 
 # -- Linkcheck builder options ----------------------------------------------
