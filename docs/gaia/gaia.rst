@@ -82,7 +82,7 @@ This query searches for all the objects contained in an arbitrary rectangular pr
 WARNING: This method implements the ADQL BOX function that is deprecated in the latest version of the standard
 (ADQL 2.1,  see: https://ivoa.net/documents/ADQL/20231107/PR-ADQL-2.1-20231107.html#tth_sEc4.2.9).
 
-It is possible to choose which data release to query, by default the Gaia DR3 catalogue is used. For example::
+It is possible to choose which data release to query, by default the Gaia DR3 catalogue is used. For example
 
 .. doctest-remote-data::
 
@@ -796,12 +796,21 @@ The previous 3-step cross-match can be executed in one step by the following met
   Owner: None
   Output file: 1611860482314O-result.vot.gz
   Results: None
+  >>> result = job.get_results()
 
 This method updates the user table metadata to flag the positional RA/Dec columns and launches the positional
 cross-match as an asynchronous query. Unlike the previous 3-step cross-match method, the returned job provides direct
 access to the output of the cross-match information: for each matched source, all the columns from the input tables plus
 the angular distance (degrees). Therefore, the size of the output can be quite large.
 
+By default, this method targets the main catalogue of the Gaia DR3 ("gaiadr3.gaia_source") using a cone search radius
+of 1.0 arcseconds. Therefore, the above example can also be simplified as follows::
+
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login()
+  >>> job = Gaia.cross_match_basic(table_a_full_qualified_name=full_qualified_table_name, table_a_column_ra='raj2000',
+                                   table_a_column_dec='dej2000')
+  >>> result = job.get_results()
 
 2.7. Tables sharing
 ^^^^^^^^^^^^^^^^^^^
