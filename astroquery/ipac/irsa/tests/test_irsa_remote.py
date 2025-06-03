@@ -72,14 +72,26 @@ class TestIrsa:
     def test_list_catalogs(self):
         catalogs = Irsa.list_catalogs()
         # Number of available catalogs may change over time, test only for significant drop.
-        # (at the time of writing there are 933 tables in the list).
-        assert len(catalogs) > 900
+        # (at the time of writing there are 645 tables in the list).
+        assert len(catalogs) > 640
         assert isinstance(catalogs, dict)
 
-    def test_list_catalogs_filter(self):
-        spitzer_catalogs = Irsa.list_catalogs(filter='spitzer')
+        catalogs_full = Irsa.list_catalogs(full=True)
+        assert isinstance(catalogs_full, Table)
 
-        assert len(spitzer_catalogs) == 142
+    def test_list_catalogs_filter(self):
+        spitzer_catalogs = Irsa.list_catalogs(filter='allwise')
+
+        assert len(spitzer_catalogs) == 13
+
+    def test_list_catalogs_metadata(self):
+        catalogs = Irsa.list_catalogs(filter='wise')
+        all_tables = Irsa.list_catalogs(filter='wise', include_metadata_tables=True)
+
+        assert len(catalogs) < len(all_tables)
+
+        assert 'wise.wise_allwise_p3am_cdd' not in catalogs
+        assert 'wise.wise_allwise_p3am_cdd' in all_tables
 
     @pytest.mark.parametrize('servicetype', (None, 'sia', 'ssa'))
     def test_list_collections(self, servicetype):
