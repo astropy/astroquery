@@ -25,6 +25,7 @@ import numpy as np
 import pytest
 from astropy.coordinates.sky_coordinate import SkyCoord
 from astropy.table import Column, Table
+from astropy.units import Quantity
 from astropy.utils.data import get_pkg_data_filename
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from requests import HTTPError
@@ -1361,7 +1362,7 @@ def test_cross_match_invalid_mandatory_kwarg(cross_match_kwargs, kwarg, invalid_
 def test_cross_match_invalid_radius(cross_match_kwargs, radius):
     with pytest.raises(
             ValueError,
-            match=rf"^Invalid radius value. Found {radius}, valid range is: 0.1 to 10.0$",
+            match=rf"^Invalid radius value. Found {radius} arcsec, valid range is: 0.1 to 10.0$",
     ):
         GAIA_QUERIER.cross_match(**cross_match_kwargs, radius=radius)
 
@@ -1450,6 +1451,20 @@ def test_cross_match_basic_3(monkeypatch, background, mock_querier_async):
     assert job.get_phase() == "EXECUTING" if background else "COMPLETED"
     assert job.failed is False
 
+    radius_quantity = Quantity(value=1.0, unit=u.arcsec)
+    job = mock_querier_async.cross_match_basic(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
+                                               table_a_column_dec="dec", radius=radius_quantity, background=background)
+    assert job.async_ is True
+    assert job.get_phase() == "EXECUTING" if background else "COMPLETED"
+    assert job.failed is False
+
+    radius_quantity = Quantity(value=1.0/3600.0, unit=u.deg)
+    job = mock_querier_async.cross_match_basic(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
+                                               table_a_column_dec="dec", radius=radius_quantity, background=background)
+    assert job.async_ is True
+    assert job.get_phase() == "EXECUTING" if background else "COMPLETED"
+    assert job.failed is False
+
 
 @pytest.mark.parametrize("background", [False, True])
 def test_cross_match_basic_wrong_column(monkeypatch, background, mock_querier_async):
@@ -1517,17 +1532,30 @@ def test_cross_match_basic_exceptions(monkeypatch):
         GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
                                        table_a_column_dec="dec", table_b_full_qualified_name=".table_name")
 
-    error_message = "Invalid radius value. Found 50.0, valid range is: 0.1 to 10.0"
+    error_message = "Invalid radius value. Found 50.0 arcsec, valid range is: 0.1 to 10.0"
     with pytest.raises(ValueError, match=error_message):
         GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
                                        table_a_column_dec="dec", table_b_full_qualified_name="schema.table_name",
                                        radius=50.0)
 
-    error_message = "Invalid radius value. Found 0.01, valid range is: 0.1 to 10.0"
+    error_message = "Invalid radius value. Found 0.01 arcsec, valid range is: 0.1 to 10.0"
     with pytest.raises(ValueError, match=error_message):
         GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
                                        table_a_column_dec="dec", table_b_full_qualified_name="schema.table_name",
                                        radius=0.01)
+
+    radius_quantity = Quantity(value=0.01, unit=u.arcsec)
+    with pytest.raises(ValueError, match=error_message):
+        GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                       table_a_column_dec="dec", table_b_full_qualified_name="schema.table_name",
+                                       radius=radius_quantity)
+
+    radius_quantity = Quantity(value=1.0, unit=u.deg)
+    error_message = "Invalid radius value. Found 3600.0 arcsec, valid range is: 0.1 to 10.0"
+    with pytest.raises(ValueError, match=error_message):
+        GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                       table_a_column_dec="dec", table_b_full_qualified_name="schema.table_name",
+                                       radius=radius_quantity)
 
 
 @patch.object(TapPlus, 'login')

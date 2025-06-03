@@ -790,7 +790,7 @@ class GaiaClass(TapPlus):
         if value is None:
             raise ValueError(f"Missing required argument: {msg}")
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(f"{msg} must be either a string or astropy.coordinates")
+            raise ValueError(f"{msg} must be either a string or astropy.coordinates: {type(value)}")
 
         if isinstance(value, str):
             return Quantity(value)
@@ -883,8 +883,9 @@ class GaiaClass(TapPlus):
             the ‘dec’ column in the table table_b_full_qualified_name
         results_name : str, optional, default None
             custom name defined by the user for the job that is going to be created
-        radius : float (arc. seconds), optional, default 1.0
-            radius  (valid range: 0.1-10.0)
+        radius : float (arc. seconds), str or astropy.coordinate, optional, default 1.0
+            radius  (valid range: 0.1-10.0). For an astropy.coordinate any angular unit is valid, but its value in arc
+            sec must be contained within the valid range.
         background : bool, optional, default 'False'
             when the job is executed in asynchronous mode, this flag specifies
             whether the execution will wait until results are available
@@ -896,8 +897,12 @@ class GaiaClass(TapPlus):
         A Job object
         """
 
-        if radius < 0.1 or radius > 10.0:
-            raise ValueError(f"Invalid radius value. Found {radius}, valid range is: 0.1 to 10.0")
+        radius_quantity = self.__get_radius_as_quantity_arcsec(radius)
+
+        radius_arc_sec = radius_quantity.value
+
+        if radius_arc_sec < 0.1 or radius_arc_sec > 10.0:
+            raise ValueError(f"Invalid radius value. Found {radius_quantity}, valid range is: 0.1 to 10.0")
 
         schema_a = self.__get_schema_name(table_a_full_qualified_name)
         if not schema_a:
@@ -928,7 +933,7 @@ class GaiaClass(TapPlus):
             f"b.{table_b_column_dec}) AS separation, b.* "
             f"FROM {table_a_full_qualified_name} AS a JOIN {table_b_full_qualified_name} AS b "
             f"ON DISTANCE(a.{table_a_column_ra}, a.{table_a_column_dec}, b.{table_b_column_ra}, b.{table_b_column_dec})"
-            f" < {radius} / 3600.")
+            f" < {radius_quantity.to(u.deg).value}")
 
         return self.launch_job_async(query=query,
                                      name=results_name,
@@ -939,6 +944,16 @@ class GaiaClass(TapPlus):
                                      background=background,
                                      upload_resource=None,
                                      upload_table_name=None)
+
+    def __get_radius_as_quantity_arcsec(self, radius):
+        """
+        transform the input radius into an astropy.Quantity in arc seconds
+        """
+        if not isinstance(radius, units.Quantity):
+            radius_quantity = Quantity(value=radius, unit=u.arcsec)
+        else:
+            radius_quantity = radius.to(u.arcsec)
+        return radius_quantity
 
     def __update_ra_dec_columns(self, full_qualified_table_name, column_ra, column_dec, table_metadata, verbose):
         """
@@ -1007,8 +1022,9 @@ class GaiaClass(TapPlus):
             a full qualified table name (i.e. schema name and table name)
         results_table_name : str, mandatory
             a table name without schema. The schema is set to the user one
-        radius : float (arc. seconds), optional, default 1.0
-            radius  (valid range: 0.1-10.0)
+        radius : float (arc. seconds), str or astropy.coordinate, optional, default 1.0
+            radius  (valid range: 0.1-10.0). For an astropy.coordinate any angular unit is valid, but its value in arc
+            sec must be contained within the valid range.
         background : bool, optional, default 'False'
             when the job is executed in asynchronous mode, this flag specifies
             whether the execution will wait until results are available
@@ -1019,8 +1035,13 @@ class GaiaClass(TapPlus):
         -------
         A Job object
         """
-        if radius < 0.1 or radius > 10.0:
-            raise ValueError(f"Invalid radius value. Found {radius}, valid range is: 0.1 to 10.0")
+
+        radius_quantity = self.__get_radius_as_quantity_arcsec(radius)
+
+        radius_arc_sec = radius_quantity.value
+
+        if radius_arc_sec < 0.1 or radius_arc_sec > 10.0:
+            raise ValueError(f"Invalid radius value. Found {radius_quantity}, valid range is: 0.1 to 10.0")
 
         schema_a = self.__get_schema_name(full_qualified_table_name_a)
 
@@ -1033,7 +1054,7 @@ class GaiaClass(TapPlus):
         if taputils.get_schema_name(results_table_name) is not None:
             raise ValueError("Please, do not specify schema for 'results_table_name'")
 
-        query = f"SELECT crossmatch_positional('{schema_a}','{table_a}','{schema_b}','{table_b}',{radius}, " \
+        query = f"SELECT crossmatch_positional('{schema_a}','{table_a}','{schema_b}','{table_b}',{radius_arc_sec}, " \
                 f"'{results_table_name}') FROM dual;"
 
         name = str(results_table_name)
