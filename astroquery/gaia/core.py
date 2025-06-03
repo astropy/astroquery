@@ -854,12 +854,12 @@ class GaiaClass(TapPlus):
                           radius=1.0, background=False, verbose=False):
         """Performs a positional cross-match between the specified tables.
 
-        This methods simples the execution of the method `cross_match` since it carries out the following steps in one
+        This method simples the execution of the method `cross_match` since it carries out the following steps in one
         step:
 
-            #. updates the user table metadata to flag the positional RA/Dec columns;
-            #. launches a positional cross-match as an asynchronous query;
-            #. returns all the columns from both tables plus the angular distance (deg) for the cross-matched sources.
+            1. updates the user table metadata to flag the positional RA/Dec columns;
+            2. launches a positional cross-match as an asynchronous query;
+            3. returns all the columns from both tables plus the angular distance (deg) for the cross-matched sources.
 
         The result is a join table with the identifies of both tables and the distance (degrees), that is returned
         without metadata units. If desired, units can be added using the Units package of Astropy as follows:
