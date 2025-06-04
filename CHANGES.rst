@@ -44,6 +44,14 @@ imcce
 - Changing RuntimeError to NoResultsWarning when an empty result is
   returned. [#3307]
 
+ipac.irsa
+^^^^^^^^^
+
+- Fix ``list_catalogs`` to not include image metadata tables, only
+  catalogs. The ``include_metadata_tables`` keyword argument allows opting
+  in to return all TAP tables, including non-spatial and metadata ones,
+  too. [#3334]
+
 SIMBAD
 ^^^^^^
 
@@ -76,10 +84,10 @@ mast
 
 - Fix bug in ``utils.remove_duplicate_products`` that does not retain the order of the products in an input table. [#3314]
 
-- Added ``return_uri_map`` parameter to ``Observations.get_cloud_uris`` to return a mapping of the input data product URIs 
+- Added ``return_uri_map`` parameter to ``Observations.get_cloud_uris`` to return a mapping of the input data product URIs
   to the returned cloud URIs. [#3314]
 
-- Added ``verbose`` parameter to ``Observations.get_cloud_uris`` to control whether warnings are logged when a product cannot 
+- Added ``verbose`` parameter to ``Observations.get_cloud_uris`` to control whether warnings are logged when a product cannot
   be found in the cloud. [#3314]
 
 
