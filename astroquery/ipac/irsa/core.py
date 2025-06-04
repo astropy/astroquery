@@ -324,7 +324,9 @@ class IrsaClass(BaseVOQuery):
         if include_metadata_tables:
             more_filtering = ""
         else:
-            more_filtering = "where irsa_dbms=21"
+            # Filter out non-spatial catalogs and metadata tables with
+            # irsa_pos=y and irsa_dbms=21
+            more_filtering = "WHERE irsa_dbms=21 AND irsa_pos='y'"
 
         tap_tables = self.query_tap(f"SELECT * FROM TAP_SCHEMA.tables {more_filtering}").to_table()
 
