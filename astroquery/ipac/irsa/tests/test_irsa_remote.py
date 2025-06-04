@@ -72,17 +72,17 @@ class TestIrsa:
     def test_list_catalogs(self):
         catalogs = Irsa.list_catalogs()
         # Number of available catalogs may change over time, test only for significant drop.
-        # (at the time of writing there are 645 tables in the list).
-        assert len(catalogs) > 640
+        # (at the time of writing there are 521 catalogs in the list).
+        assert len(catalogs) > 520
         assert isinstance(catalogs, dict)
 
         catalogs_full = Irsa.list_catalogs(full=True)
         assert isinstance(catalogs_full, Table)
 
     def test_list_catalogs_filter(self):
-        spitzer_catalogs = Irsa.list_catalogs(filter='allwise')
+        allwise_catalogs = Irsa.list_catalogs(filter='allwise')
 
-        assert len(spitzer_catalogs) == 13
+        assert len(allwise_catalogs) == 4
 
     def test_list_catalogs_metadata(self):
         catalogs = Irsa.list_catalogs(filter='wise')
