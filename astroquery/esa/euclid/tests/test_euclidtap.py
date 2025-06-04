@@ -266,7 +266,7 @@ def test_load_table():
     responseLaunchJob = DummyResponse(200)
     responseLaunchJob.set_data(method='GET', context=None, body=TABLE_DATA, headers=None)
 
-    table = 'my_table'
+    table = 'schema.my_table'
     conn_handler.set_response(f"tables?tables={table}", responseLaunchJob)
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 

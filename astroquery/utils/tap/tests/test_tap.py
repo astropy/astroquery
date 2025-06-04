@@ -9,7 +9,6 @@ European Space Agency (ESA)
 """
 import gzip
 import os
-
 from pathlib import Path
 from unittest.mock import patch
 from urllib.parse import quote_plus, urlencode
@@ -19,7 +18,6 @@ import pytest
 from astropy.io.registry import IORegistryError
 from astropy.table import Table
 from astropy.utils.data import get_pkg_data_filename
-
 from requests import HTTPError
 
 from astroquery.utils.tap import taputils
@@ -118,7 +116,8 @@ def test_load_table():
     tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
 
     # No arguments
-    with pytest.raises(Exception):
+    error_message = ".*load_table\\(\\) missing 1 required positional argument: 'table'$"
+    with pytest.raises(TypeError, match=error_message):
         tap.load_table()
 
     responseLoadTable = DummyResponse(500)
@@ -129,11 +128,12 @@ def test_load_table():
     tableRequest = f"tables?tables={fullQualifiedTableName}"
     conn_handler.set_response(tableRequest, responseLoadTable)
 
-    with pytest.raises(Exception):
+    error_message = "^Error 500"
+    with pytest.raises(Exception, match=error_message):
         tap.load_table(fullQualifiedTableName)
 
     responseLoadTable.set_status_code(200)
-    table = tap.load_table(fullQualifiedTableName)
+    table = tap.load_table(fullQualifiedTableName, verbose=True)
     assert table is not None
     assert table.description == 'Table1 desc'
     columns = table.columns
@@ -142,6 +142,19 @@ def test_load_table():
     __check_column(col, 'Table1 Column1 desc', '', 'VARCHAR', 'indexed')
     col = __find_column('table1_col2', columns)
     __check_column(col, 'Table1 Column2 desc', '', 'INTEGER', None)
+
+
+def test_load_table_exceptions():
+    conn_handler = DummyConnHandler()
+    tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+
+    error_message = "Table name is required"
+    with pytest.raises(ValueError, match=error_message):
+        tap.load_table(None)
+
+    error_message = "Not found schema name in full qualified table: 'only_table_name'"
+    with pytest.raises(ValueError, match=error_message):
+        tap.load_table("only_table_name")
 
 
 def test_launch_sync_job():
@@ -778,7 +791,7 @@ def test_get_current_column_values_for_update():
 
 
 def test_update_user_table():
-    tableName = 'table'
+    tableName = 'schema.table'
     conn_handler = DummyConnHandler()
     tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     dummyResponse = DummyResponse(200)

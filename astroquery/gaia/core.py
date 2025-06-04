@@ -4,14 +4,9 @@
 Gaia TAP plus
 =============
 
-@author: Juan Carlos Segovia
-@contact: juan.carlos.segovia@sciops.esa.int
-
 European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
-Created on 30 jun. 2016
-Modified on 18 Ene. 2022 by mhsarmiento
 """
 import datetime
 import json
@@ -795,7 +790,7 @@ class GaiaClass(TapPlus):
         if value is None:
             raise ValueError(f"Missing required argument: {msg}")
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(f"{msg} must be either a string or astropy.coordinates")
+            raise ValueError(f"{msg} must be either a string or astropy.coordinates: {type(value)}")
 
         if isinstance(value, str):
             return Quantity(value)
@@ -853,27 +848,44 @@ class GaiaClass(TapPlus):
 
         return self.is_valid_user(user_id=user_id, verbose=verbose)
 
-    def cross_match(self, *, full_qualified_table_name_a,
-                    full_qualified_table_name_b,
-                    results_table_name,
-                    radius=1.0,
-                    background=False,
-                    verbose=False):
-        """Performs a cross-match between the specified tables
-        The result is a join table (stored in the user storage area)
-        with the identifies of both tables and the distance.
+    def cross_match_basic(self, *, table_a_full_qualified_name, table_a_column_ra, table_a_column_dec,
+                          table_b_full_qualified_name=MAIN_GAIA_TABLE, table_b_column_ra=MAIN_GAIA_TABLE_RA,
+                          table_b_column_dec=MAIN_GAIA_TABLE_DEC, results_name=None,
+                          radius=1.0, background=False, verbose=False):
+        """Performs a positional cross-match between the specified tables.
+
+        This method simples the execution of the method `cross_match` since it carries out the following steps in one
+        step:
+
+            1. updates the user table metadata to flag the positional RA/Dec columns;
+            2. launches a positional cross-match as an asynchronous query;
+            3. returns all the columns from both tables plus the angular distance (deg) for the cross-matched sources.
+
+        The result is a join table with the identifies of both tables and the distance (degrees), that is returned
+        without metadata units. If desired, units can be added using the Units package of Astropy as follows:
+        results[‘separation’].unit = u.degree. To speed up the cross-match, pass the biggest table to the
+        ``table_b_full_qualified_name`` parameter.
         TAP+ only
 
         Parameters
         ----------
-        full_qualified_table_name_a : str, mandatory
+        table_a_full_qualified_name : str, mandatory
             a full qualified table name (i.e. schema name and table name)
-        full_qualified_table_name_b : str, mandatory
+        table_a_column_ra : str, mandatory
+            the ‘ra’ column in the table table_a_full_qualified_name
+        table_a_column_dec :  str, mandatory
+            the ‘dec’ column in the table table_a_full_qualified_name
+        table_b_full_qualified_name : str, optional, default MAIN_GAIA_TABLE
             a full qualified table name (i.e. schema name and table name)
-        results_table_name : str, mandatory
-            a table name without schema. The schema is set to the user one
-        radius : float (arc. seconds), optional, default 1.0
-            radius  (valid range: 0.1-10.0)
+        table_b_column_ra : str, optional, default MAIN_GAIA_TABLE_RA
+            the ‘ra’ column in the table table_b_full_qualified_name
+        table_b_column_dec :  str, default MAIN_GAIA_TABLE_DEC
+            the ‘dec’ column in the table table_b_full_qualified_name
+        results_name : str, optional, default None
+            custom name defined by the user for the job that is going to be created
+        radius : float (arc. seconds), str or astropy.coordinate, optional, default 1.0
+            radius  (valid range: 0.1-10.0). For an astropy.coordinate any angular unit is valid, but its value in arc
+            sec must be contained within the valid range.
         background : bool, optional, default 'False'
             when the job is executed in asynchronous mode, this flag specifies
             whether the execution will wait until results are available
@@ -884,24 +896,165 @@ class GaiaClass(TapPlus):
         -------
         A Job object
         """
-        if radius < 0.1 or radius > 10.0:
-            raise ValueError(f"Invalid radius value. Found {radius}, valid range is: 0.1 to 10.0")
 
-        schemaA = taputils.get_schema_name(full_qualified_table_name_a)
-        if schemaA is None:
-            raise ValueError(f"Not found schema name in full qualified table A: '{full_qualified_table_name_a}'")
-        tableA = taputils.get_table_name(full_qualified_table_name_a)
-        schemaB = taputils.get_schema_name(full_qualified_table_name_b)
+        radius_quantity = self.__get_radius_as_quantity_arcsec(radius)
 
-        if schemaB is None:
-            raise ValueError(f"Not found schema name in full qualified table B: '{full_qualified_table_name_b}'")
+        radius_arc_sec = radius_quantity.value
 
-        tableB = taputils.get_table_name(full_qualified_table_name_b)
+        if radius_arc_sec < 0.1 or radius_arc_sec > 10.0:
+            raise ValueError(f"Invalid radius value. Found {radius_quantity}, valid range is: 0.1 to 10.0")
+
+        schema_a = self.__get_schema_name(table_a_full_qualified_name)
+        if not schema_a:
+            raise ValueError(f"Schema name is empty in full qualified table: '{table_a_full_qualified_name}'")
+
+        table_b_full_qualified_name = table_b_full_qualified_name or self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE
+
+        schema_b = self.__get_schema_name(table_b_full_qualified_name)
+        if not schema_b:
+            raise ValueError(f"Schema name is empty in full qualified table: '{table_b_full_qualified_name}'")
+
+        table_metadata_a = self.__get_table_metadata(table_a_full_qualified_name, verbose)
+
+        table_metadata_b = self.__get_table_metadata(table_b_full_qualified_name, verbose)
+
+        self.__check_columns_exist(table_metadata_a, table_a_full_qualified_name, table_a_column_ra, table_a_column_dec)
+
+        self.__update_ra_dec_columns(table_a_full_qualified_name, table_a_column_ra, table_a_column_dec,
+                                     table_metadata_a, verbose)
+
+        self.__check_columns_exist(table_metadata_b, table_b_full_qualified_name, table_b_column_ra, table_b_column_dec)
+
+        self.__update_ra_dec_columns(table_b_full_qualified_name, table_b_column_ra, table_b_column_dec,
+                                     table_metadata_b, verbose)
+
+        query = (
+            f"SELECT a.*, DISTANCE(a.{table_a_column_ra}, a.{table_a_column_dec}, b.{table_b_column_ra}, "
+            f"b.{table_b_column_dec}) AS separation, b.* "
+            f"FROM {table_a_full_qualified_name} AS a JOIN {table_b_full_qualified_name} AS b "
+            f"ON DISTANCE(a.{table_a_column_ra}, a.{table_a_column_dec}, b.{table_b_column_ra}, b.{table_b_column_dec})"
+            f" < {radius_quantity.to(u.deg).value}")
+
+        return self.launch_job_async(query=query,
+                                     name=results_name,
+                                     output_file=None,
+                                     output_format="votable_gzip",
+                                     verbose=verbose,
+                                     dump_to_file=False,
+                                     background=background,
+                                     upload_resource=None,
+                                     upload_table_name=None)
+
+    def __get_radius_as_quantity_arcsec(self, radius):
+        """
+        transform the input radius into an astropy.Quantity in arc seconds
+        """
+        if not isinstance(radius, units.Quantity):
+            radius_quantity = Quantity(value=radius, unit=u.arcsec)
+        else:
+            radius_quantity = radius.to(u.arcsec)
+        return radius_quantity
+
+    def __update_ra_dec_columns(self, full_qualified_table_name, column_ra, column_dec, table_metadata, verbose):
+        """
+        Update table metadata for the ‘ra’ and the ‘dec’ columns in the input table
+        """
+        if full_qualified_table_name.startswith("user_"):
+            list_of_changes = list()
+            for column in table_metadata.columns:
+                if column.name == column_ra and column.flags != '1':
+                    list_of_changes.append([column_ra, "flags", "Ra"])
+                    list_of_changes.append([column_ra, "indexed", True])
+                if column.name == column_dec and column.flags != '2':
+                    list_of_changes.append([column_dec, "flags", "Dec"])
+                    list_of_changes.append([column_dec, "indexed", True])
+
+            if list_of_changes:
+                TapPlus.update_user_table(self, table_name=full_qualified_table_name, list_of_changes=list_of_changes,
+                                          verbose=verbose)
+
+    def __check_columns_exist(self, table_metadata_a, full_qualified_table_name, column_ra, column_dec):
+        """
+        Check whether the ‘ra’ and the ‘dec’ columns exists the input table
+        """
+        column_names = [column.name for column in table_metadata_a.columns]
+        if column_ra not in column_names or column_dec not in column_names:
+            raise ValueError(
+                f"Please check: columns {column_ra} or {column_dec} not available in the table '"
+                f"{full_qualified_table_name}'")
+
+    def __get_table_metadata(self, full_qualified_table_name, verbose):
+        """
+        Get the table metadata for the input table
+        """
+        try:
+            table_metadata = self.load_table(table=full_qualified_table_name, verbose=verbose)
+        except Exception:
+            raise ValueError(f"Not found table '{full_qualified_table_name}' in the archive")
+        return table_metadata
+
+    def __get_schema_name(self, full_qualified_table_name):
+        """
+        Get the schema name from the full qualified table
+        """
+        schema = taputils.get_schema_name(full_qualified_table_name)
+        if schema is None:
+            raise ValueError(f"Not found schema name in full qualified table: '{full_qualified_table_name}'")
+        return schema
+
+    def cross_match(self, *, full_qualified_table_name_a,
+                    full_qualified_table_name_b,
+                    results_table_name,
+                    radius=1.0,
+                    background=False,
+                    verbose=False):
+        """Performs a positional cross-match between the specified tables.
+
+        The result is a join table (stored in the user storage area) with the identifies of both tables and the
+        distance.
+        TAP+ only
+
+        Parameters
+        ----------
+        full_qualified_table_name_a : str, mandatory
+            a full qualified table name (i.e. schema name and table name)
+        full_qualified_table_name_b : str, mandatory
+            a full qualified table name (i.e. schema name and table name)
+        results_table_name : str, mandatory
+            a table name without schema. The schema is set to the user one
+        radius : float (arc. seconds), str or astropy.coordinate, optional, default 1.0
+            radius  (valid range: 0.1-10.0). For an astropy.coordinate any angular unit is valid, but its value in arc
+            sec must be contained within the valid range.
+        background : bool, optional, default 'False'
+            when the job is executed in asynchronous mode, this flag specifies
+            whether the execution will wait until results are available
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        A Job object
+        """
+
+        radius_quantity = self.__get_radius_as_quantity_arcsec(radius)
+
+        radius_arc_sec = radius_quantity.value
+
+        if radius_arc_sec < 0.1 or radius_arc_sec > 10.0:
+            raise ValueError(f"Invalid radius value. Found {radius_quantity}, valid range is: 0.1 to 10.0")
+
+        schema_a = self.__get_schema_name(full_qualified_table_name_a)
+
+        table_a = taputils.get_table_name(full_qualified_table_name_a)
+
+        schema_b = self.__get_schema_name(full_qualified_table_name_b)
+
+        table_b = taputils.get_table_name(full_qualified_table_name_b)
 
         if taputils.get_schema_name(results_table_name) is not None:
             raise ValueError("Please, do not specify schema for 'results_table_name'")
 
-        query = f"SELECT crossmatch_positional('{schemaA}','{tableA}','{schemaB}','{tableB}',{radius}, " \
+        query = f"SELECT crossmatch_positional('{schema_a}','{table_a}','{schema_b}','{table_b}',{radius_arc_sec}, " \
                 f"'{results_table_name}') FROM dual;"
 
         name = str(results_table_name)
@@ -916,10 +1069,8 @@ class GaiaClass(TapPlus):
                                      upload_resource=None,
                                      upload_table_name=None)
 
-    def launch_job(self, query, *, name=None, output_file=None,
-                   output_format="votable_gzip", verbose=False,
-                   dump_to_file=False, upload_resource=None,
-                   upload_table_name=None):
+    def launch_job(self, query, *, name=None, output_file=None, output_format="votable_gzip", verbose=False,
+                   dump_to_file=False, upload_resource=None, upload_table_name=None):
         """Launches a synchronous job
 
         Parameters

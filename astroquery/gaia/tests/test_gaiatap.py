@@ -25,6 +25,7 @@ import numpy as np
 import pytest
 from astropy.coordinates.sky_coordinate import SkyCoord
 from astropy.table import Column, Table
+from astropy.units import Quantity
 from astropy.utils.data import get_pkg_data_filename
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from requests import HTTPError
@@ -34,7 +35,9 @@ from astroquery.gaia.core import GaiaClass
 from astroquery.utils.commons import ASTROPY_LT_7_1_1
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
-from astroquery.utils.tap.core import TapPlus
+from astroquery.utils.tap.core import TapPlus, Tap
+from astroquery.utils.tap.model.tapcolumn import TapColumn
+from astroquery.utils.tap.model.taptable import TapTableMeta
 
 GAIA_QUERIER = GaiaClass(show_server_messages=False)
 
@@ -195,7 +198,6 @@ def mock_querier():
 
 @pytest.fixture(scope="function")
 def mock_datalink_querier(patch_datetime_now):
-
     assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
 
     conn_handler = DummyConnHandler()
@@ -443,6 +445,26 @@ def cross_match_kwargs():
     return {"full_qualified_table_name_a": "schemaA.tableA",
             "full_qualified_table_name_b": "schemaB.tableB",
             "results_table_name": "results"}
+
+
+@pytest.fixture
+def cross_match_basic_kwargs():
+    return {"table_a_full_qualified_name": "schemaA.tableA",
+            "table_a_column_ra": "ra",
+            "table_a_column_dec": "dec",
+            "table_b_full_qualified_name": "schemaB.tableB",
+            "table_b_column_ra": "ra",
+            "table_b_column_dec": "dec"}
+
+
+@pytest.fixture
+def cross_match_basic_2_kwargs():
+    return {"table_a_full_qualified_name": "user_hola.tableA",
+            "table_a_column_ra": "ra",
+            "table_a_column_dec": "dec",
+            "table_b_full_qualified_name": "user_hola.tableB",
+            "table_b_column_ra": "ra",
+            "table_b_column_dec": "dec"}
 
 
 def test_show_message():
@@ -833,9 +855,8 @@ def test_datalink_querier_load_data_vot_exception(mock_datalink_querier, overwri
                                             overwrite_output_file=overwrite_output_file,
                                             verbose=False)
 
-        assert str(
-            excinfo.value) == (
-                f"{file_final} file already exists. Please use overwrite_output_file='True' to overwrite output file.")
+        messg = f"{file_final} file already exists. Please use overwrite_output_file='True' to overwrite output file."
+        assert str(excinfo.value) == messg
 
     else:
         mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
@@ -1006,7 +1027,6 @@ def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
 
 
 def test_load_data_vot(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_now):
-
     assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
 
     now = datetime.datetime.now(datetime.timezone.utc)
@@ -1086,7 +1106,6 @@ def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory):
 
 
 def test_load_data_csv(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_now):
-
     assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
 
     now = datetime.datetime.now(datetime.timezone.utc)
@@ -1125,7 +1144,6 @@ def test_load_data_csv(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_n
 
 
 def test_load_data_ecsv(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_now):
-
     assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
 
     now = datetime.datetime.now(datetime.timezone.utc)
@@ -1164,7 +1182,6 @@ def test_load_data_ecsv(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_
 
 
 def test_load_data_linking_parameter(monkeypatch, tmp_path, patch_datetime_now):
-
     assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
 
     now = datetime.datetime.now(datetime.timezone.utc)
@@ -1204,7 +1221,6 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path, patch_datetime_now):
 
 @pytest.mark.parametrize("linking_param", ['TRANSIT_ID', 'IMAGE_ID'])
 def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_param, patch_datetime_now):
-
     assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
 
     now = datetime.datetime.now(datetime.timezone.utc)
@@ -1329,16 +1345,14 @@ def test_cross_match(background, cross_match_kwargs, mock_querier_async):
     "kwarg,invalid_value,error_message",
     [("full_qualified_table_name_a",
       "tableA",
-      "^Not found schema name in full qualified table A: 'tableA'$"),
+      "^Not found schema name in full qualified table: 'tableA'$"),
      ("full_qualified_table_name_b",
       "tableB",
-      "^Not found schema name in full qualified table B: 'tableB'$"),
+      "^Not found schema name in full qualified table: 'tableB'$"),
      ("results_table_name",
       "schema.results",
       "^Please, do not specify schema for 'results_table_name'$")])
-def test_cross_match_invalid_mandatory_kwarg(
-        cross_match_kwargs, kwarg, invalid_value, error_message
-):
+def test_cross_match_invalid_mandatory_kwarg(cross_match_kwargs, kwarg, invalid_value, error_message):
     cross_match_kwargs[kwarg] = invalid_value
     with pytest.raises(ValueError, match=error_message):
         GAIA_QUERIER.cross_match(**cross_match_kwargs)
@@ -1348,7 +1362,7 @@ def test_cross_match_invalid_mandatory_kwarg(
 def test_cross_match_invalid_radius(cross_match_kwargs, radius):
     with pytest.raises(
             ValueError,
-            match=rf"^Invalid radius value. Found {radius}, valid range is: 0.1 to 10.0$",
+            match=rf"^Invalid radius value. Found {radius} arcsec, valid range is: 0.1 to 10.0$",
     ):
         GAIA_QUERIER.cross_match(**cross_match_kwargs, radius=radius)
 
@@ -1362,6 +1376,186 @@ def test_cross_match_missing_mandatory_kwarg(cross_match_kwargs, missing_kwarg):
             TypeError, match=rf"missing 1 required keyword-only argument: '{missing_kwarg}'$"
     ):
         GAIA_QUERIER.cross_match(**cross_match_kwargs)
+
+
+def make_table_metadata(table_name):
+    tap_table = TapTableMeta()
+    tap_table.name = table_name
+    tap_column_ra = TapColumn(0)
+    tap_column_ra.name = "ra"
+    tap_table.add_column(tap_column_ra)
+    tap_column_dec = TapColumn(0)
+    tap_column_dec.name = "dec"
+    tap_table.add_column(tap_column_dec)
+    return tap_table
+
+
+@pytest.mark.parametrize("background", [False, True])
+def test_cross_match_basic(monkeypatch, background, cross_match_basic_kwargs, mock_querier_async):
+    def load_table_monkeypatched(self, table, verbose):
+        tap_table_a = make_table_metadata("schemaA.tableA")
+        tap_table_b = make_table_metadata("schemaB.tableB")
+
+        return_val = {"schemaA.tableA": tap_table_a, "schemaB.tableB": tap_table_b}
+        return return_val[table]
+
+    monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched)
+
+    job = mock_querier_async.cross_match_basic(**cross_match_basic_kwargs, background=background)
+    assert job.async_ is True
+    assert job.get_phase() == "EXECUTING" if background else "COMPLETED"
+    assert job.failed is False
+
+
+@pytest.mark.parametrize("background", [False, True])
+def test_cross_match_basic_2(monkeypatch, background, cross_match_basic_2_kwargs, mock_querier_async):
+    def load_table_monkeypatched(self, table, verbose):
+        tap_table_a = make_table_metadata("user_hola.tableA")
+        tap_table_b = make_table_metadata("user_hola.tableB")
+
+        return_val = {"user_hola.tableA": tap_table_a, "user_hola.tableB": tap_table_b}
+        return return_val[table]
+
+    def update_user_table(self, table_name, list_of_changes, verbose):
+        return None
+
+    monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched)
+    monkeypatch.setattr(TapPlus, "update_user_table", update_user_table)
+
+    job = mock_querier_async.cross_match_basic(**cross_match_basic_2_kwargs, background=background)
+    assert job.async_ is True
+    assert job.get_phase() == "EXECUTING" if background else "COMPLETED"
+    assert job.failed is False
+
+
+@pytest.mark.parametrize("background", [False, True])
+def test_cross_match_basic_3(monkeypatch, background, mock_querier_async):
+    mock_querier_async.MAIN_GAIA_TABLE = None
+
+    def load_table_monkeypatched_2(self, table, verbose):
+        tap_table_a = make_table_metadata("user_hola.tableA")
+        tap_table_b = make_table_metadata("gaiadr3.gaia_source")
+
+        return_val = {"user_hola.tableA": tap_table_a, "gaiadr3.gaia_source": tap_table_b}
+        return return_val[table]
+
+    def update_user_table(self, table_name, list_of_changes, verbose):
+        return None
+
+    monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched_2)
+    monkeypatch.setattr(TapPlus, "update_user_table", update_user_table)
+
+    job = mock_querier_async.cross_match_basic(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
+                                               table_a_column_dec="dec", background=background)
+    assert job.async_ is True
+    assert job.get_phase() == "EXECUTING" if background else "COMPLETED"
+    assert job.failed is False
+
+    radius_quantity = Quantity(value=1.0, unit=u.arcsec)
+    job = mock_querier_async.cross_match_basic(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
+                                               table_a_column_dec="dec", radius=radius_quantity, background=background)
+    assert job.async_ is True
+    assert job.get_phase() == "EXECUTING" if background else "COMPLETED"
+    assert job.failed is False
+
+    radius_quantity = Quantity(value=1.0/3600.0, unit=u.deg)
+    job = mock_querier_async.cross_match_basic(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
+                                               table_a_column_dec="dec", radius=radius_quantity, background=background)
+    assert job.async_ is True
+    assert job.get_phase() == "EXECUTING" if background else "COMPLETED"
+    assert job.failed is False
+
+
+@pytest.mark.parametrize("background", [False, True])
+def test_cross_match_basic_wrong_column(monkeypatch, background, mock_querier_async):
+    mock_querier_async.MAIN_GAIA_TABLE = None
+
+    def load_table_monkeypatched(self, table, verbose):
+        tap_table_a = make_table_metadata("user_hola.tableA")
+        tap_table_b = make_table_metadata("gaiadr3.gaia_source")
+
+        return_val = {"user_hola.tableA": tap_table_a, "gaiadr3.gaia_source": tap_table_b}
+        return return_val[table]
+
+    def update_user_table(self, table_name, list_of_changes, verbose):
+        return None
+
+    monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched)
+    monkeypatch.setattr(TapPlus, "update_user_table", update_user_table)
+
+    error_message = "Please check: columns Wrong_ra or dec not available in the table 'user_hola.tableA'"
+    with pytest.raises(ValueError, match=error_message):
+        mock_querier_async.cross_match_basic(table_a_full_qualified_name="user_hola.tableA",
+                                             table_a_column_ra="Wrong_ra", table_a_column_dec="dec",
+                                             background=background)
+
+    error_message = "Please check: columns ra or Wrong_dec not available in the table 'user_hola.tableA'"
+    with pytest.raises(ValueError, match=error_message):
+        mock_querier_async.cross_match_basic(table_a_full_qualified_name="user_hola.tableA",
+                                             table_a_column_ra="ra", table_a_column_dec="Wrong_dec",
+                                             background=background)
+
+
+def test_cross_match_basic_exceptions(monkeypatch):
+    def load_table_monkeypatched(self, table, verbose):
+        raise ValueError(f"Not found schema name in full qualified table: '{table}'")
+
+    def update_user_table(self, table_name, list_of_changes, verbose):
+        return None
+
+    monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched)
+    monkeypatch.setattr(TapPlus, "update_user_table", update_user_table)
+
+    error_message = "Not found table 'user_hola.tableA' in the archive"
+    with pytest.raises(ValueError, match=error_message):
+        GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
+                                       table_a_column_dec="dec", background=True)
+
+    # Check invalid input values
+    error_message = "Not found schema name in full qualified table: 'hola'"
+    with pytest.raises(ValueError, match=error_message):
+        GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name="hola", table_a_column_ra="ra",
+                                       table_a_column_dec="dec")
+
+    error_message = "Schema name is empty in full qualified table: '.table_name'"
+    with pytest.raises(ValueError, match=error_message):
+        GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name=".table_name", table_a_column_ra="ra",
+                                       table_a_column_dec="dec")
+
+    error_message = "Not found schema name in full qualified table: 'hola'"
+    with pytest.raises(ValueError, match=error_message):
+        GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                       table_a_column_dec="dec", table_b_full_qualified_name="hola")
+
+    error_message = "Schema name is empty in full qualified table: '.table_name'"
+    with pytest.raises(ValueError, match=error_message):
+        GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                       table_a_column_dec="dec", table_b_full_qualified_name=".table_name")
+
+    error_message = "Invalid radius value. Found 50.0 arcsec, valid range is: 0.1 to 10.0"
+    with pytest.raises(ValueError, match=error_message):
+        GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                       table_a_column_dec="dec", table_b_full_qualified_name="schema.table_name",
+                                       radius=50.0)
+
+    error_message = "Invalid radius value. Found 0.01 arcsec, valid range is: 0.1 to 10.0"
+    with pytest.raises(ValueError, match=error_message):
+        GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                       table_a_column_dec="dec", table_b_full_qualified_name="schema.table_name",
+                                       radius=0.01)
+
+    radius_quantity = Quantity(value=0.01, unit=u.arcsec)
+    with pytest.raises(ValueError, match=error_message):
+        GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                       table_a_column_dec="dec", table_b_full_qualified_name="schema.table_name",
+                                       radius=radius_quantity)
+
+    radius_quantity = Quantity(value=1.0, unit=u.deg)
+    error_message = "Invalid radius value. Found 3600.0 arcsec, valid range is: 0.1 to 10.0"
+    with pytest.raises(ValueError, match=error_message):
+        GAIA_QUERIER.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                       table_a_column_dec="dec", table_b_full_qualified_name="schema.table_name",
+                                       radius=radius_quantity)
 
 
 @patch.object(TapPlus, 'login')
