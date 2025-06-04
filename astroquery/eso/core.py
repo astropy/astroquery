@@ -294,22 +294,27 @@ class EsoClass(QueryWithLogin):
         """
         Query the ESO TAP service using a free ADQL string.
 
-        :param query_str: The ADQL query string to be executed.
-        :type query_str: str
+        Parameters
+        ----------
+        query_str : str
+            The ADQL query string to be executed.
+        authenticated : bool, optional
+            If ``True``, the query is run as an authenticated user.
+            Authentication must be performed beforehand via
+            :meth:`astroquery.eso.EsoClass.login`. Authenticated queries
+            may be slower. Default is ``False``.
 
-        :param authenticated: If `True`, the query is run as an authenticated user.
-            Authentication must be done beforehand via :meth:`~astroquery.eso.EsoClass.login`.
-            Note that authenticated queries are slower. Default is `False`.
-        :type authenticated: bool
+        Returns
+        -------
+        astropy.table.Table or None
+            The query results in an :class:`~astropy.table.Table`, or
+            ``None`` if no data is found.
 
-        :returns: The query results in an `~astropy.table.Table`, or `None` if no data is found.
-        :rtype: Optional[`~astropy.table.Table`]
-
-        **Example usage**::
-
-            eso_instance = Eso()
-
-            eso_instance.query_tap_service("SELECT * FROM ivoa.ObsCore")
+        Examples
+        --------
+        >>> from astroquery.eso import Eso
+        >>> eso_instance = Eso()
+        >>> eso_instance.query_tap_service("SELECT * FROM ivoa.ObsCore")
         """
         table_to_return = None
         tap_service = self._tap_service(authenticated)
@@ -431,66 +436,57 @@ class EsoClass(QueryWithLogin):
         """
         Query survey Phase 3 data contained in the ESO archive.
 
-        :param surveys: Name of the survey(s) to query. Should be one or more of the
+        Parameters
+        ----------
+        surveys : str or list, optional
+            Name of the survey(s) to query. Should be one or more of the
             names returned by :meth:`~astroquery.eso.EsoClass.list_surveys`. If specified
             as a string, it should be a comma-separated list of survey names.
-            If not specified, returns records relative to all surveys. Default is `None`.
-        :type surveys: str or list
-
-        :param cone_ra: Cone Search Center - Right Ascension in degrees.
-        :type ra: float
-
-        :param cone_dec: Cone Search Center - Declination in degrees.
-        :type dec: float
-
-        :param cone_radius: Cone Search Radius in degrees.
-        :type radius: float
-
-        :param columns: Name of the columns the query should return. If specified as a string,
+            If not specified, returns records relative to all surveys. Default is ``None``.
+        cone_ra : float, optional
+            Cone Search Center - Right Ascension in degrees.
+        cone_dec : float, optional
+            Cone Search Center - Declination in degrees.
+        cone_radius : float, optional
+            Cone Search Radius in degrees.
+        columns : str or list of str, optional
+            Name of the columns the query should return. If specified as a string,
             it should be a comma-separated list of column names.
-        :type columns: str or list of str
+        top : int, optional
+            When set to ``N``, returns only the top ``N`` records.
+        count_only : bool, optional
+            If ``True``, returns only an ``int``: the count of the records
+            the query would return when set to ``False``. Default is ``False``.
+        query_str_only : bool, optional
+            If ``True``, returns only a ``str``: the query string that
+            would be issued to the TAP service. Default is ``False``.
+        help : bool, optional
+            If ``True``, prints all the parameters accepted in ``column_filters``
+            and ``columns``. Default is ``False``.
+        authenticated : bool, optional
+            If ``True``, runs the query as an authenticated user.
+            Authentication must be done beforehand via
+            :meth:`~astroquery.eso.EsoClass.login`. Authenticated queries may be slower.
+            Default is ``False``.
+        column_filters : dict or None, optional
+            Constraints applied to the query in ADQL syntax,
+            e.g., ``{"exp_start": "between '2024-12-31' and '2025-12-31'"}``.
+            Default is ``None``.
+        open_form : bool, optional
+            **Deprecated** - unused.
+        cache : bool, optional
+            **Deprecated** - unused.
 
-        :param top: When set to ``N``, returns only the top ``N`` records.
-        :type top: int
-
-        :param count_only: If `True`, returns only an `int`: the count of the records
-            the query would return when set to `False`. Default is `False`.
-        :type count_only: bool
-
-        :param query_str_only: If `True`, returns only a `str`: the query string that
-            would be issued to the TAP service. Default is `False`.
-        :type query_str_only: bool
-
-        :param help: If `True`, prints all the parameters accepted in ``column_filters``
-            and ``columns``. Default is `False`.
-        :type help: bool
-
-        :param authenticated: If `True`, runs the query as an authenticated user.
-            Authentication must be done beforehand via :meth:`~astroquery.eso.EsoClass.login`.
-            Note that authenticated queries are slower. Default is `False`.
-        :type authenticated: bool
-
-        :param column_filters: Constraints applied to the query in ADQL syntax,
-            ``{"column_name": "<adql_operator> <value>"}``. For example:
-            ``{"exp_start": "between '2024-12-31' and '2025-12-31'"}``
-            Default is `None`.
-        :type column_filters: dict, `None`
-
-        :param open_form: **Deprecated** - unused.
-        :type open_form: bool
-
-        :param cache: **Deprecated** - unused.
-        :type cache: bool
-
-        :returns:
-            - By default, a `~astropy.table.Table` containing records based on the specified
-              columns and constraints. Returns `None` when the query has no results.
-            - When ``count_only`` is `True`, returns an `int` representing the
+        Returns
+        -------
+        astropy.table.Table, str, int or None
+            - By default, returns an :class:`~astropy.table.Table` containing records
+              based on the specified columns and constraints.
+              Returns ``None`` if the query has no results.
+            - When ``count_only`` is ``True``, returns an ``int`` representing the
               record count for the specified filters.
-            - When ``query_str_only`` is `True`, returns the query string that
+            - When ``query_str_only`` is ``True``, returns the query string that
               would be issued to the TAP service given the specified arguments.
-
-        :rtype: `~astropy.table.Table`, `str`, `int`, or `None`
         """
         _ = open_form, cache  # make explicit that we are aware these arguments are unused
         column_filters = column_filters if column_filters else {}
@@ -530,66 +526,57 @@ class EsoClass(QueryWithLogin):
         """
         Query raw data from all instruments contained in the ESO archive.
 
-        :param instruments: Name of the instruments to filter. Should be one or more of the
+        Parameters
+        ----------
+        instruments : str or list, optional
+            Name of the instruments to filter. Should be one or more of the
             names returned by :meth:`~astroquery.eso.EsoClass.list_instruments`. If specified
             as a string, it should be a comma-separated list of instrument names.
-            If not specified, returns records relative to all instruments. Default is `None`.
-        :type instruments: str or list
-
-        :param cone_ra: Cone Search Center - Right Ascension in degrees.
-        :type ra: float
-
-        :param cone_dec: Cone Search Center - Declination in degrees.
-        :type dec: float
-
-        :param cone_radius: Cone Search Radius in degrees.
-        :type radius: float
-
-        :param columns: Name of the columns the query should return. If specified as a string,
+            If not specified, returns records relative to all instruments. Default is ``None``.
+        cone_ra : float, optional
+            Cone Search Center - Right Ascension in degrees.
+        cone_dec : float, optional
+            Cone Search Center - Declination in degrees.
+        cone_radius : float, optional
+            Cone Search Radius in degrees.
+        columns : str or list of str, optional
+            Name of the columns the query should return. If specified as a string,
             it should be a comma-separated list of column names.
-        :type columns: str or list of str
+        top : int, optional
+            When set to ``N``, returns only the top ``N`` records.
+        count_only : bool, optional
+            If ``True``, returns only an ``int``: the count of the records
+            the query would return when set to ``False``. Default is ``False``.
+        query_str_only : bool, optional
+            If ``True``, returns only a ``str``: the query string that
+            would be issued to the TAP service. Default is ``False``.
+        help : bool, optional
+            If ``True``, prints all the parameters accepted in ``column_filters``
+            and ``columns``. Default is ``False``.
+        authenticated : bool, optional
+            If ``True``, runs the query as an authenticated user.
+            Authentication must be done beforehand via
+            :meth:`~astroquery.eso.EsoClass.login`. Authenticated queries may be slower.
+            Default is ``False``.
+        column_filters : dict or None, optional
+            Constraints applied to the query in ADQL syntax,
+            e.g., ``{"exp_start": "between '2024-12-31' and '2025-12-31'"}``.
+            Default is ``None``.
+        open_form : bool, optional
+            **Deprecated** - unused.
+        cache : bool, optional
+            **Deprecated** - unused.
 
-        :param top: When set to ``N``, returns only the top ``N`` records.
-        :type top: int
-
-        :param count_only: If `True`, returns only an `int`: the count of the records
-            the query would return when set to `False`. Default is `False`.
-        :type count_only: bool
-
-        :param query_str_only: If `True`, returns only a `str`: the query string that
-            would be issued to the TAP service. Default is `False`.
-        :type query_str_only: bool
-
-        :param help: If `True`, prints all the parameters accepted in ``column_filters``
-            and ``columns``. Default is `False`.
-        :type help: bool
-
-        :param authenticated: If `True`, runs the query as an authenticated user.
-            Authentication must be done beforehand via :meth:`~astroquery.eso.EsoClass.login`.
-            Note that authenticated queries are slower. Default is `False`.
-        :type authenticated: bool
-
-        :param column_filters: Constraints applied to the query in ADQL syntax,
-            ``{"column_name": "<adql_operator> <value>"}``. For example:
-            ``{"exp_start": "between '2024-12-31' and '2025-12-31'"}``
-            Default is `None`.
-        :type column_filters: dict, `None`
-
-        :param open_form: **Deprecated** - unused.
-        :type open_form: bool
-
-        :param cache: **Deprecated** - unused.
-        :type cache: bool
-
-        :returns:
-            - By default, a `~astropy.table.Table` containing records based on the specified
-              columns and constraints. Returns `None` when the query has no results.
-            - When ``count_only`` is `True`, returns an `int` representing the
+        Returns
+        -------
+        astropy.table.Table, str, int or None
+            - By default, returns an :class:`~astropy.table.Table` containing records
+              based on the specified columns and constraints.
+              Returns ``None`` if the query has no results.
+            - When ``count_only`` is ``True``, returns an ``int`` representing the
               record count for the specified filters.
-            - When ``query_str_only`` is `True`, returns the query string that
+            - When ``query_str_only`` is ``True``, returns the query string that
               would be issued to the TAP service given the specified arguments.
-
-        :rtype: `~astropy.table.Table`, `str`, `int`, or `None`
         """
         _ = open_form, cache  # make explicit that we are aware these arguments are unused
         column_filters = column_filters if column_filters else {}
@@ -629,65 +616,55 @@ class EsoClass(QueryWithLogin):
         """
         Query instrument-specific raw data contained in the ESO archive.
 
-        :param instrument: Name of the instrument from which raw data is to be queried.
+        Parameters
+        ----------
+        instrument : str
+            Name of the instrument from which raw data is to be queried.
             Should be ONLY ONE of the names returned by
             :meth:`~astroquery.eso.EsoClass.list_instruments`.
-        :type instruments: str
-
-        :param cone_ra: Cone Search Center - Right Ascension in degrees.
-        :type ra: float
-
-        :param cone_dec: Cone Search Center - Declination in degrees.
-        :type dec: float
-
-        :param cone_radius: Cone Search Radius in degrees.
-        :type radius: float
-
-        :param columns: Name of the columns the query should return. If specified as a string,
+        cone_ra : float, optional
+            Cone Search Center - Right Ascension in degrees.
+        cone_dec : float, optional
+            Cone Search Center - Declination in degrees.
+        cone_radius : float, optional
+            Cone Search Radius in degrees.
+        columns : str or list of str, optional
+            Name of the columns the query should return. If specified as a string,
             it should be a comma-separated list of column names.
-        :type columns: str or list of str
+        top : int, optional
+            When set to ``N``, returns only the top ``N`` records.
+        count_only : bool, optional
+            If ``True``, returns only an ``int``: the count of the records
+            the query would return when set to ``False``. Default is ``False``.
+        query_str_only : bool, optional
+            If ``True``, returns only a ``str``: the query string that
+            would be issued to the TAP service. Default is ``False``.
+        help : bool, optional
+            If ``True``, prints all the parameters accepted in ``column_filters``
+            and ``columns``. Default is ``False``.
+        authenticated : bool, optional
+            If ``True``, runs the query as an authenticated user.
+            Authentication must be done beforehand via
+            :meth:`~astroquery.eso.EsoClass.login`. Note that authenticated queries are slower.
+            Default is ``False``.
+        column_filters : dict or None, optional
+            Constraints applied to the query in ADQL syntax,
+            e.g., ``{"exp_start": "between '2024-12-31' and '2025-12-31'"}``.
+            Default is ``None``.
+        open_form : bool, optional
+            **Deprecated** - unused.
+        cache : bool, optional
+            **Deprecated** - unused.
 
-        :param top: When set to ``N``, returns only the top ``N`` records.
-        :type top: int
-
-        :param count_only: If `True`, returns only an `int`: the count of the records
-            the query would return when set to `False`. Default is `False`.
-        :type count_only: bool
-
-        :param query_str_only: If `True`, returns only a `str`: the query string that
-            would be issued to the TAP service. Default is `False`.
-        :type query_str_only: bool
-
-        :param help: If `True`, prints all the parameters accepted in ``column_filters``
-            and ``columns``. Default is `False`.
-        :type help: bool
-
-        :param authenticated: If `True`, runs the query as an authenticated user.
-            Authentication must be done beforehand via :meth:`~astroquery.eso.EsoClass.login`.
-            Note that authenticated queries are slower. Default is `False`.
-        :type authenticated: bool
-
-        :param column_filters: Constraints applied to the query in ADQL syntax,
-            ``{"column_name": "<adql_operator> <value>"}``. For example:
-            ``{"exp_start": "between '2024-12-31' and '2025-12-31'"}``
-            Default is `None`.
-        :type column_filters: dict, `None`
-
-        :param open_form: **Deprecated** - unused.
-        :type open_form: bool
-
-        :param cache: **Deprecated** - unused.
-        :type cache: bool
-
-        :returns:
-            - By default, a `~astropy.table.Table` containing records based on the specified
-              columns and constraints. Returns `None` when the query has no results.
-            - When ``count_only`` is `True`, returns an `int` representing the
+        Returns
+        -------
+        astropy.table.Table, str, int, or None
+            - By default, returns an :class:`~astropy.table.Table` containing records
+              based on the specified columns and constraints. Returns ``None`` if no results.
+            - When ``count_only`` is ``True``, returns an ``int`` representing the
               record count for the specified filters.
-            - When ``query_str_only`` is `True`, returns the query string that
+            - When ``query_str_only`` is ``True``, returns the query string that
               would be issued to the TAP service given the specified arguments.
-
-        :rtype: `~astropy.table.Table`, `str`, `int`, or `None`
         """
         _ = open_form, cache  # make explicit that we are aware these arguments are unused
         column_filters = column_filters if column_filters else {}
@@ -1027,58 +1004,50 @@ class EsoClass(QueryWithLogin):
                               ) -> Union[astropy.table.Table, int, str]:
         """
         APEX data are distributed with quicklook products identified with a
-        different name than other ESO products.  This query tool searches by
+        different name than other ESO products. This query tool searches by
         project ID or any other supported keywords.
 
-        :param project_id: ID of the project from which apex quicklooks data is to be queried.
-        :type  project_id: str
-
-        :param columns: Name of the columns the query should return. If specified as a string,
+        Parameters
+        ----------
+        project_id : str
+            ID of the project from which APEX quicklook data is to be queried.
+        columns : str or list of str, optional
+            Name of the columns the query should return. If specified as a string,
             it should be a comma-separated list of column names.
-        :type columns: str or list of str
+        top : int, optional
+            When set to ``N``, returns only the top ``N`` records.
+        count_only : bool, optional
+            If ``True``, returns only an ``int``: the count of the records
+            the query would return when set to ``False``. Default is ``False``.
+        query_str_only : bool, optional
+            If ``True``, returns only a ``str``: the query string that
+            would be issued to the TAP service. Default is ``False``.
+        help : bool, optional
+            If ``True``, prints all the parameters accepted in ``column_filters``
+            and ``columns``. Default is ``False``.
+        authenticated : bool, optional
+            If ``True``, runs the query as an authenticated user.
+            Authentication must be done beforehand via
+            :meth:`~astroquery.eso.EsoClass.login`. Note that authenticated queries
+            are slower. Default is ``False``.
+        column_filters : dict or None, optional
+            Constraints applied to the query in ADQL syntax,
+            e.g., ``{"exp_start": "between '2024-12-31' and '2025-12-31'"}``.
+            Default is ``None``.
+        open_form : bool, optional
+            **Deprecated** - unused.
+        cache : bool, optional
+            **Deprecated** - unused.
 
-        :param top: When set to ``N``, returns only the top ``N`` records.
-        :type top: int
-
-        :param count_only: If `True`, returns only an `int`: the count of the records
-            the query would return when set to `False`. Default is `False`.
-        :type count_only: bool
-
-        :param query_str_only: If `True`, returns only a `str`: the query string that
-            would be issued to the TAP service. Default is `False`.
-        :type query_str_only: bool
-
-        :param help: If `True`, prints all the parameters accepted in ``column_filters``
-            and ``columns``. Default is `False`.
-        :type help: bool
-
-        :param authenticated: If `True`, runs the query as an authenticated user.
-            Authentication must be done beforehand via :meth:`~astroquery.eso.EsoClass.login`.
-            Note that authenticated queries are slower. Default is `False`.
-        :type authenticated: bool
-
-        :param column_filters: Constraints applied to the query in ADQL syntax,
-            ``{"column_name": "<adql_operator> <value>"}``. For example:
-            ``{"exp_start": "between '2024-12-31' and '2025-12-31'"}``
-            Default is `None`.
-        :type column_filters: dict, `None`
-
-        :param open_form: **Deprecated** - unused.
-        :type open_form: bool
-
-        :param cache: **Deprecated** - unused.
-        :type cache: bool
-
-        :returns:
-            - By default, a `~astropy.table.Table` containing records based on the specified
-              columns and constraints. Returns `None` when the query has no results.
-            - When ``count_only`` is `True`, returns an `int` representing the
+        Returns
+        -------
+        astropy.table.Table, str, int, or None
+            - By default, returns an :class:`~astropy.table.Table` containing records
+              based on the specified columns and constraints. Returns ``None`` if no results.
+            - When ``count_only`` is ``True``, returns an ``int`` representing the
               record count for the specified filters.
-            - When ``query_str_only`` is `True`, returns the query string that
+            - When ``query_str_only`` is ``True``, returns the query string that
               would be issued to the TAP service given the specified arguments.
-
-        :rtype: `~astropy.table.Table`, `str`, `int`, or `None`
-
         """
         _ = open_form, cache  # make explicit that we are aware these arguments are unused
         column_filters = column_filters if column_filters else {}
