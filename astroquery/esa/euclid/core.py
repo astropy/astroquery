@@ -8,6 +8,7 @@ European Space Agency (ESA)
 """
 import binascii
 import os
+import pprint
 import tarfile
 import zipfile
 from collections.abc import Iterable
@@ -472,6 +473,10 @@ class EuclidClass(TapPlus):
             file containing user and password in two lines
         verbose : bool, optional, default 'False'
             flag to display information about the process
+
+        Returns
+        -------
+        None
         """
         try:
             log.info(f"Login to Euclid TAP server: {self._TapPlus__getconnhandler().get_host_url()}")
@@ -503,6 +508,10 @@ class EuclidClass(TapPlus):
         ----------
         verbose : bool, optional, default 'False'
             flag to display information about the process
+
+        Returns
+        -------
+        None
         """
         try:
             log.info(f"Login to Euclid TAP server: {self._TapPlus__getconnhandler().get_host_url()}")
@@ -540,6 +549,11 @@ class EuclidClass(TapPlus):
         ----------
         verbose : bool, optional, default 'False'
             flag to display information about the process
+
+        Returns
+        -------
+        None
+
         """
         try:
             super().logout(verbose=verbose)
@@ -779,7 +793,7 @@ class EuclidClass(TapPlus):
 
         Returns
         -------
-        The list of products (astropy.table)
+        The products in an astropy.table.Table
         """
 
         if tile_index is None:
@@ -884,7 +898,7 @@ class EuclidClass(TapPlus):
                 #. NISP
                     DpdNispRawFrame: NISP Raw Frame Product
 
-            #. Euclid LE2/LE3 products:
+            #. Euclid LE2 products:
 
                 #. VIS
                     DpdVisCalibratedQuadFrame: VIS Calibrated Frame Product
@@ -1275,6 +1289,158 @@ class EuclidClass(TapPlus):
         """
 
         return self.__eucliddata.get_datalinks(ids=ids, linking_parameter=linking_parameter, verbose=verbose)
+
+    def get_scientific_product_list(self, *, observation_id=None, tile_index=None, category=None, group=None,
+                                    product_type=None, dataset_release='REGREPROC1_R2', verbose=False):
+        """ Gets the LE3 products (the high-level science data products).
+
+        Please note that not all combinations of category, group, and product_type are valid. Check the available values
+        in https://astroquery.readthedocs.io/en/latest/esa/euclid/euclid.html#appendix
+
+        Parameters
+        ----------
+        observation_id: str, optional, default None.
+            It is not compatible with parameter tile_index.
+        tile_index: str, optional, default None.
+            It is not compatible with parameter observation_id.
+        category: str, optional, default None.
+        group : str, optional, default None
+        product_type : str, optional, default None
+        dataset_release : str, mandatory. Default REGREPROC1_R2
+            Data release from which data should be taken.
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
+
+        Returns
+        -------
+        The products in an astropy.table.Table
+
+        """
+
+        query_extra_condition = ""
+
+        if (observation_id is None and tile_index is None and category is None and group is None and product_type is
+                None):
+            raise ValueError("Include a valid parameter to retrieve a LE3 product.")
+
+        if dataset_release is None:
+            raise ValueError("The release is required.")
+
+        if observation_id is not None and tile_index is not None:
+            raise ValueError(self.__ERROR_MSG_REQUESTED_OBSERVATION_ID_AND_TILE_ID)
+
+        if tile_index is not None:
+            query_extra_condition = f" AND '{tile_index}' = ANY(tile_index_list) "
+
+        if observation_id is not None:
+            query_extra_condition = f" AND '{observation_id}' = ANY(observation_id_list) "
+
+        if category is not None:
+
+            try:
+                _ = conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[category]
+            except KeyError:
+                raise ValueError(
+                    f"Invalid combination of parameters: category={category}. Valid values:\n "
+                    f"{pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
+
+            if group is not None:
+
+                try:
+                    product_type_for_category_group_list = conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[category][
+                        group]
+                except KeyError:
+                    raise ValueError(
+                        f"Invalid combination of parameters: category={category}; group={group}. Valid "
+                        f"values:\n {pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
+
+                if product_type is not None:
+
+                    if product_type not in product_type_for_category_group_list:
+                        raise ValueError(
+                            f"Invalid combination of parameters: category={category}; group={group}; "
+                            f"product_type={product_type}. Valid values:\n "
+                            f"{pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
+
+                    query_extra_condition = query_extra_condition + f" AND product_type ='{product_type}' "
+                else:
+
+                    final_products = ', '.join(f"'{w}'" for w in product_type_for_category_group_list)
+                    query_extra_condition = query_extra_condition + f" AND product_type IN ({final_products}) "
+            else:  # category is not None and group is None
+
+                product_type_for_category_group_list = [item for row in
+                                                        conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[category]
+                                                        .values() for item in row]
+                if product_type is not None:
+
+                    if product_type not in product_type_for_category_group_list:
+                        raise ValueError(
+                            f"Invalid combination of parameters: category={category}; product_type={product_type}."
+                            f" Valid values:\n {pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
+
+                    query_extra_condition = query_extra_condition + f" AND product_type = '{product_type}' "
+
+                else:  # category is not None and group is None and product_type is None
+                    final_products = ', '.join(f"'{w}'" for w in product_type_for_category_group_list)
+                    query_extra_condition = query_extra_condition + f" AND product_type IN ({final_products}) "
+        else:  # category is None
+
+            all_groups_dict = {}
+            for i in conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS.keys():
+                all_groups_dict.update(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[i])
+
+            if group is not None:
+
+                try:
+                    _ = all_groups_dict[group]
+                except KeyError:
+                    raise ValueError(
+                        f"Invalid combination of parameters: group={group}. Valid values:\n "
+                        f"{pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
+
+                if product_type is not None:
+
+                    if product_type not in all_groups_dict[group]:
+                        raise ValueError(
+                            f"Invalid combination of parameters: group={group}; product_type={product_type}. Valid "
+                            f"values:\n {pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
+
+                    query_extra_condition = query_extra_condition + f" AND product_type = '{product_type}' "
+                else:  # group is not None and product_type is None
+
+                    product_type_for_group_list = all_groups_dict[group]
+                    final_products = ', '.join(f"'{w}'" for w in product_type_for_group_list)
+                    query_extra_condition = query_extra_condition + f" AND product_type IN ({final_products}) "
+
+            else:  # category is None and group is None
+
+                product_type_for_category_group_list = [element for sublist in all_groups_dict.values() for element
+                                                        in sublist]
+
+                if product_type is not None:
+                    if product_type not in product_type_for_category_group_list:
+                        raise ValueError(
+                            f"Invalid combination of parameters: product_type={product_type}. Valid values:\n "
+                            f"{pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
+
+                    query_extra_condition = query_extra_condition + f" AND product_type = '{product_type}' "
+
+                else:
+                    query_extra_condition = query_extra_condition + ""
+
+        query = (
+            f"SELECT basic_download_data.basic_download_data_oid, basic_download_data.product_type, "
+            f"basic_download_data.product_id, CAST(basic_download_data.observation_id_list as text) AS "
+            f"observation_id_list, CAST(basic_download_data.tile_index_list as text) AS tile_index_list, "
+            f"CAST(basic_download_data.patch_id_list as text) AS patch_id_list, "
+            f"CAST(basic_download_data.filter_name as text) AS filter_name FROM sedm.basic_download_data WHERE "
+            f"release_name='{dataset_release}' {query_extra_condition} ORDER BY observation_id_list ASC")
+
+        job = super().launch_job(query=query, output_format='votable_plain', verbose=verbose,
+                                 format_with_results_compressed=('votable_gzip',))
+
+        return job.get_results()
 
 
 Euclid = EuclidClass()
