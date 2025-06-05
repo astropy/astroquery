@@ -302,9 +302,12 @@ Enhanced Imaging products in the centre of the COSMOS field as a `~astropy.table
 .. note::
    There are two versions of SIA queries. This IRSA module in astroquery supports the newer,
    version 2. However not all IRSA image collections have been migrated into
-   the newer protocol yet, if you want access to these, please use
-   `PyVO <https://pyvo.readthedocs.io/en/latest/>`_ directly as showcased in these
-   `IRSA tutorials <https://caltech-ipac.github.io/irsa-tutorials/#accessing-irsa-s-on-premises-holdings-using-vo-protocols>`__.
+   the newer protocol yet. If you want access to these, please use
+   `PyVO <https://pyvo.readthedocs.io/en/latest/>`_ directly as showcased in the
+   `IRSA tutorials
+   <https://caltech-ipac.github.io/irsa-tutorials/#accessing-irsa-s-on-premises-holdings-using-vo-protocols>`__.
+
+   For more info, visit the `IRSA documentation <https://irsa.ipac.caltech.edu/ibe/sia_v1.html>`__
 
 .. doctest-remote-data::
 
