@@ -94,6 +94,8 @@ mast
 - Added ``verbose`` parameter to ``Observations.get_cloud_uris`` to control whether warnings are logged when a product cannot
   be found in the cloud. [#3314]
 
+- Improved ``MastMissions`` queries to accept lists for query critieria values, in addition to comma-delimited strings. [#3319]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
