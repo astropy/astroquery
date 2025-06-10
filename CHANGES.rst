@@ -34,6 +34,7 @@ gaia
 ^^^^
 
 - New method cross_match_basic that simplifies the positional x-match method [#3320]
+- new DR4 datalink retrieve type MEAN_SPECTRUM_RVS [#3342]
 
 linelists.cdms
 ^^^^^^^^^^^^^^
