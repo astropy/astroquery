@@ -29,6 +29,7 @@ class Conf(_config.ConfigNamespace):
                                       'XP_CONTINUOUS',
                                       'XP_SAMPLED',
                                       'RVS',
+                                      'MEAN_SPECTRUM_RVS',
                                       'MCMC_GSPPHOT',
                                       'MCMC_MSC',
                                       'EPOCH_ASTROMETRY',
