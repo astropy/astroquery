@@ -922,15 +922,13 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
         the status of eHST TAP
         """
 
-        try:
-            esautils.execute_servlet_request(
-                url=conf.EHST_TAP_SERVER + "/" + conf.EHST_MESSAGES,
-                tap=self.tap,
-                query_params={},
-                parser_method=self.parse_messages_response
-            )
-        except OSError:
-            print("Status messages could not be retrieved")
+        subContext = conf.EHST_MESSAGES
+        connHandler = self._tap._TapPlus__getconnhandler()
+        response = connHandler.execute_tapget(subContext, verbose=False)
+        if response.status == 200:
+            for line in response:
+                string_message = line.decode("utf-8")
+                print(string_message[string_message.index('=') + 1:])
 
     def parse_messages_response(self, response):
         string_messages = []
@@ -1051,5 +1049,8 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
         return full_path
 
 
+<<<<<<< HEAD
 # Need to be False in order to avoid reaching out to the remote server at import time
+=======
+>>>>>>> d99705881... remove try/except clauses in more show messages, and set show_messages to false by default at import time
 ESAHubble = ESAHubbleClass(show_messages=False)
