@@ -111,7 +111,6 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
                 AstropyDeprecationWarning)
 
         params = {"OBSERVATIONID": observation_id,
-                  "TAPCLIENT": "ASTROQUERY",
                   "RETRIEVAL_TYPE": "OBSERVATION"}
 
         if filename is None:
@@ -432,7 +431,7 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
         None. The file is associated
         """
 
-        params = {"RETRIEVAL_TYPE": "PRODUCT", "ARTIFACTID": file, "TAPCLIENT": "ASTROQUERY"}
+        params = {"RETRIEVAL_TYPE": "PRODUCT", "ARTIFACTID": file}
         if filename is None:
             filename = file
         output_file = self.__get_download_path(folder, filename)
@@ -472,8 +471,7 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
 
         params = {"RETRIEVAL_TYPE": "OBSERVATION",
                   "OBSERVATIONID": observation_id,
-                  "PRODUCTTYPE": "PREVIEW",
-                  "TAPCLIENT": "ASTROQUERY"}
+                  "PRODUCTTYPE": "PREVIEW"}
         if calibration_level:
             params["CALIBRATIONLEVEL"] = calibration_level
 
@@ -684,8 +682,7 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
         try:
             params = {"TARGET_NAME": target,
                       "RESOLVER_TYPE": "ALL",
-                      "FORMAT": "json",
-                      "TAPCLIENT": "ASTROQUERY"}
+                      "FORMAT": "json"}
 
             target_response = esautils.execute_servlet_request(tap=self.vo,query_params=params, url=conf.EHST_DOMAIN_SERVER + conf.EHST_TARGET_ACTION)
             if target_response:
