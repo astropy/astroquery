@@ -1012,8 +1012,5 @@ class ESAHubbleClass(EsaTap):
         return f"{datalabs_path}hub_{path_parsed}/{filename}"
 
 
-<<<<<<< HEAD
 # Need to be False in order to avoid reaching out to the remote server at import time
-=======
->>>>>>> d99705881... remove try/except clauses in more show messages, and set show_messages to false by default at import time
 ESAHubble = ESAHubbleClass(show_messages=False)
