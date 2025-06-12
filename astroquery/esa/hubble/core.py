@@ -1049,8 +1049,5 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
         return full_path
 
 
-<<<<<<< HEAD
 # Need to be False in order to avoid reaching out to the remote server at import time
-=======
->>>>>>> d99705881... remove try/except clauses in more show messages, and set show_messages to false by default at import time
 ESAHubble = ESAHubbleClass(show_messages=False)

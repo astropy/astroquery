@@ -55,7 +55,7 @@ class GaiaClass(TapPlus):
                  gaia_data_server='https://gea.esac.esa.int/',
                  tap_server_context="tap-server",
                  data_server_context="data-server",
-                 verbose=False, show_server_messages=False):
+                 verbose=False, show_server_messages=True):
         super(GaiaClass, self).__init__(url=gaia_tap_server,
                                         server_context=tap_server_context,
                                         tap_context="tap",
@@ -1183,4 +1183,4 @@ class GaiaClass(TapPlus):
                         print("Archive down for maintenance")
 
 
-Gaia = GaiaClass()
+Gaia = GaiaClass(show_server_messages=False)
