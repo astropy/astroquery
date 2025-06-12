@@ -19,19 +19,21 @@ from astropy.coordinates import Angle
 from numpy.ma import MaskedArray
 
 from astroquery.utils.tap import TapPlus
-from astroquery.query import BaseQuery
+from astroquery.query import BaseQuery, BaseVOQuery
 import json
 import warnings
+import pyvo
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from astropy.utils.decorators import deprecated
 
 from . import conf
+import time
 from astroquery import log
 
 __all__ = ['ESAHubble', 'ESAHubbleClass']
 
 
-class ESAHubbleClass(BaseQuery):
+class ESAHubbleClass(BaseVOQuery, BaseQuery):
     """
     Class to init ESA Hubble Module and communicate with eHST TAP
     """
@@ -41,14 +43,28 @@ class ESAHubbleClass(BaseQuery):
     product_types = ["SCIENCE", "PREVIEW", "THUMBNAIL", "AUXILIARY"]
     copying_string = "Copying file to {0}..."
 
-    def __init__(self, *, tap_handler=None, show_messages=True):
-        if tap_handler is None:
-            self._tap = TapPlus(url=conf.EHST_TAP_SERVER,
-                                data_context='data', client_id="ASTROQUERY")
+    def __init__(self, *, show_messages=True, auth_session=None):
+        super().__init__()
+
+        self._vo = None
+        # Checks if auth session has been defined. If not, create a new session
+        if auth_session:
+            self._auth_session = auth_session
         else:
-            self._tap = tap_handler
+            self._auth_session = esautils.ESAAuthSession()
+            self._auth_session.add_security_method_for_url(url=conf.EHST_TAP_SERVER,security_method="anonymous")
+            self._auth_session.add_security_method_for_url(url=conf.EHST_TABLES_SERVER,security_method="anonymous",exact=True)
+
         if show_messages:
             self.get_status_messages()
+
+    @property
+    def vo(self) -> pyvo.dal.TAPService:
+        if self._vo is None:
+            self._vo = pyvo.dal.TAPService(
+                conf.EHST_TAP_SERVER, session=self._auth_session)
+
+        return self._vo
 
     def download_product(self, observation_id, *, calibration_level=None,
                          filename=None, folder=None, verbose=False, product_type=None):
@@ -112,8 +128,7 @@ class ESAHubbleClass(BaseQuery):
 
         filename = self._get_product_filename(product_type, filename)
         output_file = self.__get_download_path(folder, filename)
-        self._tap.load_data(params_dict=params, output_file=output_file, verbose=verbose)
-
+        esautils.download_file(url=conf.EHST_DATA_SERVER, session=self.vo._session, params=params, verbose=verbose, filename=output_file)
         return esautils.check_rename_to_gz(filename=output_file)
 
     def __get_download_path(self, folder, filename):
@@ -421,8 +436,7 @@ class ESAHubbleClass(BaseQuery):
         if filename is None:
             filename = file
         output_file = self.__get_download_path(folder, filename)
-        self._tap.load_data(params_dict=params, output_file=output_file, verbose=verbose)
-
+        esautils.download_file(url=conf.EHST_DATA_SERVER, session=self.vo._session, params=params, verbose=verbose, filename=output_file)
         return esautils.check_rename_to_gz(filename=output_file)
 
     def get_postcard(self, observation_id, *, calibration_level="RAW",
@@ -469,8 +483,8 @@ class ESAHubbleClass(BaseQuery):
         if filename is None:
             filename = observation_id
 
-        self._tap.load_data(params_dict=params, output_file=filename, verbose=verbose)
-
+        esautils.download_file(url=conf.EHST_DATA_SERVER, session=self.vo._session, params=params, verbose=verbose,
+                               filename=filename)
         return filename
 
     def __get_product_type_by_resolution(self, resolution):
@@ -673,15 +687,11 @@ class ESAHubbleClass(BaseQuery):
                       "FORMAT": "json",
                       "TAPCLIENT": "ASTROQUERY"}
 
-            subContext = conf.EHST_TARGET_ACTION
-            connHandler = self._tap._TapPlus__getconnhandler()
-            data = urlencode(params)
-            target_response = connHandler.execute_secure(subContext, data, verbose=True)
-            for line in target_response:
-                target_result = json.loads(line.decode("utf-8"))
-                if target_result['objects']:
-                    ra = target_result['objects'][0]['raDegrees']
-                    dec = target_result['objects'][0]['decDegrees']
+            target_response = esautils.execute_servlet_request(tap=self.vo,query_params=params, url=conf.EHST_DOMAIN_SERVER + conf.EHST_TARGET_ACTION)
+            if target_response:
+                if target_response['objects']:
+                    ra = target_response['objects'][0]['raDegrees']
+                    dec = target_response['objects'][0]['decDegrees']
             return SkyCoord(ra=ra, dec=dec, unit="deg")
         except (ValueError, KeyError):
             raise ValueError("This target cannot be resolved")
@@ -747,18 +757,18 @@ class ESAHubbleClass(BaseQuery):
                 A table object
                 """
         if async_job:
-            job = self._tap.launch_job_async(query=query,
-                                             output_file=output_file,
-                                             output_format=output_format,
-                                             verbose=verbose,
-                                             dump_to_file=output_file is not None)
+            job = self.vo.submit_job(query)
+            job.run()
+            while job.phase == 'EXECUTING':
+                time.sleep(3)
+            result = job.fetch_result().to_table()
         else:
-            job = self._tap.launch_job(query=query, output_file=output_file,
-                                       output_format=output_format,
-                                       verbose=verbose,
-                                       dump_to_file=output_file is not None)
-        table = job.get_results()
-        return table
+            result = self.vo.search(query).to_table()
+
+        if output_file:
+            esautils.download_table(result, output_file, output_format)
+
+        return result
 
     @deprecated(since="0.4.7", alternative="query_tap")
     def query_hst_tap(self, query, *, async_job=False, output_file=None,
@@ -923,17 +933,11 @@ class ESAHubbleClass(BaseQuery):
         -------
         A list of tables
         """
-
-        tables = self._tap.load_tables(only_names=only_names,
-                                       include_shared_tables=False,
-                                       verbose=verbose)
-        if only_names is True:
-            table_names = []
-            for t in tables:
-                table_names.append(t.name)
-            return table_names
+        tables = self.vo.tables
+        if only_names:
+            return list(tables.keys())
         else:
-            return tables
+            return list(tables.values())
 
     def get_status_messages(self):
         """Retrieve the messages to inform users about
@@ -941,15 +945,17 @@ class ESAHubbleClass(BaseQuery):
         """
 
         try:
-            subContext = conf.EHST_MESSAGES
-            connHandler = self._tap._TapPlus__getconnhandler()
-            response = connHandler.execute_tapget(subContext, verbose=False)
-            if response.status == 200:
-                for line in response:
-                    string_message = line.decode("utf-8")
-                    print(string_message[string_message.index('=') + 1:])
+            esautils.execute_servlet_request(url=conf.EHST_TAP_SERVER + "/" + conf.EHST_MESSAGES, tap=self.vo, query_params={}, parserMethod=self.parse_messages_response)
         except OSError:
             print("Status messages could not be retrieved")
+
+    def parse_messages_response(self, response):
+        string_messages=[]
+        for line in response:
+            string_message = line.decode("utf-8")
+            string_messages.append(string_message[string_message.index('=') + 1:])
+            print(string_messages[len(string_messages)-1])
+        return string_messages
 
     def get_columns(self, table_name, *, only_names=True, verbose=False):
         """Get the available columns for a table in EHST TAP service
@@ -968,9 +974,7 @@ class ESAHubbleClass(BaseQuery):
         A list of columns
         """
 
-        tables = self._tap.load_tables(only_names=False,
-                                       include_shared_tables=False,
-                                       verbose=verbose)
+        tables = self.get_tables(only_names=False)
         columns = None
         for t in tables:
             if str(t.name) == str(table_name):
@@ -1061,4 +1065,5 @@ class ESAHubbleClass(BaseQuery):
         return full_path
 
 
-ESAHubble = ESAHubbleClass()
+# Neet to be false in order to avoid errors in tests
+ESAHubble = ESAHubbleClass(show_messages=False)
