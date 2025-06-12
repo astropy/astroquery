@@ -108,6 +108,12 @@ query.py
   Some corner cases where downloads were not properly continued have been
   fixed. [#3232]
 
+skyview
+^^^^^^^
+
+- Changed SkyView URL to https. [#3346]
+
+
 utils
 ^^^^^
 
