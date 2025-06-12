@@ -37,49 +37,6 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-def get_mockreturn(method, request, url, params, *args, **kwargs):
-    file = 'm31.vot'
-    if 'OBSERVATION_ID' in params:
-        file = params['OBSERVATION_ID'] + ".vot"
-    response = data_path(file)
-    shutil.copy(response + '.test', response)
-    return response
-
-
-@pytest.fixture(autouse=True)
-def ehst_request(request):
-    try:
-        mp = request.getfixturevalue("monkeypatch")
-    except AttributeError:
-        mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(ESAHubbleClass, '_request', get_mockreturn)
-    return mp
-
-
-def get_cone_mockreturn(params, *args, **kwargs):
-    file = data_path('cone_search_m31_5.vot')
-    if 'OBSERVATION_ID' in kwargs:
-        file = kwargs['OBSERVATION_ID'] + ".vot"
-    response = data_path(file)
-    shutil.copy(response + '.test', response)
-    return response
-
-
-# @pytest.fixture(autouse=True)
-# def ehst_cone_search(request):
-#     mp = request.getfixturevalue("monkeypatch")
-#     mp.setattr(ESAHubbleClass, 'cone_search', get_cone_mockreturn)
-#     return mp
-
-
-class MockResponse:
-    observation_id = 'test'
-
-    @staticmethod
-    def pformat():
-        return True
-
-
 class FakeHTTPResponse:
     def __init__(self, data):
         self._data = data
@@ -189,7 +146,7 @@ class TestESAHubble:
         args, kwargs = download_mock.call_args
         assert kwargs["params"]["PRODUCTTYPE"] == 'THUMBNAIL'
         assert download_mock.call_count == 1
-        assert result == path
+        assert result == path.__str__()
 
         result = ehst.get_postcard(
             observation_id=observation_id,
@@ -198,7 +155,7 @@ class TestESAHubble:
         args, kwargs = download_mock.call_args
         assert kwargs["params"]["PRODUCTTYPE"] == 'PREVIEW'
         assert download_mock.call_count == 2
-        assert result == path
+        assert result == path.__str__()
 
     @patch.object(ESAHubbleClass, 'cone_search')
     @patch.object(ESAHubbleClass, '_query_tap_target')
@@ -361,13 +318,10 @@ class TestESAHubble:
 
     def test_is_gz(self, tmp_path):
         ESAHubbleClass(show_messages=False)
-        # test_file = data_path('m31.vot.test')
         temp_file = 'testgz'
         target_file = os.path.join(tmp_path, temp_file)
         with gzip.open(target_file, 'wb') as f:
             f.write(b'')
-        # with open(test_file, 'rb') as f_in, gzip.open(target_file, 'wb') as f_out:
-        #     f_out.writelines(f_in)
         assert esautils.check_rename_to_gz(target_file) in f"{target_file}.fits.gz"
 
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
