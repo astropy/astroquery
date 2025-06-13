@@ -17,7 +17,7 @@ class Conf(_config.ConfigNamespace):
 
     # server settings
     ephemcc_server = _config.ConfigItem(
-        'http://vo.imcce.fr/webservices/miriade/ephemcc_query.php',
+        'https://ssp.imcce.fr/webservices/miriade/api/ephemcc.php',
         'IMCCE/Miriade.ephemcc base server')
     skybot_server = _config.ConfigItem(
         ['https://ssp.imcce.fr/webservices/skybot/api/conesearch.php'],
