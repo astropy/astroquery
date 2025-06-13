@@ -304,7 +304,7 @@ class IrsaClass(BaseVOQuery):
         return response.to_table()
 
     @deprecated_renamed_argument("cache", None, since="0.4.7")
-    def list_catalogs(self, *, full=False, filter=None, cache=False):
+    def list_catalogs(self, *, full=False, filter=None, include_metadata_tables=False, cache=False):
         """
         Return information of available IRSA catalogs.
 
@@ -316,8 +316,19 @@ class IrsaClass(BaseVOQuery):
         filter : str or None
             If specified we only return catalogs when their catalog_name
             contains the filter string.
+        include_metadata_tables : bool
+            If True returns not just the catalogs but all table holdings including the image metadata tables.
+            These are not suitable for spatial queries with e.g. ``query_region``.
         """
-        tap_tables = self.query_tap("SELECT * FROM TAP_SCHEMA.tables").to_table()
+
+        if include_metadata_tables:
+            more_filtering = ""
+        else:
+            # Filter out non-spatial catalogs and metadata tables with
+            # irsa_pos=y and irsa_dbms=21
+            more_filtering = "WHERE irsa_dbms=21 AND irsa_pos='y'"
+
+        tap_tables = self.query_tap(f"SELECT * FROM TAP_SCHEMA.tables {more_filtering}").to_table()
 
         if filter:
             mask = [filter in name for name in tap_tables['table_name']]

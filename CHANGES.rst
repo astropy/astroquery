@@ -57,6 +57,14 @@ imcce
 - Changing RuntimeError to NoResultsWarning when an empty result is
   returned. [#3307]
 
+ipac.irsa
+^^^^^^^^^
+
+- Fix ``list_catalogs`` to not include image metadata tables, only
+  catalogs. The ``include_metadata_tables`` keyword argument allows opting
+  in to return all TAP tables, including non-spatial and metadata ones,
+  too. [#3334]
+
 SIMBAD
 ^^^^^^
 

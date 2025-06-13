@@ -234,14 +234,15 @@ available about the columns in a `~astropy.table.Table`.
 .. doctest-remote-data::
 
     >>> from astroquery.ipac.irsa import Irsa
-    >>> Irsa.list_columns(catalog="allwise_p3as_psd")
-    {'designation': 'WISE source designation',
+    >>> Irsa.list_columns(catalog="allwise_p3as_psd")  # doctest: +IGNORE_OUTPUT
+    {...
+     'designation': 'WISE source designation',
      'ra': 'right ascension (J2000)',
      'dec': 'declination (J2000)',
      'sigra': 'uncertainty in RA',
      'sigdec': 'uncertainty in DEC',
      ...
-     'htm20': 'HTM20 spatial index key'}
+     }
 
 
 Async queries
@@ -410,8 +411,9 @@ Spitzer.
 
    >>> from astropy.table import unique
    >>> unique(arp220_spectra, keys='dataid_collection')['dataid_collection']
-   <MaskedColumn name='dataid_collection' dtype='object' description='IVOA Identifier of collection' length=4>
+   <MaskedColumn name='dataid_collection' dtype='object' description='IVOA Identifier of collection' length=5>
             goals
+   herschel_herus
      sofia_fifils
    spitzer_irsenh
       spitzer_sha
@@ -425,7 +427,7 @@ will return a `~astropy.table.Table`.
 
    >>> from astroquery.ipac.irsa import Irsa
    >>> Irsa.list_collections(servicetype='SSA')
-   <Table length=35>
+   <Table length=37>
           collection
             object
    ------------------------
@@ -447,6 +449,7 @@ will return a `~astropy.table.Table`.
                        irts
                     iso_sws
                  sofia_exes
+             sofia_exes_enh
                sofia_fifils
              sofia_flitecam
               sofia_forcast
@@ -464,6 +467,7 @@ will return a `~astropy.table.Table`.
                 spitzer_sha
               spitzer_sings
               spitzer_ssgss
+                       swas
 
 
 Other Configurations
