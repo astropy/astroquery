@@ -175,7 +175,7 @@ def download_table(astropy_table, output_file=None, output_format=None):
     astropy_table.write(output_file, format=output_format, overwrite=True)
 
 
-def execute_servlet_request(url, tap, *, query_params=None):
+def execute_servlet_request(url, tap, *, query_params=None, parserMethod=None):
     """
     Method to execute requests to the servlets on a server
 
@@ -199,7 +199,10 @@ def execute_servlet_request(url, tap, *, query_params=None):
     # Use the TAPService session to perform a custom GET request
     response = tap._session.get(url=url, params=query_params)
     if response.status_code == 200:
-        return response.json()
+        if parserMethod is None:
+            return response.json()
+        else:
+            return parserMethod(response)
     else:
         response.raise_for_status()
 
