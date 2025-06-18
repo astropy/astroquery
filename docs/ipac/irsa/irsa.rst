@@ -4,7 +4,7 @@
 IRSA Queries (`astroquery.ipac.irsa`)
 *************************************
 
-Getting started
+Getting Started
 ===============
 
 This module provides access to the public astrophysics catalogs,
@@ -16,7 +16,7 @@ ZTF.
 Below we provide examples of common searches.
 
 
-Catalog search
+Catalog Search
 --------------
 
 Available IRSA catalogs
@@ -201,8 +201,8 @@ with the ``spatial`` parameter set to ``"All-Sky"``.
 .. TODO: add example, that is runnable, but still potentially useful.
 
 
-Selecting Columns
------------------
+Selecting columns
+^^^^^^^^^^^^^^^^^
 
 The IRSA service allows to query either a subset of the default columns for
 a given table, or additional columns that are not present by default. This
@@ -246,7 +246,7 @@ available about the columns in a `~astropy.table.Table`.
 
 
 Async queries
---------------
+^^^^^^^^^^^^^
 
 For bigger queries it is recommended using the ``async_job`` keyword option. When used,
 the query is send in asynchronous mode.
@@ -262,7 +262,7 @@ the query is send in asynchronous mode.
     J000009.78-355736.9 0.0407905 -35.9602605 0.0454 ... 0.0005762523295116 -0.5872239888098030 100102010 8873706189183
 
 Direct TAP query to the IRSA server
------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The `~astroquery.ipac.irsa.IrsaClass.query_tap` method allows for a rich variety of queries. ADQL queries
 provided via the ``query`` parameter is sent directly to the IRSA TAP server, and the result is
@@ -293,8 +293,17 @@ returned as a `~pyvo.dal.TAPResults` object. Its ``to_table`` or ``to_qtable`` m
     202.809023 46.964558  15.874     0.081 ...  15.322     0.188     AAC    000
 
 
+Image Search
+------------
+
+The `~astroquery.ipac.irsa` module provides an interface to image searches as well.
+This is primarily based on performing IVOA Simple Image Access, version 2 (SIAv2)
+queries against the IRSA services.
+An auxiliary interface is provided to allow users to identify subsets -- "collections" --
+of the available image data, typically associated with individual missions.
+
 Simple image access queries
----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 `~astroquery.ipac.irsa.IrsaClass.query_sia` provides a way to access IRSA's Simple
 Image Access VO service. In the following example we are looking for Spitzer
@@ -308,7 +317,7 @@ Enhanced Imaging products in the centre of the COSMOS field as a `~astropy.table
    `IRSA tutorials
    <https://caltech-ipac.github.io/irsa-tutorials/#accessing-irsa-s-on-premises-holdings-using-vo-protocols>`__.
 
-   For more info, visit the `IRSA documentation <https://irsa.ipac.caltech.edu/ibe/sia_v1.html>`__
+   For more info, visit the `IRSA documentation <https://irsa.ipac.caltech.edu/ibe/sia_v1.html>`__.
 
 .. doctest-remote-data::
 
@@ -319,35 +328,17 @@ Enhanced Imaging products in the centre of the COSMOS field as a `~astropy.table
    >>> coord = SkyCoord('150.01d 2.2d', frame='icrs')
    >>> spitzer_images = Irsa.query_sia(pos=(coord, 1 * u.arcmin), collection='spitzer_seip')
 
-To list available collections for SIA queries, the
-`~astroquery.ipac.irsa.IrsaClass.list_collections` method is provided, and
-will return a `~astropy.table.Table`. You can use the ``servicetype``
-argument to filter for image or spectral collections using ``'SIA'`` or
-``'SSA'`` respectively. You can also use the ``filter`` argument to show
-only the collections with the given filter strings in the collection names.
+The collection name, ``spitzer_seip`` in this example,
+can be obtained from the collection-query API detailed below.
 
-.. doctest-remote-data::
+The result, in this case in ``spitzer_images``, is a table of image metadata in the IVOA "ObsCore" format
+(see the `ObsCore v1.1 documentation
+<https://www.ivoa.net/documents/ObsCore/20170509/index.html>`__).
 
-   >>> from astroquery.ipac.irsa import Irsa
-   >>> Irsa.list_collections(servicetype='SIA', filter='spitzer')
-   <Table length=38>
-        collection
-          object
-   -------------------
-     spitzer_abell1763
-         spitzer_clash
-   spitzer_cosmic_dawn
-          spitzer_cygx
-     spitzer_deepdrill
-                   ...
-         spitzer_spuds
-       spitzer_srelics
-          spitzer_ssdf
-         spitzer_swire
-        spitzer_taurus
-
-Now open a cutout image for one of the science images. You could either use
-the the IRSA on-premise data or the cloud version of it using the
+Now you can open the FITS image and, if desired, make a cutout from
+one of the science images.
+You could either use
+the the IRSA on-premises data or the cloud version of it using the
 ``access_url`` or ``cloud_access`` columns. For more info about fits
 cutouts, please visit :ref:`astropy:fits_io_cloud`.
 
@@ -360,7 +351,7 @@ cutouts, please visit :ref:`astropy:fits_io_cloud`.
    >>> with fits.open(science_image['access_url'], use_fsspec=True) as hdul:
    ...     cutout = Cutout2D(hdul[0].section, position=coord, size=2 * u.arcmin, wcs=WCS(hdul[0].header))
 
-Now plot the cutout.
+Now you can plot the cutout.
 
 .. doctest-skip::
 
@@ -386,8 +377,39 @@ Now plot the cutout.
    plt.imshow(cutout.data, cmap='grey')
    plt.show()
 
+Collection queries
+^^^^^^^^^^^^^^^^^^
 
-Simple spectral access queries
+To list available collections for SIA queries, the
+`~astroquery.ipac.irsa.IrsaClass.list_collections` method is provided, and
+will return a `~astropy.table.Table`.
+You can use the ``filter`` argument to show
+only collections with a given search string in the collection names.
+The ``servicetype`` argument is used to filter for image collections, using ``'SIA'``,
+or spectral collections (also see below), using ``'SSA'``.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.ipac.irsa import Irsa
+   >>> Irsa.list_collections(servicetype='SIA', filter='spitzer')
+   <Table length=38>
+        collection
+          object
+   -------------------
+     spitzer_abell1763
+         spitzer_clash
+   spitzer_cosmic_dawn
+          spitzer_cygx
+     spitzer_deepdrill
+                   ...
+         spitzer_spuds
+       spitzer_srelics
+          spitzer_ssdf
+         spitzer_swire
+        spitzer_taurus
+
+
+Simple Spectral Access Queries
 ------------------------------
 
 `~astroquery.ipac.irsa.IrsaClass.query_ssa` provides a way to access IRSA's Simple
