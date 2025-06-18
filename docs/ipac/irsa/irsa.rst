@@ -409,7 +409,7 @@ or spectral collections (also see below), using ``'SSA'``.
         spitzer_taurus
 
 
-Simple spectral access queries
+Simple Spectral Access Queries
 ------------------------------
 
 `~astroquery.ipac.irsa.IrsaClass.query_ssa` provides a way to access IRSA's Simple
