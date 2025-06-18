@@ -331,7 +331,7 @@ Enhanced Imaging products in the centre of the COSMOS field as a `~astropy.table
 The collection name, ``spitzer_seip`` in this example,
 can be obtained from the collection-query API detailed below.
 
-The result, in this case in `spitzer_images`, is a table of image metadata in the IVOA "ObsCore" format
+The result, in this case in ``spitzer_images``, is a table of image metadata in the IVOA "ObsCore" format
 (see the `ObsCore v1.1 documentation
 <https://www.ivoa.net/documents/ObsCore/20170509/index.html>`__).
 
