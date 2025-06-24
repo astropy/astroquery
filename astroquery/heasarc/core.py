@@ -6,10 +6,11 @@ import requests
 import tarfile
 import warnings
 import numpy as np
-from astropy.table import Table, Row
+from astropy.table import Table, Row, vstack
 from astropy import coordinates
 from astropy import units as u
 from astropy.utils.decorators import deprecated, deprecated_renamed_argument
+from pathlib import Path
 
 import pyvo
 
@@ -517,13 +518,35 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         # datalink url
         dlink_url = f'{self.VO_URL}/datalink/{catalog_name}'
+        def query_func(query_chunk):
+                return pyvo.dal.adhoc.DatalinkQuery(
+                    baseurl=dlink_url,
+                    id=query_chunk['__row'],
+                    session=self._session
+                )
 
-        query = pyvo.dal.adhoc.DatalinkQuery(
-            baseurl=dlink_url,
-            id=query_result['__row'],
-            session=self._session
-        )
-        dl_result = query.execute().to_table()
+        # Standard URL limit of ~2000 characters for GET
+        # With query formula https://[urlbase]?ID=###, could get 100 16 digit IDs 
+        URI_MAX = 100
+        if len(query_result) > URI_MAX:
+            # execute a set amount at a time
+            chunks = len(query_result) % URI_MAX
+            for chunk in range(chunks):
+                query_chunk = query_result[URI_MAX*chunk: URI_MAX*chunk+URI_MAX]
+                query = query_func(query_chunk)
+                dl_result_chunk = query.execute().to_table()
+                if chunk == 0:
+                    dl_result = dl_result_chunk
+                else:
+                    dl_result = vstack([dl_result, dl_result_chunk])
+            query_chunk = query_result[URI_MAX*chunk+URI_MAX:]
+            query = query_func(query_chunk)
+            dl_result_chunk = query.execute().to_table()
+            dl_result = vstack([dl_result, dl_result_chunk])
+        else:
+            query = query_func(query_result)
+            dl_result = query.execute().to_table()
+
         # include rows that have directory links (i.e. data) and those
         # that report errors (usually means there are no data products)
         dl_result = dl_result[np.ma.mask_or(
