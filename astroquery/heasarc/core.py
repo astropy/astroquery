@@ -6,11 +6,10 @@ import requests
 import tarfile
 import warnings
 import numpy as np
-from astropy.table import Table, Row, vstack
+from astropy.table import Table, Row
 from astropy import coordinates
 from astropy import units as u
 from astropy.utils.decorators import deprecated, deprecated_renamed_argument
-from pathlib import Path
 
 import pyvo
 
@@ -522,13 +521,13 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             baseurl=dlink_url,
             id=query_result['__row'],
             session=self._session
-            )
+        )
 
         dl_result = pyvo.dal.DALResults(
             query.execute_votable(post=True),
             url=query.queryurl,
             session=query._session
-            ).to_table()
+        ).to_table()
 
         # include rows that have directory links (i.e. data) and those
         # that report errors (usually means there are no data products)
