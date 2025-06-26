@@ -25,7 +25,7 @@ class TestNOIRLabClass(object):
         """Test compliance with 6.1 of SIA spec v1.0"""
         r = NOIRLab.service_metadata()
         actual = r
-        print(f'DBG: test_service_metadata={actual}')
+        # print(f'DBG: test_service_metadata={actual}')
         expected = exp.service_metadata
         assert actual == expected
 
@@ -183,7 +183,7 @@ class TestNOIRLabClass(object):
 
     def test_version(self):
         r = NOIRLab.version()
-        assert r < 3.0
+        assert r >= 6.0
 
     def test_get_token(self):
         actual = NOIRLab.get_token('nobody@university.edu', '123456789')

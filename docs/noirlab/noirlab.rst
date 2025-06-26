@@ -56,20 +56,20 @@ you can reduce your download time considerably by getting only
 matching HDUs.
 
 The results are returned in a `~astropy.table.Table`. The service
-can be queried using the :meth:`~astroquery.noirlab.NoirlabClass.query_region`. The
+can be queried using the :meth:`~astroquery.noirlab.NOIRLabClass.query_region`. The
 only required argument to this is the target coordinates around which
 to query.  Specify the coordinates using the appropriate coordinate system from
 `astropy.coordinates`. Here is a basic example:
 
 .. code-block:: python
 
-    >>> from astroquery.noirlab import Noirlab
+    >>> from astroquery.noirlab import NOIRLab
     >>> import astropy.coordinates as coord
     >>> from astropy import units as u
     >>> from astropy.coordinates import SkyCoord
     >>> coord = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
 
-    >>> noirlab_file = Noirlab(which='file')
+    >>> noirlab_file = NOIRLab(which='file')
     >>> results_file = noirlab_file.query_region(coord, radius='0.1')
     >>> print(results_file)
                                 archive_filename                             date_obs  ...             updated
@@ -90,7 +90,8 @@ This is an example of searching by HDU.
 
 .. code-block:: python
 
-    >>> noirlab_hdu = Noirlab(which='hdu')
+    >>> from astroquery.noirlab import NOIRLabClass
+    >>> noirlab_hdu = NOIRLabClass(which='hdu')
     >>> results_hdu = noirlab_hdu.query_region(coord, radius='0.1')
     >>> print(results_hdu)
                                     archive_filename                                  caldat    date_obs  ...    ra    telescope
