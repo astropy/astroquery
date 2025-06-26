@@ -1,7 +1,7 @@
-from astropy import config as _config
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-"""NSF's OIR Lab Astro Data Archive (Beta)
-------------------------------------------
+"""
+NSF NOIRLab Astro Data Archive
+------------------------------
 
 The NSF's OIR Lab Astro Data Archive (formerly NOAO Science Archive)
 provides access to data taken with more than 40 telescope and
@@ -55,6 +55,7 @@ Universities for Research in Astronomy (AURA), Inc. under a
 cooperative agreement with the National Science Foundation.
 
 """
+from astropy import config as _config
 
 
 class Conf(_config.ConfigNamespace):
@@ -62,23 +63,19 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.noirlab`.
     """
     server = _config.ConfigItem(
-        ['https://astroarchive.noao.edu',
+        ['https://astroarchive.noirlab.edu',
          ],
-        'Name of the NOIRLAB server to use.'
+        'Name of the NSF NOIRLab server to use.'
         )
     timeout = _config.ConfigItem(
         30,
-        'Time limit for connecting to NOIRLAB server.'
+        'Time limit for connecting to NSF NOIRLab server.'
         )
 
 
 conf = Conf()
 
-from .core import Noirlab, NoirlabClass  # noqa
+from .core import NOIRLab, NOIRLabClass  # noqa
 
-
-__all__ = ['Noirlab', 'NoirlabClass',
+__all__ = ['NOIRLab', 'NOIRLabClass',
            'conf', 'Conf']
-
-
-# noqa

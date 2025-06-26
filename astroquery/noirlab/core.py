@@ -1,5 +1,5 @@
 """
-Provide astroquery API access to OIR Lab Astro Data Archive (natica).
+Provide astroquery API access to NSF NOIRLab Astro Data Archive.
 
 This does DB access through web-services.
 """
@@ -11,11 +11,11 @@ from ..utils.class_or_instance import class_or_instance
 from . import conf
 
 
-__all__ = ['Noirlab', 'NoirlabClass']  # specifies what to import
+__all__ = ['NOIRLab', 'NOIRLabClass']  # specifies what to import
 
 
 @async_to_sync
-class NoirlabClass(BaseQuery):
+class NOIRLabClass(BaseQuery):
 
     TIMEOUT = conf.timeout
     NAT_URL = conf.server
@@ -208,4 +208,4 @@ class NoirlabClass(BaseQuery):
         return response.json()
 
 
-Noirlab = NoirlabClass()
+NOIRLab = NOIRLabClass()

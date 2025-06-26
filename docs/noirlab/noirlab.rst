@@ -2,11 +2,11 @@
 
 .. _astroquery.noirlab:
 
-************************************
-About the NOIRLab Astro Data Archive
-************************************
+****************************************
+About the NSF NOIRLab Astro Data Archive
+****************************************
 
-The NOIRLab Astro Data Archive (formerly NOAO Science Archive)
+The NSF NOIRLab Astro Data Archive (formerly NOAO Science Archive)
 provides access to data taken with more than 40 telescope and
 instrument combinations, including those operated in partnership with
 the WIYN, SOAR and SMARTS consortia, from semester 2004B to the
@@ -15,8 +15,8 @@ the DECam, Mosaic and NEWFIRM imagers are also available, as well as
 advanced data products delivered by teams carrying out surveys and
 other large observing programs with NSF OIR Lab facilities.
 
-For more info about our holdings see the 
-`NOIRLab Astro Data Archive <https://astroarchive.noao.edu/about/>`_
+For more info about our holdings see the
+`NSF NOIRLab Astro Data Archive <https://astroarchive.noirlab.edu/about/>`_
 
 Acknowledgment
 ==============
@@ -31,24 +31,22 @@ cooperative agreement with the National Science Foundation.
 NOIRLab Queries (`astroquery.noirlab`)
 **************************************
 
-The methods in this module are wrappers around a set of web-services
-which can be accessed at
-`Rest API documentation <https://astroarchive.noao.edu/api/docs/>`_
-(which is the most
-up-to-date info on the web-services).
-This data archive is hosted at
-`NOIR-CSDC <https://nationalastro.org/programs/csdc/>`_.
+The methods in this module are wrappers around a set of web services
+described in the
+`Rest API documentation <https://astroarchive.noirlab.edu/api/docs/>`_.
+This data archive is hosted at the
+`Community Science and Data Center (CDSC) <https://noirlab.edu/public/programs/csdc/>`_.
 
 
 Getting started (SIA)
 =====================
 
 This module supports fetching the table of observation summaries from
-the `NOIRLab data archive <https://astroarchive.noao.edu/>`_ given
+the `NOIRLab data archive <https://astroarchive.noirlab.edu/>`_ given
 your *Region Of Interest* query values.
 
 In general, you can query the
-`NOIRLab data archive <https://astroarchive.noao.edu/>`_
+`NOIRLab data archive <https://astroarchive.noirlab.edu/>`_
 against full FITS files or against HDUs of those FITS files.  Most
 users will likely prefer results against full FITS files (the
 default). The search will likely be faster when searching files
@@ -91,7 +89,7 @@ This is an example of searching by HDU.
    Only some instruments have pipeline processing that populates the RA, DEC fields used for this search.
 
 .. code-block:: python
-                
+
     >>> noirlab_hdu = Noirlab(which='hdu')
     >>> results_hdu = noirlab_hdu.query_region(coord, radius='0.1')
     >>> print(results_hdu)
@@ -121,19 +119,19 @@ the *JSON search spec*. Many of the other
 methods with this module are here to provide you with the information
 you need to construct the ``JSON`` structure.
 Summaries of the mechanisms available in the JSON search spec for
-`File search <https://astroarchive.noao.edu/api/adv_search/fadoc/>`_
+`File search <https://astroarchive.noirlab.edu/api/adv_search/fadoc/>`_
 and for `HDU search
-<https://astroarchive.noao.edu/api/adv_search/hadoc/>`_
-are on the NOIRLab Data Archive website.
+<https://astroarchive.noirlab.edu/api/adv_search/hadoc/>`_
+are on the NSF NOIRLab Data Archive website.
 
-There are three methods who's sole purpose if providing you with
+There are three methods whose sole purpose if providing you with
 information to help you with the content of your ``JSON`` structure.
 They are:
 
 #. aux_fields()
 #. core_fields()
 #. categoricals()
-   
+
 See the Reference/API below for details. The categoricals() method
 returns a list of all the "category strings" such as names of
 Instruments and Telescopes.  The aux/core_fields methods
@@ -145,10 +143,6 @@ Instrument determines aux fields in raw files. Proctype determines
 what kind of pipeline processing was done.  Pipeline processing often
 adds important (aux) fields.
 
-
-
-  
-                
 
 Reference/API
 =============
