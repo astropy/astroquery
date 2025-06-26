@@ -62,15 +62,10 @@ class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.noirlab`.
     """
-    server = _config.ConfigItem(
-        ['https://astroarchive.noirlab.edu',
-         ],
-        'Name of the NSF NOIRLab server to use.'
-        )
-    timeout = _config.ConfigItem(
-        30,
-        'Time limit for connecting to NSF NOIRLab server.'
-        )
+    server = _config.ConfigItem(['https://astroarchive.noirlab.edu',],
+                                'Name of the NSF NOIRLab server to use.')
+    timeout = _config.ConfigItem(30,
+                                 'Time limit for connecting to NSF NOIRLab server.')
 
 
 conf = Conf()

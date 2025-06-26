@@ -1,10 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-# Python library
-from __future__ import print_function
 # External packages
+import pytest
 from astropy import units as u
 from astropy.coordinates import SkyCoord
-from astropy.tests.helper import remote_data
 # Local packages
 from .. import NOIRLab, NOIRLabClass
 from . import expected as exp
@@ -15,7 +13,7 @@ from . import expected as exp
 # remote_data decorator from astropy:
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestNOIRLabClass(object):
 
     # ###############################################################
