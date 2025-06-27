@@ -14,6 +14,10 @@ from . import expected as exp
 def mock_content(method, url, **kwargs):
     if 'FORMAT=METADATA' in url:
         content = json.dumps(exp.service_metadata)
+    elif '/core_file_fields' in url:
+        content = json.dumps(exp.core_file_fields)
+    elif '/aux_file_fields' in url:
+        content = json.dumps(exp.aux_file_fields)
     elif '/cat_lists/' in url:
         content = json.dumps(exp.categoricals)
     elif '/version/' in url:
@@ -36,6 +40,20 @@ def test_service_metadata(patch_request):
     assert actual == exp.service_metadata[0]
 
 
+def test_core_file_fields(patch_request):
+    """List the available CORE FILE fields.
+    """
+    actual = NOIRLab.core_fields()
+    assert actual == exp.core_file_fields
+
+
+def test_aux_file_fields(patch_request):
+    """List the available AUX FILE fields.
+    """
+    actual = NOIRLab.aux_fields('decam', 'instcal')
+    assert actual == exp.aux_file_fields
+
+
 def test_categoricals(patch_request):
     """List categories.
     """
@@ -44,15 +62,21 @@ def test_categoricals(patch_request):
 
 
 def test_version(patch_request):
+    """Test the API version.
+    """
     actual = NOIRLab.version()
     assert actual >= float(exp.version)
 
 
 def test_api_version(patch_request):
+    """Test the API version as a property.
+    """
     actual = NOIRLab.api_version
     assert actual >= float(exp.version)
 
 
 def test_get_token(patch_request):
+    """Test token retrieval.
+    """
     actual = NOIRLab.get_token('nobody@university.edu', '123456')
     assert actual == exp.get_token

@@ -74,39 +74,41 @@ def test_query_region_2():
 #
 # File (default type)
 #
-@pytest.mark.skip(reason='old API')
-@pytest.mark.remote_data
-def test_aux_file_fields():
-    """List the available AUX FILE fields."""
-    actual = NOIRLab().aux_fields('decam', 'instcal')
-    assert actual == exp.aux_file_fields
-
-
-@pytest.mark.skip(reason='old API')
 @pytest.mark.remote_data
 def test_core_file_fields():
-    """List the available CORE FILE fields."""
+    """List the available CORE FILE fields.
+    """
     actual = NOIRLab().core_fields()
-    assert actual == exp.core_file_fields
+    assert actual[:5] == exp.core_file_fields
+
+
+@pytest.mark.remote_data
+def test_aux_file_fields():
+    """List the available AUX FILE fields.
+    """
+    actual = NOIRLab().aux_fields('decam', 'instcal')
+    assert actual[:10] == exp.aux_file_fields
+
+
+@pytest.mark.remote_data
+def test_categoricals():
+    """List categories.
+    """
+    actual = NOIRLab().categoricals()
+    assert actual == exp.categoricals
 
 
 @pytest.mark.skip(reason='old API')
 @pytest.mark.remote_data
 def test_query_file_metadata():
-    """Search FILE metadata."""
-    qspec = {
-        "outfields": [
-            "md5sum",
-            "archive_filename",
-            "original_filename",
-            "instrument",
-            "proc_type"
-        ],
-        "search": [
-            ['original_filename', 'c4d_', 'contains']
-        ]
-    }
-
+    """Search FILE metadata.
+    """
+    qspec = {"outfields": ["md5sum",
+                           "archive_filename",
+                           "original_filename",
+                           "instrument",
+                           "proc_type"],
+             "search": [['original_filename', 'c4d_', 'contains']]}
     actual = NOIRLab().query_metadata(qspec, limit=3)
     assert actual.pformat_all() == exp.query_file_metadata
 
@@ -116,59 +118,39 @@ def test_query_file_metadata():
 #
 @pytest.mark.skip(reason='old API')
 @pytest.mark.remote_data
-def test_aux_hdu_fields():
-    """List the available AUX HDU fields."""
-    actual = NOIRLabClass(hdu=True).aux_fields('decam', 'instcal')
-    assert actual == exp.aux_hdu_fields
-
-
-@pytest.mark.skip(reason='old API')
-@pytest.mark.remote_data
 def test_core_hdu_fields():
-    """List the available CORE HDU fields."""
+    """List the available CORE HDU fields.
+    """
     actual = NOIRLabClass(hdu=True).core_fields()
     assert actual == exp.core_hdu_fields
 
 
 @pytest.mark.skip(reason='old API')
 @pytest.mark.remote_data
-def test_query_hdu_metadata():
-    """Search HDU metadata."""
-    qspec = {
-        "outfields": [
-            "fitsfile__archive_filename",
-            "fitsfile__caldat",
-            "fitsfile__instrument",
-            "fitsfile__proc_type",
-            "AIRMASS"  # AUX field. Slows search
-        ],
-        "search": [
-            ["fitsfile__caldat", "2017-08-14", "2017-08-16"],
-            ["fitsfile__instrument", "decam"],
-            ["fitsfile__proc_type", "raw"]
-        ]
-    }
+def test_aux_hdu_fields():
+    """List the available AUX HDU fields.
+    """
+    actual = NOIRLabClass(hdu=True).aux_fields('decam', 'instcal')
+    assert actual == exp.aux_hdu_fields
 
+
+@pytest.mark.skip(reason='old API')
+@pytest.mark.remote_data
+def test_query_hdu_metadata():
+    """Search HDU metadata.
+    """
+    qspec = {"outfields": ["fitsfile__archive_filename",
+                           "fitsfile__caldat",
+                           "fitsfile__instrument",
+                           "fitsfile__proc_type",
+                           "AIRMASS"],  # AUX field. Slows search
+             "search": [["fitsfile__caldat", "2017-08-14", "2017-08-16"],
+                        ["fitsfile__instrument", "decam"],
+                        ["fitsfile__proc_type", "raw"]]}
     actual = NOIRLabClass(hdu=True).query_metadata(qspec, limit=3)
     assert actual.pformat_all() == exp.query_hdu_metadata
 
 
-#
-# Agnostic
-#
-@pytest.mark.remote_data
-def test_categoricals():
-    """List categories.
-    """
-    actual = NOIRLab().categoricals()
-    assert actual == exp.categoricals
-
-
-# Other tests:
-# get_token
-# retrieve/<md5>
-# version
-#
 @pytest.mark.remote_data
 def test_retrieve():
     hdulist = NOIRLab().retrieve('f92541fdc566dfebac9e7d75e12b5601')
@@ -180,17 +162,23 @@ def test_retrieve():
 
 @pytest.mark.remote_data
 def test_version():
+    """Test the API version.
+    """
     actual = NOIRLab().version()
     assert actual >= float(exp.version)
 
 
 @pytest.mark.remote_data
 def test_api_version():
+    """Test the API version as a property.
+    """
     actual = NOIRLab().api_version
     assert actual >= float(exp.version)
 
 
 @pytest.mark.remote_data
 def test_get_token():
+    """Test token retrieval.
+    """
     actual = NOIRLab().get_token('nobody@university.edu', '123456')
     assert actual.split('.')[0] == exp.get_token

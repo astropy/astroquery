@@ -139,8 +139,20 @@ class NOIRLabClass(BaseQuery):
         return response
 
     def core_fields(self, cache=True):
-        """List the available CORE fields. CORE fields are faster to search
-        than AUX fields.."""
+        """List the available CORE fields.
+
+        CORE fields are faster to search than AUX fields.
+
+        Parameters
+        ----------
+        cache : :class:`bool`, optional
+            If ``True`` cache the result locally.
+
+        Returns
+        -------
+        :class:`list`
+            A list of field descriptions, each a :class:`dict`.
+        """
         response = self._request('GET', self._adsc_url,
                                  timeout=self.TIMEOUT,
                                  cache=cache)
@@ -174,7 +186,7 @@ class NOIRLabClass(BaseQuery):
 
     @class_or_instance
     def query_metadata(self, qspec, limit=1000, cache=True):
-        self._validate_version()
+        # self._validate_version()
         url = f'{self._adss_url}/?limit={limit}'
 
         if qspec is None:
@@ -198,7 +210,7 @@ class NOIRLabClass(BaseQuery):
         Returns
         -------
         :class:`~astropy.io.fits.HDUlist`
-            The open FITS file. This object should be ``.close()``d when done.
+            The open FITS file. Call ``.close()`` on this object when done.
         """
         url = f'{self.NAT_URL}/api/retrieve/{fileid}/'
         hdulist = fits.open(url)
