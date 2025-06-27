@@ -32,14 +32,14 @@ def patch_request(monkeypatch):
 def test_service_metadata(patch_request):
     """Test compliance with 6.1 of SIA spec v1.0.
     """
-    actual = NOIRLab().service_metadata()
+    actual = NOIRLab.service_metadata()
     assert actual == exp.service_metadata[0]
 
 
 def test_categoricals(patch_request):
     """List categories.
     """
-    actual = NOIRLab().categoricals()
+    actual = NOIRLab.categoricals()
     assert actual == exp.categoricals
 
 
