@@ -3,7 +3,7 @@
 NSF NOIRLab Astro Data Archive
 ------------------------------
 
-The NSF's OIR Lab Astro Data Archive (formerly NOAO Science Archive)
+The NSF NOIRLab Astro Data Archive (formerly NOAO Science Archive)
 provides access to data taken with more than 40 telescope and
 instrument combinations, including those operated in partnership with
 the WIYN, SOAR and SMARTS consortia, from semester 2004B to the

@@ -25,7 +25,7 @@ class TestNOIRLabClass(object):
 
     def test_service_metadata(self):
         """Test compliance with 6.1 of SIA spec v1.0"""
-        r = NOIRLab.service_metadata()
+        r = NOIRLab().service_metadata()
         actual = r
         # print(f'DBG: test_service_metadata={actual}')
         expected = exp.service_metadata
@@ -35,7 +35,7 @@ class TestNOIRLabClass(object):
         """Search FILES using default type (which) selector"""
 
         c = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
-        r = NOIRLab.query_region(c, radius='0.1')
+        r = NOIRLab().query_region(c, radius='0.1')
         actual = set(list(r['md5sum']))
         expected = exp.query_region_1
         assert expected.issubset(actual)
@@ -78,7 +78,7 @@ class TestNOIRLabClass(object):
 
     def test_aux_file_fields(self):
         """List the available AUX FILE fields."""
-        r = NOIRLab.aux_fields('decam', 'instcal')
+        r = NOIRLab().aux_fields('decam', 'instcal')
         actual = r
         # Returned results may increase over time.
         print(f'DBG: test_aux_file_fields={actual}')
@@ -87,7 +87,7 @@ class TestNOIRLabClass(object):
 
     def test_core_file_fields(self):
         """List the available CORE FILE fields."""
-        r = NOIRLab.core_fields()
+        r = NOIRLab().core_fields()
         actual = r
         print(f'DBG: test_core_file_fields={actual}')
         expected = exp.core_file_fields
@@ -108,9 +108,9 @@ class TestNOIRLabClass(object):
             ]
         }
 
-        r = NOIRLab.query_metadata(qspec, limit=3)
+        r = NOIRLab().query_metadata(qspec, limit=3)
         actual = r
-        print(f'DBG: test_query_file_metadata={actual.pformat_all()}')
+        # print(f'DBG: test_query_file_metadata={actual.pformat_all()}')
         expected = exp.query_file_metadata
         assert actual.pformat_all() == expected
 
@@ -123,7 +123,7 @@ class TestNOIRLabClass(object):
         r = NOIRLabClass(which='hdu').aux_fields('decam', 'instcal')
         actual = r
         # Returned results may increase over time.
-        print(f'DBG: test_aux_hdu_fields={actual}')
+        # print(f'DBG: test_aux_hdu_fields={actual}')
         expected = exp.aux_hdu_fields
         assert actual == expected
 
@@ -131,7 +131,7 @@ class TestNOIRLabClass(object):
         """List the available CORE HDU fields."""
         r = NOIRLabClass(which='hdu').core_fields()
         actual = r
-        print(f'DBG: test_core_file_fields={actual}')
+        # print(f'DBG: test_core_file_fields={actual}')
         expected = exp.core_hdu_fields
         assert actual == expected
 
@@ -154,7 +154,7 @@ class TestNOIRLabClass(object):
 
         r = NOIRLabClass(which='hdu').query_metadata(qspec, limit=3)
         actual = r
-        print(f'DBG: test_query_hdu_metadata={actual.pformat_all()}')
+        # print(f'DBG: test_query_hdu_metadata={actual.pformat_all()}')
         expected = exp.query_hdu_metadata
         assert actual.pformat_all() == expected
 
@@ -164,7 +164,7 @@ class TestNOIRLabClass(object):
 
     def test_categoricals(self):
         """List categories."""
-        r = NOIRLab.categoricals()
+        r = NOIRLab().categoricals()
         actual = r
         # Returned results may increase over time.
         print(f'DBG: test_categoricals={actual}')
@@ -178,17 +178,17 @@ class TestNOIRLabClass(object):
     # version
 
     def test_retrieve(self):
-        hdul = NOIRLab.retrieve('f92541fdc566dfebac9e7d75e12b5601')
+        hdul = NOIRLab().retrieve('f92541fdc566dfebac9e7d75e12b5601')
         actual = list(hdul[0].header.keys())
         expected = exp.retrieve
         assert actual == expected
 
     def test_version(self):
-        r = NOIRLab.version()
+        r = NOIRLab().version()
         assert r >= exp.version
 
     def test_get_token(self):
-        actual = NOIRLab.get_token('nobody@university.edu', '123456789')
-        expected = {'detail':
-                    'No active account found with the given credentials'}
-        assert actual == expected
+        actual = NOIRLab().get_token('nobody@university.edu', '123456789')
+        # expected = {'detail':
+        #             'No active account found with the given credentials'}
+        assert actual == exp.get_token
