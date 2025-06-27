@@ -1,4 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
+Performs similar tests as test_noirlab.py, but performs
+the actual HTTPS request rather than monkeypatching it.
+Enable with *e.g.*::
+
+    tox -e py310-test-online -- -P noirlab
+"""
 # External packages
 import pytest
 from astropy import units as u
@@ -6,11 +13,6 @@ from astropy.coordinates import SkyCoord
 # Local packages
 from .. import NOIRLab, NOIRLabClass
 from . import expected as exp
-
-# performs similar tests as test_module.py, but performs
-# the actual HTTP request rather than monkeypatching them.
-# should be disabled or enabled at will - use the
-# remote_data decorator from astropy:
 
 
 @pytest.mark.remote_data
@@ -183,7 +185,7 @@ class TestNOIRLabClass(object):
 
     def test_version(self):
         r = NOIRLab.version()
-        assert r >= 6.0
+        assert r >= exp.version
 
     def test_get_token(self):
         actual = NOIRLab.get_token('nobody@university.edu', '123456789')
