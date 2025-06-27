@@ -7,6 +7,7 @@ import astropy.io.fits as fits
 import astropy.table
 from ..query import BaseQuery
 from ..utils import async_to_sync
+from ..exceptions import RemoteServiceError
 from ..utils.class_or_instance import class_or_instance
 from . import conf
 
@@ -16,22 +17,23 @@ __all__ = ['NOIRLab', 'NOIRLabClass']  # specifies what to import
 
 @async_to_sync
 class NOIRLabClass(BaseQuery):
+    """Search functionality for the NSF NOIRLab Astro Data Archive.
 
+    Parameters
+    ----------
+    hdu : :class:`bool`, optional
+        If ``True``, search HDUs in files. THe HDUs must have RA, DEC header
+        keywords. This is not guaranteed for all files.
+        The default is to just search for files.
+    """
     TIMEOUT = conf.timeout
     NAT_URL = conf.server
 
-    def __init__(self, which='file'):
-        """Return object used for searching the NOIRLab Archive.
-
-        Search either Files (which=file) or HDUs (which=hdu).
-        Files will always be returned.  But if which=hdu,
-        individual HDUs must have RA,DEC fields.  Typically this
-        is only the case with some pipeline processed files.
-        """
+    def __init__(self, hdu=False):
         self._api_version = None
         self._adsurl = f'{self.NAT_URL}/api/adv_search'
 
-        if which == 'hdu':
+        if hdu:
             self.siaurl = f'{self.NAT_URL}/api/sia/vohdu'
             self._adss_url = f'{self._adsurl}/hasearch'
             self._adsc_url = f'{self._adsurl}/core_hdu_fields'
@@ -46,33 +48,29 @@ class NOIRLabClass(BaseQuery):
 
     @property
     def api_version(self):
-        """Return version of Rest API used by this module.
+        """Return version of REST API used by this module.
 
-        If the Rest API changes such that the Major version increases,
+        If the REST API changes such that the major version increases,
         a new version of this module will likely need to be used.
         """
         if self._api_version is None:
-            response = self._request('GET',
-                                     f'{self.NAT_URL}/api/version',
-                                     timeout=self.TIMEOUT,
-                                     cache=True)
-            self._api_version = float(response.content)
+            self._api_version = float(self.version())
         return self._api_version
 
     def _validate_version(self):
-        KNOWN_GOOD_API_VERSION = 2.0
+        KNOWN_GOOD_API_VERSION = 6.0
         if (int(self.api_version) - int(KNOWN_GOOD_API_VERSION)) >= 1:
             msg = (f'The astroquery.noirlab module is expecting an older '
                    f'version of the {self.NAT_URL} API services. '
                    f'Please upgrade to latest astroquery.  '
                    f'Expected version {KNOWN_GOOD_API_VERSION} but got '
                    f'{self.api_version} from the API.')
-            raise Exception(msg)
+            raise RemoteServiceError(msg)
 
     def service_metadata(self, cache=True):
         """Denotes a Metadata Query: no images are requested; only metadata
-    should be returned. This feature is described in more detail in:
-    http://www.ivoa.net/documents/PR/DAL/PR-SIA-1.0-20090521.html#mdquery
+        should be returned. This feature is described in more detail in:
+        http://www.ivoa.net/documents/PR/DAL/PR-SIA-1.0-20090521.html#mdquery
         """
         url = f'{self.siaurl}?FORMAT=METADATA&format=json'
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
@@ -98,7 +96,7 @@ class NOIRLabClass(BaseQuery):
 
         Returns
         -------
-        response : `~astropy.table.Table`
+        `~astropy.table.Table`
         """
         self._validate_version()
         ra, dec = coordinate.to_string('decimal').split()
@@ -128,7 +126,7 @@ class NOIRLabClass(BaseQuery):
 
         Returns
         -------
-        response : `requests.Response`
+        `requests.Response`
         """
         self._validate_version()
 
@@ -184,26 +182,66 @@ class NOIRLabClass(BaseQuery):
         else:
             jdata = qspec
 
-        response = self._request('POST', url, json=jdata, timeout=self.TIMEOUT)
+        response = self._request('POST', url, json=jdata,
+                                 timeout=self.TIMEOUT, cache=cache)
         response.raise_for_status()
         return astropy.table.Table(rows=response.json())
 
-    def retrieve(self, fileid, cache=True):
+    def retrieve(self, fileid):
+        """Simply fetch a file by `fileid`.
+
+        Parameters
+        ----------
+        fileid : :class:`str`
+            The MD5 ID of the file.
+
+        Returns
+        -------
+        :class:`~astropy.io.fits.HDUlist`
+            The open FITS file. This object should be ``.close()``d when done.
+        """
         url = f'{self.NAT_URL}/api/retrieve/{fileid}/'
-        hdul = fits.open(url)
-        return hdul
+        hdulist = fits.open(url)
+        return hdulist
 
     def version(self, cache=False):
+        """Return the version of the REST API.
+
+        Parameters
+        ----------
+        cache : :class:`bool`, optional
+            If ``True`` cache the result locally.
+
+        Returns
+        -------
+        :class:`float`
+            The API version as a number.
+        """
         url = f'{self.NAT_URL}/api/version/'
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
         response.raise_for_status()
         return response.json()
 
     def get_token(self, email, password, cache=True):
+        """Get an access token to use with proprietary data.
+
+        Parameters
+        ----------
+        email : :class:`str`
+            Email for account access.
+        password : :class:`str`
+            Password associated with `email`. *Please* never hard-code your
+            password *anywhere*.
+
+        Returns
+        -------
+        :class:`str`
+            The access token as a string.
+        """
         url = f'{self.NAT_URL}/api/get_token/'
         response = self._request('POST', url,
                                  json={"email": email, "password": password},
-                                 timeout=self.TIMEOUT)
+                                 timeout=self.TIMEOUT, cache=cache)
         response.raise_for_status()
         return response.json()
 
