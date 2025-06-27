@@ -200,7 +200,7 @@ class NOIRLabClass(BaseQuery):
         return astropy.table.Table(rows=response.json())
 
     def retrieve(self, fileid):
-        """Simply fetch a file by `fileid`.
+        """Simply fetch a file by MD5 ID.
 
         Parameters
         ----------
@@ -209,7 +209,7 @@ class NOIRLabClass(BaseQuery):
 
         Returns
         -------
-        :class:`~astropy.io.fits.HDUlist`
+        :class:`~astropy.io.fits.HDUList`
             The open FITS file. Call ``.close()`` on this object when done.
         """
         url = f'{self.NAT_URL}/api/retrieve/{fileid}/'
