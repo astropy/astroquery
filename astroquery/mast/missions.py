@@ -188,19 +188,16 @@ class MastMissionsClass(MastQueryWithLogin):
         coordinates : str or `~astropy.coordinates` object
             The target around which to search. It may be specified as a
             string or as the appropriate `~astropy.coordinates` object.
-        radius : str or `~astropy.units.Quantity` object, optional
-            Default 3 degrees.
+        radius : str or `~astropy.units.Quantity` object
+            Default is 3 arcminutes. The radius around the coordinates to search within.
             The string must be parsable by `~astropy.coordinates.Angle`. The
-            appropriate `~astropy.units.Quantity` object from
-            `~astropy.units` may also be used. Defaults to 3 arcminutes.
+            appropriate `~astropy.units.Quantity` object from `~astropy.units` may also be used.
         limit : int
-            Optional and default is 5000.
-            the maximum number of dataset IDs in the results.
+            Default is 5000. The maximum number of dataset IDs in the results.
         offset : int
-            Optional and default is 0
-            the number of records you wish to skip before selecting records.
-        select_cols: list, None
-            Default None. Names of columns that will be included in the result table.
+            Default is 0. The number of records you wish to skip before selecting records.
+        select_cols: list, optional
+            Default is None. Names of columns that will be included in the result table.
             If None, a default set of columns will be returned.
         **criteria
             Other mission-specific criteria arguments.
@@ -224,7 +221,7 @@ class MastMissionsClass(MastQueryWithLogin):
         # Put coordinates and radius into consistent format
         coordinates = commons.parse_coordinates(coordinates)
 
-        # if radius is just a number we assume degrees
+        # If radius is just a number, assume arcminutes
         radius = coord.Angle(radius, u.arcmin)
 
         # Dataset ID column should always be returned
@@ -233,7 +230,7 @@ class MastMissionsClass(MastQueryWithLogin):
         elif self.mission == 'ullyses':
             select_cols = self._default_ullyses_cols
 
-        # basic params
+        # Basic params
         params = {'target': [f"{coordinates.ra.deg} {coordinates.dec.deg}"],
                   'radius': radius.arcsec,
                   'radius_units': 'arcseconds',
@@ -258,23 +255,20 @@ class MastMissionsClass(MastQueryWithLogin):
             string or as the appropriate `~astropy.coordinates` object.
         objectname : str
             The name of the target around which to search.
-        radius : str or `~astropy.units.Quantity` object, optional
-            Default 3 degrees.
+        radius : str or `~astropy.units.Quantity` object
+            Default is 3 arcminutes. The radius around the coordinates to search within.
             The string must be parsable by `~astropy.coordinates.Angle`. The
-            appropriate `~astropy.units.Quantity` object from
-            `~astropy.units` may also be used. Defaults to 3 arcminutes.
+            appropriate `~astropy.units.Quantity` object from `~astropy.units` may also be used.
         limit : int
-            Optional and default is 5000.
-            the maximum number of dataset IDs in the results.
+            Default is 5000. The maximum number of dataset IDs in the results.
         offset : int
-            Optional and default is 0.
-            the number of records you wish to skip before selecting records.
-        select_cols: list, None
-            Default None. Names of columns that will be included in the result table.
+            Default is 0. The number of records you wish to skip before selecting records.
+        select_cols: list, optional
+            Default is None. Names of columns that will be included in the result table.
             If None, a default set of columns will be returned.
         resolver : str, optional
-            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
-            If not specified, the default resolver order will be used. Please see the
+            Default is None. The resolver to use when resolving a named target into coordinates. Valid options are
+            "SIMBAD" and "NED". If not specified, the default resolver order will be used. Please see the
             `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
             for more information. Default is None.
         **criteria
@@ -339,22 +333,19 @@ class MastMissionsClass(MastQueryWithLogin):
         objectname : str
             The name of the target around which to search.
         radius : str or `~astropy.units.Quantity` object, optional
-            Default 3 arcmin.
-            The string must be parsable by `~astropy.coordinates.Angle`.
-            The appropriate `~astropy.units.Quantity` object from
-            `~astropy.units` may also be used. Defaults to 3 arcminutes.
+            Default is 3 arcminutes. The radius around the coordinates to search within.
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from `~astropy.units` may also be used.
         limit : int
-            Optional and default is 5000.
-            the maximum number of dataset IDs in the results.
+            Default is 5000. The maximum number of dataset IDs in the results.
         offset : int
-            Optional and default is 0.
-            the number of records you wish to skip before selecting records.
-        select_cols: list, None
-            Default None. Names of columns that will be included in the result table.
+            Default is 0. The number of records you wish to skip before selecting records.
+        select_cols: list, optional
+            Default is None. Names of columns that will be included in the result table.
             If None, a default set of columns will be returned.
         resolver : str, optional
-            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
-            If not specified, the default resolver order will be used. Please see the
+            Default is None. The resolver to use when resolving a named target into coordinates. Valid options are
+            "SIMBAD" and "NED". If not specified, the default resolver order will be used. Please see the
             `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
             for more information. Default is None.
         **criteria
