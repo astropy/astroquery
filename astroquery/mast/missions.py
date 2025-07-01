@@ -503,8 +503,19 @@ class MastMissionsClass(MastQueryWithLogin):
                 warnings.warn(f"Column '{colname}' not found in product table.", InputWarning)
                 continue
 
-            vals = [vals] if isinstance(vals, str) else vals
-            col_mask = np.isin(products[colname], vals)
+            col_data = products[colname]
+            # If the column is an integer or float, treat differently
+            if col_data.dtype.kind in 'if' and isinstance(vals, str):
+                try:
+                    col_mask = utils.parse_numeric_product_filter(vals)(col_data)
+                except ValueError:
+                    warnings.warn(f"Could not parse numeric filter '{vals}' for column '{colname}'.", InputWarning)
+                    continue
+            else:
+                if isinstance(vals, str):
+                    vals = [vals]
+                col_mask = np.isin(col_data, vals)
+
             filter_mask &= col_mask
 
         # Return filtered products

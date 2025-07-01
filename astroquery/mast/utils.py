@@ -6,12 +6,12 @@ MAST Utils
 Miscellaneous functions used throughout the MAST module.
 """
 
+import re
 import warnings
-import numpy as np
 
+import numpy as np
 import requests
 import platform
-
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
 from astropy import units as u
@@ -345,3 +345,36 @@ def remove_duplicate_products(data_products, uri_key):
                  f"Only returning {len(unique_products)} unique product(s).")
 
     return unique_products
+
+
+def parse_numeric_product_filter(val):
+    """
+    Parses a numeric product filter value and returns a function that can be used to filter
+    a column of a product table.
+
+    Parameters
+    ----------
+    val : str
+        The filter value as a string. It can be a single number, a range in the form of "start..end",
+        or a comparison operator followed by a number (e.g., ">=10", "<5", ">100.5", etc.).
+
+    Returns
+    -------
+    response : function
+        A function that takes a column of a product table and returns a boolean mask indicating
+        which rows satisfy the filter condition.
+    """
+    range_pattern = re.compile(r'[+-]?(\d+(\.\d*)?|\.\d+)\.\.[+-]?(\d+(\.\d*)?|\.\d+)')
+    if val.startswith('>='):
+        return lambda col: col >= float(val[2:])
+    elif val.startswith('<='):
+        return lambda col: col <= float(val[2:])
+    elif val.startswith('>'):
+        return lambda col: col > float(val[1:])
+    elif val.startswith('<'):
+        return lambda col: col < float(val[1:])
+    elif range_pattern.fullmatch(val):
+        start, end = map(float, val.split('..'))
+        return lambda col: (col >= start) & (col <= end)
+    else:
+        return lambda col: col == float(val)
