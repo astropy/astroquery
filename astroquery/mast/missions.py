@@ -476,17 +476,15 @@ class MastMissionsClass(MastQueryWithLogin):
 
             Each keyword corresponds to a column name in the table, with the argument being one or more
             acceptable values for that column. AND logic is applied between filters, OR logic within
-            each filter set.
-
-            For example:
-                type="science", extension=["fits", "jpg"]
+            each filter set. For example: type="science", extension=["fits", "jpg"]
 
             For columns with numeric data types (int or float), filter values can be expressed
             in several ways:
-                - A single number: size=100
-                - A range in the form "start..end": size="100..1000"
-                - A comparison operator followed by a number: size=">=1000"
-                - A list of expressions (OR logic): size=[100, "500..1000", ">=1500"]
+
+            - A single number: ``size=100``
+            - A range in the form "start..end": ``size="100..1000"``
+            - A comparison operator followed by a number: ``size=">=1000"``
+            - A list of expressions (OR logic): ``size=[100, "500..1000", ">=1500"]``
 
         Returns
         -------
