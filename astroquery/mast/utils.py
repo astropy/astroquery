@@ -354,9 +354,11 @@ def parse_numeric_product_filter(val):
 
     Parameters
     ----------
-    val : str
-        The filter value as a string. It can be a single number, a range in the form of "start..end",
-        or a comparison operator followed by a number (e.g., ">=10", "<5", ">100.5", etc.).
+    val : str or list of str
+        The filter value(s). Each entry can be:
+        - A single number (e.g., "100")
+        - A range in the form "start..end" (e.g., "100..200")
+        - A comparison operator followed by a number (e.g., ">=10", "<5", ">100.5")
 
     Returns
     -------
@@ -364,17 +366,30 @@ def parse_numeric_product_filter(val):
         A function that takes a column of a product table and returns a boolean mask indicating
         which rows satisfy the filter condition.
     """
+    # Regular expression to match range patterns
     range_pattern = re.compile(r'[+-]?(\d+(\.\d*)?|\.\d+)\.\.[+-]?(\d+(\.\d*)?|\.\d+)')
-    if val.startswith('>='):
-        return lambda col: col >= float(val[2:])
-    elif val.startswith('<='):
-        return lambda col: col <= float(val[2:])
-    elif val.startswith('>'):
-        return lambda col: col > float(val[1:])
-    elif val.startswith('<'):
-        return lambda col: col < float(val[1:])
-    elif range_pattern.fullmatch(val):
-        start, end = map(float, val.split('..'))
-        return lambda col: (col >= start) & (col <= end)
+
+    def single_condition(cond):
+        """Helper function to create a condition function for a single value."""
+        if isinstance(cond, (int, float)):
+            return lambda col: col == float(cond)
+        if cond.startswith('>='):
+            return lambda col: col >= float(cond[2:])
+        elif cond.startswith('<='):
+            return lambda col: col <= float(cond[2:])
+        elif cond.startswith('>'):
+            return lambda col: col > float(cond[1:])
+        elif cond.startswith('<'):
+            return lambda col: col < float(cond[1:])
+        elif range_pattern.fullmatch(cond):
+            start, end = map(float, cond.split('..'))
+            return lambda col: (col >= start) & (col <= end)
+        else:
+            return lambda col: col == float(cond)
+
+    if isinstance(val, list):
+        # If val is a list, create a condition for each value and combine them with logical OR
+        conditions = [single_condition(v) for v in val]
+        return lambda col: np.logical_or.reduce([cond(col) for cond in conditions])
     else:
-        return lambda col: col == float(val)
+        return single_condition(val)

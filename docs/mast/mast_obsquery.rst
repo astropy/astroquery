@@ -278,53 +278,55 @@ To return only unique data products for an observation, use `~astroquery.mast.Ob
       mast:HST/product/jbeveoesq_flt.fits
       mast:HST/product/jbeveoesq_raw.fits
 
-Filtering
----------
+Filtering Data Products
+-----------------------
 
-Filter keyword arguments can be applied to download only data products that meet the given criteria.
-Available filters are "mrp_only" (Minimum Recommended Products), "extension" (file extension),
-and all products fields listed `here <https://mast.stsci.edu/api/v0/_productsfields.html>`_.
+In many cases, you will not need to download every product that is associated with a dataset. The
+`~astroquery.mast.ObservationsClass.filter_products` function allows for filtering based on minimum recommended products
+(``mrp_only``), file extension (``extension``), and any other of the `CAOM products fields <https://mast.stsci.edu/api/v0/_productsfields.html>`_.
 
-The ‘AND' operation is performed for a list of filters, and the ‘OR' operation is performed within a
-filter set. The below example illustrates downloading all product files with the extension "fits" that
-are either "RAW" or "UNCAL."
+The **AND** operation is performed for a list of filters, and the **OR** operation is performed within a filter set. 
 
-.. doctest-remote-data::
+For columns with numeric data types (``int`` or ``float``), filter values can be expressed in several ways:
+  - A single number: ``size=100``
+  - A range in the form "start..end": ``size="100..1000"``
+  - A comparison operator followed by a number: ``size=">=1000"``
+  - A list of expressions: ``size=[100, "500..1000", ">=1500"]``
 
-   >>> from astroquery.mast import Observations
-   ...
-   >>> Observations.download_products('25119363',
-   ...                                productType=["SCIENCE", "PREVIEW"],
-   ...                                extension="fits")   # doctest: +IGNORE_OUTPUT
-   <Table length=3>
-                      Local Path                    Status  Message  URL
-                        str47                        str8    object object
-   ----------------------------------------------- -------- ------- ------
-   ./mastDownload/HST/fa2f0101m/fa2f0101m_a1f.fits COMPLETE    None   None
-   ./mastDownload/HST/fa2f0101m/fa2f0101m_a2f.fits COMPLETE    None   None
-   ./mastDownload/HST/fa2f0101m/fa2f0101m_a3f.fits COMPLETE    None   None
-
-Product filtering can also be applied directly to a table of products without proceeding to the download step.
+The filter below returns FITS products that have a calibration level of 2 or lower **and** are of type "SCIENCE" **or** "PREVIEW".
 
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Observations
    ...
    >>> data_products = Observations.get_product_list('25588063')
-   >>> print(len(data_products))
-   30
-   >>> products = Observations.filter_products(data_products,
-   ...                                         productType=["SCIENCE", "PREVIEW"],
-   ...                                         extension="fits")
-   >>> print(len(products))
-   10
+   >>> filtered = Observations.filter_products(data_products,
+   ...                                         extension="fits",
+   ...                                         calib_level="<=2",
+   ...                                         productType=["SCIENCE", "PREVIEW"])
+   >>> print(filtered)  # doctest: +IGNORE_OUTPUT
+    obsID   obs_collection dataproduct_type ... dataRights calib_level filters
+   -------- -------------- ---------------- ... ---------- ----------- -------
+   25167183            HLA            image ...     PUBLIC           2   F487N
+   24556691            HST            image ...     PUBLIC           2   F487N
+   24556691            HST            image ...     PUBLIC           2   F487N
+   24556691            HST            image ...     PUBLIC           2   F487N
+   24556691            HST            image ...     PUBLIC           2   F487N
+   24556691            HST            image ...     PUBLIC           1   F487N
+   24556691            HST            image ...     PUBLIC           1   F487N
+   24556691            HST            image ...     PUBLIC           2   F487N
 
 
 Downloading Data Products
 -------------------------
 
-Products can be downloaded by using `~astroquery.mast.ObservationsClass.download_products`,
-with a `~astropy.table.Table` of data products, or a list (or single) obsid as the argument.
+The `~astroquery.mast.ObservationsClass.download_products` function accepts a table of products like the one above
+and will download the products to your machine.
+
+By default, products will be downloaded into the current working directory, in a subdirectory called "mastDownload".
+You can change the download directory by passing the ``download_dir`` keyword argument.
+
+The function also accepts dataset IDs and product filters as input for a more streamlined workflow.
 
 .. doctest-skip::
 
