@@ -8,8 +8,9 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
 """
+
+
 import os
-from urllib.parse import urlencode
 
 import astroquery.esa.utils.utils as esautils
 
@@ -18,9 +19,7 @@ from astropy.coordinates import SkyCoord
 from astropy.coordinates import Angle
 from numpy.ma import MaskedArray
 
-from astroquery.utils.tap import TapPlus
 from astroquery.query import BaseQuery, BaseVOQuery
-import json
 import warnings
 import pyvo
 from astropy.utils.exceptions import AstropyDeprecationWarning
@@ -53,7 +52,11 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
         else:
             self._auth_session = esautils.ESAAuthSession()
             self._auth_session.add_security_method_for_url(url=conf.EHST_TAP_SERVER,security_method="anonymous")
-            self._auth_session.add_security_method_for_url(url=conf.EHST_TABLES_SERVER,security_method="anonymous",exact=True)
+            self._auth_session.add_security_method_for_url(
+                url=conf.EHST_TABLES_SERVER,
+                security_method="anonymous",
+                exact=True
+            )
 
         if show_messages:
             self.get_status_messages()
@@ -127,7 +130,13 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
 
         filename = self._get_product_filename(product_type, filename)
         output_file = self.__get_download_path(folder, filename)
-        esautils.download_file(url=conf.EHST_DATA_SERVER, session=self.vo._session, params=params, verbose=verbose, filename=output_file)
+        esautils.download_file(
+            url=conf.EHST_DATA_SERVER,
+            session=self.vo._session,
+            params=params,
+            verbose=verbose,
+            filename=output_file
+        )
         return esautils.check_rename_to_gz(filename=output_file)
 
     def __get_download_path(self, folder, filename):
@@ -435,7 +444,13 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
         if filename is None:
             filename = file
         output_file = self.__get_download_path(folder, filename)
-        esautils.download_file(url=conf.EHST_DATA_SERVER, session=self.vo._session, params=params, verbose=verbose, filename=output_file)
+        esautils.download_file(
+            url=conf.EHST_DATA_SERVER,
+            session=self.vo._session,
+            params=params,
+            verbose=verbose,
+            filename=output_file
+        )
         return esautils.check_rename_to_gz(filename=output_file)
 
     def get_postcard(self, observation_id, *, calibration_level="RAW",
@@ -684,7 +699,11 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
                       "RESOLVER_TYPE": "ALL",
                       "FORMAT": "json"}
 
-            target_response = esautils.execute_servlet_request(tap=self.vo,query_params=params, url=conf.EHST_DOMAIN_SERVER + conf.EHST_TARGET_ACTION)
+            target_response = esautils.execute_servlet_request(
+                tap=self.vo,
+                query_params=params,
+                url=conf.EHST_DOMAIN_SERVER + conf.EHST_TARGET_ACTION
+            )
             if target_response:
                 if target_response['objects']:
                     ra = target_response['objects'][0]['raDegrees']
@@ -942,12 +961,17 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
         """
 
         try:
-            esautils.execute_servlet_request(url=conf.EHST_TAP_SERVER + "/" + conf.EHST_MESSAGES, tap=self.vo, query_params={}, parserMethod=self.parse_messages_response)
+            esautils.execute_servlet_request(
+                url=conf.EHST_TAP_SERVER + "/" + conf.EHST_MESSAGES,
+                tap=self.vo,
+                query_params={},
+                parserMethod=self.parse_messages_response
+            )
         except OSError:
             print("Status messages could not be retrieved")
 
     def parse_messages_response(self, response):
-        string_messages=[]
+        string_messages = []
         for line in response:
             string_message = line.decode("utf-8")
             string_messages.append(string_message[string_message.index('=') + 1:])

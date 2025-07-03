@@ -9,6 +9,11 @@ New Tools and Services
 API changes
 -----------
 
+esa.hubble
+^^^^^^^^^^
+
+- Migration to PyVO [#3367]
+
 gaia
 ^^^^
 
