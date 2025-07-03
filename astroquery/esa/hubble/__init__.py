@@ -17,6 +17,7 @@ import os
 EHST_COMMON_SERVER = "https://hst.esac.esa.int/tap-server/"
 EHST_TAP_COMMON = "tap"
 
+
 class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.esa.hubble`.

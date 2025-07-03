@@ -11,13 +11,14 @@ European Space Agency (ESA)
 
 import os
 import functools
-import shutil
 import gzip
 from collections import Counter
 from pathlib import Path
 from unittest.mock import MagicMock, PropertyMock
 from unittest.mock import patch
 import xml.etree.ElementTree as ET
+from requests.models import Response
+import io
 
 
 import numpy as np
@@ -157,17 +158,17 @@ class TestESAHubble:
         assert download_mock.call_count == 2
         assert result == path.__str__()
 
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch.object(ESAHubbleClass, 'cone_search')
-    @patch.object(ESAHubbleClass, '_query_tap_target')
-    def test_query_target(self, mock_query_tap_target, mock_cone_search):
-        mock_query_tap_target.return_value = 10, 10
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    def test_query_target(self, mock_servlet_request, mock_cone_search):
+        mock_servlet_request.return_value = {'objects': [{"raDegrees": 90, "decDegrees": 90}]}
         mock_cone_search.return_value = "test"
         ehst = ESAHubbleClass(show_messages=False)
         table = ehst.query_target(name="test")
         assert table == "test"
 
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
-    # @patch.object(ESAHubbleClass, 'query_tap')
     def test_cone_search(self):
         coords = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s",
                                       frame='icrs')
@@ -175,7 +176,6 @@ class TestESAHubble:
         ehst = ESAHubbleClass(show_messages=False)
         parameters = {'coordinates': coords,
                       'radius': 0.0,
-                      'filename': 'file_cone',
                       'output_format': 'votable',
                       'cache': True}
         target_file = data_path('cone_search.vot')
@@ -190,7 +190,6 @@ class TestESAHubble:
                 result = ehst.cone_search(
                     coordinates=parameters['coordinates'],
                     radius=parameters['radius'],
-                    filename=parameters['filename'],
                     output_format=parameters['output_format'],
                     cache=parameters['cache'])
 
@@ -215,7 +214,6 @@ class TestESAHubble:
 
         parameters = {'coordinates': coords,
                       'radius': 0.0,
-                      'filename': 'file_cone',
                       'async_job': False,
                       'output_format': 'votable',
                       'cache': True,
@@ -224,7 +222,6 @@ class TestESAHubble:
         ehst = ESAHubbleClass(show_messages=False)
         ehst.cone_search(coordinates=parameters['coordinates'],
                          radius=parameters['radius'],
-                         filename=parameters['filename'],
                          output_format=parameters['output_format'],
                          async_job=parameters['async_job'],
                          cache=parameters['cache'],
@@ -771,6 +768,22 @@ class TestESAHubble:
     def test_show_messages(self, mock_execute_servlet_request):
         ESAHubbleClass()
         mock_execute_servlet_request.assert_called()
+
+    def test_parse_messages_response(self):
+        ehst = ESAHubbleClass(show_messages=False)
+        response = Response()
+        response.status_code = 200
+        plain_text = (
+            "notification_id1[type: type1,subtype1]=msg1\n"
+            "notification_id2[type: type2,subtype2]=msg2\n"
+            "notification_idn[type: typen,subtypen]=msgn"
+        )
+        response._content = plain_text.encode('utf-8')  # encode to bytes
+        response.headers['Content-Type'] = 'text/plain'
+        response.raw = io.BytesIO(response._content)
+        messages = ehst.parse_messages_response(response)
+        assert len(messages) == 3
+        assert messages == ["msg1", "msg2", "msgn"]
 
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch.object(ESAHubbleClass, 'query_tap')

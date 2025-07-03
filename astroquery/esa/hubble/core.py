@@ -51,7 +51,7 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
             self._auth_session = auth_session
         else:
             self._auth_session = esautils.ESAAuthSession()
-            self._auth_session.add_security_method_for_url(url=conf.EHST_TAP_SERVER,security_method="anonymous")
+            self._auth_session.add_security_method_for_url(url=conf.EHST_TAP_SERVER, security_method="anonymous")
             self._auth_session.add_security_method_for_url(
                 url=conf.EHST_TABLES_SERVER,
                 security_method="anonymous",
@@ -965,14 +965,14 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
                 url=conf.EHST_TAP_SERVER + "/" + conf.EHST_MESSAGES,
                 tap=self.vo,
                 query_params={},
-                parserMethod=self.parse_messages_response
+                parser_method=self.parse_messages_response
             )
         except OSError:
             print("Status messages could not be retrieved")
 
     def parse_messages_response(self, response):
         string_messages = []
-        for line in response:
+        for line in response.iter_lines():
             string_message = line.decode("utf-8")
             string_messages.append(string_message[string_message.index('=') + 1:])
             print(string_messages[len(string_messages)-1])
