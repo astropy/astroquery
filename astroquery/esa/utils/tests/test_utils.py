@@ -177,7 +177,6 @@ class TestIntegralTap:
 
         mock_parser_method.assert_called_once()
 
-
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService')
     def test_execute_servlet_request_error(self, mock_tap):
