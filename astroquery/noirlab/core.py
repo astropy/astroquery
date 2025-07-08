@@ -35,12 +35,12 @@ class NOIRLabClass(BaseQuery):
 
         if hdu:
             self.siaurl = f'{self.NAT_URL}/api/sia/vohdu'
-            self._adss_url = f'{self._adsurl}/hasearch'
+            self._adss_url = f'{self._adsurl}/find?rectype=hdu'
             self._adsc_url = f'{self._adsurl}/core_hdu_fields'
             self._adsa_url = f'{self._adsurl}/aux_hdu_fields'
         else:
             self.siaurl = f'{self.NAT_URL}/api/sia/voimg'
-            self._adss_url = f'{self._adsurl}/fasearch'
+            self._adss_url = f'{self._adsurl}/find?rectype=file'
             self._adsc_url = f'{self._adsurl}/core_file_fields'
             self._adsa_url = f'{self._adsurl}/aux_file_fields'
 
@@ -187,7 +187,7 @@ class NOIRLabClass(BaseQuery):
     @class_or_instance
     def query_metadata(self, qspec, limit=1000, cache=True):
         # self._validate_version()
-        url = f'{self._adss_url}/?limit={limit}'
+        url = f'{self._adss_url}&limit={limit}'
 
         if qspec is None:
             jdata = {"outfields": ["md5sum", ], "search": []}

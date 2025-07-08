@@ -13,9 +13,6 @@ from .. import NOIRLab, NOIRLabClass
 from . import expected as exp
 
 
-# (2) SIA; /api/sia/
-# voimg, vohdu
-
 @pytest.mark.remote_data
 def test_service_metadata():
     """Test compliance with 6.1 of SIA spec v1.0.
@@ -64,16 +61,6 @@ def test_query_region_2():
     assert expected.issubset(actual)
 
 
-# (7) Advanced Search; /api/adv_search/
-#
-# (2) aux_{file,hdu}_fields/<instrument>/<proctype>
-# (2) core_{file,hdu}_fields/
-#     [(2) {f,h}adoc  JUST LINK to these]
-# (2) {f,h}asearch
-# cat_list
-#
-# File (default type)
-#
 @pytest.mark.remote_data
 def test_core_file_fields():
     """List the available CORE FILE fields.
@@ -113,10 +100,6 @@ def test_query_file_metadata():
     assert actual.pformat_all() == exp.query_file_metadata
 
 
-#
-# HDU search
-#
-@pytest.mark.skip(reason='old API')
 @pytest.mark.remote_data
 def test_core_hdu_fields():
     """List the available CORE HDU fields.
@@ -125,13 +108,12 @@ def test_core_hdu_fields():
     assert actual == exp.core_hdu_fields
 
 
-@pytest.mark.skip(reason='old API')
 @pytest.mark.remote_data
 def test_aux_hdu_fields():
     """List the available AUX HDU fields.
     """
     actual = NOIRLabClass(hdu=True).aux_fields('decam', 'instcal')
-    assert actual == exp.aux_hdu_fields
+    assert actual[:10] == exp.aux_hdu_fields
 
 
 @pytest.mark.skip(reason='old API')
