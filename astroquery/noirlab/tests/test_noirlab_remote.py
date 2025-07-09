@@ -24,8 +24,8 @@ def test_service_metadata():
 @pytest.mark.skip(reason='old API')
 @pytest.mark.remote_data
 def test_query_region_0():
-    """Search FILES."""
-
+    """Search FILES.
+    """
     c = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
     r = NOIRLab().query_region(c, radius='0.1')
     actual = set(list(r['md5sum']))
@@ -37,9 +37,10 @@ def test_query_region_0():
 @pytest.mark.remote_data
 def test_query_region_1():
     """Search FILES.
-    Ensure query gets at least the set of files we expect.
-    Its ok if more files have been added to the remote Archive."""
 
+    Ensure query gets at least the set of files we expect.
+    It is OK if more files have been added to the remote Archive.
+    """
     c = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
     r = NOIRLabClass().query_region(c, radius='0.1')
     actual = set(list(r['md5sum']))
@@ -51,9 +52,10 @@ def test_query_region_1():
 @pytest.mark.remote_data
 def test_query_region_2():
     """Search HDUs.
-    Ensure query gets at least the set of files we expect.
-    Its ok if more files have been added to the remote Archive."""
 
+    Ensure query gets at least the set of files we expect.
+    Its ok if more files have been added to the remote Archive.
+    """
     c = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
     r = NOIRLabClass(hdu=True).query_region(c, radius='0.07')
     actual = set(list(r['md5sum']))
@@ -85,7 +87,6 @@ def test_categoricals():
     assert actual == exp.categoricals
 
 
-@pytest.mark.skip(reason='old API')
 @pytest.mark.remote_data
 def test_query_file_metadata():
     """Search FILE metadata.

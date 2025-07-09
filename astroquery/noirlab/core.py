@@ -35,12 +35,12 @@ class NOIRLabClass(BaseQuery):
 
         if hdu:
             self.siaurl = f'{self.NAT_URL}/api/sia/vohdu'
-            self._adss_url = f'{self._adsurl}/find?rectype=hdu'
+            self._adss_url = f'{self._adsurl}/find/?rectype=hdu'
             self._adsc_url = f'{self._adsurl}/core_hdu_fields'
             self._adsa_url = f'{self._adsurl}/aux_hdu_fields'
         else:
             self.siaurl = f'{self.NAT_URL}/api/sia/voimg'
-            self._adss_url = f'{self._adsurl}/find?rectype=file'
+            self._adss_url = f'{self._adsurl}/find/?rectype=file'
             self._adsc_url = f'{self._adsurl}/core_file_fields'
             self._adsa_url = f'{self._adsurl}/aux_file_fields'
 
@@ -105,7 +105,8 @@ class NOIRLabClass(BaseQuery):
                                  timeout=self.TIMEOUT,
                                  cache=cache)
         response.raise_for_status()
-        return astropy.table.Table(data=response.json())
+        # return astropy.table.Table(data=response.json())
+        return response.json()
 
     def query_region_async(self, coordinate, radius=0.1, cache=True):
         """Query for NOIRLab observations by region of the sky.
@@ -197,7 +198,9 @@ class NOIRLabClass(BaseQuery):
         response = self._request('POST', url, json=jdata,
                                  timeout=self.TIMEOUT, cache=cache)
         response.raise_for_status()
-        return astropy.table.Table(rows=response.json())
+        j = response.json()
+        # The first entry contains metadata.
+        return astropy.table.Table(rows=j[1:])
 
     def retrieve(self, fileid):
         """Simply fetch a file by MD5 ID.
