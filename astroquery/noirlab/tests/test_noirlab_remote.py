@@ -98,7 +98,9 @@ def test_query_file_metadata():
                            "proc_type"],
              "search": [['original_filename', 'c4d_', 'contains']]}
     actual = NOIRLab().query_metadata(qspec, limit=3)
-    assert actual.pformat_all() == exp.query_file_metadata
+    # .pformat_all() is deprecated, use pformat instead.
+    # assert actual.pformat_all() == exp.query_file_metadata
+    assert actual.pformat() == exp.query_file_metadata
 
 
 @pytest.mark.remote_data

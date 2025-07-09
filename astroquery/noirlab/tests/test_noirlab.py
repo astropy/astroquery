@@ -90,6 +90,7 @@ def test_query_region_2():
     expected = exp.query_region_2
     assert expected.issubset(actual)
 
+
 def test_core_file_fields(patch_request):
     """List the available CORE FILE fields.
     """
