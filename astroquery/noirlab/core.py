@@ -58,6 +58,8 @@ class NOIRLabClass(BaseQuery):
         return self._api_version
 
     def _validate_version(self):
+        """Ensure the API is compatible with the code.
+        """
         KNOWN_GOOD_API_VERSION = 6.0
         if (int(self.api_version) - int(KNOWN_GOOD_API_VERSION)) >= 1:
             msg = (f'The astroquery.noirlab module is expecting an older '
@@ -68,9 +70,21 @@ class NOIRLabClass(BaseQuery):
             raise RemoteServiceError(msg)
 
     def service_metadata(self, cache=True):
-        """Denotes a Metadata Query: no images are requested; only metadata
-        should be returned. This feature is described in more detail in:
-        http://www.ivoa.net/documents/PR/DAL/PR-SIA-1.0-20090521.html#mdquery
+        """A SIA metadata query: no images are requested; only metadata
+        should be returned.
+
+        This feature is described in more detail in:
+        https://www.ivoa.net/documents/PR/DAL/PR-SIA-1.0-20090521.html#mdquery
+
+        Parameters
+        ----------
+        cache : :class:`bool`, optional
+            If ``True`` cache the result locally.
+
+        Returns
+        -------
+        :class:`dict`
+            A dictionary containing SIA metadata.
         """
         url = f'{self.siaurl}?FORMAT=METADATA&format=json'
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
@@ -85,10 +99,10 @@ class NOIRLabClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : str or `~astropy.coordinates` object
+        coordinates : :class:`str` or `~astropy.coordinates` object
             The target region which to search. It may be specified as a
             string or as the appropriate `~astropy.coordinates` object.
-        radius : str or `~astropy.units.Quantity` object, optional
+        radius : :class:`str` or `~astropy.units.Quantity` object, optional
             Default 0.1 degrees.
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
@@ -96,7 +110,8 @@ class NOIRLabClass(BaseQuery):
 
         Returns
         -------
-        `~astropy.table.Table`
+        :class:`~astropy.table.Table`
+            A table containing the results.
         """
         self._validate_version()
         ra, dec = coordinate.to_string('decimal').split()
@@ -116,18 +131,21 @@ class NOIRLabClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : str or `~astropy.coordinates` object
+        coordinates : :clas:`str` or `~astropy.coordinates` object
             The target region which to search. It may be specified as a
             string or as the appropriate `~astropy.coordinates` object.
-        radius : str or `~astropy.units.Quantity` object, optional
+        radius : :clas:`str` or `~astropy.units.Quantity` object, optional
             Default 0.1 degrees.
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `~astropy.units` may also be used.
+        cache : :class:`bool`, optional
+            If ``True`` cache the result locally.
 
         Returns
         -------
-        `requests.Response`
+        :class:`~requests.Response`
+            Response object.
         """
         self._validate_version()
 
@@ -161,11 +179,28 @@ class NOIRLabClass(BaseQuery):
         return response.json()
 
     def aux_fields(self, instrument, proctype, cache=True):
-        """List the available AUX fields. AUX fields are ANY fields in the
-        Archive FITS files that are not core DB fields.  These are generally
-        common to a single Instrument, Proctype combination. AUX fields are
-        slower to search than CORE fields.  Acceptable values for INSTRUMENT and PROCTYPE
-        are listed in the results of the CATEGORICALS method.
+        """List the available AUX fields.
+
+        AUX fields are any fields in the Archive FITS files that are not
+        CORE DB fields.  These are generally common to a single instrument,
+        proctype combination. AUX fields are slower to search than CORE fields.
+        Acceptable values for `instrument` and `proctype` are listed in the
+        results of the :meth:`astroquery.noirlab.core.NOIRLabClass.categoricals`
+        method.
+
+        Parameters
+        ----------
+        instrument : :class:`str`
+            The specific instrument, *e.g.* '90prime' or 'decam'.
+        proctype : :class:`str`
+            A description of the type of image, *e.g.* 'raw' or 'instcal'.
+        cache : :class:`bool`, optional
+            If ``True`` cache the result locally.
+
+        Returns
+        -------
+        :class:`list`
+            A list of field descriptions, each a :class:`dict`.
         """
         url = f'{self._adsa_url}/{instrument}/{proctype}/'
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
@@ -174,11 +209,22 @@ class NOIRLabClass(BaseQuery):
 
     def categoricals(self, cache=True):
         """List the currently acceptable values for each 'categorical field'
-        associated with Archive files.  A 'categorical field' is one in
-        which the values are restricted to a specific set.  The specific
-        set may grow over time, but not often. The categorical fields are:
-        collection, instrument, obs_mode, proc_type, prod_type, site, survey,
-        telescope.
+        associated with Archive files.
+
+        A 'categorical field' is one in which the values are restricted to a
+        specific set.  The specific set may grow over time, but not often.
+        The categorical fields are: ``instrument``, ``obsmode``, ``obstype``,
+        ``proctype``, ``prodtype``, ``site``, ``survey``, ``telescope``.
+
+        Parameters
+        ----------
+        cache : :class:`bool`, optional
+            If ``True`` cache the result locally.
+
+        Returns
+        -------
+        :class:`dict`
+            A dictionary containing the category metadata.
         """
         url = f'{self._adsurl}/cat_lists/?format=json'
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
@@ -186,8 +232,24 @@ class NOIRLabClass(BaseQuery):
         return response.json()
 
     @class_or_instance
-    def query_metadata(self, qspec, limit=1000, cache=True):
-        # self._validate_version()
+    def query_metadata(self, qspec=None, limit=1000, cache=True):
+        """Query the archive database for details on available files.
+
+        Paramters
+        ---------
+        qspec : :class:`dict`, optional
+            The query that will be passed to the API.
+        limit : :class:`int`, optional
+            The number of results to return, default 1000.
+        cache : :class:`bool`, optional
+            If ``True`` cache the result locally.
+
+        Returns
+        -------
+        :class:`~astropy.table.Table`
+            A Table containing the results.
+        """
+        self._validate_version()
         url = f'{self._adss_url}&limit={limit}'
 
         if qspec is None:
@@ -247,6 +309,8 @@ class NOIRLabClass(BaseQuery):
         password : :class:`str`
             Password associated with `email`. *Please* never hard-code your
             password *anywhere*.
+        cache : :class:`bool`, optional
+            If ``True`` cache the result locally.
 
         Returns
         -------
