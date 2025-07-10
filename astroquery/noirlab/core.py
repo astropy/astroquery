@@ -131,10 +131,10 @@ class NOIRLabClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : :clas:`str` or `~astropy.coordinates` object
+        coordinates : :class:`str` or `~astropy.coordinates` object
             The target region which to search. It may be specified as a
             string or as the appropriate `~astropy.coordinates` object.
-        radius : :clas:`str` or `~astropy.units.Quantity` object, optional
+        radius : :class:`str` or `~astropy.units.Quantity` object, optional
             Default 0.1 degrees.
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
@@ -184,7 +184,7 @@ class NOIRLabClass(BaseQuery):
         AUX fields are any fields in the Archive FITS files that are not
         CORE DB fields.  These are generally common to a single instrument,
         proctype combination. AUX fields are slower to search than CORE fields.
-        Acceptable values for `instrument` and `proctype` are listed in the
+        Acceptable values for ``instrument`` and ``proctype`` are listed in the
         results of the :meth:`astroquery.noirlab.core.NOIRLabClass.categoricals`
         method.
 
