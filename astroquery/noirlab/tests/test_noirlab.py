@@ -115,7 +115,7 @@ def test_query_file_metadata(patch_request):
                            "proc_type"],
              "search": [['original_filename', 'c4d_', 'contains']]}
     actual = NOIRLab.query_metadata(qspec, limit=3)
-    assert actual.pformat_all() == exp.query_file_metadata
+    assert actual.pformat(max_width=-1) == exp.query_file_metadata
 
 
 def test_core_hdu_fields(patch_request):
@@ -145,7 +145,7 @@ def test_query_hdu_metadata(patch_request):
                         ["fitsfile__instrument", "decam"],
                         ["fitsfile__proc_type", "raw"]]}
     actual = NOIRLabHDU.query_metadata(qspec, limit=3)
-    assert actual.pformat_all() == exp.query_hdu_metadata
+    assert actual.pformat(max_width=-1) == exp.query_hdu_metadata
 
 
 def test_categoricals(patch_request):

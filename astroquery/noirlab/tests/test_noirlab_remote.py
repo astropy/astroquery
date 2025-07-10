@@ -98,9 +98,7 @@ def test_query_file_metadata():
                            "proc_type"],
              "search": [['original_filename', 'c4d_', 'contains']]}
     actual = NOIRLab().query_metadata(qspec, limit=3)
-    # .pformat_all() is deprecated, use pformat instead.
-    # assert actual.pformat_all() == exp.query_file_metadata
-    assert actual.pformat() == exp.query_file_metadata
+    assert actual.pformat(max_width=-1) == exp.query_file_metadata
 
 
 @pytest.mark.remote_data
@@ -133,7 +131,7 @@ def test_query_hdu_metadata():
                         ["fitsfile__instrument", "decam"],
                         ["fitsfile__proc_type", "raw"]]}
     actual = NOIRLabClass(hdu=True).query_metadata(qspec, limit=3)
-    assert actual.pformat_all() == exp.query_hdu_metadata
+    assert actual.pformat(max_width=-1) == exp.query_hdu_metadata
 
 
 @pytest.mark.remote_data
