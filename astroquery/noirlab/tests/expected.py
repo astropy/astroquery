@@ -87,7 +87,10 @@ query_file_meta_raw = [{'META': {'endpoint': 'adv_search/find'},
                         'instrument': 'decam',
                         'archive_filename': '/net/archive/pipe/20160929/ct4m/2012B-0001/c4d_160930_070518_opi_r_v2.fits.fz'}]
 
-query_file_meta_raw_minimal = [{'META': {'endpoint': 'adv_search/find'},},
+query_file_meta_raw_minimal = [{'META': {'endpoint': 'adv_search/find'},
+                                'PARAMETERS': {'rectype': 'file',
+                                               'limit': 5},
+                                'HEADER': {'md5sum': 'str'}},
                                {'md5sum': '97f18cde19976fe167484003f1aca94c',},
                                {'md5sum': '09325eb851e81df518042af1d882b9c5',},
                                {'md5sum': 'd4bf24fdfa22385ce748304dceee0d97',},
