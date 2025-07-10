@@ -6,26 +6,25 @@
 About the NSF NOIRLab Astro Data Archive
 ****************************************
 
-The NSF NOIRLab Astro Data Archive (formerly NOAO Science Archive)
-provides access to data taken with more than 40 telescope and
-instrument combinations, including those operated in partnership with
-the WIYN, SOAR and SMARTS consortia, from semester 2004B to the
-present. In addition to raw data, pipeline-reduced data products from
-the DECam, Mosaic and NEWFIRM imagers are also available, as well as
-advanced data products delivered by teams carrying out surveys and
-other large observing programs with NSF OIR Lab facilities.
+The NOIRLab Astro Data Archive (formerly NOAO Science Archive) provides
+access to data taken with more than 40 telescope and instrument combinations,
+including those operated in partnership with the WIYN, SOAR and SMARTS
+consortia, from semester 2004B to the present. In addition to raw data,
+pipeline-reduced data products from the DECam, Mosaic and NEWFIRM imagers
+are also available, as well as advanced data products delivered by teams
+carrying out surveys and other large observing programs with NSF NOIRLab
+facilities.
 
 For more info about our holdings see the
-`NSF NOIRLab Astro Data Archive <https://astroarchive.noirlab.edu/about/>`_
+`NSF NOIRLab Astro Data Archive <https://astroarchive.noirlab.edu/about/>`_.
 
 Acknowledgment
 ==============
 
-This research uses services or data provided by the Astro Data Archive
-at NSF's National Optical-Infrared Astronomy Research
-Laboratory. NSF's OIR Lab is operated by the Association of
-Universities for Research in Astronomy (AURA), Inc. under a
-cooperative agreement with the National Science Foundation.
+This research uses services or data provided by the Astro Data Archive at
+NSF's NOIRLab. NOIRLab is operated by the Association of Universities for
+Research in Astronomy (AURA), Inc. under a cooperative agreement with the
+National Science Foundation.
 
 **************************************
 NOIRLab Queries (`astroquery.noirlab`)
@@ -33,7 +32,7 @@ NOIRLab Queries (`astroquery.noirlab`)
 
 The methods in this module are wrappers around a set of web services
 described in the
-`Rest API documentation <https://astroarchive.noirlab.edu/api/docs/>`_.
+`REST API documentation <https://astroarchive.noirlab.edu/api/docs/>`_.
 This data archive is hosted at the
 `Community Science and Data Center (CDSC) <https://noirlab.edu/public/programs/csdc/>`_.
 
@@ -110,44 +109,44 @@ This is an example of searching by HDU.
 Advanced Search
 ===============
 
-This set of methods supports **arbitrary searches of any fields**
+This set of methods supports *arbitrary searches of any fields*
 stored in the FITS headers of the Archive.  Common fields ("core"
 fields) are optimized for search speed. Less common fields ("aux"
 fields) will be slower to search. You can search by File or HDU. The
-primary method for doing the search in ``query_metadata``. That query
-requires a ``JSON`` structure to define the query.  We often call this
-the *JSON search spec*. Many of the other
-methods with this module are here to provide you with the information
-you need to construct the ``JSON`` structure.
+primary method for doing the search is
+:meth:`~astroquery.noirlab.NOIRLabClass.query_metadata`. That query
+requires a JSON_ structure to define the query.  We often call this
+the *JSON search spec*. Additional methods in this module
+provide information needed to construct the JSON_ structure.
 Summaries of the mechanisms available in the JSON search spec for
 `File search <https://astroarchive.noirlab.edu/api/adv_search/fadoc/>`_
 and for `HDU search
 <https://astroarchive.noirlab.edu/api/adv_search/hadoc/>`_
 are on the NSF NOIRLab Data Archive website.
 
-There are three methods whose sole purpose if providing you with
-information to help you with the content of your ``JSON`` structure.
-They are:
+These methods provide information needed to fill in a JSON_ query structure:
 
-#. aux_fields()
-#. core_fields()
-#. categoricals()
+#. :meth:`~astroquery.noirlab.NOIRLabClass.aux_fields`
+#. :meth:`~astroquery.noirlab.NOIRLabClass.core_fields`
+#. :meth:`~astroquery.noirlab.NOIRLabClass.categoricals`
 
-See the Reference/API below for details. The categoricals() method
+See the Reference/API below for details. The
+:meth:`~astroquery.noirlab.NOIRLabClass.categoricals` method
 returns a list of all the "category strings" such as names of
-Instruments and Telescopes.  The aux/core_fields methods
+Instruments and Telescopes.  The :meth:`~astroquery.noirlab.NOIRLabClass.aux_fields`
+and :meth:`~astroquery.noirlab.NOIRLabClass.core_fields` methods
 tell you what fields are available to search. The core fields are
-available for all instruments are the search for them is fast. The aux
-fields require you to specify instrument and proctype.  The set of
-fields available is highly dependent on those two fields. The
-Instrument determines aux fields in raw files. Proctype determines
+available for all instruments; searching on these fields is optimized
+for speed. The aux fields require you to specify instrument and proctype.
+The set of aux fields available is highly dependent on those two fields. The
+instrument determines aux fields in raw files. Proctype determines
 what kind of pipeline processing was done.  Pipeline processing often
-adds important (aux) fields.
+adds important additional aux fields.
 
+.. _JSON: https://www.json.org/json-en.html
 
 Reference/API
 =============
-
 
 .. automodapi:: astroquery.noirlab
     :no-inheritance-diagram:

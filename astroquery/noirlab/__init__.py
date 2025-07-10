@@ -15,8 +15,8 @@ are also available, as well as advanced data products delivered by teams
 carrying out surveys and other large observing programs with NSF NOIRLab
 facilities.
 
-A detailed list of holdings in the archive is available at
-https://astroarchive.noirlab.edu/about/.
+For more info about our holdings see the
+`NSF NOIRLab Astro Data Archive <https://astroarchive.noirlab.edu/about/>`_.
 
 Acknowledgment
 --------------

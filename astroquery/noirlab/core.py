@@ -237,8 +237,8 @@ class NOIRLabClass(BaseQuery):
     def query_metadata(self, qspec=None, limit=1000, cache=True):
         """Query the archive database for details on available files.
 
-        Paramters
-        ---------
+        Parameters
+        ----------
         qspec : :class:`dict`, optional
             The query that will be passed to the API.
         limit : :class:`int`, optional
