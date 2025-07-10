@@ -107,6 +107,8 @@ class NOIRLabClass(BaseQuery):
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `~astropy.units` may also be used.
+        cache : :class:`bool`, optional
+            If ``True`` cache the result locally.
 
         Returns
         -------

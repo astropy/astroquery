@@ -47,6 +47,14 @@ query_file_metadata = ['proc_type                                   original_fil
                        'resampled /net/decdata1/deccp/NHPPS_DATA/DCP/Final/Submitted/c4d_180125_005333_opd_i_v1.fits.fz 39a5e8c1d0c1ee721f1a753367f5f7c5      decam /net/archive/pipe/20180124/ct4m/2012B-0001/c4d_180125_005333_opd_i_v1.fits.fz',
                        'resampled /net/decdata1/deccp/NHPPS_DATA/DCP/Final/Submitted/c4d_160930_070518_opi_r_v2.fits.fz 9860ceed19ac461a5435055e68060c6c      decam /net/archive/pipe/20160929/ct4m/2012B-0001/c4d_160930_070518_opi_r_v2.fits.fz']
 
+query_file_metadata_minimal = ['             md5sum             ',
+                               '--------------------------------',
+                               '97f18cde19976fe167484003f1aca94c',
+                               '09325eb851e81df518042af1d882b9c5',
+                               'd4bf24fdfa22385ce748304dceee0d97',
+                               '9d81bef7e7073878e0aa33e63ac8a8c9',
+                               '4938fe8591ea4ac88332bbf2e6e2cb11']
+
 query_file_meta_raw = [{'META': {'endpoint': 'adv_search/find'},
                         'PARAMETERS': {'rectype': 'file',
                                        'limit': 3,
@@ -78,6 +86,13 @@ query_file_meta_raw = [{'META': {'endpoint': 'adv_search/find'},
                         'md5sum': '9860ceed19ac461a5435055e68060c6c',
                         'instrument': 'decam',
                         'archive_filename': '/net/archive/pipe/20160929/ct4m/2012B-0001/c4d_160930_070518_opi_r_v2.fits.fz'}]
+
+query_file_meta_raw_minimal = [{'META': {'endpoint': 'adv_search/find'},},
+                               {'md5sum': '97f18cde19976fe167484003f1aca94c',},
+                               {'md5sum': '09325eb851e81df518042af1d882b9c5',},
+                               {'md5sum': 'd4bf24fdfa22385ce748304dceee0d97',},
+                               {'md5sum': '9d81bef7e7073878e0aa33e63ac8a8c9',},
+                               {'md5sum': '4938fe8591ea4ac88332bbf2e6e2cb11',}]
 
 core_hdu_fields = [{'Field': 'dec_center', 'Type': 'np.float64', 'Desc': 'DEC center from pipeline processing'},
                    {'Field': 'dec_max', 'Type': 'np.float64', 'Desc': 'DEC min,max range of HDU'},

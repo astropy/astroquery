@@ -7,6 +7,7 @@ import pytest
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 from ...utils.mocks import MockResponse
+from ...exceptions import RemoteServiceError
 from .. import NOIRLab, NOIRLabClass
 from . import expected as exp
 
@@ -21,8 +22,10 @@ def mock_content(method, url, **kwargs):
         content = json.dumps(exp.core_file_fields)
     elif '/aux_file_fields' in url:
         content = json.dumps(exp.aux_file_fields)
-    elif '/find/?rectype=file' in url:
+    elif '/find/?rectype=file&limit=3' in url:
         content = json.dumps(exp.query_file_meta_raw)
+    elif '/find/?rectype=file&limit=5' in url:
+        content = json.dumps(exp.query_file_meta_raw_minimal)
     elif '/core_hdu_fields' in url:
         content = json.dumps(exp.core_hdu_fields)
     elif '/aux_hdu_fields' in url:
@@ -118,6 +121,13 @@ def test_query_file_metadata(patch_request):
     assert actual.pformat(max_width=-1) == exp.query_file_metadata
 
 
+def test_query_file_metadata_minimal_input(patch_request):
+    """Search FILE metadata with minimum input parameters.
+    """
+    actual = NOIRLab.query_metadata(qspec=None, limit=5)
+    assert actual.pformat(max_width=-1) == exp.query_file_metadata_minimal
+
+
 def test_core_hdu_fields(patch_request):
     """List the available CORE HDU fields.
     """
@@ -167,6 +177,17 @@ def test_api_version(patch_request):
     """
     actual = NOIRLab.api_version
     assert actual >= float(exp.version)
+
+
+def test__validate_version(patch_request):
+    """Check exception raised by outdated API version.
+    """
+    actual_api = NOIRLab.api_version
+    NOIRLab._api_version = 9.8
+    with pytest.raises(RemoteServiceError) as e:
+        NOIRLab._validate_version()
+    assert e.value.args[0] == 'The astroquery.noirlab module is expecting an older version of the https://astroarchive.noirlab.edu API services. Please upgrade to latest astroquery.  Expected version 6.0 but got 9.8 from the API.'
+    NOIRLab._api_version = actual_api
 
 
 def test_get_token(patch_request):

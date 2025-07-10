@@ -102,6 +102,14 @@ def test_query_file_metadata():
 
 
 @pytest.mark.remote_data
+def test_query_file_metadata_minimal_input():
+    """Search FILE metadata with minimum input parameters.
+    """
+    actual = NOIRLab().query_metadata(qspec=None, limit=5)
+    assert actual.pformat(max_width=-1) == exp.query_file_metadata_minimal
+
+
+@pytest.mark.remote_data
 def test_core_hdu_fields():
     """List the available CORE HDU fields.
     """
