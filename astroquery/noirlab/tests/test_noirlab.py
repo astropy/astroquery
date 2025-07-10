@@ -158,6 +158,14 @@ def test_query_hdu_metadata(patch_request):
     assert actual.pformat(max_width=-1) == exp.query_hdu_metadata
 
 
+@pytest.mark.skip(reason='WIP')
+def test_query_hdu_metadata_minimal_input(patch_request):
+    """Search HDU metadata with minimum input parameters.
+    """
+    actual = NOIRLabHDU.query_metadata(qspec=None, limit=3)
+    assert actual.pformat(max_width=-1) == exp.query_hdu_metadata_minimal
+
+
 def test_categoricals(patch_request):
     """List categories.
     """
@@ -186,7 +194,10 @@ def test__validate_version(patch_request):
     NOIRLab._api_version = 9.8
     with pytest.raises(RemoteServiceError) as e:
         NOIRLab._validate_version()
-    assert e.value.args[0] == 'The astroquery.noirlab module is expecting an older version of the https://astroarchive.noirlab.edu API services. Please upgrade to latest astroquery.  Expected version 6.0 but got 9.8 from the API.'
+    assert e.value.args[0] == ('The astroquery.noirlab module is expecting an older '
+                               'version of the https://astroarchive.noirlab.edu API services. '
+                               'Please upgrade to latest astroquery.  '
+                               'Expected version 6.0 but got 9.8 from the API.')
     NOIRLab._api_version = actual_api
 
 

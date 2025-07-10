@@ -127,6 +127,15 @@ def test_aux_hdu_fields():
 
 @pytest.mark.skip(reason='old API')
 @pytest.mark.remote_data
+def test_query_hdu_metadata_minimal_input():
+    """Search HDU metadata with minimum input parameters.
+    """
+    actual = NOIRLabClass(hdu=True).query_metadata(qspec=None, limit=5)
+    assert actual.pformat(max_width=-1) == exp.query_hdu_metadata_minimal
+
+
+@pytest.mark.skip(reason='old API')
+@pytest.mark.remote_data
 def test_query_hdu_metadata():
     """Search HDU metadata.
     """
