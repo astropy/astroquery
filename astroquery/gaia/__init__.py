@@ -38,6 +38,7 @@ class Conf(_config.ConfigNamespace):
                                       'RVS_EPOCH_SPECTRUM',
                                       'RVS_TRANSIT',
                                       'EPOCH_ASTROMETRY_CROWDED_FIELD',
+                                      'EPOCH_PHOTOMETRY_CROWDED_FIELD'
                                       'EPOCH_IMAGE',
                                       'EPOCH_PHOTOMETRY_CCD',
                                       'XP_EPOCH_SPECTRUM_SSO',
@@ -45,7 +46,12 @@ class Conf(_config.ConfigNamespace):
                                       'XP_MEAN_SPECTRUM',
                                       'XP_EPOCH_SPECTRUM',
                                       'CROWDED_FIELD_IMAGE',
-                                      'EPOCH_ASTROMETRY_BRIGHT']
+                                      'EPOCH_ASTROMETRY_BRIGHT',
+                                      'XP_MEAN_SPECTRUM_GRAVLENS',
+                                      'EPOCH_FLAGS_NSS',
+                                      'EPOCH_PARAMETERS_RVS_SINGLE',
+                                      'EPOCH_PARAMETERS_RVS_DOUBLE',
+                                      'EPOCH_FLAGS_VARI']
 
     VALID_LINKING_PARAMETERS = {'SOURCE_ID', 'TRANSIT_ID', 'IMAGE_ID'}
 
