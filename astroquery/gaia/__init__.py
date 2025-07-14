@@ -38,7 +38,7 @@ class Conf(_config.ConfigNamespace):
                                       'RVS_EPOCH_SPECTRUM',
                                       'RVS_TRANSIT',
                                       'EPOCH_ASTROMETRY_CROWDED_FIELD',
-                                      'EPOCH_PHOTOMETRY_CROWDED_FIELD'
+                                      'EPOCH_PHOTOMETRY_CROWDED_FIELD',
                                       'EPOCH_IMAGE',
                                       'EPOCH_PHOTOMETRY_CCD',
                                       'XP_EPOCH_SPECTRUM_SSO',

@@ -184,7 +184,7 @@ class GaiaClass(TapPlus):
             in a single bundle, even if only one source/file is considered
             'RAW' means products are provided following a Data Model similar to that used in the MDB, meaning in
             particular that parameters stored as arrays will remain as such. A single file is provided for the data of
-            all sourceIds together, but in this case there will be always be one row per sourceId
+            all sourceIds together, but in this case there will be always be one row per sourceId.
         retrieval_type : str, optional, default 'ALL' to retrieve all data  from the list of sources
             retrieval type identifier. For GAIA DR2 possible values are ['EPOCH_PHOTOMETRY']
             For GAIA DR3, possible values are ['EPOCH_PHOTOMETRY', 'RVS', 'XP_CONTINUOUS', 'XP_SAMPLED',
@@ -192,10 +192,12 @@ class GaiaClass(TapPlus):
             For GAIA DR4, possible values will be ['EPOCH_PHOTOMETRY', 'MEAN_SPECTRUM_RVS', 'XP_CONTINUOUS',
             'XP_SAMPLED', 'MCMC_GSPPHOT', 'MCMC_MSC', 'EPOCH_ASTROMETRY', 'RVS_EPOCH_DATA_SINGLE',
             'RVS_EPOCH_DATA_DOUBLE','RVS_EPOCH_SPECTRUM', 'RVS_TRANSIT', 'EPOCH_ASTROMETRY_CROWDED_FIELD',
-            'EPOCH_IMAGE', 'EPOCH_PHOTOMETRY_CCD', 'XP_EPOCH_SPECTRUM_SSO', 'XP_EPOCH_CROWDING', 'XP_MEAN_SPECTRUM',
-            'XP_EPOCH_SPECTRUM', 'CROWDED_FIELD_IMAGE', 'EPOCH_ASTROMETRY_BRIGHT']. Note that for
-            'CROWDED_FIELD_IMAGE' only the format 'fits' can be used, and that its image, in the principal header, will
-            not be available in the returned dictionary. Set 'output_file' to retrieve all data: image + tables.
+            'EPOCH_PHOTOMETRY_CROWDED_FIELD', 'EPOCH_IMAGE', 'EPOCH_PHOTOMETRY_CCD', 'XP_EPOCH_SPECTRUM_SSO',
+            'XP_EPOCH_CROWDING', 'XP_MEAN_SPECTRUM', 'XP_EPOCH_SPECTRUM', 'CROWDED_FIELD_IMAGE',
+            'EPOCH_ASTROMETRY_BRIGHT', 'XP_MEAN_SPECTRUM_GRAVLENS', 'EPOCH_FLAGS_NSS', 'EPOCH_PARAMETERS_RVS_SINGLE',
+            EPOCH_PARAMETERS_RVS_DOUBLE', 'EPOCH_FLAGS_VARI']. Note that for 'CROWDED_FIELD_IMAGE' only the format
+            'fits' can be used, and that its image, in the principal header, will not be available in the returned
+            dictionary. Set 'output_file' to retrieve all data: image + tables.
         linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID, TRANSIT_ID, IMAGE_ID
             By default, all the identifiers are considered as source_id
             SOURCE_ID: the identifiers are considered as source_id

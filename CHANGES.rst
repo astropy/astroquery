@@ -15,7 +15,7 @@ gaia
 - Deprecated ``band`` from ``load_data`` as it has no effect on upstream
   response any more. [#3278]
 - New datalink retrieve types EPOCH_PHOTOMETRY_CROWDED_FIELD, EPOCH_ASTROMETRY_BRIGHT, XP_MEAN_SPECTRUM_GRAVLENS,
-  EPOCH_FLAGS_NSS, EPOCH_PARAMETERS_RVS_SINGLE, EPOCH_PARAMETERS_RVS_DOUBLE, EPOCH_FLAGS_VARI. [#3371]
+  EPOCH_FLAGS_NSS, EPOCH_PARAMETERS_RVS_SINGLE, EPOCH_PARAMETERS_RVS_DOUBLE, EPOCH_FLAGS_VARI. [#3371, #3372]
 
 Service fixes and enhancements
 ------------------------------
