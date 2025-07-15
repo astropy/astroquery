@@ -472,11 +472,19 @@ class MastMissionsClass(MastQueryWithLogin):
         extension : string or array, optional
             Default is None. Filters by file extension(s), matching any specified extensions.
         **filters :
-            Column-based filters to be applied.
+            Column-based filters to apply to the products table.
+
             Each keyword corresponds to a column name in the table, with the argument being one or more
             acceptable values for that column. AND logic is applied between filters, OR logic within
-            each filter set.
-            For example: type="science", extension=["fits","jpg"]
+            each filter set. For example: type="science", extension=["fits", "jpg"]
+
+            For columns with numeric data types (int or float), filter values can be expressed
+            in several ways:
+
+            - A single number: ``size=100``
+            - A range in the form "start..end": ``size="100..1000"``
+            - A comparison operator followed by a number: ``size=">=1000"``
+            - A list of expressions (OR logic): ``size=[100, "500..1000", ">=1500"]``
 
         Returns
         -------
@@ -503,11 +511,21 @@ class MastMissionsClass(MastQueryWithLogin):
                 warnings.warn(f"Column '{colname}' not found in product table.", InputWarning)
                 continue
 
-            vals = [vals] if isinstance(vals, str) else vals
-            col_mask = np.isin(products[colname], vals)
+            col_data = products[colname]
+            # If the column is an integer or float, accept numeric filters
+            if col_data.dtype.kind in 'if':
+                try:
+                    col_mask = utils.parse_numeric_product_filter(vals)(col_data)
+                except ValueError:
+                    warnings.warn(f"Could not parse numeric filter '{vals}' for column '{colname}'.", InputWarning)
+                    continue
+            else:  # Assume string or list filter
+                if isinstance(vals, str):
+                    vals = [vals]
+                col_mask = np.isin(col_data, vals)
+
             filter_mask &= col_mask
 
-        # Return filtered products
         return products[filter_mask]
 
     def download_file(self, uri, *, local_path=None, cache=True, verbose=True):
