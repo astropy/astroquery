@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Provide astroquery API access to NSF NOIRLab Astro Data Archive.
 
@@ -268,7 +269,7 @@ class NOIRLabClass(BaseQuery):
     def query_metadata(self, qspec=None, sort=None, limit=1000, hdu=False, cache=True):
         """Query the archive database for details on available files.
 
-        `qspec` should minimally contain a list of output columns and a list of
+        ``qspec`` should minimally contain a list of output columns and a list of
         search parameters, which could be empty. For example::
 
             qspec = {"outfields": ["md5sum", ], "search": []}
@@ -278,7 +279,7 @@ class NOIRLabClass(BaseQuery):
         qspec : :class:`dict`, optional
             The query that will be passed to the API.
         sort : :class:`str`, optional
-            Sort the results on one of the columns in `qspec`.
+            Sort the results on one of the columns in ``qspec``.
         limit : :class:`int`, optional
             The number of results to return, default 1000.
         hdu : :class:`bool`, optional

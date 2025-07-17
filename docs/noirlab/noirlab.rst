@@ -4,6 +4,9 @@
 NOIRLab Queries (`astroquery.noirlab`)
 **************************************
 
+Introduction
+============
+
 The methods in this module are wrappers around a set of web services
 described in the
 `REST API documentation <https://astroarchive.noirlab.edu/api/docs/>`_.
