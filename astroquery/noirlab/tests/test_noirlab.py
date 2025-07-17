@@ -68,7 +68,7 @@ def test_query_region(patch_request, hdu, radius):
     It is OK if more files have been added to the remote Archive.
     """
     c = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
-    r = NOIRLab().query_region(c, radius=radius, hdu=hdu)
+    r = NOIRLab.query_region(c, radius=radius, hdu=hdu)
     actual = set(r['md5sum'].tolist())
     if hdu:
         expected = exp.query_region_2

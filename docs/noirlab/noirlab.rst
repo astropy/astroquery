@@ -1,8 +1,18 @@
 .. _astroquery.noirlab:
 
-****************************************
+**************************************
+NOIRLab Queries (`astroquery.noirlab`)
+**************************************
+
+The methods in this module are wrappers around a set of web services
+described in the
+`REST API documentation <https://astroarchive.noirlab.edu/api/docs/>`_.
+This data archive is hosted at the
+`Community Science and Data Center (CDSC) <https://noirlab.edu/public/programs/csdc/>`_.
+
+
 About the NSF NOIRLab Astro Data Archive
-****************************************
+========================================
 
 The NOIRLab Astro Data Archive (formerly NOAO Science Archive) provides
 access to data taken with more than 40 telescope and instrument combinations,
@@ -17,22 +27,12 @@ For more info about our holdings see the
 `NSF NOIRLab Astro Data Archive <https://astroarchive.noirlab.edu/about/>`_.
 
 Acknowledgment
-==============
+~~~~~~~~~~~~~~
 
 This research uses services or data provided by the Astro Data Archive at
 NSF's NOIRLab. NOIRLab is operated by the Association of Universities for
 Research in Astronomy (AURA), Inc. under a cooperative agreement with the
 National Science Foundation.
-
-**************************************
-NOIRLab Queries (`astroquery.noirlab`)
-**************************************
-
-The methods in this module are wrappers around a set of web services
-described in the
-`REST API documentation <https://astroarchive.noirlab.edu/api/docs/>`_.
-This data archive is hosted at the
-`Community Science and Data Center (CDSC) <https://noirlab.edu/public/programs/csdc/>`_.
 
 
 Getting started (SIA)
