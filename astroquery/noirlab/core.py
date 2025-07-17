@@ -8,7 +8,7 @@ import astropy.table
 from ..query import BaseQuery
 from ..utils import async_to_sync
 from ..exceptions import RemoteServiceError
-from ..utils.class_or_instance import class_or_instance
+# from ..utils.class_or_instance import class_or_instance
 from . import conf
 
 
@@ -18,32 +18,12 @@ __all__ = ['NOIRLab', 'NOIRLabClass']  # specifies what to import
 @async_to_sync
 class NOIRLabClass(BaseQuery):
     """Search functionality for the NSF NOIRLab Astro Data Archive.
-
-    Parameters
-    ----------
-    hdu : :class:`bool`, optional
-        If ``True``, search HDUs in files. THe HDUs must have RA, DEC header
-        keywords. This is not guaranteed for all files.
-        The default is to just search for files.
     """
     TIMEOUT = conf.timeout
     NAT_URL = conf.server
 
-    def __init__(self, hdu=False):
+    def __init__(self):
         self._api_version = None
-        self._adsurl = f'{self.NAT_URL}/api/adv_search'
-
-        if hdu:
-            self.siaurl = f'{self.NAT_URL}/api/sia/vohdu'
-            self._adss_url = f'{self._adsurl}/find/?rectype=hdu'
-            self._adsc_url = f'{self._adsurl}/core_hdu_fields'
-            self._adsa_url = f'{self._adsurl}/aux_hdu_fields'
-        else:
-            self.siaurl = f'{self.NAT_URL}/api/sia/voimg'
-            self._adss_url = f'{self._adsurl}/find/?rectype=file'
-            self._adsc_url = f'{self._adsurl}/core_file_fields'
-            self._adsa_url = f'{self._adsurl}/aux_file_fields'
-
         super().__init__()
 
     @property
@@ -69,7 +49,60 @@ class NOIRLabClass(BaseQuery):
                    f'{self.api_version} from the API.')
             raise RemoteServiceError(msg)
 
-    def service_metadata(self, cache=True):
+    def _sia_url(self, hdu=False):
+        """Return the URL for SIA queries.
+
+        Parameters
+        ----------
+        hdu : :class:`bool`, optional
+            If ``True`` return the URL for HDU-based queries.
+
+        Returns
+        -------
+        :class:`str`
+            The query URL.
+        """
+        return f'{self.NAT_URL}/api/sia/vohdu' if hdu else f'{self.NAT_URL}/api/sia/voimg'
+
+    def _fields_url(self, hdu=False, aux=False):
+        """Return the URL for metadata queries.
+
+        Parameters
+        ----------
+        hdu : :class:`bool`, optional
+            If ``True`` return the URL for HDU-based queries.
+        aux : :class:`bool`, optional
+            If ``True`` return metadata on AUX fields.
+
+        Returns
+        -------
+        :class:`str`
+            The query URL.
+        """
+        file = 'hdu' if hdu else 'file'
+        core = 'aux' if aux else 'core'
+        return f'{self.NAT_URL}/api/adv_search/{core}_{file}_fields'
+
+    def _response_to_table(self, response_json):
+        """Convert a JSON response to a :class:`~astropy.table.Table`.
+
+        Parameters
+        ----------
+        response_json : :class:`list`
+            A query response formatted as a list of objects. The query
+            metadata is the first item in the list.
+
+        Returns
+        -------
+        :class:`~astropy.table.Table`
+            The converted response. The column ordering will match the
+            ordering of the `HEADER` metadata.
+        """
+        names = list(response_json[0]['HEADER'].keys())
+        rows = [[row[n] for n in names] for row in response_json[1:]]
+        return astropy.table.Table(names=names, rows=rows)
+
+    def service_metadata(self, hdu=False, cache=True):
         """A SIA metadata query: no images are requested; only metadata
         should be returned.
 
@@ -78,6 +111,8 @@ class NOIRLabClass(BaseQuery):
 
         Parameters
         ----------
+        hdu : :class:`bool`, optional
+            If ``True`` return the URL for HDU-based queries.
         cache : :class:`bool`, optional
             If ``True`` cache the result locally.
 
@@ -86,12 +121,11 @@ class NOIRLabClass(BaseQuery):
         :class:`dict`
             A dictionary containing SIA metadata.
         """
-        url = f'{self.siaurl}?FORMAT=METADATA&format=json'
+        url = f'{self._sia_url(hdu=hdu)}?FORMAT=METADATA&format=json'
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
-        return response.json()[0]
+        return response.json()
 
-    @class_or_instance
-    def query_region(self, coordinate, radius=0.1, cache=True):
+    def query_region(self, coordinate, radius=0.1, hdu=False, cache=True):
         """Query for NOIRLab observations by region of the sky.
 
         Given a sky coordinate and radius, returns a `~astropy.table.Table`
@@ -99,7 +133,7 @@ class NOIRLabClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : :class:`str` or `~astropy.coordinates` object
+        coordinate : :class:`str` or `~astropy.coordinates` object
             The target region which to search. It may be specified as a
             string or as the appropriate `~astropy.coordinates` object.
         radius : :class:`str` or `~astropy.units.Quantity` object, optional
@@ -107,6 +141,8 @@ class NOIRLabClass(BaseQuery):
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `~astropy.units` may also be used.
+        hdu : :class:`bool`, optional
+            If ``True`` return the URL for HDU-based queries.
         cache : :class:`bool`, optional
             If ``True`` cache the result locally.
 
@@ -115,17 +151,11 @@ class NOIRLabClass(BaseQuery):
         :class:`~astropy.table.Table`
             A table containing the results.
         """
-        self._validate_version()
-        ra, dec = coordinate.to_string('decimal').split()
-        url = f'{self.siaurl}?POS={ra},{dec}&SIZE={radius}&format=json'
-        response = self._request('GET', url,
-                                 timeout=self.TIMEOUT,
-                                 cache=cache)
+        response = self.query_region_async(coordinate, radius=radius, hdu=hdu, cache=cache)
         response.raise_for_status()
-        # return astropy.table.Table(data=response.json())
-        return response.json()
+        return self._response_to_table(response.json())
 
-    def query_region_async(self, coordinate, radius=0.1, cache=True):
+    def query_region_async(self, coordinate, radius=0.1, hdu=False, cache=True):
         """Query for NOIRLab observations by region of the sky.
 
         Given a sky coordinate and radius, returns a `~astropy.table.Table`
@@ -133,7 +163,7 @@ class NOIRLabClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : :class:`str` or `~astropy.coordinates` object
+        coordinate : :class:`str` or `~astropy.coordinates` object
             The target region which to search. It may be specified as a
             string or as the appropriate `~astropy.coordinates` object.
         radius : :class:`str` or `~astropy.units.Quantity` object, optional
@@ -141,6 +171,8 @@ class NOIRLabClass(BaseQuery):
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `~astropy.units` may also be used.
+        hdu : :class:`bool`, optional
+            If ``True`` return the URL for HDU-based queries.
         cache : :class:`bool`, optional
             If ``True`` cache the result locally.
 
@@ -150,22 +182,21 @@ class NOIRLabClass(BaseQuery):
             Response object.
         """
         self._validate_version()
-
         ra, dec = coordinate.to_string('decimal').split()
-        url = f'{self.siaurl}?POS={ra},{dec}&SIZE={radius}&format=json'
-        response = self._request('GET', url,
-                                 timeout=self.TIMEOUT,
-                                 cache=cache)
-        response.raise_for_status()
+        url = f'{self._sia_url(hdu=hdu)}?POS={ra},{dec}&SIZE={radius}&VERB=3&format=json'
+        response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
+        # response.raise_for_status()
         return response
 
-    def core_fields(self, cache=True):
-        """List the available CORE fields.
+    def core_fields(self, hdu=False, cache=True):
+        """List the available CORE fields for file or HDU searches.
 
         CORE fields are faster to search than AUX fields.
 
         Parameters
         ----------
+        hdu : :class:`bool`, optional
+            If ``True`` return the fields for HDU-based queries.
         cache : :class:`bool`, optional
             If ``True`` cache the result locally.
 
@@ -174,13 +205,12 @@ class NOIRLabClass(BaseQuery):
         :class:`list`
             A list of field descriptions, each a :class:`dict`.
         """
-        response = self._request('GET', self._adsc_url,
-                                 timeout=self.TIMEOUT,
-                                 cache=cache)
+        url = self._fields_url(hdu=hdu, aux=False)
+        response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
         response.raise_for_status()
         return response.json()
 
-    def aux_fields(self, instrument, proctype, cache=True):
+    def aux_fields(self, instrument, proctype, hdu=False, cache=True):
         """List the available AUX fields.
 
         AUX fields are any fields in the Archive FITS files that are not
@@ -196,6 +226,8 @@ class NOIRLabClass(BaseQuery):
             The specific instrument, *e.g.* '90prime' or 'decam'.
         proctype : :class:`str`
             A description of the type of image, *e.g.* 'raw' or 'instcal'.
+        hdu : :class:`bool`, optional
+            If ``True`` return the fields for HDU-based queries.
         cache : :class:`bool`, optional
             If ``True`` cache the result locally.
 
@@ -204,7 +236,7 @@ class NOIRLabClass(BaseQuery):
         :class:`list`
             A list of field descriptions, each a :class:`dict`.
         """
-        url = f'{self._adsa_url}/{instrument}/{proctype}/'
+        url = f'{self._fields_url(hdu=hdu, aux=True)}/{instrument}/{proctype}/'
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
         response.raise_for_status()
         return response.json()
@@ -228,13 +260,12 @@ class NOIRLabClass(BaseQuery):
         :class:`dict`
             A dictionary containing the category metadata.
         """
-        url = f'{self._adsurl}/cat_lists/?format=json'
+        url = f'{self.NAT_URL}/api/adv_search/cat_lists/?format=json'
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
         response.raise_for_status()
         return response.json()
 
-    @class_or_instance
-    def query_metadata(self, qspec=None, sort=None, limit=1000, cache=True):
+    def query_metadata(self, qspec=None, sort=None, limit=1000, hdu=False, cache=True):
         """Query the archive database for details on available files.
 
         `qspec` should minimally contain a list of output columns and a list of
@@ -250,6 +281,8 @@ class NOIRLabClass(BaseQuery):
             Sort the results on one of the columns in `qspec`.
         limit : :class:`int`, optional
             The number of results to return, default 1000.
+        hdu : :class:`bool`, optional
+            If ``True`` return the URL for HDU-based queries.
         cache : :class:`bool`, optional
             If ``True`` cache the result locally.
 
@@ -259,7 +292,8 @@ class NOIRLabClass(BaseQuery):
             A Table containing the results.
         """
         self._validate_version()
-        url = f'{self._adss_url}&limit={limit}'
+        file = 'hdu' if hdu else 'file'
+        url = f'{self.NAT_URL}/api/adv_search/find/?rectype={file}&limit={limit}'
         if sort:
             # TODO: write a test for this, which may involve refactoring async versus sync.
             url += f'&sort={sort}'
@@ -272,11 +306,7 @@ class NOIRLabClass(BaseQuery):
         response = self._request('POST', url, json=jdata,
                                  timeout=self.TIMEOUT, cache=cache)
         response.raise_for_status()
-        j = response.json()
-        # The first entry contains metadata.
-        names = list(j[0]['HEADER'].keys())
-        rows = [[row[n] for n in names] for row in j[1:]]
-        return astropy.table.Table(names=names, rows=rows)
+        return self._response_to_table(response.json())
 
     def retrieve(self, fileid):
         """Simply fetch a file by MD5 ID.

@@ -8,16 +8,19 @@ from astropy import units as u
 from astropy.coordinates import SkyCoord
 from ...utils.mocks import MockResponse
 from ...exceptions import RemoteServiceError
-from .. import NOIRLab, NOIRLabClass
+from .. import NOIRLab
 from . import expected as exp
-
-
-NOIRLabHDU = NOIRLabClass(hdu=True)
 
 
 def mock_content(method, url, **kwargs):
     if 'FORMAT=METADATA' in url:
         content = json.dumps(exp.service_metadata)
+    elif '/sia/voimg' in url:
+        raw_json = [{'HEADER': {'md5sum': 'str'}}] + [{'md5sum': m} for m in exp.query_region_1]
+        content = json.dumps(raw_json)
+    elif '/sia/vohdu' in url:
+        raw_json = [{'HEADER': {'md5sum': 'str'}}] + [{'md5sum': m} for m in exp.query_region_2]
+        content = json.dumps(raw_json)
     elif '/core_file_fields' in url:
         content = json.dumps(exp.core_file_fields)
     elif '/aux_file_fields' in url:
@@ -46,68 +49,54 @@ def mock_content(method, url, **kwargs):
 @pytest.fixture
 def patch_request(monkeypatch):
     monkeypatch.setattr(NOIRLab, '_request', mock_content)
-    monkeypatch.setattr(NOIRLabHDU, '_request', mock_content)
     return monkeypatch
 
 
-def test_service_metadata(patch_request):
+@pytest.mark.parametrize('hdu', [(False,), (True,)])
+def test_service_metadata(patch_request, hdu):
     """Test compliance with 6.1 of SIA spec v1.0.
     """
-    actual = NOIRLab.service_metadata()
-    assert actual == exp.service_metadata[0]
+    actual = NOIRLab.service_metadata(hdu=hdu)
+    assert actual[0] == exp.service_metadata[0]
 
 
-@pytest.mark.skip(reason='WIP')
-def test_query_region_0():
-    """Search FILES.
-    """
-    c = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
-    r = NOIRLab.query_region(c, radius='0.1')
-    actual = set(list(r['md5sum']))
-    expected = exp.query_region_1
-    assert expected.issubset(actual)
-
-
-@pytest.mark.skip(reason='WIP')
-def test_query_region_1():
-    """Search FILES.
+@pytest.mark.parametrize('hdu,radius', [(False, '0.1'), (True, '0.07')])
+def test_query_region(patch_request, hdu, radius):
+    """Search a region.
 
     Ensure query gets at least the set of files we expect.
     It is OK if more files have been added to the remote Archive.
     """
     c = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
-    r = NOIRLab.query_region(c, radius='0.1')
-    actual = set(list(r['md5sum']))
-    expected = exp.query_region_1
+    r = NOIRLab().query_region(c, radius=radius, hdu=hdu)
+    actual = set(r['md5sum'].tolist())
+    if hdu:
+        expected = exp.query_region_2
+    else:
+        expected = exp.query_region_1
     assert expected.issubset(actual)
 
 
-@pytest.mark.skip(reason='WIP')
-def test_query_region_2():
-    """Search HDUs.
-
-    Ensure query gets at least the set of files we expect.
-    Its ok if more files have been added to the remote Archive.
+@pytest.mark.parametrize('hdu', [(False,), (True,)])
+def test_core_fields(patch_request, hdu):
+    """List the available CORE fields.
     """
-    c = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
-    r = NOIRLabHDU.query_region(c, radius='0.07')
-    actual = set(list(r['md5sum']))
-    expected = exp.query_region_2
-    assert expected.issubset(actual)
+    actual = NOIRLab.core_fields(hdu=hdu)
+    if hdu:
+        assert actual == exp.core_hdu_fields
+    else:
+        assert actual == exp.core_file_fields
 
 
-def test_core_file_fields(patch_request):
-    """List the available CORE FILE fields.
+@pytest.mark.parametrize('hdu', [(False,), (True,)])
+def test_aux_fields(patch_request, hdu):
+    """List the available AUX fields.
     """
-    actual = NOIRLab.core_fields()
-    assert actual == exp.core_file_fields
-
-
-def test_aux_file_fields(patch_request):
-    """List the available AUX FILE fields.
-    """
-    actual = NOIRLab.aux_fields('decam', 'instcal')
-    assert actual == exp.aux_file_fields
+    actual = NOIRLab.aux_fields('decam', 'instcal', hdu=hdu)
+    if hdu:
+        assert actual == exp.aux_hdu_fields
+    else:
+        assert actual == exp.aux_file_fields
 
 
 def test_query_file_metadata(patch_request):
@@ -130,20 +119,6 @@ def test_query_file_metadata_minimal_input(patch_request):
     assert actual.pformat(max_width=-1) == exp.query_file_metadata_minimal
 
 
-def test_core_hdu_fields(patch_request):
-    """List the available CORE HDU fields.
-    """
-    actual = NOIRLabHDU.core_fields()
-    assert actual == exp.core_hdu_fields
-
-
-def test_aux_hdu_fields(patch_request):
-    """List the available AUX HDU fields.
-    """
-    actual = NOIRLabHDU.aux_fields('decam', 'instcal')
-    assert actual == exp.aux_hdu_fields
-
-
 def test_query_hdu_metadata(patch_request):
     """Search HDU metadata.
     """
@@ -153,11 +128,12 @@ def test_query_hdu_metadata(patch_request):
                            "instrument",
                            "proc_type",
                            "EXPTIME",
-                           "AIRMASS"],
+                           "AIRMASS",
+                           "hdu:EQUINOX"],
              "search": [["caldat", "2017-08-14", "2017-08-16"],
                         ["instrument", "decam"],
                         ["proc_type", "raw"]]}
-    actual = NOIRLabHDU.query_metadata(qspec, sort='md5sum', limit=3)
+    actual = NOIRLab.query_metadata(qspec, sort='md5sum', limit=3, hdu=True)
     assert actual.pformat(max_width=-1) == exp.query_hdu_metadata
 
 

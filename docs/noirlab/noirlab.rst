@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.noirlab:
 
 ****************************************
@@ -60,50 +58,68 @@ only required argument to this is the target coordinates around which
 to query.  Specify the coordinates using the appropriate coordinate system from
 `astropy.coordinates`. Here is a basic example:
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.noirlab import NOIRLab
-    >>> import astropy.coordinates as coord
     >>> from astropy import units as u
     >>> from astropy.coordinates import SkyCoord
     >>> coord = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
-
-    >>> noirlab_file = NOIRLab(which='file')
-    >>> results_file = noirlab_file.query_region(coord, radius='0.1')
-    >>> print(results_file)
-                                archive_filename                             date_obs  ...             updated
-                                     str71                                    str10    ...              str32
-    ----------------------------------------------------------------------- ---------- ... --------------------------------
-                                                                     string     string ...                           string
-    /net/archive/mtn/20151027/kp4m/2015B-2001/k4m_151028_085849_ori.fits.fz 2015-10-28 ... 2020-02-09T01:17:17.842642+00:00
-    /net/archive/mtn/20151027/kp4m/2015B-2001/k4m_151028_091327_ori.fits.fz 2015-10-28 ... 2020-02-09T01:17:17.875407+00:00
-    /net/archive/mtn/20151027/kp4m/2015B-2001/k4m_151028_084112_ori.fits.fz 2015-10-28 ... 2020-02-09T01:17:18.303911+00:00
-    /net/archive/mtn/20151120/kp4m/2015B-2001/k4m_151121_033641_ori.fits.fz 2015-11-21 ... 2020-02-09T01:24:35.525861+00:00
-    /net/archive/mtn/20151120/kp4m/2015B-2001/k4m_151121_031258_ori.fits.fz 2015-11-21 ... 2020-02-09T01:24:37.873559+00:00
-    /net/archive/mtn/20151120/kp4m/2015B-2001/k4m_151121_041031_ori.fits.fz 2015-11-21 ... 2020-02-09T01:24:38.951230+00:00
+    >>> results_file = NOIRLab.query_region(coord, radius='0.1')
+    >>> mosaic_filter = results_file['instrument'] == 'mosaic3'
+    >>> print(results_file[mosaic_filter][['archive_filename', 'ra_center', 'dec_center']])
+                                archive_filename                                ra_center          dec_center
+    ----------------------------------------------------------------------- ------------------ -----------------
+    /net/archive/mtn/20151120/kp4m/2015B-2001/k4m_151121_041031_ori.fits.fz 10.579374999999999 41.19416666666666
+    /net/archive/mtn/20151120/kp4m/2015B-2001/k4m_151121_031258_ori.fits.fz 10.579374999999999 41.19416666666666
+    /net/archive/mtn/20151027/kp4m/2015B-2001/k4m_151028_085849_ori.fits.fz 10.672041666666665 41.24944166666667
+    /net/archive/mtn/20151027/kp4m/2015B-2001/k4m_151028_084112_ori.fits.fz 10.672041666666665 41.24944166666667
+    /net/archive/mtn/20151120/kp4m/2015B-2001/k4m_151121_033641_ori.fits.fz 10.579374999999999 41.19416666666666
+    /net/archive/mtn/20151027/kp4m/2015B-2001/k4m_151028_091327_ori.fits.fz 10.672041666666665 41.24944166666667
 
 This is an example of searching by HDU.
+
 .. note::
 
    Only some instruments have pipeline processing that populates the RA, DEC fields used for this search.
 
-.. code-block:: python
+.. doctest-remote-data::
 
-    >>> from astroquery.noirlab import NOIRLabClass
-    >>> noirlab_hdu = NOIRLabClass(which='hdu')
-    >>> results_hdu = noirlab_hdu.query_region(coord, radius='0.1')
-    >>> print(results_hdu)
-                                    archive_filename                                  caldat    date_obs  ...    ra    telescope
-                                         str79                                        str10      str10    ...   str8      str6
-    ------------------------------------------------------------------------------- ---------- ---------- ... -------- ---------
-                                                                             string     string     string ...    float    string
-    /net/archive/pipe/20180211/kp4m/2016A-0453/k4m_180212_021444_ooi_zd_ls9.fits.fz 2018-02-11 2018-02-12 ... 10.60048      kp4m
-     /net/archive/pipe/20180211/kp4m/2016A-0453/k4m_180212_030041_ooi_zd_v2.fits.fz 2018-02-11 2018-02-12 ... 10.43286      kp4m
-                /net/archive/pipe/20151120/kp4m/k4m_151121_031038_ooi_zd_v1.fits.fz 2015-11-20 2015-11-21 ... 10.58226      kp4m
-     /net/archive/pipe/20180211/kp4m/2016A-0453/k4m_180212_023526_ooi_zd_v2.fits.fz 2018-02-11 2018-02-12 ... 10.58187      kp4m
-                /net/archive/pipe/20151120/kp4m/k4m_151121_031646_ooi_zd_v1.fits.fz 2015-11-20 2015-11-21 ... 10.56906      kp4m
-                /net/archive/pipe/20151120/kp4m/k4m_151121_030945_ooi_zd_v1.fits.fz 2015-11-20 2015-11-21 ... 10.58203      kp4m
-                /net/archive/pipe/20151120/kp4m/k4m_151121_031124_ooi_zd_v1.fits.fz 2015-11-20 2015-11-21 ... 10.58549      kp4m
+    >>> results_hdu = NOIRLab.query_region(coord, radius='0.1', hdu=True)
+    >>> mosaic_hdu_filter = results_hdu['instrument'] == 'mosaic3'
+    >>> print(results_hdu[mosaic_hdu_filter][['archive_filename', 'hdu_idx']])
+                                    archive_filename                                hdu_idx
+    ------------------------------------------------------------------------------- -------
+     /net/archive/pipe/20180211/kp4m/2016A-0453/k4m_180212_030259_ooi_zd_v2.fits.fz       0
+     /net/archive/pipe/20180211/kp4m/2016A-0453/k4m_180212_030259_ooi_zd_v2.fits.fz       1
+    /net/archive/pipe/20180211/kp4m/2016A-0453/k4m_180212_021444_ooi_zd_ls9.fits.fz       2
+     /net/archive/pipe/20151120/kp4m/2015B-2001/k4m_151121_031124_ooi_zd_v1.fits.fz       3
+     /net/archive/pipe/20151120/kp4m/2015B-2001/k4m_151121_031819_ooi_zd_v1.fits.fz       0
+     /net/archive/pipe/20151120/kp4m/2015B-2001/k4m_151121_031426_ooi_zd_v1.fits.fz       0
+     /net/archive/pipe/20151120/kp4m/2015B-2001/k4m_151121_031426_ooi_zd_v1.fits.fz       1
+     /net/archive/pipe/20151120/kp4m/2015B-2001/k4m_151121_031038_ooi_zd_v1.fits.fz       2
+     /net/archive/pipe/20151120/kp4m/2015B-2001/k4m_151121_031038_ooi_zd_v1.fits.fz       3
+     /net/archive/pipe/20151120/kp4m/2015B-2001/k4m_151121_031646_ooi_zd_v1.fits.fz       0
+    /net/archive/pipe/20180211/kp4m/2016A-0453/k4m_180212_030259_ooi_zd_ls9.fits.fz       0
+    /net/archive/pipe/20180211/kp4m/2016A-0453/k4m_180212_030259_ooi_zd_ls9.fits.fz       1
+     /net/archive/pipe/20151120/kp4m/2015B-2001/k4m_151121_030855_ooi_zd_v1.fits.fz       2
+     /net/archive/pipe/20151120/kp4m/2015B-2001/k4m_151121_031731_ooi_zd_v1.fits.fz       0
+     /net/archive/pipe/20180211/kp4m/2016A-0453/k4m_180212_023526_ooi_zd_v2.fits.fz       1
+    /net/archive/pipe/20180211/kp4m/2016A-0453/k4m_180212_030041_ooi_zd_ls9.fits.fz       2
+    /net/archive/pipe/20180211/kp4m/2016A-0453/k4m_180212_030041_ooi_zd_ls9.fits.fz       3
+     /net/archive/pipe/20180206/kp4m/2016A-0453/k4m_180207_024709_ooi_zd_v2.fits.fz       2
+     /net/archive/pipe/20180211/kp4m/2016A-0453/k4m_180212_021444_ooi_zd_v2.fits.fz       2
+     /net/archive/pipe/20151120/kp4m/2015B-2001/k4m_151121_031342_ooi_zd_v1.fits.fz       0
+     /net/archive/pipe/20151120/kp4m/2015B-2001/k4m_151121_031342_ooi_zd_v1.fits.fz       1
+     /net/archive/pipe/20180211/kp4m/2016A-0453/k4m_180212_030041_ooi_zd_v2.fits.fz       2
+     /net/archive/pipe/20180211/kp4m/2016A-0453/k4m_180212_030041_ooi_zd_v2.fits.fz       3
+     /net/archive/pipe/20151120/kp4m/2015B-2001/k4m_151121_030945_ooi_zd_v1.fits.fz       2
+     /net/archive/pipe/20151120/kp4m/2015B-2001/k4m_151121_030809_ooi_zd_v1.fits.fz       2
+    /net/archive/pipe/20180211/kp4m/2016A-0453/k4m_180212_023526_ooi_zd_ls9.fits.fz       1
+     /net/archive/pipe/20151120/kp4m/2015B-2001/k4m_151121_031511_ooi_zd_v1.fits.fz       1
+    /net/archive/pipe/20180206/kp4m/2016A-0453/k4m_180207_024709_ooi_zd_ls9.fits.fz       2
+     /net/archive/pipe/20151120/kp4m/2015B-2001/k4m_151121_031904_ooi_zd_v1.fits.fz       0
+     /net/archive/pipe/20151120/kp4m/2015B-2001/k4m_151121_030717_ooi_zd_v1.fits.fz       2
+     /net/archive/pipe/20151120/kp4m/2015B-2001/k4m_151121_031558_ooi_zd_v1.fits.fz       1
 
 
 Advanced Search
