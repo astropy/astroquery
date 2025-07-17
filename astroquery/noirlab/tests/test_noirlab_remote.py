@@ -97,7 +97,7 @@ def test_query_file_metadata():
                            "instrument",
                            "proc_type"],
              "search": [['original_filename', 'c4d_', 'contains']]}
-    actual = NOIRLab().query_metadata(qspec, limit=3)
+    actual = NOIRLab().query_metadata(qspec, sort='md5sum', limit=3)
     assert actual.pformat(max_width=-1) == exp.query_file_metadata
 
 
@@ -105,7 +105,7 @@ def test_query_file_metadata():
 def test_query_file_metadata_minimal_input():
     """Search FILE metadata with minimum input parameters.
     """
-    actual = NOIRLab().query_metadata(qspec=None, limit=5)
+    actual = NOIRLab().query_metadata(qspec=None, sort='md5sum', limit=5)
     assert actual.pformat(max_width=-1) == exp.query_file_metadata_minimal
 
 
@@ -125,29 +125,22 @@ def test_aux_hdu_fields():
     assert actual[:10] == exp.aux_hdu_fields
 
 
-@pytest.mark.skip(reason='old API')
-@pytest.mark.remote_data
-def test_query_hdu_metadata_minimal_input():
-    """Search HDU metadata with minimum input parameters.
-    """
-    actual = NOIRLabClass(hdu=True).query_metadata(qspec=None, limit=5)
-    assert actual.pformat(max_width=-1) == exp.query_hdu_metadata_minimal
-
-
-@pytest.mark.skip(reason='old API')
 @pytest.mark.remote_data
 def test_query_hdu_metadata():
     """Search HDU metadata.
     """
-    qspec = {"outfields": ["fitsfile__archive_filename",
-                           "fitsfile__caldat",
-                           "fitsfile__instrument",
-                           "fitsfile__proc_type",
-                           "AIRMASS"],  # AUX field. Slows search
-             "search": [["fitsfile__caldat", "2017-08-14", "2017-08-16"],
-                        ["fitsfile__instrument", "decam"],
-                        ["fitsfile__proc_type", "raw"]]}
-    actual = NOIRLabClass(hdu=True).query_metadata(qspec, limit=3)
+    qspec = {"outfields": ["md5sum",
+                           "archive_filename",
+                           "caldat",
+                           "instrument",
+                           "proc_type",
+                           "EXPTIME",
+                           "AIRMASS",
+                           "hdu:EQUINOX"],
+             "search": [["caldat", "2017-08-14", "2017-08-16"],
+                        ["instrument", "decam"],
+                        ["proc_type", "raw"]]}
+    actual = NOIRLabClass(hdu=True).query_metadata(qspec, sort='md5sum', limit=3)
     assert actual.pformat(max_width=-1) == exp.query_hdu_metadata
 
 

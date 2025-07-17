@@ -26,6 +26,8 @@ def mock_content(method, url, **kwargs):
         content = json.dumps(exp.query_file_meta_raw)
     elif '/find/?rectype=file&limit=5' in url:
         content = json.dumps(exp.query_file_meta_raw_minimal)
+    elif '/find/?rectype=hdu&limit=3' in url:
+        content = json.dumps(exp.query_hdu_metadata_raw)
     elif '/core_hdu_fields' in url:
         content = json.dumps(exp.core_hdu_fields)
     elif '/aux_hdu_fields' in url:
@@ -142,28 +144,21 @@ def test_aux_hdu_fields(patch_request):
     assert actual == exp.aux_hdu_fields
 
 
-@pytest.mark.skip(reason='WIP')
 def test_query_hdu_metadata(patch_request):
     """Search HDU metadata.
     """
-    qspec = {"outfields": ["fitsfile__archive_filename",
-                           "fitsfile__caldat",
-                           "fitsfile__instrument",
-                           "fitsfile__proc_type",
-                           "AIRMASS"],  # AUX field. Slows search
-             "search": [["fitsfile__caldat", "2017-08-14", "2017-08-16"],
-                        ["fitsfile__instrument", "decam"],
-                        ["fitsfile__proc_type", "raw"]]}
-    actual = NOIRLabHDU.query_metadata(qspec, limit=3)
+    qspec = {"outfields": ["md5sum",
+                           "archive_filename",
+                           "caldat",
+                           "instrument",
+                           "proc_type",
+                           "EXPTIME",
+                           "AIRMASS"],
+             "search": [["caldat", "2017-08-14", "2017-08-16"],
+                        ["instrument", "decam"],
+                        ["proc_type", "raw"]]}
+    actual = NOIRLabHDU.query_metadata(qspec, sort='md5sum', limit=3)
     assert actual.pformat(max_width=-1) == exp.query_hdu_metadata
-
-
-@pytest.mark.skip(reason='WIP')
-def test_query_hdu_metadata_minimal_input(patch_request):
-    """Search HDU metadata with minimum input parameters.
-    """
-    actual = NOIRLabHDU.query_metadata(qspec=None, limit=3)
-    assert actual.pformat(max_width=-1) == exp.query_hdu_metadata_minimal
 
 
 def test_categoricals(patch_request):

@@ -234,13 +234,20 @@ class NOIRLabClass(BaseQuery):
         return response.json()
 
     @class_or_instance
-    def query_metadata(self, qspec=None, limit=1000, cache=True):
+    def query_metadata(self, qspec=None, sort=None, limit=1000, cache=True):
         """Query the archive database for details on available files.
+
+        `qspec` should minimally contain a list of output columns and a list of
+        search parameters, which could be empty. For example::
+
+            qspec = {"outfields": ["md5sum", ], "search": []}
 
         Parameters
         ----------
         qspec : :class:`dict`, optional
             The query that will be passed to the API.
+        sort : :class:`str`, optional
+            Sort the results on one of the columns in `qspec`.
         limit : :class:`int`, optional
             The number of results to return, default 1000.
         cache : :class:`bool`, optional
@@ -253,6 +260,9 @@ class NOIRLabClass(BaseQuery):
         """
         self._validate_version()
         url = f'{self._adss_url}&limit={limit}'
+        if sort:
+            # TODO: write a test for this, which may involve refactoring async versus sync.
+            url += f'&sort={sort}'
 
         if qspec is None:
             jdata = {"outfields": ["md5sum", ], "search": []}
@@ -264,7 +274,9 @@ class NOIRLabClass(BaseQuery):
         response.raise_for_status()
         j = response.json()
         # The first entry contains metadata.
-        return astropy.table.Table(rows=j[1:])
+        names = list(j[0]['HEADER'].keys())
+        rows = [[row[n] for n in names] for row in j[1:]]
+        return astropy.table.Table(names=names, rows=rows)
 
     def retrieve(self, fileid):
         """Simply fetch a file by MD5 ID.
