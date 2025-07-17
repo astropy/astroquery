@@ -67,6 +67,12 @@ ipac.irsa
   in to return all TAP tables, including non-spatial and metadata ones,
   too. [#3334]
 
+noirlab
+^^^^^^^
+
+- Restore access to the `NSF NOIRLab <https://noirlab.edu>`_
+  `Astro Data Archive <https://astroarchive.noirlab.edu>`_ [#3359].
+
 SIMBAD
 ^^^^^^
 
