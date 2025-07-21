@@ -49,6 +49,7 @@ heasarc
 - Add support for astropy.table.Row in Heasarc.download_data and Heasarc.locate_data. [#3270]
 - Heasarc.locate_data returns empty rows with an error in the error_message column if there are
   no data associated with that row rather than filtering it out. [#3275]
+- Heasarc.locate_data changed to use POST request instead of GET to accomodate large requests. [#3356]
 
 imcce
 ^^^^^
