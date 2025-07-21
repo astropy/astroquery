@@ -940,16 +940,13 @@ class ESAHubbleClass(BaseQuery):
         the status of eHST TAP
         """
 
-        try:
-            subContext = conf.EHST_MESSAGES
-            connHandler = self._tap._TapPlus__getconnhandler()
-            response = connHandler.execute_tapget(subContext, verbose=False)
-            if response.status == 200:
-                for line in response:
-                    string_message = line.decode("utf-8")
-                    print(string_message[string_message.index('=') + 1:])
-        except OSError:
-            print("Status messages could not be retrieved")
+        subContext = conf.EHST_MESSAGES
+        connHandler = self._tap._TapPlus__getconnhandler()
+        response = connHandler.execute_tapget(subContext, verbose=False)
+        if response.status == 200:
+            for line in response:
+                string_message = line.decode("utf-8")
+                print(string_message[string_message.index('=') + 1:])
 
     def get_columns(self, table_name, *, only_names=True, verbose=False):
         """Get the available columns for a table in EHST TAP service
@@ -1061,4 +1058,4 @@ class ESAHubbleClass(BaseQuery):
         return full_path
 
 
-ESAHubble = ESAHubbleClass()
+ESAHubble = ESAHubbleClass(show_messages=False)
