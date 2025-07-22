@@ -36,6 +36,11 @@ gaia
 - New method cross_match_basic that simplifies the positional x-match method [#3320]
 - new DR4 datalink retrieve type MEAN_SPECTRUM_RVS [#3342]
 
+jplhorizons
+^^^^^^^^^^^
+
+- Fixed incorrect ``refplane`` parameter value: the API did not accept ``BODY EQUATOR`` but required ``BODY``. [#3370]
+
 linelists.cdms
 ^^^^^^^^^^^^^^
 
