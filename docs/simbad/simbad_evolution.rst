@@ -4,6 +4,26 @@
 Simbad module evolutions
 ########################
 
+***************************************
+Major breaking changes in version 0.4.8
+***************************************
+
+In version 0.4.8, the SIMBAD astroquery module switched from SIMBAD's deprecated
+interface to the TAP interface. This implied the following breaking changes:
+
+- `~astroquery.simbad.SimbadClass.query_objects` outputs now have an additional column 
+  ``user_specified_id`` containing the objects' names as specified by the user. The 
+  votable_field option ``typed_id`` is removed,
+- All query methods will return tables with column names in lowercase (it was uppercase
+  in 0.4.7 and before) -- except for optical filter names that are case sensitive,
+- the `~astroquery.simbad.SimbadClass.query_criteria` method is deprecated. See
+  section :ref:`query_criteria_evolution`.
+
+For a more extensive list of changes, you can have a look at `the changelog
+<https://github.com/astropy/astroquery/blob/main/CHANGES.rst>`_.
+
+.. _query_criteria_evolution:
+
 ****************************************
 Translating query_criteria into criteria
 ****************************************

@@ -181,18 +181,30 @@ class Tap:
         """
         if table is None:
             raise ValueError("Table name is required")
+
+        schema = taputils.get_schema_name(table)
+        if schema is None:
+            raise ValueError(f"Not found schema name in full qualified table: '{table}'")
+
         if verbose:
             print(f"Retrieving table '{table}'")
+
         response = self.__connHandler.execute_tapget(f"tables?tables={table}", verbose=verbose)
+
         if verbose:
             print(response.status, response.reason)
+
         self.__connHandler.check_launch_response_status(response, verbose, 200)
+
         if verbose:
             print(f"Parsing table '{table}'...")
+
         tsp = TableSaxParser()
         tsp.parseData(response)
+
         if verbose:
             print("Done.")
+
         return tsp.get_table()
 
     def __load_tables(self, *, only_names=False, include_shared_tables=False, verbose=False):
@@ -661,16 +673,23 @@ class Tap:
         return location[pos:]
 
     def __findCookieInHeader(self, headers, *, verbose=False):
-        cookies = self.__connHandler.find_header(headers, 'Set-Cookie')
+        cookies = self.__connHandler.find_all_headers(headers, 'Set-Cookie')
         if verbose:
             print(cookies)
-        if cookies is None:
+        if not cookies:
             return None
         else:
-            items = cookies.split(';')
-            for i in items:
-                if i.startswith("JSESSIONID="):
-                    return i
+            for cook in cookies:
+                items = cook.split(';')
+                for item in items:
+                    if item.startswith("SESSION="):
+                        return item
+
+            for cook in cookies:
+                items = cook.split(';')
+                for item in items:
+                    if item.startswith("JSESSIONID="):
+                        return item
         return None
 
     def __parseUrl(self, url, *, verbose=False):
@@ -1335,8 +1354,9 @@ class TapPlus(Tap):
             resource temporary table name associated to the uploaded resource
         table_description : str, optional, default None
             table description
-        format : str, optional, default 'VOTable'
-            resource format
+        format : str, optional, default 'votable'
+            resource format.  Only formats described in
+            https://docs.astropy.org/en/stable/io/unified.html#built-in-table-readers-writers are accepted.
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
@@ -1375,9 +1395,7 @@ class TapPlus(Tap):
             log.info(f"Uploaded table '{table_name}'.")
             return None
 
-    def __uploadTableMultipart(self, resource, *, table_name=None,
-                               table_description=None,
-                               resource_format="VOTable",
+    def __uploadTableMultipart(self, resource, *, table_name=None, table_description=None, resource_format="votable",
                                verbose=False):
         connHandler = self.__getconnhandler()
         if isinstance(resource, Table):
@@ -1391,24 +1409,38 @@ class TapPlus(Tap):
             fh = tempfile.NamedTemporaryFile(delete=False)
             resource.write(fh, format='votable')
             fh.close()
-            f = open(fh.name, "r")
-            chunk = f.read()
-            f.close()
+
+            with open(fh.name, "r") as f:
+                chunk = f.read()
+
             os.unlink(fh.name)
             files = [['FILE', 'pytable', chunk]]
-            contentType, body = connHandler.encode_multipart(args, files)
+            content_type, body = connHandler.encode_multipart(args, files)
         else:
             if not (str(resource).startswith("http")):  # upload from file
                 args = {
                     "TASKID": str(-1),
                     "TABLE_NAME": str(table_name),
                     "TABLE_DESC": str(table_description),
-                    "FORMAT": str(resource_format)}
+                    "FORMAT": 'votable'}
                 log.info(f"Sending file: {resource}")
-                with open(resource, "r") as f:
-                    chunk = f.read()
-                files = [['FILE', os.path.basename(resource), chunk]]
-                contentType, body = connHandler.encode_multipart(args, files)
+                if resource_format.lower() == 'votable':
+                    with open(resource, "r") as f:
+                        chunk = f.read()
+                    files = [['FILE', os.path.basename(resource), chunk]]
+                else:
+                    table = Table.read(str(resource), format=resource_format)
+                    fh = tempfile.NamedTemporaryFile(delete=False)
+                    table.write(fh, format='votable')
+                    fh.close()
+
+                    with open(fh.name, "r") as f:
+                        chunk = f.read()
+
+                    os.unlink(fh.name)
+                    files = [['FILE', 'pytable', chunk]]
+
+                content_type, body = connHandler.encode_multipart(args, files)
             else:  # upload from URL
                 args = {
                     "TASKID": str(-1),
@@ -1417,8 +1449,8 @@ class TapPlus(Tap):
                     "FORMAT": str(resource_format),
                     "URL": str(resource)}
                 files = [['FILE', "", ""]]
-                contentType, body = connHandler.encode_multipart(args, files)
-        response = connHandler.execute_upload(body, contentType)
+                content_type, body = connHandler.encode_multipart(args, files)
+        response = connHandler.execute_upload(body, content_type)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())

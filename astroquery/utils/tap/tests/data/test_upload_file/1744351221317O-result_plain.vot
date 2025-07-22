@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.4" xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/votable-1.4.xsd">
+<RESOURCE type="results">
+<INFO name="QUERY_STATUS" value="OK"/>
+
+<INFO name="QUERY" value="SELECT TOP 20 * FROM user_jferna01.my_votable_fits "><![CDATA[SELECT TOP 20 *
+FROM user_jferna01.my_votable_fits ]]></INFO>
+<INFO name="CAPTION" value="How to cite and acknowledge Gaia: https://gea.esac.esa.int/archive/documentation/credits.html"><![CDATA[How to cite and acknowledge Gaia: https://gea.esac.esa.int/archive/documentation/credits.html]]></INFO>
+<INFO name="CITATION" value="How to cite and acknowledge Gaia: https://gea.esac.esa.int/archive/documentation/credits.html" ucd="meta.bib"><![CDATA[How to cite and acknowledge Gaia: https://gea.esac.esa.int/archive/documentation/credits.html]]></INFO>
+<INFO name="PAGE" value=""/>
+<INFO name="PAGE_SIZE" value=""/>
+<INFO name="JOBID" value="1744360074103O"><![CDATA[1744360074103O]]></INFO>
+<INFO name="JOBNAME" value=""/>
+
+<TABLE>
+<FIELD datatype="int" name="my_votable_fits_oid">
+<DESCRIPTION>Object Identifier</DESCRIPTION>
+</FIELD>
+<FIELD datatype="long" name="source_id"/>
+<FIELD datatype="double" name="ra" unit="deg"/>
+<FIELD datatype="double" name="dec" unit="deg"/>
+<DATA>
+<TABLEDATA>
+<TR><TD>1</TD><TD>3834447128563320320</TD><TD>149.8678677871318</TD><TD>1.12773018116361</TD></TR>
+<TR><TD>2</TD><TD>3834447162923057280</TD><TD>149.8953864417848</TD><TD>1.1345712682426434</TD></TR>
+</TABLEDATA>
+</DATA>
+
+</TABLE>
+</RESOURCE>
+</VOTABLE>

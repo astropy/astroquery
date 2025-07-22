@@ -8,7 +8,7 @@ Getting started
 ===============
 
 This is a python interface for querying the Spanish Virtual Observatory's
-Filter Profile Service (`SVO FPS <http://svo2.cab.inta-csic.es/theory/fps/>`_).
+Filter Profile Service (`SVO FPS <https://svo2.cab.inta-csic.es/theory/fps/>`_).
 It allows retrieval of filter data (index, transmission data, filter list, etc.)
 from the service as astropy tables.
 
@@ -41,17 +41,17 @@ range) can be listed with
     CalibrationReference  object
              Description  object
                 Comments  object
-           WavelengthRef float64              AA
-          WavelengthMean float64              AA
-           WavelengthEff float64              AA
-           WavelengthMin float64              AA
-           WavelengthMax float64              AA
-                WidthEff float64              AA
-           WavelengthCen float64              AA
-         WavelengthPivot float64              AA
-          WavelengthPeak float64              AA
-          WavelengthPhot float64              AA
-                    FWHM float64              AA
+           WavelengthRef float64        Angstrom
+          WavelengthMean float64        Angstrom
+           WavelengthEff float64        Angstrom
+           WavelengthMin float64        Angstrom
+           WavelengthMax float64        Angstrom
+                WidthEff float64        Angstrom
+           WavelengthCen float64        Angstrom
+         WavelengthPivot float64        Angstrom
+          WavelengthPeak float64        Angstrom
+          WavelengthPhot float64        Angstrom
+                    FWHM float64        Angstrom
                     Fsun float64 erg / (A s cm2)
                PhotCalID  object
                   MagSys  object
@@ -96,17 +96,17 @@ is of the same form as that from `~astroquery.svo_fps.SvoFpsClass.get_filter_ind
     CalibrationReference  object
              Description  object
                 Comments  object
-           WavelengthRef float64              AA
-          WavelengthMean float64              AA
-           WavelengthEff float64              AA
-           WavelengthMin float64              AA
-           WavelengthMax float64              AA
-                WidthEff float64              AA
-           WavelengthCen float64              AA
-         WavelengthPivot float64              AA
-          WavelengthPeak float64              AA
-          WavelengthPhot float64              AA
-                    FWHM float64              AA
+           WavelengthRef float64        Angstrom
+          WavelengthMean float64        Angstrom
+           WavelengthEff float64        Angstrom
+           WavelengthMin float64        Angstrom
+           WavelengthMax float64        Angstrom
+                WidthEff float64        Angstrom
+           WavelengthCen float64        Angstrom
+         WavelengthPivot float64        Angstrom
+          WavelengthPeak float64        Angstrom
+          WavelengthPhot float64        Angstrom
+                    FWHM float64        Angstrom
                     Fsun float64 erg / (A s cm2)
                PhotCalID  object
                   MagSys  object
@@ -131,7 +131,7 @@ transmission curve data using
     >>> data = SvoFps.get_transmission_data('2MASS/2MASS.H')
     >>> print(data)
     Wavelength Transmission
-        AA
+     Angstrom
     ---------- ------------
        12890.0          0.0
        13150.0          0.0
@@ -184,9 +184,9 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
     >>> from astroquery.svo_fps import SvoFps
     >>> SvoFps.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
-   
+
 
 Reference/API
 =============

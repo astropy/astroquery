@@ -37,7 +37,7 @@ Agency EUCLID Archive using a TAP+ REST service. TAP+ is an extension of Table A
 specified by the International Virtual Observatory Alliance (IVOA: http://www.ivoa.net).
 
 
-The TAP query language is Astronomical Data Query Language 
+The TAP query language is Astronomical Data Query Language
 (ADQL: https://www.ivoa.net/documents/ADQL/20231215/index.html ), which is similar to Structured Query Language (SQL),
 widely used to query databases.
 
@@ -62,9 +62,6 @@ ESA EUCLID TAP+ server provides two access modes: public and authenticated:
   user).
 
   * ADQL queries and results are saved in a user private area.
-
-  * Cross-match operations: a catalog cross-match operation can be executed.
-    Cross-match operations results are saved in a user private area.
 
   * Persistence of uploaded tables: a user can upload a table in a private space.
     These tables can be used in queries as well as in cross-matches operations.
@@ -109,8 +106,8 @@ observations), the next campaign shall be run in March-April 2025.
 opened on the 6th of November 2024, with a first pass on the three Euclid deep fields (EDFN, EDFS and EDFF) as well as
 observations on the Lynds Dark Nebula LDN1641.
 
-4. The PDR (Public Data Release) environment of the Euclid science archive holds the public data. Euclid Q1 data will be publicly released on March 19,
-2025. The main component of the Q1 data shall contain Level 2 data of a single visit (at the depth of the Euclid Wide
+4. The PDR (Public Data Release) environment of the Euclid science archive holds the public data. Euclid Q1 data was publicly released on March 19,
+2025. The main component of the Q1 data contains Level 2 data of a single visit (at the depth of the Euclid Wide
 Survey) over the Euclid Deep Fields (EDFs): 20 deg\ :sup:`2` of the EDF North, 10 deg\ :sup:`2` of EDF Fornax, and
 23 deg\ :sup:`2` of the EDF South. The deep fields will be visited multiple times during the mission.
 
@@ -243,7 +240,42 @@ To get the list of products associated with a given Euclid observation_id or til
   EUC_MER_BGSUB-MOSAIC-DES-Z_TILE102018211-83C32F_20241018T143526.104818Z_00.00.fits               1398  102018211           DECAM     DECAM_z  SCIENCE         SKY 57.9990741   -51.5     IMAGE
 
 
-The method returns a list of products as an astropy.table.
+The method returns a list of products as an `~astropy.table.Table`. It is also possible to search by observation_id, but not by both parameters simultaneously.
+
+It is possible to retrieve LE3 data (scientific data) by observation_id or tile_index (but not by both simultaneously) and/or for different categories, groups and product types. The available values
+for these parameters are summarized in section :ref:`appendix`.
+
+
+.. Skipping authentication requiring examples
+.. doctest-skip::
+
+  >>> from astroquery.esa.euclid import Euclid
+  >>> le3_product_list = Euclid.get_scientific_product_list(tile_index=22)
+  >>> print("Found", len(le3_product_list), "results")
+  Found 3 results
+  >>> print(le3_product_list)
+  basic_download_data_oid  product_type                            product_id                          observation_id_list tile_index_list patch_id_list filter_name
+  ----------------------- -------------- ------------------------------------------------------------- ------------------- --------------- ------------- -----------
+                    47191 DpdLE3clCLTile       PPO_REGREPROC1_R2_CLTEST_R0_CLTILING_R5-output_tiles-27                  {}            {22}            {}
+                    47132 DpdLE3clCLTile PPO_REGREPROC1_R2_CLTEST_R0_CLTILINGPOLYHR_R2-output_tiles-27                  {}            {22}            {}
+                    47233 DpdLE3clCLTile       PPO_REGREPROC1_R2_CLTEST_R0_CLTILING_R6-output_tiles-27                  {}            {22}            {}
+
+
+In the following example, for the Clusters of Galaxies category, and the group GrpCatalog, we retrieve all the DET-CL AMICO auxiliary Data Product products (DpdLE3clAmicoAux):
+
+.. Skipping authentication requiring examples
+.. doctest-skip::
+
+  >>> from astroquery.esa.euclid import Euclid
+  >>> results = euclid.get_scientific_product_list(category='Clusters of Galaxies', group='GrpCatalog', product_type='DpdLE3clAmicoAux')
+  >>> print("Found", len(le3_product_list), "results")
+  Found 2 results
+  >>> print(le3_product_list)
+  basic_download_data_oid   product_type                      product_id                    observation_id_list tile_index_list patch_id_list filter_name
+  ----------------------- ---------------- ------------------------------------------------ ------------------- --------------- ------------- -----------
+                    47257 DpdLE3clAmicoAux PPO_REGREPROC1_R2_CLTEST_R0_CLDET_R3-amico_aux-0                  {}              {}            {}
+                    47258 DpdLE3clAmicoAux PPO_REGREPROC1_R2_CLTEST_R0_CLDET_R7-amico_aux-0                  {}              {}            {}
+
 
 1.2. Cone search
 ^^^^^^^^^^^^^^^^
@@ -670,7 +702,7 @@ To get the list of products associated with a given EUCLID observation_id or til
   EUC_MER_BGSUB-MOSAIC-DES-R_TILE102018211-1078B7_20241018T142927.232351Z_00.00.fits               1401  102018211           DECAM     DECAM_r  SCIENCE         SKY 57.9990741   -51.5     IMAGE
   EUC_MER_BGSUB-MOSAIC-DES-Z_TILE102018211-83C32F_20241018T143526.104818Z_00.00.fits               1398  102018211           DECAM     DECAM_z  SCIENCE         SKY 57.9990741   -51.5     IMAGE
 
-The method returns a list of products as an astropy.table.
+The method returns a list of products as an `~astropy.table.Table`.
 
 
 It is possible to download a product given its file name or product id:
@@ -866,7 +898,11 @@ surrounded by quotation marks, i.e.: *user_<your_login_name>."<table_name>"*):
 2.5.2. Uploading table from file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A file containing a table (votable, fits or csv) can be uploaded to the user's private area.
+A file containing a table can be uploaded to the user private area. Only a file associated to any of the formats described in
+https://docs.astropy.org/en/stable/io/unified.html#built-in-table-readers-writers, and automatically identified by its suffix
+or content can be used. Note that for a multi-extension fits file with multiple tables, the first table found will be used.
+For any other format, the file can be transformed into an astropy Table (https://docs.astropy.org/en/stable/io/unified.html#getting-started-with-table-i-o)
+and passed to the method.
 
 The parameter 'format' must be provided when the input file is not a votable file.
 
@@ -877,7 +913,7 @@ Your schema name will be automatically added to the provided table name.
 
   >>> from astroquery.esa.euclid import Euclid
   >>> Euclid.login()
-  >>> job = Euclid.upload_table(upload_resource="1535553556177O-result.vot", table_name="table_test_from_file", format="VOTable")
+  >>> job = Euclid.upload_table(upload_resource="1535553556177O-result.vot", table_name="table_test_from_file", format="votable")
   Sending file: 1535553556177O-result.vot
   Uploaded table 'table_test_from_file'.
 
@@ -1031,60 +1067,14 @@ We can type the following:
   Table 'user_joe.table' updated.
 
 
-2.8. Cross match
-^^^^^^^^^^^^^^^^
-
-It is possible to run a geometric cross-match between the ra/dec coordinates of two tables
-using the crossmatch function provided by the archive. In order to do so, the user must be
-logged in. This is required because the cross match operation will generate a join table
-in the user private area. That table contains the identifiers of both tables and the separation,
-in degrees, between ra/dec coordinates of each source in the first table and its associated
-source in the second table. Later, the table can be used to obtain the actual data from both tables.
-
-In order to perform a cross match, both tables must have defined RA and Dec columns
-(ra/dec column flags must be set: see previous section to know how to assign those flags).
-
-The following example uploads a table and then, the table is used in a cross match:
-
-.. Skipping authentication requiring examples
-.. doctest-skip::
-
-  >>> from astroquery.esa.euclid import Euclid
-  >>> Euclid.login()
-  >>> table = file or astropy.table
-  >>> Euclid.upload_table(upload_resource=table, table_name='my_sources')
-  >>> # the table will be uploaded into the user private space into the database
-  >>> # the table can be referenced as <database user schema>.<table_name>
-  >>> full_qualified_table_name = 'user_<your_login_name>.my_sources'
-  >>> xmatch_table_name = 'xmatch_table'
-  >>> Euclid.cross_match(full_qualified_table_name_a=full_qualified_table_name,
-  ...                  full_qualified_table_name_b='Eucliddr3.Euclid_source',
-  ...                  results_table_name=xmatch_table_name, radius=1.0)
-
-
-Once you have your cross match finished, you can obtain the results:
-
-.. Skipping authentication requiring examples
-.. doctest-skip::
-
-  >>> from astroquery.esa.euclid import Euclid
-  >>> xmatch_table = 'user_<your_login_name>.' + xmatch_table_name
-  >>> query = (f"SELECT c.separation*3600 AS separation_arcsec, a.*, b.* FROM Eucliddr3.Euclid_source AS a, "
-  ...          f"{full_qualified_table_name} AS b, {xmatch_table} AS c WHERE c.Euclid_source_source_id = a.source_id AND "
-  ...          f"c.my_sources_my_sources_oid = b.my_sources_oid")
-  >>> job = Euclid.launch_job(query=query)
-  >>> results = job.get_results()
-
-Cross-matching catalogues is one of the most popular operations executed in the Euclid archive.
-
-2.9. Tables sharing
+2.8. Tables sharing
 ^^^^^^^^^^^^^^^^^^^
 
 It is possible to share tables with other users. You have to create a group, populate that
 group with users, and share your table to that group. Then, any user belonging to that group
 will be able to access your shared table in a query.
 
-2.9.1. Creating a group
+2.8.1. Creating a group
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. Skipping authentication requiring examples
@@ -1094,7 +1084,7 @@ will be able to access your shared table in a query.
   >>> Euclid.login()
   >>> Euclid.share_group_create(group_name="my_group", description="description")
 
-2.9.2. Removing a group
+2.8.2. Removing a group
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. Skipping authentication requiring examples
@@ -1104,7 +1094,7 @@ will be able to access your shared table in a query.
   >>> Euclid.login()
   >>> Euclid.share_group_delete(group_name="my_group")
 
-2.9.3. Listing groups
+2.8.3. Listing groups
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. Skipping authentication requiring examples
@@ -1116,7 +1106,7 @@ will be able to access your shared table in a query.
   >>> for group in groups:
   ...     print(group.title)
 
-2.9.4. Adding users to a group
+2.8.4. Adding users to a group
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. Skipping authentication requiring examples
@@ -1126,7 +1116,7 @@ will be able to access your shared table in a query.
   >>> Euclid.login()
   >>> Euclid.share_group_add_user(group_name="my_group",user_id="<user_login_name")
 
-2.9.5. Removing users from a group
+2.8.5. Removing users from a group
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. Skipping authentication requiring examples
@@ -1136,7 +1126,7 @@ will be able to access your shared table in a query.
   >>> Euclid.login()
   >>> Euclid.share_group_delete_user(group_name="my_group",user_id="<user_login_name>")
 
-2.9.6. Sharing a table to a group
+2.8.6. Sharing a table to a group
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. Skipping authentication requiring examples
@@ -1148,7 +1138,7 @@ will be able to access your shared table in a query.
   ...                  table_name="user_<user_login_name>.my_table",
   ...                  description="description")
 
-2.9.7. Stop sharing a table
+2.8.7. Stop sharing a table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. Skipping authentication requiring examples
@@ -1251,6 +1241,18 @@ A fits file is made if no file name is provided.
 
 .. _DataLink: https://www.ivoa.net/documents/DataLink/
 
+.. _appendix:
+
+========
+Appendix
+========
+
+The following table summarises the available values of the parameters of the method get_scientific_product_list.
+
+.. csv-table:: Valid values for the parameters of the method get_scientific_product_list
+    :file: table_values.csv
+    :header-rows: 1
+    :widths: auto
 
 =============
 Reference/API

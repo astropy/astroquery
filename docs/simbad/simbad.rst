@@ -829,6 +829,30 @@ Query TAP
 Troubleshooting
 ===============
 
+Longer queries
+--------------
+
+It can be useful to execute longer queries in asynchronous mode by setting the
+``async_job`` argument to ``True``. This may take longer to start, depending on the
+current number of other people using the asynchronous SIMBAD queue, but it is more
+robust against transient errors. Asynchronous queries will take the ``timeout`` property
+in account:
+
+.. doctest-remote-data::
+
+    >>> from astroquery.simbad import Simbad
+    >>> simbad = Simbad(timeout=2000) # in seconds
+    >>> simbad.query_tap("select otype, description from otypedef where otype = 'N*'",
+    ...                  async_job=True)
+    <Table length=1>
+    otype  description
+    object    object
+    ------ ------------
+        N* Neutron Star
+
+Clearing the cache
+------------------
+
 If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing
 your cache:
 

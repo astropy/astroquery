@@ -4,6 +4,8 @@ Process all "async" methods into direct methods.
 """
 import textwrap
 import functools
+from requests import Response
+
 from .class_or_instance import class_or_instance
 from .docstr_chompers import remove_sections
 
@@ -26,6 +28,10 @@ def async_to_sync(cls):
             response = getattr(self, async_method_name)(*args, **kwargs)
             if kwargs.get('get_query_payload') or kwargs.get('field_help'):
                 return response
+            # mast is doing something weird by stacking the responses into a list while also using async_to_sync
+            # so we have to check for that here until it's refactored
+            if isinstance(response, Response):
+                response.raise_for_status()
             result = self._parse_result(response, verbose=verbose)
             self.table = result
             return result

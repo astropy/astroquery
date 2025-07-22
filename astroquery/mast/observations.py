@@ -120,13 +120,18 @@ class ObservationsClass(MastQueryWithLogin):
 
         return self._portal_api_connection._get_columnsconfig_metadata(colconf_name)
 
-    def _parse_caom_criteria(self, **criteria):
+    def _parse_caom_criteria(self, *, resolver=None, **criteria):
         """
         Helper function that takes dictionary of criteria and parses them into
         position (none if there are no coordinates/object name) and a filter set.
 
         Parameters
         ----------
+        resolver : str, optional
+            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+            If not specified, the default resolver order will be used. Please see the
+            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+            for more information. Default is None.
         **criteria
             Criteria to apply.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
@@ -155,7 +160,9 @@ class ObservationsClass(MastQueryWithLogin):
             mashup_filters = self._portal_api_connection.build_filter_set(self._caom_cone,
                                                                           self._caom_filtered_position,
                                                                           **criteria)
-            coordinates = utils.parse_input_location(coordinates, objectname)
+            coordinates = utils.parse_input_location(coordinates=coordinates,
+                                                     objectname=objectname,
+                                                     resolver=resolver)
         else:
             mashup_filters = self._portal_api_connection.build_filter_set(self._caom_cone,
                                                                           self._caom_filtered,
@@ -241,7 +248,7 @@ class ObservationsClass(MastQueryWithLogin):
         return self._portal_api_connection.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def query_object_async(self, objectname, *, radius=0.2*u.deg, pagesize=None, page=None):
+    def query_object_async(self, objectname, *, radius=0.2*u.deg, pagesize=None, page=None, resolver=None):
         """
         Given an object name, returns a list of MAST observations.
         See column documentation `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
@@ -263,18 +270,23 @@ class ObservationsClass(MastQueryWithLogin):
             Defaulte None.
             Can be used to override the default behavior of all results being returned
             to obtain a specific page of results.
+        resolver : str, optional
+            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+            If not specified, the default resolver order will be used. Please see the
+            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+            for more information. Default is None.
 
         Returns
         -------
         response : list of `~requests.Response`
         """
 
-        coordinates = utils.resolve_object(objectname)
+        coordinates = utils.resolve_object(objectname, resolver=resolver)
 
         return self.query_region_async(coordinates, radius=radius, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def query_criteria_async(self, *, pagesize=None, page=None, **criteria):
+    def query_criteria_async(self, *, pagesize=None, page=None, resolver=None, **criteria):
         """
         Given an set of criteria, returns a list of MAST observations.
         Valid criteria are returned by ``get_metadata("observations")``
@@ -287,6 +299,11 @@ class ObservationsClass(MastQueryWithLogin):
         page : int, optional
             Can be used to override the default behavior of all results being returned to obtain
             one specific page of results.
+        resolver : str, optional
+            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+            If not specified, the default resolver order will be used. Please see the
+            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+            for more information. Default is None.
         **criteria
             Criteria to apply. At least one non-positional criteria must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
@@ -304,7 +321,7 @@ class ObservationsClass(MastQueryWithLogin):
         response : list of `~requests.Response`
         """
 
-        position, mashup_filters = self._parse_caom_criteria(**criteria)
+        position, mashup_filters = self._parse_caom_criteria(resolver=resolver, **criteria)
 
         if not mashup_filters:
             raise InvalidQueryError("At least one non-positional criterion must be supplied.")
@@ -362,7 +379,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return int(self._portal_api_connection.service_request(service, params, pagesize, page)[0][0])
 
-    def query_object_count(self, objectname, *, radius=0.2*u.deg, pagesize=None, page=None):
+    def query_object_count(self, objectname, *, radius=0.2*u.deg, pagesize=None, page=None, resolver=None):
         """
         Given an object name, returns the number of MAST observations.
 
@@ -380,17 +397,22 @@ class ObservationsClass(MastQueryWithLogin):
         page : int, optional
             Can be used to override the default behavior of all results being returned to obtain
             one specific page of results.
+        resolver : str, optional
+            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+            If not specified, the default resolver order will be used. Please see the
+            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+            for more information. Default is None.
 
         Returns
         -------
         response : int
         """
 
-        coordinates = utils.resolve_object(objectname)
+        coordinates = utils.resolve_object(objectname, resolver=resolver)
 
         return self.query_region_count(coordinates, radius=radius, pagesize=pagesize, page=page)
 
-    def query_criteria_count(self, *, pagesize=None, page=None, **criteria):
+    def query_criteria_count(self, *, pagesize=None, page=None, resolver=None, **criteria):
         """
         Given an set of filters, returns the number of MAST observations meeting those criteria.
 
@@ -402,6 +424,11 @@ class ObservationsClass(MastQueryWithLogin):
         page : int, optional
             Can be used to override the default behavior of all results being returned to obtain
             one specific page of results.
+        resolver : str, optional
+            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+            If not specified, the default resolver order will be used. Please see the
+            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+            for more information. Default is None.
         **criteria
             Criteria to apply. At least one non-positional criterion must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
@@ -419,7 +446,7 @@ class ObservationsClass(MastQueryWithLogin):
         response : int
         """
 
-        position, mashup_filters = self._parse_caom_criteria(**criteria)
+        position, mashup_filters = self._parse_caom_criteria(resolver=resolver, **criteria)
 
         # send query
         if position:
@@ -848,7 +875,8 @@ class ObservationsClass(MastQueryWithLogin):
         return manifest
 
     def get_cloud_uris(self, data_products=None, *, include_bucket=True, full_url=False, pagesize=None, page=None,
-                       mrp_only=False, extension=None, filter_products={}, **criteria):
+                       mrp_only=False, extension=None, filter_products={}, return_uri_map=False, verbose=True,
+                       **criteria):
         """
         Given an `~astropy.table.Table` of data products or query criteria and filter parameters,
         returns the associated cloud data URIs.
@@ -882,6 +910,12 @@ class ObservationsClass(MastQueryWithLogin):
             or more acceptable values for that parameter.
             Filter behavior is AND between the filters and OR within a filter set.
             For example: {"productType": "SCIENCE", "extension"=["fits","jpg"]}
+        return_uri_map : bool, optional
+            Default False. If set to True, returns a dictionary mapping the original data product
+            URIs to their corresponding cloud URIs. This is useful for tracking which products were
+            successfully converted to cloud URIs.
+        verbose : bool, optional
+            Default True. Whether to issue warnings if a product cannot be found in the cloud.
         **criteria
             Criteria to apply. At least one non-positional criteria must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
@@ -925,20 +959,37 @@ class ObservationsClass(MastQueryWithLogin):
             # Filter product list
             data_products = self.filter_products(data_products, mrp_only=mrp_only, extension=extension,
                                                  **filter_products)
+            data_uris = data_products['dataURI']
         else:  # data_products is a list of URIs
             # Warn if trying to supply filters
             if filter_products or extension or mrp_only:
                 warnings.warn('Filtering is not supported when providing a list of MAST URIs. '
                               'To apply filters, please provide query criteria or a table of data products '
                               'as returned by `Observations.get_product_list`', InputWarning)
+            data_uris = data_products
 
-        if not len(data_products):
+        if not len(data_uris):
             warnings.warn('No matching products to fetch associated cloud URIs.', NoResultsWarning)
             return
 
         # Remove duplicate products
-        data_products = utils.remove_duplicate_products(data_products, 'dataURI')
-        return self._cloud_connection.get_cloud_uri_list(data_products, include_bucket, full_url)
+        data_uris = utils.remove_duplicate_products(data_uris, 'dataURI')
+
+        # Get cloud URIS
+        cloud_uris = self._cloud_connection.get_cloud_uri_list(data_uris,
+                                                               include_bucket=include_bucket,
+                                                               full_url=full_url,
+                                                               verbose=verbose)
+
+        # If return_uri_map is True, create a mapping of dataURIs to cloud URIs
+        if return_uri_map:
+            uri_map = dict(zip(data_uris, cloud_uris))
+            return uri_map
+
+        # Remove None values from the list
+        cloud_uris = [uri for uri in cloud_uris if uri is not None]
+
+        return cloud_uris
 
     def get_cloud_uri(self, data_product, *, include_bucket=True, full_url=False):
         """

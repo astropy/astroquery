@@ -107,7 +107,7 @@ class TesscutClass(MastQueryWithLogin):
         self._service_api_connection.set_service_params(services, "tesscut")
 
     def get_sectors(self, *, coordinates=None, radius=0*u.deg, product='SPOC', objectname=None,
-                    moving_target=False, mt_type=None):
+                    moving_target=False, mt_type=None, resolver=None):
         """
         Get a list of the TESS data sectors whose footprints intersect
         with the given search area.
@@ -152,6 +152,11 @@ class TesscutClass(MastQueryWithLogin):
             first majorbody is tried and then smallbody if a matching majorbody is not found.
 
             NOTE: If moving_target is supplied, this argument is ignored.
+        resolver : str, optional
+            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+            If not specified, the default resolver order will be used. Please see the
+            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+            for more information. Default is None.
 
         Returns
         -------
@@ -187,7 +192,9 @@ class TesscutClass(MastQueryWithLogin):
         else:
 
             # Get Skycoord object for coordinates/object
-            coordinates = parse_input_location(coordinates, objectname)
+            coordinates = parse_input_location(coordinates=coordinates,
+                                               objectname=objectname,
+                                               resolver=resolver)
 
             # If radius is just a number we assume degrees
             radius = Angle(radius, u.deg)
@@ -223,7 +230,8 @@ class TesscutClass(MastQueryWithLogin):
         return Table(sector_dict)
 
     def download_cutouts(self, *, coordinates=None, size=5, sector=None, product='SPOC', path=".",
-                         inflate=True, objectname=None, moving_target=False, mt_type=None, verbose=False):
+                         inflate=True, objectname=None, moving_target=False, mt_type=None, resolver=None,
+                         verbose=False):
         """
         Download cutout target pixel file(s) around the given coordinates with indicated size.
 
@@ -280,6 +288,11 @@ class TesscutClass(MastQueryWithLogin):
             first majorbody is tried and then smallbody if a matching majorbody is not found.
 
             NOTE: If moving_target is supplied, this argument is ignored.
+        resolver : str, optional
+            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+            If not specified, the default resolver order will be used. Please see the
+            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+            for more information. Default is None.
 
         Returns
         -------
@@ -310,7 +323,9 @@ class TesscutClass(MastQueryWithLogin):
         else:
 
             # Get Skycoord object for coordinates/object
-            coordinates = parse_input_location(coordinates, objectname)
+            coordinates = parse_input_location(coordinates=coordinates,
+                                               objectname=objectname,
+                                               resolver=resolver)
 
             astrocut_request = f"astrocut?ra={coordinates.ra.deg}&dec={coordinates.dec.deg}"
 
@@ -359,7 +374,7 @@ class TesscutClass(MastQueryWithLogin):
         return localpath_table
 
     def get_cutouts(self, *, coordinates=None, size=5, product='SPOC', sector=None,
-                    objectname=None, moving_target=False, mt_type=None):
+                    objectname=None, moving_target=False, mt_type=None, resolver=None):
         """
         Get cutout target pixel file(s) around the given coordinates with indicated size,
         and return them as a list of  `~astropy.io.fits.HDUList` objects.
@@ -408,6 +423,11 @@ class TesscutClass(MastQueryWithLogin):
             first majorbody is tried and then smallbody if a matching majorbody is not found.
 
             NOTE: If moving_target is supplied, this argument is ignored.
+        resolver : str, optional
+            The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
+            If not specified, the default resolver order will be used. Please see the
+            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+            for more information. Default is None.
 
         Returns
         -------
@@ -457,7 +477,9 @@ class TesscutClass(MastQueryWithLogin):
             param_dict['product'] = product.upper()
 
             # Get Skycoord object for coordinates/object
-            coordinates = parse_input_location(coordinates, objectname)
+            coordinates = parse_input_location(coordinates=coordinates,
+                                               objectname=objectname,
+                                               resolver=resolver)
 
             param_dict["ra"] = coordinates.ra.deg
             param_dict["dec"] = coordinates.dec.deg
@@ -531,7 +553,7 @@ class ZcutClass(MastQueryWithLogin):
         """
 
         # Get Skycoord object for coordinates/object
-        coordinates = parse_input_location(coordinates)
+        coordinates = parse_input_location(coordinates=coordinates)
         radius = Angle(radius, u.deg)
 
         params = {"ra": coordinates.ra.deg,
@@ -596,7 +618,7 @@ class ZcutClass(MastQueryWithLogin):
             Cutout file(s) for given coordinates
         """
         # Get Skycoord object for coordinates/object
-        coordinates = parse_input_location(coordinates)
+        coordinates = parse_input_location(coordinates=coordinates)
         size_dict = _parse_cutout_size(size)
 
         path = os.path.join(path, '')
@@ -675,7 +697,7 @@ class ZcutClass(MastQueryWithLogin):
         """
 
         # Get Skycoord object for coordinates/object
-        coordinates = parse_input_location(coordinates)
+        coordinates = parse_input_location(coordinates=coordinates)
 
         param_dict = _parse_cutout_size(size)
         param_dict["ra"] = coordinates.ra.deg
@@ -760,7 +782,7 @@ class HapcutClass(MastQueryWithLogin):
         """
 
         # Get Skycoord object for coordinates/object
-        coordinates = parse_input_location(coordinates)
+        coordinates = parse_input_location(coordinates=coordinates)
 
         # Build initial astrocut request
         astrocut_request = f"astrocut?ra={coordinates.ra.deg}&dec={coordinates.dec.deg}"
@@ -829,7 +851,7 @@ class HapcutClass(MastQueryWithLogin):
         """
 
         # Get Skycoord object for coordinates/object
-        coordinates = parse_input_location(coordinates)
+        coordinates = parse_input_location(coordinates=coordinates)
 
         param_dict = _parse_cutout_size(size)
 

@@ -12,7 +12,7 @@ from astropy.table import MaskedColumn
 from .. import core, SkybotClass
 
 # files in data/
-DATA_FILE = 'skybot_query.dat'
+DATA_FILE = 'skybot_query.vot'
 
 
 def data_path(filename):
@@ -21,10 +21,11 @@ def data_path(filename):
 
 
 # monkeypatch replacement request function
-def nonremote_request(self, url, **kwargs):
+def nonremote_request(self, method='GET', url='', **kwargs):
 
     with open(data_path(DATA_FILE), 'rb') as f:
-        response = MockResponse(content=f.read(), url=url)
+        a = f.read()
+        response = MockResponse(content=a, url=url)
     return response
 
 
@@ -102,21 +103,22 @@ def test_input():
     assert (a['-refsys'] == 'EQJ2000')
 
 
-def general_query(patch_request):
+def test_general_query(patch_request):
     """test a mock query"""
 
-    a = core.Skybot.cone_search((0, 0), 0.5, 2451200)
+    results = core.Skybot.cone_search((0, 0), 0.5, 2451200)
 
-    assert (len(a) == 141)
-    assert isinstance(a['Number'][0], int)
-    assert (a['RA'][0] == 359.94077541666667*u.deg)
-    assert (a['DEC'][0] == -0.013904166666666667*u.deg)
+    assert len(results) == 4
+    assert results['Number'][0] == 229762
+
+    # mock data serves as a regression for #3301
+    assert results['Name'][0] == "G!kun||'homdima"
 
 
 def test_get_raw_response(patch_request):
     raw = core.Skybot.cone_search(
         (0, 0), 0.5, 2451200, get_raw_response=True)
-    assert " 299383 | 2005 VC73 | 23 59 45.7861 |" in raw
+    assert "G!kun||'homdima" in raw
 
 
 def test_parsing_unnumbered_asteroids(patch_request):
