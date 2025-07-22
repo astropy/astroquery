@@ -18,7 +18,7 @@ import pytest
 from astroquery.esa.hubble import ESAHubble
 from astropy import coordinates
 
-esa_hubble = ESAHubble()
+esa_hubble = ESAHubble(show_messages=False)
 
 
 def data_path(filename):
