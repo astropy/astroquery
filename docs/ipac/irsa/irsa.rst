@@ -388,6 +388,12 @@ only collections with a given search string in the collection names.
 The ``servicetype`` argument is used to filter for image collections, using ``'SIA'``,
 or spectral collections (also see below), using ``'SSA'``.
 
+.. note::
+
+   The query underneath ``list_collections`` is cached on the server
+   side, and therefore should return quickly with results.
+   If you experience query timeout, please open an IRSA helpdesk ticket.
+
 .. doctest-remote-data::
 
    >>> from astroquery.ipac.irsa import Irsa
