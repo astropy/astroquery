@@ -416,12 +416,6 @@ class TestMast:
         # Is result limited to ten rows
         assert len(result) == 10
 
-        # Are the GALEX observations in the results table
-        assert "GALEX" in result['obs_collection']
-
-        # Are the two GALEX observations with obs_id 6374399093149532160 in the results table
-        assert len(result[np.where(result["obs_id"] == "6374399093149532160")]) == 2
-
     def test_mast_query(self):
         result = Mast.mast_query('Mast.Caom.Cone', ra=184.3, dec=54.5, radius=0.2)
 

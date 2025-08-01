@@ -40,7 +40,7 @@ ASTROPY_LT_6_0 = not minversion('astropy', '6.0')
 ASTROPY_LT_7_1_1 = not minversion('astropy', '7.1.1')
 
 
-def parse_coordinates(coordinates, return_frame=None):
+def parse_coordinates(coordinates, *, return_frame=None):
     """
     Takes a string or astropy.coordinates object. Checks if the
     string is parsable as an `astropy.coordinates`
@@ -100,10 +100,7 @@ def parse_coordinates(coordinates, return_frame=None):
 
     # Convert to requested frame, if given
     if return_frame and c.frame.name != return_frame.lower():
-        try:
-            c = c.transform_to(return_frame)
-        except ValueError:
-            warnings.warn(f"Failed to transform coordinates to requested frame: {return_frame}.", InputWarning)
+        c = c.transform_to(return_frame)
 
     return c
 

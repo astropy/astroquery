@@ -235,7 +235,7 @@ def parse_input_location(*, coordinates=None, objectname=None, resolver=None):
 
     # Parse coordinates, if given
     if coordinates:
-        obj_coord = commons.parse_coordinates(coordinates, 'icrs')
+        obj_coord = commons.parse_coordinates(coordinates, return_frame='icrs')
 
     return obj_coord
 

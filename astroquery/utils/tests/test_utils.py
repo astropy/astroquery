@@ -15,7 +15,6 @@ from astropy.table import Table
 import astropy.utils.data as aud
 from astropy.logger import log
 
-from ...exceptions import InputWarning
 from ...utils import chunk_read, chunk_report, class_or_instance, commons
 from ...utils.process_asyncs import async_to_sync_docstr, async_to_sync
 from ...utils.docstr_chompers import remove_sections, prepend_docstr_nosections
@@ -100,8 +99,8 @@ def test_parse_coordinates_return_frame():
     assert galactic.frame.name == 'galactic'
     assert coords.frame.name == 'icrs'
 
-    # Warn if transformation fails
-    with pytest.warns(InputWarning, match='Failed to transform coordinates'):
+    # ValueError if transformation fails
+    with pytest.raises(ValueError):
         coords = commons.parse_coordinates(galactic, return_frame='invalid')
 
 

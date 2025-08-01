@@ -235,7 +235,7 @@ class ObservationsClass(MastQueryWithLogin):
         """
 
         # Put coordinates and radius into consistent format
-        coordinates = commons.parse_coordinates(coordinates, 'icrs')
+        coordinates = commons.parse_coordinates(coordinates, return_frame='icrs')
 
         # if radius is just a number we assume degrees
         radius = coord.Angle(radius, u.deg)
@@ -364,7 +364,7 @@ class ObservationsClass(MastQueryWithLogin):
         """
 
         # build the coordinates string needed by ObservationsClass._caom_filtered_position
-        coordinates = commons.parse_coordinates(coordinates, 'icrs')
+        coordinates = commons.parse_coordinates(coordinates, return_frame='icrs')
 
         # if radius is just a number we assume degrees
         radius = coord.Angle(radius, u.deg)
