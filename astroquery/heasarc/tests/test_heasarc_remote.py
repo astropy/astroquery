@@ -11,6 +11,7 @@ from packaging.version import Version
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from astroquery.exceptions import NoResultsWarning
 import pyvo
+from pyvo.dal.exceptions import DALOverflowWarning
 
 from astroquery.heasarc import Heasarc
 
@@ -55,6 +56,9 @@ DEFAULT_COLS = [
         ],
     ],
 ]
+
+# The MAXREC related overflow message is different in pyvo 1.7+, remove workaround when we have it as a minimum
+overflow_message = r"Partial result set. Potential causes MAXREC|Result set limited by user- or server-supplied MAXREC"
 
 
 @pytest.mark.remote_data
@@ -158,13 +162,8 @@ class TestHeasarc:
         reason="DALOverflowWarning is available only in pyvo>=1.4"
     )
     def test_tap__maxrec(self):
-        from pyvo.dal.exceptions import DALOverflowWarning
         query = "SELECT TOP 10 ra,dec FROM xray"
-        with pytest.warns(
-            expected_warning=DALOverflowWarning,
-            match=("Partial result set. Potential causes MAXREC, "
-                   "async storage space, etc."),
-        ):
+        with pytest.warns(expected_warning=DALOverflowWarning, match=overflow_message):
             result = Heasarc.query_tap(query=query, maxrec=5)
         assert len(result) == 5
         assert result.to_table().colnames == ["ra", "dec"]
