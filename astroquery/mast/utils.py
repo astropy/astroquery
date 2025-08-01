@@ -393,3 +393,45 @@ def parse_numeric_product_filter(val):
         return lambda col: np.logical_or.reduce([cond(col) for cond in conditions])
     else:
         return single_condition(val)
+
+
+def apply_column_filters(products, filters):
+    """
+    Applies column-based filters to a product table.
+
+    Parameters
+    ----------
+    products : `~astropy.table.Table`
+        The product table to filter.
+    filters : dict
+        A dictionary where keys are column names and values are the filter values.
+
+    Returns
+    -------
+    col_mask : `numpy.ndarray`
+        A boolean mask indicating which rows of the product table satisfy the filter conditions.
+    """
+    col_mask = np.ones(len(products), dtype=bool)  # Start with all True mask
+
+    # Applying column-based filters
+    for colname, vals in filters.items():
+        if colname not in products.colnames:
+            warnings.warn(f"Column '{colname}' not found in product table.", InputWarning)
+            continue
+
+        col_data = products[colname]
+        # If the column is an integer or float, accept numeric filters
+        if col_data.dtype.kind in ['i', 'f']:  # 'i' for integer, 'f' for float
+            try:
+                this_mask = parse_numeric_product_filter(vals)(col_data)
+            except ValueError:
+                raise InvalidQueryError(f"Could not parse numeric filter '{vals}' for column '{colname}'.")
+        else:  # Assume string or list filter
+            if isinstance(vals, str):
+                vals = [vals]
+            this_mask = np.isin(col_data, vals)
+
+        # Combine the current column mask with the overall mask
+        col_mask &= this_mask
+
+    return col_mask

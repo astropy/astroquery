@@ -366,63 +366,51 @@ def test_missions_get_unique_product_list(patch_post, caplog):
 def test_missions_filter_products(patch_post):
     # Filter products list by column
     products = mast.MastMissions.get_product_list('Z14Z0104T')
-    filtered = mast.MastMissions.filter_products(products,
-                                                 category='CALIBRATED')
+    filtered = mast.MastMissions.filter_products(products, category='CALIBRATED')
     assert isinstance(filtered, Table)
     assert all(filtered['category'] == 'CALIBRATED')
 
     # Filter by extension
-    filtered = mast.MastMissions.filter_products(products,
-                                                 extension='fits')
+    filtered = mast.MastMissions.filter_products(products, extension='fits')
     assert len(filtered) > 0
 
     # Filter by non-existing column
     with pytest.warns(InputWarning):
-        mast.MastMissions.filter_products(products,
-                                          invalid=True)
+        mast.MastMissions.filter_products(products, invalid=True)
 
     # Numeric filtering
     # Single integer value
-    filtered = mast.MastMissions.filter_products(products,
-                                                 size=11520)
+    filtered = mast.MastMissions.filter_products(products, size=11520)
     assert all(filtered['size'] == 11520)
 
     # Single string value
-    filtered = mast.MastMissions.filter_products(products,
-                                                 size='11520')
+    filtered = mast.MastMissions.filter_products(products, size='11520')
     assert all(filtered['size'] == 11520)
 
     # Comparison operators
-    filtered = mast.MastMissions.filter_products(products,
-                                                 size='<15000')
+    filtered = mast.MastMissions.filter_products(products, size='<15000')
     assert all(filtered['size'] < 15000)
 
-    filtered = mast.MastMissions.filter_products(products,
-                                                 size='>15000')
+    filtered = mast.MastMissions.filter_products(products, size='>15000')
     assert all(filtered['size'] > 15000)
 
-    filtered = mast.MastMissions.filter_products(products,
-                                                 size='>=14400')
+    filtered = mast.MastMissions.filter_products(products, size='>=14400')
     assert all(filtered['size'] >= 14400)
 
-    filtered = mast.MastMissions.filter_products(products,
-                                                 size='<=14400')
+    filtered = mast.MastMissions.filter_products(products, size='<=14400')
     assert all(filtered['size'] <= 14400)
 
     # Range operator
-    filtered = mast.MastMissions.filter_products(products,
-                                                 size='14400..17280')
+    filtered = mast.MastMissions.filter_products(products, size='14400..17280')
     assert all((filtered['size'] >= 14400) & (filtered['size'] <= 17280))
 
     # List of expressions
-    filtered = mast.MastMissions.filter_products(products,
-                                                 size=[14400, '>20000'])
+    filtered = mast.MastMissions.filter_products(products, size=[14400, '>20000'])
     assert all((filtered['size'] == 14400) | (filtered['size'] > 20000))
 
-    with pytest.warns(InputWarning, match="Could not parse numeric filter 'invalid' for column 'size'"):
+    with pytest.raises(InvalidQueryError, match="Could not parse numeric filter 'invalid' for column 'size'"):
         # Invalid filter value
-        mast.MastMissions.filter_products(products,
-                                          size='invalid')
+        mast.MastMissions.filter_products(products, size='invalid')
 
 
 def test_missions_download_products(patch_post, tmp_path):
@@ -725,29 +713,24 @@ def test_observations_filter_products(patch_post):
     assert len(filtered) == 7
 
     # Filter for minimum recommended products
-    filtered = mast.Observations.filter_products(products,
-                                                 mrp_only=True)
+    filtered = mast.Observations.filter_products(products, mrp_only=True)
     assert all(filtered['productGroupDescription'] == 'Minimum Recommended Products')
 
     # Filter by extension
-    filtered = mast.Observations.filter_products(products,
-                                                 extension='fits')
+    filtered = mast.Observations.filter_products(products, extension='fits')
     assert len(filtered) > 0
 
     # Filter by non-existing column
     with pytest.warns(InputWarning):
-        mast.Observations.filter_products(products,
-                                          invalid=True)
+        mast.Observations.filter_products(products, invalid=True)
 
     # Numeric filtering
-    filtered = mast.Observations.filter_products(products,
-                                                 size='<50000')
+    filtered = mast.Observations.filter_products(products, size='<50000')
     assert all(filtered['size'] < 50000)
 
     # Numeric filter that cannot be parsed
-    with pytest.warns(InputWarning, match="Could not parse numeric filter 'invalid' for column 'size'"):
-        filtered = mast.Observations.filter_products(products,
-                                                     size='invalid')
+    with pytest.raises(InvalidQueryError, match="Could not parse numeric filter 'invalid' for column 'size'"):
+        filtered = mast.Observations.filter_products(products, size='invalid')
 
 
 def test_observations_download_products(patch_post, tmpdir):
@@ -775,8 +758,7 @@ def test_observations_download_products(patch_post, tmpdir):
 
     # passing row product
     products = mast.Observations.get_product_list('2003738726')
-    result1 = mast.Observations.download_products(products[0],
-                                                  download_dir=str(tmpdir))
+    result1 = mast.Observations.download_products(products[0], download_dir=str(tmpdir))
     assert isinstance(result1, Table)
 
 

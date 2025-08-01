@@ -22,7 +22,7 @@ from astroquery import log
 from astroquery.utils import commons, async_to_sync
 from astroquery.utils.class_or_instance import class_or_instance
 from astropy.utils.console import ProgressBarOrSpinner
-from astroquery.exceptions import InvalidQueryError, MaxResultsWarning, InputWarning, NoResultsWarning
+from astroquery.exceptions import InvalidQueryError, MaxResultsWarning, NoResultsWarning
 
 from astroquery.mast import utils
 from astroquery.mast.core import MastQueryWithLogin
@@ -505,26 +505,9 @@ class MastMissionsClass(MastQueryWithLogin):
             )
             filter_mask &= ext_mask
 
-        # Applying column-based filters
-        for colname, vals in filters.items():
-            if colname not in products.colnames:
-                warnings.warn(f"Column '{colname}' not found in product table.", InputWarning)
-                continue
-
-            col_data = products[colname]
-            # If the column is an integer or float, accept numeric filters
-            if col_data.dtype.kind in 'if':
-                try:
-                    col_mask = utils.parse_numeric_product_filter(vals)(col_data)
-                except ValueError:
-                    warnings.warn(f"Could not parse numeric filter '{vals}' for column '{colname}'.", InputWarning)
-                    continue
-            else:  # Assume string or list filter
-                if isinstance(vals, str):
-                    vals = [vals]
-                col_mask = np.isin(col_data, vals)
-
-            filter_mask &= col_mask
+        # Apply column-based filters
+        col_mask = utils.apply_column_filters(products, filters)
+        filter_mask &= col_mask
 
         return products[filter_mask]
 
