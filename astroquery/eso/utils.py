@@ -26,7 +26,7 @@ class _UserParams:
     order_by: str = ''
     order_by_desc: bool = True
     count_only: bool = False
-    query_str_only: bool = False
+    get_query_payload: bool = False
     print_help: bool = False
     authenticated: bool = False
 
@@ -80,8 +80,8 @@ def _build_where_constraints(
     return where_constraints
 
 
-def reorder_columns(table: Table,
-                    leading_cols: Optional[List[str]] = None):
+def _reorder_columns(table: Table,
+                     leading_cols: Optional[List[str]] = None):
     """
     Reorders the columns of the pased table so that the
     colums given by the list leading_cols are first.
@@ -152,45 +152,44 @@ def raise_if_coords_not_valid(cone_ra: Optional[float] = None,
         )
 
 
-def _py2adql(user_params: _UserParams) -> str:
+def _build_adql_string(user_params: _UserParams) -> str:
     """
     Return the adql string corresponding to the parameters passed
     See adql examples at https://archive.eso.org/tap_obs/examples
     """
-    up = user_params
     query_string = None
-    columns = up.columns or []
+    columns = user_params.columns or []
 
     # We assume the coordinates passed are valid
     where_circle = []
-    if up.cone_radius is not None:
+    if user_params.cone_radius is not None:
         where_circle += [
             'intersects(s_region, circle(\'ICRS\', '
-            f'{up.cone_ra}, {up.cone_dec}, {up.cone_radius}))=1']
+            f'{user_params.cone_ra}, {user_params.cone_dec}, {user_params.cone_radius}))=1']
 
-    wc = _build_where_constraints(up.column_name,
-                                  up.allowed_values,
-                                  up.column_filters) + where_circle
+    wc = _build_where_constraints(user_params.column_name,
+                                  user_params.allowed_values,
+                                  user_params.column_filters) + where_circle
 
     if isinstance(columns, str):
         columns = _split_str_as_list_of_str(columns)
     if columns is None or len(columns) < 1:
         columns = ['*']
-    if up.count_only:
+    if user_params.count_only:
         columns = ['count(*)']
 
     # Build the query
-    query_string = ', '.join(columns) + ' from ' + up.table_name
+    query_string = ', '.join(columns) + ' from ' + user_params.table_name
     if len(wc) > 0:
         where_string = ' where ' + ' and '.join(wc)
         query_string += where_string
 
-    if len(up.order_by) > 0 and not up.count_only:
-        order_string = ' order by ' + up.order_by + (' desc ' if up.order_by_desc else ' asc ')
+    if len(user_params.order_by) > 0 and not user_params.count_only:
+        order_string = ' order by ' + user_params.order_by + (' desc ' if user_params.order_by_desc else ' asc ')
         query_string += order_string
 
-    if up.top is not None:
-        query_string = f"select top {up.top} " + query_string
+    if user_params.top is not None:
+        query_string = f"select top {user_params.top} " + query_string
     else:
         query_string = "select " + query_string
 

@@ -19,7 +19,7 @@ import astropy.io.ascii
 from astroquery.utils.mocks import MockResponse
 from ...eso import Eso
 from ...eso.utils import _UserParams, \
-    _py2adql, _adql_sanitize_op_val, reorder_columns, \
+    _build_adql_string, _adql_sanitize_op_val, _reorder_columns, \
     DEFAULT_LEAD_COLS_RAW
 from ...exceptions import NoResultsWarning, MaxResultsWarning
 
@@ -78,9 +78,9 @@ def eso_request(request_type, url, **kwargs):
     return response
 
 
-def monkey_tap(query_str, **kwargs):
+def monkey_tap(query, **kwargs):
     _ = kwargs
-    table_file = data_path(DATA_FILES['ADQL'][query_str])
+    table_file = data_path(DATA_FILES['ADQL'][query])
     table = astropy.io.ascii.read(table_file, format='csv', header_start=0, data_start=1)
     return table
 
@@ -116,7 +116,7 @@ def calselector_request(url, **kwargs):
 def test_sinfoni_sgr_a_star(monkeypatch):
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
-    monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
+    monkeypatch.setattr(eso, 'query_tap', monkey_tap)
     result = eso.query_instrument('sinfoni',
                                   column_filters={
                                       'target': "SGRA"
@@ -130,7 +130,7 @@ def test_sinfoni_sgr_a_star(monkeypatch):
 def test_main_sgr_a_star(monkeypatch):
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
-    monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
+    monkeypatch.setattr(eso, 'query_tap', monkey_tap)
     result = eso.query_main(
         column_filters={
             'target': "SGR A",
@@ -145,7 +145,7 @@ def test_main_sgr_a_star(monkeypatch):
 def test_apex_retrieval(monkeypatch):
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
-    monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
+    monkeypatch.setattr(eso, 'query_tap', monkey_tap)
 
     tbla = eso.query_apex_quicklooks(
         column_filters={
@@ -166,7 +166,7 @@ def test_apex_retrieval(monkeypatch):
 def test_vvv(monkeypatch):
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     eso = Eso()
-    monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
+    monkeypatch.setattr(eso, 'query_tap', monkey_tap)
     result = eso.query_surveys(surveys='VVV',
                                cone_ra=266.41681662, cone_dec=-29.00782497,
                                cone_radius=0.1775,
@@ -179,7 +179,7 @@ def test_vvv(monkeypatch):
 
 def test_list_surveys(monkeypatch):
     eso = Eso()
-    monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
+    monkeypatch.setattr(eso, 'query_tap', monkey_tap)
     saved_list = eso.list_surveys()
     assert isinstance(saved_list, list)
     assert set(TEST_SURVEYS) <= set(saved_list)
@@ -187,7 +187,7 @@ def test_list_surveys(monkeypatch):
 
 def test_list_instruments(monkeypatch):
     eso = Eso()
-    monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
+    monkeypatch.setattr(eso, 'query_tap', monkey_tap)
     saved_list = eso.list_instruments()
     assert isinstance(saved_list, list)
     assert set(TEST_INSTRUMENTS) <= set(saved_list)
@@ -401,14 +401,14 @@ def test_issue_table_length_warnings():
 
 def test_reorder_columns(monkeypatch):
     eso = Eso()
-    monkeypatch.setattr(eso, 'query_tap_service', monkey_tap)
+    monkeypatch.setattr(eso, 'query_tap', monkey_tap)
     table = eso.query_main(
         column_filters={
             'target': "SGR A",
             'object': "SGR A"}
     )
     names_before = table.colnames[:]
-    table2 = reorder_columns(table)
+    table2 = _reorder_columns(table)
     names_after = table2.colnames[:]
 
     # the columns we want to change are actually in the table
@@ -424,18 +424,18 @@ def test_reorder_columns(monkeypatch):
 
     # empty table doesn't cause a crash
     empty_1 = Table()
-    empty_2 = reorder_columns(empty_1)
+    empty_2 = _reorder_columns(empty_1)
     assert len(empty_1) == 0 and isinstance(empty_1, Table)
     assert len(empty_2) == 0 and isinstance(empty_1, Table)
 
     # If the values we're looking for as leading columns, everything stays the same
     some_table = Table({"x": [1, 2, 3], "y": [4, 5, 6]})
-    same_table = reorder_columns(some_table)
+    same_table = _reorder_columns(some_table)
     assert all(some_table == same_table), "Table with no cols to change fails"
 
     # If what we pas is not a table, the function has no effect
     not_a_table_1 = object()
-    not_a_table_2 = reorder_columns(not_a_table_1)
+    not_a_table_2 = _reorder_columns(not_a_table_1)
     assert not_a_table_1 == not_a_table_2
 
 
@@ -515,7 +515,7 @@ def test_reorder_columns(monkeypatch):
             order_by="em_min",
             order_by_desc=True,
             count_only=False,
-            query_str_only=True,
+            get_query_payload=True,
         ),
         "select top 100 target_name, s_ra, s_dec, em_min, em_max from ivoa.ObsCore "
         "where em_min > 4e-7 and em_max < 1.2e-6 and dataproduct_type in  ('spectrum') "
@@ -540,14 +540,14 @@ def test_reorder_columns(monkeypatch):
             order_by="em_min",
             order_by_desc=False,
             count_only=True,
-            query_str_only=True,
+            get_query_payload=True,
         ),
         "select top 100 count(*) from ivoa.ObsCore "
         "where em_min > 4e-7 and em_max < 1.2e-6 and dataproduct_type in  ('spectrum') "
         "and intersects(s_region, circle('ICRS', 180.0, -45.0, 0.05))=1"
     ),
 ])
-def test_py2adql(params, expected):
+def test_build_adql_string(params, expected):
     """
     Tests that the ADQL query builder generates the expected query.
 
@@ -567,5 +567,5 @@ def test_py2adql(params, expected):
         ORDER BY
             em_min DESC
     """
-    query = _py2adql(params)
+    query = _build_adql_string(params)
     assert query == expected, f"Expected:\n{expected}\n\nGot:\n{query}\n"
