@@ -19,6 +19,8 @@ gaia
 
 - Deprecated ``band`` from ``load_data`` as it has no effect on upstream
   response any more. [#3278]
+- New datalink retrieve types EPOCH_PHOTOMETRY_CROWDED_FIELD, EPOCH_ASTROMETRY_BRIGHT, XP_MEAN_SPECTRUM_GRAVLENS,
+  EPOCH_FLAGS_NSS, EPOCH_PARAMETERS_RVS_SINGLE, EPOCH_PARAMETERS_RVS_DOUBLE, EPOCH_FLAGS_VARI. [#3371, #3372]
 
 Service fixes and enhancements
 ------------------------------
@@ -48,6 +50,7 @@ gaia
 ^^^^
 
 - New method cross_match_basic that simplifies the positional x-match method [#3320]
+- new DR4 datalink retrieve type MEAN_SPECTRUM_RVS [#3342]
 
 linelists.cdms
 ^^^^^^^^^^^^^^
@@ -60,6 +63,7 @@ heasarc
 - Add support for astropy.table.Row in Heasarc.download_data and Heasarc.locate_data. [#3270]
 - Heasarc.locate_data returns empty rows with an error in the error_message column if there are
   no data associated with that row rather than filtering it out. [#3275]
+- Heasarc.locate_data changed to use POST request instead of GET to accomodate large requests. [#3356]
 
 imcce
 ^^^^^
@@ -69,6 +73,14 @@ imcce
 
 - Changing RuntimeError to NoResultsWarning when an empty result is
   returned. [#3307]
+
+ipac.irsa
+^^^^^^^^^
+
+- Fix ``list_catalogs`` to not include image metadata tables, only
+  catalogs. The ``include_metadata_tables`` keyword argument allows opting
+  in to return all TAP tables, including non-spatial and metadata ones,
+  too. [#3334]
 
 SIMBAD
 ^^^^^^
@@ -120,6 +132,12 @@ query.py
 - ``BaseQuery._download_file`` now returns the local file path in all cases.
   Some corner cases where downloads were not properly continued have been
   fixed. [#3232]
+
+skyview
+^^^^^^^
+
+- Changed SkyView URL to https. [#3346]
+
 
 utils
 ^^^^^
