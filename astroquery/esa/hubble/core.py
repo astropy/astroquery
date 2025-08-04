@@ -25,7 +25,6 @@ import pyvo
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from . import conf
-import time
 from astroquery import log
 
 __all__ = ['ESAHubble', 'ESAHubbleClass']

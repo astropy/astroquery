@@ -30,7 +30,6 @@ from pyvo.dal import DALQuery
 from astroquery.esa.hubble import ESAHubbleClass
 import astroquery.esa.utils.utils as esautils
 from astroquery.esa.hubble.tests.dummy_tap_handler import DummyHubbleTapHandler
-from astropy.utils.exceptions import AstropyDeprecationWarning
 
 
 def data_path(filename):
