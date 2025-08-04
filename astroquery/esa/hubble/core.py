@@ -45,7 +45,7 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
     def __init__(self, *, show_messages=True, auth_session=None):
         super().__init__()
 
-        self._vo = None
+        self._tap = None
         # Checks if auth session has been defined. If not, create a new session
         if auth_session:
             self._auth_session = auth_session
@@ -62,12 +62,12 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
             self.get_status_messages()
 
     @property
-    def vo(self) -> pyvo.dal.TAPService:
-        if self._vo is None:
-            self._vo = pyvo.dal.TAPService(
+    def tap(self) -> pyvo.dal.TAPService:
+        if self._tap is None:
+            self._tap = pyvo.dal.TAPService(
                 conf.EHST_TAP_SERVER, session=self._auth_session)
 
-        return self._vo
+        return self._tap
 
     def download_product(self, observation_id, *, calibration_level=None,
                          filename=None, folder=None, verbose=False, product_type=None):
@@ -446,7 +446,7 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
         output_file = self.__get_download_path(folder, filename)
         esautils.download_file(
             url=conf.EHST_DATA_SERVER,
-            session=self.vo._session,
+            session=self.tap._session,
             params=params,
             verbose=verbose,
             filename=output_file
@@ -496,7 +496,7 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
         if filename is None:
             filename = observation_id
 
-        esautils.download_file(url=conf.EHST_DATA_SERVER, session=self.vo._session, params=params, verbose=verbose,
+        esautils.download_file(url=conf.EHST_DATA_SERVER, session=self.tap._session, params=params, verbose=verbose,
                                filename=filename)
         return filename
 
@@ -700,7 +700,7 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
                       "FORMAT": "json"}
 
             target_response = esautils.execute_servlet_request(
-                tap=self.vo,
+                tap=self.tap,
                 query_params=params,
                 url=conf.EHST_DOMAIN_SERVER + conf.EHST_TARGET_ACTION
             )
@@ -773,13 +773,10 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
                 A table object
                 """
         if async_job:
-            job = self.vo.submit_job(query)
-            job.run()
-            while job.phase == 'EXECUTING':
-                time.sleep(3)
-            result = job.fetch_result().to_table()
+            query_result = self.tap.run_async(query)
+            result = query_result.to_table()
         else:
-            result = self.vo.search(query).to_table()
+            result = self.tap.search(query).to_table()
 
         if output_file:
             esautils.download_table(result, output_file, output_format)
@@ -949,7 +946,7 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
         -------
         A list of tables
         """
-        tables = self.vo.tables
+        tables = self.tap.tables
         if only_names:
             return list(tables.keys())
         else:
@@ -963,7 +960,7 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
         try:
             esautils.execute_servlet_request(
                 url=conf.EHST_TAP_SERVER + "/" + conf.EHST_MESSAGES,
-                tap=self.vo,
+                tap=self.tap,
                 query_params={},
                 parser_method=self.parse_messages_response
             )
@@ -1086,5 +1083,5 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
         return full_path
 
 
-# Neet to be false in order to avoid errors in tests
+# Need to be False in order to avoid reaching out to the remote server at import time
 ESAHubble = ESAHubbleClass(show_messages=False)

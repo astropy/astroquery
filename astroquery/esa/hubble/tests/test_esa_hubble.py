@@ -279,12 +279,12 @@ class TestESAHubble:
         rename_mock.return_value = path
         assert ehst.download_file(file=path, filename=path) == path
 
-    @patch.object(ESAHubbleClass, 'vo', new_callable=PropertyMock)
-    def test_get_associated_files(self, mock_vo_prop):
+    @patch.object(ESAHubbleClass, 'tap', new_callable=PropertyMock)
+    def test_get_associated_files(self, mock_tap_prop):
         observation_id = 'test'
         # Mock the return of self.vo
         mock_tap_service = MagicMock()
-        mock_vo_prop.return_value = mock_tap_service
+        mock_tap_prop.return_value = mock_tap_service
 
         # Mock the chain: search().to_table()
         mock_table = "mocked table result"
