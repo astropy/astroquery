@@ -21,15 +21,14 @@ import warnings
 import xml.etree.ElementTree as ET
 from typing import List, Optional, Tuple, Dict, Set, Union
 
-import astropy.table
 import astropy.utils.data
 import keyring
-import requests.exceptions
+import requests
 from astropy.table import Table, Column
 from astropy.utils.decorators import deprecated_renamed_argument
 from bs4 import BeautifulSoup
 from pyvo.dal import TAPService
-import pyvo.dal.exceptions as pde
+from pyvo.dal.exceptions import DALQueryError, DALFormatError
 
 from astroquery import log
 from . import conf
@@ -37,8 +36,8 @@ from ..exceptions import RemoteServiceError, LoginError, \
     NoResultsWarning, MaxResultsWarning
 from ..query import QueryWithLogin
 from ..utils import schema
-from .utils import _UserParams, raise_if_coords_not_valid, reorder_columns, \
-    _raise_if_has_deprecated_keys, _py2adql, \
+from .utils import _UserParams, raise_if_coords_not_valid, _reorder_columns, \
+    _raise_if_has_deprecated_keys, _build_adql_string, \
     DEFAULT_LEAD_COLS_PHASE3, DEFAULT_LEAD_COLS_RAW
 
 
@@ -84,7 +83,7 @@ class _EsoNames:
     apex_quicklooks_pid_column = "project_id"
 
 
-def unlimited_max_rec(func):
+def unlimited_maxrec(func):
     """
     decorator to overwrite maxrec for specific queries
     """
@@ -193,7 +192,7 @@ class EsoClass(QueryWithLogin):
 
         return username, password
 
-    def _login(self, *args, username: str = None, store_password: bool = False,
+    def _login(self, username: str = None, store_password: bool = False,
                reenter_password: bool = False, **kwargs) -> bool:
         """
         Login to the ESO User Portal.
@@ -242,30 +241,30 @@ class EsoClass(QueryWithLogin):
 
     def _try_download_pyvo_table(self,
                                  query_str: str,
-                                 tap: TAPService) -> Optional[astropy.table.Table]:
+                                 tap: TAPService) -> Optional[Table]:
         table_to_return = Table()
 
         def message(query_str):
             return (f"Error executing the following query:\n\n"
                     f"{query_str}\n\n"
                     "See examples here: https://archive.eso.org/tap_obs/examples\n\n"
-                    f"For maximum query freedom use the query_tap_service method:\n\n"
-                    f' >>> Eso().query_tap_service( "{query_str}" )\n\n')
+                    f"For maximum query freedom use the query_tap method:\n\n"
+                    f' >>> Eso().query_tap( "{query_str}" )\n\n')
 
         try:
-            table_to_return = tap.search(query_str, maxrec=self.maxrec).to_table()
+            table_to_return = tap.search(query=query_str, maxrec=self.maxrec).to_table()
             self._maybe_warn_about_table_length(table_to_return)
-        except pde.DALQueryError:
+        except DALQueryError:
             log.error(message(query_str))
-        except pde.DALFormatError as e:
-            raise pde.DALFormatError(message(query_str) + f"cause: {e.cause}") from e
+        except DALFormatError as e:
+            raise DALFormatError(message(query_str) + f"cause: {e.cause}") from e
         except Exception as e:
             raise RuntimeError(
                 f"Unhandled exception {type(e)}\n" + message(query_str)) from e
 
         return table_to_return
 
-    def _tap_service(self, authenticated: bool = False) -> TAPService:
+    def tap(self, authenticated: bool = False) -> TAPService:
 
         if authenticated and not self.authenticated():
             raise LoginError(
@@ -287,10 +286,10 @@ class EsoClass(QueryWithLogin):
 
         return tap_service
 
-    def query_tap_service(self,
-                          query_str: str,
-                          authenticated: bool = False,
-                          ) -> Optional[astropy.table.Table]:
+    def query_tap(self,
+                  query: str, *,
+                  authenticated: bool = False,
+                  ) -> Table:
         """
         Query the ESO TAP service using a free ADQL string.
 
@@ -306,22 +305,20 @@ class EsoClass(QueryWithLogin):
 
         Returns
         -------
-        astropy.table.Table or None
-            The query results in an :class:`~astropy.table.Table`, or
-            ``None`` if no data is found.
+        astropy.table.Table
 
         Examples
         --------
         >>> from astroquery.eso import Eso
         >>> eso_instance = Eso()
-        >>> eso_instance.query_tap_service("SELECT * FROM ivoa.ObsCore")
+        >>> eso_instance.query_tap("SELECT * FROM ivoa.ObsCore")
         """
-        table_to_return = None
-        tap_service = self._tap_service(authenticated)
-        table_to_return = self._try_download_pyvo_table(query_str, tap_service)
+        table_to_return = Table()
+        tap_service = self.tap(authenticated)
+        table_to_return = self._try_download_pyvo_table(query, tap_service)
         return table_to_return
 
-    @unlimited_max_rec
+    @unlimited_maxrec
     @deprecated_renamed_argument('cache', None, since='0.4.11')
     def list_instruments(self, cache=True) -> List[str]:
         """
@@ -336,7 +333,7 @@ class EsoClass(QueryWithLogin):
         _ = cache  # We're aware about disregarding the argument
         query_str = ("select table_name from TAP_SCHEMA.tables "
                      "where schema_name='ist' order by table_name")
-        res = self.query_tap_service(query_str)["table_name"].data
+        res = self.query_tap(query_str)["table_name"].data
 
         l_res = list(res)
 
@@ -348,7 +345,7 @@ class EsoClass(QueryWithLogin):
 
         return l_res
 
-    @unlimited_max_rec
+    @unlimited_maxrec
     @deprecated_renamed_argument('cache', None, since='0.4.11')
     def list_surveys(self, *, cache=True) -> List[str]:
         """
@@ -364,11 +361,11 @@ class EsoClass(QueryWithLogin):
         t = _EsoNames.phase3_table
         c = _EsoNames.phase3_surveys_column
         query_str = f"select distinct {c} from {t}"
-        res = list(self.query_tap_service(query_str)[c].data)
+        res = list(self.query_tap(query_str)[c].data)
         return res
 
-    @unlimited_max_rec
-    def _print_table_help(self, table_name: str) -> None:
+    @unlimited_maxrec
+    def list_column(self, table_name: str) -> None:
         """
         Prints the columns contained in a given table
         """
@@ -378,10 +375,10 @@ class EsoClass(QueryWithLogin):
             # f", description "
             f"from TAP_SCHEMA.columns "
             f"where table_name = '{table_name}'")
-        available_cols = self.query_tap_service(help_query)
+        available_cols = self.query_tap(help_query)
 
         count_query = f"select count(*) from {table_name}"
-        num_records = list(self.query_tap_service(count_query)[0].values())[0]
+        num_records = list(self.query_tap(count_query)[0].values())[0]
 
         # All this block is to print nicely...
         # This whole function should be better written and the output
@@ -399,24 +396,22 @@ class EsoClass(QueryWithLogin):
     def _query_on_allowed_values(
         self,
         user_params: _UserParams
-    ) -> Union[astropy.table.Table, int, str]:
-        up = user_params  # shorthand
-
-        if up.print_help:
-            self._print_table_help(up.table_name)
+    ) -> Union[Table, int, str, None]:
+        if user_params.print_help:
+            self.list_column(user_params.table_name)
             return
 
-        _raise_if_has_deprecated_keys(up.column_filters)
+        _raise_if_has_deprecated_keys(user_params.column_filters)
 
-        raise_if_coords_not_valid(up.cone_ra, up.cone_dec, up.cone_radius)
+        raise_if_coords_not_valid(user_params.cone_ra, user_params.cone_dec, user_params.cone_radius)
 
-        query = _py2adql(up)
+        query = _build_adql_string(user_params)
 
-        if up.query_str_only:
+        if user_params.get_query_payload:
             return query
 
-        ret_table = self.query_tap_service(query_str=query, authenticated=up.authenticated)
-        return list(ret_table[0].values())[0] if up.count_only else ret_table
+        ret_table = self.query_tap(query=query, authenticated=user_params.authenticated)
+        return list(ret_table[0].values())[0] if user_params.count_only else ret_table
 
     @deprecated_renamed_argument(('open_form', 'cache'), (None, None),
                                  since=['0.4.11', '0.4.11'])
@@ -428,11 +423,11 @@ class EsoClass(QueryWithLogin):
             column_filters: Optional[dict] = None,
             top: int = None,
             count_only: bool = False,
-            query_str_only: bool = False,
+            get_query_payload: bool = False,
             help: bool = False,
             authenticated: bool = False,
             open_form: bool = False, cache: bool = False,
-    ) -> Union[astropy.table.Table, int, str]:
+    ) -> Union[Table, int, str]:
         """
         Query survey Phase 3 data contained in the ESO archive.
 
@@ -457,7 +452,7 @@ class EsoClass(QueryWithLogin):
         count_only : bool, optional
             If ``True``, returns only an ``int``: the count of the records
             the query would return when set to ``False``. Default is ``False``.
-        query_str_only : bool, optional
+        get_query_payload : bool, optional
             If ``True``, returns only a ``str``: the query string that
             would be issued to the TAP service. Default is ``False``.
         help : bool, optional
@@ -485,27 +480,27 @@ class EsoClass(QueryWithLogin):
               Returns ``None`` if the query has no results.
             - When ``count_only`` is ``True``, returns an ``int`` representing the
               record count for the specified filters.
-            - When ``query_str_only`` is ``True``, returns the query string that
+            - When ``get_query_payload`` is ``True``, returns the query string that
               would be issued to the TAP service given the specified arguments.
         """
         _ = open_form, cache  # make explicit that we are aware these arguments are unused
         column_filters = column_filters if column_filters else {}
-        up = _UserParams(table_name=_EsoNames.phase3_table,
-                         column_name=_EsoNames.phase3_surveys_column,
-                         allowed_values=surveys,
-                         cone_ra=cone_ra,
-                         cone_dec=cone_dec,
-                         cone_radius=cone_radius,
-                         columns=columns,
-                         column_filters=column_filters,
-                         top=top,
-                         count_only=count_only,
-                         query_str_only=query_str_only,
-                         print_help=help,
-                         authenticated=authenticated,
-                         )
-        t = self._query_on_allowed_values(user_params=up)
-        t = reorder_columns(t, DEFAULT_LEAD_COLS_PHASE3)
+        user_params = _UserParams(table_name=_EsoNames.phase3_table,
+                                  column_name=_EsoNames.phase3_surveys_column,
+                                  allowed_values=surveys,
+                                  cone_ra=cone_ra,
+                                  cone_dec=cone_dec,
+                                  cone_radius=cone_radius,
+                                  columns=columns,
+                                  column_filters=column_filters,
+                                  top=top,
+                                  count_only=count_only,
+                                  get_query_payload=get_query_payload,
+                                  print_help=help,
+                                  authenticated=authenticated,
+                                  )
+        t = self._query_on_allowed_values(user_params=user_params)
+        t = _reorder_columns(t, DEFAULT_LEAD_COLS_PHASE3)
         return t
 
     @deprecated_renamed_argument(('open_form', 'cache'), (None, None),
@@ -518,11 +513,11 @@ class EsoClass(QueryWithLogin):
             column_filters: Optional[dict] = None,
             top: int = None,
             count_only: bool = False,
-            query_str_only: bool = False,
+            get_query_payload: bool = False,
             help: bool = False,
             authenticated: bool = False,
             open_form: bool = False, cache: bool = False,
-    ) -> Union[astropy.table.Table, int, str]:
+    ) -> Union[Table, int, str]:
         """
         Query raw data from all instruments contained in the ESO archive.
 
@@ -547,7 +542,7 @@ class EsoClass(QueryWithLogin):
         count_only : bool, optional
             If ``True``, returns only an ``int``: the count of the records
             the query would return when set to ``False``. Default is ``False``.
-        query_str_only : bool, optional
+        get_query_payload : bool, optional
             If ``True``, returns only a ``str``: the query string that
             would be issued to the TAP service. Default is ``False``.
         help : bool, optional
@@ -575,27 +570,27 @@ class EsoClass(QueryWithLogin):
               Returns ``None`` if the query has no results.
             - When ``count_only`` is ``True``, returns an ``int`` representing the
               record count for the specified filters.
-            - When ``query_str_only`` is ``True``, returns the query string that
+            - When ``get_query_payload`` is ``True``, returns the query string that
               would be issued to the TAP service given the specified arguments.
         """
         _ = open_form, cache  # make explicit that we are aware these arguments are unused
         column_filters = column_filters if column_filters else {}
-        up = _UserParams(table_name=_EsoNames.raw_table,
-                         column_name=_EsoNames.raw_instruments_column,
-                         allowed_values=instruments,
-                         cone_ra=cone_ra,
-                         cone_dec=cone_dec,
-                         cone_radius=cone_radius,
-                         columns=columns,
-                         column_filters=column_filters,
-                         top=top,
-                         count_only=count_only,
-                         query_str_only=query_str_only,
-                         print_help=help,
-                         authenticated=authenticated,
-                         )
-        t = self._query_on_allowed_values(up)
-        t = reorder_columns(t, DEFAULT_LEAD_COLS_RAW)
+        user_params = _UserParams(table_name=_EsoNames.raw_table,
+                                  column_name=_EsoNames.raw_instruments_column,
+                                  allowed_values=instruments,
+                                  cone_ra=cone_ra,
+                                  cone_dec=cone_dec,
+                                  cone_radius=cone_radius,
+                                  columns=columns,
+                                  column_filters=column_filters,
+                                  top=top,
+                                  count_only=count_only,
+                                  get_query_payload=get_query_payload,
+                                  print_help=help,
+                                  authenticated=authenticated,
+                                  )
+        t = self._query_on_allowed_values(user_params)
+        t = _reorder_columns(t, DEFAULT_LEAD_COLS_RAW)
         return t
 
     @deprecated_renamed_argument(('open_form', 'cache'), (None, None),
@@ -608,11 +603,11 @@ class EsoClass(QueryWithLogin):
             column_filters: Optional[dict] = None,
             top: int = None,
             count_only: bool = False,
-            query_str_only: bool = False,
+            get_query_payload: bool = False,
             help: bool = False,
             authenticated: bool = False,
             open_form: bool = False, cache: bool = False,
-    ) -> Union[astropy.table.Table, int, str]:
+    ) -> Union[Table, int, str]:
         """
         Query instrument-specific raw data contained in the ESO archive.
 
@@ -636,7 +631,7 @@ class EsoClass(QueryWithLogin):
         count_only : bool, optional
             If ``True``, returns only an ``int``: the count of the records
             the query would return when set to ``False``. Default is ``False``.
-        query_str_only : bool, optional
+        get_query_payload : bool, optional
             If ``True``, returns only a ``str``: the query string that
             would be issued to the TAP service. Default is ``False``.
         help : bool, optional
@@ -663,26 +658,26 @@ class EsoClass(QueryWithLogin):
               based on the specified columns and constraints. Returns ``None`` if no results.
             - When ``count_only`` is ``True``, returns an ``int`` representing the
               record count for the specified filters.
-            - When ``query_str_only`` is ``True``, returns the query string that
+            - When ``get_query_payload`` is ``True``, returns the query string that
               would be issued to the TAP service given the specified arguments.
         """
         _ = open_form, cache  # make explicit that we are aware these arguments are unused
         column_filters = column_filters if column_filters else {}
-        up = _UserParams(table_name=_EsoNames.ist_table(instrument),
-                         column_name=None,
-                         allowed_values=None,
-                         cone_ra=cone_ra,
-                         cone_dec=cone_dec,
-                         cone_radius=cone_radius,
-                         columns=columns,
-                         column_filters=column_filters,
-                         top=top,
-                         count_only=count_only,
-                         query_str_only=query_str_only,
-                         print_help=help,
-                         authenticated=authenticated)
-        t = self._query_on_allowed_values(up)
-        t = reorder_columns(t, DEFAULT_LEAD_COLS_RAW)
+        user_params = _UserParams(table_name=_EsoNames.ist_table(instrument),
+                                  column_name=None,
+                                  allowed_values=None,
+                                  cone_ra=cone_ra,
+                                  cone_dec=cone_dec,
+                                  cone_radius=cone_radius,
+                                  columns=columns,
+                                  column_filters=column_filters,
+                                  top=top,
+                                  count_only=count_only,
+                                  get_query_payload=get_query_payload,
+                                  print_help=help,
+                                  authenticated=authenticated)
+        t = self._query_on_allowed_values(user_params)
+        t = _reorder_columns(t, DEFAULT_LEAD_COLS_RAW)
         return t
 
     def get_headers(self, product_ids, *, cache=True):
@@ -752,10 +747,10 @@ class EsoClass(QueryWithLogin):
                     columns.append(key)
                     column_types.append(type(header[key]))
         # Add all missing elements
-        for r in result:
+        for item in result:
             for (column, column_type) in zip(columns, column_types):
-                if column not in r:
-                    r[column] = column_type()
+                if column not in item:
+                    item[column] = column_type()
         # Return as Table
         return Table(result)
 
@@ -915,8 +910,6 @@ class EsoClass(QueryWithLogin):
         # remove input datasets from calselector results
         return list(associated_files.difference(set(datasets)))
 
-    @deprecated_renamed_argument(('request_all_objects', 'request_id'), (None, None),
-                                 since=['0.4.7', '0.4.7'])
     def retrieve_data(self, datasets, *, continuation=False, destination=None,
                       with_calib=None, unzip=True,
                       request_all_objects=None, request_id=None):
@@ -959,7 +952,7 @@ class EsoClass(QueryWithLogin):
         if isinstance(datasets, str):
             return_string = True
             datasets = [datasets]
-        if isinstance(datasets, astropy.table.column.Column):
+        if isinstance(datasets, Column):
             datasets = list(datasets)
 
         if with_calib and with_calib not in ('raw', 'processed'):
@@ -997,11 +990,11 @@ class EsoClass(QueryWithLogin):
                               column_filters: Optional[dict] = None,
                               top: int = None,
                               count_only: bool = False,
-                              query_str_only: bool = False,
+                              get_query_payload: bool = False,
                               help: bool = False,
                               authenticated: bool = False,
                               open_form: bool = False, cache: bool = False,
-                              ) -> Union[astropy.table.Table, int, str]:
+                              ) -> Union[Table, int, str]:
         """
         APEX data are distributed with quicklook products identified with a
         different name than other ESO products. This query tool searches by
@@ -1019,7 +1012,7 @@ class EsoClass(QueryWithLogin):
         count_only : bool, optional
             If ``True``, returns only an ``int``: the count of the records
             the query would return when set to ``False``. Default is ``False``.
-        query_str_only : bool, optional
+        get_query_payload : bool, optional
             If ``True``, returns only a ``str``: the query string that
             would be issued to the TAP service. Default is ``False``.
         help : bool, optional
@@ -1046,23 +1039,23 @@ class EsoClass(QueryWithLogin):
               based on the specified columns and constraints. Returns ``None`` if no results.
             - When ``count_only`` is ``True``, returns an ``int`` representing the
               record count for the specified filters.
-            - When ``query_str_only`` is ``True``, returns the query string that
+            - When ``get_query_payload`` is ``True``, returns the query string that
               would be issued to the TAP service given the specified arguments.
         """
         _ = open_form, cache  # make explicit that we are aware these arguments are unused
         column_filters = column_filters if column_filters else {}
-        up = _UserParams(table_name=_EsoNames.apex_quicklooks_table,
-                         column_name=_EsoNames.apex_quicklooks_pid_column,
-                         allowed_values=project_id,
-                         cone_ra=None, cone_dec=None, cone_radius=None,
-                         columns=columns,
-                         column_filters=column_filters,
-                         top=top,
-                         count_only=count_only,
-                         query_str_only=query_str_only,
-                         print_help=help,
-                         authenticated=authenticated)
-        return self._query_on_allowed_values(up)
+        user_params = _UserParams(table_name=_EsoNames.apex_quicklooks_table,
+                                  column_name=_EsoNames.apex_quicklooks_pid_column,
+                                  allowed_values=project_id,
+                                  cone_ra=None, cone_dec=None, cone_radius=None,
+                                  columns=columns,
+                                  column_filters=column_filters,
+                                  top=top,
+                                  count_only=count_only,
+                                  get_query_payload=get_query_payload,
+                                  print_help=help,
+                                  authenticated=authenticated)
+        return self._query_on_allowed_values(user_params)
 
 
 Eso = EsoClass()

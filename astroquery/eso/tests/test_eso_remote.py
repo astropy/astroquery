@@ -28,6 +28,7 @@ instrument_list = ['alpaca', 'fors1', 'fors2', 'sphere', 'vimos', 'omegacam',
 SGRA_SURVEYS = ['195.B-0283',
                 'ALMA',
                 'ATLASGAL',
+                'CRIRESplus',
                 'ERIS-SPIFFIER',
                 'GIRAFFE',
                 'HARPS',
@@ -48,7 +49,7 @@ class TestEso:
         eso = Eso()
         eso.maxrec = 7
         with pytest.warns(MaxResultsWarning):
-            t = eso.query_tap_service("select * from ivoa.ObsCore")
+            t = eso.query_tap("select * from ivoa.ObsCore")
         lt = len(t)
         assert isinstance(t, Table), f"Expected type {type(Table)}; Obtained {type(t)}"
         assert len(t) > 0, "Table length is zero"
@@ -263,7 +264,7 @@ class TestEso:
         except NoResultsWarning:  # we don't care if there are no results
             pass
         else:
-            assert result is not None, f"query_instrument({instrument}) returned None"
+            assert isinstance(result, Table)
             assert len(result) > 0, f"query_instrument({instrument}) returned no records"
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
@@ -279,19 +280,21 @@ class TestEso:
                     result_s = eso.query_surveys(
                         surveys=survey,
                         cone_ra=266.41681662, cone_dec=-29.00782497, cone_radius=0.1775)
+                assert isinstance(result_s, Table)
                 assert len(result_s) > 0
             else:
                 with pytest.warns(NoResultsWarning):
                     result_s = eso.query_surveys(surveys=survey, cone_ra=266.41681662,
                                                  cone_dec=-29.00782497,
                                                  cone_radius=0.1775)
+                    assert isinstance(result_s, Table)
+                    assert isinstance(result_s, Table)
                     assert len(result_s) == 0, f"Failed for survey {survey}"
 
                 with pytest.warns(MaxResultsWarning):
                     generic_result = eso.query_surveys(surveys=survey)
 
-                    assert generic_result is not None, \
-                        f"query_surveys({survey}) returned None"
+                    assert isinstance(generic_result, Table)
                     assert len(generic_result) > 0, \
                         f"query_surveys({survey}) returned no records"
 
@@ -306,7 +309,6 @@ class TestEso:
                                            cone_dec=-29.00782497, cone_radius=1.0)
             result2 = eso.query_instrument('MiDi', cone_ra=266.41681662,
                                            cone_dec=-29.00782497, cone_radius=1.0)
-
         assert all(result1.values_equal(result2))
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
