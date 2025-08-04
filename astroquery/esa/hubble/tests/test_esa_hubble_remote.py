@@ -35,6 +35,7 @@ def remove_last_job():
     if len(jobs) > 0:
         jobs[-1].delete()
 
+
 @pytest.mark.remote_data
 class TestEsaHubbleRemoteData:
     obs_query = "select top 2050 a.observation_id from ehst.archive a"
