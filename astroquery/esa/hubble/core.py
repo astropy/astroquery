@@ -23,7 +23,6 @@ from astroquery.query import BaseQuery, BaseVOQuery
 import warnings
 import pyvo
 from astropy.utils.exceptions import AstropyDeprecationWarning
-from astropy.utils.decorators import deprecated
 
 from . import conf
 import time
@@ -51,12 +50,6 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
             self._auth_session = auth_session
         else:
             self._auth_session = esautils.ESAAuthSession()
-            self._auth_session.add_security_method_for_url(url=conf.EHST_TAP_SERVER, security_method="anonymous")
-            self._auth_session.add_security_method_for_url(
-                url=conf.EHST_TABLES_SERVER,
-                security_method="anonymous",
-                exact=True
-            )
 
         if show_messages:
             self.get_status_messages()
@@ -132,7 +125,7 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
         output_file = self.__get_download_path(folder, filename)
         esautils.download_file(
             url=conf.EHST_DATA_SERVER,
-            session=self.vo._session,
+            session=self.tap._session,
             params=params,
             verbose=verbose,
             filename=output_file
@@ -782,33 +775,6 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
             esautils.download_table(result, output_file, output_format)
 
         return result
-
-    @deprecated(since="0.4.7", alternative="query_tap")
-    def query_hst_tap(self, query, *, async_job=False, output_file=None,
-                      output_format="votable", verbose=False):
-        """Launches a synchronous or asynchronous job to query the HST tap
-
-        Parameters
-        ----------
-        query : str, mandatory
-            query (adql) to be executed
-        async_job : bool, optional, default 'False'
-            executes the query (job) in asynchronous/synchronous mode (default
-            synchronous)
-        output_file : str, optional, default None
-            file name where the results are saved if dumpToFile is True.
-            If this parameter is not provided, the jobid is used instead
-        output_format : str, optional, default 'votable'
-            results format
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A table object
-        """
-        self.query_tap(query=query, async_job=False, output_file=None,
-                       output_format="votable", verbose=False)
 
     def query_criteria(self, *, calibration_level=None,
                        data_product_type=None, intent=None,

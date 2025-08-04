@@ -747,22 +747,6 @@ class TestESAHubble:
             ehst = ESAHubbleClass(show_messages=False)
             ehst.cone_search_criteria(coordinates="00h42m44.51s +41d16m08.45s", target="m11", radius=1)
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService')
-    def test_query_hst_tap(self, mock_tap):
-        parameters = {'query': "select top 10 * from hsc_v2.hubble_sc2",
-                      'async_job': False,
-                      'output_file': "test2.vot",
-                      'output_format': "votable",
-                      'verbose': False}
-
-        ehst = ESAHubbleClass(show_messages=False)
-        with pytest.warns(AstropyDeprecationWarning):
-            ehst.query_hst_tap(query=parameters['query'],
-                               async_job=parameters['async_job'],
-                               output_file=parameters['output_file'],
-                               output_format=parameters['output_format'],
-                               verbose=parameters['verbose'])
-
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     def test_show_messages(self, mock_execute_servlet_request):
