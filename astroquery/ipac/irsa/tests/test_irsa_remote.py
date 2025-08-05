@@ -6,8 +6,6 @@ from astropy.table import Table
 from astropy.coordinates import SkyCoord
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
-from pyvo.dal.exceptions import DALOverflowWarning
-
 from astroquery.ipac.irsa import Irsa
 
 
@@ -114,9 +112,8 @@ class TestIrsa:
 
     def test_tap(self):
         query = "SELECT TOP 5 ra,dec FROM cosmos2015"
-        with pytest.warns(expected_warning=DALOverflowWarning,
-                          match="Partial result set. Potential causes MAXREC, async storage space, etc."):
-            result = Irsa.query_tap(query=query)
+
+        result = Irsa.query_tap(query=query)
         assert len(result) == 5
         assert result.to_table().colnames == ['ra', 'dec']
 

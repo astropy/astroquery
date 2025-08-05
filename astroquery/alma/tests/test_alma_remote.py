@@ -37,6 +37,9 @@ all_colnames = {'Project code', 'Source name', 'RA', 'Dec', 'Band',
 
 download_hostname = 'almascience.eso.org'
 
+# The MAXREC related overflow message is different in pyvo 1.7+, remove workaround when we have it as a minimum
+overflow_message = r"Partial result set. Potential causes MAXREC|Result set limited by user- or server-supplied MAXREC"
+
 
 @pytest.fixture
 def alma(request):
@@ -56,14 +59,12 @@ def alma(request):
 @pytest.mark.remote_data
 class TestAlma:
     def test_public(self, alma):
-        with pytest.warns(expected_warning=DALOverflowWarning,
-                          match="Partial result set. Potential causes MAXREC, async storage space, etc."):
+        with pytest.warns(expected_warning=DALOverflowWarning, match=overflow_message):
             results = alma.query(payload=None, public=True, maxrec=100)
         assert len(results) == 100
         for row in results:
             assert row['data_rights'] == 'Public'
-        with pytest.warns(expected_warning=DALOverflowWarning,
-                          match="Partial result set. Potential causes MAXREC, async storage space, etc."):
+        with pytest.warns(expected_warning=DALOverflowWarning, match=overflow_message):
             results = alma.query(payload=None, public=False, maxrec=100)
         assert len(results) == 100
         for row in results:
@@ -105,8 +106,7 @@ class TestAlma:
     def test_bands(self, alma):
         payload = {'band_list': ['5', '7']}
         # Added maxrec here as downloading and reading the results take too long.
-        with pytest.warns(expected_warning=DALOverflowWarning,
-                          match="Partial result set. Potential causes MAXREC, async storage space, etc."):
+        with pytest.warns(expected_warning=DALOverflowWarning, match=overflow_message):
             result = alma.query(payload, maxrec=1000)
         assert len(result) > 0
         for row in result:
@@ -342,8 +342,7 @@ class TestAlma:
 
         result = alma.query_object('M83', public=True, science=True)
         assert len(result) > 0
-        with pytest.warns(expected_warning=DALOverflowWarning,
-                          match="Partial result set. Potential causes MAXREC, async storage space, etc."):
+        with pytest.warns(expected_warning=DALOverflowWarning, match=overflow_message):
             result = alma.query(payload={'pi_name': 'Bally*'}, public=True,
                                 maxrec=10)
         assert result
