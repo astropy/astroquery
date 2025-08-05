@@ -15,6 +15,7 @@ from astropy.io import fits
 import astropy.units as u
 from requests import HTTPError, Response
 
+from astropy.utils.exceptions import AstropyDeprecationWarning
 from astroquery.mast.services import _json_to_table
 from astroquery.utils.mocks import MockResponse
 from astroquery.exceptions import (InvalidQueryError, InputWarning, MaxResultsWarning, NoResultsWarning,
@@ -1012,7 +1013,8 @@ def test_tesscut_get_sector(patch_post):
 
     # Exercising the search by moving target
     sector_table = mast.Tesscut.get_sectors(objectname="Ceres",
-                                            moving_target=True)
+                                            moving_target=True,
+                                            mt_type='small_body')
     assert isinstance(sector_table, Table)
     assert len(sector_table) == 1
     assert sector_table['sectorName'][0] == "tess-s0001-1-3"
@@ -1020,26 +1022,31 @@ def test_tesscut_get_sector(patch_post):
     assert sector_table['camera'][0] == 1
     assert sector_table['ccd'][0] == 3
 
+    # Invalid queries
     # Testing catch for multiple designators'
     error_str = ("Only one of moving_target and coordinates may be specified. "
                  "Please remove coordinates if using moving_target and objectname.")
-
     with pytest.raises(InvalidQueryError) as invalid_query:
         mast.Tesscut.get_sectors(objectname='Ceres', moving_target=True, coordinates=coord)
     assert error_str in str(invalid_query.value)
 
-    # Testing invalid queries
-    with pytest.raises(InvalidQueryError) as invalid_query:
-        mast.Tesscut.get_sectors(objectname="M101", product="spooc")
-    assert "Input product must either be SPOC or TICA." in str(invalid_query.value)
+    # Error when no object name with moving target
+    with pytest.raises(InvalidQueryError, match='Please specify the object name or ID'):
+        mast.Tesscut.get_sectors(moving_target=True)
 
+    # Error when both object name and coordinates are specified
+    with pytest.raises(InvalidQueryError, match='Please remove objectname if using coordinates'):
+        mast.Tesscut.get_sectors(objectname='Ceres', coordinates=coord)
+
+    # Testing invalid queries
+    # Invalid product type
     with pytest.raises(InvalidQueryError) as invalid_query:
-        mast.Tesscut.get_sectors(objectname="M101", product="TICA", moving_target=True)
-    assert "Only SPOC is available for moving targets queries." in str(invalid_query.value)
+        with pytest.warns(AstropyDeprecationWarning, match="Tesscut no longer supports"):
+            mast.Tesscut.get_sectors(objectname="M101", product="spooc")
+    assert "Input product must be SPOC." in str(invalid_query.value)
 
 
 def test_tesscut_download_cutouts(patch_post, tmpdir):
-
     coord = SkyCoord(107.27, -70.0, unit="deg")
 
     # Testing with inflate
@@ -1067,6 +1074,8 @@ def test_tesscut_download_cutouts(patch_post, tmpdir):
     # Exercising the search by moving target
     manifest = mast.Tesscut.download_cutouts(objectname="Eleonora",
                                              moving_target=True,
+                                             mt_type='small_body',
+                                             sector=1,
                                              size=5,
                                              path=str(tmpdir))
     assert isinstance(manifest, Table)
@@ -1088,16 +1097,12 @@ def test_tesscut_download_cutouts(patch_post, tmpdir):
 
     # Testing invalid queries
     with pytest.raises(InvalidQueryError) as invalid_query:
-        mast.Tesscut.download_cutouts(objectname="M101", product="spooc")
-    assert "Input product must either be SPOC or TICA." in str(invalid_query.value)
-
-    with pytest.raises(InvalidQueryError) as invalid_query:
-        mast.Tesscut.download_cutouts(objectname="M101", product="TICA", moving_target=True)
-    assert "Only SPOC is available for moving targets queries." in str(invalid_query.value)
+        with pytest.warns(AstropyDeprecationWarning, match="Tesscut no longer supports"):
+            mast.Tesscut.download_cutouts(objectname="M101", product="spooc")
+    assert "Input product must be SPOC." in str(invalid_query.value)
 
 
 def test_tesscut_get_cutouts(patch_post, tmpdir):
-
     coord = SkyCoord(107.27, -70.0, unit="deg")
     cutout_hdus_list = mast.Tesscut.get_cutouts(coordinates=coord, size=5)
     assert isinstance(cutout_hdus_list, list)
@@ -1113,6 +1118,8 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
     # Exercising the search by object name
     cutout_hdus_list = mast.Tesscut.get_cutouts(objectname='Eleonora',
                                                 moving_target=True,
+                                                mt_type='small_body',
+                                                sector=1,
                                                 size=5)
     assert isinstance(cutout_hdus_list, list)
     assert len(cutout_hdus_list) == 1
@@ -1131,12 +1138,9 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
 
     # Testing invalid queries
     with pytest.raises(InvalidQueryError) as invalid_query:
-        mast.Tesscut.get_cutouts(objectname="M101", product="spooc")
-    assert "Input product must either be SPOC or TICA." in str(invalid_query.value)
-
-    with pytest.raises(InvalidQueryError) as invalid_query:
-        mast.Tesscut.get_cutouts(objectname="M101", product="TICA", moving_target=True)
-    assert "Only SPOC is available for moving targets queries." in str(invalid_query.value)
+        with pytest.warns(AstropyDeprecationWarning, match="Tesscut no longer supports"):
+            mast.Tesscut.get_cutouts(objectname="M101", product="spooc")
+    assert "Input product must be SPOC." in str(invalid_query.value)
 
 
 ######################
