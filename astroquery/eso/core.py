@@ -41,9 +41,6 @@ from .utils import _UserParams, raise_if_coords_not_valid, _reorder_columns, \
     DEFAULT_LEAD_COLS_PHASE3, DEFAULT_LEAD_COLS_RAW
 
 
-__doctest_skip__ = ['EsoClass.*']
-
-
 class CalSelectorError(Exception):
     """
     Raised on failure to parse CalSelector's response.
@@ -309,9 +306,9 @@ class EsoClass(QueryWithLogin):
 
         Examples
         --------
-        >>> from astroquery.eso import Eso
-        >>> eso_instance = Eso()
-        >>> eso_instance.query_tap("SELECT * FROM ivoa.ObsCore")
+        from astroquery.eso import Eso
+        eso_instance = Eso()
+        eso_instance.query_tap("SELECT * FROM ivoa.ObsCore")
         """
         table_to_return = Table()
         tap_service = self.tap(authenticated)
@@ -942,9 +939,9 @@ class EsoClass(QueryWithLogin):
 
         Examples
         --------
-        >>> dptbl = Eso.query_instrument('apex', pi_coi='ginsburg')
-        >>> dpids = [row['DP.ID'] for row in dptbl if 'Map' in row['Object']]
-        >>> files = Eso.retrieve_data(dpids)
+        dptbl = Eso.query_instrument('apex', pi_coi='ginsburg')
+        dpids = [row['DP.ID'] for row in dptbl if 'Map' in row['Object']]
+        files = Eso.retrieve_data(dpids)
 
         """
         _ = request_all_objects, request_id
