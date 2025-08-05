@@ -416,8 +416,7 @@ def apply_column_filters(products, filters):
     # Applying column-based filters
     for colname, vals in filters.items():
         if colname not in products.colnames:
-            warnings.warn(f"Column '{colname}' not found in product table.", InputWarning)
-            continue
+            raise InvalidQueryError(f"Column '{colname}' not found in product table.")
 
         col_data = products[colname]
         # If the column is an integer or float, accept numeric filters

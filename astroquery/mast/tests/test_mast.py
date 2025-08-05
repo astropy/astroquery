@@ -374,10 +374,6 @@ def test_missions_filter_products(patch_post):
     filtered = mast.MastMissions.filter_products(products, extension='fits')
     assert len(filtered) > 0
 
-    # Filter by non-existing column
-    with pytest.warns(InputWarning):
-        mast.MastMissions.filter_products(products, invalid=True)
-
     # Numeric filtering
     # Single integer value
     filtered = mast.MastMissions.filter_products(products, size=11520)
@@ -411,6 +407,10 @@ def test_missions_filter_products(patch_post):
     with pytest.raises(InvalidQueryError, match="Could not parse numeric filter 'invalid' for column 'size'"):
         # Invalid filter value
         mast.MastMissions.filter_products(products, size='invalid')
+
+    # Error when filtering by non-existing column
+    with pytest.raises(InvalidQueryError, match="Column 'non_existing' not found in product table."):
+        mast.MastMissions.filter_products(products, non_existing='value')
 
 
 def test_missions_download_products(patch_post, tmp_path):
@@ -720,10 +720,6 @@ def test_observations_filter_products(patch_post):
     filtered = mast.Observations.filter_products(products, extension='fits')
     assert len(filtered) > 0
 
-    # Filter by non-existing column
-    with pytest.warns(InputWarning):
-        mast.Observations.filter_products(products, invalid=True)
-
     # Numeric filtering
     filtered = mast.Observations.filter_products(products, size='<50000')
     assert all(filtered['size'] < 50000)
@@ -731,6 +727,10 @@ def test_observations_filter_products(patch_post):
     # Numeric filter that cannot be parsed
     with pytest.raises(InvalidQueryError, match="Could not parse numeric filter 'invalid' for column 'size'"):
         filtered = mast.Observations.filter_products(products, size='invalid')
+
+    # Filter by non-existing column
+    with pytest.raises(InvalidQueryError, match="Column 'invalid' not found in product table."):
+        mast.Observations.filter_products(products, invalid=True)
 
 
 def test_observations_download_products(patch_post, tmpdir):
