@@ -152,16 +152,9 @@ class TesscutClass(MastQueryWithLogin):
         -------
         InvalidQueryError
             If the product is not "SPOC".
-
-        Returns
-        -------
-        str
-            The validated product type, converted to uppercase.
         """
-        product = product.upper()
-        if product != "SPOC":
+        if product.upper() != "SPOC":
             raise InvalidQueryError("Input product must be SPOC.")
-        return product
 
     @deprecated_renamed_argument('product', None, since='0.4.11', message='Tesscut no longer supports operations on '
                                  'TESS Image Calibrator (TICA) products. '
@@ -219,11 +212,11 @@ class TesscutClass(MastQueryWithLogin):
         response : `~astropy.table.Table`
             Sector/camera/chip information for given coordinates/objectname/moving_target.
         """
-        product = self._validate_product(product)
+        self._validate_product(product)
         self._validate_target_input(coordinates, objectname, moving_target)
 
         if moving_target:
-            params = {"product": "SPOC", "obj_id": objectname}
+            params = {"obj_id": objectname}
             if mt_type:  # Add optional parameter if present
                 params["obj_type"] = mt_type
             service = "mt_sector"
@@ -236,8 +229,7 @@ class TesscutClass(MastQueryWithLogin):
             radius = Angle(radius, u.deg)
             params = {"ra": coordinates.ra.deg,
                       "dec": coordinates.dec.deg,
-                      "radius": radius.deg,
-                      "product": "SPOC"}
+                      "radius": radius.deg}
             service = "sector"
 
         response = self._service_api_connection.service_request_async(service, params)
@@ -320,10 +312,9 @@ class TesscutClass(MastQueryWithLogin):
         -------
         response : `~astropy.table.Table`
         """
-        product = self._validate_product(product)
+        self._validate_product(product)
         self._validate_target_input(coordinates, objectname, moving_target)
         params = _parse_cutout_size(size)
-        params["product"] = "SPOC"
 
         if sector:
             params["sector"] = sector
@@ -431,14 +422,10 @@ class TesscutClass(MastQueryWithLogin):
         -------
         response : A list of `~astropy.io.fits.HDUList` objects.
         """
-        product = product.upper()
-        if product != "SPOC":
-            raise InvalidQueryError("Input product must be SPOC.")
-        product = self._validate_product(product)
+        self._validate_product(product)
         self._validate_target_input(coordinates, objectname, moving_target)
 
         params = _parse_cutout_size(size)
-        params["product"] = product
         if sector:
             params["sector"] = sector
 
