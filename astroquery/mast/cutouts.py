@@ -101,6 +101,30 @@ class TesscutClass(MastQueryWithLogin):
         self._service_api_connection.set_service_params(services, "tesscut")
 
     def _validate_target_input(self, coordinates, objectname, moving_target):
+        """
+        Validate the input parameters for target selection.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates` object, optional
+            The target around which to search. It may be specified as a
+            string or as the appropriate `astropy.coordinates` object.
+        objectname : str, optional
+            The target around which to search, by name (objectname="M104")
+            or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID
+            (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons/app.html>`__)
+            of a moving target such as an asteroid or comet.
+        moving_target : bool, optional
+            Indicate whether the object is a moving target or not. Default is set to False, in other words,
+            not a moving target.
+
+        Raises
+        -------
+        InvalidQueryError
+            If ``moving_target`` is True and ``coordinates`` is provided.
+            If ``moving_target`` is True and ``objectname`` is not provided.
+            If both ``coordinates`` and ``objectname`` are provided.
+        """
         if moving_target:
             if coordinates:
                 raise InvalidQueryError("Only one of moving_target and coordinates may be specified. "
@@ -115,17 +139,24 @@ class TesscutClass(MastQueryWithLogin):
                 raise InvalidQueryError("Only one of objectname and coordinates may be specified. "
                                         "Please remove objectname if using coordinates.")
 
-    def _get_coordinates(self, coordinates, objectname, resolver):
-        """
-        Get SkyCoord object for coordinates/objectname.
-        """
-        return parse_input_location(coordinates=coordinates,
-                                    objectname=objectname,
-                                    resolver=resolver)
-
     def _validate_product(self, product):
         """
-        Check if the product is valid.
+        Validate the product type. "SPOC" is the only valid option.
+
+        Parameters
+        ----------
+        product : str
+            The product type to validate. Must be "SPOC".
+
+        Raises
+        -------
+        InvalidQueryError
+            If the product is not "SPOC".
+
+        Returns
+        -------
+        str
+            The validated product type, converted to uppercase.
         """
         product = product.upper()
         if product != "SPOC":
@@ -198,7 +229,9 @@ class TesscutClass(MastQueryWithLogin):
             service = "mt_sector"
         else:
             # Get Skycoord object for coordinates/object
-            coordinates = self._get_coordinates(coordinates, objectname, resolver)
+            coordinates = parse_input_location(coordinates=coordinates,
+                                               objectname=objectname,
+                                               resolver=resolver)
             # If radius is just a number we assume degrees
             radius = Angle(radius, u.deg)
             params = {"ra": coordinates.ra.deg,
@@ -301,7 +334,9 @@ class TesscutClass(MastQueryWithLogin):
                 params["obj_type"] = mt_type
             request_path = "moving_target/astrocut"
         else:
-            coordinates = self._get_coordinates(coordinates, objectname, resolver)
+            coordinates = parse_input_location(coordinates=coordinates,
+                                               objectname=objectname,
+                                               resolver=resolver)
             params.update({"ra": coordinates.ra.deg, "dec": coordinates.dec.deg})
             request_path = "astrocut"
 
@@ -414,7 +449,9 @@ class TesscutClass(MastQueryWithLogin):
             service = "mt_astrocut"
         else:
             # Get Skycoord object for coordinates/object
-            coordinates = self._get_coordinates(coordinates, objectname, resolver)
+            coordinates = parse_input_location(coordinates=coordinates,
+                                               objectname=objectname,
+                                               resolver=resolver)
             params.update({"ra": coordinates.ra.deg, "dec": coordinates.dec.deg})
             service = "astrocut"
 
