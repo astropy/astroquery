@@ -19,6 +19,7 @@ import pytest
 from astropy import coordinates
 from astropy.coordinates.sky_coordinate import SkyCoord
 from astropy.table import Column, Table
+from astropy.units import Quantity
 from astropy.utils.data import get_pkg_data_filename
 from requests import HTTPError
 
@@ -27,7 +28,9 @@ from astroquery.esa.euclid.core import conf
 from astroquery.utils.commons import ASTROPY_LT_7_1_1
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
-from astroquery.utils.tap.core import TapPlus
+from astroquery.utils.tap.core import TapPlus, Tap
+from astroquery.utils.tap.model.tapcolumn import TapColumn
+from astroquery.utils.tap.model.taptable import TapTableMeta
 
 package = "astroquery.esa.euclid.tests"
 
@@ -47,6 +50,18 @@ PRODUCT_LIST_FILE_NAME = get_pkg_data_filename(os.path.join("data", 'test_get_pr
 TEST_GET_PRODUCT_LIST = Path(PRODUCT_LIST_FILE_NAME).read_text()
 
 
+def make_table_metadata(table_name, ra, dec):
+    tap_table = TapTableMeta()
+    tap_table.name = table_name
+    tap_column_ra = TapColumn(0)
+    tap_column_ra.name = ra
+    tap_table.add_column(tap_column_ra)
+    tap_column_dec = TapColumn(0)
+    tap_column_dec.name = dec
+    tap_table.add_column(tap_column_dec)
+    return tap_table
+
+
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
@@ -56,6 +71,26 @@ def data_path(filename):
 def run_before_and_after_tests():
     yield
     remove_temp_dir()
+
+
+@pytest.fixture
+def cross_match_basic_kwargs():
+    return {"table_a_full_qualified_name": "schemaA.tableA",
+            "table_a_column_ra": "ra",
+            "table_a_column_dec": "dec",
+            "table_b_full_qualified_name": "catalogue.mer_catalogue",
+            "table_b_column_ra": "right_ascension",
+            "table_b_column_dec": "declination"}
+
+
+@pytest.fixture
+def cross_match_basic_2_kwargs():
+    return {"table_a_full_qualified_name": "user_hola.tableA",
+            "table_a_column_ra": "ra",
+            "table_a_column_dec": "dec",
+            "table_b_full_qualified_name": "catalogue.mer_catalogue",
+            "table_b_column_ra": "right_ascension",
+            "table_b_column_dec": "declination"}
 
 
 @pytest.fixture(scope="module")
@@ -1188,7 +1223,7 @@ def test_get_datalinks(monkeypatch):
     def get_datalinks_monkeypatched(self, ids, linking_parameter, verbose):
         return Table()
 
-    # `GaiaClass` is a subclass of `TapPlus`, but it does not inherit
+    # `EuclidClass` is a subclass of `TapPlus`, but it does not inherit
     # `get_datalinks()`, it replaces it with a call to the `get_datalinks()`
     # of its `__gaiadata`.
     monkeypatch.setattr(TapPlus, "get_datalinks", get_datalinks_monkeypatched)
@@ -1196,6 +1231,179 @@ def test_get_datalinks(monkeypatch):
 
     result = euclid.get_datalinks(ids=[12345678], verbose=True)
     assert isinstance(result, Table)
+
+
+@pytest.mark.parametrize("background", [False, True])
+def test_cross_match_basic(monkeypatch, background, cross_match_basic_kwargs, mock_querier_async):
+    def load_table_monkeypatched(self, table, verbose):
+        tap_table_a = make_table_metadata("schemaA.tableA", "ra", "dec")
+        tap_table_b = make_table_metadata("catalogue.mer_catalogue", "right_ascension", "declination")
+
+        return_val = {"schemaA.tableA": tap_table_a, "catalogue.mer_catalogue": tap_table_b}
+        return return_val[table]
+
+    monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched)
+
+    job = mock_querier_async.cross_match_basic(**cross_match_basic_kwargs, background=background)
+    assert job.async_ is True
+    assert job.get_phase() == "EXECUTING" if background else "COMPLETED"
+    assert job.failed is False
+
+
+@pytest.mark.parametrize("background", [False, True])
+def test_cross_match_basic_2(monkeypatch, background, cross_match_basic_2_kwargs, mock_querier_async):
+    def load_table_monkeypatched(self, table, verbose):
+        tap_table_a = make_table_metadata("schemaA.tableA", "ra", "dec")
+        tap_table_b = make_table_metadata("catalogue.mer_catalogue", "right_ascension", "declination")
+
+        return_val = {"user_hola.tableA": tap_table_a, "catalogue.mer_catalogue": tap_table_b}
+        return return_val[table]
+
+    def update_user_table(self, table_name, list_of_changes, verbose):
+        return None
+
+    monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched)
+    monkeypatch.setattr(TapPlus, "update_user_table", update_user_table)
+
+    job = mock_querier_async.cross_match_basic(**cross_match_basic_2_kwargs, background=background)
+    assert job.async_ is True
+    assert job.get_phase() == "EXECUTING" if background else "COMPLETED"
+    assert job.failed is False
+
+
+@pytest.mark.parametrize("background", [False, True])
+def test_cross_match_basic_3(monkeypatch, background, mock_querier_async):
+    def load_table_monkeypatched_2(self, table, verbose):
+        tap_table_a = make_table_metadata("schemaA.tableA", "ra", "dec")
+        tap_table_b = make_table_metadata("catalogue.mer_catalogue", "right_ascension", "declination")
+
+        return_val = {"user_hola.tableA": tap_table_a, "catalogue.mer_catalogue": tap_table_b}
+        return return_val[table]
+
+    def update_user_table(self, table_name, list_of_changes, verbose):
+        return None
+
+    monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched_2)
+    monkeypatch.setattr(TapPlus, "update_user_table", update_user_table)
+
+    job = mock_querier_async.cross_match_basic(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
+                                               table_a_column_dec="dec", background=background)
+    assert job.async_ is True
+    assert job.get_phase() == "EXECUTING" if background else "COMPLETED"
+    assert job.failed is False
+
+    radius_quantity = Quantity(value=1.0, unit=u.arcsec)
+    job = mock_querier_async.cross_match_basic(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
+                                               table_a_column_dec="dec", radius=radius_quantity, background=background)
+    assert job.async_ is True
+    assert job.get_phase() == "EXECUTING" if background else "COMPLETED"
+    assert job.failed is False
+
+    radius_quantity = Quantity(value=1.0 / 3600.0, unit=u.deg)
+    job = mock_querier_async.cross_match_basic(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
+                                               table_a_column_dec="dec", radius=radius_quantity, background=background)
+    assert job.async_ is True
+    assert job.get_phase() == "EXECUTING" if background else "COMPLETED"
+    assert job.failed is False
+
+
+@pytest.mark.parametrize("background", [False, True])
+def test_cross_match_basic_wrong_column(monkeypatch, background, mock_querier_async):
+    def load_table_monkeypatched(self, table, verbose):
+        tap_table_a = make_table_metadata("schemaA.tableA", "ra", "dec")
+        tap_table_b = make_table_metadata("catalogue.mer_catalogue", "right_ascension", "declination")
+
+        return_val = {"schemaA.tableA": tap_table_a, "catalogue.mer_catalogue": tap_table_b}
+        return return_val[table]
+
+    def update_user_table(self, table_name, list_of_changes, verbose):
+        return None
+
+    monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched)
+    monkeypatch.setattr(TapPlus, "update_user_table", update_user_table)
+
+    error_message = "Please check: columns Wrong_ra or dec not available in the table 'schemaA.tableA'"
+    with pytest.raises(ValueError, match=error_message):
+        mock_querier_async.cross_match_basic(table_a_full_qualified_name="schemaA.tableA",
+                                             table_a_column_ra="Wrong_ra", table_a_column_dec="dec",
+                                             background=background)
+
+    error_message = "Please check: columns ra or Wrong_dec not available in the table 'schemaA.tableA'"
+    with pytest.raises(ValueError, match=error_message):
+        mock_querier_async.cross_match_basic(table_a_full_qualified_name="schemaA.tableA",
+                                             table_a_column_ra="ra", table_a_column_dec="Wrong_dec",
+                                             background=background)
+
+
+def test_cross_match_basic_exceptions(monkeypatch):
+    def load_table_monkeypatched(self, table, verbose):
+        raise ValueError(f"Not found schema name in full qualified table: '{table}'")
+
+    def update_user_table(self, table_name, list_of_changes, verbose):
+        return None
+
+    euclid = EuclidClass(show_server_messages=False)
+    monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched)
+    monkeypatch.setattr(TapPlus, "update_user_table", update_user_table)
+
+    error_message = "Not found schema name in full qualified table: 'user_hola.tableA'"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.cross_match_basic(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
+                                 table_a_column_dec="dec", background=True)
+
+    # Check invalid input values
+    error_message = "Not found schema name in full qualified table: 'hola'"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.cross_match_basic(table_a_full_qualified_name="hola", table_a_column_ra="ra",
+                                 table_a_column_dec="dec")
+
+    error_message = "Schema name is empty in full qualified table: '.table_name'"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.cross_match_basic(table_a_full_qualified_name=".table_name", table_a_column_ra="ra",
+                                 table_a_column_dec="dec")
+
+    error_message = "Not found schema name in full qualified table: 'hola'"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                 table_a_column_dec="dec", table_b_full_qualified_name="hola", table_b_column_ra="ra",
+                                 table_b_column_dec="dec")
+
+    error_message = "Invalid ra or dec column names: 'None' and 'None'"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                 table_a_column_dec="dec", table_b_full_qualified_name="hola")
+
+    error_message = "Schema name is empty in full qualified table: '.table_name'"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                 table_a_column_dec="dec", table_b_full_qualified_name=".table_name",
+                                 table_b_column_ra="ra",
+                                 table_b_column_dec="dec")
+
+    error_message = "Invalid radius value. Found 50.0 arcsec, valid range is: 0.1 to 10.0"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                 table_a_column_dec="dec", table_b_full_qualified_name="schema.table_name",
+                                 radius=50.0)
+
+    error_message = "Invalid radius value. Found 0.01 arcsec, valid range is: 0.1 to 10.0"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                 table_a_column_dec="dec", table_b_full_qualified_name="schema.table_name",
+                                 radius=0.01)
+
+    radius_quantity = Quantity(value=0.01, unit=u.arcsec)
+    with pytest.raises(ValueError, match=error_message):
+        euclid.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                 table_a_column_dec="dec", table_b_full_qualified_name="schema.table_name",
+                                 radius=radius_quantity)
+
+    radius_quantity = Quantity(value=1.0, unit=u.deg)
+    error_message = "Invalid radius value. Found 3600.0 arcsec, valid range is: 0.1 to 10.0"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                 table_a_column_dec="dec", table_b_full_qualified_name="schema.table_name",
+                                 radius=radius_quantity)
 
 
 def test_load_async_job(mock_querier_async):

@@ -33,6 +33,7 @@ esa.euclid
 
 - New method, get_scientific_product_list, to retrieve scientific LE3
   products. [#3313]
+- New cross-match method [#3386]
 
 gaia
 ^^^^
