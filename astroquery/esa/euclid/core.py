@@ -118,7 +118,7 @@ class EuclidClass(TapPlus):
             self.get_status_messages()
 
     def cross_match_basic(self, *, table_a_full_qualified_name, table_a_column_ra, table_a_column_dec,
-                          table_b_full_qualified_name='', table_b_column_ra='', table_b_column_dec='',
+                          table_b_full_qualified_name=None, table_b_column_ra=None, table_b_column_dec=None,
                           results_name=None,
                           radius=1.0, background=False, verbose=False):
         """Performs a positional cross-match between the specified tables.
@@ -131,7 +131,7 @@ class EuclidClass(TapPlus):
 
         The result is a join table with the identifies of both tables and the distance (degrees), that is returned
         without metadata units. If desired, units can be added using the Units package of Astropy as follows:
-        results[‘separation’].unit = u.degree. To speed up the cross-match, pass the biggest table to the
+        ``results[‘separation’].unit = u.degree``. To speed up the cross-match, pass the biggest table to the
         ``table_b_full_qualified_name`` parameter.
         TAP+ only
 
@@ -176,10 +176,13 @@ class EuclidClass(TapPlus):
         if not schema_a:
             raise ValueError(f"Schema name is empty in full qualified table: '{table_a_full_qualified_name}'")
 
-        if not table_b_full_qualified_name:
+        if table_b_full_qualified_name is None:
             table_b_full_qualified_name = self.main_table
             table_b_column_ra = self.main_table_ra
             table_b_column_dec = self.main_table_dec
+        else:
+            if table_b_column_ra is None or table_b_column_dec is None:
+                raise ValueError(f"Invalid ra or dec column names: '{table_b_column_ra}' and '{table_b_column_dec}'")
 
         schema_b = self.__get_schema_name(table_b_full_qualified_name)
         if not schema_b:
@@ -252,11 +255,8 @@ class EuclidClass(TapPlus):
         """
         Get the table metadata for the input table
         """
-        try:
-            table_metadata = self.load_table(table=full_qualified_table_name, verbose=verbose)
-        except Exception:
-            raise ValueError(f"Not found table '{full_qualified_table_name}' in the archive")
-        return table_metadata
+
+        return self.load_table(table=full_qualified_table_name, verbose=verbose)
 
     def __get_schema_name(self, full_qualified_table_name):
         """

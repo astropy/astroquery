@@ -1346,7 +1346,7 @@ def test_cross_match_basic_exceptions(monkeypatch):
     monkeypatch.setattr(Tap, "load_table", load_table_monkeypatched)
     monkeypatch.setattr(TapPlus, "update_user_table", update_user_table)
 
-    error_message = "Not found table 'user_hola.tableA' in the archive"
+    error_message = "Not found schema name in full qualified table: 'user_hola.tableA'"
     with pytest.raises(ValueError, match=error_message):
         euclid.cross_match_basic(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
                                  table_a_column_dec="dec", background=True)
@@ -1365,12 +1365,20 @@ def test_cross_match_basic_exceptions(monkeypatch):
     error_message = "Not found schema name in full qualified table: 'hola'"
     with pytest.raises(ValueError, match=error_message):
         euclid.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
+                                 table_a_column_dec="dec", table_b_full_qualified_name="hola", table_b_column_ra="ra",
+                                 table_b_column_dec="dec")
+
+    error_message = "Invalid ra or dec column names: 'None' and 'None'"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
                                  table_a_column_dec="dec", table_b_full_qualified_name="hola")
 
     error_message = "Schema name is empty in full qualified table: '.table_name'"
     with pytest.raises(ValueError, match=error_message):
         euclid.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
-                                 table_a_column_dec="dec", table_b_full_qualified_name=".table_name")
+                                 table_a_column_dec="dec", table_b_full_qualified_name=".table_name",
+                                 table_b_column_ra="ra",
+                                 table_b_column_dec="dec")
 
     error_message = "Invalid radius value. Found 50.0 arcsec, valid range is: 0.1 to 10.0"
     with pytest.raises(ValueError, match=error_message):
