@@ -12,6 +12,11 @@ Processing Operation's Center (`SPOC <https://archive.stsci.edu/missions-and-dat
 The cutouts are returned in the form of target pixel files that follow the same format as TESS pipeline target
 pixel files. This tool can be accessed in Astroquery by using the Tesscut class.
 
+As of August 2025, the option to create cutouts using TESS Image CAlibration 
+(`TICA <https://ui.adsabs.harvard.edu/abs/2020RNAAS...4..251F/abstract>`__) full frame images 
+was discontinued. Individual TICA full frame images remain available from the 
+`MAST TICA homepage <https://archive.stsci.edu/hlsp/tica>`__. Cutouts using SPOC data remain available through TESSCut.
+
 **Note:** TESScut limits each user to no more than 10 simultaneous calls to the service.
 After the user has reached this limit TESScut will return a
 ``503 Service Temporarily Unavailable Error``.
