@@ -220,7 +220,7 @@ def get_enhanced_table(result):
             "Please refer to https://astropy-regions.readthedocs.io/en/latest/installation.html for how to install it.")
         raise
 
-    def _parse_stcs_string(input):
+    def s_region_parser(input):
         csys = 'icrs'
 
         def _get_region(tokens):
@@ -293,19 +293,10 @@ def get_enhanced_table(result):
             return result
         else:
             return _get_region(s_region.split())
-    prep_table = result.to_qtable()
-    s_region_parser = None
-    for field in result.resultstable.fields:
-        if ('s_region' == field.ID) and \
-                ('obscore:Char.SpatialAxis.Coverage.Support.Area' == field.utype):
-            if 'adql:REGION' == field.xtype:
-                s_region_parser = _parse_stcs_string
-            # this is where to add other xtype parsers such as shape
-            break
-    if (s_region_parser):
-        for row in prep_table:
-            row['s_region'] = s_region_parser(row['s_region'])
-    return prep_table
+
+    for row in result:
+        row['s_region'] = s_region_parser(row['s_region'])
+    return result
 
 
 class AlmaAuth(BaseVOQuery, BaseQuery):
