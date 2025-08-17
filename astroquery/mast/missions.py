@@ -54,6 +54,7 @@ class MastMissionsClass(MastQueryWithLogin):
         self.dataset_kwds = {  # column keywords corresponding to dataset ID
             'hst': 'sci_data_set_name',
             'jwst': 'fileSetName',
+            'roman': 'fileSetName',
             'classy': 'Target',
             'ullyses': 'observation_id'
         }
@@ -80,6 +81,37 @@ class MastMissionsClass(MastQueryWithLogin):
         self._mission = value.lower()  # case-insensitive
         self._service_api_connection.set_service_params(self.service_dict, f'search/{self.mission}')
 
+    def _extract_products(self, response):
+        """
+        Extract products from the response of a `~requests.Response` object.
+
+        Parameters
+        ----------
+        response : `~requests.Response`
+            The response object containing the products data.
+
+        Returns
+        -------
+        list
+            A list of products extracted from the response.
+        """
+        def normalize_products(products):
+            """
+            Normalize the products list to ensure it is flat and not nested.
+            """
+            if products and isinstance(products[0], list):
+                return products[0]
+            return products
+
+        if isinstance(response, list):  # multiple async responses from batching
+            combined = []
+            for resp in response:
+                products = normalize_products(resp.json().get('products', []))
+                combined.extend(products)
+            return combined
+        else:  # single response
+            return normalize_products(response.json().get('products', []))
+
     def _parse_result(self, response, *, verbose=False):  # Used by the async_to_sync decorator functionality
         """
         Parse the results of a `~requests.Response` objects and return an `~astropy.table.Table` of results.
@@ -105,17 +137,11 @@ class MastMissionsClass(MastQueryWithLogin):
             if len(results) >= self.limit:
                 warnings.warn("Maximum results returned, may not include all sources within radius.",
                               MaxResultsWarning)
+            return results
+
         elif self.service == self._list_products:
-            # Results from post_list_products endpoint need to be handled differently
-            if isinstance(response, list):  # multiple async responses from batching
-                combined_products = []
-                for resp in response:
-                    combined_products.extend(resp.json().get('products', []))
-                return Table(combined_products)
-
-            results = Table(response.json()['products'])  # single async response
-
-        return results
+            products = self._extract_products(response)
+            return Table(products)
 
     def _validate_criteria(self, **criteria):
         """
@@ -537,8 +563,8 @@ class MastMissionsClass(MastQueryWithLogin):
         """
 
         # Construct the full data URL based on mission
-        if self.mission in ['hst', 'jwst']:
-            # HST and JWST have a dedicated endpoint for retrieving products
+        if self.mission in ['hst', 'jwst', 'roman']:
+            # HST, JWST, and RST have a dedicated endpoint for retrieving products
             base_url = self._service_api_connection.MISSIONS_DOWNLOAD_URL + self.mission + '/api/v0.1/retrieve_product'
             keyword = 'product_name'
         else:

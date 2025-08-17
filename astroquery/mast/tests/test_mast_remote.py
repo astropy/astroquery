@@ -360,11 +360,17 @@ class TestMast:
     @pytest.mark.parametrize("mission, query_params", [
         ('jwst', {'fileSetName': 'jw01189001001_02101_00001'}),
         ('classy', {'Target': 'J0021+0052'}),
-        ('ullyses', {'host_galaxy_name': 'WLM', 'select_cols': ['observation_id']})
+        ('ullyses', {'host_galaxy_name': 'WLM', 'select_cols': ['observation_id']}),
+        ('roman', {'program': 3}),
     ])
     def test_missions_workflow(self, tmp_path, mission, query_params):
         # Test workflow with other missions
         m = MastMissions(mission=mission)
+
+        # Roman requires extra setup to point towards the test server
+        if mission == 'roman':
+            m._service_api_connection.SERVICE_URL = 'https://masttest.stsci.edu'
+            m._service_api_connection.REQUEST_URL = 'https://masttest.stsci.edu/search/roman/api/v0.1/'
 
         # Criteria query
         datasets = m.query_criteria(**query_params)
