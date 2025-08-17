@@ -140,6 +140,8 @@ To access sector information for a particular coordinate, object, or moving targ
    -------------- ------ ------ ---
    tess-s0008-1-1      8      1   1
    tess-s0034-1-2     34      1   2
+   tess-s0061-1-2     61      1   2
+   tess-s0088-1-2     88      1   2
 
 The following example will request SPOC cutouts using the objectname argument, rather
 than a set of coordinates.
@@ -167,6 +169,7 @@ The following example requests SPOC cutouts for a moving target.
    tess-s0029-1-4     29      1   4
    tess-s0043-3-3     43      3   3
    tess-s0044-2-4     44      2   4
+   tess-s0092-4-3     92      4   3
 
 
 Zcut

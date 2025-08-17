@@ -118,6 +118,9 @@ mast
 
 - Improved ``MastMissions`` queries to accept lists for query critieria values, in addition to comma-delimited strings. [#3319]
 
+- Enhanced ``filter_products`` methods in ``MastMissions`` and ``Observations`` to support advanced filtering expressions
+  for numeric columns. [#3365]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

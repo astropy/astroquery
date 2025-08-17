@@ -6,12 +6,12 @@ MAST Utils
 Miscellaneous functions used throughout the MAST module.
 """
 
+import re
 import warnings
-import numpy as np
 
+import numpy as np
 import requests
 import platform
-
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
 from astropy import units as u
@@ -345,3 +345,92 @@ def remove_duplicate_products(data_products, uri_key):
                  f"Only returning {len(unique_products)} unique product(s).")
 
     return unique_products
+
+
+def parse_numeric_product_filter(val):
+    """
+    Parses a numeric product filter value and returns a function that can be used to filter
+    a column of a product table.
+
+    Parameters
+    ----------
+    val : str or list of str
+        The filter value(s). Each entry can be:
+        - A single number (e.g., "100")
+        - A range in the form "start..end" (e.g., "100..200")
+        - A comparison operator followed by a number (e.g., ">=10", "<5", ">100.5")
+
+    Returns
+    -------
+    response : function
+        A function that takes a column of a product table and returns a boolean mask indicating
+        which rows satisfy the filter condition.
+    """
+    # Regular expression to match range patterns
+    range_pattern = re.compile(r'[+-]?(\d+(\.\d*)?|\.\d+)\.\.[+-]?(\d+(\.\d*)?|\.\d+)')
+
+    def single_condition(cond):
+        """Helper function to create a condition function for a single value."""
+        if isinstance(cond, (int, float)):
+            return lambda col: col == float(cond)
+        if cond.startswith('>='):
+            return lambda col: col >= float(cond[2:])
+        elif cond.startswith('<='):
+            return lambda col: col <= float(cond[2:])
+        elif cond.startswith('>'):
+            return lambda col: col > float(cond[1:])
+        elif cond.startswith('<'):
+            return lambda col: col < float(cond[1:])
+        elif range_pattern.fullmatch(cond):
+            start, end = map(float, cond.split('..'))
+            return lambda col: (col >= start) & (col <= end)
+        else:
+            return lambda col: col == float(cond)
+
+    if isinstance(val, list):
+        # If val is a list, create a condition for each value and combine them with logical OR
+        conditions = [single_condition(v) for v in val]
+        return lambda col: np.logical_or.reduce([cond(col) for cond in conditions])
+    else:
+        return single_condition(val)
+
+
+def apply_column_filters(products, filters):
+    """
+    Applies column-based filters to a product table.
+
+    Parameters
+    ----------
+    products : `~astropy.table.Table`
+        The product table to filter.
+    filters : dict
+        A dictionary where keys are column names and values are the filter values.
+
+    Returns
+    -------
+    col_mask : `numpy.ndarray`
+        A boolean mask indicating which rows of the product table satisfy the filter conditions.
+    """
+    col_mask = np.ones(len(products), dtype=bool)  # Start with all True mask
+
+    # Applying column-based filters
+    for colname, vals in filters.items():
+        if colname not in products.colnames:
+            raise InvalidQueryError(f"Column '{colname}' not found in product table.")
+
+        col_data = products[colname]
+        # If the column is an integer or float, accept numeric filters
+        if col_data.dtype.kind in ['i', 'f']:  # 'i' for integer, 'f' for float
+            try:
+                this_mask = parse_numeric_product_filter(vals)(col_data)
+            except ValueError:
+                raise InvalidQueryError(f"Could not parse numeric filter '{vals}' for column '{colname}'.")
+        else:  # Assume string or list filter
+            if isinstance(vals, str):
+                vals = [vals]
+            this_mask = np.isin(col_data, vals)
+
+        # Combine the current column mask with the overall mask
+        col_mask &= this_mask
+
+    return col_mask

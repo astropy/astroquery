@@ -545,7 +545,7 @@ class ObservationsClass(MastQueryWithLogin):
 
     def filter_products(self, products, *, mrp_only=False, extension=None, **filters):
         """
-        Takes an `~astropy.table.Table` of MAST observation data products and filters it based on given filters.
+        Filters an `~astropy.table.Table` of data products based on given filters.
 
         Parameters
         ----------
@@ -556,47 +556,50 @@ class ObservationsClass(MastQueryWithLogin):
         extension : string or array, optional
             Default None. Option to filter by file extension.
         **filters :
-            Filters to be applied.  Valid filters are all products fields listed
+            Column-based filters to apply to the products table. Valid filters are all products fields listed
             `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__.
-            The column name is the keyword, with the argument being one or more acceptable values
-            for that parameter.
-            Filter behavior is AND between the filters and OR within a filter set.
-            For example: productType="SCIENCE",extension=["fits","jpg"]
+
+            Each keyword corresponds to a column name in the table, with the argument being one or more
+            acceptable values for that column. AND logic is applied between filters, OR logic within
+            each filter set.
+
+            For example: type="science", extension=["fits", "jpg"]
+
+            For columns with numeric data types (int or float), filter values can be expressed
+            in several ways:
+
+            - A single number: ``size=100``
+            - A range in the form "start..end": ``size="100..1000"``
+            - A comparison operator followed by a number: ``size=">=1000"``
+            - A list of expressions (OR logic): ``size=[100, "500..1000", ">=1500"]``
 
         Returns
         -------
         response : `~astropy.table.Table`
+            Filtered table of data products.
         """
 
         filter_mask = np.full(len(products), True, dtype=bool)
 
-        # Applying the special filters (mrp_only and extension)
+        # Filter by minimum recommended products (MRP) if specified
         if mrp_only:
             filter_mask &= (products['productGroupDescription'] == "Minimum Recommended Products")
 
+        # Filter by file extension, if provided
         if extension:
-            if isinstance(extension, str):
-                extension = [extension]
+            extensions = [extension] if isinstance(extension, str) else extension
+            ext_mask = np.array(
+                [not isinstance(x, np.ma.core.MaskedConstant) and any(x.endswith(ext) for ext in extensions)
+                 for x in products["productFilename"]],
+                dtype=bool
+            )
+            filter_mask &= ext_mask
 
-            mask = np.full(len(products), False, dtype=bool)
-            for elt in extension:
-                mask |= [False if isinstance(x, np.ma.core.MaskedConstant) else x.endswith(elt)
-                         for x in products["productFilename"]]
-            filter_mask &= mask
+        # Apply column-based filters
+        col_mask = utils.apply_column_filters(products, filters)
+        filter_mask &= col_mask
 
-        # Applying the rest of the filters
-        for colname, vals in filters.items():
-
-            if isinstance(vals, str):
-                vals = [vals]
-
-            mask = np.full(len(products), False, dtype=bool)
-            for elt in vals:
-                mask |= (products[colname] == elt)
-
-            filter_mask &= mask
-
-        return products[np.where(filter_mask)]
+        return products[filter_mask]
 
     def download_file(self, uri, *, local_path=None, base_url=None, cache=True, cloud_only=False, verbose=True):
         """

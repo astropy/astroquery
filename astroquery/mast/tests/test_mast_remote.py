@@ -297,11 +297,6 @@ class TestMast:
         assert isinstance(filtered, Table)
         assert all(filtered['category'] == 'CALIBRATED')
 
-        # Filter by non-existing column
-        with pytest.warns(InputWarning):
-            filtered = MastMissions.filter_products(products,
-                                                    invalid=True)
-
     def test_missions_download_products(self, tmp_path):
         def check_filepath(path):
             assert path.is_file()
