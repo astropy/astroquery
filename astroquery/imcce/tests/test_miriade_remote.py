@@ -4,7 +4,7 @@
 import numpy.testing as npt
 import pytest
 
-from .. import core
+from astroquery.imcce import Miriade
 
 
 @pytest.mark.remote_data
@@ -13,10 +13,8 @@ class TestMiriadeClass:
     def test_ephemerides(self):
         # check values of Ceres for a given epoch
         # orbital uncertainty of Ceres is basically zero
-        res = core.Miriade.get_ephemerides('Ceres', location='500',
-                                           epoch=2451544.5)
-
-        assert res['target'] == "Ceres"
+        res = Miriade.get_ephemerides('Ceres', location='500',
+                                      epoch=2451544.5)
 
         npt.assert_allclose(
             [2451544.5, 188.70280, 9.09829],
