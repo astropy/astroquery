@@ -40,7 +40,7 @@ ASTROPY_LT_6_0 = not minversion('astropy', '6.0')
 ASTROPY_LT_7_1_1 = not minversion('astropy', '7.1.1')
 
 
-def parse_coordinates(coordinates):
+def parse_coordinates(coordinates, *, return_frame=None):
     """
     Takes a string or astropy.coordinates object. Checks if the
     string is parsable as an `astropy.coordinates`
@@ -51,6 +51,10 @@ def parse_coordinates(coordinates):
     ----------
     coordinates : str or `astropy.coordinates` object
         Astronomical coordinate
+    return_frame : `astropy.coordinates` frame
+        The frame to return the coordinates in. If None and ``coordinates`` is
+        a string, the frame will be ICRS. If ``coordinates`` is an `astropy.coordinates` object, the
+        frame will be the same as the input object.
 
     Returns
     -------
@@ -93,6 +97,11 @@ def parse_coordinates(coordinates):
             c = SkyCoord(coordinates)
     else:
         raise TypeError("Argument cannot be parsed as a coordinate")
+
+    # Convert to requested frame, if given
+    if return_frame and c.frame.name != return_frame.lower():
+        c = c.transform_to(return_frame)
+
     return c
 
 

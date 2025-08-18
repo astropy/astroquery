@@ -143,6 +143,8 @@ utils
 
 - Raising cleaner errors earlier when server returns with error. [#3284]
 
+- ``return_frame`` parameter in ``utils.commons.parse_coordinates`` returns coordinates in the specified frame. [#3164]
+
 
 0.4.10 (2025-03-18)
 ===================

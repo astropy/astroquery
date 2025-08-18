@@ -80,6 +80,30 @@ def test_parse_coordinates_4():
     assert c.to_string() == coordinates
 
 
+def test_parse_coordinates_return_frame():
+    # String input should return in icrs frame
+    coords = commons.parse_coordinates('266.40498829 -28.93617776')
+    assert coords.frame.name == 'icrs'
+
+    # SkyCoord input without return_frame should return in original frame
+    galactic = coord.SkyCoord('0 0', unit='deg', frame='galactic')
+    coords = commons.parse_coordinates(galactic)
+    assert coords.frame.name == 'galactic'
+
+    # Parse a SkyCoord in galactic frame into icrs frame
+    galactic = coord.SkyCoord('0 0', unit='deg', frame='galactic')
+    icrs = galactic.transform_to('icrs')  # Expected result
+    coords = commons.parse_coordinates(galactic, return_frame='icrs')
+    assert icrs.ra.deg == coords.ra.deg
+    assert icrs.dec.deg == coords.dec.deg
+    assert galactic.frame.name == 'galactic'
+    assert coords.frame.name == 'icrs'
+
+    # ValueError if transformation fails
+    with pytest.raises(ValueError):
+        coords = commons.parse_coordinates(galactic, return_frame='invalid')
+
+
 col_1 = [1, 2, 3]
 col_2 = [0, 1, 0, 1, 0, 1]
 col_3 = ['v', 'w', 'x', 'y', 'z']

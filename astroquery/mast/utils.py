@@ -216,7 +216,8 @@ def parse_input_location(*, coordinates=None, objectname=None, resolver=None):
     Returns
     -------
     response : `~astropy.coordinates.SkyCoord`
-        The given coordinates, or object's location as an `~astropy.coordinates.SkyCoord` object.
+        The given coordinates, or object's location as an `~astropy.coordinates.SkyCoord` object
+        in the ICRS frame.
     """
 
     # Checking for valid input
@@ -232,8 +233,9 @@ def parse_input_location(*, coordinates=None, objectname=None, resolver=None):
     if objectname:
         obj_coord = resolve_object(objectname, resolver=resolver)
 
+    # Parse coordinates, if given
     if coordinates:
-        obj_coord = commons.parse_coordinates(coordinates)
+        obj_coord = commons.parse_coordinates(coordinates, return_frame='icrs')
 
     return obj_coord
 

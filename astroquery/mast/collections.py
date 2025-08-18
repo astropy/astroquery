@@ -204,7 +204,7 @@ class CatalogsClass(MastQueryWithLogin):
         """
 
         # Put coordinates and radius into consistent format
-        coordinates = commons.parse_coordinates(coordinates)
+        coordinates = commons.parse_coordinates(coordinates, return_frame='icrs')
 
         # if radius is just a number we assume degrees
         radius = coord.Angle(radius, u.deg)
