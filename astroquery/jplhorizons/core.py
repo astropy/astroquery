@@ -906,7 +906,7 @@ class HorizonsClass(BaseQuery):
             ('OBJ_DATA', 'YES'),
             ('REF_SYSTEM', refsystem),
             ('REF_PLANE', {'ecliptic': 'ECLIPTIC', 'earth': 'FRAME',
-                           'body': "'BODY EQUATOR'"}[refplane]),
+                           'body': 'BODY'}[refplane]),
             ('TP_TYPE', {'absolute': 'ABSOLUTE',
                          'relative': 'RELATIVE'}[tp_type])])
 
@@ -1149,7 +1149,7 @@ class HorizonsClass(BaseQuery):
             ('REF_PLANE', {'ecliptic': 'ECLIPTIC',
                            'earth': 'FRAME',
                            'frame': 'FRAME',
-                           'body': "'BODY EQUATOR'"}[refplane]),
+                           'body': 'BODY'}[refplane]),
             ('REF_SYSTEM', 'ICRF'),
             ('TP_TYPE', 'ABSOLUTE'),
             ('VEC_LABELS', 'YES'),
