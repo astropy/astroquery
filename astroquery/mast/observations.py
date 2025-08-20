@@ -569,8 +569,8 @@ class ObservationsClass(MastQueryWithLogin):
             - Any negated values (prefixed with "!") are combined with AND logic against the ORed positives.
               This results in: (NOT any_negatives) AND (any_positives)
               Examples:
-                ``productType=['A', 'B', '!C']`` → (productType != C) AND (productType == A OR productType == B)
-                ``size=['!14400', '<20000']`` → (size != 14400) AND (size < 20000)
+              ``productType=['A', 'B', '!C']`` → (productType != C) AND (productType == A OR productType == B)
+              ``size=['!14400', '<20000']`` → (size != 14400) AND (size < 20000)
 
             For columns with numeric data types (int or float), filter values can be expressed
             in several ways:

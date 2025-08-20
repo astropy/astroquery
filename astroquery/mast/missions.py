@@ -509,8 +509,8 @@ class MastMissionsClass(MastQueryWithLogin):
             - Any negated values (prefixed with "!") are combined with AND logic against the ORed positives.
               This results in: (NOT any_negatives) AND (any_positives)
               Examples:
-                ``file_suffix=['A', 'B', '!C']`` → (file_suffix != C) AND (file_suffix == A OR file_suffix == B)
-                ``size=['!14400', '<20000']`` → (size != 14400) AND (size < 20000)
+              ``file_suffix=['A', 'B', '!C']`` → (file_suffix != C) AND (file_suffix == A OR file_suffix == B)
+              ``size=['!14400', '<20000']`` → (size != 14400) AND (size < 20000)
 
             For columns with numeric data types (int or float), filter values can be expressed
             in several ways:
