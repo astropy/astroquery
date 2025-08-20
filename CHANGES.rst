@@ -121,6 +121,8 @@ mast
 - Enhanced ``filter_products`` methods in ``MastMissions`` and ``Observations`` to support advanced filtering expressions
   for numeric columns. [#3365]
 
+- Enhanced ``filter_products`` methods in ``MastMissions`` and ``Observations`` to support filtering with negated values. [#3393]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

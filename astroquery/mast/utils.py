@@ -349,7 +349,41 @@ def remove_duplicate_products(data_products, uri_key):
     return unique_products
 
 
-def parse_numeric_product_filter(val):
+def _combine_positive_negative_masks(mask_funcs):
+    """
+    Combines a list of mask functions into a single mask according to:
+    - OR logic among positive masks
+    - AND logic among negative masks applied after positives
+
+    Parameters
+    ----------
+    mask_funcs : list of tuples (func, is_negated)
+        Each element is a tuple where:
+        - func: a callable that takes an array and returns a boolean mask
+        - is_negated: boolean, True if the mask should be negated before combining
+
+    Returns
+    -------
+    combined_mask : np.ndarray
+        Combined boolean mask.
+    """
+    def combined(col):
+        positive_masks = [f(col) for f, neg in mask_funcs if not neg]
+        negative_masks = [~f(col) for f, neg in mask_funcs if neg]
+
+        # Use OR logic between positive masks
+        pos_mask = np.logical_or.reduce(positive_masks) if positive_masks else np.ones(len(col), dtype=bool)
+
+        # Use AND logic between negative masks
+        neg_mask = np.logical_and.reduce(negative_masks) if negative_masks else np.ones(len(col), dtype=bool)
+
+        # Use AND logic to combine positive and negative masks
+        return pos_mask & neg_mask
+
+    return combined
+
+
+def parse_numeric_product_filter(vals):
     """
     Parses a numeric product filter value and returns a function that can be used to filter
     a column of a product table.
@@ -371,30 +405,35 @@ def parse_numeric_product_filter(val):
     # Regular expression to match range patterns
     range_pattern = re.compile(r'[+-]?(\d+(\.\d*)?|\.\d+)\.\.[+-]?(\d+(\.\d*)?|\.\d+)')
 
-    def single_condition(cond):
-        """Helper function to create a condition function for a single value."""
-        if isinstance(cond, (int, float)):
-            return lambda col: col == float(cond)
-        if cond.startswith('>='):
-            return lambda col: col >= float(cond[2:])
-        elif cond.startswith('<='):
-            return lambda col: col <= float(cond[2:])
-        elif cond.startswith('>'):
-            return lambda col: col > float(cond[1:])
-        elif cond.startswith('<'):
-            return lambda col: col < float(cond[1:])
-        elif range_pattern.fullmatch(cond):
-            start, end = map(float, cond.split('..'))
+    def base_condition(cond_str):
+        """Create a mask function for a numeric condition string (no negation handling here)."""
+        if isinstance(cond_str, (int, float)):
+            return lambda col: col == float(cond_str)
+        elif cond_str.startswith('>='):
+            return lambda col: col >= float(cond_str[2:])
+        elif cond_str.startswith('<='):
+            return lambda col: col <= float(cond_str[2:])
+        elif cond_str.startswith('>'):
+            return lambda col: col > float(cond_str[1:])
+        elif cond_str.startswith('<'):
+            return lambda col: col < float(cond_str[1:])
+        elif range_pattern.fullmatch(cond_str):
+            start, end = map(float, cond_str.split('..'))
             return lambda col: (col >= start) & (col <= end)
         else:
-            return lambda col: col == float(cond)
+            return lambda col: col == float(cond_str)
 
-    if isinstance(val, list):
-        # If val is a list, create a condition for each value and combine them with logical OR
-        conditions = [single_condition(v) for v in val]
-        return lambda col: np.logical_or.reduce([cond(col) for cond in conditions])
-    else:
-        return single_condition(val)
+    vals = [vals] if not isinstance(vals, list) else vals
+    mask_funcs = []
+    for v in vals:
+        # Check if the value is negated and strip the negation if present
+        is_negated = isinstance(v, str) and v.startswith('!')
+        v = v[1:] if is_negated else v
+
+        func = base_condition(v)
+        mask_funcs.append((func, is_negated))
+
+    return _combine_positive_negative_masks(mask_funcs)
 
 
 def apply_column_filters(products, filters):
@@ -428,11 +467,20 @@ def apply_column_filters(products, filters):
             except ValueError:
                 raise InvalidQueryError(f"Could not parse numeric filter '{vals}' for column '{colname}'.")
         else:  # Assume string or list filter
-            if isinstance(vals, str):
-                vals = [vals]
-            this_mask = np.isin(col_data, vals)
+            vals = [vals] if isinstance(vals, str) else vals
+            mask_funcs = []
+            for val in vals:
+                # Check if the value is negated and strip the negation if present
+                is_negated = isinstance(val, str) and val.startswith('!')
+                v = val[1:] if is_negated else val
 
-        # Combine the current column mask with the overall mask
+                def func(col, v=v):
+                    return np.isin(col, [v])
+                mask_funcs.append((func, is_negated))
+
+            this_mask = _combine_positive_negative_masks(mask_funcs)(col_data)
+
+        # AND logic across different columns
         col_mask &= this_mask
 
     return col_mask
