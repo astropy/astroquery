@@ -1148,6 +1148,50 @@ will be able to access your shared table in a query.
   >>> Euclid.login()
   >>> Euclid.share_table_stop(table_name="user_<user_login_name>.my_table", group_name="my_group")
 
+2.9. Cross match
+^^^^^^^^^^^^^^^^
+
+It is possible to run a geometric cross-match between the RA/Dec coordinates of two tables using the crossmatch function
+provided by the archive. The returned table includes the identifiers from both tables and the angular separation, in
+degrees, between the RA/Dec coordinates of each source in the first table and its corresponding source in the second
+table.
+
+The cross-match can be executed in one single step by the following method
+
+.. Skipping authentication requiring examples
+.. doctest-skip::
+
+  >>> from astroquery.euclid import Euclid
+  >>> Euclid.login()
+  >>> full_qualified_table_name = 'user_<your_login_name>.my_sources'
+  >>> job = Euclid.cross_match_basic(table_a_full_qualified_name=full_qualified_table_name, table_a_column_ra='raj2000',
+                     table_a_column_dec='dej2000', table_b_full_qualified_name='catalogue.mer_catalogue',
+                     table_b_column_ra='right_ascension', table_b_column_dec='declination, radius=1.0, background=True)
+  >>> print(job)
+  Jobid: 1611860482314O
+  Phase: COMPLETED
+  Owner: None
+  Output file: 1611860482314O-result.vot.gz
+  Results: None
+  >>> result = job.get_results()
+
+This method updates the user table metadata to flag the positional RA/Dec columns and launches the positional
+cross-match as an asynchronous query. The returned job provides direct access to the output of the cross-match
+information: for each matched source, all the columns from the input tables plus the angular distance (degrees).
+Therefore, the size of the output can be quite large.
+
+By default, this method targets the main catalogue associated to each environment (PDR, OTF, REG and IDR) using a cone
+search radius of 1.0 arcseconds. Therefore, the above example can also be simplified as follows
+
+.. Skipping authentication requiring examples
+.. doctest-skip::
+
+  >>> from astroquery.euclid import Euclid
+  >>> Euclid.login()
+  >>> full_qualified_table_name = 'user_<your_login_name>.my_sources'
+  >>> job = Euclid.cross_match_basic(table_a_full_qualified_name=full_qualified_table_name, table_a_column_ra='raj2000',
+                                   table_a_column_dec='dej2000')
+  >>> result = job.get_results()
 
 
 3. Datalink service (Authenticated)

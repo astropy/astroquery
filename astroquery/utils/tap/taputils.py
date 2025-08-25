@@ -221,8 +221,7 @@ def get_schema_name(full_qualified_table_name):
     pos = full_qualified_table_name.rfind('.')
     if pos == -1:
         return None
-    name = full_qualified_table_name[0:pos]
-    return name
+    return full_qualified_table_name[0:pos]
 
 
 def get_table_name(full_qualified_table_name):

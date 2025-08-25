@@ -268,7 +268,23 @@ for ``'box'`` and:
     >>> Heasarc.query_region(catalog='xmmmaster', spatial='polygon',
                   polygon=[(226.2,10.6),(225.9,10.5),(225.8,10.2),(226.2,10.3)])
 
-for ``'polygon'``.
+for ``'polygon'``. For ``'all-sky'``:
+
+.. doctest-skip::
+
+    >>> Heasarc.query_region(pos, spatial='all-sky', catalog='csc', maxrec=None)
+
+though you may find that maxrec has a hard limit of 1e5 regardless of how you set it. 
+
+In this case one can do instead:
+
+.. doctest-skip::
+
+    >>> # get a comma-separated list of the default columns in csc.
+    >>> columns = ', '.join(Heasarc._get_default_columns('csc'))
+    >>> # construct a query for all entries; use TOP with a large number greater than the server's 1e5 LIMIT
+    >>> query = f'SELECT TOP 9999999 {columns} FROM csc'
+    >>> Heasarc.query_tap(query).to_table()
 
 List Catalog Columns
 --------------------

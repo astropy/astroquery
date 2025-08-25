@@ -7,22 +7,19 @@ TESSCut
 =======
 
 TESSCut is MAST's tool to provide full-frame image (FFI) cutouts from the Transiting
-Exoplanet Survey Satellite (TESS). The cutouts can be made from either the Science
-Processing Operation's Center (`SPOC <https://archive.stsci.edu/missions-and-data/tess>`__) FFI products,
-or the TESS Image CAlibrator (`TICA <https://archive.stsci.edu/hlsp/tica>`__) high-level science products.
-Cutouts from the TICA products are not available for sectors 1-26,
-but are available for sector 27 onwards. These products are available up to 3 weeks sooner than
-their SPOC counterparts for the latest sector, so it is recommended to request TICA cutouts
-for users working with time-sensitive observations. The cutouts from either SPOC or TICA products
-are returned in the form of target pixel files that follow the same format as TESS pipeline target
+Exoplanet Survey Satellite (TESS). Cutouts can be made from the Science
+Processing Operation's Center (`SPOC <https://archive.stsci.edu/missions-and-data/tess>`__) FFI products.
+The cutouts are returned in the form of target pixel files that follow the same format as TESS pipeline target
 pixel files. This tool can be accessed in Astroquery by using the Tesscut class.
+
+As of August 2025, the option to create cutouts using TESS Image CAlibration 
+(`TICA <https://ui.adsabs.harvard.edu/abs/2020RNAAS...4..251F/abstract>`__) full frame images 
+was discontinued. Individual TICA full frame images remain available from the 
+`MAST TICA homepage <https://archive.stsci.edu/hlsp/tica>`__. Cutouts using SPOC data remain available through TESSCut.
 
 **Note:** TESScut limits each user to no more than 10 simultaneous calls to the service.
 After the user has reached this limit TESScut will return a
 ``503 Service Temporarily Unavailable Error``.
-
-**Note:** The moving targets functionality does not currently support making cutouts from
-TICA products, so the product argument will always default to SPOC.
 
 If you use TESSCut for your work, please cite Brasseur et al. 2019
 https://ui.adsabs.harvard.edu/abs/2019ascl.soft05007B/abstract
@@ -31,8 +28,7 @@ https://ui.adsabs.harvard.edu/abs/2019ascl.soft05007B/abstract
 Cutouts
 -------
 
-The `~astroquery.mast.TesscutClass.get_cutouts` function takes a product type
-("TICA" or "SPOC", but defaults to "SPOC"), coordinate, object name (e.g. "M104" or "TIC 32449963"),
+The `~astroquery.mast.TesscutClass.get_cutouts` function takes a coordinate, object name (e.g. "M104" or "TIC 32449963"),
 or moving target (e.g. "Eleonora") and cutout size (in pixels or an angular quantity, default is 5 pixels)
 and returns the cutout target pixel file(s) as a list of `~astropy.io.fits.HDUList` objects.
 
@@ -44,8 +40,6 @@ Requesting a cutout by coordinate or objectname accesses the
 `MAST TESScut API <https://mast.stsci.edu/tesscut/docs/getting_started.html#requesting-a-cutout>`__
 and returns a target pixel file, with format described
 `here <https://astrocut.readthedocs.io/en/latest/astrocut/file_formats.html#target-pixel-files>`__.
-Note that the product argument will default to request for SPOC cutouts when
-not explicitly called for TICA.
 
 .. doctest-remote-data::
 
@@ -61,22 +55,6 @@ not explicitly called for TICA.
    1  PIXELS        1 BinTableHDU    281   3495R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]
    2  APERTURE      1 ImageHDU        82   (5, 5)   int32
 
-
-For users with time-sensitive targets who would like cutouts from the latest observations,
-we recommend requesting for the TICA product. Using the same target from the example above,
-this example shows a request for TICA cutouts:
-
-.. doctest-remote-data::
-
-   >>> from astroquery.mast import Tesscut
-   >>> from astropy.coordinates import SkyCoord
-   ...
-   >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
-   >>> hdulist = Tesscut.get_cutouts(coordinates=cutout_coord,
-   ...                               product='tica',
-   ...                               sector=28)
-   >>> hdulist[0][0].header['FFI_TYPE']  # doctest: +IGNORE_OUTPUT
-   'TICA'
 
 The following example will request SPOC cutouts using the objectname argument, rather
 than a set of coordinates.
@@ -118,23 +96,9 @@ simply with either the objectname or coordinates.
      1  PIXELS        1 BinTableHDU    150   355R x 16C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A, D, D, D, D]
      2  APERTURE      1 ImageHDU        97   (2136, 2078)   int32
 
-Note that the moving targets functionality does not currently support TICA, so the product
-parameter will result in an error when set to 'TICA'.
 
-.. doctest-remote-data::
-
-   >>> from astroquery.mast import Tesscut
-   ...
-   >>> hdulist = Tesscut.get_cutouts(objectname="Eleonora",
-   ...                               product='tica',
-   ...                               moving_target=True,
-   ...                               sector=6)
-   Traceback (most recent call last):
-   ...
-   astroquery.exceptions.InvalidQueryError: Only SPOC is available for moving targets queries.
-
-The `~astroquery.mast.TesscutClass.download_cutouts` function takes a product type ("TICA" or "SPOC", but defaults to "SPOC"),
-coordinate, cutout size (in pixels or an angular quantity), or object name (e.g. "M104" or "TIC 32449963") and moving target
+The `~astroquery.mast.TesscutClass.download_cutouts` function takes a coordinate, cutout size 
+(in pixels or an angular quantity), or object name (e.g. "M104" or "TIC 32449963") and moving target
 (True or False). It uses these parameters to download the cutout target pixel file(s).
 
 If a given coordinate/object/moving target appears in more than one TESS sector, a target pixel file
@@ -157,26 +121,6 @@ pixel file will be produced for each one.
    ----------------------------------------------------------
    ./tess-s0009-4-1_107.186960_-70.509190_15x15_astrocut.fits
 
-The query from the example above defaults to downloading cutouts from SPOC. The following example is a query for
-the same target from above, but with the product argument passed as TICA to explicitly request for TICA cutouts,
-and because the TICA products are not available for sectors 1-26, we request cutouts from sector 27 rather than sector 9.
-
-.. doctest-remote-data::
-
-   >>> from astroquery.mast import Tesscut
-   >>> from astropy.coordinates import SkyCoord
-   >>> import astropy.units as u
-   ...
-   >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
-   >>> manifest = Tesscut.download_cutouts(coordinates=cutout_coord,
-   ...                                     product='tica',
-   ...                                     size=[5, 7]*u.arcmin,
-   ...                                     sector=27) # doctest: +IGNORE_OUTPUT
-   Downloading URL https://mast.stsci.edu/tesscut/api/v0.1/astrocut?ra=107.18696&dec=-70.50919&y=0.08333333333333333&x=0.11666666666666667&units=d&product=TICA&sector=27 to ./tesscut_20230214150644.zip ... [Done]
-   >>> print(manifest)  # doctest: +IGNORE_OUTPUT
-                        Local Path
-   ----------------------------------------------------------
-   ./tica-s0027-4-2_107.186960_-70.509190_21x14_astrocut.fits
 
 Sector information
 ------------------
@@ -196,25 +140,8 @@ To access sector information for a particular coordinate, object, or moving targ
    -------------- ------ ------ ---
    tess-s0008-1-1      8      1   1
    tess-s0034-1-2     34      1   2
-
-Note that because of the delivery cadence of the
-TICA high level science products, later sectors will be available sooner with TICA than with
-SPOC. Also note that TICA is not available for sectors 1-26. The following example is the same
-query as above, but for TICA. Notice that products for sector 8 are no longer available,
-but are now available for sector 61.
-
-.. doctest-remote-data::
-
-   >>> from astroquery.mast import Tesscut
-   >>> from astropy.coordinates import SkyCoord
-   ...
-   >>> coord = SkyCoord(135.1408, -5.1915, unit="deg")
-   >>> sector_table = Tesscut.get_sectors(coordinates=coord, product='tica')
-   >>> print(sector_table)   # doctest: +IGNORE_OUTPUT
-     sectorName   sector camera ccd
-   -------------- ------ ------ ---
-   tica-s0034-1-2     34      1   2
-   tica-s0061-1-2     61      1   2
+   tess-s0061-1-2     61      1   2
+   tess-s0088-1-2     88      1   2
 
 The following example will request SPOC cutouts using the objectname argument, rather
 than a set of coordinates.
@@ -242,9 +169,7 @@ The following example requests SPOC cutouts for a moving target.
    tess-s0029-1-4     29      1   4
    tess-s0043-3-3     43      3   3
    tess-s0044-2-4     44      2   4
-
-Note that the moving targets functionality is not currently available for TICA,
-so the query will always default to SPOC.
+   tess-s0092-4-3     92      4   3
 
 
 Zcut

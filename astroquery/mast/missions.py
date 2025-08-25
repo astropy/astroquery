@@ -22,7 +22,7 @@ from astroquery import log
 from astroquery.utils import commons, async_to_sync
 from astroquery.utils.class_or_instance import class_or_instance
 from astropy.utils.console import ProgressBarOrSpinner
-from astroquery.exceptions import InvalidQueryError, MaxResultsWarning, InputWarning, NoResultsWarning
+from astroquery.exceptions import InvalidQueryError, MaxResultsWarning, NoResultsWarning
 
 from astroquery.mast import utils
 from astroquery.mast.core import MastQueryWithLogin
@@ -54,6 +54,7 @@ class MastMissionsClass(MastQueryWithLogin):
         self.dataset_kwds = {  # column keywords corresponding to dataset ID
             'hst': 'sci_data_set_name',
             'jwst': 'fileSetName',
+            'roman': 'fileSetName',
             'classy': 'Target',
             'ullyses': 'observation_id'
         }
@@ -80,6 +81,37 @@ class MastMissionsClass(MastQueryWithLogin):
         self._mission = value.lower()  # case-insensitive
         self._service_api_connection.set_service_params(self.service_dict, f'search/{self.mission}')
 
+    def _extract_products(self, response):
+        """
+        Extract products from the response of a `~requests.Response` object.
+
+        Parameters
+        ----------
+        response : `~requests.Response`
+            The response object containing the products data.
+
+        Returns
+        -------
+        list
+            A list of products extracted from the response.
+        """
+        def normalize_products(products):
+            """
+            Normalize the products list to ensure it is flat and not nested.
+            """
+            if products and isinstance(products[0], list):
+                return products[0]
+            return products
+
+        if isinstance(response, list):  # multiple async responses from batching
+            combined = []
+            for resp in response:
+                products = normalize_products(resp.json().get('products', []))
+                combined.extend(products)
+            return combined
+        else:  # single response
+            return normalize_products(response.json().get('products', []))
+
     def _parse_result(self, response, *, verbose=False):  # Used by the async_to_sync decorator functionality
         """
         Parse the results of a `~requests.Response` objects and return an `~astropy.table.Table` of results.
@@ -105,17 +137,11 @@ class MastMissionsClass(MastQueryWithLogin):
             if len(results) >= self.limit:
                 warnings.warn("Maximum results returned, may not include all sources within radius.",
                               MaxResultsWarning)
+            return results
+
         elif self.service == self._list_products:
-            # Results from post_list_products endpoint need to be handled differently
-            if isinstance(response, list):  # multiple async responses from batching
-                combined_products = []
-                for resp in response:
-                    combined_products.extend(resp.json().get('products', []))
-                return Table(combined_products)
-
-            results = Table(response.json()['products'])  # single async response
-
-        return results
+            products = self._extract_products(response)
+            return Table(products)
 
     def _validate_criteria(self, **criteria):
         """
@@ -219,7 +245,7 @@ class MastMissionsClass(MastQueryWithLogin):
         self._validate_criteria(**criteria)
 
         # Put coordinates and radius into consistent format
-        coordinates = commons.parse_coordinates(coordinates)
+        coordinates = commons.parse_coordinates(coordinates, return_frame='icrs')
 
         # If radius is just a number, assume arcminutes
         radius = coord.Angle(radius, u.arcmin)
@@ -472,11 +498,19 @@ class MastMissionsClass(MastQueryWithLogin):
         extension : string or array, optional
             Default is None. Filters by file extension(s), matching any specified extensions.
         **filters :
-            Column-based filters to be applied.
+            Column-based filters to apply to the products table.
+
             Each keyword corresponds to a column name in the table, with the argument being one or more
             acceptable values for that column. AND logic is applied between filters, OR logic within
-            each filter set.
-            For example: type="science", extension=["fits","jpg"]
+            each filter set. For example: type="science", extension=["fits", "jpg"]
+
+            For columns with numeric data types (int or float), filter values can be expressed
+            in several ways:
+
+            - A single number: ``size=100``
+            - A range in the form "start..end": ``size="100..1000"``
+            - A comparison operator followed by a number: ``size=">=1000"``
+            - A list of expressions (OR logic): ``size=[100, "500..1000", ">=1500"]``
 
         Returns
         -------
@@ -497,17 +531,10 @@ class MastMissionsClass(MastQueryWithLogin):
             )
             filter_mask &= ext_mask
 
-        # Applying column-based filters
-        for colname, vals in filters.items():
-            if colname not in products.colnames:
-                warnings.warn(f"Column '{colname}' not found in product table.", InputWarning)
-                continue
+        # Apply column-based filters
+        col_mask = utils.apply_column_filters(products, filters)
+        filter_mask &= col_mask
 
-            vals = [vals] if isinstance(vals, str) else vals
-            col_mask = np.isin(products[colname], vals)
-            filter_mask &= col_mask
-
-        # Return filtered products
         return products[filter_mask]
 
     def download_file(self, uri, *, local_path=None, cache=True, verbose=True):
@@ -536,8 +563,8 @@ class MastMissionsClass(MastQueryWithLogin):
         """
 
         # Construct the full data URL based on mission
-        if self.mission in ['hst', 'jwst']:
-            # HST and JWST have a dedicated endpoint for retrieving products
+        if self.mission in ['hst', 'jwst', 'roman']:
+            # HST, JWST, and RST have a dedicated endpoint for retrieving products
             base_url = self._service_api_connection.MISSIONS_DOWNLOAD_URL + self.mission + '/api/v0.1/retrieve_product'
             keyword = 'product_name'
         else:

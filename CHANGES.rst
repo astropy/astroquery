@@ -21,6 +21,15 @@ gaia
   response any more. [#3278]
 - New datalink retrieve types EPOCH_PHOTOMETRY_CROWDED_FIELD, EPOCH_ASTROMETRY_BRIGHT, XP_MEAN_SPECTRUM_GRAVLENS,
   EPOCH_FLAGS_NSS, EPOCH_PARAMETERS_RVS_SINGLE, EPOCH_PARAMETERS_RVS_DOUBLE, EPOCH_FLAGS_VARI. [#3371, #3372]
+- Rename datalink retrieval types EPOCH_SPECTRUM_RVS, EPOCH_SPECTRUM_XP_SSO, EPOCH_SPECTRUM_XP_CROWDING, MEAN_SPECTRUM_XP,
+  EPOCH_SPECTRUM_XP and MEAN_SPECTRUM_XP_GRAVLENS. [#3382]
+
+mast
+^^^^
+
+- Deprecated the ``product`` parameter in the ``Tesscut.get_sectors``, ``Tesscut.get_cutouts``, and ``Tesscut.download_cutouts`` methods.
+  Support for TESS Image Calibration (TICA) high-level science products has been removed; only Science Processing Operations Center (SPOC) 
+  products are now supported. [#3391]
 
 Service fixes and enhancements
 ------------------------------
@@ -36,6 +45,7 @@ esa.euclid
 
 - New method, get_scientific_product_list, to retrieve scientific LE3
   products. [#3313]
+- New cross-match method [#3386]
 
 eso
 ^^^
@@ -122,6 +132,9 @@ mast
 
 - Improved ``MastMissions`` queries to accept lists for query critieria values, in addition to comma-delimited strings. [#3319]
 
+- Enhanced ``filter_products`` methods in ``MastMissions`` and ``Observations`` to support advanced filtering expressions
+  for numeric columns. [#3365]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
@@ -143,6 +156,8 @@ utils
 ^^^^^
 
 - Raising cleaner errors earlier when server returns with error. [#3284]
+
+- ``return_frame`` parameter in ``utils.commons.parse_coordinates`` returns coordinates in the specified frame. [#3164]
 
 
 0.4.10 (2025-03-18)
