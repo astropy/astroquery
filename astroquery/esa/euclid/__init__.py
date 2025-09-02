@@ -25,14 +25,22 @@ class Conf(_config.ConfigNamespace):
                                             "ID is given preference. To give name preference, set the value to True:")
 
     ENVIRONMENTS = {'IDR': {'url_server': 'https://easidr.esac.esa.int/', 'main_table': 'catalogue.mer_catalogue',
-                            'main_table_ra_column': 'right_ascension', 'main_table_dec_column': 'declination'},
+                            'main_table_ra_column': 'right_ascension', 'main_table_dec_column': 'declination',
+                            'data_set_release_part1': 'environment', 'data_set_release_part2': 'activity_code',
+                            'data_set_release_part3': 'version'},
                     'OTF': {'url_server': 'https://easotf.esac.esa.int/', 'main_table': 'catalogue.mer_catalogue',
-                            'main_table_ra_column': 'right_ascension', 'main_table_dec_column': 'declination'},
+                            'main_table_ra_column': 'right_ascension', 'main_table_dec_column': 'declination',
+                            'data_set_release_part1': 'activity_code', 'data_set_release_part2': 'patch_id',
+                            'data_set_release_part3': 'version'},
                     'REG': {'url_server': 'https://easreg.esac.esa.int/',
                             'main_table': 'catalogue.mer_final_catalog_fits_file_regreproc1_r2',
-                            'main_table_ra_column': 'right_ascension', 'main_table_dec_column': 'declination'},
+                            'main_table_ra_column': 'right_ascension', 'main_table_dec_column': 'declination',
+                            'data_set_release_part1': 'environment', 'data_set_release_part2': 'activity_code',
+                            'data_set_release_part3': 'version'},
                     'PDR': {'url_server': 'https://eas.esac.esa.int/', 'main_table': 'catalogue.mer_catalogue',
-                            'main_table_ra_column': 'right_ascension', 'main_table_dec_column': 'declination'}
+                            'main_table_ra_column': 'right_ascension', 'main_table_dec_column': 'declination',
+                            'data_set_release_part1': 'environment', 'data_set_release_part2': 'activity_code',
+                            'data_set_release_part3': 'version'}
                     }
 
     OBSERVATION_STACK_PRODUCTS = ['DpdNirStackedFrame', 'DpdVisStackedFrame']
