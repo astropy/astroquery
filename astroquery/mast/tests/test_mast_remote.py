@@ -71,11 +71,11 @@ class TestMast:
         assert loc_dict['SIMBAD'] == simbad_loc
 
         # Error if coordinates cannot be resolved
-        with pytest.raises(ResolverError, match="Could not resolve invalid to a sky position."):
+        with pytest.raises(ResolverError, match='Could not resolve "invalid" to a sky position.'):
             utils.resolve_object("invalid")
 
         # Error if coordinates cannot be resolved with a specific resolver
-        with pytest.raises(ResolverError, match="Could not resolve invalid to a sky position using NED"):
+        with pytest.raises(ResolverError, match='Could not resolve "invalid" to a sky position using resolver "NED"'):
             utils.resolve_object("invalid", resolver="NED")
 
     ###########################
