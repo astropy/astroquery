@@ -1353,7 +1353,7 @@ class TestMast:
         assert sector_table['camera'][0] == 1
         assert sector_table['ccd'][0] == 1
 
-        error_nameresolve = f"Could not resolve {moving_target_name} to a sky position."
+        error_nameresolve = f"Could not resolve \"{moving_target_name}\" to a sky position."
         with pytest.raises(ResolverError) as error_msg:
             Tesscut.get_sectors(objectname=moving_target_name)
         assert error_nameresolve in str(error_msg.value)
@@ -1401,7 +1401,7 @@ class TestMast:
         for row in manifest:
             assert os.path.isfile(row['Local Path'])
 
-        error_nameresolve = f"Could not resolve {moving_target_name} to a sky position."
+        error_nameresolve = f"Could not resolve \"{moving_target_name}\" to a sky position."
         with pytest.raises(ResolverError) as error_msg:
             Tesscut.download_cutouts(objectname=moving_target_name)
         assert error_nameresolve in str(error_msg.value)
@@ -1440,7 +1440,7 @@ class TestMast:
         assert len(cutout_hdus_list) == 1
         assert isinstance(cutout_hdus_list[0], fits.HDUList)
 
-        error_nameresolve = f"Could not resolve {moving_target_name} to a sky position."
+        error_nameresolve = f"Could not resolve \"{moving_target_name}\" to a sky position."
         with pytest.raises(ResolverError) as error_msg:
             Tesscut.get_cutouts(objectname=moving_target_name)
         assert error_nameresolve in str(error_msg.value)
