@@ -561,10 +561,16 @@ class ObservationsClass(MastQueryWithLogin):
             `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__.
 
             Each keyword corresponds to a column name in the table, with the argument being one or more
-            acceptable values for that column. AND logic is applied between filters, OR logic within
-            each filter set.
+            acceptable values for that column. AND logic is applied between filters.
 
-            For example: type="science", extension=["fits", "jpg"]
+            Within each column's filter set:
+
+            - Positive (non-negated) values are combined with OR logic.
+            - Any negated values (prefixed with "!") are combined with AND logic against the ORed positives.
+              This results in: (NOT any_negatives) AND (any_positives)
+              Examples:
+              ``productType=['A', 'B', '!C']`` → (productType != C) AND (productType == A OR productType == B)
+              ``size=['!14400', '<20000']`` → (size != 14400) AND (size < 20000)
 
             For columns with numeric data types (int or float), filter values can be expressed
             in several ways:

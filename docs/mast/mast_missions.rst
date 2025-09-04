@@ -242,7 +242,15 @@ In many cases, you will not need to download every product that is associated wi
 `~astroquery.mast.MastMissionsClass.filter_products` function allows for filtering based on file extension (``extension``)
 and any other of the product fields.
 
-The **AND** operation is performed for a list of filters, and the **OR** operation is performed within a filter set. 
+The **AND** operation is applied between filters, and the **OR** operation is applied within each filter set, except in the case of negated values.
+
+A filter value can be negated by prefiing it with ``!``, meaning that rows matching that value will be excluded from the results.
+When any negated value is present in a filter set, any positive values in that set are combined with **OR** logic, and the negated 
+values are combined with **AND** logic against the positives. 
+
+For example:
+  - ``file_suffix=['A', 'B', '!C']`` → (file_suffix != C) AND (file_suffix == A OR file_suffix == B)
+  - ``size=['!14400', '<20000']`` → (size != 14400) AND (size < 20000)
 
 For columns with numeric data types (``int`` or ``float``), filter values can be expressed in several ways:
   - A single number: ``size=100``

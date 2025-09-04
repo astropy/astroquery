@@ -375,7 +375,7 @@ def test_missions_filter_products(patch_post):
     filtered = mast.MastMissions.filter_products(products, extension='fits')
     assert len(filtered) > 0
 
-    # Numeric filtering
+    # -------- Numeric filtering tests --------
     # Single integer value
     filtered = mast.MastMissions.filter_products(products, size=11520)
     assert all(filtered['size'] == 11520)
@@ -404,6 +404,40 @@ def test_missions_filter_products(patch_post):
     # List of expressions
     filtered = mast.MastMissions.filter_products(products, size=[14400, '>20000'])
     assert all((filtered['size'] == 14400) | (filtered['size'] > 20000))
+
+    # -------- Negative operator tests --------
+    # Negate a single numeric value
+    filtered = mast.MastMissions.filter_products(products, size='!11520')
+    assert all(filtered['size'] != 11520)
+
+    # Negate a comparison
+    filtered = mast.MastMissions.filter_products(products, size='!<15000')
+    assert all(filtered['size'] >= 15000)
+
+    # Negate one element in a list with one other condition
+    filtered = mast.MastMissions.filter_products(products, size=['!14400', '>20000'])
+    assert all((filtered['size'] != 14400) & (filtered['size'] > 20000))
+
+    # Negate one element in a list with two other conditions
+    filtered = mast.MastMissions.filter_products(products, size=['!14400', '<20000', '>30000'])
+    assert all((filtered['size'] != 14400) & (filtered['size'] < 20000) | (filtered['size'] > 30000))
+
+    # Negate a range
+    filtered = mast.MastMissions.filter_products(products, size='!14400..17280')
+    assert all(~((filtered['size'] >= 14400) & (filtered['size'] <= 17280)))
+
+    # Negate a string match
+    filtered = mast.MastMissions.filter_products(products, category='!CALIBRATED')
+    assert all(filtered['category'] != 'CALIBRATED')
+
+    # Negate one string in a list
+    filtered = mast.MastMissions.filter_products(products, category=['!CALIBRATED', 'UNCALIBRATED'])
+    assert all((filtered['category'] != 'CALIBRATED') & (filtered['category'] == 'UNCALIBRATED'))
+
+    # Negate two strings in a list
+    filtered = mast.MastMissions.filter_products(products, category=['!CALIBRATED', '!UNCALIBRATED'])
+    assert all((filtered['category'] != 'CALIBRATED') & (filtered['category'] != 'UNCALIBRATED'))
+    # ------------------------------------------
 
     with pytest.raises(InvalidQueryError, match="Could not parse numeric filter 'invalid' for column 'size'"):
         # Invalid filter value
