@@ -130,6 +130,8 @@ mast
 
 - Enhanced ``filter_products`` methods in ``MastMissions`` and ``Observations`` to support filtering with negated values. [#3393]
 
+- Support for resolving multiple object names at once with `~astroquery.mast.MastClass.resolve_object`, including automatic batching
+  into groups of up to 30 names per request to the name translation service. [#3398]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

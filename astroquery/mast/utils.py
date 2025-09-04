@@ -116,6 +116,11 @@ def _batched_request(
         Function to extract the relevant data from the response.
     desc : str
         Description of the operation for progress reporting.
+
+    Returns
+    -------
+    results : list
+        List of results extracted from the responses.
     """
     if len(items) > max_batch:
         chunks = list(split_list_into_chunks(items, max_batch))
@@ -159,14 +164,19 @@ def resolve_object(objectname, *, resolver=None, resolve_all=False):
         for more information. If ``resolve_all`` is True, this parameter will be ignored. Default is None.
     resolve_all : bool, optional
         If True, will try to resolve the object name using all available resolvers ("NED", "SIMBAD").
-        Function will return a dictionary where the keys are the resolver names and the values are the
-        resolved coordinates. Default is False.
+        Default is False.
 
     Returns
     -------
     response : `~astropy.coordinates.SkyCoord`, dict
-        If ``resolve_all`` is False, returns a `~astropy.coordinates.SkyCoord` object with the resolved coordinates.
-        If ``resolve_all`` is True, returns a dictionary where the keys are the resolver names and the values are
+        If ``resolve_all`` is False and a single object is passed, returns a `~astropy.coordinates.SkyCoord` object with
+        the resolved coordinates.
+        If ``resolve_all`` is True and a single object is passed, returns a dictionary where the keys are the resolver
+        names and the values are `~astropy.coordinates.SkyCoord` objects with the resolved coordinates.
+        If ``resolve_all`` is False and multiple objects are passed, returns a dictionary where the keys are the object
+        names and the values are `~astropy.coordinates.SkyCoord` objects with the resolved coordinates.
+        If ``resolve_all`` is True and multiple objects are passed, returns a dictionary where the keys are the object
+        names and the values are nested dictionaries where the keys are the resolver names and the values are
         `~astropy.coordinates.SkyCoord` objects with the resolved coordinates.
     """
     # Normalize input
@@ -210,7 +220,7 @@ def resolve_object(objectname, *, resolver=None, resolve_all=False):
     results = _batched_request(
         object_names,
         params,
-        max_batch=1000,
+        max_batch=30,
         param_key="name",
         request_func=lambda p: _simple_request("http://mastresolver.stsci.edu/Santa-war/query", p),
         extract_func=lambda r: r.json().get("resolvedCoordinate") or [],
