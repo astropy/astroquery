@@ -284,6 +284,7 @@ The following modules have been completed using a common API:
   nasa_ads/nasa_ads.rst
   ipac/ned/ned.rst
   nist/nist.rst
+  noirlab/noirlab.rst
   nvas/nvas.rst
   simbad/simbad.rst
   skyview/skyview.rst
