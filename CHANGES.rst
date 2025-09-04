@@ -130,6 +130,8 @@ mast
 
 - Enhanced ``filter_products`` methods in ``MastMissions`` and ``Observations`` to support filtering with negated values. [#3393]
 
+- Fix bug where duplicate columns from server responses cause an error when converting to an `~astropy.table.Table`. [#3400]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

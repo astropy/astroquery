@@ -101,8 +101,9 @@ def _json_to_table(json_obj, data_key='data'):
         else:
             col_mask = np.equal(col_data, ignore_value)
 
-        # add the column
-        data_table.add_column(MaskedColumn(col_data.astype(col_type), name=col_name, mask=col_mask))
+        # add the column if it does not exist already
+        if col_name not in data_table.colnames:
+            data_table.add_column(MaskedColumn(col_data.astype(col_type), name=col_name, mask=col_mask))
 
     return data_table
 
