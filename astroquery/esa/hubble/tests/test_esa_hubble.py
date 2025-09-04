@@ -29,7 +29,6 @@ from pyvo.dal import DALQuery
 
 from astroquery.esa.hubble import ESAHubbleClass
 import astroquery.esa.utils.utils as esautils
-from astroquery.esa.hubble.tests.dummy_tap_handler import DummyHubbleTapHandler
 
 
 def data_path(filename):
@@ -50,16 +49,6 @@ class FakeHTTPResponse:
 
 
 class TestESAHubble:
-
-    def get_dummy_tap_handler(self, method='launch_job', query=None):
-        if query is None:
-            query = "select top 10 * from hsc_v2.hubble_sc2"
-        parameterst = {'query': query,
-                       'output_file': "test2.vot",
-                       'output_format': "votable",
-                       'verbose': False}
-        dummyTapHandler = DummyHubbleTapHandler(method, parameterst)
-        return dummyTapHandler
 
     def test_download_product_errors(self):
         ehst = ESAHubbleClass(show_messages=False)
