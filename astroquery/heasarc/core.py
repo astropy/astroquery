@@ -1,6 +1,4 @@
-
 import os
-
 import shutil
 import requests
 import tarfile
@@ -288,6 +286,76 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         self._saved_query = query
         return self.tap.search(query, language='ADQL', maxrec=maxrec)
 
+    def _query_execute(self, catalog=None, where=None, *,
+                        get_query_payload=False, columns=None,
+                        verbose=False, maxrec=None):
+        """Queries some catalog using the HEASARC TAP server based on the
+        where condition and returns an `~astropy.table.Table`.
+
+        Parameters
+        ----------
+        catalog : str
+            The catalog to query. To list the available catalogs, use
+            :meth:`~astroquery.heasarc.HeasarcClass.list_catalogs`.
+        where : str
+            The WHERE condition to be used in the query. It must
+            include the 'WHERE' keyword or be empty.
+        get_query_payload : bool, optional
+            If `True` then returns the generated ADQL query as str.
+            Defaults to `False`.
+        columns : str, optional
+            Target column list with value separated by a comma(,).
+            Use * for all the columns. The default is to return a subset
+            of the columns that are generally the most useful.
+        verbose : bool, optional
+            If False, suppress vo warnings.
+        maxrec : int, optional
+            Maximum number of records
+
+
+        Returns
+        -------
+        table : A `~astropy.table.Table` object.
+        """
+        # if verbose is False then suppress any VOTable related warnings
+        if not verbose:
+            commons.suppress_vo_warnings()
+
+        if catalog is None:
+            raise InvalidQueryError("catalog name is required! Use 'xray' "
+                                    "to search the master X-ray catalog")
+
+        # __row is needed for locate_data; we add it if not already present
+        # and remove it afterwards only if the user requested specific 
+        # columns. keep_row tracks that.
+        keep_row = (
+            columns in (None, '*') or 
+            isinstance(columns, str) and '__row' in columns
+        )
+
+        if columns is None:
+            columns = ', '.join(self._get_default_columns(catalog))
+        
+        if '__row' not in columns and columns != '*':
+            columns += ',__row'
+
+        if where != '' and not where.startswith(' '):
+            where = ' ' + where.strip()
+        adql = f'SELECT {columns} FROM {catalog}{where}'
+
+        if get_query_payload:
+            return adql
+        response = self.query_tap(query=adql, maxrec=maxrec)
+
+        # save the response in case we want to use it later
+        self._last_result = response
+        self._last_catalog_name = catalog
+
+        table = response.to_table()
+        if not keep_row and '__row' in table.colnames:
+            table.remove_column('__row')
+        return table
+
     @deprecated_renamed_argument(
         ('mission', 'fields', 'resultmax', 'entry', 'coordsys', 'equinox',
          'displaymode', 'action', 'sortvar', 'cache'),
@@ -356,18 +424,6 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         -------
         table : A `~astropy.table.Table` object.
         """
-        # if verbose is False then suppress any VOTable related warnings
-        if not verbose:
-            commons.suppress_vo_warnings()
-
-        if catalog is None:
-            raise InvalidQueryError("catalog name is required! Use 'xray' "
-                                    "to search the master X-ray catalog")
-
-        if columns is None:
-            columns = ', '.join(self._get_default_columns(catalog))
-            if '__row' not in columns:
-                columns += ',__row'
 
         if spatial.lower() == 'all-sky':
             where = ''
@@ -390,7 +446,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
             coords_str = [f'{coord.ra.deg},{coord.dec.deg}'
                           for coord in coords_list]
-            where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),"
+            where = ("WHERE CONTAINS(POINT('ICRS',ra,dec),"
                      f"POLYGON('ICRS',{','.join(coords_str)}))=1")
         else:
             coords_icrs = parse_coordinates(position).icrs
@@ -401,7 +457,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                     radius = self.get_default_radius(catalog)
                 elif isinstance(radius, str):
                     radius = coordinates.Angle(radius)
-                where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE("
+                where = ("WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE("
                          f"'ICRS',{ra},{dec},{radius.to(u.deg).value}))=1")
                 # add search_offset for the case of cone
                 if add_offset:
@@ -410,24 +466,23 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             elif spatial.lower() == 'box':
                 if isinstance(width, str):
                     width = coordinates.Angle(width)
-                where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),"
+                where = ("WHERE CONTAINS(POINT('ICRS',ra,dec),"
                          f"BOX('ICRS',{ra},{dec},{width.to(u.deg).value},"
                          f"{width.to(u.deg).value}))=1")
             else:
                 raise ValueError("Unrecognized spatial query type. Must be one"
                                  " of 'cone', 'box', 'polygon', or 'all-sky'.")
-
-        adql = f'SELECT {columns} FROM {catalog}{where}'
-
+        
+        table_or_query = self._query_execute(
+            catalog=catalog, where=where,
+            get_query_payload=get_query_payload,
+            columns=columns, verbose=verbose,
+            maxrec=maxrec
+        )
         if get_query_payload:
-            return adql
-        response = self.query_tap(query=adql, maxrec=maxrec)
+            return table_or_query
+        table = table_or_query
 
-        # save the response in case we want to use it later
-        self._last_result = response
-        self._last_catalog_name = catalog
-
-        table = response.to_table()
         if add_offset:
             table['search_offset'].unit = u.arcmin
         if len(table) == 0:
@@ -463,6 +518,96 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         pos = coordinates.SkyCoord.from_name(object_name)
         return self.query_region(pos, catalog=mission, spatial='cone',
                                  get_query_payload=get_query_payload)
+
+
+    def query_parameters(self, catalog, params, *,
+                 get_query_payload=False, columns=None,
+                 verbose=False, maxrec=None):
+        """Query the HEASARC TAP server using a set of parameters.
+        
+        This is a simple wrapper around 
+        `~astroquery.heasarc.HeasarcClass.query_tap`
+        that constructs an ADQL query from a dictionary of parameters.
+        
+        Parameters
+        ----------
+        catalog : str
+            The catalog to query. To list the available catalogs, use
+            :meth:`~astroquery.heasarc.HeasarcClass.list_catalogs`.
+        params : dict
+            A dictionary of parameters to include in the query.
+            Each key-value pair will be translated into an ADQL condition.
+            - For a range query, use a tuple of two values (min, max).
+              e.g. `{'flux': (1e-12, 1e-10)}` translates to 
+              `flux BETWEEN 1e-12 AND 1e-10`.
+            - For list values, use a list of values.
+              e.g. `{'object_type': ['QSO', 'GALAXY']}` translates to 
+              `object_type IN ('QSO', 'GALAXY')`.
+            - For comparison queries, use a tuple of (operator, value),
+              where operator is one of '=', '!=', '<', '>', '<=', '>='.
+              e.g. `{'magnitude': ('<', 15)}` translates to `magnitude < 15`.
+            - For exact matches, use a single value (str, int, float).
+              e.g. `{'object_type': 'QSO'}` translates to 
+              `object_type = 'QSO'`.
+            The keys should correspond to valid column names in the catalog.
+            Use `list_columns` to see available columns.
+        get_query_payload : bool, optional
+            If `True` then returns the generated ADQL query as str.
+            Defaults to `False`.
+        columns : str, optional
+            Target column list with value separated by a comma(,).
+            Use * for all the columns. The default is to return a subset
+            of the columns that are generally the most useful.
+        verbose : bool, optional
+            If False, suppress vo warnings.
+        maxrec : int, optional
+            Maximum number of records
+
+        """
+
+        conditions = []
+        for key, value in params.items():
+            if isinstance(value, tuple):
+                if (
+                    len(value) == 2 and
+                    all(isinstance(v, (int, float)) for v in value)
+                ):
+                    conditions.append(
+                        f"{key} BETWEEN {value[0]} AND {value[1]}"
+                    )
+                elif (
+                    len(value) == 2 and
+                    value[0] in (">", "<", ">=", "<=")
+                ):
+                    conditions.append(f"{key} {value[0]} {value[1]}")
+            elif isinstance(value, list):
+                # handle list values: key IN (...)
+                formatted = []
+                for v in value:
+                    if isinstance(v, str):
+                        formatted.append(f"'{v}'")
+                    else:
+                        formatted.append(str(v))
+                conditions.append(f"{key} IN ({', '.join(formatted)})")
+            else:
+                conditions.append(
+                    f"{key} = '{value}'"
+                    if isinstance(value, str) else f"{key} = {value}"
+                )
+        if len(conditions) == 0:
+            where = ""
+        else:
+            where = "WHERE " + (" AND ".join(conditions))
+        
+        
+
+        table_or_query = self._query_execute(
+            catalog=catalog, where=where,
+            get_query_payload=get_query_payload,
+            columns=columns, verbose=verbose,
+            maxrec=maxrec
+        )
+        return table_or_query
 
     def locate_data(self, query_result=None, catalog_name=None):
         """Get links to data products
@@ -505,7 +650,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         if '__row' not in query_result.colnames:
             raise ValueError('No __row column found in query_result. '
                              'query_result needs to be the output of '
-                             'query_region or a subset.')
+                             'query_region or a subset. try adding '
+                             '__row to the requested columns')
 
         if catalog_name is None:
             catalog_name = self._last_catalog_name

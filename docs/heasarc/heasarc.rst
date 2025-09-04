@@ -111,8 +111,8 @@ catalogs.
        name                             description
     ---------- -------------------------------------------------------------
     ascamaster ASCA Master Catalog
+    burcbmastr BurstCube Master Observation Catalog
     chanmaster Chandra Observations
-    cmbmaster  LAMBDA Cosmic Microwave Background Experiments Master Catalog
     ...
 
 If you do not know the name of the catalog you are looking for, you can use the ``keywords``
@@ -191,10 +191,10 @@ with those results.
     >>> tab = tab[tab['exposure'] > 0]
     >>> links = Heasarc.locate_data(tab[:2])
     >>> links['access_url'].pprint()
-                                access_url
+                                  access_url
     ---------------------------------------------------------------------
-    https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2018_08//1100120101/
-    https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2018_08//1100120102/
+    https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2025_01//7100120102/
+    https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2025_01//7100120101/
 
 The ``links`` table has three relevant columns: ``access_url``, ``sciserver`` and ``aws``.
 The first gives the url to the data from the main heasarc server. The second gives
