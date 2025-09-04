@@ -195,7 +195,10 @@ def test_spatial_invalid(spatial):
 
 def test_no_catalog():
     with pytest.raises(InvalidQueryError):
-        Heasarc.query_region("m31", spatial="cone", columns="*")
+        # OBJ_LIST[0] and radius added to avoid a remote call
+        Heasarc.query_region(
+            OBJ_LIST[0], spatial="cone", columns="*", radius="2arcmin"
+            )
 
 
 def test_tap_def():
