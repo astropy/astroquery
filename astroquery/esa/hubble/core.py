@@ -768,7 +768,7 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
             query_result = self.tap.run_async(query)
             result = query_result.to_table()
         else:
-            result = self.tap.search(query).to_table()
+            result = self.tap.run_sync(query).to_table()
 
         if output_file:
             esautils.download_table(result, output_file, output_format)
