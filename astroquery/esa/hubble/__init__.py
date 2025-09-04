@@ -9,16 +9,23 @@ European Space Agency (ESA)
 
 """
 
+
 from astropy import config as _config
 from astropy.config import paths
 import os
+
+EHST_COMMON_SERVER = "https://hst.esac.esa.int/tap-server/"
+EHST_TAP_COMMON = "tap"
 
 
 class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.esa.hubble`.
     """
-    EHST_TAP_SERVER = _config.ConfigItem("https://hst.esac.esa.int/tap-server/tap", "eHST TAP Server")
+    EHST_DOMAIN_SERVER = _config.ConfigItem(EHST_COMMON_SERVER, "eHST TAP Common Server")
+    EHST_TAP_SERVER = _config.ConfigItem(EHST_COMMON_SERVER + EHST_TAP_COMMON, "eHST TAP Server")
+    EHST_DATA_SERVER = _config.ConfigItem(EHST_COMMON_SERVER + 'data?', "eHST Data Server")
+    EHST_TABLES_SERVER = _config.ConfigItem(EHST_COMMON_SERVER + EHST_TAP_COMMON + "/tables", "eHST TAP Common Server")
     EHST_TARGET_ACTION = _config.ConfigItem("servlet/target-resolver?", "eHST Target Resolver")
     EHST_MESSAGES = _config.ConfigItem("notification?action=GetNotifications", "eHST Messages")
     TIMEOUT = 60

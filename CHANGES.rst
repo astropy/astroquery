@@ -9,6 +9,13 @@ New Tools and Services
 API changes
 -----------
 
+esa.hubble
+^^^^^^^^^^
+
+- Internal refactor of the module to use to PyVO. [#3367]
+
+- Removal of the deprecated ``query_hst_tap`` method, use ``query_tap`` instead. [#3367]
+
 gaia
 ^^^^
 
