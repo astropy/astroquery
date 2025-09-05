@@ -824,7 +824,7 @@ class EuclidClass(TapPlus):
             files.append(output_file_full_path)
             return files
 
-    def get_observation_products(self, *, id=None, schema="sedm", product_type=None, product_subtype="STK",
+    def get_observation_products(self, *, id=None, release="sedm", product_type=None, product_subtype="STK",
                                  filter="VIS", dsr_part1=None, dsr_part2=None, dsr_part3=None, output_file=None,
                                  verbose=False):
         """
@@ -837,8 +837,8 @@ class EuclidClass(TapPlus):
         ----------
         id : str, mandatory
             observation identifier (observation id for observations, mosaic id for mosaics)
-        schema : str, optional
-            schema name. Default value is 'sedm'.
+        release : str, optional
+            release name. Default value is 'sedm'.
         product_type : str, mandatory, default None
             list only products of the given type.
             possible values: 'observation', 'mosaic'
@@ -874,7 +874,16 @@ class EuclidClass(TapPlus):
             raise ValueError(f"Invalid product type {product_type}. Valid values: {conf.PRODUCT_TYPES}")
 
         params_dict = {'TYPE': product_subtype, 'RETRIEVAL_ACCESS': 'DIRECT', 'TAPCLIENT': 'ASTROQUERY',
-                       'RELEASE': schema}
+                       'RELEASE': release}
+
+        if product_type == 'observation':
+            params_dict['FILTER'] = filter
+            params_dict['RETRIEVAL_TYPE'] = 'OBSERVATION'
+            params_dict['OBS_ID'] = id
+
+        if product_type == 'mosaic':
+            params_dict['MSC_ID'] = id
+            params_dict['RETRIEVAL_TYPE'] = 'MOSAIC'
 
         if dsr_part1 is not None:
             params_dict['DSP1'] = dsr_part1
@@ -884,14 +893,6 @@ class EuclidClass(TapPlus):
 
         if dsr_part3 is not None:
             params_dict['DSP3'] = dsr_part3
-
-        if product_type == 'observation':
-            params_dict['FILTER'] = filter
-            params_dict['RETRIEVAL_TYPE'] = 'OBSERVATION'
-            params_dict['OBS_ID'] = id
-        if product_type == 'mosaic':
-            params_dict['MSC_ID'] = id
-            params_dict['RETRIEVAL_TYPE'] = 'MOSAIC'
 
         output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id=id)
         try:
@@ -1264,7 +1265,7 @@ class EuclidClass(TapPlus):
 
         return query
 
-    def get_product(self, *, file_name=None, product_id=None, schema='sedm', output_file=None, dsr_part1=None,
+    def get_product(self, *, file_name=None, product_id=None, release='sedm', output_file=None, dsr_part1=None,
                     dsr_part2=None, dsr_part3=None, verbose=False):
         """
         Description
@@ -1278,18 +1279,20 @@ class EuclidClass(TapPlus):
             is mandatory
         product_id : str, optional, default None
             product id. More than one can be specified between comma. Either file_name or product_id is mandatory
-        schema : str, optional, default 'sedm'
-            the data release name (schema) in which the product should be searched
+        release : str, optional, default 'sedm'
+            the data release name in which the product should be searched
         output_file : str, optional
             output file, use zip extension when downloading multiple files
             if no value is provided, a temporary one is created
         dsr_part1: str, optional, default None
-            the data set release part 1: for OTF environment, the activity code; for REG and IDR, the target environment
+            the data set release part 1: for OTF environment, the activity code; for REG and IDR, the target
+            environment. Not applicable if product_id is None
         dsr_part2: str, optional, default None
             the data set release part 2: for OTF environment, the patch id (a positive integer); for REG and IDR,
-            the activity code
+            the activity code. Not applicable if product_id is None
         dsr_part3: str, optional, default None
-            the data set release part 3: for OTF, REG and IDR environment, the version (a integer greater than 1)
+            the data set release part 3: for OTF, REG and IDR environment, the version (a integer greater than 1).
+            Not applicable if product_id is None
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1301,16 +1304,7 @@ class EuclidClass(TapPlus):
         if file_name is None and product_id is None:
             raise ValueError("'file_name' and 'product_id' are both None")
 
-        params_dict = {'TAPCLIENT': 'ASTROQUERY', 'RELEASE': schema}
-
-        if dsr_part1 is not None:
-            params_dict['DSP1'] = dsr_part1
-
-        if dsr_part2 is not None:
-            params_dict['DSP2'] = dsr_part2
-
-        if dsr_part3 is not None:
-            params_dict['DSP3'] = dsr_part3
+        params_dict = {'TAPCLIENT': 'ASTROQUERY', 'RELEASE': release}
 
         if file_name is not None:
             params_dict['FILE_NAME'] = file_name
@@ -1318,6 +1312,15 @@ class EuclidClass(TapPlus):
         if product_id is not None:
             params_dict['PRODUCT_ID'] = product_id
             params_dict['RETRIEVAL_TYPE'] = 'PRODUCT_ID'
+
+            if dsr_part1 is not None:
+                params_dict['DSP1'] = dsr_part1
+
+            if dsr_part2 is not None:
+                params_dict['DSP2'] = dsr_part2
+
+            if dsr_part3 is not None:
+                params_dict['DSP3'] = dsr_part3
 
         output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id='temp')
         try:
