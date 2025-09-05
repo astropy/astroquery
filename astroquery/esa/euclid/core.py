@@ -1342,7 +1342,7 @@ class EuclidClass(TapPlus):
         return files
 
     def get_cutout(self, *, file_path=None, instrument=None, id=None, coordinate, radius, output_file=None,
-                   dsr_part1=None, dsr_part2=None, dsr_part3=None, verbose=False):
+                   verbose=False):
         """
         Downloads a cutout given its file path, instrument and obs_id, and the cutout region
 
@@ -1358,14 +1358,6 @@ class EuclidClass(TapPlus):
             coordinates center point
         radius : astropy.units, mandatory
             the radius of the cutout to generate
-        dsr_part1: str, optional, default None
-            the data set release part 1: for OTF environment, the activity code; for REG and IDR, the target environment
-        dsr_part2: str, optional, default None
-            the data set release part 2: for OTF environment, the patch id (a positive integer); for REG and IDR,
-            the activity code
-        dsr_part3: str, optional, default None
-            the data set release part 3: for OTF, REG and IDR environment, the version (a integer greater than 1)
-
         output_file : str, optional
             output file. If no value is provided, a temporary one is created
 
@@ -1391,15 +1383,6 @@ class EuclidClass(TapPlus):
 
         params_dict = {'TAPCLIENT': 'ASTROQUERY', 'FILEPATH': file_path, 'COLLECTION': instrument, 'OBSID': id,
                        'POS': pos}
-
-        if dsr_part1 is not None:
-            params_dict['DSP1'] = dsr_part1
-
-        if dsr_part2 is not None:
-            params_dict['DSP2'] = dsr_part2
-
-        if dsr_part3 is not None:
-            params_dict['DSP3'] = dsr_part3
 
         output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id='temp')
         try:
