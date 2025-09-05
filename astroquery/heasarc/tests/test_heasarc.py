@@ -53,7 +53,13 @@ class MockTap:
         'name-2': vTable('description-2 chandra', cols),
         'TAPname': None
     }
+    
+    def search(self, query, language='ADQL', maxrec=1000):
+        return MockResult()
 
+class MockResult:
+    def to_table(self):
+        return Table({'value': ['1.5', '1.2', '-0.3']})
 
 @pytest.fixture
 def mock_tap():
@@ -92,7 +98,7 @@ def test_query_region_cone(coordinates, radius, offset):
         radius=radius,
         columns="*",
         get_query_payload=True,
-        add_offset=True,
+        add_offset=offset,
     )
 
     # We don't fully float compare in this string, there are slight
@@ -168,6 +174,27 @@ def test_query_region_polygon(polygon):
         "10.1,10.1,10.0,10.1,10.0,10.0))=1"
     )
 
+def test_query_region_polygon_no_unit():
+    # position is not used for polygon
+    poly = [
+        (10.1, 10.1),
+        (10.0, 10.1),
+        (10.0, 10.0),
+    ]
+    with pytest.warns(UserWarning, match="Polygon endpoints are being interpreted as"):
+        query = Heasarc.query_region(
+            catalog="suzamaster",
+            spatial="polygon",
+            polygon=poly,
+            columns="*",
+        get_query_payload=True,
+    )
+
+    assert query == (
+        "SELECT * FROM suzamaster "
+        "WHERE CONTAINS(POINT('ICRS',ra,dec),POLYGON('ICRS',"
+        "10.1,10.1,10.0,10.1,10.0,10.0))=1"
+    )
 
 def test_query_allsky():
     query1 = Heasarc.query_region(
@@ -200,6 +227,164 @@ def test_no_catalog():
             OBJ_LIST[0], spatial="cone", columns="*", radius="2arcmin"
             )
 
+def test_by_params_no_catalog():
+    with pytest.raises(InvalidQueryError):
+        # OBJ_LIST[0] and radius added to avoid a remote call
+        Heasarc.query_by_parameters(
+            None, params={"flux": (1e-12, 1e-10)}
+            )
+
+
+def test__query_execute_no_catalog():
+    with pytest.raises(InvalidQueryError):
+        # OBJ_LIST[0] and radius added to avoid a remote call
+        Heasarc._query_execute(None)
+
+
+def test_by_params_none_params():
+    with pytest.raises(ValueError):
+        Heasarc.query_by_parameters('testcatalog', params=None)
+
+
+def test_by_params_no_params():
+    query = Heasarc.query_by_parameters(
+        catalog="suzamaster",
+        params={},
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query == "SELECT * FROM suzamaster"
+
+
+def test_by_params_range():
+    query = Heasarc.query_by_parameters(
+        catalog="suzamaster",
+        params={"flux": (1e-12, 1e-10)},
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query == "SELECT * FROM suzamaster WHERE flux BETWEEN 1e-12 AND 1e-10"
+
+
+def test_by_params_eq_float():
+    query = Heasarc.query_by_parameters(
+        catalog="suzamaster",
+        params={"flux": 1.2},
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query == "SELECT * FROM suzamaster WHERE flux = 1.2"
+
+
+def test_by_params_eq_str():
+    query = Heasarc.query_by_parameters(
+        catalog="suzamaster",
+        params={"flux": "1.2"},
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query == "SELECT * FROM suzamaster WHERE flux = '1.2'"
+
+
+def test_by_params_cmp_float():
+    query = Heasarc.query_by_parameters(
+        catalog="suzamaster",
+        params={"flux": ('>', 1.2)},
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query == "SELECT * FROM suzamaster WHERE flux > 1.2"
+
+
+def test_by_params_cmp_float_2():
+    query = Heasarc.query_by_parameters(
+        catalog="suzamaster",
+        params={"flux": ('>', 1.2), "magnitude": ('<=', 15)},
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query == ("SELECT * FROM suzamaster WHERE flux > 1.2 "
+                     "AND magnitude <= 15")
+
+
+def test_by_params_list():
+    query = Heasarc.query_by_parameters(
+        catalog="suzamaster",
+        params={"flux": [1.2, 2.3, 3.4]},
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query == "SELECT * FROM suzamaster WHERE flux IN (1.2, 2.3, 3.4)"
+
+
+def test__query_execute_none_where():
+    query = Heasarc._query_execute(
+        catalog="suzamaster",
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query == ("SELECT * FROM suzamaster")
+
+
+def test__query_execute_none_where():
+    query = Heasarc._query_execute(
+        catalog="suzamaster",
+        where=" EXTRA",
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query == ("SELECT * FROM suzamaster EXTRA")
+
+
+def test__query_execute_add_row():
+    query1 = Heasarc._query_execute(
+        catalog="suzamaster",
+        where="",
+        columns="col1, col2",
+        get_query_payload=True,
+    )
+    query2 = Heasarc._query_execute(
+        catalog="suzamaster",
+        where=None,
+        columns="col1, col2",
+        get_query_payload=True,
+    )
+    assert query1 == query2 == ("SELECT col1, col2, __row FROM suzamaster")
+
+def test__query_execute_extra_space():
+    query1 = Heasarc._query_execute(
+        catalog="suzamaster",
+        where="WHERE EXTRA",
+        columns="*",
+        get_query_payload=True,
+    )
+
+    query2 = Heasarc._query_execute(
+        catalog="suzamaster",
+        where=" WHERE EXTRA",
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query1 == query2 == ("SELECT * FROM suzamaster WHERE EXTRA")
+
+def test_query_execute_columns(mock_tap, mock_default_cols):
+    query = Heasarc._query_execute(
+        catalog="suzamaster",
+        where="WHERE EXTRA",
+        columns=None,
+        get_query_payload=True,
+    )
+    assert query == ("SELECT col-3, col-2, __row FROM suzamaster WHERE EXTRA")
+
+def test_query_execute_columns(mock_tap, mock_default_cols):
+    res = Heasarc._query_execute(
+        catalog="suzamaster",
+        where="WHERE EXTRA",
+        columns='*'
+    )
+    assert Heasarc._last_catalog_name == "suzamaster"
+    # reset last result to avoid interference with other tests
+    Heasarc._last_result = None
 
 def test_tap_def():
     # Use a new HeasarcClass object
@@ -210,9 +395,6 @@ def test_tap_def():
 
 
 def test_meta_def():
-    class MockResult:
-        def to_table(self):
-            return Table({'value': ['1.5', '1.2', '-0.3']})
     # Use a new HeasarcClass object
     Heasarc = HeasarcClass()
     assert Heasarc._meta_info is None
@@ -260,6 +442,12 @@ def test_list_catalogs_keywords_list_non_str():
     with pytest.raises(ValueError, match="non-str found in keywords elements"):
         Heasarc.list_catalogs(keywords=['x-ray', 12])
 
+
+def test__list_catalogs_keywords(mock_tap):
+    catalogs = Heasarc.list_catalogs(keywords=['xmm'])
+    assert list(catalogs['name']) == [
+        lab for lab, desc in MockTap().tables.items() if 'TAP' not in lab and 'xmm' in desc.description.lower()
+    ]
 
 def test__list_columns__missing_table(mock_tap):
     with pytest.raises(ValueError, match="not available as a public catalog"):

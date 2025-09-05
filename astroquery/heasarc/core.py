@@ -325,6 +325,9 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             raise InvalidQueryError("catalog name is required! Use 'xray' "
                                     "to search the master X-ray catalog")
 
+        if where is None:
+            where = ''
+
         # __row is needed for locate_data; we add it if not already present
         # and remove it afterwards only if the user requested specific 
         # columns. keep_row tracks that.
@@ -337,7 +340,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             columns = ', '.join(self._get_default_columns(catalog))
         
         if '__row' not in columns and columns != '*':
-            columns += ',__row'
+            columns += ', __row'
 
         if where != '' and not where.startswith(' '):
             where = ' ' + where.strip()
@@ -520,7 +523,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                                  get_query_payload=get_query_payload)
 
 
-    def query_parameters(self, catalog, params, *,
+    def query_by_parameters(self, catalog, params, *,
                  get_query_payload=False, columns=None,
                  verbose=False, maxrec=None):
         """Query the HEASARC TAP server using a set of parameters.
@@ -564,6 +567,9 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             Maximum number of records
 
         """
+
+        if not isinstance(params, dict):
+            raise ValueError('params must be a dictionary of key-value pairs')
 
         conditions = []
         for key, value in params.items():
