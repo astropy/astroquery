@@ -259,7 +259,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         cols = [col.upper() for col in cols['name'] if '__' not in col]
         return cols
 
-    def query_tap(self, query, *, maxrec=None):
+    def query_tap(self, query, *, maxrec=None, uploads=None):
         """
         Send query to HEASARC's Xamin TAP using ADQL.
         Results in `~pyvo.dal.TAPResults` format.
@@ -271,6 +271,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             ADQL query to be executed
         maxrec : int
             maximum number of records to return
+        uploads : dict
+            a mapping from table names used in the query to file like
+            objects containing a votable
+            (e.g. a file path or `~astropy.table.Table`).
 
         Returns
         -------
@@ -284,7 +288,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         """
         log.debug(f'TAP query: {query}')
         self._saved_query = query
-        return self.tap.search(query, language='ADQL', maxrec=maxrec)
+        return self.tap.search(
+            query, language='ADQL', maxrec=maxrec, uploads=uploads)
 
     def _query_execute(self, catalog=None, where=None, *,
                         get_query_payload=False, columns=None,

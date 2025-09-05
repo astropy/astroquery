@@ -54,7 +54,7 @@ class MockTap:
         'TAPname': None
     }
     
-    def search(self, query, language='ADQL', maxrec=1000):
+    def search(self, query, language='ADQL', maxrec=1000, uploads=None):
         return MockResult()
 
 class MockResult:
