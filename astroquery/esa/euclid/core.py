@@ -1140,12 +1140,12 @@ class EuclidClass(TapPlus):
         if tile_index is not None:
             return self.__get_tile_catalogue_list(tile_index=tile_index, product_type=product_type, verbose=verbose)
 
-        dsr_condition = self.get_data_set_release_condition(dsr_part1, dsr_part2, dsr_part3)
-        extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
-
         query = None
         if product_type in conf.OBSERVATION_STACK_PRODUCTS:
             table = 'sedm.observation_stack'
+
+            dsr_condition = self.get_data_set_release_condition(dsr_part1, dsr_part2, dsr_part3, 'observation_stack')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
 
             query = (f"SELECT observation_stack.file_name, observation_stack.observation_stack_oid, "
                      f"observation_stack.observation_id, observation_stack.ra, observation_stack.dec, "
@@ -1158,6 +1158,10 @@ class EuclidClass(TapPlus):
 
         if product_type in conf.BASIC_DOWNLOAD_DATA_PRODUCTS:
             table = 'sedm.basic_download_data'
+
+            dsr_condition = self.get_data_set_release_condition(dsr_part1, dsr_part2, dsr_part3, 'basic_download_data')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
+
             query = (
                 f"SELECT basic_download_data.basic_download_data_oid, basic_download_data.product_type, "
                 f"basic_download_data.product_id, CAST(basic_download_data.observation_id_list as text) AS "
@@ -1170,6 +1174,10 @@ class EuclidClass(TapPlus):
 
         if product_type in conf.MER_SEGMENTATION_MAP_PRODUCTS:
             table = 'sedm.mer_segmentation_map'
+
+            dsr_condition = self.get_data_set_release_condition(dsr_part1, dsr_part2, dsr_part3, 'mer_segmentation_map')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
+
             query = (
                 f"SELECT mer_segmentation_map.file_name, mer_segmentation_map.segmentation_map_oid, "
                 f"mer_segmentation_map.ra, mer_segmentation_map.dec, mer_segmentation_map.stc_s, "
@@ -1182,6 +1190,9 @@ class EuclidClass(TapPlus):
 
         if product_type in conf.RAW_FRAME_PRODUCTS:
             table = 'sedm.raw_frame'
+
+            dsr_condition = self.get_data_set_release_condition(dsr_part1, dsr_part2, dsr_part3, 'raw_frame')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
 
             if product_type == "dpdNispRawFrame":
                 instrument_name = "NISP"
@@ -1198,6 +1209,10 @@ class EuclidClass(TapPlus):
 
         if product_type in conf.CALIBRATED_FRAME_PRODUCTS:
             table = 'sedm.calibrated_frame'
+
+            dsr_condition = self.get_data_set_release_condition(dsr_part1, dsr_part2, dsr_part3, 'calibrated_frame')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
+
             query = (
                 f"SELECT calibrated_frame.file_name, calibrated_frame.calibrated_frame_oid, "
                 f"calibrated_frame.observation_id, calibrated_frame.instrument_name, calibrated_frame.filter_name, "
@@ -1208,6 +1223,10 @@ class EuclidClass(TapPlus):
 
         if product_type in conf.FRAME_CATALOG_PRODUCTS:
             table = 'sedm.frame_catalog'
+
+            dsr_condition = self.get_data_set_release_condition(dsr_part1, dsr_part2, dsr_part3, 'frame_catalog')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
+
             query = (
                 f"SELECT frame_catalog.file_name, frame_catalog.catalog_oid, frame_catalog.observation_id, "
                 f"frame_catalog.instrument_name, frame_catalog.filter_name, frame_catalog.ra, frame_catalog.dec, "
@@ -1218,6 +1237,10 @@ class EuclidClass(TapPlus):
 
         if product_type in conf.COMBINED_SPECTRA_PRODUCTS:
             table = 'sedm.combined_spectra'
+
+            dsr_condition = self.get_data_set_release_condition(dsr_part1, dsr_part2, dsr_part3, 'combined_spectra')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
+
             query = (
                 f"SELECT combined_spectra.combined_spectra_oid, combined_spectra.lambda_range, "
                 f"combined_spectra.tile_index, combined_spectra.stc_s, combined_spectra.product_type, "
@@ -1229,6 +1252,10 @@ class EuclidClass(TapPlus):
 
         if product_type in conf.SIR_SCIENCE_FRAME_PRODUCTS:
             table = 'sedm.sir_science_frame'
+
+            dsr_condition = self.get_data_set_release_condition(dsr_part1, dsr_part2, dsr_part3, 'sir_science_frame')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
+
             instrument_name = "NISP"
 
             query = (
@@ -1245,23 +1272,26 @@ class EuclidClass(TapPlus):
                                  format_with_results_compressed=('votable_gzip',))
         return job.get_results()
 
-    def get_data_set_release_condition(self, dsr_1_value=None, dsr_2_value=None, dsr_3_value=None):
+    def get_data_set_release_condition(self, dsr_1_value=None, dsr_2_value=None, dsr_3_value=None, alias=None):
 
         query = None
         if dsr_1_value is not None:
-            query = f"{self.dsr_1} = '{dsr_1_value}'"
+            dsr_1_final = '.'.join(filter(None, [alias, self.dsr_1]))
+            query = f"{dsr_1_final} = '{dsr_1_value}'"
 
         if dsr_2_value is not None:
+            dsr_2_final = '.'.join(filter(None, [alias, self.dsr_2]))
             if query is not None:
-                query = f"{query} AND {self.dsr_2} = {dsr_2_value}"
+                query = f"{query} AND {dsr_2_final} = '{dsr_2_value}'"
             else:
-                query = f"{self.dsr_2} = {dsr_2_value}"
+                query = f"{dsr_2_final} = '{dsr_2_value}'"
 
         if dsr_3_value is not None:
+            dsr_3_final = '.'.join(filter(None, [alias, str(self.dsr_3)]))
             if query is not None:
-                query = f"{query} AND {self.dsr_3} = {dsr_3_value}"
+                query = f"{query} AND {dsr_3_final} = {dsr_3_value}"
             else:
-                query = f"{self.dsr_3} = {dsr_3_value}"
+                query = f"{dsr_3_final} = {dsr_3_value}"
 
         return query
 
@@ -1360,7 +1390,6 @@ class EuclidClass(TapPlus):
             the radius of the cutout to generate
         output_file : str, optional
             output file. If no value is provided, a temporary one is created
-
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1475,6 +1504,8 @@ class EuclidClass(TapPlus):
         if os.listdir(output_dir):
             raise IOError(f'The directory is not empty: {output_dir}')
 
+        files = []
+
         try:
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
@@ -1484,7 +1515,6 @@ class EuclidClass(TapPlus):
             log.error(f'Cannot retrieve spectrum for source_id {source_id}, schema {schema}: {str(exx)}')
             return None
 
-        files = []
         self.__extract_file(output_file_full_path=output_file_full_path, output_dir=output_dir, files=files)
 
         if files:
