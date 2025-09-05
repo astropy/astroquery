@@ -255,6 +255,17 @@ def test_by_params_no_params():
     )
     assert query == "SELECT * FROM suzamaster"
 
+def test_by_params_limit():
+    query = Heasarc.query_by_parameters(
+        catalog="suzamaster",
+        params={},
+        columns="*",
+        get_query_payload=True,
+        maxrec=500000,
+    )
+    assert query == "SELECT * FROM suzamaster LIMIT 2000000"
+
+
 
 def test_by_params_range():
     query = Heasarc.query_by_parameters(
