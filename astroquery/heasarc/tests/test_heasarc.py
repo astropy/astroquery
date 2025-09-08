@@ -263,7 +263,7 @@ def test_by_columns_limit():
         get_query_payload=True,
         maxrec=500000,
     )
-    assert query == "SELECT * FROM suzamaster LIMIT 2000000"
+    assert query == "SELECT TOP 2000000 * FROM suzamaster"
 
 
 
