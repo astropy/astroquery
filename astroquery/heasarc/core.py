@@ -549,17 +549,17 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             A dictionary of column constraint parameters to include in the query.
             Each key-value pair will be translated into an ADQL condition.
             - For a range query, use a tuple of two values (min, max).
-              e.g. ``{'flux': (1e-12, 1e-10)}`` translates to
-              ``flux BETWEEN 1e-12 AND 1e-10``.
+            e.g. ``{'flux': (1e-12, 1e-10)}`` translates to
+            ``flux BETWEEN 1e-12 AND 1e-10``.
             - For list values, use a list of values.
-              e.g. ``{'object_type': ['QSO', 'GALAXY']}`` translates to
-              ``object_type IN ('QSO', 'GALAXY')``.
+            e.g. ``{'object_type': ['QSO', 'GALAXY']}`` translates to
+            ``object_type IN ('QSO', 'GALAXY')``.
             - For comparison queries, use a tuple of (operator, value),
-              where operator is one of '=', '!=', '<', '>', '<=', '>='.
-              e.g. ``{'magnitude': ('<', 15)}`` translates to ``magnitude < 15``.
+            where operator is one of '=', '!=', '<', '>', '<=', '>='.
+            e.g. ``{'magnitude': ('<', 15)}`` translates to ``magnitude < 15``.
             - For exact matches, use a single value (str, int, float).
-              e.g. ``{'object_type': 'QSO'}`` translates to
-              ``object_type = 'QSO'``.
+            e.g. ``{'object_type': 'QSO'}`` translates to
+            ``object_type = 'QSO'``.
             The keys should correspond to valid column names in the catalog.
             Use `list_columns` to see the available columns.
         get_query_payload : bool, optional
