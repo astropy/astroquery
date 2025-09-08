@@ -532,10 +532,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                                  get_query_payload=get_query_payload)
 
 
-    def query_by_parameters(self, catalog, params, *,
+    def query_by_column(self, catalog, params, *,
                  get_query_payload=False, columns=None,
                  verbose=False, maxrec=None):
-        """Query the HEASARC TAP server using a set of parameters.
+        """Query the HEASARC TAP server using a constraints on the columns.
         
         This is a simple wrapper around 
         `~astroquery.heasarc.HeasarcClass.query_tap`
@@ -547,7 +547,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             The catalog to query. To list the available catalogs, use
             :meth:`~astroquery.heasarc.HeasarcClass.list_catalogs`.
         params : dict
-            A dictionary of parameters to include in the query.
+            A dictionary of column constraint parameters to include in the query.
             Each key-value pair will be translated into an ADQL condition.
             - For a range query, use a tuple of two values (min, max).
               e.g. `{'flux': (1e-12, 1e-10)}` translates to 
@@ -562,7 +562,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
               e.g. `{'object_type': 'QSO'}` translates to 
               `object_type = 'QSO'`.
             The keys should correspond to valid column names in the catalog.
-            Use `list_columns` to see available columns.
+            Use `list_columns` to see the available columns.
         get_query_payload : bool, optional
             If `True` then returns the generated ADQL query as str.
             Defaults to `False`.
