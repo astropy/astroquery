@@ -506,6 +506,29 @@ def test_locate_data_row():
         Heasarc.locate_data(table[0:2], catalog_name="xray")
 
 
+def test__guess_host_default():
+    # Use a new HeasarcClass object
+    assert Heasarc._guess_host(host=None) == 'heasarc'
+
+
+@pytest.mark.parametrize("host", ["heasarc", "sciserver", "aws"])
+def test__guess_host_know(host):
+    # Use a new HeasarcClass object
+    assert Heasarc._guess_host(host=host) == host
+
+
+def test__guess_host_sciserver(monkeypatch):
+    monkeypatch.setenv("HOME", "/home/idies")
+    monkeypatch.setattr("os.path.exists", lambda path: path.startswith('/FTP'))
+    assert Heasarc._guess_host(host=None) == 'sciserver'
+
+
+@pytest.mark.parametrize("var", ["AWS_REGION", "AWS_REGION_DEFAULT", "AWS_ROLE_ARN"])
+def test__guess_host_aws(monkeypatch, var):
+    monkeypatch.setenv("AWS_REGION", var)
+    assert Heasarc._guess_host(host=None) == 'aws'
+
+
 def test_download_data__empty():
     with pytest.raises(ValueError, match="Input links table is empty"):
         Heasarc.download_data(Table())
