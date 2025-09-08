@@ -292,8 +292,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             query, language='ADQL', maxrec=maxrec, uploads=uploads)
 
     def _query_execute(self, catalog=None, where=None, *,
-                        get_query_payload=False, columns=None,
-                        verbose=False, maxrec=None):
+                       get_query_payload=False, columns=None,
+                       verbose=False, maxrec=None):
         """Queries some catalog using the HEASARC TAP server based on the
         where condition and returns an `~astropy.table.Table`.
 
@@ -334,16 +334,16 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             where = ''
 
         # __row is needed for locate_data; we add it if not already present
-        # and remove it afterwards only if the user requested specific 
+        # and remove it afterwards only if the user requested specific
         # columns. keep_row tracks that.
         keep_row = (
-            columns in (None, '*') or 
-            isinstance(columns, str) and '__row' in columns
+            columns in (None, '*')
+            or isinstance(columns, str) and '__row' in columns
         )
 
         if columns is None:
             columns = ', '.join(self._get_default_columns(catalog))
-        
+
         if '__row' not in columns and columns != '*':
             columns += ', __row'
 
@@ -484,7 +484,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             else:
                 raise ValueError("Unrecognized spatial query type. Must be one"
                                  " of 'cone', 'box', 'polygon', or 'all-sky'.")
-        
+
         table_or_query = self._query_execute(
             catalog=catalog, where=where,
             get_query_payload=get_query_payload,
@@ -531,16 +531,15 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         return self.query_region(pos, catalog=mission, spatial='cone',
                                  get_query_payload=get_query_payload)
 
-
     def query_by_column(self, catalog, params, *,
-                 get_query_payload=False, columns=None,
-                 verbose=False, maxrec=None):
+                        get_query_payload=False, columns=None,
+                        verbose=False, maxrec=None):
         """Query the HEASARC TAP server using a constraints on the columns.
-        
-        This is a simple wrapper around 
+
+        This is a simple wrapper around
         `~astroquery.heasarc.HeasarcClass.query_tap`
         that constructs an ADQL query from a dictionary of parameters.
-        
+
         Parameters
         ----------
         catalog : str
@@ -550,16 +549,16 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             A dictionary of column constraint parameters to include in the query.
             Each key-value pair will be translated into an ADQL condition.
             - For a range query, use a tuple of two values (min, max).
-              e.g. `{'flux': (1e-12, 1e-10)}` translates to 
+              e.g. `{'flux': (1e-12, 1e-10)}` translates to
               `flux BETWEEN 1e-12 AND 1e-10`.
             - For list values, use a list of values.
-              e.g. `{'object_type': ['QSO', 'GALAXY']}` translates to 
+              e.g. `{'object_type': ['QSO', 'GALAXY']}` translates to
               `object_type IN ('QSO', 'GALAXY')`.
             - For comparison queries, use a tuple of (operator, value),
               where operator is one of '=', '!=', '<', '>', '<=', '>='.
               e.g. `{'magnitude': ('<', 15)}` translates to `magnitude < 15`.
             - For exact matches, use a single value (str, int, float).
-              e.g. `{'object_type': 'QSO'}` translates to 
+              e.g. `{'object_type': 'QSO'}` translates to
               `object_type = 'QSO'`.
             The keys should correspond to valid column names in the catalog.
             Use `list_columns` to see the available columns.
@@ -584,15 +583,15 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         for key, value in params.items():
             if isinstance(value, tuple):
                 if (
-                    len(value) == 2 and
-                    all(isinstance(v, (int, float)) for v in value)
+                    len(value) == 2
+                    and all(isinstance(v, (int, float)) for v in value)
                 ):
                     conditions.append(
                         f"{key} BETWEEN {value[0]} AND {value[1]}"
                     )
                 elif (
-                    len(value) == 2 and
-                    value[0] in (">", "<", ">=", "<=")
+                    len(value) == 2
+                    and value[0] in (">", "<", ">=", "<=")
                 ):
                     conditions.append(f"{key} {value[0]} {value[1]}")
             elif isinstance(value, list):
@@ -613,8 +612,6 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             where = ""
         else:
             where = "WHERE " + (" AND ".join(conditions))
-        
-        
 
         table_or_query = self._query_execute(
             catalog=catalog, where=where,
