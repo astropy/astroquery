@@ -70,6 +70,13 @@ mast
 Service fixes and enhancements
 ------------------------------
 
+heasarc
+^^^^^^^
+
+- Add ``query_by_column`` to allow querying of different catalog columns.The user passes a dict that is parsed into a TAP WHERE statements.
+- Add support for uploading tables when using TAP directly through ``query_tap``.
+- Improve how maxrec works. If it is bigger than the default server limit, add a TOP statement.
+
 alma
 ^^^^
 
