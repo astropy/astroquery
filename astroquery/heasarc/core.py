@@ -750,6 +750,36 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         self.s3_client = self.s3_resource.meta.client
 
+    def _guess_host(self, host):
+        """Guess the host to use for downloading data
+
+        Parameters
+        ----------
+        host : str
+            The host provided by the user
+
+        Returns
+        -------
+        host : str
+            The guessed host
+
+        """
+        if host in ['heasarc', 'sciserver', 'aws']:
+            return host
+        elif host is not None:
+            raise ValueError(
+                'host has to be one of heasarc, sciserver, aws or None')
+
+        # host is None, so we guess
+        if os.environ['HOME'] == '/home/idies' and os.path.exists('/FTP/'):
+            # we are on idies, so we can use sciserver
+            return 'sciserver'
+
+        for var in ['AWS_REGION', 'AWS_DEFAULT_REGION', 'AWS_ROLE_ARN']:
+            if var in os.environ:
+                return 'aws'
+        return 'heasarc'
+
     def download_data(self, links, host='heasarc', location='.'):
         """Download data products in links with a choice of getting the
         data from either the heasarc server, sciserver, or the cloud in AWS.
@@ -781,8 +811,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         if isinstance(links, Row):
             links = links.table[[links.index]]
 
-        if host not in ['heasarc', 'sciserver', 'aws']:
-            raise ValueError('host has to be one of heasarc, sciserver, aws')
+        # guess the host if not provided
+        host = self._guess_host(host)
 
         host_column = 'access_url' if host == 'heasarc' else host
         if host_column not in links.colnames:

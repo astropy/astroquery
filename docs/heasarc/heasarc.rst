@@ -247,6 +247,7 @@ You can specify where the data are to be downloaded using the ``location`` param
 
 To download the data, you can pass ``links`` table (or row) to `~astroquery.heasarc.HeasarcClass.download_data`,
 specifying from where you want the data to be fetched by specifying the ``host`` parameter. By default,
+the function will try to guess the best host based on your environment. If it cannot guess, then
 the data is fetched from the main HEASARC servers.
 The recommendation is to use different hosts depending on where your code is running:
 * ``host='sciserver'``: Use this option if you running you analysis on Sciserver. Because
