@@ -353,7 +353,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         # if maxrec is more than the server limit, we set a higher limit
         if maxrec is not None and maxrec > 100000:
-            adql += f' LIMIT {maxrec*4}'
+            adql = adql.replace('SELECT ', f'SELECT TOP {maxrec*4} ')
 
         if get_query_payload:
             return adql
