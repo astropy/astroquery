@@ -771,7 +771,11 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                 'host has to be one of heasarc, sciserver, aws or None')
 
         # host is None, so we guess
-        if os.environ['HOME'] == '/home/idies' and os.path.exists('/FTP/'):
+        if (
+            'HOME' in os.environ
+            and os.environ['HOME'] == '/home/idies'
+            and os.path.exists('/FTP/')
+        ):
             # we are on idies, so we can use sciserver
             return 'sciserver'
 
