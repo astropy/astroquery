@@ -198,9 +198,9 @@ catalog for all observations with exposure time greater than 190 ks.
         name      obsid     ra       dec    exposure
                             deg       deg       s    
     --------------- ----- --------- --------- --------
-            Sgr A* 13842 266.41667 -29.00781   191760
+       GW Transient 29852        --        --   300000
+             Sgr A* 13842 266.41667 -29.00781   191760
     IGR J17480-2446 30481 267.02013 -24.78024   200000
-    IGR J17480-2446 31425 267.02013 -24.78024   200000
 
 Another example may be to search the ``xmmmaster`` for a observation in some time range:
 
