@@ -496,7 +496,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             np.sin(d)
         )
 
-    def _constraint(ra: str, dec: str) -> str:
+    def _constraint(ra: str, dec: str, large: bool) -> str:
         """
         Construct the spatial constraint to be added to the WHERE clause.  It compares
         the input position with the catalog's pre-computed unit vector columns
@@ -509,9 +509,25 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         # defined by HEASARC curators for each table.
         radius_condition = f"{dot_product} > (cos(radians((a.dsr*60/60))))"  
         dec_condition = f"a.dec between {dec} - a.dsr*60/60 and {dec} + a.dsr*60/60"
-        vec_condition = f"{dot_product} > {vec0[2]}*{vec1[2]} "
-        dec_condition2 = f"a.dec between {float(dec)-1} and {float(dec)+1} "
-        return f"( ({radius_condition}) and ({dec_condition}) and ({vec_condition}) and ({dec_condition2}) )"
+        # query looks right but gives different results
+        #return f"( ({radius_condition}) and ({dec_condition}) and ({vec_condition}) and ({dec_condition2}) )"
+        # query looks missing something but gives the same results but slower.  Huh?
+        if large:
+            return f"""
+            ( ({radius_condition}) 
+            and ({dec_condition}) )
+            """
+        else:
+            # additional constraints on small table
+            inner_dec_condition_1deg = f"{dot_product} > {np.cos(np.radians(1.0))}"
+            outer_dec_condition_1deg = f"a.dec between {float(dec) - 1} and {float(dec)+1}"
+            return f"""
+            ( ({radius_condition}) 
+            and ({dec_condition})
+            and ({inner_dec_condition_1deg})
+            and ({outer_dec_condition_1deg})
+            )
+            """
 
     def _query_matches(self, ra: str, dec: str) -> str:
         """
@@ -519,13 +535,14 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         queries two tables, as the HEASARC database has split the master tables for 
         efficiency.
         """
-        constraint = HeasarcClass._constraint(ra, dec)
+        constraint_small = HeasarcClass._constraint(ra, dec,large=False)
+        constraint_large = HeasarcClass._constraint(ra, dec,large=True)
         return(f"""
             select  b.name  as "table_name",  count(*)  as "count",  b.description  as
             "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
             as "obj_type"
             from master_table.pos_small as a,master_table.indexview as b
-            where  (  (  a.table_name  =  b.name  )  ) and  {constraint}
+            where  (  (  a.table_name  =  b.name  )  ) and  {constraint_small}
             group by  b.name , b.description , b.regime , b.mission , b.type
 
             union all
@@ -534,7 +551,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
             as "obj_type"
             from master_table.pos_big as a,master_table.indexview as b
-            where  (  (  a.table_name  =  b.name  )  ) and  {constraint}
+            where  (  (  a.table_name  =  b.name  )  ) and  {constraint_large}
             group by  b.name , b.description , b.regime , b.mission , b.type
             order by count desc
             """)
