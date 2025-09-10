@@ -10,6 +10,7 @@ from astropy.table import Table, Row
 from astropy import coordinates
 from astropy import units as u
 from astropy.utils.decorators import deprecated, deprecated_renamed_argument
+from typing import Tuple
 
 import pyvo
 
@@ -464,6 +465,153 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         return self.query_region(pos, catalog=mission, spatial='cone',
                                  get_query_payload=get_query_payload)
 
+
+    def _get_vec(ra: str, dec: str) -> Tuple[str, str, str]:
+        """
+        If the input is a string name of a column like "a.ra", then this routine
+        constructs the unit vector column names that can be added to the SQL query.
+        If the input is simply a number, then it calls _compute_vec to actually
+        calculate the unit vector and return the value as a string to be added to the
+        SQL query.  
+        
+        The former is used to fetch pre-computed unit vectors associated with the table 
+        being queried. The latter is used to compute the input position unit vector only once.  
+        """
+        if 'a.' in ra:  # Assuming this indicates a column name
+            prefix = ra.split('.')[0]  # e.g., 'a' from 'a.ra'
+            return (f"{prefix}.__x_ra_dec", f"{prefix}.__y_ra_dec", f"{prefix}.__z_ra_dec")
+        else:
+            return HeasarcClass._compute_vec(float(ra), float(dec))
+
+    def _compute_vec(ra: float, dec: float) -> Tuple[float, float, float]:
+        """
+        Converts RA and DEC to a tuple representing the equivalent unit vector.  (Algorithm copied
+        from Xamin, so using its reference frame.)
+        
+        """
+        r, d = np.radians([ra, dec])
+        return (
+            np.cos(d) * np.sin(r),
+            np.cos(d) * np.cos(r),
+            np.sin(d)
+        )
+
+    def _constraint(ra: str, dec: str) -> str:
+        """
+        Construct the spatial constraint to be added to the WHERE clause.  It compares
+        the input position with the catalog's pre-computed unit vector columns
+        with the computation optimized for speed.  
+        """
+        vec0 = HeasarcClass._get_vec("a.ra", "a.dec")
+        vec1 = HeasarcClass._get_vec(ra, dec)
+        dot_product = " + ".join([f"{vec0[i]}*{vec1[i]}" for i in range(3)])
+        # Assuming 'a.dsr' is the default search radius column.  This value is
+        # defined by HEASARC curators for each table.
+        radius_condition = f"{dot_product} > (cos(radians((a.dsr*60/60))))"  
+        dec_condition = f"a.dec between {dec} - a.dsr*60/60 and {dec} + a.dsr*60/60"
+        vec_condition = f"{dot_product} > {vec0[2]}*{vec1[2]} "
+        dec_condition2 = f"a.dec between {float(dec)-1} and {float(dec)+1} "
+        return f"( ({radius_condition}) and ({dec_condition}) and ({vec_condition}) and ({dec_condition2}) )"
+
+    def _query_matches(self, ra: str, dec: str) -> str:
+        """
+        Constructs the full SQL query including the spatial constraint.  Note that this
+        queries two tables, as the HEASARC database has split the master tables for 
+        efficiency.
+        """
+        constraint = HeasarcClass._constraint(ra, dec)
+        return(f"""
+            select  b.name  as "table_name",  count(*)  as "count",  b.description  as
+            "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
+            as "obj_type"
+            from master_table.pos_small as a,master_table.indexview as b
+            where  (  (  a.table_name  =  b.name  )  ) and  {constraint}
+            group by  b.name , b.description , b.regime , b.mission , b.type
+
+            union all
+
+            select  b.name  as "table_name",  count(*)  as "count",  b.description  as
+            "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
+            as "obj_type"
+            from master_table.pos_big as a,master_table.indexview as b
+            where  (  (  a.table_name  =  b.name  )  ) and  {constraint}
+            group by  b.name , b.description , b.regime , b.mission , b.type
+            order by count desc
+            """)
+
+    def query_all(self, position=None, get_query_payload=False, verbose=False, maxrec=None, **kwargs):
+        """
+        Query the HEASARC database to count matches at a given position for all available catalogs.
+
+        Parameters
+        ----------
+        position : `~astropy.coordinates.SkyCoord`
+            The position around which to search. Must be a SkyCoord object.
+        get_query_payload : bool, optional
+            If `True` then returns the generated ADQL query as str.
+            Defaults to `False`.
+        verbose : bool, optional
+            If True, prints additional information about the query. Default is False.
+        maxrec : int, optional
+            The maximum number of records to return. If None, all matching records are returned.
+        **kwargs : dict, optional
+            Additional keyword arguments:
+
+        Returns
+        -------
+        result : `~astropy.table.Table`
+            A table containing the results of the query. If no results are found,
+            an empty table is returned and a warning is issued.
+
+        Raises
+        ------
+        ValueError
+            If the position is not provided or is not a SkyCoord object.
+
+        Notes
+        -----
+        This method queries all HEASARC catalogs for sources near the specified position.
+        The results include the table name, number of matches, table description, regime,
+        mission, and object type for each catalog.
+        
+        The user can select the table name(s) of interest and then use the query_object(), query_region(), etc.
+
+        The query uses the HEASARC TAP service to search position-only master tables efficiently.
+
+        Examples
+        --------
+        >>> from astropy.coordinates import SkyCoord
+        >>> from astropy import units as u
+        >>> position = SkyCoord(ra=10.68458, dec=41.26917, unit=(u.degree, u.degree), frame='icrs')
+        >>> result = Heasarc.query_all(position)
+        >>> print(result)
+        
+        Returns
+        -------
+        table : A `~astropy.table.Table` object.
+        
+        """
+        if position is None or not isinstance(position, coordinates.SkyCoord):
+            raise ValueError("A valid SkyCoord position must be provided.")
+        ra, dec = position.ra.degree, position.dec.degree
+        full_query = self._query_matches(str(ra), str(dec))
+
+        if get_query_payload:
+            return full_query
+
+        response = self.query_tap(query=full_query, maxrec=maxrec)
+        
+        # save the response in case we want to use it later
+        self._last_result = response
+
+        table = response.to_table()
+        if len(table) == 0:
+            warnings.warn(
+                NoResultsWarning("No matching rows were found in the query.")
+            )
+        return table
+    
+
     def locate_data(self, query_result=None, catalog_name=None):
         """Get links to data products
         Use vo/datalinks to query the data products for some query_results.
@@ -772,3 +920,5 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
 
 Heasarc = HeasarcClass()
+
+
