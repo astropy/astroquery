@@ -14,7 +14,7 @@ class Conf(_config.ConfigNamespace):
     """
     # http://www.ivoa.net/documents/RegTAP/20171206/WD-RegTAP-1.1-20171206.pdf
     conesearch_master_list = _config.ConfigItem(
-        'https://vao.stsci.edu/regtap/tapservice.aspx/sync?lang=adql&'
+        'https://mast.stsci.edu/vo-tap/api/v0.1/registry/sync?lang=ADQL&'
         'query=SELECT%20*%20FROM%20rr.capability%20'
         'NATURAL%20JOIN%20rr.interface%20NATURAL%20JOIN%20rr.resource%20'
         'NATURAL%20JOIN%20rr.res_subject%20WHERE%20'

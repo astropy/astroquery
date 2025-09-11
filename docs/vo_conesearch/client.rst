@@ -131,7 +131,7 @@ here, we silently ignore all the warnings:
 ...     registry_db = VOSDatabase.from_registry(
 ...         validator_conf.conesearch_master_list, encoding='binary',
 ...         cache=False)
-Downloading http://vao.stsci.edu/regtap/tapservice.aspx/...
+Downloading https://mast.stsci.edu/vo-tap/api/v0.1/registry/sync...
 |==========================================|  44M/ 44M (100.00%)         0s
 >>> len(registry_db)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
 21326
