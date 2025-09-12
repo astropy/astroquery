@@ -11,13 +11,12 @@ import os
 import pprint
 import tarfile
 import zipfile
-from collections.abc import Iterable
-from datetime import datetime
-
 from astropy import units
 from astropy import units as u
 from astropy.coordinates import Angle
 from astropy.units import Quantity
+from collections.abc import Iterable
+from datetime import datetime
 from requests.exceptions import HTTPError
 
 from astroquery import log
@@ -408,7 +407,8 @@ class EuclidClass(TapPlus):
             height_quantity = self.__get_quantity_input(height, "height")
             width_deg = width_quantity.to(units.deg)
             height_deg = height_quantity.to(units.deg)
-            query = ("SELECT DISTANCE(POINT('ICRS'," + self.main_table_ra + "," + self.main_table_dec + "), \
+            query = ("SELECT " + (("TOP " + str(self.ROW_LIMIT)) if self.ROW_LIMIT > 0 else "")
+                     + " DISTANCE(POINT('ICRS'," + self.main_table_ra + "," + self.main_table_dec + "), \
                 POINT('ICRS'," + str(ra) + "," + str(dec) + ")) AS dist, * \
                 FROM " + self.main_table + " WHERE CONTAINS(\
                 POINT('ICRS'," + self.main_table_ra + "," + self.main_table_dec + "),\
@@ -560,12 +560,10 @@ class EuclidClass(TapPlus):
             ra_column_name = self.main_table_ra
             dec_column_name = self.main_table_dec
 
-        """
         if columns:
             columns = ','.join(map(str, columns))
         else:
             columns = "*"
-        """
 
         query = """
                 SELECT
