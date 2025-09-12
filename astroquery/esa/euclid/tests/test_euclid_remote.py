@@ -15,6 +15,7 @@ def test_query_object_columns_with_radius():
 
 
 @pytest.mark.remote_data
+@pytest.mark.filterwarnings("ignore::astropy.units.UnitsWarning")
 def test_query_object_row_limit():
     euclid = EuclidClass()
     coord = SkyCoord(ra=265.8, dec=64.1, unit=(u.degree, u.degree), frame='icrs')
