@@ -145,32 +145,16 @@ def test_parse_nea(patch_get):
     assert len(monthly_update)
 
     # Check size of the files
-    assert len(nea_list) == 26844
-    assert len(updated_nea) == 3366
+    assert len(nea_list) == 12
+    assert len(updated_nea) == 17
     assert len(monthly_update) == 1
 
     # Check some elements of the lists NEA list
     first_neas = Table(names=["NEA"],
                        data=[['433 Eros', '719 Albert', '887 Alinda',
-                              '1036 Ganymed', '1221 Amor', '1566 Icarus',
-                              '1580 Betulia', '1620 Geographos',
-                              '1627 Ivar', '1685 Toro', '1862 Apollo',
-                              '1863 Antinous', '1864 Daedalus',
-                              '1865 Cerberus', '1866 Sisyphus',
-                              '1915 Quetzalcoatl', '1916 Boreas',
-                              '1917 Cuyo', '1943 Anteros',
-                              '1980 Tezcatlipoca', '1981 Midas',
-                              '2059 Baboquivari', '2061 Anza',
-                              '2062 Aten', '2063 Bacchus',
-                              '2100 Ra-Shalom', '2101 Adonis',
-                              '2102 Tantalus', '2135 Aristaeus',
-                              '2201 Oljato', '2202 Pele',
-                              '2212 Hephaistos', '2329 Orthos',
-                              '2340 Hathor', '2368 Beltrovata',
-                              '2608 Seneca', '3102 Krok', '3103 Eger',
-                              '3122 Florence', '3199 Nefertiti']])
+                              '1036 Ganymed', '1221 Amor', '1566 Icarus']])
 
-    assert (nea_list[:40]["NEA"] == first_neas["NEA"]).all()
+    assert (nea_list[:6]["NEA"] == first_neas["NEA"]).all()
     assert nea_list["NEA"][-1] == '6344P-L'
 
     # Updated NEA
@@ -207,7 +191,7 @@ def test_parse_risk(patch_get):
                     'Vel in km/s', 'First Year', 'Last Year', 'IP cum', 'PS cum']
     risk_special_columns = risk_columns[0:8]
 
-    check_table_structure(risk_list, 1216, risk_columns, float_cols=[1, 4, 5, 7, -2, -1],
+    check_table_structure(risk_list, 4, risk_columns, float_cols=[1, 4, 5, 7, -2, -1],
                           int_cols=[6, 8, 9], str_cols=[0, 2], time_cols=[3])
     check_table_structure(risk_list_special, 2, risk_special_columns, float_cols=[4, 5, 7],
                           int_cols=[1, 6], str_cols=[0, 2], time_cols=[3])
@@ -216,9 +200,9 @@ def test_parse_risk(patch_get):
     risk_dict = {}
     risk_dict[0] = ['2021QM1', 50.0, '*', Time('2052-04-02 01:36:00'),
                     0.000298, -2.72, 0, 23.72, 2050, 2054, 0.000298, -2.72]
-    risk_dict[-1] = ['2021KQ2', 4.0, '*', Time('2097-05-21 03:05:00'), 1.26e-11,
+    risk_dict[1] = ['2021KQ2', 4.0, '*', Time('2097-05-21 03:05:00'), 1.26e-11,
                      -13.71, 0, 11.42, 2097, 2097, 1.26e-11, -13.71]
-    risk_dict[608] = ['2013BR15', 30.0, '*', Time('2100-01-02 18:03:00'), 1.21e-07,
+    risk_dict[2] = ['2013BR15', 30.0, '*', Time('2100-01-02 18:03:00'), 1.21e-07,
                       -7.15, 0, 17.98, 2100, 2100, 1.6e-07, -7.03]
     check_table_values(risk_list, risk_dict)
 
@@ -281,14 +265,14 @@ def test_parse_pri(patch_get):
                         'Elong. in deg', 'V in mag', 'Sky uncert.', 'End of Visibility']
     check_table_structure(priority_list, 176, priority_columns,
                           float_cols=[2, 3, 5], int_cols=[0, 4, 6], str_cols=[1], time_cols=[-1])
-    check_table_structure(faint_list, 734, priority_columns,
+    check_table_structure(faint_list, 3, priority_columns,
                           float_cols=[2, 3, 5], int_cols=[0, 4, 6], str_cols=[1], time_cols=[-1])
 
     # Assert tables are not empty and have the right dimension
     assert len(priority_list) == 176
     assert len(priority_list.columns) == 8
 
-    assert len(faint_list) == 734
+    assert len(faint_list) == 3
     assert len(faint_list.columns) == 8
 
     # Check first, last and random mid element
@@ -302,8 +286,8 @@ def test_parse_pri(patch_get):
     # Priority faint list
     faint_dict = {}
     faint_dict[0] = [0, '2012BD77', 13800.0, -36.0, 120, 24.7, 1251, Time('2021-12-26 00:00:00')]
-    faint_dict[-1] = [1, '2021SX3', 83340.0, -6.3, 155, 22.2, 1, Time('2021-12-12 00:00:00')]
-    faint_dict[338] = [0, '2019UO10', 84960.0, -37.9, 135, 24.9, 9185, Time('2021-10-13 00:00:00')]
+    faint_dict[1] = [1, '2021SX3', 83340.0, -6.3, 155, 22.2, 1, Time('2021-12-12 00:00:00')]
+    faint_dict[2] = [0, '2019UO10', 84960.0, -37.9, 135, 24.9, 9185, Time('2021-10-13 00:00:00')]
     check_table_values(faint_list, faint_dict)
 
 
@@ -322,18 +306,18 @@ def test_parse_encounter(patch_get):
     encounter_columns = ['Name/desig', 'Planet', 'Date', 'Time approach', 'Time uncert',
                          'Distance', 'Minimum distance', 'Distance uncertainty', 'Width',
                          'Stretch', 'Probability', 'Velocity', 'Max Mag']
-    check_table_structure(encounter_list, 4770, encounter_columns,
+    check_table_structure(encounter_list, 3, encounter_columns,
                           float_cols=slice(3, None), str_cols=[0, 1], time_cols=[2])
 
     encounter_dict = {}
     encounter_dict[0] = ['433', 'EARTH', Time('1975-01-23T07:38:40.992'), 42435.31853255,
                          1.260737144e-05, 0.151134153855255, 0.1511340949471563, 1.962635286041312e-08,
                          1.322e-08, 6.103e-08, 1.0, 5.82530834, 7.445]
-    encounter_dict[-1] = ['2002MX', 'EARTH', Time('2002-06-12T02:00:30.816'), 52437.083685526,
+    encounter_dict[1] = ['2002MX', 'EARTH', Time('2002-06-12T02:00:30.816'), 52437.083685526,
                           0.0002355862863, 0.04148563561205888, 0.04128486992493158, 6.692189692154938e-05,
                           2.634e-07, 6.692e-05, 1.0, 25.57598245, 17.59]
     mid_time = Time.strptime("2054/01/11", '%Y/%m/%d') + TimeDelta(.31202, format="jd")
-    encounter_dict[2000] = ['2000AA6', 'EARTH', mid_time, 71278.312017212,
+    encounter_dict[2] = ['2000AA6', 'EARTH', mid_time, 71278.312017212,
                             4.189937108e-05, 0.03820285368375039, 0.03820063181644156, 7.40623369935997e-07,
                             3.635e-08, 7.571e-07, 1.0, 17.16618231, 18.213]
 
@@ -375,16 +359,16 @@ def test_parse_catalogues(patch_get):
     cat_columns = ['Name', 'Epoch (MJD)', 'a', 'e', 'i', 'long. node', 'arg. peric.', 'mean anomaly',
                    'absolute magnitude', 'slope param.', 'non-grav param.']
 
-    check_table_structure(cat_current, 27104, cat_columns, float_cols=slice(1, 10), str_cols=[0], int_cols=[-1])
-    check_table_structure(cat_middle, 27104, cat_columns, float_cols=slice(1, 10), str_cols=[0], int_cols=[-1])
+    check_table_structure(cat_current, 3, cat_columns, float_cols=slice(1, 10), str_cols=[0], int_cols=[-1])
+    check_table_structure(cat_middle, 3, cat_columns, float_cols=slice(1, 10), str_cols=[0], int_cols=[-1])
 
     # Check first, last and random mid element
     cat_dict = {}
     cat_dict[0] = ['433', 59600.000000, 1.4582731004919933E+00, 2.2272733518842894E-01, 1.0828461192253641E+01,
                    3.0429635501527531E+02, 1.7889716943295548E+02, 2.4690411844800099E+02, 10.85, 0.46, 0]
-    cat_dict[-1] = ['6344P-L', 59400.000000, 2.8202277078203988E+00, 6.6155999676965871E-01, 4.6786111836540556E+00,
+    cat_dict[1] = ['6344P-L', 59400.000000, 2.8202277078203988E+00, 6.6155999676965871E-01, 4.6786111836540556E+00,
                     1.8282300248385891E+02, 2.3494660190063559E+02, 3.2386152408344321E+02, 20.40, 0.15, 0]
-    cat_dict[12488] = ['2015GZ', 59400.000000, 2.8059248663363574E+00, 7.1777101854979719E-01, 1.3504485380561094E+01,
+    cat_dict[2] = ['2015GZ', 59400.000000, 2.8059248663363574E+00, 7.1777101854979719E-01, 1.3504485380561094E+01,
                        1.9799756552626015E+01, 1.1456930451775614E+02, 1.2828981992766344E+02, 26.06, 0.15, 0]
     check_table_values(cat_current, cat_dict)
 
@@ -559,12 +543,12 @@ def test_tabs_observations(patch_get):
 
     assert list(opt_obs.meta.keys()) == ['Title', 'Column Info']
     assert opt_obs.meta["Title"] == 'Optical Observations'
-    check_table_structure(opt_obs, 13680, opt_obs_cols, float_cols=[5, 7, 8, 11, 13, 14, 16, 17, 18, 20, 21, 24],
-                          int_cols=[0, 25, 26], str_cols=[1, 2, 3, 6, 9, 10, 12, 15, 19, 22, 23], time_cols=[4])
+    check_table_structure(opt_obs, 21, opt_obs_cols, float_cols=[5, 7, 8, 11, 10, 13, 14, 16, 17, 18, 20, 21, 24],
+                          int_cols=[0, 25, 26], str_cols=[1, 2, 3, 6, 9, 12, 15, 19, 22, 23], time_cols=[4])
 
     assert list(sat_obs.meta.keys()) == ['Title']
     assert sat_obs.meta["Title"] == 'Satellite  Observations'
-    check_table_structure(sat_obs, 1772, sat_obs_cols, float_cols=[6, 7, 8], int_cols=[0, 3, 5], str_cols=[1, 2, 9],
+    check_table_structure(sat_obs, 5, sat_obs_cols, float_cols=[6, 7, 8], int_cols=[0, 3, 5], str_cols=[1, 2, 9],
                           time_cols=[4])
 
     assert list(rad_obs.meta.keys()) == ['Title', 'Column Info']
@@ -587,16 +571,16 @@ def test_tabs_observations(patch_get):
     assert list(opt_obs.meta.keys()) == ['Title', 'Column Info']
     assert opt_obs.meta["Title"] == 'Optical Observations'
 
-    check_table_structure(opt_obs, 4468, opt_obs_cols, float_cols=[5, 7, 8, 11, 13, 14, 16, 17, 18, 20, 21, 24],
-                          int_cols=[0, 25, 26], str_cols=[1, 2, 3, 6, 9, 10, 12, 15, 19, 22, 23], time_cols=[4])
+    check_table_structure(opt_obs, 22, opt_obs_cols, float_cols=[5, 7, 8, 10, 11, 13, 14, 16, 17, 18, 20, 21, 24],
+                          int_cols=[0, 25, 26], str_cols=[1, 2, 3, 6, 9, 12, 15, 19, 22, 23], time_cols=[4])
     row_time = Time.strptime("1999/04/20", '%Y/%m/%d') + TimeDelta(.458706, format="jd")
-    opt_dict = {290: [1685, 'O', 'C', '2', row_time, 1e-06, '17:25:59.714', 0.01261, 0.5, 'F', '0.000', -0.296,
+    opt_dict = {1: [1685, 'O', 'C', '2', row_time, 1e-06, '17:25:59.714', 0.01261, 0.5, 'F', 0.000, -0.296,
                       '-32:45:54.61', 0.01, 0.5, 'F', 0.0, -0.062, 17.05, 'V', 0.5, -0.12, 'l', '689', 0.61, 1, 1]}
     check_table_values(opt_obs, opt_dict)
 
     assert list(sat_obs.meta.keys()) == ['Title']
     assert sat_obs.meta["Title"] == 'Satellite  Observations'
-    check_table_structure(sat_obs, 664, sat_obs_cols, float_cols=[6, 7, 8], int_cols=[0, 3, 5], str_cols=[1, 2, 9],
+    check_table_structure(sat_obs, 10, sat_obs_cols, float_cols=[6, 7, 8], int_cols=[0, 3, 5], str_cols=[1, 2, 9],
                           time_cols=[4])
     row_time = Time.strptime("2010/02/11", '%Y/%m/%d') + TimeDelta(.95325, format="jd")
     sat_dict = {4: [1685, 'S', 's', 'masked', row_time, 1, -4304.3019, -4326.899999999999, -3247.9272, 'C51']}
