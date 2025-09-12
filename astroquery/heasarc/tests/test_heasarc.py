@@ -79,6 +79,16 @@ def mock_meta():
         ))
         yield meta
 
+@pytest.fixture
+def mock_matches():
+    with patch('astroquery.heasarc.core.HeasarcClass._constraint', new_callable=PropertyMock) as matches:
+        matches.return_value = Table({
+            'table_name':['intscw','hete2tl','iram30mlog'],
+            'count':["12626","8901","7943"],
+            'mission':['integral','hete-2','']
+        })
+        yield matches
+
 
 @pytest.mark.parametrize("coordinates", OBJ_LIST)
 @pytest.mark.parametrize("radius", SIZE_LIST)
@@ -440,3 +450,13 @@ def test_s3_mock_directory(s3_mock):
         assert os.path.exists(f"{tmpdir}/location/file1.txt")
         assert os.path.exists(f"{tmpdir}/location/sub/file2.txt")
         assert os.path.exists(f"{tmpdir}/location/sub/sub2/file3.txt")
+
+def test__get_vec():
+    # Test column name input
+    assert HeasarcClass._get_vec("a.ra", "a.dec") == ("a.__x_ra_dec", "a.__y_ra_dec", "a.__z_ra_dec")
+    # Test numeric input
+    actual = HeasarcClass._get_vec("217.0","-31.7")
+    desired = (-0.5120309075160554, -0.6794879643287802, -0.5254716510722678)
+    # Convert to float for comparison
+    assert all(abs(d - a) < 0.5 * (10 ** (-6)) for d, a in zip(desired, actual))
+

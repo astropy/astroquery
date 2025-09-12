@@ -469,32 +469,26 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
     def _get_vec(ra: str, dec: str) -> Tuple[str, str, str]:
         """
         If the input is a string name of a column like "a.ra", then this routine
-        constructs the unit vector column names that can be added to the SQL query.
-        If the input is simply a number, then it calls _compute_vec to actually
-        calculate the unit vector and return the value as a string to be added to the
+        constructs the unit vector column names that can be added to the SQL query
+        to represent the unit vector. If the input is a number, then it will actually
+        calculate the unit vector and return the values as strings to be added to the
         SQL query.  
         
-        The former is used to fetch pre-computed unit vectors associated with the table 
-        being queried. The latter is used to compute the input position unit vector only once.  
+        The former is used to fetch pre-computed unit vectors columns associated with 
+        the table being queried. The latter is used to compute the input position unit 
+        vector only once.  
         """
-        if 'a.' in ra:  # Assuming this indicates a column name
+        try:
+            r, d = np.radians([float(ra), float(dec)])
+            return (
+                np.cos(d) * np.sin(r),
+                np.cos(d) * np.cos(r),
+                np.sin(d)
+            )
+        except ValueError:
             prefix = ra.split('.')[0]  # e.g., 'a' from 'a.ra'
             return (f"{prefix}.__x_ra_dec", f"{prefix}.__y_ra_dec", f"{prefix}.__z_ra_dec")
-        else:
-            return HeasarcClass._compute_vec(float(ra), float(dec))
 
-    def _compute_vec(ra: float, dec: float) -> Tuple[float, float, float]:
-        """
-        Converts RA and DEC to a tuple representing the equivalent unit vector.  (Algorithm copied
-        from Xamin, so using its reference frame.)
-        
-        """
-        r, d = np.radians([ra, dec])
-        return (
-            np.cos(d) * np.sin(r),
-            np.cos(d) * np.cos(r),
-            np.sin(d)
-        )
 
     def _constraint(ra: str, dec: str, large: bool) -> str:
         """
