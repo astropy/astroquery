@@ -282,8 +282,7 @@ In the following example, for the Clusters of Galaxies category, and the group G
 
 This query performs a cone search centered at the specified ra/dec coordinates with the provided radius argument.
 
-.. Skipping authentication requiring examples
-.. doctest-skip::
+.. doctest-remote-data::
 
   >>> #example cone search for source NGC6505
   >>> from astroquery.esa.euclid import Euclid
@@ -298,21 +297,20 @@ This query performs a cone search centered at the specified ra/dec coordinates w
   Found 27 results
   >>> cone_results['tile_index', 'creation_date', 'ra', 'dec', 'file_name', 'file_path', 'datalabs_path', 'filter_name', 'dist'][:5]
   <Table length=5>
-  tile_index      creation_date           ra       dec                                         file_name                                                              file_path                                       datalabs_path                filter_name         dist
-    int64             str23            float64   float64                                         str88                                                                  str55                                             str43                       str11          float64
-  ---------- ----------------------- ----------- ------- ------------------------------------------------------------------------------------- ------------------------------------------------------- ------------------------------------------- ----------- -------------------
-   102158889 2024-10-26T14:01:21.038 267.3807789 65.4983   EUC_MER_BGSUB-MOSAIC-CFIS-R_TILE102158889-4366B7_20241024T203624.450577Z_00.00.fits /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/MEGACAM /data/euclid_q1/Q1_R1/MER/102158889/MEGACAM   MEGACAM_r 0.16895922479034217
-   102158889 2024-10-26T13:50:13.676 267.3807789 65.4983 EUC_MER_BGSUB-MOSAIC-WISHES-G_TILE102158889-3DC3C3_20241024T205647.635112Z_00.00.fits     /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/HSC     /data/euclid_q1/Q1_R1/MER/102158889/HSC       HSC_g 0.16895922479034217
-   102158889 2024-10-26T13:37:09.628 267.3807789 65.4983    EUC_MER_BGSUB-MOSAIC-NIR-Y_TILE102158889-AC6585_20241024T225321.344048Z_00.00.fits    /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/NISP    /data/euclid_q1/Q1_R1/MER/102158889/NISP       NIR_Y 0.16895922479034217
-   102158889  2024-10-26T14:05:09.98 267.3807789 65.4983    EUC_MER_BGSUB-MOSAIC-CFIS-U_TILE102158889-9E97F_20241024T204431.839748Z_00.00.fits /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/MEGACAM /data/euclid_q1/Q1_R1/MER/102158889/MEGACAM   MEGACAM_u 0.16895922479034217
-   102158889 2024-10-26T13:10:32.453 267.3807789 65.4983    EUC_MER_BGSUB-MOSAIC-NIR-H_TILE102158889-ED035A_20241024T212936.705156Z_00.00.fits    /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/NISP    /data/euclid_q1/Q1_R1/MER/102158889/NISP       NIR_H 0.16895922479034217
+  tile_index      creation_date           ra       dec   ...                        file_path                                       datalabs_path                filter_name         dist
+    int64             str23            float64   float64 ...                          str55                                             str43                       str11          float64
+  ---------- ----------------------- ----------- ------- ... ------------------------------------------------------- ------------------------------------------- ----------- -------------------
+   102158889 2024-10-26T14:01:21.038 267.3807789 65.4983 ... /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/MEGACAM /data/euclid_q1/Q1_R1/MER/102158889/MEGACAM   MEGACAM_r 0.16895922479034217
+   102158889 2024-10-26T13:50:13.676 267.3807789 65.4983 ...     /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/HSC     /data/euclid_q1/Q1_R1/MER/102158889/HSC       HSC_g 0.16895922479034217
+   102158889 2024-10-26T13:37:09.628 267.3807789 65.4983 ...    /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/NISP    /data/euclid_q1/Q1_R1/MER/102158889/NISP       NIR_Y 0.16895922479034217
+   102158889  2024-10-26T14:05:09.98 267.3807789 65.4983 ... /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/MEGACAM /data/euclid_q1/Q1_R1/MER/102158889/MEGACAM   MEGACAM_u 0.16895922479034217
+   102158889 2024-10-26T13:10:32.453 267.3807789 65.4983 ...    /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/NISP    /data/euclid_q1/Q1_R1/MER/102158889/NISP       NIR_H 0.16895922479034217
 
 
 
 Queries return a limited number of rows controlled by ``Euclid.ROW_LIMIT``. To change the default behaviour set this appropriately.
 
-.. Skipping authentication requiring examples
-.. doctest-skip::
+.. doctest-remote-data::
 
   >>> Euclid.ROW_LIMIT = 2
   >>> job = Euclid.cone_search(coordinate=coord, radius=radius, table_name="sedm.mosaic_product", ra_column_name="ra", dec_column_name="dec", columns="*", async_job=True)
@@ -336,9 +334,7 @@ The following example searches for all the sources contained in an squared regio
 
 The method returns the job results as astropy.table
 
-
-.. Skipping authentication requiring examples
-.. doctest-skip::
+.. doctest-remote-data::
 
   >>> # Search for objects around a given position with the default catalog catalogue.mer_catalogue
   >>> from astroquery.esa.euclid import Euclid
@@ -371,8 +367,7 @@ Synchronous queries like this one return a limited number of rows -> 2000
 
 The previous query can be executed as an asynchronous version:
 
-.. Skipping authentication requiring examples
-.. doctest-skip::
+.. doctest-remote-data::
 
   >>> from astroquery.esa.euclid import Euclid
   >>> from astropy.coordinates import SkyCoord
@@ -835,8 +830,7 @@ In the Euclid archive user tables can be shared among user groups.
 
 To obtain a list of the tables shared to a user type the following:
 
-.. Skipping authentication requiring examples
-.. doctest-skip::
+.. doctest-remote-data::
 
   >>> from astroquery.esa.euclid import Euclid
   >>> tables = Euclid.load_tables(only_names=True, include_shared_tables=True)
@@ -977,7 +971,7 @@ table named: user_<your_login_name>.'t'<job_id>:
 
   >>> from astroquery.esa.euclid import Euclid
   >>> Euclid.login()
-  >>> job_1 = Euclid.launch_job_async("select top 10 * from Eucliddr3.Euclid_source")
+  >>> job_1 = Euclid.launch_job_async("select top 10 * from catalogue.mer_catalogue")
   >>> Euclid.upload_table_from_job(job=job_1)
   Created table 't1539932994481O' from job: '1539932994481O'.
 
