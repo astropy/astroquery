@@ -453,10 +453,55 @@ def test_s3_mock_directory(s3_mock):
 
 def test__get_vec():
     # Test column name input
-    assert HeasarcClass._get_vec("a.ra", "a.dec") == ("a.__x_ra_dec", "a.__y_ra_dec", "a.__z_ra_dec")
+    assert HeasarcClass._get_vec("a.ra", "a.dec") == \
+        ("a.__x_ra_dec", "a.__y_ra_dec", "a.__z_ra_dec")
     # Test numeric input
     actual = HeasarcClass._get_vec("217.0","-31.7")
     desired = (-0.5120309075160554, -0.6794879643287802, -0.5254716510722678)
     # Convert to float for comparison
     assert all(abs(d - a) < 0.5 * (10 ** (-6)) for d, a in zip(desired, actual))
+
+def test__constraint_matches():
+    #  Testing all together because it's easier to read this way.
+    constraint_small = HeasarcClass._constraint("217.0","-31.7",large=False) 
+    desired_small =  """
+            ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 + a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr*60/60))))) 
+            and (a.dec between -31.7 - a.dsr*60/60 and -31.7 + a.dsr*60/60)
+            and (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 + a.__z_ra_dec*-0.5254716510722678 > 0.9998476951563913)
+            and (a.dec between -32.7 and -30.7)
+            )
+            """
+    assert constraint_small == desired_small 
+    
+    constraint_large = HeasarcClass._constraint("217.0","-31.7",large=True) 
+    desired_large = """
+            ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 + a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr*60/60))))) 
+            and (a.dec between -31.7 - a.dsr*60/60 and -31.7 + a.dsr*60/60) )
+            """
+    assert constraint_large == desired_large
+    
+    constraint_full = HeasarcClass._query_matches("217.0","-31.7")
+    desired_full = f"""
+            select  b.name  as "table_name",  count(*)  as "count",  b.description  as
+            "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
+            as "obj_type"
+            from master_table.pos_small as a,master_table.indexview as b
+            where  (  (  a.table_name  =  b.name  )  ) and  
+            {desired_small}
+            group by  b.name , b.description , b.regime , b.mission , b.type
+
+            union all
+
+            select  b.name  as "table_name",  count(*)  as "count",  b.description  as
+            "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
+            as "obj_type"
+            from master_table.pos_big as a,master_table.indexview as b
+            where  (  (  a.table_name  =  b.name  )  ) and  
+            {desired_large}
+            group by  b.name , b.description , b.regime , b.mission , b.type
+            order by count desc
+            """
+    
+    assert constraint_full == desired_full
+
 

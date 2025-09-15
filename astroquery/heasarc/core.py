@@ -523,7 +523,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             )
             """
 
-    def _query_matches(self, ra: str, dec: str) -> str:
+    def _query_matches(ra: str, dec: str) -> str:
         """
         Constructs the full SQL query including the spatial constraint.  Note that this
         queries two tables, as the HEASARC database has split the master tables for 
@@ -536,7 +536,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
             as "obj_type"
             from master_table.pos_small as a,master_table.indexview as b
-            where  (  (  a.table_name  =  b.name  )  ) and  {constraint_small}
+            where  (  (  a.table_name  =  b.name  )  ) and  
+            {constraint_small}
             group by  b.name , b.description , b.regime , b.mission , b.type
 
             union all
@@ -545,7 +546,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
             as "obj_type"
             from master_table.pos_big as a,master_table.indexview as b
-            where  (  (  a.table_name  =  b.name  )  ) and  {constraint_large}
+            where  (  (  a.table_name  =  b.name  )  ) and  
+            {constraint_large}
             group by  b.name , b.description , b.regime , b.mission , b.type
             order by count desc
             """)
@@ -605,7 +607,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         if position is None or not isinstance(position, coordinates.SkyCoord):
             raise ValueError("A valid SkyCoord position must be provided.")
         ra, dec = position.ra.degree, position.dec.degree
-        full_query = self._query_matches(str(ra), str(dec))
+        full_query = HeasarcClass._query_matches(str(ra), str(dec))
 
         if get_query_payload:
             return full_query
