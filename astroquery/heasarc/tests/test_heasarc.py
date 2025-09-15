@@ -79,17 +79,6 @@ def mock_meta():
         ))
         yield meta
 
-@pytest.fixture
-def mock_matches():
-    with patch('astroquery.heasarc.core.HeasarcClass._constraint', new_callable=PropertyMock) as matches:
-        matches.return_value = Table({
-            'table_name':['intscw','hete2tl','iram30mlog'],
-            'count':["12626","8901","7943"],
-            'mission':['integral','hete-2','']
-        })
-        yield matches
-
-
 @pytest.mark.parametrize("coordinates", OBJ_LIST)
 @pytest.mark.parametrize("radius", SIZE_LIST)
 @pytest.mark.parametrize("offset", [True, False])
