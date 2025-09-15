@@ -476,7 +476,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         
         The former is used to fetch pre-computed unit vectors columns associated with 
         the table being queried. The latter is used to compute the input position unit 
-        vector only once.  
+        vector only once and put the numeric value in the query constraint.  
         """
         try:
             r, d = np.radians([float(ra), float(dec)])
@@ -488,13 +488,19 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         except ValueError:
             prefix = ra.split('.')[0]  # e.g., 'a' from 'a.ra'
             return (f"{prefix}.__x_ra_dec", f"{prefix}.__y_ra_dec", f"{prefix}.__z_ra_dec")
+        except:
+            raise
 
 
-    def _constraint(ra: str, dec: str, large: bool) -> str:
+    def _fast_geometry_constraint(ra: str, dec: str, large: bool) -> str:
         """
         Construct the spatial constraint to be added to the WHERE clause.  It compares
         the input position with the catalog's pre-computed unit vector columns
-        with the computation optimized for speed.  
+        with the computation optimized for speed.  The optimization was done by Tom McGlynn
+        for the Xamin GUI and the algorithm copied here.  
+        
+        The master position tables are split into those where the default sensible search
+        radius is larger or smaller than 1 degree.  
         """
         vec0 = HeasarcClass._get_vec("a.ra", "a.dec")
         vec1 = HeasarcClass._get_vec(ra, dec)
@@ -503,23 +509,21 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         # defined by HEASARC curators for each table.
         radius_condition = f"{dot_product} > (cos(radians((a.dsr*60/60))))"  
         dec_condition = f"a.dec between {dec} - a.dsr*60/60 and {dec} + a.dsr*60/60"
-        # query looks right but gives different results
-        #return f"( ({radius_condition}) and ({dec_condition}) and ({vec_condition}) and ({dec_condition2}) )"
-        # query looks missing something but gives the same results but slower.  Huh?
         if large:
             return f"""
             ( ({radius_condition}) 
             and ({dec_condition}) )
             """
         else:
-            # additional constraints on small table
-            inner_dec_condition_1deg = f"{dot_product} > {np.cos(np.radians(1.0))}"
-            outer_dec_condition_1deg = f"a.dec between {float(dec) - 1} and {float(dec)+1}"
+            # Additional constraints on tables with search radii less than 1 deg,  
+            #  which speeds up the whole thing.  
+            radius_condition_1deg = f"{dot_product} > {np.cos(np.radians(1.0))}"
+            dec_condition_1deg = f"a.dec between {float(dec) - 1} and {float(dec)+1}"
             return f"""
             ( ({radius_condition}) 
             and ({dec_condition})
-            and ({inner_dec_condition_1deg})
-            and ({outer_dec_condition_1deg})
+            and ({radius_condition_1deg})
+            and ({dec_condition_1deg})
             )
             """
 
@@ -529,8 +533,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         queries two tables, as the HEASARC database has split the master tables for 
         efficiency.
         """
-        constraint_small = HeasarcClass._constraint(ra, dec,large=False)
-        constraint_large = HeasarcClass._constraint(ra, dec,large=True)
+        constraint_small = HeasarcClass._fast_geometry_constraint(ra, dec,large=False)
+        constraint_large = HeasarcClass._fast_geometry_constraint(ra, dec,large=True)
         return(f"""
             select  b.name  as "table_name",  count(*)  as "count",  b.description  as
             "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
@@ -612,7 +616,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         if get_query_payload:
             return full_query
 
-        response = self.query_tap(query=full_query, maxrec=maxrec)
+        response = self.query_tap(query=full_query, maxrec=maxrec)  
         
         # save the response in case we want to use it later
         self._last_result = response
