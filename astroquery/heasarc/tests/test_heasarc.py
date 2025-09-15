@@ -501,7 +501,8 @@ def test__constraint_matches():
             group by  b.name , b.description , b.regime , b.mission , b.type
             order by count desc
             """
-    
     assert constraint_full == desired_full
-
+    heasarc = HeasarcClass()
+    coords = SkyCoord(217.0,-31.7, frame='icrs', unit='deg')
+    assert heasarc.query_all(coords, get_query_payload=True) == desired_full
 
