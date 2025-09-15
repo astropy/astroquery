@@ -282,6 +282,10 @@ def resolve_object(objectname, *, resolver=None, resolve_all=False):
         log.debug(f'Coordinates resolved using {obj_results[0]["resolver"]}: {coord}')
         resolved_coords[object] = coord
 
+    # If no objects could be resolved, raise an error
+    if not resolved_coords:
+        raise ResolverError("Could not resolve any of the given object names to sky positions.")
+
     # If input was a single object name, return a single SkyCoord object or dict
     return list(resolved_coords.values())[0] if single else resolved_coords
 

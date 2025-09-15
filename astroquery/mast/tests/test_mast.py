@@ -645,6 +645,13 @@ def test_resolve_object_multi(patch_post):
         assert isinstance(obj_dict, dict)
         assert isinstance(obj_dict["SIMBAD"], SkyCoord)
 
+    # Error if none of the objects can be resolved
+    with pytest.warns(InputWarning, match='Could not resolve "nonexisting1" to a sky position.'):
+        with pytest.warns(InputWarning, match='Could not resolve "nonexisting2" to a sky position.'):
+            with pytest.raises(ResolverError, match='Could not resolve any of the given object names to '
+                               'sky positions.'):
+                mast.Mast.resolve_object(["nonexisting1", "nonexisting2"])
+
 
 def test_login_logout(patch_post):
     test_token = "56a9cf3df4c04052atest43feb87f282"
