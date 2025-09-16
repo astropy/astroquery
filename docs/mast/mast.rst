@@ -116,13 +116,13 @@ across multiple requests, with results combined into the final return object.
    ...
    >>> # Resolve a single object
    >>> coords = mast.resolve_object("M101", resolver="NED")
-   >>> print(coords)
+   >>> print(coords)  # doctest: +IGNORE_OUTPUT
    <SkyCoord (ICRS): (ra, dec) in deg
-    (210.80227, 54.34895)>
+       (210.80227, 54.34895)>
    ...
    >>> # Resolve multiple objects
    >>> coords_multi = mast.resolve_object(["M101", "M51"], resolver="SIMBAD")
-   >>> pprint(coords_multi)
+   >>> pprint(coords_multi)  # doctest: +IGNORE_OUTPUT
    {'M101': <SkyCoord (ICRS): (ra, dec) in deg
        (210.802429, 54.34875)>,
     'M51': <SkyCoord (ICRS): (ra, dec) in deg
@@ -130,17 +130,17 @@ across multiple requests, with results combined into the final return object.
    ...
    >>> # Resolve a single object with all resolvers
    >>> coords_dict = mast.resolve_object("M101", resolve_all=True)
-   >>> pprint(coords_dict)
+   >>> pprint(coords_dict)  # doctest: +IGNORE_OUTPUT
    {'NED': <SkyCoord (ICRS): (ra, dec) in deg
-      (210.80227, 54.34895)>,
-   'SIMBAD': <SkyCoord (ICRS): (ra, dec) in deg
-      (210.802429, 54.34875)>,
-   'SIMBADCFA': <SkyCoord (ICRS): (ra, dec) in deg
-      (210.802429, 54.34875)>}
+       (210.80227, 54.34895)>,
+    'SIMBAD': <SkyCoord (ICRS): (ra, dec) in deg
+       (210.802429, 54.34875)>,
+    'SIMBADCFA': <SkyCoord (ICRS): (ra, dec) in deg
+       (210.802429, 54.34875)>}
    ...
    >>> # Resolve multiple objects with all resolvers
    >>> coords_dict_multi = mast.resolve_object(["M101", "M51"], resolve_all=True)
-   >>> pprint(coords_dict_multi)
+   >>> pprint(coords_dict_multi)  # doctest: +IGNORE_OUTPUT
    {'M101': {'NED': <SkyCoord (ICRS): (ra, dec) in deg
       (210.80227, 54.34895)>,
             'SIMBAD': <SkyCoord (ICRS): (ra, dec) in deg

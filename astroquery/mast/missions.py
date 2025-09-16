@@ -444,10 +444,12 @@ class MastMissionsClass(MastQueryWithLogin):
             max_batch=1000,
             param_key="dataset_ids",
             request_func=lambda p: self._service_api_connection.missions_request_async(self.service, p),
-            extract_func=lambda r: r,  # missions_request_async already returns one result
+            extract_func=lambda r: [r],  # missions_request_async already returns one result
             desc=f"Fetching products for {len(datasets)} unique datasets"
         )
-        return results
+
+        # Return a list of responses only if multiple requests were made
+        return results[0] if len(results) == 1 else results
 
     def get_unique_product_list(self, datasets):
         """

@@ -135,7 +135,6 @@ def _batched_request(
 
                 # Extend results with new response
                 new_resp = extract_func(resp)
-                new_resp = new_resp if isinstance(new_resp, list) else [new_resp]
                 results.extend(new_resp)
 
                 # Update progress bar
