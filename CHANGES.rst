@@ -67,6 +67,7 @@ heasarc
 - Heasarc.locate_data returns empty rows with an error in the error_message column if there are
   no data associated with that row rather than filtering it out. [#3275]
 - Heasarc.locate_data changed to use POST request instead of GET to accomodate large requests. [#3356]
+- Preserve size of mask when all values are False in HeasarcClass.locate_data [#3411]
 
 imcce
 ^^^^^
