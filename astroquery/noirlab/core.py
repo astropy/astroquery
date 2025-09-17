@@ -7,9 +7,7 @@ This does DB access through web-services.
 import astropy.io.fits as fits
 import astropy.table
 from ..query import BaseQuery
-from ..utils import async_to_sync
 from ..exceptions import RemoteServiceError
-# from ..utils.class_or_instance import class_or_instance
 from . import conf
 
 

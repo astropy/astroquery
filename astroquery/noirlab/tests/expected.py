@@ -322,4 +322,4 @@ get_file = {'DATE': '2009-09-06T20:13:15',
 
 version = '7.0'
 
-get_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU4MjI2NzI3LCJpYXQiOjE3NTgxNDAzMjcsImp0aSI6IjA3MmZmNDk3ZmI4MTRkNGViZjc4NDJlMDQ0NjQ2NDAxIiwidXNlcl9pZCI6MTMwNzIsImVtYWlsIjoibm9ib2R5QHVuaXZlcnNpdHkuZWR1In0.zbwLgZpaE1B0qzcJFGd5JnLRoE2nB3QMYRoWEGqPxvA"
+get_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
