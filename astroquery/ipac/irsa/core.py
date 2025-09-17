@@ -315,7 +315,7 @@ class IrsaClass(BaseVOQuery):
             If False returns a dictionary of the table names and their description.
         filter : str or None
             If specified we only return catalogs when their catalog_name or the short description
-            contains the filter string (case-insensitive). Note this may not be all the relevant catalogs 
+            contains the filter string (case-insensitive). Note this may not be all the relevant catalogs
             from a given mission, do consult the unfiltered list when in doubt.
         include_metadata_tables : bool
             If True returns not just the catalogs but all table holdings including the image metadata tables.
@@ -333,7 +333,7 @@ class IrsaClass(BaseVOQuery):
 
         if filter:
             filter = filter.lower()
-            mask = [filter in name.lower() or filter in description.lower() 
+            mask = [filter in name.lower() or filter in description.lower()
                     for name, description in tap_tables['table_name', 'description']]
             tap_tables = tap_tables[mask]
 
