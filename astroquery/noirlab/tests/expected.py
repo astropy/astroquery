@@ -314,12 +314,12 @@ categoricals = {'instruments': ['(p)odi',
                                'soar',
                                'wiyn']}
 
-retrieve = {'DATE': '2009-09-06T20:13:15',
+get_file = {'DATE': '2009-09-06T20:13:15',
             'TELESCOP': 'KPNO 4.0 meter telescope',
             'INSTRUME': 'newfirm',
             'CHECKSUM': '7GBmAGAm7GAmAGAm',
             'DATASUM': '0'}
 
-version = '6.0'
+version = '7.0'
 
-get_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'
+get_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU4MjI2NzI3LCJpYXQiOjE3NTgxNDAzMjcsImp0aSI6IjA3MmZmNDk3ZmI4MTRkNGViZjc4NDJlMDQ0NjQ2NDAxIiwidXNlcl9pZCI6MTMwNzIsImVtYWlsIjoibm9ib2R5QHVuaXZlcnNpdHkuZWR1In0.zbwLgZpaE1B0qzcJFGd5JnLRoE2nB3QMYRoWEGqPxvA"

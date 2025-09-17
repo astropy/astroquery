@@ -16,7 +16,6 @@ from . import conf
 __all__ = ['NOIRLab', 'NOIRLabClass']  # specifies what to import
 
 
-@async_to_sync
 class NOIRLabClass(BaseQuery):
     """Search functionality for the NSF NOIRLab Astro Data Archive.
     """
@@ -35,13 +34,13 @@ class NOIRLabClass(BaseQuery):
         a new version of this module will likely need to be used.
         """
         if self._api_version is None:
-            self._api_version = float(self.version())
+            self._api_version = float(self._version())
         return self._api_version
 
     def _validate_version(self):
         """Ensure the API is compatible with the code.
         """
-        KNOWN_GOOD_API_VERSION = 6.0
+        KNOWN_GOOD_API_VERSION = 7.0
         if (int(self.api_version) - int(KNOWN_GOOD_API_VERSION)) >= 1:
             msg = (f'The astroquery.noirlab module is expecting an older '
                    f'version of the {self.NAT_URL} API services. '
@@ -126,7 +125,7 @@ class NOIRLabClass(BaseQuery):
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
         return response.json()
 
-    def query_region(self, coordinate, radius=0.1, hdu=False, cache=True):
+    def query_region(self, coordinate, *, radius=0.1, hdu=False, cache=True):
         """Query for NOIRLab observations by region of the sky.
 
         Given a sky coordinate and radius, returns a `~astropy.table.Table`
@@ -156,7 +155,7 @@ class NOIRLabClass(BaseQuery):
         response.raise_for_status()
         return self._response_to_table(response.json())
 
-    def query_region_async(self, coordinate, radius=0.1, hdu=False, cache=True):
+    def query_region_async(self, coordinate, *, radius=0.1, hdu=False, cache=True):
         """Query for NOIRLab observations by region of the sky.
 
         Given a sky coordinate and radius, returns a `~astropy.table.Table`
@@ -309,7 +308,7 @@ class NOIRLabClass(BaseQuery):
         response.raise_for_status()
         return self._response_to_table(response.json())
 
-    def retrieve(self, fileid):
+    def get_file(self, fileid):
         """Simply fetch a file by MD5 ID.
 
         Parameters
@@ -326,8 +325,11 @@ class NOIRLabClass(BaseQuery):
         hdulist = fits.open(url)
         return hdulist
 
-    def version(self, cache=False):
+    def _version(self, cache=False):
         """Return the version of the REST API.
+
+        Typically, users will use the ``api_version`` property instead
+        of this method.
 
         Parameters
         ----------

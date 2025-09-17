@@ -32,6 +32,8 @@ For more info about our holdings see the
 Acknowledgment
 ~~~~~~~~~~~~~~
 
+Please use the following acknowledgement in your publications when you use NOIRLab data:
+
 This research uses services or data provided by the Astro Data Archive at
 NSF's NOIRLab. NOIRLab is operated by the Association of Universities for
 Research in Astronomy (AURA), Inc. under a cooperative agreement with the

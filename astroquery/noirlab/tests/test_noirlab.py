@@ -147,7 +147,7 @@ def test_categoricals(patch_request):
 def test_version(patch_request):
     """Test the API version.
     """
-    actual = NOIRLab.version()
+    actual = NOIRLab._version()
     assert actual >= float(exp.version)
 
 
@@ -168,7 +168,7 @@ def test__validate_version(patch_request):
     assert e.value.args[0] == ('The astroquery.noirlab module is expecting an older '
                                'version of the https://astroarchive.noirlab.edu API services. '
                                'Please upgrade to latest astroquery.  '
-                               'Expected version 6.0 but got 9.8 from the API.')
+                               'Expected version 7.0 but got 9.8 from the API.')
     NOIRLab._api_version = actual_api
 
 

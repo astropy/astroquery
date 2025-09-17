@@ -9,7 +9,7 @@ Enable with *e.g.*::
 import pytest
 from astropy import units as u
 from astropy.coordinates import SkyCoord
-from .. import NOIRLab
+from .. import NOIRLab, conf
 from . import expected as exp
 
 
@@ -30,6 +30,7 @@ def test_query_region(hdu, radius):
     Ensure query gets at least the set of files we expect.
     It is OK if more files have been added to the remote Archive.
     """
+    conf.timeout = 300
     c = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
     r = NOIRLab().query_region(c, radius=radius, hdu=hdu)
     actual = set(r['md5sum'].tolist())
@@ -76,6 +77,7 @@ def test_categoricals():
 def test_query_file_metadata():
     """Search FILE metadata.
     """
+    conf.timeout = 300
     qspec = {"outfields": ["md5sum",
                            "archive_filename",
                            "original_filename",
@@ -90,6 +92,7 @@ def test_query_file_metadata():
 def test_query_file_metadata_minimal_input():
     """Search FILE metadata with minimum input parameters.
     """
+    conf.timeout = 300
     actual = NOIRLab().query_metadata(qspec=None, sort='md5sum', limit=5)
     assert actual.pformat(max_width=-1) == exp.query_file_metadata_minimal
 
@@ -98,6 +101,7 @@ def test_query_file_metadata_minimal_input():
 def test_query_hdu_metadata():
     """Search HDU metadata.
     """
+    conf.timeout = 300
     qspec = {"outfields": ["md5sum",
                            "archive_filename",
                            "caldat",
@@ -114,11 +118,11 @@ def test_query_hdu_metadata():
 
 
 @pytest.mark.remote_data
-def test_retrieve():
-    hdulist = NOIRLab().retrieve('f92541fdc566dfebac9e7d75e12b5601')
-    for key in exp.retrieve:
+def test_get_file():
+    hdulist = NOIRLab().get_file('f92541fdc566dfebac9e7d75e12b5601')
+    for key in exp.get_file:
         assert key in hdulist[0].header
-        assert hdulist[0].header[key] == exp.retrieve[key]
+        assert hdulist[0].header[key] == exp.get_file[key]
     hdulist.close()
 
 
@@ -126,7 +130,7 @@ def test_retrieve():
 def test_version():
     """Test the API version.
     """
-    actual = NOIRLab().version()
+    actual = NOIRLab()._version()
     assert actual >= float(exp.version)
 
 
