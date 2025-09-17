@@ -29,8 +29,8 @@ The output consists of two fields for each catalog, the name of the catalog
 and a very short description. To query a
 specific catalog, the first field can be entered as the value of the
 ``catalog`` parameter in the `~.astroquery.ipac.irsa.IrsaClass.query_region` method.
-You can also use the ``filter`` argument to return only the catalogs with
-name matches to the specified string.
+You can also use the ``filter`` argument to return only the catalogs with their
+name or short description matching to the specified string (case-insensitive matching).
 
 
 .. doctest-remote-data::

@@ -314,8 +314,9 @@ class IrsaClass(BaseVOQuery):
             If True returns the full schema as a `~astropy.table.Table`.
             If False returns a dictionary of the table names and their description.
         filter : str or None
-            If specified we only return catalogs when their catalog_name
-            contains the filter string (case-insensitive).
+            If specified we only return catalogs when their catalog_name or the short description
+            contains the filter string (case-insensitive). Note this may not be all the relevant catalogs 
+            from a given mission, do consult the unfiltered list when in doubt.
         include_metadata_tables : bool
             If True returns not just the catalogs but all table holdings including the image metadata tables.
             These are not suitable for spatial queries with e.g. ``query_region``.
