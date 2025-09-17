@@ -11,8 +11,9 @@ from astropy import coordinates
 from astropy import units as u
 from astropy.utils.decorators import deprecated, deprecated_renamed_argument
 from typing import Tuple
-
+from astropy.time import Time
 import pyvo
+import re
 
 from astroquery import log
 from ..query import BaseQuery, BaseVOQuery
@@ -466,7 +467,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                                  get_query_payload=get_query_payload)
 
 
-    def _get_vec(ra: str, dec: str) -> Tuple[str, str, str]:
+    def _get_vec(ra=None, dec=None):
         """
         If the input is a string name of a column like "a.ra", then this routine
         constructs the unit vector column names that can be added to the SQL query
@@ -492,7 +493,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             raise
 
 
-    def _fast_geometry_constraint(ra: str, dec: str, large: bool) -> str:
+    def _fast_geometry_constraint(ra, dec,large=False):
         """
         Construct the spatial constraint to be added to the WHERE clause.  It compares
         the input position with the catalog's pre-computed unit vector columns
@@ -527,36 +528,84 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             )
             """
 
-    def _query_matches(ra: str, dec: str) -> str:
+    def _time_constraint(times=None):
+        """"
+        Converts input string like "2025-01-02T01:00:00..2025-01-05T23:59:59" 
+        into a decimal MJD constraint.  
         """
-        Constructs the full SQL query including the spatial constraint.  Note that this
-        queries two tables, as the HEASARC database has split the master tables for 
-        efficiency.
+        start, end = times.split('..')
+        if re.match(r'^\d{4}-\d{2}-\d{2}$', start):
+            start += 'T00:00:00'
+        if re.match(r'^\d{4}-\d{2}-\d{2}$', end):
+            end += 'T23:59:59'
+
+        start_mjd = Time(start, format='isot').mjd
+        end_mjd = Time(end, format='isot').mjd
+        return f"end_time > {start_mjd:.8f} AND start_time < {end_mjd:.8f}"
+
+
+    def _query_matches(ra=None, dec=None, times=None): 
         """
-        constraint_small = HeasarcClass._fast_geometry_constraint(ra, dec,large=False)
-        constraint_large = HeasarcClass._fast_geometry_constraint(ra, dec,large=True)
-        return(f"""
+        Constructs the full SQL query including the spatial and time constraints.  
+        Note that this queries multiple tables, as the HEASARC database has split 
+        the master tables for efficiency.
+        """
+        if ra is not None:
+            constraint_small = HeasarcClass._fast_geometry_constraint(ra, dec,large=False)
+            constraint_big = HeasarcClass._fast_geometry_constraint(ra, dec,large=True)
+        if times is not None:
+            constraint_time = HeasarcClass._time_constraint(times)
+        
+        tname1, tname2 = None, None 
+        if ra is not None and times is None:
+            tname1 = 'pos_small'
+            tname2 = "pos_big"
+        elif ra is not None and times is not None:
+            tname1 = 'pos_time_small'
+            tname2 = 'pos_time_big'
+            constraint_small += f" AND {constraint_time}"
+            constraint_big += f" AND {constraint_time}"
+        elif ra is None and times is not None:
+            tname1 = 'time'
+        else:
+            raise ValueError("You must specify either a position or time range or both")
+
+        if ra is not None:
+            full_query = f"""
+                select  b.name  as "table_name",  count(*)  as "count",  b.description  as
+                "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
+                as "obj_type"
+                from master_table.{tname1} as a,master_table.indexview as b
+                where  (  (  a.table_name  =  b.name  )  ) and  
+                {constraint_small}
+                group by  b.name , b.description , b.regime , b.mission , b.type
+
+                union all
+
+                select  b.name  as "table_name",  count(*)  as "count",  b.description  as
+                "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
+                as "obj_type"
+                from master_table.{tname2} as a,master_table.indexview as b
+                where  (  (  a.table_name  =  b.name  )  ) and  
+                {constraint_big}
+                group by  b.name , b.description , b.regime , b.mission , b.type
+                order by count desc
+            """
+        else:
+            full_query = f"""
             select  b.name  as "table_name",  count(*)  as "count",  b.description  as
             "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
             as "obj_type"
-            from master_table.pos_small as a,master_table.indexview as b
+            from master_table.{tname1} as a,master_table.indexview as b
             where  (  (  a.table_name  =  b.name  )  ) and  
-            {constraint_small}
-            group by  b.name , b.description , b.regime , b.mission , b.type
-
-            union all
-
-            select  b.name  as "table_name",  count(*)  as "count",  b.description  as
-            "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
-            as "obj_type"
-            from master_table.pos_big as a,master_table.indexview as b
-            where  (  (  a.table_name  =  b.name  )  ) and  
-            {constraint_large}
+            {constraint_time}
             group by  b.name , b.description , b.regime , b.mission , b.type
             order by count desc
-            """)
+`           """
+    
+        return full_query
 
-    def query_all(self, position=None, get_query_payload=False, verbose=False, maxrec=None, **kwargs):
+    def query_all(self, position=None, get_query_payload=False, times=None, verbose=False, maxrec=None, **kwargs):
         """
         Query the HEASARC database to count matches at a given position for all available catalogs.
 
@@ -608,10 +657,14 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         table : A `~astropy.table.Table` object.
         
         """
-        if position is None or not isinstance(position, coordinates.SkyCoord):
-            raise ValueError("A valid SkyCoord position must be provided.")
-        ra, dec = position.ra.degree, position.dec.degree
-        full_query = HeasarcClass._query_matches(str(ra), str(dec))
+        if (  (position is not None and position is not isinstance(position, coordinates.SkyCoord) ) \
+            or (position is None and times is None) ):
+            raise ValueError("A valid SkyCoord position and/or a time range must be provided.")
+        if position is not None: 
+            ra, dec = position.ra.degree, position.dec.degree
+            full_query = HeasarcClass._query_matches(ra=ra, dec=dec, times=times)
+        else: 
+            full_query = HeasarcClass._query_matches(times=times)
 
         if get_query_payload:
             return full_query
