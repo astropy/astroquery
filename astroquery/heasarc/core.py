@@ -533,7 +533,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         # that report errors (usually means there are no data products)
         dl_result = dl_result[np.ma.mask_or(
             dl_result['content_type'] == 'directory',
-            dl_result['error_message'] != ''
+            dl_result['error_message'] != '',
+            shrink=False
         )]
         dl_result = dl_result[['ID', 'access_url', 'content_length', 'error_message']]
 
