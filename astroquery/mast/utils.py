@@ -14,6 +14,7 @@ import requests
 import platform
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
+from astropy.utils.console import ProgressBarOrSpinner
 from astropy import units as u
 
 from .. import log
@@ -87,14 +88,74 @@ def _simple_request(url, params=None):
     return response
 
 
+def _batched_request(
+    items,
+    params,
+    max_batch,
+    param_key,
+    request_func,
+    extract_func,
+    desc="Fetching items",
+):
+    """
+    Generic helper for batching API requests.
+
+    Parameters
+    ----------
+    items : list
+        List of items to process in batches.
+    params : dict
+        Dictionary of parameters to include in the request.
+    max_batch : int
+        Maximum number of items to include in a single batch.
+    param_key : str
+        Key in the params dictionary that will hold the batch of items.
+    request_func : callable
+        Function to call for each batch request.
+    extract_func : callable
+        Function to extract the relevant data from the response.
+    desc : str
+        Description of the operation for progress reporting.
+
+    Returns
+    -------
+    results : list
+        List of results extracted from the responses.
+    """
+    if len(items) > max_batch:
+        chunks = list(split_list_into_chunks(items, max_batch))
+        results = []
+        with ProgressBarOrSpinner(len(items), f"{desc} in {len(chunks)} batches ...") as pb:
+            fetched = 0
+            pb.update(0)
+            for chunk in chunks:
+                params[param_key] = chunk
+                resp = request_func(params)
+                resp.raise_for_status()
+
+                # Extend results with new response
+                new_resp = extract_func(resp)
+                results.extend(new_resp)
+
+                # Update progress bar
+                fetched += len(chunk)
+                pb.update(fetched)
+        return results
+    else:
+        params[param_key] = items
+        resp = request_func(params)
+        resp.raise_for_status()
+        return extract_func(resp)
+
+
 def resolve_object(objectname, *, resolver=None, resolve_all=False):
     """
-    Resolves an object name to a position on the sky.
+    Resolves one or more object names to a position on the sky.
 
     Parameters
     ----------
     objectname : str
-        Name of astronomical object to resolve.
+        Name(s) of astronomical object(s) to resolve.
     resolver : str, optional
         The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
         If not specified, the default resolver order will be used. Please see the
@@ -102,19 +163,27 @@ def resolve_object(objectname, *, resolver=None, resolve_all=False):
         for more information. If ``resolve_all`` is True, this parameter will be ignored. Default is None.
     resolve_all : bool, optional
         If True, will try to resolve the object name using all available resolvers ("NED", "SIMBAD").
-        Function will return a dictionary where the keys are the resolver names and the values are the
-        resolved coordinates. Default is False.
+        Default is False.
 
     Returns
     -------
     response : `~astropy.coordinates.SkyCoord`, dict
-        If ``resolve_all`` is False, returns a `~astropy.coordinates.SkyCoord` object with the resolved coordinates.
-        If ``resolve_all`` is True, returns a dictionary where the keys are the resolver names and the values are
+        If ``resolve_all`` is False and a single object is passed, returns a `~astropy.coordinates.SkyCoord` object with
+        the resolved coordinates.
+        If ``resolve_all`` is True and a single object is passed, returns a dictionary where the keys are the resolver
+        names and the values are `~astropy.coordinates.SkyCoord` objects with the resolved coordinates.
+        If ``resolve_all`` is False and multiple objects are passed, returns a dictionary where the keys are the object
+        names and the values are `~astropy.coordinates.SkyCoord` objects with the resolved coordinates.
+        If ``resolve_all`` is True and multiple objects are passed, returns a dictionary where the keys are the object
+        names and the values are nested dictionaries where the keys are the resolver names and the values are
         `~astropy.coordinates.SkyCoord` objects with the resolved coordinates.
     """
+    # Normalize input
+    object_names = [objectname] if isinstance(objectname, str) else list(objectname)
+    single = len(object_names) == 1
+
     is_catalog = False  # Flag to check if object name belongs to a MAST catalog
     catalog = None  # Variable to store the catalog name
-    objectname = objectname.strip()
     catalog_prefixes = {
         'TIC ': 'TIC',
         'KIC ': 'KEPLER',
@@ -134,63 +203,90 @@ def resolve_object(objectname, *, resolver=None, resolve_all=False):
 
         # Check if object belongs to a MAST catalog
         for prefix, name in catalog_prefixes.items():
-            if objectname.startswith(prefix):
-                is_catalog = True
-                catalog = name
-                break
-
-    # Whether to set resolveAll to True when making the HTTP request
-    # Should be True when resolve_all = True or when object name belongs to a MAST catalog (TIC, KIC, EPIC, K2)
-    use_resolve_all = resolve_all or is_catalog
+            for object in object_names:
+                if object.startswith(prefix):
+                    is_catalog = True
+                    catalog = name
+                    break
 
     # Send request to STScI Archive Name Translation Application (SANTA)
-    params = {'name': objectname,
-              'outputFormat': 'json',
-              'resolveAll': use_resolve_all}
-    if resolver and not use_resolve_all:
+    params = {'outputFormat': 'json',
+              'resolveAll': resolve_all or is_catalog}  # Always set resolveAll to True for MAST catalogs
+    if resolver and not params['resolveAll']:
         params['resolver'] = resolver
-    response = _simple_request('http://mastresolver.stsci.edu/Santa-war/query', params)
-    response.raise_for_status()  # Raise any errors
-    result = response.json().get('resolvedCoordinate', [])
 
-    # If a resolver is specified and resolve_all is False, find and return the result for that resolver
-    if resolver and not resolve_all:
-        resolver_result = next((res for res in result if res.get('resolver') == resolver), None)
-        if not resolver_result:
-            raise ResolverError(f'Could not resolve {objectname} to a sky position using {resolver}. '
-                                'Please try another resolver or set ``resolver=None`` to use the first '
-                                'compatible resolver.')
-        resolver_coord = SkyCoord(resolver_result['ra'], resolver_result['decl'], unit='deg')
+    # Fetch results (batching if necessary)
+    results = _batched_request(
+        object_names,
+        params,
+        max_batch=30,
+        param_key="name",
+        request_func=lambda p: _simple_request("http://mastresolver.stsci.edu/Santa-war/query", p),
+        extract_func=lambda r: r.json().get("resolvedCoordinate") or [],
+        desc=f"Resolving {len(object_names)} object names")
 
-        # If object belongs to a MAST catalog, check the separation between the coordinates from the
-        # resolver and the catalog
-        if is_catalog:
-            catalog_result = next((res for res in result if res.get('resolver') == catalog), None)
-            if catalog_result:
-                catalog_coord = SkyCoord(catalog_result['ra'], catalog_result['decl'], unit='deg')
-                if resolver_coord.separation(catalog_coord) > 1 * u.arcsec:
-                    # Warn user if the coordinates differ by more than 1 arcsec
-                    warnings.warn(f'Resolver {resolver} returned coordinates that differ from MAST {catalog} catalog '
-                                  'by more than 1 arcsec. ', InputWarning)
+    resolved_coords = {}
+    for object in object_names:
+        obj_results = [res for res in results if res.get('searchString') == object.lower()]
+        # If a resolver is specified and resolve_all is False, find and return the result for that resolver
+        if resolver and not resolve_all:
+            resolver_result = next((res for res in obj_results if res.get('resolver') == resolver), None)
+            if not resolver_result:
+                msg = (f'Could not resolve "{object}" to a sky position using resolver "{resolver}". '
+                       'Please try another resolver or set `resolver=None` to use the first '
+                       'compatible resolver.')
+                if single:
+                    raise ResolverError(msg)
+                else:
+                    warnings.warn(msg, InputWarning)
+                    continue
+            resolver_coord = SkyCoord(resolver_result['ra'], resolver_result['decl'], unit='deg')
 
-        log.debug(f'Coordinates resolved using {resolver}: {resolver_coord}')
-        return resolver_coord
+            # If object belongs to a MAST catalog, check the separation between the coordinates from the
+            # resolver and the catalog
+            if is_catalog:
+                catalog_result = next((res for res in obj_results if res.get('resolver') == catalog), None)
+                if catalog_result:
+                    catalog_coord = SkyCoord(catalog_result['ra'], catalog_result['decl'], unit='deg')
+                    if resolver_coord.separation(catalog_coord) > 1 * u.arcsec:
+                        # Warn user if the coordinates differ by more than 1 arcsec
+                        warnings.warn(f'Resolver {resolver} returned coordinates that differ from MAST '
+                                      f'{catalog} catalog by more than 1 arcsec. ', InputWarning)
 
-    if not result:
-        raise ResolverError('Could not resolve {} to a sky position.'.format(objectname))
+            log.debug(f'Coordinates resolved using {resolver}: {resolver_coord}')
+            resolved_coords[object] = resolver_coord
+            continue
 
-    # Return results for all compatible resolvers
-    if resolve_all:
-        return {
-            res['resolver']: SkyCoord(res['ra'], res['decl'], unit='deg')
-            for res in result
-        }
+        if not obj_results:
+            msg = f'Could not resolve "{object}" to a sky position.'
+            if single:
+                raise ResolverError(msg)
+            else:
+                warnings.warn(msg, InputWarning)
+                continue
 
-    # Case when resolve_all is False and no resolver is specified
-    # SANTA returns result from first compatible resolver
-    coord = SkyCoord(result[0]['ra'], result[0]['decl'], unit='deg')
-    log.debug(f'Coordinates resolved using {result[0]["resolver"]}: {coord}')
-    return coord
+        # Return results for all compatible resolvers
+        if resolve_all:
+            # Return results for all compatible resolvers
+            coords = {
+                res['resolver']: SkyCoord(res['ra'], res['decl'], unit='deg')
+                for res in obj_results
+            }
+            resolved_coords[object] = coords
+            continue
+
+        # Case when resolve_all is False and no resolver is specified
+        # SANTA returns result from first compatible resolver
+        coord = SkyCoord(obj_results[0]['ra'], obj_results[0]['decl'], unit='deg')
+        log.debug(f'Coordinates resolved using {obj_results[0]["resolver"]}: {coord}')
+        resolved_coords[object] = coord
+
+    # If no objects could be resolved, raise an error
+    if not resolved_coords:
+        raise ResolverError("Could not resolve any of the given object names to sky positions.")
+
+    # If input was a single object name, return a single SkyCoord object or dict
+    return list(resolved_coords.values())[0] if single else resolved_coords
 
 
 def parse_input_location(*, coordinates=None, objectname=None, resolver=None):

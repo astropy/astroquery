@@ -133,6 +133,8 @@ mast
 
 - Fix bug where duplicate columns from server responses cause an error when converting to an `~astropy.table.Table`. [#3400]
 
+- Support for resolving multiple object names at once with `~astroquery.mast.MastClass.resolve_object`, including automatic batching
+  into groups of up to 30 names per request to the name translation service. [#3398]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
