@@ -30,7 +30,7 @@ mast
 ^^^^
 
 - Deprecated the ``product`` parameter in the ``Tesscut.get_sectors``, ``Tesscut.get_cutouts``, and ``Tesscut.download_cutouts`` methods.
-  Support for TESS Image Calibration (TICA) high-level science products has been removed; only Science Processing Operations Center (SPOC) 
+  Support for TESS Image Calibration (TICA) high-level science products has been removed; only Science Processing Operations Center (SPOC)
   products are now supported. [#3391]
 
 Service fixes and enhancements
@@ -84,6 +84,9 @@ ipac.irsa
   catalogs. The ``include_metadata_tables`` keyword argument allows opting
   in to return all TAP tables, including non-spatial and metadata ones,
   too. [#3334]
+
+- The "filter" kwarg of ``list_catalogs`` is now looking for string matches
+  either in catalog names and short descriptions. [#3415]
 
 SIMBAD
 ^^^^^^
