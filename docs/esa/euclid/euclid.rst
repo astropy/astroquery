@@ -4,6 +4,7 @@
 ESA EUCLID Archive (`astroquery.esa.euclid`)
 ********************************************
 
+
 Euclid is an ESA mission to map the geometry of the dark Universe. The mission investigates the distance-redshift
 relationship and the evolution of cosmic structures. The space telescope creates a great map of the large-scale
 structure of the Universe across space and time by observing billions of galaxies out to 10 billion light-years, across
@@ -80,7 +81,9 @@ Examples
 
 It is highly recommended checking the status of Euclid TAP before executing this module. To do this:
 
-.. doctest-remote-data::
+.. almost all code examples require remote-data access, thus only using this
+   one at the first example
+.. doctest-remote-data-all::
 
   >>> from astroquery.esa.euclid import Euclid
   >>> Euclid.get_status_messages()
@@ -122,13 +125,9 @@ The description of these data products can be found on the Data Product Definiti
 
 By default, the object *Euclid*
 
-.. doctest-remote-data::
-
   >>> from astroquery.esa.euclid import Euclid
 
 makes use of the *PDR* environment. In order to make use of a different one, it is necessary to instantiate the class EuclidClass
-
-.. doctest-remote-data::
 
   >>> from astroquery.esa.euclid import EuclidClass
   >>> euclid = EuclidClass(environment='IDR')
@@ -145,8 +144,6 @@ The parameter *environment* is limited to *IDR*, *OTF*, *PDR* or *REG*.
 Table and column metadata are specified by IVOA TAP_ recommendation (to access to the actual data, an ADQL query must be executed).
 
 To load only table names metadata (TAP+ capability):
-
-.. doctest-remote-data::
 
   >>> from astroquery.esa.euclid import Euclid
   >>> tables = Euclid.load_tables(only_names=True, include_shared_tables=True)
@@ -177,8 +174,6 @@ To load only table names metadata (TAP+ capability):
 
 To load all table metadata (TAP compatible):
 
-.. doctest-remote-data::
-
   >>> from astroquery.esa.euclid import Euclid
   >>> tables = Euclid.load_tables()
   INFO: Retrieving tables... [astroquery.utils.tap.core]
@@ -192,8 +187,6 @@ To load all table metadata (TAP compatible):
 
 
 To load only a table (TAP+ capability) and inspect its columns:
-
-.. doctest-remote-data::
 
   >>> from astroquery.esa.euclid import Euclid
   >>> raw_detector_table = Euclid.load_table('sedm.raw_detector')
@@ -282,8 +275,6 @@ In the following example, for the Clusters of Galaxies category, and the group G
 
 This query performs a cone search centered at the specified ra/dec coordinates with the provided radius argument.
 
-.. doctest-remote-data::
-
   >>> #example cone search for source NGC6505
   >>> from astroquery.esa.euclid import Euclid
   >>> from astropy.coordinates import SkyCoord
@@ -310,8 +301,6 @@ This query performs a cone search centered at the specified ra/dec coordinates w
 
 Queries return a limited number of rows controlled by ``Euclid.ROW_LIMIT``. To change the default behaviour set this appropriately.
 
-.. doctest-remote-data::
-
   >>> Euclid.ROW_LIMIT = 2
   >>> job = Euclid.cone_search(coordinate=coord, radius=radius, table_name="sedm.mosaic_product", ra_column_name="ra", dec_column_name="dec", columns="*", async_job=True)
     INFO: Query finished. [astroquery.utils.tap.core]
@@ -335,8 +324,6 @@ WARNING: This method implements the ADQL BOX function that is deprecated in the 
 The following example searches for all the sources contained in an squared region of side = 0.1 degrees around a specific point in ra/dec coordinates. The results are sorted by distance (``dist``) in ascending order.
 
 The method returns the job results as astropy.table
-
-.. doctest-remote-data::
 
   >>> # Search for objects around a given position with the default catalog catalogue.mer_catalogue
   >>> from astroquery.esa.euclid import Euclid
@@ -368,8 +355,6 @@ The method returns the job results as astropy.table
 Synchronous queries like this one return a limited number of rows -> 2000
 
 The previous query can be executed as an asynchronous version:
-
-.. doctest-remote-data::
 
   >>> from astroquery.esa.euclid import Euclid
   >>> from astropy.coordinates import SkyCoord
@@ -832,13 +817,11 @@ In the Euclid archive user tables can be shared among user groups.
 
 To obtain a list of the tables shared to a user type the following:
 
-.. doctest-remote-data::
-
   >>> from astroquery.esa.euclid import Euclid
   >>> tables = Euclid.load_tables(only_names=True, include_shared_tables=True)
     INFO: Retrieving tables... [astroquery.utils.tap.core]
     INFO: Parsing tables... [astroquery.utils.tap.core]
-    INFO: Done. [astroquery.utils.tap.core]  
+    INFO: Done. [astroquery.utils.tap.core]
   >>> for table in tables:
   ...   print(table.get_qualified_name())
     catalogue.mer_catalogue
