@@ -470,7 +470,7 @@ class BaseWFAUClass(QueryWithLogin):
             data columns.
         attributes : list, optional.
             Attributes to select from the table.  See, e.g.,
-            http://horus.roe.ac.uk/vsa/crossID_notes.html
+            http://wsa.roe.ac.uk/crossID_notes.html
         constraints : str, optional
             SQL constraints to the search. Default is empty (no constrains
             applied).
@@ -534,7 +534,7 @@ class BaseWFAUClass(QueryWithLogin):
             Defaults to `False`.
         attributes : list, optional.
             Attributes to select from the table.  See, e.g.,
-            http://horus.roe.ac.uk/vsa/crossID_notes.html
+            http://wsa.roe.ac.uk/crossID_notes.html
         constraints : str, optional
             SQL constraints to the search. Default is empty (no constrains
             applied).
@@ -753,7 +753,7 @@ class BaseWFAUClass(QueryWithLogin):
             automatically
         attributes : str
             Additional attributes to select from the table.  See, e.g.,
-            http://horus.roe.ac.uk/vsa/crossID_notes.html
+            http://wsa.roe.ac.uk/crossID_notes.html
         system : 'J2000' or 'Galactic'
             The system in which to perform the query. Can affect the output
             data columns.
