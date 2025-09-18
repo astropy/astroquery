@@ -295,7 +295,7 @@ This query performs a cone search centered at the specified ra/dec coordinates w
   >>> cone_results = job.get_results()
   >>> print("Found", len(cone_results), "results")
   Found 27 results
-  >>> cone_results['tile_index', 'creation_date', 'ra', 'dec', 'file_name', 'file_path', 'datalabs_path', 'filter_name', 'dist'][:5]
+  >>> cone_results['tile_index', 'creation_date', 'ra', 'dec', 'file_name', 'file_path', 'datalabs_path', 'filter_name', 'dist'][:5]  # doctest: +IGNORE_OUTPUT
   <Table length=5>
   tile_index      creation_date           ra       dec   ...                        file_path                                       datalabs_path                filter_name         dist
     int64             str23            float64   float64 ...                          str55                                             str43                       str11          float64
@@ -314,12 +314,14 @@ Queries return a limited number of rows controlled by ``Euclid.ROW_LIMIT``. To c
 
   >>> Euclid.ROW_LIMIT = 2
   >>> job = Euclid.cone_search(coordinate=coord, radius=radius, table_name="sedm.mosaic_product", ra_column_name="ra", dec_column_name="dec", columns="*", async_job=True)
+    INFO: Query finished. [astroquery.utils.tap.core]
   >>> cone_results = job.get_results()
-  >>> print("Found", len(cone_results), "results")
+  >>> print(f"Found {len(cone_results)} results")
   Found 2 results
 
-
 To return an unlimited number of rows set ``Euclid.ROW_LIMIT`` to -1.
+
+  >>> Euclid.ROW_LIMIT = -1
 
 
 1.3. Query object
@@ -341,10 +343,10 @@ The method returns the job results as astropy.table
   >>> from astropy.coordinates import SkyCoord
   >>> import astropy.units as u
   >>> coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
-  >>> table = Euclid.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg), height= u.Quantity(0.1, u.deg))
+  >>> table = Euclid.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg), height= u.Quantity(0.1, u.deg))  # doctest: +IGNORE_WARNINGS
   >>> print("Found a total of", len(table), "query results")
   Found a total of 2000 query results
-  >>> print(table)
+  >>> print(table)  # doctest: +IGNORE_OUTPUT
            dist         avg_trans_wave_g_ext_decam avg_trans_wave_g_ext_hsc avg_trans_wave_g_ext_jpcam avg_trans_wave_g_ext_lsst avg_trans_wave_h avg_trans_wave_i_ext_decam ... sersic_fract_z_ext_panstarrs_disk_sersic sersic_fract_z_ext_panstarrs_disk_sersic_err she_flag spurious_flag     spurious_prob      variable_flag vis_det
   --------------------- -------------------------- ------------------------ -------------------------- ------------------------- ---------------- -------------------------- ... ---------------------------------------- -------------------------------------------- -------- ------------- ---------------------- ------------- -------
   3.566798805594703e-06            4826.7998046875                       --                         --                        --               --             7826.669921875 ...                                       --                                           --       --             0    0.15743961930274963            --       1
@@ -375,11 +377,11 @@ The previous query can be executed as an asynchronous version:
   >>> coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
   >>> width=u.Quantity(0.1, u.deg)
   >>> height= u.Quantity(0.1, u.deg)
-  >>> table_async = Euclid.query_object(coordinate=coord, width=width, height=height, async_job=True)
+  >>> table_async = Euclid.query_object(coordinate=coord, width=width, height=height, async_job=True)  # doctest: +IGNORE_WARNINGS
   INFO: Query finished. [astroquery.utils.tap.core]
-  >>> print("Found a total of", len(table_async), "query results")
+  >>> print(f"Found a total of {len(table_async)} query results")
   Found a total of 2895 query results
-  >>> print(table_async)
+  >>> print(table_async)  # doctest: +IGNORE_OUTPUT
            dist         avg_trans_wave_g_ext_decam avg_trans_wave_g_ext_hsc avg_trans_wave_g_ext_jpcam avg_trans_wave_g_ext_lsst avg_trans_wave_h avg_trans_wave_i_ext_decam ... sersic_fract_z_ext_panstarrs_disk_sersic sersic_fract_z_ext_panstarrs_disk_sersic_err she_flag spurious_flag     spurious_prob      variable_flag vis_det
   --------------------- -------------------------- ------------------------ -------------------------- ------------------------- ---------------- -------------------------- ... ---------------------------------------- -------------------------------------------- -------- ------------- ---------------------- ------------- -------
   3.566798805594703e-06            4826.7998046875                       --                         --                        --               --             7826.669921875 ...                                       --                                           --       --             0    0.15743961930274963            --       1
@@ -834,8 +836,22 @@ To obtain a list of the tables shared to a user type the following:
 
   >>> from astroquery.esa.euclid import Euclid
   >>> tables = Euclid.load_tables(only_names=True, include_shared_tables=True)
+    INFO: Retrieving tables... [astroquery.utils.tap.core]
+    INFO: Parsing tables... [astroquery.utils.tap.core]
+    INFO: Done. [astroquery.utils.tap.core]  
   >>> for table in tables:
   ...   print(table.get_qualified_name())
+    catalogue.mer_catalogue
+    catalogue.mer_cutouts
+    catalogue.mer_morphology
+    catalogue.phz_classification
+    catalogue.phz_galaxy_sed
+    ...
+    tap_schema.columns
+    tap_schema.key_columns
+    tap_schema.keys
+    tap_schema.schemas
+    tap_schema.tables
 
 .. _uploading_table_to_user_space:
 
