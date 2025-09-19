@@ -4,10 +4,10 @@
 ESA Integral Science Legacy Archive (ISLA) (`astroquery.esa.integral`)
 **********************************************************************
 
-INTEGRAL is the INTernational Gamma-Ray Astrophysics Laboratory of the 
-European Space Agency. It observes the Universe in the X-ray and soft 
-gamma-ray band. Since its launch, on October 17, 2002, the ISDC receives 
-the spacecraft telemetry within seconds and provides alerts, processed 
+INTEGRAL is the INTernational Gamma-Ray Astrophysics Laboratory of the
+European Space Agency. It observes the Universe in the X-ray and soft
+gamma-ray band. Since its launch, on October 17, 2002, the ISDC receives
+the spacecraft telemetry within seconds and provides alerts, processed
 data and analysis software to the worldwide scientific community.
 
 ========
@@ -26,8 +26,8 @@ file in the chosen format, and queries may be executed asynchronously.
 
   >>> from astroquery.esa.integral import IntegralClass
   >>> isla = IntegralClass()
-  >>> isla.query_tap(query='select * from ivoa.obscore')
-
+  >>> isla.query_tap(query='select * from ivoa.obscore')  # doctest: +IGNORE_OUTPUT
+  <Table length=6743>
   access_estsize   access_format                                     access_url                                   calib_level ...    t_max       t_min    t_resolution t_xel
       int64            object                                          object                                        int32    ...   float64     float64     float64    int64
   -------------- ----------------- ------------------------------------------------------------------------------ ----------- ... ----------- ----------- ------------ -----
@@ -51,7 +51,7 @@ The output can be formatted and saved as needed.
   >>> from astroquery.esa.integral import IntegralClass
   >>> isla = IntegralClass()
   >>> isla.get_sources(target_name='crab')
-
+  <Table length=1>
    name          ra               dec           source_id
   object      float64           float64           object
   ------ ----------------- ----------------- ----------------
@@ -69,7 +69,7 @@ identified by its target name. The metadata provides in-depth information about 
   >>> from astroquery.esa.integral import IntegralClass
   >>> isla = IntegralClass()
   >>> metadata = isla.get_source_metadata(target_name='Crab')
-  >>> metadata
+  >>> metadata  # doctest: +IGNORE_OUTPUT
   [{'name': 'Integral', 'link': None, 'metadata': [{'param': 'Name', 'value': 'Crab'}, {'param': 'Id', 'value': 'J053432.0+220052'}, {'param': 'Coordinates degrees', 'value': '83.6324 22.0174'}, {'param': 'Coordinates', 'value': '05 34 31.78 22 01 02.64'}, {'param': 'Galactic', 'value': '184.55 -5.78'}, {'param': 'Isgri flag2', 'value': 'very bright source'}, {'param': 'Jemx flag', 'value': 'detected'}, {'param': 'Spi flag', 'value': 'detected'}, {'param': 'Picsit flag', 'value': 'detected'}]}, {'name': 'Simbad', 'link': 'https://simbad.cds.unistra.fr/simbad/sim-id?Ident=Crab', 'metadata': [{'param': 'Id', 'value': 'NAME Crab'}, {'param': 'Type', 'value': 'SuperNova Remnant'}, {'param': 'Other types', 'value': 'HII|IR|Psr|Rad|SNR|X|gam'}]}]
 
 ------------------------------------
@@ -85,8 +85,9 @@ operation asynchronously.
 
   >>> from astroquery.esa.integral import IntegralClass
   >>> isla = IntegralClass()
-  >>> isla.get_observations(target_name='crab', radius=12.0, start_revno='0290', end_revno='0599')
-     dec                 email              end_revno       endtime       ...      starttime       surname                               title
+  >>> isla.get_observations(target_name='crab', radius=12.0, start_revno='0290', end_revno='0599')  # doctest: +IGNORE_OUTPUT
+  <Table length=27>
+      dec                 email              end_revno       endtime       ...      starttime       surname                               title
    float64               str60                object         object       ...        object         str20                                str120
   ---------- ------------------------------ --------- ------------------- ... ------------------- ---------- --------------------------------------------------------------
   26.3157778 peter.kretschmar!@obs.unige.ch      0352 2005-09-02 21:20:59 ... 2005-08-31 11:07:06 Kretschmar Target of Opportunity Observations of an Outburst in A 0535+26
@@ -114,7 +115,7 @@ An additional parameter, read_fits (default value True) reads automatically the 
 
   >>> from astroquery.esa.integral import IntegralClass
   >>> isla = IntegralClass()
-  >>> isla.download_science_windows(science_windows=['008100430010', '033400230030'], output_file=None)
+  >>> results = isla.download_science_windows(science_windows=['008100430010', '033400230030'], output_file=None)  # doctest: +IGNORE_OUTPUT
 
 
 ---------------------
@@ -132,7 +133,7 @@ to refine their search.
   >>> isla = IntegralClass()
   >>> coordinates = SkyCoord(83.63320922851562, 22.01447105407715, unit="deg")
   >>> timeline = isla.get_timeline(coordinates=coordinates)
-  >>> timeline
+  >>> timeline  # doctest: +IGNORE_OUTPUT
   {'total_items': 8714, 'fraFC': 0.8510442965343126, 'totEffExpo': 16416293.994214607, 'timeline': <Table length=8714>
        scwExpo            scwRevs                scwTimes                scwOffAxis
        float64            float64                 object                  float64
@@ -157,6 +158,7 @@ specific target, instrument, or energy band is available.
   >>> from astroquery.esa.integral import IntegralClass
   >>> isla = IntegralClass()
   >>> isla.get_epochs(target_name='J011705.1-732636', band='28_40')
+  <Table length=50>
        epoch
        object
   ----------------
@@ -190,7 +192,8 @@ Users can refine their results by selecting an instrument or energy band.
 
   >>> from astroquery.esa.integral import IntegralClass
   >>> isla = IntegralClass()
-  >>> ltt = isla.get_long_term_timeseries(target_name='J174537.0-290107', instrument='jem-x')
+  >>> ltt = isla.get_long_term_timeseries(target_name='J174537.0-290107', instrument='jem-x')  # doctest: +IGNORE_OUTPUT
+
 
 8.2. Retrieving Short-Term Timeseries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -203,7 +206,8 @@ the results are saved to a file for detailed examination.
 
   >>> from astroquery.esa.integral import IntegralClass
   >>> isla = IntegralClass()
-  >>> stt = isla.get_short_term_timeseries(target_name='J011705.1-732636', band='28_40', epoch='0745_06340000001')
+  >>> stt = isla.get_short_term_timeseries(target_name='J011705.1-732636', band='28_40', epoch='0745_06340000001')  # doctest: +IGNORE_OUTPUT
+
 
 8.3. Retrieving spectra
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -216,7 +220,7 @@ output file for further processing.
 
   >>> from astroquery.esa.integral import IntegralClass
   >>> isla = IntegralClass()
-  >>> spectra = isla.get_spectra(target_name='J011705.1-732636', instrument='ibis', epoch='0745_06340000001')
+  >>> spectra = isla.get_spectra(target_name='J011705.1-732636', instrument='ibis', epoch='0745_06340000001')  # doctest: +IGNORE_OUTPUT
 
 
 8.4. Retrieving mosaics
@@ -229,8 +233,7 @@ Users can filter by instrument or energy band and save the resulting image to a 
 
   >>> from astroquery.esa.integral import IntegralClass
   >>> isla = IntegralClass()
-  >>> mosaics = isla.get_mosaic(epoch='0727_88601650001', instrument='ibis')
-
+  >>> mosaics = isla.get_mosaic(epoch='0727_88601650001', instrument='ibis')  # doctest: +IGNORE_OUTPUT +IGNORE_WARNINGS
 
 Reference/API
 =============
