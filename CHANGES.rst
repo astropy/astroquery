@@ -1,3 +1,26 @@
+0.4.12 (unreleased)
+===================
+
+New Tools and Services
+----------------------
+
+
+
+API changes
+-----------
+
+
+
+Service fixes and enhancements
+------------------------------
+
+
+
+Infrastructure, Utility and Other Changes and Additions
+-------------------------------------------------------
+
+
+
 0.4.11 (2025-09-19)
 ===================
 
