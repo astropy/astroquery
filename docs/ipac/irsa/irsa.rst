@@ -29,8 +29,8 @@ The output consists of two fields for each catalog, the name of the catalog
 and a very short description. To query a
 specific catalog, the first field can be entered as the value of the
 ``catalog`` parameter in the `~.astroquery.ipac.irsa.IrsaClass.query_region` method.
-You can also use the ``filter`` argument to return only the catalogs with
-name matches to the specified string.
+You can also use the ``filter`` argument to return only the catalogs with their
+name or short description matching to the specified string (case-insensitive matching).
 
 
 .. doctest-remote-data::
@@ -455,48 +455,20 @@ will return a `~astropy.table.Table`.
 
    >>> from astroquery.ipac.irsa import Irsa
    >>> Irsa.list_collections(servicetype='SSA')
-   <Table length=37>
+   <Table length=41>
           collection
             object
    ------------------------
                       champ
                       goals
+             herschel_digit
           herschel_gotcplus
-             herschel_hexos
-         herschel_hifistars
-               herschel_hop
-              herschel_hops
-    herschel_magcloudscplus
-           herschel_ppdisks
-           herschel_prismas
-              herschel_sag4
-             herschel_shpdp
-           herschel_v838mon
-              herschel_vngs
-                irtf_mearth
-                       irts
-                    iso_sws
-                 sofia_exes
-             sofia_exes_enh
-               sofia_fifils
-             sofia_flitecam
-              sofia_forcast
-                sofia_great
-             spitzer_5muses
-                spitzer_c2d
-   spitzer_disks_sh_spectra
-               spitzer_feps
-            spitzer_irs_std
-             spitzer_irsenh
-             spitzer_m83m33
-                 spitzer_s5
-               spitzer_sage
-               spitzer_sass
+                        ...
                 spitzer_sha
               spitzer_sings
               spitzer_ssgss
                        swas
-
+                    thrumms
 
 Other Configurations
 --------------------

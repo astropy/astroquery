@@ -57,7 +57,8 @@ To generate `~astroquery.mast.tests.data.resolver.json`, use the following:
     >>> import json
     >>> from astroquery.mast import utils
     ...
+    >>> objects = ["TIC 307210830", "Barnard's Star", "M1", "M101", "M103", "M8", "M10"]
     >>> resp = utils._simple_request('http://mastresolver.stsci.edu/Santa-war/query',
-    ...                              {'name': 'TIC 307210830', 'outputFormat': 'json', 'resolveAll': 'true'})
+    ...                              {'name': objects, 'outputFormat': 'json', 'resolveAll': 'true'})
     >>> with open('resolver.json', 'w') as file:
     ...     json.dump(resp.json(), file, indent=4)  # doctest: +SKIP
