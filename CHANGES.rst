@@ -30,6 +30,9 @@ mast
 
 - Switch to use HTTP continuation for partial downloads. [#3448]
 
+- Expand the supported data types for filter values in ``Mast.mast_query``. Previously, users had to input
+  filter values enclosed in lists, even when specifying a single value or dictionary. [#3422]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
