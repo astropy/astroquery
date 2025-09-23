@@ -25,6 +25,8 @@ mast
 
 - Raise an error if non-string values are passed to ``utils.resolve_object``. [#3435]
 
+- Filtering by file extension or by a string column is now case-insensitive in ``MastMissions.filter_products``
+  and ``Observations.filter_products``. [#3427]
 
 
 Infrastructure, Utility and Other Changes and Additions
