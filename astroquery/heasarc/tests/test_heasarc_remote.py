@@ -365,3 +365,12 @@ class TestHeasarcBrowse:
         assert warnings[0].category == AstropyDeprecationWarning
         assert warnings[1].category == NoResultsWarning
         assert len(catalog) == 0
+
+    def test_query_full(self):
+        """
+        Tests multi-mission query that counts the number of matches.
+        """
+        heasarc = Heasarc
+        matches = heasarc.query_all("217.0","-31.7",times="2017-01-01..2017-01-02")
+        assert len(matches) == 10
+        
