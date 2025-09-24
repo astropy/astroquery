@@ -508,8 +508,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         dot_product = " + ".join([f"{vec0[i]}*{vec1[i]}" for i in range(3)])
         # Assuming 'a.dsr' is the default search radius column.  This value is
         # defined by HEASARC curators for each table.
-        radius_condition = f"{dot_product} > (cos(radians((a.dsr*60/60))))"  
-        dec_condition = f"a.dec between {dec} - a.dsr*60/60 and {dec} + a.dsr*60/60"
+        radius_condition = f"{dot_product} > (cos(radians((a.dsr))))"  
+        dec_condition = f"a.dec between {dec} - a.dsr*60/60 and {dec} + a.dsr"
         if large:
             return f"""
             ( ({radius_condition}) 
