@@ -509,7 +509,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         # Assuming 'a.dsr' is the default search radius column.  This value is
         # defined by HEASARC curators for each table.
         radius_condition = f"{dot_product} > (cos(radians((a.dsr))))"  
-        dec_condition = f"a.dec between {dec} - a.dsr*60/60 and {dec} + a.dsr"
+        dec_condition = f"a.dec between {dec} - a.dsr and {dec} + a.dsr"
         if large:
             return f"""
             ( ({radius_condition}) 
