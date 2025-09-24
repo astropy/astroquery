@@ -371,6 +371,6 @@ class TestHeasarcBrowse:
         Tests multi-mission query that counts the number of matches.
         """
         heasarc = Heasarc
-        matches = heasarc.query_all("217.0","-31.7",times="2017-01-01..2017-01-02")
-        assert len(matches) == 10
+        matches = heasarc.query_all(SkyCoord(217.0*u.deg,-31.7*u.deg),times="2017-01-01..2020-01-02")
+        assert len(matches) == 7
         
