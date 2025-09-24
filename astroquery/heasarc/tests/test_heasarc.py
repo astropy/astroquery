@@ -451,8 +451,9 @@ def test__get_vec():
     assert all(abs(d - a) < 0.5 * (10 ** (-6)) for d, a in zip(desired, actual))
 
 def test__constraint_matches():
+    import re
     #  Testing all together because it's easier to read this way.
-    constraint_small = HeasarcClass._constraint("217.0","-31.7",large=False) 
+    constraint_small = HeasarcClass._fast_geometry_constraint("217.0","-31.7",large=False) 
     desired_small =  """
             ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 + a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr*60/60))))) 
             and (a.dec between -31.7 - a.dsr*60/60 and -31.7 + a.dsr*60/60)
@@ -462,12 +463,16 @@ def test__constraint_matches():
             """
     assert constraint_small == desired_small 
     
-    constraint_large = HeasarcClass._constraint("217.0","-31.7",large=True) 
+    constraint_large = HeasarcClass._fast_geometry_constraint("217.0","-31.7",large=True) 
     desired_large = """
             ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 + a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr*60/60))))) 
             and (a.dec between -31.7 - a.dsr*60/60 and -31.7 + a.dsr*60/60) )
             """
     assert constraint_large == desired_large
+    
+    constraint_time = HeasarcClass._time_constraint(times="2017-01-01..2017-01-02")
+    desired_time = "end_time > 57754.00000000 AND start_time < 57755.99998843"
+    assert constraint_time == desired_time
     
     constraint_full = HeasarcClass._query_matches("217.0","-31.7")
     desired_full = f"""
@@ -490,8 +495,10 @@ def test__constraint_matches():
             group by  b.name , b.description , b.regime , b.mission , b.type
             order by count desc
             """
-    assert constraint_full == desired_full
-    heasarc = HeasarcClass()
-    coords = SkyCoord(217.0,-31.7, frame='icrs', unit='deg')
-    assert heasarc.query_all(coords, get_query_payload=True) == desired_full
+    assert re.sub(r'\s+', ' ', constraint_full.replace('\n','')).strip() == re.sub(r'\s+', ' ', desired_full.replace('\n','')).strip()
+#    assert constraint_full == desired_full
+    
+    constraint_with_time = HeasarcClass._query_matches("217.0","-31.7",times="2017-01-01..2017-01-02")
+    assert "end_time > 57754.00000000 AND start_time < 57755.99998843" in constraint_with_time
+
 

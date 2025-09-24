@@ -177,6 +177,29 @@ following for instance will find master catalogs that have keywords 'nicer' or '
     nicermastr NICER Master Catalog
     swiftmastr Swift Master Catalog
 
+Query All Available Catalogs
+-----------------------
+If you need to know which catalogs are worth querying for your source, you can 
+use this function that takes advantage of a fast but limited HEASARC (https://heasarc.gsfc.nasa.gov/docs/xamin-api.html#special-tables)[trick].  
+
+.. doctest-remote-data::
+
+    >>> from astroquery.heasarc import Heasarc
+    >>> from astropy.coordinates import SkyCoord
+    >>> from astropy import units as u
+    >>> pos = SkyCoord('217.0 -31.7', unit=u.deg)
+    >>> matches = Heasarc.query_all(pos)
+    >>> matches[0:5].pprint()
+    table_name count                           description                                 regime      mission      obj_type    
+    ---------- ----- ---------------------------------------------------------------- ---------------- -------- ----------------
+    hete2tl     6971                                                  HETE-2 Timeline Gamma-ray, X-ray   hete-2                 
+    intscw      4088                                     INTEGRAL Science Window Data Gamma-ray, X-ray integral                 
+    intscwpub   2039                      INTEGRAL Public Pointed Science Window Data Gamma-ray, X-ray integral                 
+    icecubepsc    90 IceCube All-Sky Point-Source Neutrino Events Catalog (2008-2018)                   icecube                 
+    comptel       52                             CGRO/COMPTEL Low-Level Data and Maps        Gamma-ray     cgro                 
+
+
+
 Links to Data Products
 ----------------------
 Once the query result is obtained, you can query any data products associated

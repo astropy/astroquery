@@ -601,9 +601,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             {constraint_time}
             group by  b.name , b.description , b.regime , b.mission , b.type
             order by count desc
-`           """
-    
-        return full_query
+            """
+        # remove all extraneous white space and line breaks
+        return re.sub(r'\s+', ' ', full_query.replace('\n','')).strip()
+        #return full_query
 
     def query_all(self, position=None, get_query_payload=False, times=None, verbose=False, maxrec=None, **kwargs):
         """
@@ -657,7 +658,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         table : A `~astropy.table.Table` object.
         
         """
-        if (  (position is not None and position is not isinstance(position, coordinates.SkyCoord) ) \
+        if (  (position is not None and not isinstance(position, coordinates.SkyCoord) ) \
             or (position is None and times is None) ):
             raise ValueError("A valid SkyCoord position and/or a time range must be provided.")
         if position is not None: 
