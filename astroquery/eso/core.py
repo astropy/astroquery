@@ -140,7 +140,7 @@ class EsoClass(QueryWithLogin):
         self._ROW_LIMIT = mr
 
     def _tap_url(self) -> str:
-        url = os.environ.get('ESO_TAP_URL', conf.tap_url)
+        url = conf.tap_url
         return url
 
     def _authenticate(self, *, username: str, password: str) -> bool:

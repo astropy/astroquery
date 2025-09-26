@@ -258,30 +258,9 @@ def test_calselector_multipart(monkeypatch, tmp_path):
 
 
 def test_tap_url():
-    tap_url_env_var = "ESO_TAP_URL"
-    tmpvar = None
-    dev_url = "dev_url"
     prod_url = "https://archive.eso.org/tap_obs"
-
-    # ESO_TAP_URL shouldn't be set to start the test
-    try:
-        tmpvar = os.environ[tap_url_env_var]
-        del os.environ[tap_url_env_var]
-    except KeyError:
-        pass
-
     eso_instance = Eso()
-
-    # ESO_TAP_URL not set
     assert eso_instance._tap_url() == prod_url
-
-    # ESO_TAP_URL set
-    os.environ[tap_url_env_var] = dev_url
-    assert eso_instance._tap_url() == dev_url
-
-    # set again the env vars, in case we deleted it earlier
-    if tmpvar:
-        os.environ[tap_url_env_var] = tmpvar
 
 
 @pytest.mark.parametrize("input_val, expected", [
