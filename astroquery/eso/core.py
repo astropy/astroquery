@@ -377,18 +377,12 @@ class EsoClass(QueryWithLogin):
         count_query = f"select count(*) from {table_name}"
         num_records = list(self.query_tap(count_query)[0].values())[0]
 
-        # All this block is to print nicely...
-        # This whole function should be better written and the output
-        # shown tidier
-        nlines = len(available_cols) + 2
-        n_ = astropy.conf.max_lines
-        m_ = astropy.conf.max_width
-        astropy.conf.max_lines = nlines
-        astropy.conf.max_width = sys.maxsize
-        log.info(f"\nColumns present in the table {table_name}:\n{available_cols}\n"
-                 f"\nNumber of records present in the table {table_name}:\n{num_records}\n")
-        astropy.conf.max_lines = n_
-        astropy.conf.max_width = m_
+        with (astropy.conf.set_temp(
+                "max_lines", len(available_cols) + 2),
+                astropy.conf.set_temp(
+                "max_width", sys.maxsize)):
+            log.info(f"\nColumns present in the table {table_name}:\n{available_cols}\n"
+                     f"\nNumber of records present in the table {table_name}:\n{num_records}\n")
 
     def _query_on_allowed_values(
         self,
