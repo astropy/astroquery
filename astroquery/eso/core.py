@@ -89,12 +89,12 @@ def unlimited_maxrec(func):
         if not isinstance(self, EsoClass):
             raise ValueError(f"Expecting EsoClass, found {type(self)}")
 
-        tmpvar = self.maxrec
+        tmpvar = self.ROW_LIMIT
         try:
-            self.maxrec = sys.maxsize
+            self.ROW_LIMIT = sys.maxsize
             result = func(self, *args, **kwargs)
         finally:
-            self.maxrec = tmpvar
+            self.ROW_LIMIT = tmpvar
         return result
     return wrapper
 
@@ -113,31 +113,31 @@ class EsoClass(QueryWithLogin):
         super().__init__()
         self._auth_info: Optional[_AuthInfo] = None
         self._hash = None
-        self._maxrec = None
-        self.maxrec = conf.row_limit
+        self._ROW_LIMIT = None
+        self.ROW_LIMIT = conf.ROW_LIMIT
 
     @property
-    def maxrec(self):
+    def ROW_LIMIT(self):
         """
-        Getter of the maxrec attribute
+        Getter.
         Safeguard that truncates the number of records returned by a query
         """
-        return self._maxrec
+        return self._ROW_LIMIT
 
-    @maxrec.setter
-    def maxrec(self, value):
-        mr = self._maxrec
+    @ROW_LIMIT.setter
+    def ROW_LIMIT(self, value):
+        mr = self._ROW_LIMIT
 
         # type check
         if not (value is None or isinstance(value, int)):
-            raise TypeError(f"maxrec attribute must be of type int or None; found {type(value)}")
+            raise TypeError(f"ROW_LIMIT attribute must be of type int or None; found {type(value)}")
 
         if value is None or value < 1:
             mr = sys.maxsize
         else:
             mr = value
 
-        self._maxrec = mr
+        self._ROW_LIMIT = mr
 
     def _tap_url(self) -> str:
         url = os.environ.get('ESO_TAP_URL', conf.tap_url)
@@ -231,9 +231,9 @@ class EsoClass(QueryWithLogin):
         if len(table) < 1:
             warnings.warn("Query returned no results", NoResultsWarning)
 
-        if len(table) == self.maxrec:
-            warnings.warn(f"Results truncated to {self.maxrec}. "
-                          "To retrieve all the records set to None the maxrec attribute",
+        if len(table) == self.ROW_LIMIT:
+            warnings.warn(f"Results truncated to {self.ROW_LIMIT}. "
+                          "To retrieve all the records set to None the ROW_LIMIT attribute",
                           MaxResultsWarning)
 
     def _try_download_pyvo_table(self,
@@ -249,7 +249,7 @@ class EsoClass(QueryWithLogin):
                     f' >>> Eso().query_tap( "{query_str}" )\n\n')
 
         try:
-            table_to_return = tap.search(query=query_str, maxrec=self.maxrec).to_table()
+            table_to_return = tap.search(query=query_str, maxrec=self.ROW_LIMIT).to_table()
             self._maybe_warn_about_table_length(table_to_return)
         except DALQueryError:
             log.error(message(query_str))
