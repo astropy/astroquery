@@ -784,7 +784,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                 return 'aws'
         return 'heasarc'
 
-    def download_data(self, links, host='heasarc', location='.'):
+    def download_data(self, links, host=None, location='.'):
         """Download data products in links with a choice of getting the
         data from either the heasarc server, sciserver, or the cloud in AWS.
 
@@ -793,8 +793,9 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         ----------
         links : `astropy.table.Table` or `astropy.table.Row`
             The result from locate_data
-        host : str
-            The data host. The options are: heasarc (default), sciserver, aws.
+        host : str or None
+            The data host. The options are: None (default), heasarc, sciserver, aws.
+            If None, the host is guessed based on the environment.
             If host == 'sciserver', data is copied from the local mounted
             data drive.
             If host == 'aws', data is downloaded from Amazon S3 Open
