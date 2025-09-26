@@ -908,8 +908,7 @@ class EsoClass(QueryWithLogin):
         return list(associated_files.difference(set(datasets)))
 
     def retrieve_data(self, datasets, *, continuation=False, destination=None,
-                      with_calib=None, unzip=True,
-                      request_all_objects=None, request_id=None):
+                      with_calib=None, unzip=True):
         """
         Retrieve a list of datasets form the ESO archive.
 
@@ -944,7 +943,6 @@ class EsoClass(QueryWithLogin):
         files = Eso.retrieve_data(dpids)
 
         """
-        _ = request_all_objects, request_id
         return_string = False
         if isinstance(datasets, str):
             return_string = True
