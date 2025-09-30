@@ -1418,7 +1418,7 @@ class EuclidClass(TapPlus):
 
         return files
 
-    def get_datalinks(self, ids, *, linking_parameter='SOURCE_ID', verbose=False):
+    def get_datalinks(self, ids, *, linking_parameter='SOURCE_ID', options=None, verbose=False):
         """Gets datalinks associated to the provided identifiers
         TAP+ only
 
@@ -1428,6 +1428,8 @@ class EuclidClass(TapPlus):
             list of identifiers
         linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID
             By default, all the identifiers are considered as source_id
+        options : str, optional, default None
+            To let customize the server behaviour
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1437,7 +1439,31 @@ class EuclidClass(TapPlus):
 
         """
 
-        return self.__eucliddata.get_datalinks(ids=ids, linking_parameter=linking_parameter, verbose=verbose)
+        return self.__eucliddata.get_datalinks(ids=ids,
+                                               linking_parameter=linking_parameter,
+                                               options=options,
+                                               verbose=verbose)
+
+    def get_datalinks_metadata(self, ids, *, linking_parameter='SOURCE_ID', verbose=False):
+        """Gets datalinks associated to the provided identifiers, including additional metadata (the datalabs_path)
+        TAP+ only
+
+        Parameters
+        ----------
+        ids : str, int, list of str or list of int, mandatory
+            List of identifiers
+        linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID
+            By default, all the identifiers are considered as source_id
+        verbose : bool, optional, default 'False'
+            Flag to display information about the process
+
+        Returns
+        -------
+        A table object
+
+        """
+
+        return self.get_datalinks(ids=ids, linking_parameter=linking_parameter, options='METADATA', verbose=verbose)
 
     def get_scientific_product_list(self, *, observation_id=None, tile_index=None, category=None, group=None,
                                     product_type=None, dataset_release='REGREPROC1_R2', verbose=False):
