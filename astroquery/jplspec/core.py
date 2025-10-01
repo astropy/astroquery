@@ -1,6 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
+import re
+from urllib.parse import urljoin, urlparse
 import warnings
+from bs4 import BeautifulSoup
 
 import astropy.units as u
 from astropy.io import ascii
@@ -10,6 +13,7 @@ from ..utils import async_to_sync
 from . import conf
 from . import lookup_table
 from astroquery.exceptions import EmptyResponseError, InvalidQueryError
+from requests.exceptions import HTTPError
 
 
 __all__ = ['JPLSpec', 'JPLSpecClass']
@@ -233,6 +237,81 @@ class JPLSpecClass(BaseQuery):
                                            9.375]}
 
         return result
+
+    def _download_catdir(self, destination=data_path('catdir.cat'),
+                        index_url='https://spec.jpl.nasa.gov/ftp/pub/catalog/catdir.cat',
+                        ):
+        """
+        Download the catdir index file.  Defaults target path is the astroquery data
+        directory, which is where get_species_table() looks for the file.
+
+        It will overwrite the existing file if the remote is different from that on disk.
+
+        This is a utility function intended primarily for developers.
+        """
+
+        # no continuation: if the file size is different on disk, we want to replace it
+        self._download_file(index_url, destination, timeout=self.TIMEOUT,
+                            continuation=False,
+                            cache=False, method='GET', allow_redirects=True,
+                            verbose=False)
+
+        return destination
+
+
+    def download_all_cat_files(self, destination, *,
+                               cache=False, progress=True,
+                               index_url='https://spec.jpl.nasa.gov/ftp/pub/catalog/catdir.html'):
+        """
+        Utility function to download all ``.cat`` catalog files referenced in the JPL catalog index page.
+        JPLSpec's query interface was down for most of 2025, but the raw catalog files are still available.
+
+        Parameters
+        ----------
+        destination : str
+            Directory path to save downloaded ``.cat`` files.
+        cache : bool, optional
+            If ``True``, use astroquery caching behavior during downloads. Defaults to ``False`` because this is a download function and caching is probably redundant.
+            The ``cache`` keyword is treated differently by the internal _download_file method, though, so even with cache=False, you may see ``Found cached file`` messages.
+        progress : bool, optional
+            If ``True``, show a progress bar per file during download. Defaults to ``True``.
+        index_url : str, optional
+            URL of the catalog index HTML page to scrape for ``.cat`` links.
+
+        Returns
+        -------
+        list of str
+            Local file paths of downloaded (or skipped-existing) ``.cat`` files.
+        """
+
+        os.makedirs(destination, exist_ok=True)
+
+        response = self._request(method='GET', url=index_url, timeout=self.TIMEOUT, cache=cache)
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        all_links = soup.find_all('a', href=re.compile(r'\.cat$'))
+        href_links = [link.get('href') for link in all_links]
+
+        absolute_urls = [urljoin(index_url, link) for link in sorted(set(href_links))]
+
+        downloaded_paths = []
+        for file_url in absolute_urls:
+            filename = os.path.basename(urlparse(file_url).path)
+            local_path = os.path.join(destination, filename)
+
+            try:
+                self._download_file(file_url, local_path, timeout=self.TIMEOUT,
+                                    cache=cache, method='GET', allow_redirects=True,
+                                    verbose=progress)
+            except HTTPError as ex:
+                if ex.response.status_code == 404:
+                    print(f"Skipping {file_url} because it is not found on the server even though it was in the index.")
+                    continue
+                else:
+                    raise
+            downloaded_paths.append(local_path)
+
+        return downloaded_paths
 
 
 JPLSpec = JPLSpecClass()
