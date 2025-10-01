@@ -1248,7 +1248,7 @@ def test_get_datalinks_metadata(monkeypatch):
 
     result = euclid.get_datalinks_metadata(ids=[12345678], verbose=True)
     assert isinstance(result, TapTableMeta)
-    assert result.name is "METADATA"
+    assert result.name == "METADATA"
 
 
 @pytest.mark.parametrize("background", [False, True])
