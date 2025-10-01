@@ -126,7 +126,7 @@ For the `~astroquery.vamdc` module:
   personal fork: ``python -m pip install git+https://github.com/keflavich/vamdclib-1.git``
 
 The following packages are optional dependencies and are required for the
-full functionality of the `~astroquery.mast` module:
+full functionality of the `~astroquery.mast` and `~astroquery.heasarc` modules:
 
 * `boto3 <https://boto3.amazonaws.com/v1/documentation/api/latest/index.html>`_
 
