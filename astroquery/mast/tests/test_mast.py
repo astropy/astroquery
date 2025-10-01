@@ -428,7 +428,7 @@ def test_missions_filter_products(patch_post):
     assert all(~((filtered['size'] >= 14400) & (filtered['size'] <= 17280)))
 
     # Negate a string match
-    filtered = mast.MastMissions.filter_products(products, category='!CALIBRATED')
+    filtered = mast.MastMissions.filter_products(products, category='!calibrated')
     assert all(filtered['category'] != 'CALIBRATED')
 
     # Negate one string in a list
@@ -798,7 +798,7 @@ def test_observations_get_product_list(patch_post):
 def test_observations_filter_products(patch_post):
     products = mast.Observations.get_product_list('2003738726')
     filtered = mast.Observations.filter_products(products,
-                                                 productType=["SCIENCE"],
+                                                 productType=["sCiEnCE"],
                                                  mrp_only=False)
     assert isinstance(filtered, Table)
     assert len(filtered) == 7
@@ -808,8 +808,10 @@ def test_observations_filter_products(patch_post):
     assert all(filtered['productGroupDescription'] == 'Minimum Recommended Products')
 
     # Filter by extension
-    filtered = mast.Observations.filter_products(products, extension='fits')
+    filtered = mast.Observations.filter_products(products, extension='FITS')
     assert len(filtered) > 0
+    filtered = mast.Observations.filter_products(products, extension=['png'])
+    assert len(filtered) == 0
 
     # Numeric filtering
     filtered = mast.Observations.filter_products(products, size='<50000')

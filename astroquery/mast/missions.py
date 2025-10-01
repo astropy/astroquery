@@ -517,12 +517,7 @@ class MastMissionsClass(MastQueryWithLogin):
 
         # Filter by file extension, if provided
         if extension:
-            extensions = [extension] if isinstance(extension, str) else extension
-            ext_mask = np.array(
-                [not isinstance(x, np.ma.core.MaskedConstant) and any(x.endswith(ext) for ext in extensions)
-                 for x in products["filename"]],
-                dtype=bool
-            )
+            ext_mask = utils.apply_extension_filter(products, extension, 'filename')
             filter_mask &= ext_mask
 
         # Apply column-based filters
