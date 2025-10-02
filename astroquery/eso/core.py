@@ -190,7 +190,7 @@ class EsoClass(QueryWithLogin):
         return username, password
 
     def _login(self, username: str = None, store_password: bool = False,
-               reenter_password: bool = False, **kwargs) -> bool:
+               reenter_password: bool = False) -> bool:
         """
         Login to the ESO User Portal.
 
