@@ -577,6 +577,10 @@ def test_resolve_object_single(patch_post):
     assert isinstance(obj_loc, SkyCoord)
     assert round(obj_loc.separation(tic_coord).value, 10) == 0
 
+    # Resolve with integer input
+    obj_loc = mast.Mast.resolve_object(251813740)
+    assert isinstance(obj_loc, SkyCoord)
+
     # Resolve using a specific resolver and an object that belongs to a MAST catalog
     obj_loc_simbad = mast.Mast.resolve_object(obj, resolver="SIMBAD")
     assert round(obj_loc_simbad.separation(simbad_coord).value, 10) == 0
@@ -613,38 +617,39 @@ def test_resolve_object_single(patch_post):
 
 
 def test_resolve_object_multi(patch_post):
-    objects = ["TIC 307210830", "M1", "Barnard's Star"]
+    objects = ["TIC 307210830", "M1", "Barnard's Star", 251813740]
 
     # No resolver specified
     coord_dict = mast.Mast.resolve_object(objects)
     assert isinstance(coord_dict, dict)
     for obj in objects:
+        obj_str = str(obj)
+        assert obj_str in coord_dict
+        assert isinstance(coord_dict[obj_str], SkyCoord)
+
+    # Resolver specified
+    coord_dict = mast.Mast.resolve_object(objects[:3], resolver="SIMBAD")
+    assert isinstance(coord_dict, dict)
+    for obj in objects[:3]:
         assert obj in coord_dict
         assert isinstance(coord_dict[obj], SkyCoord)
+
+    # Resolve all
+    coord_dict = mast.Mast.resolve_object(objects[:3], resolve_all=True)
+    assert isinstance(coord_dict, dict)
+    for obj in objects[:3]:
+        assert obj in coord_dict
+        obj_dict = coord_dict[obj]
+        assert isinstance(obj_dict, dict)
+        assert isinstance(obj_dict["SIMBAD"], SkyCoord)
 
     # Warn if one of the objects cannot be resolved
     with pytest.warns(InputWarning, match='Could not resolve "nonexisting" to a sky position.'):
         coord_dict = mast.Mast.resolve_object(["M1", "nonexisting"])
 
-    # Resolver specified
-    coord_dict = mast.Mast.resolve_object(objects, resolver="SIMBAD")
-    assert isinstance(coord_dict, dict)
-    for obj in objects:
-        assert obj in coord_dict
-        assert isinstance(coord_dict[obj], SkyCoord)
-
     # Warn if one of the objects can't be resolved with given resolver
     with pytest.warns(InputWarning, match='Could not resolve "TIC 307210830" to a sky position using resolver "NED"'):
         mast.Mast.resolve_object(objects[:2], resolver="NED")
-
-    # Resolve all
-    coord_dict = mast.Mast.resolve_object(objects, resolve_all=True)
-    assert isinstance(coord_dict, dict)
-    for obj in objects:
-        assert obj in coord_dict
-        obj_dict = coord_dict[obj]
-        assert isinstance(obj_dict, dict)
-        assert isinstance(obj_dict["SIMBAD"], SkyCoord)
 
     # Error if none of the objects can be resolved
     warnings.simplefilter("ignore", category=InputWarning)  # ignore warnings
