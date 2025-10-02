@@ -369,7 +369,7 @@ def test_issue_table_length_warnings():
         eso_instance._maybe_warn_about_table_length(t)
 
     # should warn, since EXPECTED_MAXREC = eso_instance.maxrec
-    t = Table({"col_name": [i for i in range(EXPECTED_MAXREC)]})
+    t = Table({"col_name": [i for i in range(EXPECTED_MAXREC+1)]})
     with pytest.warns(MaxResultsWarning):
         eso_instance._maybe_warn_about_table_length(t)
 

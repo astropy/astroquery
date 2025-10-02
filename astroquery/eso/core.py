@@ -223,15 +223,22 @@ class EsoClass(QueryWithLogin):
         else:
             return {}
 
-    def _maybe_warn_about_table_length(self, table):
+    def _maybe_warn_about_table_length(self, table_rowlim_plus_one):
         """
         Issues a warning when a table is empty or when the
         results are truncated
         """
-        if len(table) < 1:
+        if len(table_rowlim_plus_one) < 1:
             warnings.warn("Query returned no results", NoResultsWarning)
 
-        if len(table) == self.ROW_LIMIT:
+        # Just adding this case for clarification:
+        if len(table_rowlim_plus_one) == self.ROW_LIMIT:
+            # We asked for a table with ROW_LIMIT + 1 rows, and got a table with ROW_LIMIT rows.
+            # This means the table was not truncated, ROW_LIMIT coincides with the table length.
+            pass
+
+        if len(table_rowlim_plus_one) == 1 + self.ROW_LIMIT:
+            # The table has more than ROW_LIMIT rows, which means it will be artificially truncated.
             warnings.warn(f"Results truncated to {self.ROW_LIMIT}. "
                           "To retrieve all the records set to None the ROW_LIMIT attribute",
                           MaxResultsWarning)
@@ -239,7 +246,7 @@ class EsoClass(QueryWithLogin):
     def _try_download_pyvo_table(self,
                                  query_str: str,
                                  tap: TAPService) -> Optional[Table]:
-        table_to_return = Table()
+        table_with_an_extra_row = Table()
 
         def message(query_str):
             return (f"Error executing the following query:\n\n"
@@ -249,8 +256,8 @@ class EsoClass(QueryWithLogin):
                     f' >>> Eso().query_tap( "{query_str}" )\n\n')
 
         try:
-            table_to_return = tap.search(query=query_str, maxrec=self.ROW_LIMIT).to_table()
-            self._maybe_warn_about_table_length(table_to_return)
+            table_with_an_extra_row = tap.search(query=query_str, maxrec=self.ROW_LIMIT+1).to_table()
+            self._maybe_warn_about_table_length(table_with_an_extra_row)
         except DALQueryError:
             log.error(message(query_str))
         except DALFormatError as e:
@@ -258,7 +265,7 @@ class EsoClass(QueryWithLogin):
         except Exception as e:
             raise type(e)(f"{e}\n" + message(query_str)) from e
 
-        return table_to_return
+        return table_with_an_extra_row[:self.ROW_LIMIT]
 
     def tap(self, authenticated: bool = False) -> TAPService:
 
