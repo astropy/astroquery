@@ -52,6 +52,10 @@ class TestMast:
         ticobj_loc = utils.resolve_object("TIC 141914082")
         assert round(ticobj_loc.separation(SkyCoord("94.6175354 -72.04484622", unit='deg')).value, 4) == 0
 
+        # Integer input
+        int_loc = utils.resolve_object(251813740)
+        assert round(int_loc.separation(SkyCoord("343.48308 -0.98468872", unit='deg')).value, 4) == 0
+
         # Try the same object with different resolvers
         # The position of objects can change with different resolvers
         ned_loc = utils.resolve_object("jw100", resolver="NED")
