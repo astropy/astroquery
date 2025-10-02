@@ -14,6 +14,11 @@ API changes
 Service fixes and enhancements
 ------------------------------
 
+mast
+^^^^
+
+- Bugfix so that the ``utils.resolve_object`` function accepts integer values as object names. [#3435]
+
 
 
 Infrastructure, Utility and Other Changes and Additions
