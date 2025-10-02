@@ -154,7 +154,7 @@ def resolve_object(objectname, *, resolver=None, resolve_all=False):
 
     Parameters
     ----------
-    objectname : str
+    objectname : str, int, or iterable of {str, int}
         Name(s) of astronomical object(s) to resolve.
     resolver : str, optional
         The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".

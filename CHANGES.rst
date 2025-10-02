@@ -20,6 +20,12 @@ esa.hubble
 - Update ``get_datalabs_path`` method so an alternative path is checked if the
   file is not in Datalabs yet [#3437]
 
+mast
+^^^^
+
+- Bugfix so that the ``utils.resolve_object`` function accepts integer values as object names. [#3435]
+
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
