@@ -256,8 +256,7 @@ class EsoClass(QueryWithLogin):
         except DALFormatError as e:
             raise DALFormatError(message(query_str) + f"cause: {e.cause}") from e
         except Exception as e:
-            raise RuntimeError(
-                f"Unhandled exception {type(e)}\n" + message(query_str)) from e
+            raise type(e)(f"{e}\n" + message(query_str)) from e
 
         return table_to_return
 
