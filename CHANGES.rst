@@ -14,6 +14,11 @@ API changes
 Service fixes and enhancements
 ------------------------------
 
+esa.hubble
+^^^^^^^^^^
+
+- Update ``get_datalabs_path`` method so an alternative path is checked if the
+  file is not in Datalabs yet [#3437]
 
 
 Infrastructure, Utility and Other Changes and Additions
