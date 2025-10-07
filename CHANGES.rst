@@ -23,7 +23,7 @@ esa.hubble
 mast
 ^^^^
 
-- Bugfix so that the ``utils.resolve_object`` function accepts integer values as object names. [#3435]
+- Raise an error if non-string values are passed to ``utils.resolve_object``. [#3435]
 
 
 

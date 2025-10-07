@@ -577,10 +577,6 @@ def test_resolve_object_single(patch_post):
     assert isinstance(obj_loc, SkyCoord)
     assert round(obj_loc.separation(tic_coord).value, 10) == 0
 
-    # Resolve with integer input
-    obj_loc = mast.Mast.resolve_object(251813740)
-    assert isinstance(obj_loc, SkyCoord)
-
     # Resolve using a specific resolver and an object that belongs to a MAST catalog
     obj_loc_simbad = mast.Mast.resolve_object(obj, resolver="SIMBAD")
     assert round(obj_loc_simbad.separation(simbad_coord).value, 10) == 0
@@ -605,6 +601,10 @@ def test_resolve_object_single(patch_post):
     with pytest.raises(ResolverError, match='Could not resolve "nonexisting" to a sky position.'):
         mast.Mast.resolve_object("nonexisting")
 
+    # Error if object is not a string
+    with pytest.raises(InvalidQueryError, match='All object names must be strings.'):
+        mast.Mast.resolve_object(1)
+
     # Error if single object cannot be resolved with given resolver
     with pytest.raises(ResolverError, match='Could not resolve "Barnard\'s Star" to a sky position using '
                        'resolver "NED".'):
@@ -617,27 +617,26 @@ def test_resolve_object_single(patch_post):
 
 
 def test_resolve_object_multi(patch_post):
-    objects = ["TIC 307210830", "M1", "Barnard's Star", 251813740]
+    objects = ["TIC 307210830", "M1", "Barnard's Star"]
 
     # No resolver specified
     coord_dict = mast.Mast.resolve_object(objects)
     assert isinstance(coord_dict, dict)
     for obj in objects:
-        obj_str = str(obj)
-        assert obj_str in coord_dict
-        assert isinstance(coord_dict[obj_str], SkyCoord)
+        assert obj in coord_dict
+        assert isinstance(coord_dict[obj], SkyCoord)
 
     # Resolver specified
-    coord_dict = mast.Mast.resolve_object(objects[:3], resolver="SIMBAD")
+    coord_dict = mast.Mast.resolve_object(objects, resolver="SIMBAD")
     assert isinstance(coord_dict, dict)
-    for obj in objects[:3]:
+    for obj in objects:
         assert obj in coord_dict
         assert isinstance(coord_dict[obj], SkyCoord)
 
     # Resolve all
-    coord_dict = mast.Mast.resolve_object(objects[:3], resolve_all=True)
+    coord_dict = mast.Mast.resolve_object(objects, resolve_all=True)
     assert isinstance(coord_dict, dict)
-    for obj in objects[:3]:
+    for obj in objects:
         assert obj in coord_dict
         obj_dict = coord_dict[obj]
         assert isinstance(obj_dict, dict)
