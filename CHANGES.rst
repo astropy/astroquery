@@ -66,6 +66,9 @@ esa.euclid
 
 - New cross-match method [#3386]
 
+- New method, ``get_datalinks_metadata``, to retrieve additional columns
+  from the datalinks metadata. [#3438]
+
 esa.hubble
 ^^^^^^^^^^
 
