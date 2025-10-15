@@ -508,8 +508,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         dot_product = " + ".join([f"{vec0[i]}*{vec1[i]}" for i in range(3)])
         # Assuming 'a.dsr' is the default search radius column.  This value is
         # defined by HEASARC curators for each table.
-        radius_condition = f"{dot_product} > (cos(radians((a.dsr))))"  
-        dec_condition = f"a.dec between {dec} - a.dsr and {dec} + a.dsr"
+        radius_condition = f"{dot_product} > (cos(radians((a.dsr*60/60))))"  
+        dec_condition = f"a.dec between {dec} - a.dsr*60/60 and {dec} + a.dsr*60/60"
         if large:
             return f"""
             ( ({radius_condition}) 
@@ -534,14 +534,9 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         into a decimal MJD constraint.  
         """
         start, end = times.split('..')
-        if re.match(r'^\d{4}-\d{2}-\d{2}$', start):
-            start += 'T00:00:00'
-        if re.match(r'^\d{4}-\d{2}-\d{2}$', end):
-            end += 'T23:59:59'
-
         start_mjd = Time(start, format='isot').mjd
         end_mjd = Time(end, format='isot').mjd
-        return f"end_time > {start_mjd:.8f} AND start_time < {end_mjd:.8f}"
+        return f"end_time > {start_mjd:.6f} AND start_time < {end_mjd:.6f}"
 
 
     def _query_matches(ra=None, dec=None, times=None): 
@@ -606,14 +601,16 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         return re.sub(r'\s+', ' ', full_query.replace('\n','')).strip()
         #return full_query
 
-    def query_all(self, position=None, get_query_payload=False, times=None, verbose=False, maxrec=None, **kwargs):
+    def query_all(self, position=None, get_query_payload=False, times=None, 
+                 verbose=False, maxrec=None, **kwargs):
         """
         Query the HEASARC database to count matches at a given position for all available catalogs.
 
         Parameters
         ----------
-        position : `~astropy.coordinates.SkyCoord`
-            The position around which to search. Must be a SkyCoord object.
+        position : str, `astropy.coordinates` object 
+            The position around which to search. Must be a SkyCoord object or a string 
+            that Astropy can convert.
         get_query_payload : bool, optional
             If `True` then returns the generated ADQL query as str.
             Defaults to `False`.
@@ -658,14 +655,16 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         table : A `~astropy.table.Table` object.
         
         """
-        if (  (position is not None and not isinstance(position, coordinates.SkyCoord) ) \
-            or (position is None and times is None) ):
-            raise ValueError("A valid SkyCoord position and/or a time range must be provided.")
-        if position is not None: 
-            ra, dec = position.ra.degree, position.dec.degree
-            full_query = HeasarcClass._query_matches(ra=ra, dec=dec, times=times)
-        else: 
-            full_query = HeasarcClass._query_matches(times=times)
+        if position is not None:
+            coords_icrs = parse_coordinates(position).icrs
+            ra, dec = coords_icrs.ra.deg, coords_icrs.dec.deg
+        if position is None and times is not None:
+            ra=None
+            dec=None
+        if (  (position is None and times is None) ):
+            raise ValueError("A valid position and/or a time range must be provided.")
+
+        full_query = HeasarcClass._query_matches(ra=ra,dec=dec,times=times)
 
         if get_query_payload:
             return full_query
