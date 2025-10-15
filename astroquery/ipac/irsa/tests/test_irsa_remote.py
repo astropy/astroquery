@@ -82,6 +82,13 @@ class TestIrsa:
 
         assert len(allwise_catalogs) == 4
 
+    def test_list_catalogs_filter_description(self):
+        twomass_catalogs = Irsa.list_catalogs(filter='2mass')
+        assert len(twomass_catalogs) == 39
+
+        all_twomass = Irsa.list_catalogs(filter='2mass', include_metadata_tables=True)
+        assert len(all_twomass) == 58
+
     def test_list_catalogs_metadata(self):
         catalogs = Irsa.list_catalogs(filter='wise')
         all_tables = Irsa.list_catalogs(filter='wise', include_metadata_tables=True)

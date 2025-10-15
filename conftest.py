@@ -2,6 +2,7 @@
 
 import os
 from pathlib import Path
+import sys
 
 from astropy.utils import minversion
 import numpy as np
@@ -60,3 +61,9 @@ def tmp_cwd(tmp_path):
         yield tmp_path
     finally:
         os.chdir(old_dir)
+
+
+def pytest_runtestloop(session):
+    if sys.platform == 'win32':
+        session.add_marker(pytest.mark.filterwarnings(
+        'ignore:OverflowError converting to IntType in column:astropy.utils.exceptions.AstropyWarning'))

@@ -4,6 +4,7 @@
 ESA EUCLID Archive (`astroquery.esa.euclid`)
 ********************************************
 
+
 Euclid is an ESA mission to map the geometry of the dark Universe. The mission investigates the distance-redshift
 relationship and the evolution of cosmic structures. The space telescope creates a great map of the large-scale
 structure of the Universe across space and time by observing billions of galaxies out to 10 billion light-years, across
@@ -80,7 +81,9 @@ Examples
 
 It is highly recommended checking the status of Euclid TAP before executing this module. To do this:
 
-.. doctest-remote-data::
+.. almost all code examples require remote-data access, thus only using this
+   one at the first example
+.. doctest-remote-data-all::
 
   >>> from astroquery.esa.euclid import Euclid
   >>> Euclid.get_status_messages()
@@ -122,13 +125,9 @@ The description of these data products can be found on the Data Product Definiti
 
 By default, the object *Euclid*
 
-.. doctest-remote-data::
-
   >>> from astroquery.esa.euclid import Euclid
 
 makes use of the *PDR* environment. In order to make use of a different one, it is necessary to instantiate the class EuclidClass
-
-.. doctest-remote-data::
 
   >>> from astroquery.esa.euclid import EuclidClass
   >>> euclid = EuclidClass(environment='IDR')
@@ -145,8 +144,6 @@ The parameter *environment* is limited to *IDR*, *OTF*, *PDR* or *REG*.
 Table and column metadata are specified by IVOA TAP_ recommendation (to access to the actual data, an ADQL query must be executed).
 
 To load only table names metadata (TAP+ capability):
-
-.. doctest-remote-data::
 
   >>> from astroquery.esa.euclid import Euclid
   >>> tables = Euclid.load_tables(only_names=True, include_shared_tables=True)
@@ -177,8 +174,6 @@ To load only table names metadata (TAP+ capability):
 
 To load all table metadata (TAP compatible):
 
-.. doctest-remote-data::
-
   >>> from astroquery.esa.euclid import Euclid
   >>> tables = Euclid.load_tables()
   INFO: Retrieving tables... [astroquery.utils.tap.core]
@@ -192,8 +187,6 @@ To load all table metadata (TAP compatible):
 
 
 To load only a table (TAP+ capability) and inspect its columns:
-
-.. doctest-remote-data::
 
   >>> from astroquery.esa.euclid import Euclid
   >>> raw_detector_table = Euclid.load_table('sedm.raw_detector')
@@ -282,9 +275,6 @@ In the following example, for the Clusters of Galaxies category, and the group G
 
 This query performs a cone search centered at the specified ra/dec coordinates with the provided radius argument.
 
-.. Skipping authentication requiring examples
-.. doctest-skip::
-
   >>> #example cone search for source NGC6505
   >>> from astroquery.esa.euclid import Euclid
   >>> from astropy.coordinates import SkyCoord
@@ -296,32 +286,31 @@ This query performs a cone search centered at the specified ra/dec coordinates w
   >>> cone_results = job.get_results()
   >>> print("Found", len(cone_results), "results")
   Found 27 results
-  >>> cone_results['tile_index', 'creation_date', 'ra', 'dec', 'file_name', 'file_path', 'datalabs_path', 'filter_name', 'dist'][:5]
+  >>> cone_results['tile_index', 'creation_date', 'ra', 'dec', 'file_name', 'file_path', 'datalabs_path', 'filter_name', 'dist'][:5]  # doctest: +IGNORE_OUTPUT
   <Table length=5>
-  tile_index      creation_date           ra       dec                                         file_name                                                              file_path                                       datalabs_path                filter_name         dist
-    int64             str23            float64   float64                                         str88                                                                  str55                                             str43                       str11          float64
-  ---------- ----------------------- ----------- ------- ------------------------------------------------------------------------------------- ------------------------------------------------------- ------------------------------------------- ----------- -------------------
-   102158889 2024-10-26T14:01:21.038 267.3807789 65.4983   EUC_MER_BGSUB-MOSAIC-CFIS-R_TILE102158889-4366B7_20241024T203624.450577Z_00.00.fits /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/MEGACAM /data/euclid_q1/Q1_R1/MER/102158889/MEGACAM   MEGACAM_r 0.16895922479034217
-   102158889 2024-10-26T13:50:13.676 267.3807789 65.4983 EUC_MER_BGSUB-MOSAIC-WISHES-G_TILE102158889-3DC3C3_20241024T205647.635112Z_00.00.fits     /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/HSC     /data/euclid_q1/Q1_R1/MER/102158889/HSC       HSC_g 0.16895922479034217
-   102158889 2024-10-26T13:37:09.628 267.3807789 65.4983    EUC_MER_BGSUB-MOSAIC-NIR-Y_TILE102158889-AC6585_20241024T225321.344048Z_00.00.fits    /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/NISP    /data/euclid_q1/Q1_R1/MER/102158889/NISP       NIR_Y 0.16895922479034217
-   102158889  2024-10-26T14:05:09.98 267.3807789 65.4983    EUC_MER_BGSUB-MOSAIC-CFIS-U_TILE102158889-9E97F_20241024T204431.839748Z_00.00.fits /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/MEGACAM /data/euclid_q1/Q1_R1/MER/102158889/MEGACAM   MEGACAM_u 0.16895922479034217
-   102158889 2024-10-26T13:10:32.453 267.3807789 65.4983    EUC_MER_BGSUB-MOSAIC-NIR-H_TILE102158889-ED035A_20241024T212936.705156Z_00.00.fits    /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/NISP    /data/euclid_q1/Q1_R1/MER/102158889/NISP       NIR_H 0.16895922479034217
+  tile_index      creation_date           ra       dec   ...                        file_path                                       datalabs_path                filter_name         dist
+    int64             str23            float64   float64 ...                          str55                                             str43                       str11          float64
+  ---------- ----------------------- ----------- ------- ... ------------------------------------------------------- ------------------------------------------- ----------- -------------------
+   102158889 2024-10-26T14:01:21.038 267.3807789 65.4983 ... /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/MEGACAM /data/euclid_q1/Q1_R1/MER/102158889/MEGACAM   MEGACAM_r 0.16895922479034217
+   102158889 2024-10-26T13:50:13.676 267.3807789 65.4983 ...     /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/HSC     /data/euclid_q1/Q1_R1/MER/102158889/HSC       HSC_g 0.16895922479034217
+   102158889 2024-10-26T13:37:09.628 267.3807789 65.4983 ...    /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/NISP    /data/euclid_q1/Q1_R1/MER/102158889/NISP       NIR_Y 0.16895922479034217
+   102158889  2024-10-26T14:05:09.98 267.3807789 65.4983 ... /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/MEGACAM /data/euclid_q1/Q1_R1/MER/102158889/MEGACAM   MEGACAM_u 0.16895922479034217
+   102158889 2024-10-26T13:10:32.453 267.3807789 65.4983 ...    /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/NISP    /data/euclid_q1/Q1_R1/MER/102158889/NISP       NIR_H 0.16895922479034217
 
 
 
 Queries return a limited number of rows controlled by ``Euclid.ROW_LIMIT``. To change the default behaviour set this appropriately.
 
-.. Skipping authentication requiring examples
-.. doctest-skip::
-
   >>> Euclid.ROW_LIMIT = 2
   >>> job = Euclid.cone_search(coordinate=coord, radius=radius, table_name="sedm.mosaic_product", ra_column_name="ra", dec_column_name="dec", columns="*", async_job=True)
+    INFO: Query finished. [astroquery.utils.tap.core]
   >>> cone_results = job.get_results()
-  >>> print("Found", len(cone_results), "results")
+  >>> print(f"Found {len(cone_results)} results")
   Found 2 results
 
-
 To return an unlimited number of rows set ``Euclid.ROW_LIMIT`` to -1.
+
+  >>> Euclid.ROW_LIMIT = -1
 
 
 1.3. Query object
@@ -336,19 +325,15 @@ The following example searches for all the sources contained in an squared regio
 
 The method returns the job results as astropy.table
 
-
-.. Skipping authentication requiring examples
-.. doctest-skip::
-
   >>> # Search for objects around a given position with the default catalog catalogue.mer_catalogue
   >>> from astroquery.esa.euclid import Euclid
   >>> from astropy.coordinates import SkyCoord
   >>> import astropy.units as u
   >>> coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
-  >>> table = Euclid.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg), height= u.Quantity(0.1, u.deg))
+  >>> table = Euclid.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg), height= u.Quantity(0.1, u.deg))  # doctest: +IGNORE_WARNINGS
   >>> print("Found a total of", len(table), "query results")
   Found a total of 2000 query results
-  >>> print(table)
+  >>> print(table)  # doctest: +IGNORE_OUTPUT
            dist         avg_trans_wave_g_ext_decam avg_trans_wave_g_ext_hsc avg_trans_wave_g_ext_jpcam avg_trans_wave_g_ext_lsst avg_trans_wave_h avg_trans_wave_i_ext_decam ... sersic_fract_z_ext_panstarrs_disk_sersic sersic_fract_z_ext_panstarrs_disk_sersic_err she_flag spurious_flag     spurious_prob      variable_flag vis_det
   --------------------- -------------------------- ------------------------ -------------------------- ------------------------- ---------------- -------------------------- ... ---------------------------------------- -------------------------------------------- -------- ------------- ---------------------- ------------- -------
   3.566798805594703e-06            4826.7998046875                       --                         --                        --               --             7826.669921875 ...                                       --                                           --       --             0    0.15743961930274963            --       1
@@ -371,20 +356,17 @@ Synchronous queries like this one return a limited number of rows -> 2000
 
 The previous query can be executed as an asynchronous version:
 
-.. Skipping authentication requiring examples
-.. doctest-skip::
-
   >>> from astroquery.esa.euclid import Euclid
   >>> from astropy.coordinates import SkyCoord
   >>> import astropy.units as u
   >>> coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
   >>> width=u.Quantity(0.1, u.deg)
   >>> height= u.Quantity(0.1, u.deg)
-  >>> table_async = Euclid.query_object(coordinate=coord, width=width, height=height, async_job=True)
+  >>> table_async = Euclid.query_object(coordinate=coord, width=width, height=height, async_job=True)  # doctest: +IGNORE_WARNINGS
   INFO: Query finished. [astroquery.utils.tap.core]
-  >>> print("Found a total of", len(table_async), "query results")
+  >>> print(f"Found a total of {len(table_async)} query results")
   Found a total of 2895 query results
-  >>> print(table_async)
+  >>> print(table_async)  # doctest: +IGNORE_OUTPUT
            dist         avg_trans_wave_g_ext_decam avg_trans_wave_g_ext_hsc avg_trans_wave_g_ext_jpcam avg_trans_wave_g_ext_lsst avg_trans_wave_h avg_trans_wave_i_ext_decam ... sersic_fract_z_ext_panstarrs_disk_sersic sersic_fract_z_ext_panstarrs_disk_sersic_err she_flag spurious_flag     spurious_prob      variable_flag vis_det
   --------------------- -------------------------- ------------------------ -------------------------- ------------------------- ---------------- -------------------------- ... ---------------------------------------- -------------------------------------------- -------- ------------- ---------------------- ------------- -------
   3.566798805594703e-06            4826.7998046875                       --                         --                        --               --             7826.669921875 ...                                       --                                           --       --             0    0.15743961930274963            --       1
@@ -835,13 +817,24 @@ In the Euclid archive user tables can be shared among user groups.
 
 To obtain a list of the tables shared to a user type the following:
 
-.. Skipping authentication requiring examples
-.. doctest-skip::
-
   >>> from astroquery.esa.euclid import Euclid
   >>> tables = Euclid.load_tables(only_names=True, include_shared_tables=True)
+    INFO: Retrieving tables... [astroquery.utils.tap.core]
+    INFO: Parsing tables... [astroquery.utils.tap.core]
+    INFO: Done. [astroquery.utils.tap.core]
   >>> for table in tables:
   ...   print(table.get_qualified_name())
+    catalogue.mer_catalogue
+    catalogue.mer_cutouts
+    catalogue.mer_morphology
+    catalogue.phz_classification
+    catalogue.phz_galaxy_sed
+    ...
+    tap_schema.columns
+    tap_schema.key_columns
+    tap_schema.keys
+    tap_schema.schemas
+    tap_schema.tables
 
 .. _uploading_table_to_user_space:
 
@@ -977,7 +970,7 @@ table named: user_<your_login_name>.'t'<job_id>:
 
   >>> from astroquery.esa.euclid import Euclid
   >>> Euclid.login()
-  >>> job_1 = Euclid.launch_job_async("select top 10 * from Eucliddr3.Euclid_source")
+  >>> job_1 = Euclid.launch_job_async("select top 10 * from catalogue.mer_catalogue")
   >>> Euclid.upload_table_from_job(job=job_1)
   Created table 't1539932994481O' from job: '1539932994481O'.
 
