@@ -528,18 +528,17 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             )
             """
 
-    def _time_constraint(times=None):
+    def _time_constraint(start_time=None,end_time=None):
         """"
         Converts input string like "2025-01-02T01:00:00..2025-01-05T23:59:59" 
         into a decimal MJD constraint.  
         """
-        start, end = times.split('..')
-        start_mjd = Time(start, format='isot').mjd
-        end_mjd = Time(end, format='isot').mjd
+        start_mjd = Time(start_time, format='isot').mjd
+        end_mjd = Time(end_time, format='isot').mjd
         return f"end_time > {start_mjd:.6f} AND start_time < {end_mjd:.6f}"
 
 
-    def _query_matches(ra=None, dec=None, times=None): 
+    def _query_matches(ra=None, dec=None, start_time=None, end_time=None): 
         """
         Constructs the full SQL query including the spatial and time constraints.  
         Note that this queries multiple tables, as the HEASARC database has split 
@@ -548,19 +547,19 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         if ra is not None:
             constraint_small = HeasarcClass._fast_geometry_constraint(ra, dec,large=False)
             constraint_big = HeasarcClass._fast_geometry_constraint(ra, dec,large=True)
-        if times is not None:
-            constraint_time = HeasarcClass._time_constraint(times)
+        if start_time is not None:
+            constraint_time = HeasarcClass._time_constraint(start_time,end_time)
         
         tname1, tname2 = None, None 
-        if ra is not None and times is None:
+        if ra is not None and start_time is None:
             tname1 = 'pos_small'
             tname2 = "pos_big"
-        elif ra is not None and times is not None:
+        elif ra is not None and start_time is not None:
             tname1 = 'pos_time_small'
             tname2 = 'pos_time_big'
             constraint_small += f" AND {constraint_time}"
             constraint_big += f" AND {constraint_time}"
-        elif ra is None and times is not None:
+        elif ra is None and start_time is not None:
             tname1 = 'time'
         else:
             raise ValueError("You must specify either a position or time range or both")
@@ -601,8 +600,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         return re.sub(r'\s+', ' ', full_query.replace('\n','')).strip()
         #return full_query
 
-    def query_all(self, position=None, get_query_payload=False, times=None, 
-                 verbose=False, maxrec=None, **kwargs):
+    def query_all(self, position=None, get_query_payload=False, start_time=None, 
+                 end_time=None, verbose=False, maxrec=None, **kwargs):
         """
         Query the HEASARC database to count matches at a given position for all available catalogs.
 
@@ -611,6 +610,12 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         position : str, `astropy.coordinates` object 
             The position around which to search. Must be a SkyCoord object or a string 
             that Astropy can convert.
+        start_time : str, `astropy.time` object
+            Beginning of time range of interest as a string in ISOT format
+            or Time object.
+        end_time : str, `astropy.time` object
+            End of time range of interest as a string in ISOT format
+            or Time object.
         get_query_payload : bool, optional
             If `True` then returns the generated ADQL query as str.
             Defaults to `False`.
@@ -658,13 +663,15 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         if position is not None:
             coords_icrs = parse_coordinates(position).icrs
             ra, dec = coords_icrs.ra.deg, coords_icrs.dec.deg
-        if position is None and times is not None:
+        if position is None and start_time is not None:
             ra=None
             dec=None
-        if (  (position is None and times is None) ):
+        if (  (position is None and start_time is None) ):
             raise ValueError("A valid position and/or a time range must be provided.")
 
-        full_query = HeasarcClass._query_matches(ra=ra,dec=dec,times=times)
+        full_query = HeasarcClass._query_matches(ra=ra,dec=dec,
+                                                 start_time=start_time,
+                                                 end_time=end_time)
 
         if get_query_payload:
             return full_query
