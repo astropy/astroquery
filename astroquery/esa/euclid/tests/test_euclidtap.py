@@ -599,7 +599,7 @@ def test_get_product_list():
     assert results is not None, "Expected a valid table"
 
     assert len(results) == 4, "Wrong job results (num rows). Expected: %d, found %d" % (4, len(results))
-    __check_results_column(results, 'observation_id', None, None, np.dtype('<U255'))
+    __check_results_column(results, 'observation_id', None, None, np.dtype('U255'))
     __check_results_column(results, 'observation_stk_oid', None, None, np.int64)
 
     for product_type in conf.OBSERVATION_STACK_PRODUCTS:
@@ -651,7 +651,7 @@ def test_get_product_list_by_tile_index():
     assert results is not None, "Expected a valid table"
 
     assert len(results) == 4, "Wrong job results (num rows). Expected: %d, found %d" % (4, len(results))
-    __check_results_column(results, 'observation_id', None, None, np.dtype('<U255'))
+    __check_results_column(results, 'observation_id', None, None, np.dtype('U255'))
     __check_results_column(results, 'observation_stk_oid', None, None, np.int64)
 
     for product_type in conf.MOSAIC_PRODUCTS:

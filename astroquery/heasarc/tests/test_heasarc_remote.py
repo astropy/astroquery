@@ -6,11 +6,10 @@ import tempfile
 import astropy.units as u
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
-from packaging.version import Version
 
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from astroquery.exceptions import NoResultsWarning
-import pyvo
+
 from pyvo.dal.exceptions import DALOverflowWarning
 
 from astroquery.heasarc import Heasarc
@@ -157,10 +156,6 @@ class TestHeasarc:
         assert "rosmaster" in catalogs
         assert "rassmaster" in catalogs
 
-    @pytest.mark.skipif(
-        Version(pyvo.__version__) < Version('1.4'),
-        reason="DALOverflowWarning is available only in pyvo>=1.4"
-    )
     def test_tap__maxrec(self):
         query = "SELECT TOP 10 ra,dec FROM xray"
         with pytest.warns(expected_warning=DALOverflowWarning, match=overflow_message):

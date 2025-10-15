@@ -17,7 +17,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.image_cutouts.first`.
     """
     server = _config.ConfigItem(
-        ['https://third.ucllnl.org/cgi-bin/firstcutout'],
+        ['https://sundog.stsci.edu/cgi-bin/firstcutout'],
         'Name of the FIRST server.')
     timeout = _config.ConfigItem(
         60,
