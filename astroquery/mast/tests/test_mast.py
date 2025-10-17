@@ -601,6 +601,10 @@ def test_resolve_object_single(patch_post):
     with pytest.raises(ResolverError, match='Could not resolve "nonexisting" to a sky position.'):
         mast.Mast.resolve_object("nonexisting")
 
+    # Error if object is not a string
+    with pytest.raises(InvalidQueryError, match='All object names must be strings.'):
+        mast.Mast.resolve_object(1)
+
     # Error if single object cannot be resolved with given resolver
     with pytest.raises(ResolverError, match='Could not resolve "Barnard\'s Star" to a sky position using '
                        'resolver "NED".'):
@@ -622,20 +626,12 @@ def test_resolve_object_multi(patch_post):
         assert obj in coord_dict
         assert isinstance(coord_dict[obj], SkyCoord)
 
-    # Warn if one of the objects cannot be resolved
-    with pytest.warns(InputWarning, match='Could not resolve "nonexisting" to a sky position.'):
-        coord_dict = mast.Mast.resolve_object(["M1", "nonexisting"])
-
     # Resolver specified
     coord_dict = mast.Mast.resolve_object(objects, resolver="SIMBAD")
     assert isinstance(coord_dict, dict)
     for obj in objects:
         assert obj in coord_dict
         assert isinstance(coord_dict[obj], SkyCoord)
-
-    # Warn if one of the objects can't be resolved with given resolver
-    with pytest.warns(InputWarning, match='Could not resolve "TIC 307210830" to a sky position using resolver "NED"'):
-        mast.Mast.resolve_object(objects[:2], resolver="NED")
 
     # Resolve all
     coord_dict = mast.Mast.resolve_object(objects, resolve_all=True)
@@ -645,6 +641,14 @@ def test_resolve_object_multi(patch_post):
         obj_dict = coord_dict[obj]
         assert isinstance(obj_dict, dict)
         assert isinstance(obj_dict["SIMBAD"], SkyCoord)
+
+    # Warn if one of the objects cannot be resolved
+    with pytest.warns(InputWarning, match='Could not resolve "nonexisting" to a sky position.'):
+        coord_dict = mast.Mast.resolve_object(["M1", "nonexisting"])
+
+    # Warn if one of the objects can't be resolved with given resolver
+    with pytest.warns(InputWarning, match='Could not resolve "TIC 307210830" to a sky position using resolver "NED"'):
+        mast.Mast.resolve_object(objects[:2], resolver="NED")
 
     # Error if none of the objects can be resolved
     warnings.simplefilter("ignore", category=InputWarning)  # ignore warnings

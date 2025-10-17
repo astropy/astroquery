@@ -20,6 +20,12 @@ esa.hubble
 - Update ``get_datalabs_path`` method so an alternative path is checked if the
   file is not in Datalabs yet [#3437]
 
+mast
+^^^^
+
+- Raise an error if non-string values are passed to ``utils.resolve_object``. [#3435]
+
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

@@ -154,7 +154,7 @@ def resolve_object(objectname, *, resolver=None, resolve_all=False):
 
     Parameters
     ----------
-    objectname : str
+    objectname : str, or iterable of str
         Name(s) of astronomical object(s) to resolve.
     resolver : str, optional
         The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
@@ -179,7 +179,18 @@ def resolve_object(objectname, *, resolver=None, resolve_all=False):
         `~astropy.coordinates.SkyCoord` objects with the resolved coordinates.
     """
     # Normalize input
-    object_names = [objectname] if isinstance(objectname, str) else list(objectname)
+    try:
+        # Strings are iterable, so check explicitly
+        if isinstance(objectname, str):
+            raise TypeError
+        object_names = list(objectname)
+    except TypeError:
+        object_names = [objectname]
+
+    # If any items are not strings, raise an error
+    if not all(isinstance(name, str) for name in object_names):
+        raise InvalidQueryError('All object names must be strings.')
+
     single = len(object_names) == 1
 
     is_catalog = False  # Flag to check if object name belongs to a MAST catalog
