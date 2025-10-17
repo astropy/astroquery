@@ -937,7 +937,7 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
         for line in response.iter_lines():
             string_message = line.decode("utf-8")
             string_messages.append(string_message[string_message.index('=') + 1:])
-            print(string_messages[len(string_messages)-1])
+            print(string_messages[len(string_messages) - 1])
         return string_messages
 
     def get_columns(self, table_name, *, only_names=True, verbose=False):
@@ -1031,20 +1031,23 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
         path = self._get_decoded_string(string=job["file_path"][0])
         path_parsed = path.split("hstdata/", 1)[1]
 
-        # Automatic fill: convert /hstdata/hstdata_i/i/b4x/04 to /data/user/hub_hstdata_i/i/b4x/04
-        if default_volume is None:
-            full_path = "/data/user/hub_" + path_parsed + "/" + filename
+        for datalabs_path in ["/data/user/", "/data/"]:
+            # Automatic fill: convert /hstdata/hstdata_i/i/b4x/04 to <datalabs_path>/hub_hstdata_i/i/b4x/04
+            if default_volume is None:
+                full_path = datalabs_path + "hub_" + path_parsed + "/" + filename
+
+            # Use the path provided by the user: convert /hstdata/hstdata_i/i/b4x/04 to <datalabs_path>/myPath/i/b4x/04
+            else:
+                trimmed_path = path_parsed.split("/", 1)[1]
+                full_path = datalabs_path + default_volume + "/" + trimmed_path + "/" + filename
+
             file_exists = os.path.exists(full_path)
 
-        # Use the path provided by the user: convert /hstdata/hstdata_i/i/b4x/04 to /data/user/myPath/i/b4x/04
-        else:
-            path_parsed = path_parsed.split("/", 1)[1]
-            full_path = "/data/user/" + default_volume + "/" + path_parsed + "/" + filename
-            file_exists = os.path.exists(full_path)
+            if file_exists:
+                return full_path
 
-        if not file_exists:
-            warnings.warn(f"File {filename} is not accessible. Please ensure the {instrument_name} "
-                          "volume is mounted in your ESA Datalabs instance.")
+        warnings.warn(f"File {filename} is not accessible. Please ensure the {instrument_name} "
+                      "volume is mounted in your ESA Datalabs instance.")
         return full_path
 
 
