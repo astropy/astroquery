@@ -12,9 +12,9 @@ Processing Operation's Center (`SPOC <https://archive.stsci.edu/missions-and-dat
 The cutouts are returned in the form of target pixel files that follow the same format as TESS pipeline target
 pixel files. This tool can be accessed in Astroquery by using the Tesscut class.
 
-As of August 2025, the option to create cutouts using TESS Image CAlibration 
-(`TICA <https://ui.adsabs.harvard.edu/abs/2020RNAAS...4..251F/abstract>`__) full frame images 
-was discontinued. Individual TICA full frame images remain available from the 
+As of August 2025, the option to create cutouts using TESS Image CAlibration
+(`TICA <https://ui.adsabs.harvard.edu/abs/2020RNAAS...4..251F/abstract>`__) full frame images
+was discontinued. Individual TICA full frame images remain available from the
 `MAST TICA homepage <https://archive.stsci.edu/hlsp/tica>`__. Cutouts using SPOC data remain available through TESSCut.
 
 **Note:** TESScut limits each user to no more than 10 simultaneous calls to the service.
@@ -97,7 +97,7 @@ simply with either the objectname or coordinates.
      2  APERTURE      1 ImageHDU        97   (2136, 2078)   int32
 
 
-The `~astroquery.mast.TesscutClass.download_cutouts` function takes a coordinate, cutout size 
+The `~astroquery.mast.TesscutClass.download_cutouts` function takes a coordinate, cutout size
 (in pixels or an angular quantity), or object name (e.g. "M104" or "TIC 32449963") and moving target
 (True or False). It uses these parameters to download the cutout target pixel file(s).
 
@@ -170,6 +170,7 @@ The following example requests SPOC cutouts for a moving target.
    tess-s0043-3-3     43      3   3
    tess-s0044-2-4     44      2   4
    tess-s0092-4-3     92      4   3
+   tess-s0097-1-4     97      1   4
 
 
 Zcut
@@ -237,7 +238,7 @@ If a given coordinate appears in more than one Zcut survey, a cutout will be pro
    Downloading URL https://mast.stsci.edu/zcut/api/v0.1/astrocut?ra=189.49206&dec=62.20615&y=200&x=300&units=px&format=jpg to ./zcut_20201202132453.zip ... [Done]
    ...
    >>> print(manifest)
-                                                  Local Path                                              
+                                                  Local Path
    -------------------------------------------------------------------------------------------------------
       ./hlsp_3dhst_spitzer_irac_goods-n_irac1_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut_0.jpg
    ./hlsp_3dhst_spitzer_irac_goods-n-s2_irac3_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut_0.jpg
