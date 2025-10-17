@@ -23,6 +23,7 @@ from astroquery.utils.tap.conn.tapconn import TapConn
 class DummyConnHandler:
 
     def __init__(self):
+        self.cookie = None
         self.request = None
         self.data = None
         self.fileExt = ".ext"
@@ -168,3 +169,6 @@ class DummyConnHandler:
                        content_type="application/x-www-form-urlencoded", *,
                        verbose=False):
         return self.defaultResponse
+
+    def set_cookie(self, cookie):
+        self.cookie = cookie

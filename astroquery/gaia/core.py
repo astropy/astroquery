@@ -13,6 +13,8 @@ import json
 import os
 import shutil
 import zipfile
+from collections.abc import Iterable
+
 from astropy import units
 from astropy import units as u
 from astropy.coordinates import Angle
@@ -21,7 +23,6 @@ from astropy.io import votable
 from astropy.table import Table
 from astropy.units import Quantity
 from astropy.utils.decorators import deprecated_renamed_argument
-from collections.abc import Iterable
 from requests import HTTPError
 
 from astroquery import log
@@ -869,13 +870,13 @@ class GaiaClass(TapPlus):
         Parameters
         ----------
         table_a_full_qualified_name : str, mandatory
-            a full qualified table name (i.e. schema name and table name)
+            a full qualified table name (i.e. schema name and table name, "user_<user_name>.<table_name>" )
         table_a_column_ra : str, mandatory
             the ‘ra’ column in the table table_a_full_qualified_name
         table_a_column_dec :  str, mandatory
             the ‘dec’ column in the table table_a_full_qualified_name
         table_b_full_qualified_name : str, optional, default MAIN_GAIA_TABLE
-            a full qualified table name (i.e. schema name and table name)
+            a full qualified table name (i.e. schema name and table name, "user_<user_name>.<table_name>" )
         table_b_column_ra : str, optional, default MAIN_GAIA_TABLE_RA
             the ‘ra’ column in the table table_b_full_qualified_name
         table_b_column_dec :  str, default MAIN_GAIA_TABLE_DEC

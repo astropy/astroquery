@@ -1527,16 +1527,27 @@ class TapPlus(Tap):
         verbose : bool, optional, default 'False'
             flag to display information about the process
         """
+
         if table_name is None:
             raise ValueError("Table name cannot be null")
+
+        if '.' not in table_name:
+            if self.__user is None:
+                raise ValueError("You must login to delete the table")
+            full_qualified_table = 'user_' + self.__user + '.' + table_name
+        else:
+            if not table_name.startswith("user_"):
+                raise ValueError(f"Invalid table name {table_name}: expected format user_<user_name>.<table_name>")
+            full_qualified_table = table_name
+
         if force_removal is True:
             args = {
-                "TABLE_NAME": str(table_name),
+                "TABLE_NAME": str(full_qualified_table),
                 "DELETE": "TRUE",
                 "FORCE_REMOVAL": "TRUE"}
         else:
             args = {
-                "TABLE_NAME": str(table_name),
+                "TABLE_NAME": str(full_qualified_table),
                 "DELETE": "TRUE",
                 "FORCE_REMOVAL": "FALSE"}
         connHandler = self.__getconnhandler()
@@ -1545,7 +1556,7 @@ class TapPlus(Tap):
             print(response.status, response.reason)
             print(response.getheaders())
         connHandler.check_launch_response_status(response, verbose, 200)
-        msg = f"Table '{table_name}' deleted."
+        msg = f"Table '{full_qualified_table}' deleted."
         log.info(msg)
 
     def rename_table(self, *, table_name=None, new_table_name=None, new_column_names_dict=None, verbose=False):
@@ -1647,7 +1658,7 @@ class TapPlus(Tap):
             for value in change:
                 if value is None:
                     raise ValueError("None of the values for the changes can be null")
-                if (index == 1 and value != 'utype' and value != 'ucd' and value != 'flags' and value != 'indexed'):
+                if index == 1 and value != 'utype' and value != 'ucd' and value != 'flags' and value != 'indexed':
                     raise ValueError("Position 2 of all changes must be 'utype', 'ucd', 'flags' or 'indexed'")
                 index = index + 1
 

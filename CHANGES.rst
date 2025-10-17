@@ -24,6 +24,11 @@ esa.hubble
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
+utils.tap
+^^^^^^^^^
+
+- ``TapPlus.delete_user_table`` includes the schema name to be compatible with TAP+ version >= 10.x. [#3439]
+
 
 
 0.4.11 (2025-09-19)
