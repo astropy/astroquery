@@ -1463,7 +1463,10 @@ class EuclidClass(TapPlus):
 
         """
 
-        return self.get_datalinks(ids=ids, linking_parameter=linking_parameter, extra_options='METADATA', verbose=verbose)
+        return self.get_datalinks(ids=ids,
+                                  linking_parameter=linking_parameter,
+                                  extra_options='METADATA',
+                                  verbose=verbose)
 
     def get_scientific_product_list(self, *, observation_id=None, tile_index=None, category=None, group=None,
                                     product_type=None, dataset_release='REGREPROC1_R2', verbose=False):
