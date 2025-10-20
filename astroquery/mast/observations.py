@@ -1116,7 +1116,7 @@ class MastClass(MastQueryWithLogin):
 
         return self._portal_api_connection.service_request_async(service, params, pagesize, page, **kwargs)
 
-    def _normalize_filter_value(self, key: str, val) -> list:
+    def _normalize_filter_value(self, key: str, value) -> list:
         """
         Normalize a filter value into a list suitable for MAST filters.
 
@@ -1124,7 +1124,7 @@ class MastClass(MastQueryWithLogin):
         ----------
         key : str
             Parameter name (used for error messages).
-        val : any
+        value : any
             Raw filter value.
 
         Returns
@@ -1133,23 +1133,23 @@ class MastClass(MastQueryWithLogin):
             Normalized filter values.
         """
         # Range filters must be dicts with 'min' and 'max'
-        if isinstance(val, dict):
-            if not {"min", "max"}.issubset(val.keys()):
+        if isinstance(value, dict):
+            if not {"min", "max"}.issubset(value.keys()):
                 raise InvalidQueryError(
                     f'Range filter for "{key}" must be a dictionary with "min" and "max" keys.'
                 )
-            return [val]
+            return [value]
 
         # Convert numpy arrays to lists
-        if isinstance(val, np.ndarray):
-            val = val.tolist()
+        if isinstance(value, np.ndarray):
+            value = value.tolist()
 
         # Convert numpy arrays, sets, or tuples to lists
-        if isinstance(val, (set, tuple)):
-            val = list(val)
+        if isinstance(value, (set, tuple)):
+            value = list(value)
 
         # Wrap scalars into a list
-        return val if isinstance(val, list) else [val]
+        return value if isinstance(value, list) else [value]
 
     def _build_filters(self, service_params):
         """
@@ -1166,10 +1166,10 @@ class MastClass(MastQueryWithLogin):
             Filters suitable for a MAST filtered query.
         """
         filters = []
-        for key, val in service_params.items():
+        for key, value in service_params.items():
             filters.append({
                 "paramName": key,
-                "values": self._normalize_filter_value(key, val)
+                "values": self._normalize_filter_value(key, value)
             })
         return filters
 
