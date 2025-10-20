@@ -28,6 +28,9 @@ mast
 - Filtering by file extension or by a string column is now case-insensitive in ``MastMissions.filter_products``
   and ``Observations.filter_products``. [#3427]
 
+- Expand the supported data types for filter values in ``Mast.mast_query``. Previously, users had to input
+  filter values enclosed in lists, even when specifying a single value or dictionary. [#3422]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
