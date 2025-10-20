@@ -1418,7 +1418,7 @@ class EuclidClass(TapPlus):
 
         return files
 
-    def get_datalinks(self, ids, *, linking_parameter='SOURCE_ID', options=None, verbose=False):
+    def get_datalinks(self, ids, *, linking_parameter='SOURCE_ID', extra_options=None, verbose=False):
         """Gets datalinks associated to the provided identifiers
         TAP+ only
 
@@ -1428,8 +1428,8 @@ class EuclidClass(TapPlus):
             list of identifiers
         linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID
             By default, all the identifiers are considered as source_id
-        options : str, optional, default None
-            To let customize the server behaviour
+        extra_options : str, optional, default None, valid values: METADATA
+            To let customize the server behaviour, if present
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1441,7 +1441,7 @@ class EuclidClass(TapPlus):
 
         return self.__eucliddata.get_datalinks(ids=ids,
                                                linking_parameter=linking_parameter,
-                                               options=options,
+                                               extra_options=extra_options,
                                                verbose=verbose)
 
     def get_datalinks_metadata(self, ids, *, linking_parameter='SOURCE_ID', verbose=False):
@@ -1463,7 +1463,7 @@ class EuclidClass(TapPlus):
 
         """
 
-        return self.get_datalinks(ids=ids, linking_parameter=linking_parameter, options='METADATA', verbose=verbose)
+        return self.get_datalinks(ids=ids, linking_parameter=linking_parameter, extra_options='METADATA', verbose=verbose)
 
     def get_scientific_product_list(self, *, observation_id=None, tile_index=None, category=None, group=None,
                                     product_type=None, dataset_release='REGREPROC1_R2', verbose=False):

@@ -1220,7 +1220,7 @@ def test_logout(mock_logout):
 
 
 def test_get_datalinks(monkeypatch):
-    def get_datalinks_monkeypatched(self, ids, linking_parameter, options, verbose):
+    def get_datalinks_monkeypatched(self, ids, linking_parameter, extra_options, verbose):
         return Table()
 
     # `EuclidClass` is a subclass of `TapPlus`, but it does not inherit
@@ -1234,9 +1234,9 @@ def test_get_datalinks(monkeypatch):
 
 
 def test_get_datalinks_metadata(monkeypatch):
-    def get_datalinks_monkeypatched(self, ids, linking_parameter, options, verbose):
+    def get_datalinks_monkeypatched(self, ids, linking_parameter, extra_options, verbose):
         table = TapTableMeta()
-        table.name = options
+        table.name = extra_options
         return table
 
     # `EuclidClass` is a subclass of `TapPlus`, but it does not inherit

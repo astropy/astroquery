@@ -9,11 +9,22 @@ New Tools and Services
 API changes
 -----------
 
+esa.euclid
+^^^^^^^^^^
+
+- Method ``get_datalinks`` has a new argument, extra_options, to customize
+  the results to be got from the server. [#3438]
+
 
 
 Service fixes and enhancements
 ------------------------------
 
+esa.euclid
+^^^^^^^^^^
+
+- New method, ``get_datalinks_metadata``, to retrieve additional columns
+  from the datalinks metadata. [#3438]
 
 
 Infrastructure, Utility and Other Changes and Additions
@@ -65,9 +76,6 @@ esa.euclid
   products. [#3313]
 
 - New cross-match method [#3386]
-
-- New method, ``get_datalinks_metadata``, to retrieve additional columns
-  from the datalinks metadata. [#3438]
 
 esa.hubble
 ^^^^^^^^^^

@@ -1247,7 +1247,7 @@ class TapPlus(Tap):
             print(f"USER response = {user}")
         return user.startswith(f"{user_id}:") and user.count("\\n") == 0
 
-    def get_datalinks(self, ids, *, linking_parameter=None, options=None, verbose=False):
+    def get_datalinks(self, ids, *, linking_parameter=None, extra_options=None, verbose=False):
         """Gets datalinks associated to the provided identifiers
 
         Parameters
@@ -1259,8 +1259,9 @@ class TapPlus(Tap):
             SOURCE_ID: the identifiers are considered as source_id
             TRANSIT_ID: the identifiers are considered as transit_id
             IMAGE_ID: the identifiers are considered as sif_observation_id
-        options : str, optional, default None
+        extra_options : str, optional, default None, valid values: METADATA
             If present, an extra parameter OPTIONS will be added to the call, to be interpreted by the TAP service
+            METADATA: to retrieve extra metadata columns (currently supported by the Euclid archive)
         verbose : bool, optional, default 'False'
             Flag to display information about the process
 
