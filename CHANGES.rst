@@ -14,6 +14,13 @@ API changes
 Service fixes and enhancements
 ------------------------------
 
+heasarc
+^^^^^^^
+- Add ``query_constraints`` to allow querying of different catalog columns. [#3403]
+- Add support for uploading tables when using TAP directly through ``query_tap``. [#3403]
+- Add automatic guessing for the data host in ``download_data``. [#3403]
+
+
 esa.hubble
 ^^^^^^^^^^
 
@@ -69,13 +76,6 @@ mast
 
 Service fixes and enhancements
 ------------------------------
-
-heasarc
-^^^^^^^
-- Add ``query_by_column`` to allow querying of different catalog columns. [#3403]
-- Add support for uploading tables when using TAP directly through ``query_tap``. [#3403]
-- Improve how maxrec works. If it is bigger than the default server limit, add a TOP statement. [#3403]
-- Add automatic guessing for the data host in ``download_data``. [#3403]
 
 alma
 ^^^^
