@@ -351,10 +351,6 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             where = ' ' + where.strip()
         adql = f'SELECT {columns} FROM {catalog}{where}'
 
-        # if maxrec is more than the server limit, we set a higher limit
-        if maxrec is not None and maxrec > 100000:
-            adql = adql.replace('SELECT ', f'SELECT TOP {maxrec*4} ')
-
         if get_query_payload:
             return adql
         response = self.query_tap(query=adql, maxrec=maxrec)
