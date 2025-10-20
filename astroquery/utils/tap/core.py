@@ -1285,8 +1285,8 @@ class TapPlus(Tap):
         if linking_parameter is not None:
             ids_arg = f'{ids_arg}&LINKING_PARAMETER={linking_parameter}'
 
-        if options is not None:
-            ids_arg = f'{ids_arg}&OPTIONS={options}'
+        if extra_options is not None:
+            ids_arg = f'{ids_arg}&OPTIONS={extra_options}'
 
         if verbose:
             print(f"Datalink request: ID={ids_arg}")
