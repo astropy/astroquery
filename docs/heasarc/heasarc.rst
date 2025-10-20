@@ -183,7 +183,7 @@ following for instance will find master catalogs that have keywords 'nicer' or '
 
 Other non-region queries
 ----------------------------------------
-In addition to `~astroquery.heasarc.HeasarcClass.query_region`, `~astroquery.heasarc.HeasarcClass.query_by_column`
+In addition to `~astroquery.heasarc.HeasarcClass.query_region`, `~astroquery.heasarc.HeasarcClass.query_constraints`
 is also available. This method allows you to query a catalog by specifying
 various column constraints. For example, the following query searches the ``chanmaster``
 catalog for all observations with exposure time greater than 190 ks.
@@ -191,8 +191,8 @@ catalog for all observations with exposure time greater than 190 ks.
 .. doctest-remote-data::
 
     >>> from astroquery.heasarc import Heasarc
-    >>> tab = Heasarc.query_by_column(
-    ...     catalog='chanmaster', params={'exposure': ('>', '190000')}
+    >>> tab = Heasarc.query_constraints(
+    ...     catalog='chanmaster', column_filters={'exposure': ('>', '190000')}
     ... )
     >>> tab['name', 'obsid', 'ra', 'dec', 'exposure'][:3].pprint()
         name      obsid     ra       dec    exposure
@@ -207,8 +207,8 @@ Another example may be to search the ``xmmmaster`` for a observation in some tim
 .. doctest-remote-data::
 
     >>> from astroquery.heasarc import Heasarc
-    >>> tab = Heasarc.query_by_column(
-    ...     catalog='xmmmaster', params={'time': (52300, 52310)}
+    >>> tab = Heasarc.query_constraints(
+    ...     catalog='xmmmaster', column_filters={'time': (52300, 52310)}
     ... )
     >>> tab['name', 'obsid', 'ra', 'dec', 'time', 'duration'][:3].pprint()
          name       obsid       ra       dec          time       duration

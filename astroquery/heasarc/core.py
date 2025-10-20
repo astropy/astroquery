@@ -295,7 +295,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                        get_query_payload=False, columns=None,
                        verbose=False, maxrec=None):
         """Queries some catalog using the HEASARC TAP server based on the
-        where condition and returns an `~astropy.table.Table`.
+        'where' condition and returns an `~astropy.table.Table`.
 
         Parameters
         ----------
@@ -531,22 +531,22 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         return self.query_region(pos, catalog=mission, spatial='cone',
                                  get_query_payload=get_query_payload)
 
-    def query_by_column(self, catalog, params, *,
-                        get_query_payload=False, columns=None,
-                        verbose=False, maxrec=None):
+    def query_constraints(self, catalog, column_filters, *,
+                          get_query_payload=False, columns=None,
+                          verbose=False, maxrec=None):
         """Query the HEASARC TAP server using a constraints on the columns.
 
         This is a simple wrapper around
         `~astroquery.heasarc.HeasarcClass.query_tap`
-        that constructs an ADQL query from a dictionary of parameters.
+        that constructs an ADQL query from a dictionary of filters.
 
         Parameters
         ----------
         catalog : str
             The catalog to query. To list the available catalogs, use
             :meth:`~astroquery.heasarc.HeasarcClass.list_catalogs`.
-        params : dict
-            A dictionary of column constraint parameters to include in the query.
+        column_filters : dict
+            A dictionary of column constraint filters to include in the query.
             Each key-value pair will be translated into an ADQL condition.
             - For a range query, use a tuple of two values (min, max).
             e.g. ``{'flux': (1e-12, 1e-10)}`` translates to
@@ -576,11 +576,11 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         """
 
-        if not isinstance(params, dict):
+        if not isinstance(column_filters, dict):
             raise ValueError('params must be a dictionary of key-value pairs')
 
         conditions = []
-        for key, value in params.items():
+        for key, value in column_filters.items():
             if isinstance(value, tuple):
                 if (
                     len(value) == 2
@@ -784,7 +784,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                 return 'aws'
         return 'heasarc'
 
-    def download_data(self, links, host=None, location='.'):
+    def download_data(self, links, *, host=None, location='.'):
         """Download data products in links with a choice of getting the
         data from either the heasarc server, sciserver, or the cloud in AWS.
 
@@ -792,7 +792,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         Parameters
         ----------
         links : `astropy.table.Table` or `astropy.table.Row`
-            The result from locate_data
+            A table (or row) of data links, typically the result of locate_data.
         host : str or None
             The data host. The options are: None (default), heasarc, sciserver, aws.
             If None, the host is guessed based on the environment.

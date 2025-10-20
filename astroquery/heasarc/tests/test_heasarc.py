@@ -231,11 +231,11 @@ def test_no_catalog():
             OBJ_LIST[0], spatial="cone", columns="*", radius="2arcmin")
 
 
-def test_by_columns_no_catalog():
+def test_query_constraints_no_catalog():
     with pytest.raises(InvalidQueryError):
         # OBJ_LIST[0] and radius added to avoid a remote call
-        Heasarc.query_by_column(
-            None, params={"flux": (1e-12, 1e-10)})
+        Heasarc.query_constraints(
+            None, column_filters={"flux": (1e-12, 1e-10)})
 
 
 def test__query_execute_no_catalog():
@@ -244,25 +244,25 @@ def test__query_execute_no_catalog():
         Heasarc._query_execute(None)
 
 
-def test_by_columns_none_params():
+def test_query_constraints_none_params():
     with pytest.raises(ValueError):
-        Heasarc.query_by_column('testcatalog', params=None)
+        Heasarc.query_constraints('testcatalog', column_filters=None)
 
 
-def test_by_columns_no_params():
-    query = Heasarc.query_by_column(
+def test_query_constraints_no_params():
+    query = Heasarc.query_constraints(
         catalog="suzamaster",
-        params={},
+        column_filters={},
         columns="*",
         get_query_payload=True,
     )
     assert query == "SELECT * FROM suzamaster"
 
 
-def test_by_columns_limit():
-    query = Heasarc.query_by_column(
+def test_query_constraints_limit():
+    query = Heasarc.query_constraints(
         catalog="suzamaster",
-        params={},
+        column_filters={},
         columns="*",
         get_query_payload=True,
         maxrec=500000,
@@ -270,50 +270,50 @@ def test_by_columns_limit():
     assert query == "SELECT TOP 2000000 * FROM suzamaster"
 
 
-def test_by_columns_range():
-    query = Heasarc.query_by_column(
+def test_query_constraints_range():
+    query = Heasarc.query_constraints(
         catalog="suzamaster",
-        params={"flux": (1e-12, 1e-10)},
+        column_filters={"flux": (1e-12, 1e-10)},
         columns="*",
         get_query_payload=True,
     )
     assert query == "SELECT * FROM suzamaster WHERE flux BETWEEN 1e-12 AND 1e-10"
 
 
-def test_by_columns_eq_float():
-    query = Heasarc.query_by_column(
+def test_query_constraints_eq_float():
+    query = Heasarc.query_constraints(
         catalog="suzamaster",
-        params={"flux": 1.2},
+        column_filters={"flux": 1.2},
         columns="*",
         get_query_payload=True,
     )
     assert query == "SELECT * FROM suzamaster WHERE flux = 1.2"
 
 
-def test_by_columns_eq_str():
-    query = Heasarc.query_by_column(
+def test_query_constraints_eq_str():
+    query = Heasarc.query_constraints(
         catalog="suzamaster",
-        params={"flux": "1.2"},
+        column_filters={"flux": "1.2"},
         columns="*",
         get_query_payload=True,
     )
     assert query == "SELECT * FROM suzamaster WHERE flux = '1.2'"
 
 
-def test_by_columns_cmp_float():
-    query = Heasarc.query_by_column(
+def test_query_constraints_cmp_float():
+    query = Heasarc.query_constraints(
         catalog="suzamaster",
-        params={"flux": ('>', 1.2)},
+        column_filters={"flux": ('>', 1.2)},
         columns="*",
         get_query_payload=True,
     )
     assert query == "SELECT * FROM suzamaster WHERE flux > 1.2"
 
 
-def test_by_columns_cmp_float_2():
-    query = Heasarc.query_by_column(
+def test_query_constraints_cmp_float_2():
+    query = Heasarc.query_constraints(
         catalog="suzamaster",
-        params={"flux": ('>', 1.2), "magnitude": ('<=', 15)},
+        column_filters={"flux": ('>', 1.2), "magnitude": ('<=', 15)},
         columns="*",
         get_query_payload=True,
     )
@@ -321,10 +321,10 @@ def test_by_columns_cmp_float_2():
                      "AND magnitude <= 15")
 
 
-def test_by_columns_list():
-    query = Heasarc.query_by_column(
+def test_query_constraints_by_columns_list():
+    query = Heasarc.query_constraints(
         catalog="suzamaster",
-        params={"flux": [1.2, 2.3, 3.4]},
+        column_filters={"flux": [1.2, 2.3, 3.4]},
         columns="*",
         get_query_payload=True,
     )
