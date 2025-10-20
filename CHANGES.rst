@@ -25,10 +25,28 @@ esa.euclid
 
 - New method, ``get_datalinks_metadata``, to retrieve additional columns
   from the datalinks metadata. [#3438]
+esa.hubble
+^^^^^^^^^^
+
+- Update ``get_datalabs_path`` method so an alternative path is checked if the
+  file is not in Datalabs yet [#3437]
+
+mast
+^^^^
+
+- Raise an error if non-string values are passed to ``utils.resolve_object``. [#3435]
+
+- Filtering by file extension or by a string column is now case-insensitive in ``MastMissions.filter_products``
+  and ``Observations.filter_products``. [#3427]
 
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
+
+utils.tap
+^^^^^^^^^
+
+- ``TapPlus.delete_user_table`` includes the schema name to be compatible with TAP+ version >= 10.x. [#3439]
 
 
 
