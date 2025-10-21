@@ -1,0 +1,29 @@
+{
+  "colors": [
+    {
+      "citation_bibcode": "2010PDSS..125.....S",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0054_I0055_5_2MASS_V2_0.zip",
+      "color": -0.566,
+      "color_error": null,
+      "jd": 2451295.74841,
+      "measurement_techniques": [
+        "Near IR photometry"
+      ],
+      "survey_name": "2 Micron All Sky Survey (2MASS)",
+      "sys_color": "J-H"
+    },
+    {
+      "citation_bibcode": "2010PDSS..125.....S",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0054_I0055_5_2MASS_V2_0.zip",
+      "color": 1.267,
+      "color_error": null,
+      "jd": 2451295.74841,
+      "measurement_techniques": [
+        "Near IR photometry"
+      ],
+      "survey_name": "2 Micron All Sky Survey (2MASS)",
+      "sys_color": "H-K"
+    }
+  ],
+  "identifier": "Toutatis"
+}
