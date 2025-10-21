@@ -455,7 +455,7 @@ class MostClass(BaseQuery):
             Epoch in MJD.
             Required when input mode is ``"manual_input"``.
         eccentricity : float or None
-            Eccentricity (0-1).
+            Eccentricity (>0).
             Required when input mode is ``"manual_input"``.
         inclination : float or None
             Inclination (0-180 degrees).
@@ -478,8 +478,8 @@ class MostClass(BaseQuery):
             Perihelion distance (AU).
             Required when input mode is ``"manual_input"`` and object type is
             ``"Comet"``.
-        perih_time : str or None
-            Perihelion time (YYYY+MM+DD+HH:MM:SS).
+        perih_time : float or None
+            Perihelion time (JD).
             Required when input mode is ``"manual_input"`` and object type is
             ``"Comet"``.
         get_query_payload : bool
