@@ -4,6 +4,11 @@
 New Tools and Services
 ----------------------
 
+astorbdb
+^^^^^^^^
+
+- module added to query the Lowell Observatory astorbdb database [#3203]
+
 API changes
 -----------
 
