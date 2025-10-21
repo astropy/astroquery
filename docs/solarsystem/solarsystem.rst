@@ -16,6 +16,7 @@ The currently available service providers and services are:
 .. toctree::
   :maxdepth: 1
 
+  astorbdb/astorbdb.rst
   imcce/imcce.rst
   jpl/jpl.rst
   mpc/mpc.rst
