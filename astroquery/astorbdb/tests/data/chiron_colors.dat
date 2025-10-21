@@ -1,0 +1,281 @@
+{
+  "colors": [
+    {
+      "citation_bibcode": "2010PDSS..125.....S",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0054_I0055_5_2MASS_V2_0.zip",
+      "color": 0.334,
+      "color_error": 0.09,
+      "jd": 2450926.64864,
+      "measurement_techniques": [
+        "Near IR photometry"
+      ],
+      "survey_name": "2 Micron All Sky Survey (2MASS)",
+      "sys_color": "J-H"
+    },
+    {
+      "citation_bibcode": "2010PDSS..125.....S",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0054_I0055_5_2MASS_V2_0.zip",
+      "color": 0.23,
+      "color_error": 0.1,
+      "jd": 2450926.64864,
+      "measurement_techniques": [
+        "Near IR photometry"
+      ],
+      "survey_name": "2 Micron All Sky Survey (2MASS)",
+      "sys_color": "H-K"
+    },
+    {
+      "citation_bibcode": "2010PDSS..125.....S",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0054_I0055_5_2MASS_V2_0.zip",
+      "color": 0.283,
+      "color_error": 0.105,
+      "jd": 2450899.90751,
+      "measurement_techniques": [
+        "Near IR photometry"
+      ],
+      "survey_name": "2 Micron All Sky Survey (2MASS)",
+      "sys_color": "J-H"
+    },
+    {
+      "citation_bibcode": "2010PDSS..125.....S",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0054_I0055_5_2MASS_V2_0.zip",
+      "color": 0.281,
+      "color_error": 0.138,
+      "jd": 2450899.90751,
+      "measurement_techniques": [
+        "Near IR photometry"
+      ],
+      "survey_name": "2 Micron All Sky Survey (2MASS)",
+      "sys_color": "H-K"
+    },
+    {
+      "citation_bibcode": "2010PDSS..125.....S",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0054_I0055_5_2MASS_V2_0.zip",
+      "color": 0.369,
+      "color_error": 0.093,
+      "jd": 2450899.91304,
+      "measurement_techniques": [
+        "Near IR photometry"
+      ],
+      "survey_name": "2 Micron All Sky Survey (2MASS)",
+      "sys_color": "J-H"
+    },
+    {
+      "citation_bibcode": "2010PDSS..125.....S",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0054_I0055_5_2MASS_V2_0.zip",
+      "color": -0.007,
+      "color_error": 0.144,
+      "jd": 2450899.91304,
+      "measurement_techniques": [
+        "Near IR photometry"
+      ],
+      "survey_name": "2 Micron All Sky Survey (2MASS)",
+      "sys_color": "H-K"
+    },
+    {
+      "citation_bibcode": "2007PDSS...79.....B",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0287_3_ASTDENIS_V1_0.zip",
+      "color": 0.51,
+      "color_error": 0.2,
+      "jd": 2451744.566493,
+      "measurement_techniques": [
+        "Near IR photometry"
+      ],
+      "survey_name": "Deep European Near-Infrared Southern Sky Survey (DENIS)",
+      "sys_color": "I-J"
+    },
+    {
+      "citation_bibcode": "2007AJ....134.2186D",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/2007AJ....134.2186D",
+      "color": 0.6,
+      "color_error": 0.03,
+      "jd": 2453162.5,
+      "measurement_techniques": [
+        "Multiple filter set photometry"
+      ],
+      "survey_name": "Doressoundiram et al. (2007)",
+      "sys_color": "B-V"
+    },
+    {
+      "citation_bibcode": "2007AJ....134.2186D",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/2007AJ....134.2186D",
+      "color": 0.31,
+      "color_error": 0.06,
+      "jd": 2453162.5,
+      "measurement_techniques": [
+        "Multiple filter set photometry"
+      ],
+      "survey_name": "Doressoundiram et al. (2007)",
+      "sys_color": "J-H"
+    },
+    {
+      "citation_bibcode": "2007AJ....134.2186D",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/2007AJ....134.2186D",
+      "color": 0.35,
+      "color_error": 0.05,
+      "jd": 2453162.5,
+      "measurement_techniques": [
+        "Multiple filter set photometry"
+      ],
+      "survey_name": "Doressoundiram et al. (2007)",
+      "sys_color": "J-K"
+    },
+    {
+      "citation_bibcode": "1998Icar..134..213D",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/1998Icar..134..213D",
+      "color": 1.54,
+      "color_error": 0.05,
+      "jd": 2450548.5,
+      "measurement_techniques": [
+        "Multiple filter set photometry"
+      ],
+      "survey_name": "Davies et al. (1998)",
+      "sys_color": "V-H"
+    },
+    {
+      "citation_bibcode": "1998Icar..134..213D",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/1998Icar..134..213D",
+      "color": 1.75,
+      "color_error": 0.05,
+      "jd": 2450151.5,
+      "measurement_techniques": [
+        "Multiple filter set photometry"
+      ],
+      "survey_name": "Davies et al. (1998)",
+      "sys_color": "V-H"
+    },
+    {
+      "citation_bibcode": "2007AJ....134.2186D",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/2007AJ....134.2186D",
+      "color": 0.64,
+      "color_error": 0.03,
+      "jd": 2453162.5,
+      "measurement_techniques": [
+        "Multiple filter set photometry"
+      ],
+      "survey_name": "Doressoundiram et al. (2007)",
+      "sys_color": "V-I"
+    },
+    {
+      "citation_bibcode": "1998Icar..134..213D",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/1998Icar..134..213D",
+      "color": 0.76,
+      "color_error": 0.01,
+      "jd": 2450576.5,
+      "measurement_techniques": [
+        "Multiple filter set photometry"
+      ],
+      "survey_name": "Davies et al. (1998)",
+      "sys_color": "V-I"
+    },
+    {
+      "citation_bibcode": "2007AJ....134.2186D",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/2007AJ....134.2186D",
+      "color": 1.12,
+      "color_error": 0.07,
+      "jd": 2453162.5,
+      "measurement_techniques": [
+        "Multiple filter set photometry"
+      ],
+      "survey_name": "Doressoundiram et al. (2007)",
+      "sys_color": "V-J"
+    },
+    {
+      "citation_bibcode": "1998Icar..134..213D",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/1998Icar..134..213D",
+      "color": 1.23,
+      "color_error": 0.05,
+      "jd": 2450548.5,
+      "measurement_techniques": [
+        "Multiple filter set photometry"
+      ],
+      "survey_name": "Davies et al. (1998)",
+      "sys_color": "V-J"
+    },
+    {
+      "citation_bibcode": "1998Icar..134..213D",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/1998Icar..134..213D",
+      "color": 1.47,
+      "color_error": 0.05,
+      "jd": 2450151.5,
+      "measurement_techniques": [
+        "Multiple filter set photometry"
+      ],
+      "survey_name": "Davies et al. (1998)",
+      "sys_color": "V-J"
+    },
+    {
+      "citation_bibcode": "1998Icar..134..213D",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/1998Icar..134..213D",
+      "color": 1.62,
+      "color_error": 0.05,
+      "jd": 2450548.5,
+      "measurement_techniques": [
+        "Multiple filter set photometry"
+      ],
+      "survey_name": "Davies et al. (1998)",
+      "sys_color": "V-K"
+    },
+    {
+      "citation_bibcode": "1998Icar..134..213D",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/1998Icar..134..213D",
+      "color": 1.8,
+      "color_error": 0.05,
+      "jd": 2450151.5,
+      "measurement_techniques": [
+        "Multiple filter set photometry"
+      ],
+      "survey_name": "Davies et al. (1998)",
+      "sys_color": "V-K"
+    },
+    {
+      "citation_bibcode": "2007AJ....134.2186D",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/2007AJ....134.2186D",
+      "color": 0.32,
+      "color_error": 0.03,
+      "jd": 2453162.5,
+      "measurement_techniques": [
+        "Multiple filter set photometry"
+      ],
+      "survey_name": "Doressoundiram et al. (2007)",
+      "sys_color": "V-R"
+    },
+    {
+      "citation_bibcode": "1998Icar..134..213D",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/1998Icar..134..213D",
+      "color": 0.37,
+      "color_error": 0.03,
+      "jd": 2450576.5,
+      "measurement_techniques": [
+        "Multiple filter set photometry"
+      ],
+      "survey_name": "Davies et al. (1998)",
+      "sys_color": "V-R"
+    },
+    {
+      "citation_bibcode": "2005PDSS...30.....T",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_5_DDR_UBV_MEAN_VALUES_V1_2.zip",
+      "color": 0.283,
+      "color_error": 0.06,
+      "jd": null,
+      "measurement_techniques": [
+        "Visible photometry"
+      ],
+      "survey_name": "PDS UBV color compilation",
+      "sys_color": "U-B"
+    },
+    {
+      "citation_bibcode": "2005PDSS...30.....T",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_5_DDR_UBV_MEAN_VALUES_V1_2.zip",
+      "color": 0.704,
+      "color_error": 0.024,
+      "jd": null,
+      "measurement_techniques": [
+        "Visible photometry"
+      ],
+      "survey_name": "PDS UBV color compilation",
+      "sys_color": "B-V"
+    }
+  ],
+  "identifier": "2060"
+}
