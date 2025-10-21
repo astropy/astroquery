@@ -1,0 +1,43 @@
+{
+  "albedos": [
+    {
+      "albedo": 0.16,
+      "albedo_error_lower": -0.012,
+      "albedo_error_upper": 0.012,
+      "citation_bibcode": "2011PASJ...63.1117U",
+      "citation_url": "https://darts.isas.jaxa.jp/astro/akari/catalogue/AcuA.html",
+      "count_bands_detection": 2,
+      "diameter": 4.17,
+      "diameter_error_lower": -0.13,
+      "diameter_error_upper": 0.13,
+      "eta": 0.82,
+      "eta_error_lower": null,
+      "eta_error_upper": null,
+      "measurement_techniques": [
+        "Mid IR photometry"
+      ],
+      "observations_total": 2,
+      "survey_name": "Usui et al. (2011)"
+    },
+    {
+      "albedo": 0.1066,
+      "albedo_error_lower": -0.011,
+      "albedo_error_upper": 0.011,
+      "citation_bibcode": "2004PDSS...12.....T",
+      "citation_url": "http://sbn.psi.edu/pds/asteroid/IRAS_A_FPA_3_RDR_IMPS_V6_0.zip",
+      "count_bands_detection": 3,
+      "diameter": 5.1,
+      "diameter_error_lower": -0.2,
+      "diameter_error_upper": 0.2,
+      "eta": 0.756,
+      "eta_error_lower": -1,
+      "eta_error_upper": 1,
+      "measurement_techniques": [
+        "Mid IR photometry"
+      ],
+      "observations_total": 18,
+      "survey_name": "Infrared Astronomical Satellite (IRAS)"
+    }
+  ],
+  "identifier": "3200"
+}

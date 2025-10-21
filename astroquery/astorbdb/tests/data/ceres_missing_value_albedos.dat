@@ -1,0 +1,62 @@
+{
+  "albedos": [
+    {
+      "albedo": null,
+      "albedo_error_lower": -0.003,
+      "albedo_error_upper": 0.003,
+      "citation_bibcode": "2011PASJ...63.1117U",
+      "citation_url": "https://darts.isas.jaxa.jp/astro/akari/catalogue/AcuA.html",
+      "count_bands_detection": 2,
+      "diameter": 973.89,
+      "diameter_error_lower": -13.31,
+      "diameter_error_upper": 13.31,
+      "eta": 0.82,
+      "eta_error_lower": null,
+      "eta_error_upper": null,
+      "measurement_techniques": [
+        "Mid IR photometry"
+      ],
+      "observations_total": 7,
+      "survey_name": "Usui et al. (2011)"
+    },
+    {
+      "albedo": 0.1132,
+      "albedo_error_lower": -0.005,
+      "albedo_error_upper": 0.005,
+      "citation_bibcode": "2004PDSS...12.....T",
+      "citation_url": "http://sbn.psi.edu/pds/asteroid/IRAS_A_FPA_3_RDR_IMPS_V6_0.zip",
+      "count_bands_detection": 3,
+      "diameter": 848.4,
+      "diameter_error_lower": -19.7,
+      "diameter_error_upper": 19.7,
+      "eta": 0.756,
+      "eta_error_lower": -1,
+      "eta_error_upper": 1,
+      "measurement_techniques": [
+        "Mid IR photometry"
+      ],
+      "observations_total": 15,
+      "survey_name": "Infrared Astronomical Satellite (IRAS)"
+    },
+    {
+      "albedo": 0.0936,
+      "albedo_error_lower": null,
+      "albedo_error_upper": null,
+      "citation_bibcode": "2006Icar..184..211S",
+      "citation_url": "http://sbn.psi.edu/pds/asteroid/EAR_A_VARGBDET_5_OCCALB_V1_0.zip",
+      "count_bands_detection": 1,
+      "diameter": 933,
+      "diameter_error_lower": null,
+      "diameter_error_upper": null,
+      "eta": null,
+      "eta_error_lower": null,
+      "eta_error_upper": null,
+      "measurement_techniques": [
+        "Occultation"
+      ],
+      "observations_total": 1,
+      "survey_name": "Shevchenko and Tedesco (2006)"
+    }
+  ],
+  "identifier": "1"
+}

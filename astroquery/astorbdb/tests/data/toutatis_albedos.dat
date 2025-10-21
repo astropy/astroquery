@@ -1,0 +1,24 @@
+{
+  "albedos": [
+    {
+      "albedo": 0.405,
+      "albedo_error_lower": -0.137,
+      "albedo_error_upper": 0.137,
+      "citation_bibcode": "2019PDSS..251.....M",
+      "citation_url": "http://sbnarchive.psi.edu/pds4/non_mission/neowise_diameters_albedos_V2_0.zip",
+      "count_bands_detection": 2,
+      "diameter": 1.788,
+      "diameter_error_lower": -0.376,
+      "diameter_error_upper": 0.376,
+      "eta": 1.007,
+      "eta_error_lower": -0.223,
+      "eta_error_upper": 0.223,
+      "measurement_techniques": [
+        "Mid IR photometry"
+      ],
+      "observations_total": 12,
+      "survey_name": "NEOWISE"
+    }
+  ],
+  "identifier": "Toutatis"
+}

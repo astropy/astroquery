@@ -1,0 +1,30 @@
+{
+  "escape-routes": [
+    {
+      "citation_bibcode": "2018Icar..312..181G",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/2018Icar..312..181G/abstract",
+      "dn": "NaN",
+      "dp21_complex": 0,
+      "dp31_complex": 0.02092,
+      "dp52_complex": 0.01237,
+      "dp_hungaria": 0.02218,
+      "dp_jfc": 0,
+      "dp_nu6_complex": 0.02956,
+      "dp_phocaea": 0.00804,
+      "epoch": "2021-07-05T00:00:00",
+      "extrapolated": true,
+      "interpolated": false,
+      "measurement_techniques": null,
+      "n": "NaN",
+      "p21_complex": 0,
+      "p31_complex": 0.09464,
+      "p52_complex": 0.05353,
+      "p_hungaria": 0.18482,
+      "p_jfc": 0,
+      "p_nu6_complex": 0.64189,
+      "p_phocaea": 0.02511,
+      "survey_name": "debiased absolute-magnitude and orbit distributions of source regions for NEOs"
+    }
+  ],
+  "identifier": "3200"
+}

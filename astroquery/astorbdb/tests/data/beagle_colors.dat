@@ -1,0 +1,149 @@
+{
+  "colors": [
+    {
+      "citation_bibcode": "2010PDSS..125.....S",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0054_I0055_5_2MASS_V2_0.zip",
+      "color": 0.431,
+      "color_error": 0.035,
+      "jd": 2450770.99139,
+      "measurement_techniques": [
+        "Near IR photometry"
+      ],
+      "survey_name": "2 Micron All Sky Survey (2MASS)",
+      "sys_color": "J-H"
+    },
+    {
+      "citation_bibcode": "2010PDSS..125.....S",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0054_I0055_5_2MASS_V2_0.zip",
+      "color": 0.076,
+      "color_error": 0.041,
+      "jd": 2450770.99139,
+      "measurement_techniques": [
+        "Near IR photometry"
+      ],
+      "survey_name": "2 Micron All Sky Survey (2MASS)",
+      "sys_color": "H-K"
+    },
+    {
+      "citation_bibcode": "2010PDSS..125.....S",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0054_I0055_5_2MASS_V2_0.zip",
+      "color": 0.382,
+      "color_error": 0.037,
+      "jd": 2450771.00914,
+      "measurement_techniques": [
+        "Near IR photometry"
+      ],
+      "survey_name": "2 Micron All Sky Survey (2MASS)",
+      "sys_color": "J-H"
+    },
+    {
+      "citation_bibcode": "2010PDSS..125.....S",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0054_I0055_5_2MASS_V2_0.zip",
+      "color": 0.112,
+      "color_error": 0.043,
+      "jd": 2450771.00914,
+      "measurement_techniques": [
+        "Near IR photometry"
+      ],
+      "survey_name": "2 Micron All Sky Survey (2MASS)",
+      "sys_color": "H-K"
+    },
+    {
+      "citation_bibcode": "2010PDSS..125.....S",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0054_I0055_5_2MASS_V2_0.zip",
+      "color": 0.377,
+      "color_error": 0.037,
+      "jd": 2450776.94234,
+      "measurement_techniques": [
+        "Near IR photometry"
+      ],
+      "survey_name": "2 Micron All Sky Survey (2MASS)",
+      "sys_color": "J-H"
+    },
+    {
+      "citation_bibcode": "2010PDSS..125.....S",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0054_I0055_5_2MASS_V2_0.zip",
+      "color": 0.145,
+      "color_error": 0.051,
+      "jd": 2450776.94234,
+      "measurement_techniques": [
+        "Near IR photometry"
+      ],
+      "survey_name": "2 Micron All Sky Survey (2MASS)",
+      "sys_color": "H-K"
+    },
+    {
+      "citation_bibcode": "2007PDSS...79.....B",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0287_3_ASTDENIS_V1_0.zip",
+      "color": 0.42,
+      "color_error": 0.09,
+      "jd": 2451762.67375,
+      "measurement_techniques": [
+        "Near IR photometry"
+      ],
+      "survey_name": "Deep European Near-Infrared Southern Sky Survey (DENIS)",
+      "sys_color": "I-J"
+    },
+    {
+      "citation_bibcode": "2007PDSS...79.....B",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0287_3_ASTDENIS_V1_0.zip",
+      "color": 0.37,
+      "color_error": 0.23,
+      "jd": 2451762.67375,
+      "measurement_techniques": [
+        "Near IR photometry"
+      ],
+      "survey_name": "Deep European Near-Infrared Southern Sky Survey (DENIS)",
+      "sys_color": "J-K"
+    },
+    {
+      "citation_bibcode": "2010PDSS..124.....I",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0035_3_SDSSMOC_V3_0.zip",
+      "color": 1.54,
+      "color_error": 0.03,
+      "jd": 2452225.662755839,
+      "measurement_techniques": [
+        "Visible photometry"
+      ],
+      "survey_name": "Sloan Digital Sky Survey (SDSS) Moving Object Catalog (MOC)",
+      "sys_color": "u-g"
+    },
+    {
+      "citation_bibcode": "2010PDSS..124.....I",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0035_3_SDSSMOC_V3_0.zip",
+      "color": 0.38,
+      "color_error": 0.03,
+      "jd": 2452225.662755839,
+      "measurement_techniques": [
+        "Visible photometry"
+      ],
+      "survey_name": "Sloan Digital Sky Survey (SDSS) Moving Object Catalog (MOC)",
+      "sys_color": "g-r"
+    },
+    {
+      "citation_bibcode": "2010PDSS..124.....I",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0035_3_SDSSMOC_V3_0.zip",
+      "color": 0.14,
+      "color_error": 0.03,
+      "jd": 2452225.662755839,
+      "measurement_techniques": [
+        "Visible photometry"
+      ],
+      "survey_name": "Sloan Digital Sky Survey (SDSS) Moving Object Catalog (MOC)",
+      "sys_color": "r-i"
+    },
+    {
+      "citation_bibcode": "2010PDSS..124.....I",
+      "citation_url": "http://sbnarchive.psi.edu/pds3/non_mission/EAR_A_I0035_3_SDSSMOC_V3_0.zip",
+      "color": 0.08,
+      "color_error": 0.03,
+      "jd": 2452225.662755839,
+      "measurement_techniques": [
+        "Visible photometry"
+      ],
+      "survey_name": "Sloan Digital Sky Survey (SDSS) Moving Object Catalog (MOC)",
+      "sys_color": "i-z"
+    }
+  ],
+  "identifier": "656"
+}
