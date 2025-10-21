@@ -9,7 +9,6 @@ lowellmps
 
 - module added to query the Lowell Minor Planet Services database [#3203]
 
-
 API changes
 -----------
 
