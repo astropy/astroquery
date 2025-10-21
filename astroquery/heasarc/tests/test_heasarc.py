@@ -224,18 +224,16 @@ def test_spatial_invalid(spatial):
         )
 
 
+def test_spatial_cone_no_position():
+    with pytest.raises(InvalidQueryError):
+        Heasarc.query_region(catalog="xmmmaster", columns="*", spatial="cone")
+
+
 def test_no_catalog():
     with pytest.raises(InvalidQueryError):
         # OBJ_LIST[0] and radius added to avoid a remote call
         Heasarc.query_region(
             OBJ_LIST[0], spatial="cone", columns="*", radius="2arcmin")
-
-
-def test_query_constraints_no_catalog():
-    with pytest.raises(InvalidQueryError):
-        # OBJ_LIST[0] and radius added to avoid a remote call
-        Heasarc.query_constraints(
-            None, column_filters={"flux": (1e-12, 1e-10)})
 
 
 def test__query_execute_no_catalog():
@@ -244,14 +242,45 @@ def test__query_execute_no_catalog():
         Heasarc._query_execute(None)
 
 
-def test_query_constraints_none_params():
-    with pytest.raises(ValueError):
-        Heasarc.query_constraints('testcatalog', column_filters=None)
+def test_parse_constraints_no_filter():
+    assert Heasarc._parse_constraints(column_filters=None) == []
+    assert Heasarc._parse_constraints(column_filters={}) == []
 
 
-def test_query_constraints_no_params():
-    query = Heasarc.query_constraints(
+def test_parse_constraints_range():
+    constraints = Heasarc._parse_constraints(column_filters={"flux": (1e-12, 1e-10)})
+    assert constraints == ["flux BETWEEN 1e-12 AND 1e-10"]
+
+
+def test_parse_constraints_eq_float():
+    constraints = Heasarc._parse_constraints(column_filters={"flux": 1.2})
+    assert constraints == ["flux = 1.2"]
+
+
+def test_parse_constraints_eq_str():
+    constraints = Heasarc._parse_constraints(column_filters={"flux": "1.2"})
+    assert constraints == ["flux = '1.2'"]
+
+
+def test_parse_constraints_cmp_float():
+    constraints = Heasarc._parse_constraints(column_filters={"flux": ('>', 1.2)})
+    assert constraints == ["flux > 1.2"]
+
+
+def test_parse_constraints_cmp_float_2():
+    constraints = Heasarc._parse_constraints(column_filters={"flux": ('>', 1.2), "magnitude": ('<=', 15)})
+    assert constraints == ["flux > 1.2", "magnitude <= 15"]
+
+
+def test_parse_constraints_list():
+    constraints = Heasarc._parse_constraints(column_filters={"flux": [1.2, 2.3, 3.4]})
+    assert constraints == ["flux IN (1.2, 2.3, 3.4)"]
+
+
+def test_query_region_no_filter():
+    query = Heasarc.query_region(
         catalog="suzamaster",
+        spatial="all-sky",
         column_filters={},
         columns="*",
         get_query_payload=True,
@@ -259,20 +288,10 @@ def test_query_constraints_no_params():
     assert query == "SELECT * FROM suzamaster"
 
 
-def test_query_constraints_limit():
-    query = Heasarc.query_constraints(
+def test_query_region_filter_range():
+    query = Heasarc.query_region(
         catalog="suzamaster",
-        column_filters={},
-        columns="*",
-        get_query_payload=True,
-        maxrec=500000,
-    )
-    assert query == "SELECT TOP 2000000 * FROM suzamaster"
-
-
-def test_query_constraints_range():
-    query = Heasarc.query_constraints(
-        catalog="suzamaster",
+        spatial="all-sky",
         column_filters={"flux": (1e-12, 1e-10)},
         columns="*",
         get_query_payload=True,
@@ -280,9 +299,10 @@ def test_query_constraints_range():
     assert query == "SELECT * FROM suzamaster WHERE flux BETWEEN 1e-12 AND 1e-10"
 
 
-def test_query_constraints_eq_float():
-    query = Heasarc.query_constraints(
+def test_query_region_filter_eq_float():
+    query = Heasarc.query_region(
         catalog="suzamaster",
+        spatial="all-sky",
         column_filters={"flux": 1.2},
         columns="*",
         get_query_payload=True,
@@ -290,9 +310,10 @@ def test_query_constraints_eq_float():
     assert query == "SELECT * FROM suzamaster WHERE flux = 1.2"
 
 
-def test_query_constraints_eq_str():
-    query = Heasarc.query_constraints(
+def test_query_region_filter_eq_str():
+    query = Heasarc.query_region(
         catalog="suzamaster",
+        spatial="all-sky",
         column_filters={"flux": "1.2"},
         columns="*",
         get_query_payload=True,
@@ -300,9 +321,10 @@ def test_query_constraints_eq_str():
     assert query == "SELECT * FROM suzamaster WHERE flux = '1.2'"
 
 
-def test_query_constraints_cmp_float():
-    query = Heasarc.query_constraints(
+def test_query_region_filter_cmp_float():
+    query = Heasarc.query_region(
         catalog="suzamaster",
+        spatial="all-sky",
         column_filters={"flux": ('>', 1.2)},
         columns="*",
         get_query_payload=True,
@@ -310,9 +332,10 @@ def test_query_constraints_cmp_float():
     assert query == "SELECT * FROM suzamaster WHERE flux > 1.2"
 
 
-def test_query_constraints_cmp_float_2():
-    query = Heasarc.query_constraints(
+def test_query_region_filter_cmp_float_2():
+    query = Heasarc.query_region(
         catalog="suzamaster",
+        spatial="all-sky",
         column_filters={"flux": ('>', 1.2), "magnitude": ('<=', 15)},
         columns="*",
         get_query_payload=True,
@@ -321,14 +344,37 @@ def test_query_constraints_cmp_float_2():
                      "AND magnitude <= 15")
 
 
-def test_query_constraints_by_columns_list():
-    query = Heasarc.query_constraints(
+def test_query_region_filter_list():
+    query = Heasarc.query_region(
         catalog="suzamaster",
+        spatial="all-sky",
         column_filters={"flux": [1.2, 2.3, 3.4]},
         columns="*",
         get_query_payload=True,
     )
     assert query == "SELECT * FROM suzamaster WHERE flux IN (1.2, 2.3, 3.4)"
+
+
+@pytest.mark.parametrize("coordinates", OBJ_LIST)
+def test_query_region_cone_with_filter(coordinates):
+    # use columns='*' to avoid remote call to obtain the default columns
+    query = Heasarc.query_region(
+        coordinates,
+        catalog="suzamaster",
+        spatial="cone",
+        radius=2 * u.arcmin,
+        columns="*",
+        get_query_payload=True,
+        column_filters={"flux": (1e-12, 1e-10)},
+    )
+    assert ("SELECT *") in query
+    assert (
+        "FROM suzamaster WHERE CONTAINS(POINT('ICRS',ra,dec),"
+        "CIRCLE('ICRS',182.63" in query
+    )
+    assert ",39.40" in query
+    assert ",0.0333" in query
+    assert "AND flux BETWEEN 1e-12 AND 1e-10" in query
 
 
 def test__query_execute_none_where():

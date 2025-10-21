@@ -364,6 +364,55 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             table.remove_column('__row')
         return table
 
+    def _parse_constraints(self, column_filters):
+        """Convert constraints dictionary to ADQL WHERE clause
+
+        Parameters
+        ----------
+        column_filters : dict
+            A dictionary of column constraint filters to include in the query.
+            Each key-value pair will be translated into an ADQL condition.
+            See `query_region` for details.
+
+        Returns
+        -------
+        conditions : list
+            a list of ADQL conditions as str
+
+        """
+        conditions = []
+        if column_filters is None:
+            return conditions
+        for key, value in column_filters.items():
+            if isinstance(value, tuple):
+                if (
+                    len(value) == 2
+                    and all(isinstance(v, (int, float)) for v in value)
+                ):
+                    conditions.append(
+                        f"{key} BETWEEN {value[0]} AND {value[1]}"
+                    )
+                elif (
+                    len(value) == 2
+                    and value[0] in (">", "<", ">=", "<=")
+                ):
+                    conditions.append(f"{key} {value[0]} {value[1]}")
+            elif isinstance(value, list):
+                # handle list values: key IN (...)
+                formatted = []
+                for v in value:
+                    if isinstance(v, str):
+                        formatted.append(f"'{v}'")
+                    else:
+                        formatted.append(str(v))
+                conditions.append(f"{key} IN ({', '.join(formatted)})")
+            else:
+                conditions.append(
+                    f"{key} = '{value}'"
+                    if isinstance(value, str) else f"{key} = {value}"
+                )
+        return conditions
+
     @deprecated_renamed_argument(
         ('mission', 'fields', 'resultmax', 'entry', 'coordsys', 'equinox',
          'displaymode', 'action', 'sortvar', 'cache'),
@@ -374,8 +423,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                        True, True, True, False)
     )
     def query_region(self, position=None, catalog=None, radius=None, *,
-                     spatial='cone', width=None, polygon=None, add_offset=False,
-                     get_query_payload=False, columns=None, cache=False,
+                     spatial='cone', width=None, polygon=None, column_filters=None,
+                     add_offset=False, get_query_payload=False, columns=None, cache=False,
                      verbose=False, maxrec=None,
                      **kwargs):
         """Queries the HEASARC TAP server around a coordinate and returns a
@@ -411,6 +460,23 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             outlining the polygon to search in. It can also be a list of
             `astropy.coordinates` object or strings that can be parsed by
             `astropy.coordinates.ICRS`.
+        column_filters : dict
+            A dictionary of column constraint filters to include in the query.
+            Each key-value pair will be translated into an ADQL condition.
+            - For a range query, use a tuple of two values (min, max).
+            e.g. ``{'flux': (1e-12, 1e-10)}`` translates to
+            ``flux BETWEEN 1e-12 AND 1e-10``.
+            - For list values, use a list of values.
+            e.g. ``{'object_type': ['QSO', 'GALAXY']}`` translates to
+            ``object_type IN ('QSO', 'GALAXY')``.
+            - For comparison queries, use a tuple of (operator, value),
+            where operator is one of '=', '!=', '<', '>', '<=', '>='.
+            e.g. ``{'magnitude': ('<', 15)}`` translates to ``magnitude < 15``.
+            - For exact matches, use a single value (str, int, float).
+            e.g. ``{'object_type': 'QSO'}`` translates to
+            ``object_type = 'QSO'``.
+            The keys should correspond to valid column names in the catalog.
+            Use `list_columns` to see the available columns.
         add_offset: bool
             If True and spatial=='cone', add a search_offset column that
             indicates the separation (in arcmin) between the requested
@@ -457,6 +523,11 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             where = ("WHERE CONTAINS(POINT('ICRS',ra,dec),"
                      f"POLYGON('ICRS',{','.join(coords_str)}))=1")
         else:
+            if position is None:
+                raise InvalidQueryError(
+                    "position is required to for spatial='cone' (default). "
+                    "Use spatial='all-sky' For all-sky searches."
+                )
             coords_icrs = parse_coordinates(position).icrs
             ra, dec = coords_icrs.ra.deg, coords_icrs.dec.deg
 
@@ -480,6 +551,16 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             else:
                 raise ValueError("Unrecognized spatial query type. Must be one"
                                  " of 'cone', 'box', 'polygon', or 'all-sky'.")
+
+        # handle column filters
+        if column_filters is not None:
+            conditions = self._parse_constraints(column_filters)
+            if len(conditions) > 0:
+                constraints_str = ' AND '.join(conditions)
+                if where == '':
+                    where = 'WHERE ' + constraints_str
+                else:
+                    where += ' AND ' + constraints_str
 
         table_or_query = self._query_execute(
             catalog=catalog, where=where,
@@ -526,96 +607,6 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         pos = coordinates.SkyCoord.from_name(object_name)
         return self.query_region(pos, catalog=mission, spatial='cone',
                                  get_query_payload=get_query_payload)
-
-    def query_constraints(self, catalog, column_filters, *,
-                          get_query_payload=False, columns=None,
-                          verbose=False, maxrec=None):
-        """Query the HEASARC TAP server using a constraints on the columns.
-
-        This is a simple wrapper around
-        `~astroquery.heasarc.HeasarcClass.query_tap`
-        that constructs an ADQL query from a dictionary of filters.
-
-        Parameters
-        ----------
-        catalog : str
-            The catalog to query. To list the available catalogs, use
-            :meth:`~astroquery.heasarc.HeasarcClass.list_catalogs`.
-        column_filters : dict
-            A dictionary of column constraint filters to include in the query.
-            Each key-value pair will be translated into an ADQL condition.
-            - For a range query, use a tuple of two values (min, max).
-            e.g. ``{'flux': (1e-12, 1e-10)}`` translates to
-            ``flux BETWEEN 1e-12 AND 1e-10``.
-            - For list values, use a list of values.
-            e.g. ``{'object_type': ['QSO', 'GALAXY']}`` translates to
-            ``object_type IN ('QSO', 'GALAXY')``.
-            - For comparison queries, use a tuple of (operator, value),
-            where operator is one of '=', '!=', '<', '>', '<=', '>='.
-            e.g. ``{'magnitude': ('<', 15)}`` translates to ``magnitude < 15``.
-            - For exact matches, use a single value (str, int, float).
-            e.g. ``{'object_type': 'QSO'}`` translates to
-            ``object_type = 'QSO'``.
-            The keys should correspond to valid column names in the catalog.
-            Use `list_columns` to see the available columns.
-        get_query_payload : bool, optional
-            If `True` then returns the generated ADQL query as str.
-            Defaults to `False`.
-        columns : str, optional
-            Target column list with value separated by a comma(,).
-            Use * for all the columns. The default is to return a subset
-            of the columns that are generally the most useful.
-        verbose : bool, optional
-            If False, suppress vo warnings.
-        maxrec : int, optional
-            Maximum number of records
-
-        """
-
-        if not isinstance(column_filters, dict):
-            raise ValueError('params must be a dictionary of key-value pairs')
-
-        conditions = []
-        for key, value in column_filters.items():
-            if isinstance(value, tuple):
-                if (
-                    len(value) == 2
-                    and all(isinstance(v, (int, float)) for v in value)
-                ):
-                    conditions.append(
-                        f"{key} BETWEEN {value[0]} AND {value[1]}"
-                    )
-                elif (
-                    len(value) == 2
-                    and value[0] in (">", "<", ">=", "<=")
-                ):
-                    conditions.append(f"{key} {value[0]} {value[1]}")
-            elif isinstance(value, list):
-                # handle list values: key IN (...)
-                formatted = []
-                for v in value:
-                    if isinstance(v, str):
-                        formatted.append(f"'{v}'")
-                    else:
-                        formatted.append(str(v))
-                conditions.append(f"{key} IN ({', '.join(formatted)})")
-            else:
-                conditions.append(
-                    f"{key} = '{value}'"
-                    if isinstance(value, str) else f"{key} = {value}"
-                )
-        if len(conditions) == 0:
-            where = ""
-        else:
-            where = "WHERE " + (" AND ".join(conditions))
-
-        table_or_query = self._query_execute(
-            catalog=catalog, where=where,
-            get_query_payload=get_query_payload,
-            columns=columns, verbose=verbose,
-            maxrec=maxrec
-        )
-        return table_or_query
 
     def locate_data(self, query_result=None, catalog_name=None):
         """Get links to data products

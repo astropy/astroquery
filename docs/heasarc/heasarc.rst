@@ -95,6 +95,23 @@ The list of returned columns can also be given as a comma-separated string to
 If no columns are given, the call will return a set of default columns.
 If you want all the columns returned, use ``columns='*'``
 
+To do a full sky search, use ``spatial='all-sky'``:
+
+.. doctest-remote-data::
+
+    >>> from astroquery.heasarc import Heasarc
+    >>> tab = Heasarc.query_region(catalog='chanmaster', spatial='all-sky',
+    ...                            columns='name, obsid, ra, dec')
+    >>> tab[:5].pprint()
+            name         obsid     ra       dec   
+                                  deg       deg   
+    -------------------- ----- --------- ---------
+             ESO005-G004 21421  91.42333 -86.63194
+    1RXSJ200924.1-853911 10143 302.30417 -85.64633
+            RE J0317-853 22326  49.31604 -85.54043
+                ACO 4023 15124 354.93333 -85.17583
+               GRB020321  3477 242.76000 -83.70000
+
 List Available Catalogs
 -----------------------
 The collection of available catalogs can be obtained by calling the `~astroquery.heasarc.HeasarcClass.list_catalogs`
@@ -181,17 +198,26 @@ following for instance will find master catalogs that have keywords 'nicer' or '
     swiftmastr Swift Master Catalog
 
 
-Other non-region queries
+Adding Column Constraints
 ----------------------------------------
-In addition to `~astroquery.heasarc.HeasarcClass.query_region`, `~astroquery.heasarc.HeasarcClass.query_constraints`
-is also available. This method allows you to query a catalog by specifying
+In addition to region search in `~astroquery.heasarc.HeasarcClass.query_region`,
+you can also pass other column constraints. This is done by passing a dictionary
+to the ``column_filters`` parameter. The keys of the dictionary are the column names
+and the values are the constraints. Exampels include:
+- ``{'flux': (1e-12, 1e-10)}`` translates to a flux range.
+- ``{'exposure': ('>', 10000)}`` translates to exposure greater than 10000.
+- ``{'instrument': ['ACIS', 'HRC']}`` translates to a value in a list.
+- ``{'obsid': '12345'}`` translates to obsid equal to 12345.
+
+This allows you to query a catalog by specifying
 various column constraints. For example, the following query searches the ``chanmaster``
 catalog for all observations with exposure time greater than 190 ks.
 
 .. doctest-remote-data::
 
     >>> from astroquery.heasarc import Heasarc
-    >>> tab = Heasarc.query_constraints(
+    >>> tab = Heasarc.query_region(
+    ...     spatial='all-sky',
     ...     catalog='chanmaster', column_filters={'exposure': ('>', '190000')}
     ... )
     >>> tab['name', 'obsid', 'ra', 'dec', 'exposure'][:3].pprint()
@@ -207,7 +233,8 @@ Another example may be to search the ``xmmmaster`` for a observation in some tim
 .. doctest-remote-data::
 
     >>> from astroquery.heasarc import Heasarc
-    >>> tab = Heasarc.query_constraints(
+    >>> tab = Heasarc.query_region(
+    ...     spatial='all-sky',
     ...     catalog='xmmmaster', column_filters={'time': (52300, 52310)}
     ... )
     >>> tab['name', 'obsid', 'ra', 'dec', 'time', 'duration'][:3].pprint()
