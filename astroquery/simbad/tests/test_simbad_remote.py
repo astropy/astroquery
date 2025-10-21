@@ -1,4 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import numpy as np
 import pytest
 
 from astropy.coordinates import SkyCoord
@@ -19,6 +20,9 @@ SKIP_SLOW = True
 ICRS_COORDS_M42 = SkyCoord("05h35m17.3s -05d23m28s", frame='icrs')
 ICRS_COORDS_SgrB2 = SkyCoord(266.835*u.deg, -28.38528*u.deg, frame='icrs')
 multicoords = SkyCoord([ICRS_COORDS_SgrB2, ICRS_COORDS_SgrB2])
+
+# The MAXREC related overflow message is different in pyvo 1.7+, remove workaround when we have it as a minimum
+overflow_message = r"Partial result set. Potential causes MAXREC|Result set limited by user- or server-supplied MAXREC"
 
 
 @pytest.mark.remote_data()
@@ -79,6 +83,13 @@ class TestSimbad:
         # filtering on main_id to retrieve the two cone centers
         assert {"M  81", "M  10"} == set(result["main_id"].data.data)
 
+    def test_query_regions_long_list(self):
+        self.simbad.ROW_LIMIT = -1
+        # we create a list of centers longer than 300 to trigger the TAP upload case
+        centers = SkyCoord(np.arange(0, 360, 1), np.arange(0, 180, 0.5) - 90, unit="deg")
+        result = self.simbad.query_region(centers, radius="1m")
+        assert len(result) > 90
+
     def test_query_object_ids(self):
         self.simbad.ROW_LIMIT = -1
         result = self.simbad.query_objectids("Polaris")
@@ -108,11 +119,8 @@ class TestSimbad:
         simbad_instance = Simbad()
         simbad_instance.add_votable_fields("flux")
         response = simbad_instance.query_object('algol', criteria="filter='V'")
-        # this is bugged, it should be "flux.qual", see https://github.com/gmantele/vollt/issues/154
-        # when the issue upstream in vollt (the TAP software used in SIMBAD) is fixed we can rewrite this test
-        assert "qual" in response.colnames
-        # replace "filter" by "flux.filter" when upstream bug is fixed
-        assert response["filter"][0] == "V"
+        assert "flux.qual" in response.colnames
+        assert response["flux.filter"][0] == "V"
 
     def test_query_object(self):
         self.simbad.ROW_LIMIT = 5
@@ -151,7 +159,7 @@ class TestSimbad:
                   "      c       3")
         assert expect == str(result)
         # Test query_tap raised errors
-        with pytest.warns(DALOverflowWarning, match="Partial result set *"):
+        with pytest.warns(DALOverflowWarning, match=overflow_message):
             truncated_result = Simbad.query_tap("SELECT * from basic", maxrec=2)
             assert len(truncated_result) == 2
         with pytest.raises(ValueError, match="The maximum number of records cannot exceed 2000000."):
@@ -162,6 +170,12 @@ class TestSimbad:
         assert _cached_query_tap.cache_info().currsize != 0
         Simbad.clear_cache()
         assert _cached_query_tap.cache_info().currsize == 0
+
+    def test_async_query(self):
+        adql = "select top 1 main_id from basic"
+        sync_job = Simbad.query_tap(adql)
+        async_job = Simbad.query_tap(adql, async_job=True)
+        assert sync_job["main_id"] == async_job["main_id"]
 
     def test_empty_response_warns(self):
         with pytest.warns(NoResultsWarning, match="The request executed correctly, but *"):

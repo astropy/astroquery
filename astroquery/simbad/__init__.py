@@ -22,8 +22,11 @@ class Conf(_config.ConfigNamespace):
         'Name of the SIMBAD mirror to use.')
 
     timeout = _config.ConfigItem(
-        60,
-        'Time limit for connecting to Simbad server.')
+        1080,
+        # this is the default value in SIMBAD's main mirror
+        # https://simbad.cds.unistra.fr/simbad/sim-tap/capabilities
+        "Time limit for the execution of asynchronous queries, "
+        "in seconds.")
 
     row_limit = _config.ConfigItem(
         # defaults to the maximum limit

@@ -63,9 +63,9 @@ Keyword arguments can also be used to refine results further. The following para
 
 - ``offset``: Skip the first ***n*** results. Useful for paging through results.
 
-- ``sort_by``: A list of field names to sort by.
+- ``sort_by``: A string or list of field names to sort by.
 
-- ``sort_desc``: A list of booleans (one for each field specified in ``sort_by``),
+- ``sort_desc``: A boolean or list of booleans (one for each field specified in ``sort_by``),
   describing if each field should be sorted in descending order (``True``) or ascending order (``False``).
 
 - ``select_cols``: A list of columns to be returned in the response.
@@ -88,7 +88,7 @@ certain radius value of that point. This type of search is also known as a cone 
    ...                                 radius=3,
    ...                                 sci_pep_id=12556,
    ...                                 select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"],
-   ...                                 sort_by=['sci_targname'])
+   ...                                 sort_by='sci_targname')
    >>> results[:5]   # doctest: +IGNORE_OUTPUT
    <Table masked=True length=5>
     search_pos     sci_data_set_name   sci_targname         sci_start_time             sci_stop_time              ang_sep        sci_status
@@ -123,7 +123,7 @@ function.
    >>> results = missions.query_object('M101', 
    ...                                 radius=3, 
    ...                                 select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"],
-   ...                                 sort_by=['sci_targname'])
+   ...                                 sort_by='sci_targname')
    >>> results[:5]  # doctest: +IGNORE_OUTPUT
    <Table masked=True length=5>
     search_pos     sci_data_set_name sci_targname       sci_start_time             sci_stop_time             ang_sep       sci_status
@@ -145,7 +145,7 @@ function.
 
    >>> results = missions.query_criteria(sci_start_time=">=2021-01-01 00:00:00",
    ...                                   select_cols=["sci_stop_time", "sci_targname", "sci_start_time", "sci_status", "sci_pep_id"],
-   ...                                   sort_by=['sci_pep_id'],
+   ...                                   sort_by='sci_pep_id',
    ...                                   limit=1000,
    ...                                   offset=1000)  # doctest: +IGNORE_WARNINGS
    ... # MaxResultsWarning('Maximum results returned, may not include all sources within radius.')
@@ -156,7 +156,7 @@ Here are some tips and tricks for writing more advanced queries:
 
 - To exclude and filter out a certain value from the results, prepend the value with ``!``.
 
-- To filter by multiple values for a single column, use a string of values delimited by commas.
+- To filter by multiple values for a single column, use a list of values or a string of values delimited by commas.
 
 - For columns with numeric or date data types, filter using comparison values (``<``, ``>``, ``<=``, ``>=``).
 
@@ -178,7 +178,7 @@ Here are some tips and tricks for writing more advanced queries:
 
    >>> results = missions.query_criteria(sci_obs_type="IMAGE",
    ...                                   sci_instrume="!COS",
-   ...                                   sci_spec_1234="F150W, F105W, F110W",
+   ...                                   sci_spec_1234=["F150W", "F105W", "F110W"],
    ...                                   sci_dec=">0",
    ...                                   sci_actual_duration="1000..2000",
    ...                                   sci_targname="*GAL*",
@@ -242,22 +242,36 @@ In many cases, you will not need to download every product that is associated wi
 `~astroquery.mast.MastMissionsClass.filter_products` function allows for filtering based on file extension (``extension``)
 and any other of the product fields.
 
-The **AND** operation is performed for a list of filters, and the **OR** operation is performed within a filter set. 
-For example, the filter below will return FITS products that are "science" type **and** have a ``file_suffix`` of "ASN" (association
-files) **or** "JIF" (job information files).
+The **AND** operation is applied between filters, and the **OR** operation is applied within each filter set, except in the case of negated values.
+
+A filter value can be negated by prefiing it with ``!``, meaning that rows matching that value will be excluded from the results.
+When any negated value is present in a filter set, any positive values in that set are combined with **OR** logic, and the negated 
+values are combined with **AND** logic against the positives. 
+
+For example:
+  - ``file_suffix=['A', 'B', '!C']`` → (file_suffix != C) AND (file_suffix == A OR file_suffix == B)
+  - ``size=['!14400', '<20000']`` → (size != 14400) AND (size < 20000)
+
+For columns with numeric data types (``int`` or ``float``), filter values can be expressed in several ways:
+  - A single number: ``size=100``
+  - A range in the form "start..end": ``size="100..1000"``
+  - A comparison operator followed by a number: ``size=">=1000"``
+  - A list of expressions (OR logic): ``size=[100, "500..1000", ">=1500"]``
+
+The filter below returns FITS products that are "science" type **and** less than or equal to 20,000 bytes in size
+**and** have a ``file_suffix`` of "ASN" (association files) **or** "JIF" (job information files).
 
 .. doctest-remote-data::
    >>> filtered = missions.filter_products(products,
    ...                                     extension='fits',
    ...                                     type='science',
+   ...                                     size='<=20000',        
    ...                                     file_suffix=['ASN', 'JIF'])
    >>> print(filtered)  # doctest: +IGNORE_OUTPUT
          product_key          access  dataset  ...    category     size   type 
    ---------------------------- ------ --------- ... -------------- ----- -------
    JBTAA0010_jbtaa0010_asn.fits PUBLIC JBTAA0010 ...            AUX 11520 science
-   JBTAA0010_jbtaa0010_jif.fits PUBLIC JBTAA0010 ... JITTER/SUPPORT 60480 science
    JBTAA0020_jbtaa0020_asn.fits PUBLIC JBTAA0020 ...            AUX 11520 science
-   JBTAA0020_jbtaa0020_jif.fits PUBLIC JBTAA0020 ... JITTER/SUPPORT 60480 science
 
 Downloading Data Products
 -------------------------

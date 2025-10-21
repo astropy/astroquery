@@ -219,7 +219,7 @@ class SplatalogueClass(BaseQuery):
             cm/K for *inverse* cm, i.e. wavenumber, or K for Kelvin
         intensity_lower_limit : `None` or float
             Lower limit on the intensity.  See intensity_type
-        intensity_type : `None` or ``'sij'``, ``'cdms_jpl'``, ``'aij'``
+        intensity_type : `None`, ``'CDMS/JPL (log)'``, ``'Sij-mu2'``, ``'Aij (log)'``
             The type of intensity on which to place a lower limit
         transition : str
             e.g. 1-0

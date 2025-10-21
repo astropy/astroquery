@@ -79,8 +79,10 @@ class SkyViewClass(BaseQuery):
         url = urlparse.urljoin(self.URL, form.get('action'))
         return url, payload
 
-    def _submit_form(self, input=None, cache=True):
+    def _submit_form(self, input=None, cache=True, get_query_payload=False):
         url, payload = self._generate_payload(input=input)
+        if get_query_payload:
+            return payload
         response = self._request('GET', url, params=payload, cache=cache)
         response.raise_for_status()
         return response
@@ -88,7 +90,7 @@ class SkyViewClass(BaseQuery):
     def get_images(self, position, survey, *, coordinates=None, projection=None,
                    pixels=None, scaling=None, sampler=None, resolver=None,
                    deedger=None, radius=None, height=None, width=None, cache=True,
-                   show_progress=True):
+                   show_progress=True, get_query_payload=False):
         """
         Query the SkyView service, download the FITS file that will be
         found and return a generator over the local paths to the
@@ -197,7 +199,10 @@ class SkyViewClass(BaseQuery):
                                                  projection=projection, pixels=pixels, scaling=scaling,
                                                  sampler=sampler, resolver=resolver, deedger=deedger,
                                                  radius=radius, height=height, width=width,
-                                                 cache=cache, show_progress=show_progress)
+                                                 cache=cache, show_progress=show_progress,
+                                                 get_query_payload=get_query_payload)
+        if get_query_payload:
+            return readable_objects
         return [obj.get_fits() for obj in readable_objects]
 
     @prepend_docstr_nosections(get_images.__doc__)
@@ -205,7 +210,7 @@ class SkyViewClass(BaseQuery):
                          projection=None, pixels=None, scaling=None,
                          sampler=None, resolver=None, deedger=None,
                          radius=None, height=None, width=None,
-                         cache=True, show_progress=True):
+                         cache=True, show_progress=True, get_query_payload=False):
         """
         Returns
         -------
@@ -214,16 +219,19 @@ class SkyViewClass(BaseQuery):
         image_urls = self.get_image_list(position, survey, coordinates=coordinates,
                                          projection=projection, pixels=pixels, scaling=scaling, sampler=sampler,
                                          resolver=resolver, deedger=deedger, radius=radius,
-                                         height=height, width=width, cache=cache)
-        return [commons.FileContainer(url, encoding='binary',
-                                      show_progress=show_progress)
+                                         height=height, width=width, cache=cache,
+                                         get_query_payload=get_query_payload)
+        if get_query_payload:
+            return image_urls
+        return [commons.FileContainer(url, encoding='binary', show_progress=show_progress)
                 for url in image_urls]
 
     @prepend_docstr_nosections(get_images.__doc__, sections=['Returns', 'Examples'])
     def get_image_list(self, position, survey, *, coordinates=None,
                        projection=None, pixels=None, scaling=None,
                        sampler=None, resolver=None, deedger=None,
-                       radius=None, width=None, height=None, cache=True):
+                       radius=None, width=None, height=None, cache=True,
+                       get_query_payload=False):
         """
         Returns
         -------
@@ -263,7 +271,9 @@ class SkyViewClass(BaseQuery):
             'imscale': size_deg,
             'size': size_deg,
             'pixels': pixels}
-        response = self._submit_form(input, cache=cache)
+        response = self._submit_form(input, cache=cache, get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
         urls = self._parse_response(response)
         return urls
 

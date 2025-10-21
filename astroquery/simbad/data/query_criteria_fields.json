@@ -232,11 +232,6 @@
     "tap_column": "plx_err",
     "type": "alias"
   },
-  "pm": {
-    "description": "proper motion values in right ascension and declination",
-    "tap_column": ["pmra", "pmdec"],
-    "type": "bundle"
-  },
   "pm_err_maja": {
     "description": "major axis of the error ellipse",
     "tap_column": "pm_err_maj",

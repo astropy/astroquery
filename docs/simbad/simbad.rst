@@ -621,29 +621,29 @@ with:
     >>> from astroquery.simbad import Simbad
     >>> Simbad.list_votable_fields()[["name", "description"]]
     <Table length=...>
-        name                          description                      
-       object                            object                        
-    ----------- -------------------------------------------------------
-    mesDiameter                        Collection of stellar diameters.
-          mesPM                           Collection of proper motions.
-         mesISO         Infrared Space Observatory (ISO) observing log.
-         mesSpT                           Collection of spectral types.
-      allfluxes        all flux/magnitudes U,B,V,I,J,H,K,u_,g_,r_,i_,z_
-          ident                   Identifiers of an astronomical object
-           flux Magnitude/Flux information about an astronomical object
-         mesPLX                 Collection of trigonometric parallaxes.
-       otypedef          all names and definitions for the object types
-            ...                                                     ...
-              K                                             Magnitude K
-              u                                        Magnitude SDSS u
-              g                                        Magnitude SDSS g
-              r                                        Magnitude SDSS r
-              i                                        Magnitude SDSS i
-              z                                        Magnitude SDSS z
-              G                                        Magnitude Gaia G
-          F150W                                       JWST NIRCam F150W
-          F200W                                       JWST NIRCam F200W
-          F444W                                       JWST NIRCan F444W
+        name                           description                       
+       object                             object                         
+    ----------- ---------------------------------------------------------
+    mesDiameter                          Collection of stellar diameters.
+          mesPM                             Collection of proper motions.
+         mesISO           Infrared Space Observatory (ISO) observing log.
+         mesSpT                             Collection of spectral types.
+      allfluxes          all flux/magnitudes U,B,V,I,J,H,K,u_,g_,r_,i_,z_
+          ident                     Identifiers of an astronomical object
+           flux   Magnitude/Flux information about an astronomical object
+       mesOtype Other object types associated with an object with origins
+         mesPLX                   Collection of trigonometric parallaxes.
+            ...                                                       ...
+              K                                               Magnitude K
+              u                                          Magnitude SDSS u
+              g                                          Magnitude SDSS g
+              r                                          Magnitude SDSS r
+              i                                          Magnitude SDSS i
+              z                                          Magnitude SDSS z
+              G                                          Magnitude Gaia G
+          F150W                                         JWST NIRCam F150W
+          F200W                                         JWST NIRCam F200W
+          F444W                                         JWST NIRCan F444W
 
 You can also access a single field description with
 `~astroquery.simbad.SimbadClass.get_field_description`
@@ -828,6 +828,30 @@ Query TAP
 
 Troubleshooting
 ===============
+
+Longer queries
+--------------
+
+It can be useful to execute longer queries in asynchronous mode by setting the
+``async_job`` argument to ``True``. This may take longer to start, depending on the
+current number of other people using the asynchronous SIMBAD queue, but it is more
+robust against transient errors. Asynchronous queries will take the ``timeout`` property
+in account:
+
+.. doctest-remote-data::
+
+    >>> from astroquery.simbad import Simbad
+    >>> simbad = Simbad(timeout=2000) # in seconds
+    >>> simbad.query_tap("select otype, description from otypedef where otype = 'N*'",
+    ...                  async_job=True)
+    <Table length=1>
+    otype  description
+    object    object
+    ------ ------------
+        N* Neutron Star
+
+Clearing the cache
+------------------
 
 If you are repeatedly getting failed queries, or bad/out-of-date results, try clearing
 your cache:

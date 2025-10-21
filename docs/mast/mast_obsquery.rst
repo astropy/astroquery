@@ -82,33 +82,45 @@ However, only one wildcarded value can be processed per criterion.
 
 RA and Dec must be given in decimal degrees, and datetimes in MJD.
 
+`~astroquery.mast.ObservationsClass.query_criteria` can be used to perform non-positional criteria queries.
+
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Observations
    ...
-   >>> obs_table = Observations.query_criteria(dataproduct_type=["image"],
-   ...                                         proposal_pi="Osten*",
-   ...                                         s_dec=[43.5,45.5])
-   >>> print(obs_table)  # doctest: +IGNORE_OUTPUT
-   dataproduct_type calib_level obs_collection ... intentType   obsid      objID
-   ---------------- ----------- -------------- ... ---------- ---------- ----------
-              image           1            HST ...    science 2003520267 2023816094
-              image           1            HST ...    science 2003520266 2023816134
-              image           1            HST ...    science 2003520268 2025756935
+   >>> obs_table = Observations.query_criteria(dataproduct_type="image",
+   ...                                         proposal_pi="Osten*")
+   >>> print(obs_table[:5])  # doctest: +IGNORE_OUTPUT
+   intentType obs_collection provenance_name ... srcDen  obsid     objID  
+   ---------- -------------- --------------- ... ------ -------- ---------
+      science            HST          CALCOS ...    nan 24139596 144540274
+      science            HST          CALCOS ...    nan 24139591 144540276
+      science            HST          CALCOS ...    nan 24139580 144540277
+      science            HST          CALCOS ...    nan 24139597 144540280
+      science            HST          CALCOS ...    nan 24139575 144540281
    ...
-   >>> obs_table = Observations.query_criteria(filters=["*UV","Kepler"],
-   ...                                         objectname="M10",
+
+You can also perform positional queries with additional criteria by passing in ``objectname``, ``coordinates``,
+and/or ``radius`` as keyword arguments.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.mast import Observations
+   ...
+   >>> obs_table = Observations.query_criteria(objectname="M10",
+   ...                                         radius="0.1 deg",
+   ...                                         filters=["*UV","Kepler"],
    ...                                         obs_collection="GALEX")
    >>> print(obs_table)  # doctest: +IGNORE_OUTPUT
    intentType obs_collection provenance_name ... objID objID1 distance
    ---------- -------------- --------------- ... ----- ------ --------
-      science          GALEX             GII ...  7022   7022      0.0
-      science          GALEX             GII ...  7023   7023      0.0
-      science          GALEX             AIS ... 61673  61673      0.0
-      science          GALEX             AIS ... 61674  61674      0.0
       science          GALEX             AIS ... 61675  61675      0.0
-      science          GALEX             AIS ... 61676  61676      0.0
+      science          GALEX             GII ...  7022   7022      0.0
       science          GALEX             GII ... 78941  78941      0.0
+      science          GALEX             AIS ... 61673  61673      0.0
+      science          GALEX             GII ...  7023   7023      0.0
+      science          GALEX             AIS ... 61676  61676      0.0
+      science          GALEX             AIS ... 61674  61674      0.0
 
 We encourage the use of wildcards particularly when querying for JWST instruments
 with the instrument_name criteria. This is because of the varying instrument names
@@ -211,64 +223,20 @@ The product fields are documented `here <https://mast.stsci.edu/api/v0/_products
 
    >>> from astroquery.mast import Observations
    ...
-   >>> obs_table = Observations.query_object("M8",radius=".02 deg")
+   >>> obs_table = Observations.query_criteria(objectname="M8", obs_collection=["K2", "IUE"])
    >>> data_products_by_obs = Observations.get_product_list(obs_table[0:2])
    >>> print(data_products_by_obs)  # doctest: +IGNORE_OUTPUT
-      obsID    obs_collection dataproduct_type ...   size  parent_obsid
-   ----------- -------------- ---------------- ... ------- ------------
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-           ...            ...              ... ...     ...          ...
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ... 8648640  19000016510
-   Length = 1153 rows
-   ...
+   obsID  obs_collection dataproduct_type ... dataRights calib_level filters
+   ------ -------------- ---------------- ... ---------- ----------- -------
+   664784             K2       timeseries ...     PUBLIC           2  KEPLER
+   664785             K2       timeseries ...     PUBLIC           2  KEPLER
    >>> obsids = obs_table[0:2]['obsid']
    >>> data_products_by_id = Observations.get_product_list(obsids)
    >>> print(data_products_by_id)  # doctest: +IGNORE_OUTPUT
-      obsID    obs_collection dataproduct_type ...   size  parent_obsid
-   ----------- -------------- ---------------- ... ------- ------------
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-   19000016510    SPITZER_SHA            image ...  316800  19000016510
-           ...            ...              ... ...     ...          ...
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ...   57600  19000016510
-   19000016510    SPITZER_SHA            image ... 8648640  19000016510
-   Length = 1153 rows
-   ...
+   obsID  obs_collection dataproduct_type ... dataRights calib_level filters
+   ------ -------------- ---------------- ... ---------- ----------- -------
+   664784             K2       timeseries ...     PUBLIC           2  KEPLER
+   664785             K2       timeseries ...     PUBLIC           2  KEPLER
    >>> print((data_products_by_obs == data_products_by_id).all())
    True
 
@@ -297,66 +265,76 @@ To return only unique data products for an observation, use `~astroquery.mast.Ob
    INFO: 180 of 370 products were duplicates. Only returning 190 unique product(s). [astroquery.mast.utils]
    INFO: To return all products, use `Observations.get_product_list` [astroquery.mast.observations]
    >>> print(unique_products[:10]['dataURI'])
-                                 dataURI                              
-   -------------------------------------------------------------------
-           mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveo_drc.fits
-            mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveo_drc.jpg
-     mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveo_point-cat.ecsv
-   mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveo_segment-cat.ecsv
-            mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveo_trl.txt
-         mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveoes_drc.fits
-          mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveoes_drc.jpg
-         mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveoes_flc.fits
-        mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveoes_hlet.fits
-          mast:HST/product/hst_12062_eo_acs_wfc_f606w_jbeveoes_trl.txt
+                   dataURI                 
+   ----------------------------------------
+   mast:HST/product/jbeveoesq_flt_hlet.fits
+      mast:HST/product/jbeveoesq_spt.fits
+      mast:HST/product/jbeveoesq_trl.fits
+         mast:HST/product/jbeveoesq_log.txt
+         mast:HST/product/jbeveoesq_raw.jpg
+         mast:HST/product/jbeveoesq_flc.jpg
+         mast:HST/product/jbeveoesq_flt.jpg
+      mast:HST/product/jbeveoesq_flc.fits
+      mast:HST/product/jbeveoesq_flt.fits
+      mast:HST/product/jbeveoesq_raw.fits
 
-Filtering
----------
+Filtering Data Products
+-----------------------
 
-Filter keyword arguments can be applied to download only data products that meet the given criteria.
-Available filters are "mrp_only" (Minimum Recommended Products), "extension" (file extension),
-and all products fields listed `here <https://mast.stsci.edu/api/v0/_productsfields.html>`_.
+In many cases, you will not need to download every product that is associated with a dataset. The
+`~astroquery.mast.ObservationsClass.filter_products` function allows for filtering based on minimum recommended products
+(``mrp_only``), file extension (``extension``), and any other of the `CAOM products fields <https://mast.stsci.edu/api/v0/_productsfields.html>`_.
 
-The ‘AND' operation is performed for a list of filters, and the ‘OR' operation is performed within a
-filter set. The below example illustrates downloading all product files with the extension "fits" that
-are either "RAW" or "UNCAL."
+The **AND** operation is applied between filters, and the **OR** operation is applied within each filter set, except in the case of negated values.
 
-.. doctest-remote-data::
+A filter value can be negated by prefiing it with ``!``, meaning that rows matching that value will be excluded from the results.
+When any negated value is present in a filter set, any positive values in that set are combined with **OR** logic, and the negated 
+values are combined with **AND** logic against the positives. 
 
-   >>> from astroquery.mast import Observations
-   ...
-   >>> Observations.download_products('25119363',
-   ...                                productType=["SCIENCE", "PREVIEW"],
-   ...                                extension="fits")   # doctest: +IGNORE_OUTPUT
-   <Table length=3>
-                      Local Path                    Status  Message  URL
-                        str47                        str8    object object
-   ----------------------------------------------- -------- ------- ------
-   ./mastDownload/HST/fa2f0101m/fa2f0101m_a1f.fits COMPLETE    None   None
-   ./mastDownload/HST/fa2f0101m/fa2f0101m_a2f.fits COMPLETE    None   None
-   ./mastDownload/HST/fa2f0101m/fa2f0101m_a3f.fits COMPLETE    None   None
+For example:
+  - ``productType=['A', 'B', '!C']`` → (productType != C) AND (productType == A OR productType == B)
+  - ``size=['!14400', '<20000']`` → (size != 14400) AND (size < 20000)
 
-Product filtering can also be applied directly to a table of products without proceeding to the download step.
+For columns with numeric data types (``int`` or ``float``), filter values can be expressed in several ways:
+  - A single number: ``size=100``
+  - A range in the form "start..end": ``size="100..1000"``
+  - A comparison operator followed by a number: ``size=">=1000"``
+  - A list of expressions: ``size=[100, "500..1000", ">=1500"]``
+
+The filter below returns FITS products that have a calibration level of 2 or lower **and** are of type "SCIENCE" **or** "PREVIEW".
 
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Observations
    ...
    >>> data_products = Observations.get_product_list('25588063')
-   >>> print(len(data_products))
-   30
-   >>> products = Observations.filter_products(data_products,
-   ...                                         productType=["SCIENCE", "PREVIEW"],
-   ...                                         extension="fits")
-   >>> print(len(products))
-   10
+   >>> filtered = Observations.filter_products(data_products,
+   ...                                         extension="fits",
+   ...                                         calib_level="<=2",
+   ...                                         productType=["SCIENCE", "PREVIEW"])
+   >>> print(filtered)  # doctest: +IGNORE_OUTPUT
+    obsID   obs_collection dataproduct_type ... dataRights calib_level filters
+   -------- -------------- ---------------- ... ---------- ----------- -------
+   25167183            HLA            image ...     PUBLIC           2   F487N
+   24556691            HST            image ...     PUBLIC           2   F487N
+   24556691            HST            image ...     PUBLIC           2   F487N
+   24556691            HST            image ...     PUBLIC           2   F487N
+   24556691            HST            image ...     PUBLIC           2   F487N
+   24556691            HST            image ...     PUBLIC           1   F487N
+   24556691            HST            image ...     PUBLIC           1   F487N
+   24556691            HST            image ...     PUBLIC           2   F487N
 
 
 Downloading Data Products
 -------------------------
 
-Products can be downloaded by using `~astroquery.mast.ObservationsClass.download_products`,
-with a `~astropy.table.Table` of data products, or a list (or single) obsid as the argument.
+The `~astroquery.mast.ObservationsClass.download_products` function accepts a table of products like the one above
+and will download the products to your machine.
+
+By default, products will be downloaded into the current working directory, in a subdirectory called "mastDownload".
+You can change the download directory by passing the ``download_dir`` keyword argument.
+
+The function also accepts dataset IDs and product filters as input for a more streamlined workflow.
 
 .. doctest-skip::
 

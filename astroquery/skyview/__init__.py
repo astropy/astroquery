@@ -7,7 +7,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.skyview`.
     """
     url = _config.ConfigItem(
-        'http://skyview.gsfc.nasa.gov/current/cgi/basicform.pl',
+        'https://skyview.gsfc.nasa.gov/current/cgi/basicform.pl',
         'SkyView URL')
 
 

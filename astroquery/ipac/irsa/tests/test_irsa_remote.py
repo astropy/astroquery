@@ -6,8 +6,6 @@ from astropy.table import Table
 from astropy.coordinates import SkyCoord
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
-from pyvo.dal.exceptions import DALOverflowWarning
-
 from astroquery.ipac.irsa import Irsa
 
 
@@ -61,17 +59,51 @@ class TestIrsa:
         assert isinstance(result, Table)
         assert len(result) == 7
 
+    def test_list_columns(self):
+        columns = Irsa.list_columns('slphotdr4')
+        assert len(columns) == 203
+        assert isinstance(columns, dict)
+
+        full_columns = Irsa.list_columns('slphotdr4', full=True)
+        assert isinstance(full_columns, Table)
+
     def test_list_catalogs(self):
         catalogs = Irsa.list_catalogs()
         # Number of available catalogs may change over time, test only for significant drop.
-        # (at the time of writing there are 933 tables in the list).
-        assert len(catalogs) > 900
+        # (at the time of writing there are 521 catalogs in the list).
+        assert len(catalogs) > 520
+        assert isinstance(catalogs, dict)
+
+        catalogs_full = Irsa.list_catalogs(full=True)
+        assert isinstance(catalogs_full, Table)
+
+    def test_list_catalogs_filter(self):
+        allwise_catalogs = Irsa.list_catalogs(filter='allwise')
+
+        assert len(allwise_catalogs) == 4
+
+    def test_list_catalogs_filter_description(self):
+        twomass_catalogs = Irsa.list_catalogs(filter='2mass')
+        assert len(twomass_catalogs) == 39
+
+        all_twomass = Irsa.list_catalogs(filter='2mass', include_metadata_tables=True)
+        assert len(all_twomass) == 58
+
+    def test_list_catalogs_metadata(self):
+        catalogs = Irsa.list_catalogs(filter='wise')
+        all_tables = Irsa.list_catalogs(filter='wise', include_metadata_tables=True)
+
+        assert len(catalogs) < len(all_tables)
+
+        assert 'wise.wise_allwise_p3am_cdd' not in catalogs
+        assert 'wise.wise_allwise_p3am_cdd' in all_tables
 
     @pytest.mark.parametrize('servicetype', (None, 'sia', 'ssa'))
     def test_list_collections(self, servicetype):
         collections = Irsa.list_collections(servicetype=servicetype)
         # Number of available collections may change over time, test only for significant drop.
         # (at the time of writing there are 104 SIA and 35 SSA collections in the list).
+        assert isinstance(collections, Table)
         if servicetype == 'ssa':
             assert len(collections) > 30
             assert 'sofia_exes' in collections['collection']
@@ -80,10 +112,21 @@ class TestIrsa:
             assert 'spitzer_seip' in collections['collection']
             assert 'wise_allwise' in collections['collection']
 
+    def test_list_collections_filter(self):
+        spitzer_collections = Irsa.list_collections(filter='spitzer')
+
+        assert len(spitzer_collections) == 47
+
     def test_tap(self):
         query = "SELECT TOP 5 ra,dec FROM cosmos2015"
-        with pytest.warns(expected_warning=DALOverflowWarning,
-                          match="Partial result set. Potential causes MAXREC, async storage space, etc."):
-            result = Irsa.query_tap(query=query)
+
+        result = Irsa.query_tap(query=query)
         assert len(result) == 5
         assert result.to_table().colnames == ['ra', 'dec']
+
+    def test_ssa(self):
+        coord = SkyCoord.from_name("Eta Carina")
+        result = Irsa.query_ssa(pos=coord)
+        assert len(result) > 260
+        collections = set(result['dataid_collection'])
+        assert {'champ', 'iso_sws', 'sofia_forcast', 'sofia_great', 'spitzer_sha'}.issubset(collections)

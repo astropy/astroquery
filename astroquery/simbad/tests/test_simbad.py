@@ -8,12 +8,14 @@ from astropy.table import Table
 import astropy.units as u
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from pyvo.dal.tap import TAPService
+from pyvo.io.vosi import tapregext
 
 import pytest
 
+from .. import conf
 from ... import simbad
 from .test_simbad_remote import multicoords
-from astroquery.exceptions import LargeQueryWarning, NoResultsWarning
+from astroquery.exceptions import NoResultsWarning
 
 
 GALACTIC_COORDS = SkyCoord(l=-67.02084 * u.deg, b=-29.75447 * u.deg, frame="galactic")
@@ -33,6 +35,7 @@ def _mock_simbad_class(monkeypatch):
     # >>> options = Simbad.list_votable_fields()
     # >>> options.write("simbad_output_options.xml", format="votable")
     monkeypatch.setattr(simbad.SimbadClass, "hardlimit", 2000000)
+    monkeypatch.setattr(simbad.SimbadClass, "uploadlimit", 200000)
     monkeypatch.setattr(simbad.SimbadClass, "list_votable_fields", lambda self: table)
 
 
@@ -151,6 +154,28 @@ def test_mocked_simbad():
     assert len(options) >= 115
     # this mocks the hardlimit
     assert simbad_instance.hardlimit == 2000000
+    # and the uploadlimit
+    assert simbad_instance.uploadlimit == 200000
+
+
+def test_simbad_timeout(monkeypatch):
+    simbad_instance = simbad.Simbad()
+    assert simbad_instance.timeout == conf.timeout  # default value
+
+    class PatchedCapability:
+        @property
+        def executionduration(self):
+            time_limit = tapregext.TimeLimits()
+            time_limit.hard = 2000
+            return time_limit
+
+    monkeypatch.setattr(TAPService, "capabilities", [PatchedCapability()])
+    # good value
+    simbad_instance.timeout = 10
+    assert simbad_instance.timeout == 10
+    # too high
+    with pytest.raises(ValueError, match="'timeout' cannot exceed*"):
+        simbad_instance.timeout = 10000
 
 # ----------------------------
 # Test output options settings
@@ -448,11 +473,9 @@ def test_query_region_with_criteria():
     adql = simbad.core.Simbad.query_region(ICRS_COORDS, radius="0.1s",
                                            criteria="galdim_majaxis>0.2",
                                            get_query_payload=True)["QUERY"]
-    assert adql.endswith("AND (galdim_majaxis>0.2)")
+    assert "(galdim_majaxis>0.2)" in adql
 
 
-# transform large query warning into error to save execution time
-@pytest.mark.filterwarnings("error:For very large queries")
 @pytest.mark.usefixtures("_mock_simbad_class")
 def test_query_region_errors():
     with pytest.raises(u.UnitsError):
@@ -462,9 +485,24 @@ def test_query_region_errors():
     with pytest.raises(ValueError, match="Mismatch between radii of length 3 "
                        "and center coordinates of length 2."):
         simbad.SimbadClass().query_region(multicoords, radius=[1, 2, 3] * u.deg)
-    centers = SkyCoord([0] * 10001, [0] * 10001, unit="deg", frame="icrs")
-    with pytest.raises(LargeQueryWarning, match="For very large queries, you may receive a timeout error.*"):
-        simbad.core.Simbad.query_region(centers, radius="2m", get_query_payload=True)["QUERY"]
+
+
+@pytest.mark.usefixtures("_mock_simbad_class")
+def test_query_region_error_on_long_list_of_centers(monkeypatch):
+    # initiating a SkyCoord longer than 200000 takes a few seconds
+    monkeypatch.setattr(SkyCoord, "__len__", lambda self: 200001)
+    centers = SkyCoord([0, 0], [0, 0], unit="deg", frame="icrs")
+    with pytest.raises(ValueError, match="'query_region' can process up to 200000 centers.*"):
+        simbad.core.Simbad.query_region(centers, radius="2m")
+
+
+@pytest.mark.usefixtures("_mock_simbad_class")
+def test_query_region_upload():
+    centers = SkyCoord([0] * 301, [0] * 301, unit="deg", frame="icrs")
+    adql = simbad.core.Simbad.query_region(centers, radius=["2m"] * 301,
+                                           get_query_payload=True)["QUERY"]
+    assert adql.endswith("WHERE CONTAINS(POINT('ICRS', basic.ra, basic.dec), CIRCLE"
+                         "('ICRS', centers.ra, centers.dec, centers.radius)) = 1 ")
 
 
 @pytest.mark.usefixtures("_mock_simbad_class")
@@ -547,14 +585,16 @@ def test_query_tap_errors():
 @pytest.mark.usefixtures("_mock_simbad_class")
 def test_query_tap_cache_call(monkeypatch):
     msg = "called_cached_query_tap"
-    monkeypatch.setattr(simbad.core, "_cached_query_tap", lambda tap, query, maxrec: msg)
+    monkeypatch.setattr(simbad.core, "_cached_query_tap",
+                        lambda tap, query, maxrec, async_job, timeout: msg)
     assert simbad.Simbad.query_tap("select top 1 * from basic") == msg
 
 
 @pytest.mark.usefixtures("_mock_simbad_class")
 def test_empty_response_warns(monkeypatch):
     # return something of length zero
-    monkeypatch.setattr(simbad.core.Simbad, "query_tap", lambda _, get_query_payload, maxrec: [])
+    monkeypatch.setattr(simbad.core.Simbad, "query_tap",
+                        lambda _, get_query_payload, maxrec, async_job: [])
     msg = ("The request executed correctly, but there was no data corresponding to these"
            " criteria in SIMBAD")
     with pytest.warns(NoResultsWarning, match=msg):

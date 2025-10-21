@@ -14,14 +14,16 @@ Created on 30 jun. 2016
 
 
 """
-from astroquery.utils.tap import taputils
-
 import requests
+
+from astroquery.utils.tap import taputils
+from astroquery.utils.tap.conn.tapconn import TapConn
 
 
 class DummyConnHandler:
 
     def __init__(self):
+        self.cookie = None
         self.request = None
         self.data = None
         self.fileExt = ".ext"
@@ -138,6 +140,9 @@ class DummyConnHandler:
     def find_header(self, headers, key):
         return taputils.taputil_find_header(headers, key)
 
+    def find_all_headers(self, headers, key):
+        return taputils.taputil_find_all_headers(headers, key)
+
     def execute_table_edit(self, data,
                            content_type="application/x-www-form-urlencoded",
                            verbose=False):
@@ -152,3 +157,18 @@ class DummyConnHandler:
 
     def execute_secure(self, subcontext=None, data=None, verbose=False):
         return self.__execute_post(subcontext=subcontext, data=data, verbose=verbose)
+
+    def get_host_url(self):
+        return "my fake object"
+
+    def encode_multipart(self, fields, files):
+        tap = TapConn(ishttps=False, host='host')
+        return tap.encode_multipart(fields, files)
+
+    def execute_upload(self, data,
+                       content_type="application/x-www-form-urlencoded", *,
+                       verbose=False):
+        return self.defaultResponse
+
+    def set_cookie(self, cookie):
+        self.cookie = cookie

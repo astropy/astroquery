@@ -8,8 +8,9 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
 """
+
+
 import os
-from urllib.parse import urlencode
 
 import astroquery.esa.utils.utils as esautils
 
@@ -18,12 +19,10 @@ from astropy.coordinates import SkyCoord
 from astropy.coordinates import Angle
 from numpy.ma import MaskedArray
 
-from astroquery.utils.tap import TapPlus
-from astroquery.query import BaseQuery
-import json
+from astroquery.query import BaseQuery, BaseVOQuery
 import warnings
+import pyvo
 from astropy.utils.exceptions import AstropyDeprecationWarning
-from astropy.utils.decorators import deprecated
 
 from . import conf
 from astroquery import log
@@ -31,7 +30,7 @@ from astroquery import log
 __all__ = ['ESAHubble', 'ESAHubbleClass']
 
 
-class ESAHubbleClass(BaseQuery):
+class ESAHubbleClass(BaseVOQuery, BaseQuery):
     """
     Class to init ESA Hubble Module and communicate with eHST TAP
     """
@@ -41,14 +40,26 @@ class ESAHubbleClass(BaseQuery):
     product_types = ["SCIENCE", "PREVIEW", "THUMBNAIL", "AUXILIARY"]
     copying_string = "Copying file to {0}..."
 
-    def __init__(self, *, tap_handler=None, show_messages=True):
-        if tap_handler is None:
-            self._tap = TapPlus(url=conf.EHST_TAP_SERVER,
-                                data_context='data', client_id="ASTROQUERY")
+    def __init__(self, *, show_messages=True, auth_session=None):
+        super().__init__()
+
+        self._tap = None
+        # Checks if auth session has been defined. If not, create a new session
+        if auth_session:
+            self._auth_session = auth_session
         else:
-            self._tap = tap_handler
+            self._auth_session = esautils.ESAAuthSession()
+
         if show_messages:
             self.get_status_messages()
+
+    @property
+    def tap(self) -> pyvo.dal.TAPService:
+        if self._tap is None:
+            self._tap = pyvo.dal.TAPService(
+                conf.EHST_TAP_SERVER, session=self._auth_session)
+
+        return self._tap
 
     def download_product(self, observation_id, *, calibration_level=None,
                          filename=None, folder=None, verbose=False, product_type=None):
@@ -95,7 +106,6 @@ class ESAHubbleClass(BaseQuery):
                 AstropyDeprecationWarning)
 
         params = {"OBSERVATIONID": observation_id,
-                  "TAPCLIENT": "ASTROQUERY",
                   "RETRIEVAL_TYPE": "OBSERVATION"}
 
         if filename is None:
@@ -112,8 +122,13 @@ class ESAHubbleClass(BaseQuery):
 
         filename = self._get_product_filename(product_type, filename)
         output_file = self.__get_download_path(folder, filename)
-        self._tap.load_data(params_dict=params, output_file=output_file, verbose=verbose)
-
+        esautils.download_file(
+            url=conf.EHST_DATA_SERVER,
+            session=self.tap._session,
+            params=params,
+            verbose=verbose,
+            filename=output_file
+        )
         return esautils.check_rename_to_gz(filename=output_file)
 
     def __get_download_path(self, folder, filename):
@@ -417,12 +432,17 @@ class ESAHubbleClass(BaseQuery):
         None. The file is associated
         """
 
-        params = {"RETRIEVAL_TYPE": "PRODUCT", "ARTIFACTID": file, "TAPCLIENT": "ASTROQUERY"}
+        params = {"RETRIEVAL_TYPE": "PRODUCT", "ARTIFACTID": file}
         if filename is None:
             filename = file
         output_file = self.__get_download_path(folder, filename)
-        self._tap.load_data(params_dict=params, output_file=output_file, verbose=verbose)
-
+        esautils.download_file(
+            url=conf.EHST_DATA_SERVER,
+            session=self.tap._session,
+            params=params,
+            verbose=verbose,
+            filename=output_file
+        )
         return esautils.check_rename_to_gz(filename=output_file)
 
     def get_postcard(self, observation_id, *, calibration_level="RAW",
@@ -458,8 +478,7 @@ class ESAHubbleClass(BaseQuery):
 
         params = {"RETRIEVAL_TYPE": "OBSERVATION",
                   "OBSERVATIONID": observation_id,
-                  "PRODUCTTYPE": "PREVIEW",
-                  "TAPCLIENT": "ASTROQUERY"}
+                  "PRODUCTTYPE": "PREVIEW"}
         if calibration_level:
             params["CALIBRATIONLEVEL"] = calibration_level
 
@@ -469,8 +488,8 @@ class ESAHubbleClass(BaseQuery):
         if filename is None:
             filename = observation_id
 
-        self._tap.load_data(params_dict=params, output_file=filename, verbose=verbose)
-
+        esautils.download_file(url=conf.EHST_DATA_SERVER, session=self.tap._session, params=params, verbose=verbose,
+                               filename=filename)
         return filename
 
     def __get_product_type_by_resolution(self, resolution):
@@ -670,18 +689,17 @@ class ESAHubbleClass(BaseQuery):
         try:
             params = {"TARGET_NAME": target,
                       "RESOLVER_TYPE": "ALL",
-                      "FORMAT": "json",
-                      "TAPCLIENT": "ASTROQUERY"}
+                      "FORMAT": "json"}
 
-            subContext = conf.EHST_TARGET_ACTION
-            connHandler = self._tap._TapPlus__getconnhandler()
-            data = urlencode(params)
-            target_response = connHandler.execute_secure(subContext, data, verbose=True)
-            for line in target_response:
-                target_result = json.loads(line.decode("utf-8"))
-                if target_result['objects']:
-                    ra = target_result['objects'][0]['raDegrees']
-                    dec = target_result['objects'][0]['decDegrees']
+            target_response = esautils.execute_servlet_request(
+                tap=self.tap,
+                query_params=params,
+                url=conf.EHST_DOMAIN_SERVER + conf.EHST_TARGET_ACTION
+            )
+            if target_response:
+                if target_response['objects']:
+                    ra = target_response['objects'][0]['raDegrees']
+                    dec = target_response['objects'][0]['decDegrees']
             return SkyCoord(ra=ra, dec=dec, unit="deg")
         except (ValueError, KeyError):
             raise ValueError("This target cannot be resolved")
@@ -747,45 +765,15 @@ class ESAHubbleClass(BaseQuery):
                 A table object
                 """
         if async_job:
-            job = self._tap.launch_job_async(query=query,
-                                             output_file=output_file,
-                                             output_format=output_format,
-                                             verbose=verbose,
-                                             dump_to_file=output_file is not None)
+            query_result = self.tap.run_async(query)
+            result = query_result.to_table()
         else:
-            job = self._tap.launch_job(query=query, output_file=output_file,
-                                       output_format=output_format,
-                                       verbose=verbose,
-                                       dump_to_file=output_file is not None)
-        table = job.get_results()
-        return table
+            result = self.tap.run_sync(query).to_table()
 
-    @deprecated(since="0.4.7", alternative="query_tap")
-    def query_hst_tap(self, query, *, async_job=False, output_file=None,
-                      output_format="votable", verbose=False):
-        """Launches a synchronous or asynchronous job to query the HST tap
+        if output_file:
+            esautils.download_table(result, output_file, output_format)
 
-        Parameters
-        ----------
-        query : str, mandatory
-            query (adql) to be executed
-        async_job : bool, optional, default 'False'
-            executes the query (job) in asynchronous/synchronous mode (default
-            synchronous)
-        output_file : str, optional, default None
-            file name where the results are saved if dumpToFile is True.
-            If this parameter is not provided, the jobid is used instead
-        output_format : str, optional, default 'votable'
-            results format
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A table object
-        """
-        self.query_tap(query=query, async_job=False, output_file=None,
-                       output_format="votable", verbose=False)
+        return result
 
     def query_criteria(self, *, calibration_level=None,
                        data_product_type=None, intent=None,
@@ -923,17 +911,11 @@ class ESAHubbleClass(BaseQuery):
         -------
         A list of tables
         """
-
-        tables = self._tap.load_tables(only_names=only_names,
-                                       include_shared_tables=False,
-                                       verbose=verbose)
-        if only_names is True:
-            table_names = []
-            for t in tables:
-                table_names.append(t.name)
-            return table_names
+        tables = self.tap.tables
+        if only_names:
+            return list(tables.keys())
         else:
-            return tables
+            return list(tables.values())
 
     def get_status_messages(self):
         """Retrieve the messages to inform users about
@@ -941,15 +923,22 @@ class ESAHubbleClass(BaseQuery):
         """
 
         try:
-            subContext = conf.EHST_MESSAGES
-            connHandler = self._tap._TapPlus__getconnhandler()
-            response = connHandler.execute_tapget(subContext, verbose=False)
-            if response.status == 200:
-                for line in response:
-                    string_message = line.decode("utf-8")
-                    print(string_message[string_message.index('=') + 1:])
+            esautils.execute_servlet_request(
+                url=conf.EHST_TAP_SERVER + "/" + conf.EHST_MESSAGES,
+                tap=self.tap,
+                query_params={},
+                parser_method=self.parse_messages_response
+            )
         except OSError:
             print("Status messages could not be retrieved")
+
+    def parse_messages_response(self, response):
+        string_messages = []
+        for line in response.iter_lines():
+            string_message = line.decode("utf-8")
+            string_messages.append(string_message[string_message.index('=') + 1:])
+            print(string_messages[len(string_messages) - 1])
+        return string_messages
 
     def get_columns(self, table_name, *, only_names=True, verbose=False):
         """Get the available columns for a table in EHST TAP service
@@ -968,9 +957,7 @@ class ESAHubbleClass(BaseQuery):
         A list of columns
         """
 
-        tables = self._tap.load_tables(only_names=False,
-                                       include_shared_tables=False,
-                                       verbose=verbose)
+        tables = self.get_tables(only_names=False)
         columns = None
         for t in tables:
             if str(t.name) == str(table_name):
@@ -1044,21 +1031,25 @@ class ESAHubbleClass(BaseQuery):
         path = self._get_decoded_string(string=job["file_path"][0])
         path_parsed = path.split("hstdata/", 1)[1]
 
-        # Automatic fill: convert /hstdata/hstdata_i/i/b4x/04 to /data/user/hub_hstdata_i/i/b4x/04
-        if default_volume is None:
-            full_path = "/data/user/hub_" + path_parsed + "/" + filename
+        for datalabs_path in ["/data/user/", "/data/"]:
+            # Automatic fill: convert /hstdata/hstdata_i/i/b4x/04 to <datalabs_path>/hub_hstdata_i/i/b4x/04
+            if default_volume is None:
+                full_path = datalabs_path + "hub_" + path_parsed + "/" + filename
+
+            # Use the path provided by the user: convert /hstdata/hstdata_i/i/b4x/04 to <datalabs_path>/myPath/i/b4x/04
+            else:
+                trimmed_path = path_parsed.split("/", 1)[1]
+                full_path = datalabs_path + default_volume + "/" + trimmed_path + "/" + filename
+
             file_exists = os.path.exists(full_path)
 
-        # Use the path provided by the user: convert /hstdata/hstdata_i/i/b4x/04 to /data/user/myPath/i/b4x/04
-        else:
-            path_parsed = path_parsed.split("/", 1)[1]
-            full_path = "/data/user/" + default_volume + "/" + path_parsed + "/" + filename
-            file_exists = os.path.exists(full_path)
+            if file_exists:
+                return full_path
 
-        if not file_exists:
-            warnings.warn(f"File {filename} is not accessible. Please ensure the {instrument_name} "
-                          "volume is mounted in your ESA Datalabs instance.")
+        warnings.warn(f"File {filename} is not accessible. Please ensure the {instrument_name} "
+                      "volume is mounted in your ESA Datalabs instance.")
         return full_path
 
 
-ESAHubble = ESAHubbleClass()
+# Need to be False in order to avoid reaching out to the remote server at import time
+ESAHubble = ESAHubbleClass(show_messages=False)

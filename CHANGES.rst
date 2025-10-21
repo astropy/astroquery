@@ -1,22 +1,260 @@
-0.4.10 (unreleased)
+0.4.12 (unreleased)
 ===================
 
 New Tools and Services
 ----------------------
 
-astorbdb
-^^^^^^^^
+=======
 
-- module added to query the Lowell Observatory astorbdb database [#3203]
+>>>>>>> upstream/main
 
 API changes
 -----------
+
+
+
+Service fixes and enhancements
+------------------------------
+
+esa.hubble
+^^^^^^^^^^
+
+- Update ``get_datalabs_path`` method so an alternative path is checked if the
+  file is not in Datalabs yet [#3437]
+
+mast
+^^^^
+
+- Raise an error if non-string values are passed to ``utils.resolve_object``. [#3435]
+
+- Filtering by file extension or by a string column is now case-insensitive in ``MastMissions.filter_products``
+  and ``Observations.filter_products``. [#3427]
+
+
+Infrastructure, Utility and Other Changes and Additions
+-------------------------------------------------------
+
+utils.tap
+^^^^^^^^^
+
+- ``TapPlus.delete_user_table`` includes the schema name to be compatible with TAP+ version >= 10.x. [#3439]
+
+
+
+0.4.11 (2025-09-19)
+===================
+
+API changes
+-----------
+
+esa.hubble
+^^^^^^^^^^
+
+- Removal of the deprecated ``query_hst_tap`` method, use ``query_tap`` instead.
+  [#3367]
+
+gaia
+^^^^
+
+- Deprecated ``band`` from ``load_data`` as it has no effect on upstream
+  response any more. [#3278]
+
+mast
+^^^^
+
+- Deprecated the ``product`` parameter in the ``Tesscut.get_sectors``,
+  ``Tesscut.get_cutouts``, and ``Tesscut.download_cutouts`` methods.
+  Support for TESS Image Calibration (TICA) high-level science products has
+  been removed; only Science Processing Operations Center (SPOC) products
+  are supported. [#3391]
+
+
+Service fixes and enhancements
+------------------------------
+
+alma
+^^^^
+
+- Bug fix in ``footprint_to_reg`` that did not allow regions to be plotted.
+  [#3285]
+
+esa.euclid
+^^^^^^^^^^
+
+- New method, ``get_scientific_product_list``, to retrieve scientific LE3
+  products. [#3313]
+
+- New cross-match method [#3386]
+
+esa.hubble
+^^^^^^^^^^
+
+- Internal refactor of the module to use to PyVO. [#3367]
+
+gaia
+^^^^
+
+- New method cross_match_basic that simplifies the positional x-match method.
+  [#3320]
+
+- New datalink retrieve types EPOCH_PHOTOMETRY_CROWDED_FIELD,
+  EPOCH_ASTROMETRY_BRIGHT, XP_MEAN_SPECTRUM_GRAVLENS, EPOCH_FLAGS_NSS,
+  EPOCH_PARAMETERS_RVS_SINGLE, EPOCH_PARAMETERS_RVS_DOUBLE,
+  EPOCH_FLAGS_VARI, and MEAN_SPECTRUM_RVS. [#3371, #3342]
+
+- Rename datalink retrieval types EPOCH_SPECTRUM_RVS, EPOCH_SPECTRUM_XP_SSO,
+  EPOCH_SPECTRUM_XP_CROWDING, MEAN_SPECTRUM_XP, EPOCH_SPECTRUM_XP and
+  MEAN_SPECTRUM_XP_GRAVLENS. [#3382]
+
+heasarc
+^^^^^^^
+
+- Add support for astropy.table.Row in ``download_data`` and ``locate_data``.
+  [#3270]
+
+- ``locate_data`` returns empty rows with an error in the error_message column
+  if there are no data associated with that row rather than filtering it
+  out. [#3275]
+
+- ``locate_data`` changed to use POST request instead of GET to accomodate
+  large requests. [#3356]
+
+- Preserve size of mask when all values are False in ``locate_data``. [#3411]
+
+image_cutouts.first
+^^^^^^^^^^^^^^^^^^^
+
+- Changed FIRST URL. [#3413]
+
+imcce
+^^^^^
+
+- Fix parsing SkyBot results that include objects with special characters in
+  their names. [#3307]
+
+- Changing RuntimeError to NoResultsWarning when an empty result is
+  returned. [#3307]
+
+- Changed SkyBot URLs. [#3306]
+
+ipac.irsa
+^^^^^^^^^
+
+- Fix ``list_catalogs`` to not include image metadata tables, only
+  catalogs. The ``include_metadata_tables`` keyword argument allows opting
+  in to return all TAP tables, including non-spatial and metadata ones,
+  too. [#3334]
+
+- The "filter" kwarg of ``list_catalogs`` is now looking for string matches
+  either in catalog names and short descriptions. [#3415]
+
+linelists.cdms
+^^^^^^^^^^^^^^
+
+- Add a keyword to control writing of new species cache files.
+  This is needed to prevent tests from overwriting those files. [#3297]
+
+mast
+^^^^
+
+- Add ``resolver`` parameter to query methods to specify the resolver to
+  use when resolving object names to coordinates. [#3292]
+
+- Add ``resolve_all`` parameter to ``resolve_object`` to resolve
+  object names and return coordinates for all available resolvers. [#3292]
+
+- Fix bug in ``utils.remove_duplicate_products`` that does not retain the
+  order of the products in an input table. [#3314]
+
+- Add ``return_uri_map`` parameter to ``Observations.get_cloud_uris`` to return
+  a mapping of the input data product URIs to the returned cloud URIs. [#3314]
+
+- Add ``verbose`` parameter to ``Observations.get_cloud_uris`` to control
+  whether warnings are logged when a product cannot be found in the cloud.
+  [#3314]
+
+- Improved ``MastMissions`` queries to accept lists for query critieria
+  values, in addition to comma-delimited strings. [#3319]
+
+- Enhanced ``filter_products`` methods in ``MastMissions`` and ``Observations``
+  to support advanced filtering expressions for numeric columns and with
+  negative values. [#3365, #3393]
+
+- Fix bug where duplicate columns from server responses cause an error when
+  converting to an ``~astropy.table.Table``. [#3400]
+
+- Support for resolving multiple object names at once with ``resolve_object``,
+  including automatic batching into groups of up to 30 names per request to
+  the name translation service. [#3398]
+
+simbad
+^^^^^^
+
+- Add ``async_job`` option in all query methods. It provides slower to start,
+  but more robust queries for which the timeout can be increased. [#3305]
+
+skyview
+^^^^^^^
+
+- Add ``get_query_payload`` kwarg to ``Skyview.get_images()`` and
+  ``Skyview.get_images_list()`` to return the query payload. [#3318]
+
+- Changed SkyView URL to https. [#3346]
+
+utils.tap
+^^^^^^^^^
+
+- The method ``upload_table`` accepts file formats accepted by astropy's
+  ``Table.read()``. [#3295]
+
+
+Infrastructure, Utility and Other Changes and Additions
+-------------------------------------------------------
+
+query.py
+^^^^^^^^
+
+- ``BaseQuery._download_file`` now returns the local file path in all cases.
+  Some corner cases where downloads were not properly continued have been
+  fixed. [#3232]
+
+utils
+^^^^^
+
+- Raising cleaner errors earlier when server returns with error. [#3284]
+
+- ``return_frame`` parameter in ``utils.commons.parse_coordinates`` returns
+  coordinates in the specified frame. [#3164]
+
+
+0.4.10 (2025-03-18)
+===================
+
+New Tools and Services
+----------------------
+
+esa.euclid
+^^^^^^^^^^
+
+- New module to access the ESA Euclid Archive. [#3216]
+
+
+API changes
+-----------
+
+ipac.irsa
+^^^^^^^^^
+
+- ``query_sia`` now returns the results as an astropy Table. [#3252, #3263]
+
+- Deprecate ``print_catalogs`` in favour of ``list_catalogs``. [#3266]
 
 simbad
 ^^^^^^
 
 - The detailed hierarchy is now returned by default in ``query_hierarchy``
-  (it was hidden by default in the previous versions) [#3195]
+  (it was hidden in the previous versions). [#3195]
+
 
 Service fixes and enhancements
 ------------------------------
@@ -24,37 +262,79 @@ Service fixes and enhancements
 gaia
 ^^^^
 
-- Update DR4 retrieval_type names and include the new one EPOCH_ASTROMETRY_BRIGHT [#3207]
+- Update DR4 retrieval_type names and include the new one
+  EPOCH_ASTROMETRY_BRIGHT. [#3207, #3238]
 
 ipac.irsa
 ^^^^^^^^^
 
+- Method to run Simple Spectral Access (SSA) VO queries, ``query_ssa``,
+  is added. [#3076]
+
 - Adding the "servicetype" kwarg to ``list_collections`` to be able to list SIA
   and SSA collections separately. [#3200]
 
+- Adding "filter" kwarg to ``list_collections`` and ``list_catalogs`` to filter
+  for collections/catalogs with names containing the filter string. [#3264]
+
 - Adding support for asynchronous queries using the new ``async_job``
-  keyword. [#3201]
+  keyword argument. [#3201]
+
+- Making the ``'spatial'`` keyword in ``query_region`` case insensitive. [#3224]
+
+- Adding new ``list_columns`` method to list available columns for a given
+  catalog. [#3265]
 
 ipac.nexsci.nasa_exoplanet_archive
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Fixed InvalidTableError for DI_STARS_EXEP and TD tables. [#3189]
 
+mast
+^^^^
+
+- Bugfix where users are unnecessarily warned about a query limit while
+  fetching products in ``MastMissions.get_product_list``. [#3193]
+
+- Bugfix where ``Observations.get_cloud_uri`` and
+  ``Observations.get_cloud_uris`` fail if the MAST relative path is not
+  found. [#3193]
+
+- Corrected parameter checking in ``MastMissions`` to ensure case-sensitive
+  comparisons. [#3260]
+
+- Add batching to ``MastMissions.get_product_list`` to avoid server errors
+  and allow for a larger number of input datasets. [#3230]
+
+- Handle a MAST URI string as input for ``Observations.get_cloud_uri`` and
+  a list of MAST URIs as input for ``Observations.get_cloud_uris``. [#3193]
+
 simbad
 ^^^^^^
 
-- fix: when adding a measurement table in the votable_fields, if a measurement table is
-  empty for an object, there will now be a line with masked values instead of no line in
-  the result [#3199]
+- Fixing joining measurement with basic votable-fields and masking values
+  instead of not returning lines in the result if a measurement fields are
+  empty for an object. [#3199]
+
+- Performance improvements to prevent timeouts to ``query_region`` when
+  there are more than 300 coordinates. [#3235]
+
+- Removed ``'pm'`` from the votable_fields list. [#3259]
 
 xmatch
 ^^^^^^
 
-- the API is more flexible: you can now ommit the ``vizier:`` before the catalog name
-  when crossmatching with a vizier table [#3194]
+- Fixing the API to be more flexible, it is now possible to ommit the
+  ``'vizier:'`` sting before the catalog name when crossmatching with a
+  vizier table. [#3194]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
+
+- Removed usage of the astropy TestRunner, therefore the unadvertised
+  ``astroquery.test()`` functionality. [#3215]
+
 
 
 0.4.9 (2025-01-24)
