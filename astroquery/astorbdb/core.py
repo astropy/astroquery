@@ -34,7 +34,6 @@ class AstInfoClass(BaseQuery):
     _uri = None
 
     def albedos_async(self, object_name, *,
-                      get_raw_response=False,
                       get_uri=False,
                       cache=True):
         """
@@ -67,16 +66,12 @@ class AstInfoClass(BaseQuery):
                                  url=self.URL + object_name + '/data/albedos',
                                  timeout=self.TIMEOUT, cache=cache)
 
-        if get_raw_response:
-            self._return_raw = True
-
         if get_uri:
             self._uri = response.url
 
         return response
 
     def colors_async(self, object_name, *,
-                     get_raw_response=False,
                      get_uri=False,
                      cache=True):
         """
@@ -109,16 +104,12 @@ class AstInfoClass(BaseQuery):
                                  url=self.URL + object_name + '/data/colors',
                                  timeout=self.TIMEOUT, cache=cache)
 
-        if get_raw_response:
-            self._return_raw = True
-
         if get_uri:
             self._uri = response.url
 
         return response
 
     def designations_async(self, object_name, *,
-                           get_raw_response=False,
                            get_uri=False,
                            cache=True):
         """
@@ -149,16 +140,12 @@ class AstInfoClass(BaseQuery):
                                  url=self.URL + object_name + '/designations',
                                  timeout=self.TIMEOUT, cache=cache)
 
-        if get_raw_response:
-            self._return_raw = True
-
         if get_uri:
             self._uri = response.url
 
         return response
 
-    def dynamicalfamily_async(self, object_name, *,
-                              get_raw_response=False,
+    def dynamical_family_async(self, object_name, *,
                               get_uri=False,
                               cache=True):
         """
@@ -178,20 +165,17 @@ class AstInfoClass(BaseQuery):
         Examples
         --------
         >>> from astroquery.astorbdb import AstInfo
-        >>> dynamicalfamily = AstInfo.dynamicalfamily('Beagle')  # doctest: +SKIP
-        >>> print(dynamicalfamily)  # doctest: +SKIP
+        >>> dynamical_family = AstInfo.dynamical_family('Beagle')  # doctest: +SKIP
+        >>> print(dynamical_family)  # doctest: +SKIP
         [{'citation_bibcode': '2015PDSS..234.....N', ..., 'family': 'Themis', ...},
          {'citation_bibcode': '2015PDSS..234.....N', ..., 'family': 'Beagle', ...}]
         """
 
-        self.query_type = 'dynamicalfamily'
+        self.query_type = 'dynamical_family'
 
         response = self._request('GET',
                                  url=self.URL + object_name + '/data/dynamical-family',
                                  timeout=self.TIMEOUT, cache=cache)
-
-        if get_raw_response:
-            self._return_raw = True
 
         if get_uri:
             self._uri = response.url
@@ -199,7 +183,6 @@ class AstInfoClass(BaseQuery):
         return response
 
     def elements_async(self, object_name, *,
-                       get_raw_response=False,
                        get_uri=False,
                        cache=True):
         """
@@ -221,7 +204,7 @@ class AstInfoClass(BaseQuery):
         >>> from astroquery.astorbdb import AstInfo
         >>> elements = AstInfo.elements('Beagle')  # doctest: +SKIP
         >>> print(elements)  # doctest: +SKIP
-        OrderedDict({'a': <Quantity 3.15597543 AU>, 'aphelion_dist': <Quantity 3.57009832 AU>, ...})
+        {'a': <Quantity 3.15597543 AU>, 'aphelion_dist': <Quantity 3.57009832 AU>, ...}
         """
 
         self.query_type = 'elements'
@@ -230,16 +213,12 @@ class AstInfoClass(BaseQuery):
                                  url=self.URL + object_name + '/elements',
                                  timeout=self.TIMEOUT, cache=cache)
 
-        if get_raw_response:
-            self._return_raw = True
-
         if get_uri:
             self._uri = response.url
 
         return response
 
-    def escaperoutes_async(self, object_name, *,
-                           get_raw_response=False,
+    def escape_routes_async(self, object_name, *,
                            get_uri=False,
                            cache=True):
         """
@@ -259,19 +238,16 @@ class AstInfoClass(BaseQuery):
         Examples
         --------
         >>> from astroquery.astorbdb import AstInfo
-        >>> escaperoutes = AstInfo.escaperoutes('3552')  # doctest: +SKIP
-        >>> print(escaperoutes)  # doctest: +SKIP
+        >>> escape_routes = AstInfo.escape_routes('3552')  # doctest: +SKIP
+        >>> print(escape_routes)  # doctest: +SKIP
         [{'citation_bibcode': '2018Icar..312..181G', ..., 'dp21_complex': 0.03695, 'dp31_complex': 0.00105, ...}]
         """
 
-        self.query_type = 'escaperoutes'
+        self.query_type = 'escape_routes'
 
         response = self._request('GET',
                                  url=self.URL + object_name + '/data/escape-routes',
                                  timeout=self.TIMEOUT, cache=cache)
-
-        if get_raw_response:
-            self._return_raw = True
 
         if get_uri:
             self._uri = response.url
@@ -279,7 +255,6 @@ class AstInfoClass(BaseQuery):
         return response
 
     def lightcurves_async(self, object_name, *,
-                          get_raw_response=False,
                           get_uri=False,
                           cache=True):
         """
@@ -310,16 +285,12 @@ class AstInfoClass(BaseQuery):
                                  url=self.URL + object_name + '/data/lightcurves',
                                  timeout=self.TIMEOUT, cache=cache)
 
-        if get_raw_response:
-            self._return_raw = True
-
         if get_uri:
             self._uri = response.url
 
         return response
 
     def orbit_async(self, object_name, *,
-                    get_raw_response=False,
                     get_uri=False,
                     cache=True):
         """
@@ -341,7 +312,7 @@ class AstInfoClass(BaseQuery):
         >>> from astroquery.astorbdb import AstInfo
         >>> orbit = AstInfo.orbit('Beagle')  # doctest: +SKIP
         >>> print(orbit)  # doctest: +SKIP
-        OrderedDict({'a1con': <Quantity 0. AU / d2>, 'a2con': <Quantity 0. AU / d2>, ...})
+        {'a1con': <Quantity 0. AU / d2>, 'a2con': <Quantity 0. AU / d2>, ...}
         """
 
         self.query_type = 'orbit'
@@ -350,16 +321,12 @@ class AstInfoClass(BaseQuery):
                                  url=self.URL + object_name + '/orbit',
                                  timeout=self.TIMEOUT, cache=cache)
 
-        if get_raw_response:
-            self._return_raw = True
-
         if get_uri:
             self._uri = response.url
 
         return response
 
     def taxonomies_async(self, object_name, *,
-                         get_raw_response=False,
                          get_uri=False,
                          cache=True):
         """
@@ -391,16 +358,12 @@ class AstInfoClass(BaseQuery):
                                  url=self.URL + object_name + '/data/taxonomies',
                                  timeout=self.TIMEOUT, cache=cache)
 
-        if get_raw_response:
-            self._return_raw = True
-
         if get_uri:
             self._uri = response.url
 
         return response
 
     def all_astinfo_async(self, object_name, *,
-                          get_raw_response=False,
                           get_uri=False,
                           cache=True):
         """
@@ -423,39 +386,27 @@ class AstInfoClass(BaseQuery):
         >>> all_astinfo = AstInfo.all_astinfo('Beagle')  # doctest: +SKIP
         >>> print(all_astinfo)  # doctest: +SKIP
         OrderedDict({
-        'designations': OrderedDict({'alternate_designations': ['1954 HJ', ...], 'name': 'Beagle', ...}),
-        'elements': OrderedDict({'a': <Quantity 3.15597543 AU>, 'aphelion_dist': <Quantity 3.57009832 AU>, ...}),
-        'orbit': OrderedDict({'a1con': <Quantity 0. AU / d2>, 'a2con': <Quantity 0. AU / d2>, ...}),
         'albedos': [{'albedo': 0.065, ..., 'survey_name': 'Usui et al. (2011)'},
                     {'albedo': 0.0625, ..., 'survey_name': 'Infrared Astronomical Satellite (IRAS)'},
                     ...],
         'colors': [{..., 'color': 0.431, 'color_error': 0.035, ..., 'sys_color': 'J-H'},
                    {..., 'color': 0.076, 'color_error': 0.041, ..., 'sys_color': 'H-K'},
                    ...],
-        'taxonomies': [{..., 'survey_name': 'Carvano et al. (2010)', 'taxonomy': 'C', ...},
-                       {..., 'survey_name': 'DeMeo et al. (2013)', 'taxonomy': 'C', ...}],
+        'designations': {'alternate_designations': ['1954 HJ', ...], 'name': 'Beagle', ...},
+        'dynamical_family': [{'citation_bibcode': '2015PDSS..234.....N', ..., 'family': 'Themis', ...},
+                             {'citation_bibcode': '2015PDSS..234.....N', ..., 'family': 'Beagle', ...}],
+        'elements': {'a': <Quantity 3.15597543 AU>, 'aphelion_dist': <Quantity 3.57009832 AU>, ...},
+        'escape_routes': [],
         'lightcurves': [{..., 'amp_max': <Quantity 1.2 mag>, ..., 'period': <Quantity 7.035 h>, ...}],
-        'dynamicalfamily': [{'citation_bibcode': '2015PDSS..234.....N', ..., 'family': 'Themis', ...},
-                            {'citation_bibcode': '2015PDSS..234.....N', ..., 'family': 'Beagle', ...}],
-        'escaperoutes': []
+        'orbit': {'a1con': <Quantity 0. AU / d2>, 'a2con': <Quantity 0. AU / d2>, ...},
+        'taxonomies': [{..., 'survey_name': 'Carvano et al. (2010)', 'taxonomy': 'C', ...},
+                       {..., 'survey_name': 'DeMeo et al. (2013)', 'taxonomy': 'C', ...}]
         })
         """
 
         self.query_type = 'all_astinfo'
 
         response = {}
-
-        response['designations'] = self._request('GET',
-                                                 url=self.URL + object_name + '/designations',
-                                                 timeout=self.TIMEOUT, cache=cache)
-
-        response['elements'] = self._request('GET',
-                                             url=self.URL + object_name + '/elements',
-                                             timeout=self.TIMEOUT, cache=cache)
-
-        response['orbit'] = self._request('GET',
-                                          url=self.URL + object_name + '/orbit',
-                                          timeout=self.TIMEOUT, cache=cache)
 
         response['albedos'] = self._request('GET',
                                             url=self.URL + object_name + '/data/albedos',
@@ -465,35 +416,44 @@ class AstInfoClass(BaseQuery):
                                            url=self.URL + object_name + '/data/colors',
                                            timeout=self.TIMEOUT, cache=cache)
 
-        response['taxonomies'] = self._request('GET',
-                                               url=self.URL + object_name + '/data/taxonomies',
-                                               timeout=self.TIMEOUT, cache=cache)
+        response['designations'] = self._request('GET',
+                                                 url=self.URL + object_name + '/designations',
+                                                 timeout=self.TIMEOUT, cache=cache)
+
+        response['dynamical_family'] = self._request('GET',
+                                                    url=self.URL + object_name + '/data/dynamical-family',
+                                                    timeout=self.TIMEOUT, cache=cache)
+
+        response['elements'] = self._request('GET',
+                                             url=self.URL + object_name + '/elements',
+                                             timeout=self.TIMEOUT, cache=cache)
+
+        response['escape_routes'] = self._request('GET',
+                                                 url=self.URL + object_name + '/data/escape-routes',
+                                                 timeout=self.TIMEOUT, cache=cache)
 
         response['lightcurves'] = self._request('GET',
                                                 url=self.URL + object_name + '/data/lightcurves',
                                                 timeout=self.TIMEOUT, cache=cache)
 
-        response['dynamicalfamily'] = self._request('GET',
-                                                    url=self.URL + object_name + '/data/dynamical-family',
-                                                    timeout=self.TIMEOUT, cache=cache)
+        response['orbit'] = self._request('GET',
+                                          url=self.URL + object_name + '/orbit',
+                                          timeout=self.TIMEOUT, cache=cache)
 
-        response['escaperoutes'] = self._request('GET',
-                                                 url=self.URL + object_name + '/data/escape-routes',
-                                                 timeout=self.TIMEOUT, cache=cache)
-
-        if get_raw_response:
-            self._return_raw = True
+        response['taxonomies'] = self._request('GET',
+                                               url=self.URL + object_name + '/data/taxonomies',
+                                               timeout=self.TIMEOUT, cache=cache)
 
         if get_uri:
-            self._uri = {'designations': response['designations'].url,
-                         'elements': response['elements'].url,
-                         'orbit': response['orbit'].url,
-                         'albedos': response['albedos'].url,
+            self._uri = {'albedos': response['albedos'].url,
                          'colors': response['colors'].url,
-                         'taxonomies': response['taxonomies'].url,
+                         'designations': response['designations'].url,
+                         'dynamical_family': response['dynamical_family'].url,
+                         'elements': response['elements'].url,
+                         'escape_routes': response['escape_routes'].url,
                          'lightcurves': response['lightcurves'].url,
-                         'dynamicalfamily': response['dynamicalfamily'].url,
-                         'escaperoutes': response['escaperoutes'].url
+                         'orbit': response['orbit'].url,
+                         'taxonomies': response['taxonomies'].url
                          }
 
         return response
@@ -517,47 +477,83 @@ class AstInfoClass(BaseQuery):
         except ValueError:
             raise ValueError('Server response not readable.')
 
-        if self.query_type == 'designations':
-            src = self._process_data_designations(src)
-
-        if self.query_type == 'elements':
-            src = self._process_data_elements(src)
-
-        if self.query_type == 'orbit':
-            src = self._process_data_orbit(src)
-
         if self.query_type == 'albedos':
             src = self._process_data_albedos(src)
 
-        if self.query_type == 'colors':
+        elif self.query_type == 'colors':
             src = self._process_data_colors(src)
 
-        if self.query_type == 'taxonomies':
-            src = self._process_data_taxonomies(src)
+        elif self.query_type == 'designations':
+            src = self._process_data_designations(src)
 
-        if self.query_type == 'lightcurves':
+        elif self.query_type == 'dynamical_family':
+            src = self._process_data_dynamical_family(src)
+
+        elif self.query_type == 'elements':
+            src = self._process_data_elements(src)
+
+        elif self.query_type == 'escape_routes':
+            src = self._process_data_escape_routes(src)
+
+        elif self.query_type == 'lightcurves':
             src = self._process_data_lightcurves(src)
 
-        if self.query_type == 'dynamicalfamily':
-            src = self._process_data_dynamicalfamily(src)
+        elif self.query_type == 'orbit':
+            src = self._process_data_orbit(src)
 
-        if self.query_type == 'escaperoutes':
-            src = self._process_data_escaperoutes(src)
+        elif self.query_type == 'taxonomies':
+            src = self._process_data_taxonomies(src)
 
-        if self.query_type == 'all_astinfo':
-            src['designations'] = self._process_data_designations(src['designations'])
-            src['elements'] = self._process_data_elements(src['elements'])
-            src['orbit'] = self._process_data_orbit(src['orbit'])
+        elif self.query_type == 'all_astinfo':
             src['albedos'] = self._process_data_albedos(src['albedos'])
             src['colors'] = self._process_data_colors(src['colors'])
-            src['taxonomies'] = self._process_data_taxonomies(src['taxonomies'])
+            src['designations'] = self._process_data_designations(src['designations'])
+            src['dynamical_family'] = self._process_data_dynamical_family(src['dynamical_family'])
+            src['elements'] = self._process_data_elements(src['elements'])
+            src['escape_routes'] = self._process_data_escape_routes(src['escape_routes'])
             src['lightcurves'] = self._process_data_lightcurves(src['lightcurves'])
-            src['dynamicalfamily'] = self._process_data_dynamicalfamily(src['dynamicalfamily'])
-            src['escaperoutes'] = self._process_data_escaperoutes(src['escaperoutes'])
+            src['orbit'] = self._process_data_orbit(src['orbit'])
+            src['taxonomies'] = self._process_data_taxonomies(src['taxonomies'])
+
+        else:
+            raise ValueError('Query type not recognized.')
+
 
         # add query uri, if desired
         if self._uri is not None:
             src['query_uri'] = self._uri
+
+        return src
+
+    def _process_data_albedos(self, src):
+        """
+        internal routine to process raw data in Dict format
+
+        """
+
+        if 'albedos' in src:
+            src = src['albedos']
+            for i in range(len(src)):
+                if src[i]['diameter'] is not None:
+                    src[i]['diameter'] = u.Quantity(src[i]['diameter'], u.km)
+                if src[i]['diameter_error_lower'] is not None:
+                    src[i]['diameter_error_lower'] = u.Quantity(src[i]['diameter_error_lower'], u.km)
+                if src[i]['diameter_error_upper'] is not None:
+                    src[i]['diameter_error_upper'] = u.Quantity(src[i]['diameter_error_upper'], u.km)
+
+        return src
+
+    def _process_data_colors(self, src):
+        """
+        internal routine to process raw data in Dict format
+
+        """
+
+        if 'colors' in src:
+            src = src['colors']
+            for i in range(len(src)):
+                if src[i]['jd'] is not None:
+                    src[i]['jd'] = Time(src[i]['jd'], format='jd', scale='utc')
 
         return src
 
@@ -569,6 +565,18 @@ class AstInfoClass(BaseQuery):
 
         if 'designations' in src:
             src = src['designations']
+
+        return src
+
+    def _process_data_dynamical_family(self, src):
+        """
+        internal routine to process raw data in Dict format, must
+        be able to work recursively
+
+        """
+
+        if 'dynamical-family' in src:
+            src = src['dynamical-family']
 
         return src
 
@@ -634,67 +642,19 @@ class AstInfoClass(BaseQuery):
 
         return src
 
-    def _process_data_orbit(self, src):
+    def _process_data_escape_routes(self, src):
         """
         internal routine to process raw data in Dict format, must
         be able to work recursively
 
         """
 
-        if 'orbit' in src:
-            src = src['orbit']
-            if src['a1con'] is not None:
-                src['a1con'] = u.Quantity(src['a1con'], u.au/(u.d ** 2))
-            if src['a2con'] is not None:
-                src['a2con'] = u.Quantity(src['a2con'], u.au/(u.d ** 2))
-            if src['a3con'] is not None:
-                src['a3con'] = u.Quantity(src['a3con'], u.au/(u.d ** 2))
-            if src['arc'] is not None:
-                src['arc'] = u.Quantity(src['arc'], u.yr)
-
-        return src
-
-    def _process_data_albedos(self, src):
-        """
-        internal routine to process raw data in Dict format
-
-        """
-
-        if 'albedos' in src:
-            src = src['albedos']
-            for i in range(len(src)):
-                if src[i]['diameter'] is not None:
-                    src[i]['diameter'] = u.Quantity(src[i]['diameter'], u.km)
-                if src[i]['diameter_error_lower'] is not None:
-                    src[i]['diameter_error_lower'] = u.Quantity(src[i]['diameter_error_lower'], u.km)
-                if src[i]['diameter_error_upper'] is not None:
-                    src[i]['diameter_error_upper'] = u.Quantity(src[i]['diameter_error_upper'], u.km)
-
-        return src
-
-    def _process_data_colors(self, src):
-        """
-        internal routine to process raw data in Dict format
-
-        """
-
-        if 'colors' in src:
-            src = src['colors']
-            for i in range(len(src)):
-                if src[i]['jd'] is not None:
-                    src[i]['jd'] = Time(src[i]['jd'], format='jd', scale='utc')
-
-        return src
-
-    def _process_data_taxonomies(self, src):
-        """
-        internal routine to process raw data in Dict format, must
-        be able to work recursively
-
-        """
-
-        if 'taxonomies' in src:
-            src = src['taxonomies']
+        if 'escape-routes' in src:
+            src = src['escape-routes']
+            if src is not None:
+                for i in range(len(src)):
+                    if src[i]['epoch'] is not None:
+                        src[i]['epoch'] = Time(src[i]['epoch'], format='isot', scale='utc')
 
         return src
 
@@ -717,31 +677,35 @@ class AstInfoClass(BaseQuery):
 
         return src
 
-    def _process_data_dynamicalfamily(self, src):
+    def _process_data_orbit(self, src):
         """
         internal routine to process raw data in Dict format, must
         be able to work recursively
 
         """
 
-        if 'dynamical-family' in src:
-            src = src['dynamical-family']
+        if 'orbit' in src:
+            src = src['orbit']
+            if src['a1con'] is not None:
+                src['a1con'] = u.Quantity(src['a1con'], u.au/(u.d ** 2))
+            if src['a2con'] is not None:
+                src['a2con'] = u.Quantity(src['a2con'], u.au/(u.d ** 2))
+            if src['a3con'] is not None:
+                src['a3con'] = u.Quantity(src['a3con'], u.au/(u.d ** 2))
+            if src['arc'] is not None:
+                src['arc'] = u.Quantity(src['arc'], u.yr)
 
         return src
 
-    def _process_data_escaperoutes(self, src):
+    def _process_data_taxonomies(self, src):
         """
         internal routine to process raw data in Dict format, must
         be able to work recursively
 
         """
 
-        if 'escape-routes' in src:
-            src = src['escape-routes']
-            if src is not None:
-                for i in range(len(src)):
-                    if src[i]['epoch'] is not None:
-                        src[i]['epoch'] = Time(src[i]['epoch'], format='isot', scale='utc')
+        if 'taxonomies' in src:
+            src = src['taxonomies']
 
         return src
 
