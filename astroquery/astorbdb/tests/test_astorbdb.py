@@ -239,7 +239,11 @@ def nonremote_request(self, method_name, **kwargs):
         object_name = path_elements[-3]
 
     with open(data_path(DATA_FILES[object_name][query_type]), 'rb') as f:
-        response = MockResponse(content=f.read(), url=self.URL)
+        if query_type in ['designations','elements','orbit']:
+            response = MockResponse(content=f.read(), url=self.URL + object_name + '/' + query_type)
+        else:
+            response = MockResponse(content=f.read(), url=self.URL + object_name + '/data/' + query_type)
+
     return response
 
 
@@ -301,6 +305,9 @@ def test_object_queries(patch_request):
         if astinfo != []:
             assert astinfo[0]["taxonomy"] == TAXONOMIES[objectname]
 
+        astinfo = AstInfo.all_astinfo(objectname)
+        if astinfo != []:
+            assert astinfo['designations']['primary_designation'] == DESIGS[objectname]
 
 
 def test_missing_value(patch_request):
@@ -341,20 +348,54 @@ def test_quantities(patch_request):
     assert isinstance(astinfo[0]['diameter'], u.Quantity)
     assert astinfo[0]['diameter'].unit == u.km
 
+    astinfo = AstInfo.colors("1")
+    assert isinstance(astinfo[0]['jd'], Time)
+
     astinfo = AstInfo.elements("1")
     assert isinstance(astinfo['a'], u.Quantity)
     assert astinfo['a'].unit == u.au
 
-    astinfo = AstInfo.orbit("1")
-    assert isinstance(astinfo['arc'], u.Quantity)
-    assert astinfo['arc'].unit == u.yr
-
-    astinfo = AstInfo.colors("1")
-    assert isinstance(astinfo[0]['jd'], Time)
+    astinfo = AstInfo.escape_routes("3200")
+    assert isinstance(astinfo[0]['epoch'], Time)
 
     astinfo = AstInfo.lightcurves("1")
     assert isinstance(astinfo[0]['period'], u.Quantity)
     assert astinfo[0]['period'].unit == u.h
 
-    astinfo = AstInfo.escape_routes("3200")
-    assert isinstance(astinfo[0]['epoch'], Time)
+    astinfo = AstInfo.orbit("1")
+    assert isinstance(astinfo['arc'], u.Quantity)
+    assert astinfo['arc'].unit == u.yr
+
+
+def test_urls(patch_request):
+    """Make sure URL query request returns URLs"""
+
+    astinfo = AstInfo.albedos("1",get_uri=True)
+    assert astinfo[0]['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/data/albedos"
+
+    astinfo = AstInfo.colors("1",get_uri=True)
+    assert astinfo[0]['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/data/colors"
+
+    astinfo = AstInfo.designations("1",get_uri=True)
+    assert astinfo['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/designations"
+
+    astinfo = AstInfo.dynamical_family("1",get_uri=True)
+    assert astinfo[0]['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/data/dynamical-family"
+
+    astinfo = AstInfo.elements("1",get_uri=True)
+    assert astinfo['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/elements"
+
+    astinfo = AstInfo.escape_routes("1",get_uri=True)
+    assert astinfo[0]['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/data/escape-routes"
+
+    astinfo = AstInfo.lightcurves("1",get_uri=True)
+    assert astinfo[0]['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/data/lightcurves"
+
+    astinfo = AstInfo.orbit("1",get_uri=True)
+    assert astinfo['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/orbit"
+
+    astinfo = AstInfo.taxonomies("1",get_uri=True)
+    assert astinfo[0]['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/data/taxonomies"
+
+    astinfo = AstInfo.all_astinfo("1",get_uri=True)
+    assert astinfo['query_uri']['albedos'] == "https://asteroid.lowell.edu/api/asteroids/1/data/albedos"

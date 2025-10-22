@@ -146,8 +146,8 @@ class AstInfoClass(BaseQuery):
         return response
 
     def dynamical_family_async(self, object_name, *,
-                              get_uri=False,
-                              cache=True):
+                               get_uri=False,
+                               cache=True):
         """
         This method uses a REST interface to query the `Lowell Observatory
         astorbDB database <https://asteroid.lowell.edu/>`_ for dynamical family
@@ -219,8 +219,8 @@ class AstInfoClass(BaseQuery):
         return response
 
     def escape_routes_async(self, object_name, *,
-                           get_uri=False,
-                           cache=True):
+                            get_uri=False,
+                            cache=True):
         """
         This method uses a REST interface to query the `Lowell Observatory
         astorbDB database <https://asteroid.lowell.edu/>`_ for NEO escape route
@@ -738,7 +738,13 @@ class AstInfoClass(BaseQuery):
 
         # add query uri, if desired
         if self._uri is not None:
-            src['query_uri'] = self._uri
+            if self.query_type in ['designations','elements','orbit','all_astinfo']:
+                src['query_uri'] = self._uri
+            else:
+                if len(src) > 0:
+                    src[0]['query_uri'] = self._uri
+                else:
+                    src = [{'query_uri':self._uri}]
 
         return src
 
