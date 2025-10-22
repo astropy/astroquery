@@ -146,8 +146,8 @@ class AstInfoClass(BaseQuery):
         return response
 
     def dynamical_family_async(self, object_name, *,
-                              get_uri=False,
-                              cache=True):
+                               get_uri=False,
+                               cache=True):
         """
         This method uses a REST interface to query the `Lowell Observatory
         astorbDB database <https://asteroid.lowell.edu/>`_ for dynamical family
@@ -219,8 +219,8 @@ class AstInfoClass(BaseQuery):
         return response
 
     def escape_routes_async(self, object_name, *,
-                           get_uri=False,
-                           cache=True):
+                            get_uri=False,
+                            cache=True):
         """
         This method uses a REST interface to query the `Lowell Observatory
         astorbDB database <https://asteroid.lowell.edu/>`_ for NEO escape route
@@ -247,115 +247,6 @@ class AstInfoClass(BaseQuery):
 
         response = self._request('GET',
                                  url=self.URL + object_name + '/data/escape-routes',
-                                 timeout=self.TIMEOUT, cache=cache)
-
-        if get_uri:
-            self._uri = response.url
-
-        return response
-
-    def lightcurves_async(self, object_name, *,
-                          get_uri=False,
-                          cache=True):
-        """
-        This method uses a REST interface to query the `Lowell Observatory
-        astorbDB database <https://asteroid.lowell.edu/>`_ for lightcurve
-        data for a single object and returns a dictionary from JSON results
-
-        Parameters
-        ----------
-        object_name : str
-            name of the identifier to query.
-
-        Returns
-        -------
-        res : A dictionary holding available lightcurve data
-
-        Examples
-        --------
-        >>> from astroquery.astorbdb import AstInfo
-        >>> lightcurves = AstInfo.lightcurves('Beagle')  # doctest: +SKIP
-        >>> print(lightcurves)  # doctest: +SKIP
-        [{..., 'amp_max': <Quantity 1.2 mag>, 'amp_min': <Quantity 0.57 mag>, ..., 'period': <Quantity 7.035 h>, ...}]
-        """
-
-        self.query_type = 'lightcurves'
-
-        response = self._request('GET',
-                                 url=self.URL + object_name + '/data/lightcurves',
-                                 timeout=self.TIMEOUT, cache=cache)
-
-        if get_uri:
-            self._uri = response.url
-
-        return response
-
-    def orbit_async(self, object_name, *,
-                    get_uri=False,
-                    cache=True):
-        """
-        This method uses a REST interface to query the `Lowell Observatory
-        astorbDB database <https://asteroid.lowell.edu/>`_ for orbit
-        data for a single object and returns a dictionary from JSON results
-
-        Parameters
-        ----------
-        object_name : str
-            name of the identifier to query.
-
-        Returns
-        -------
-        res : A dictionary holding available orbit fitting data
-
-        Examples
-        --------
-        >>> from astroquery.astorbdb import AstInfo
-        >>> orbit = AstInfo.orbit('Beagle')  # doctest: +SKIP
-        >>> print(orbit)  # doctest: +SKIP
-        {'a1con': <Quantity 0. AU / d2>, 'a2con': <Quantity 0. AU / d2>, ...}
-        """
-
-        self.query_type = 'orbit'
-
-        response = self._request('GET',
-                                 url=self.URL + object_name + '/orbit',
-                                 timeout=self.TIMEOUT, cache=cache)
-
-        if get_uri:
-            self._uri = response.url
-
-        return response
-
-    def taxonomies_async(self, object_name, *,
-                         get_uri=False,
-                         cache=True):
-        """
-        This method uses a REST interface to query the `Lowell Observatory
-        astorbDB database <https://asteroid.lowell.edu/>`_ for taxonomy
-        data for a single object and returns a dictionary from JSON results
-
-        Parameters
-        ----------
-        object_name : str
-            name of the identifier to query.
-
-        Returns
-        -------
-        res : A dictionary holding available taxonomy data
-
-        Examples
-        --------
-        >>> from astroquery.astorbdb import AstInfo
-        >>> taxonomies = AstInfo.taxonomies('Beagle')  # doctest: +SKIP
-        >>> print(taxonomies)  # doctest: +SKIP
-        [{'citation_bibcode': '2011PDSS..145.....H', ..., 'survey_name': 'Carvano et al. (2010)', 'taxonomy': 'C', ...},
-         {'citation_bibcode': '2013Icar..226..723D', ..., 'survey_name': 'DeMeo et al. (2013)', 'taxonomy': 'C', ...}]
-        """
-
-        self.query_type = 'taxonomies'
-
-        response = self._request('GET',
-                                 url=self.URL + object_name + '/data/taxonomies',
                                  timeout=self.TIMEOUT, cache=cache)
 
         if get_uri:
@@ -629,7 +520,13 @@ class AstInfoClass(BaseQuery):
 
         # add query uri, if desired
         if self._uri is not None:
-            src['query_uri'] = self._uri
+            if self.query_type in ['designations','elements','orbit','all_astinfo']:
+                src['query_uri'] = self._uri
+            else:
+                if len(src) > 0:
+                    src[0]['query_uri'] = self._uri
+                else:
+                    src = [{'query_uri':self._uri}]
 
         return src
 
