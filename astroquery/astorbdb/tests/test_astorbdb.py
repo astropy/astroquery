@@ -370,32 +370,32 @@ def test_quantities(patch_request):
 def test_urls(patch_request):
     """Make sure URL query request returns URLs"""
 
-    astinfo = AstInfo.albedos("1",get_uri=True)
+    astinfo = AstInfo.albedos("1", get_uri=True)
     assert astinfo[0]['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/data/albedos"
 
-    astinfo = AstInfo.colors("1",get_uri=True)
+    astinfo = AstInfo.colors("1", get_uri=True)
     assert astinfo[0]['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/data/colors"
 
-    astinfo = AstInfo.designations("1",get_uri=True)
+    astinfo = AstInfo.designations("1", get_uri=True)
     assert astinfo['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/designations"
 
-    astinfo = AstInfo.dynamical_family("1",get_uri=True)
+    astinfo = AstInfo.dynamical_family("1", get_uri=True)
     assert astinfo[0]['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/data/dynamical-family"
 
-    astinfo = AstInfo.elements("1",get_uri=True)
+    astinfo = AstInfo.elements("1", get_uri=True)
     assert astinfo['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/elements"
 
-    astinfo = AstInfo.escape_routes("1",get_uri=True)
+    astinfo = AstInfo.escape_routes("1", get_uri=True)
     assert astinfo[0]['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/data/escape-routes"
 
-    astinfo = AstInfo.lightcurves("1",get_uri=True)
+    astinfo = AstInfo.lightcurves("1", get_uri=True)
     assert astinfo[0]['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/data/lightcurves"
 
-    astinfo = AstInfo.orbit("1",get_uri=True)
+    astinfo = AstInfo.orbit("1", get_uri=True)
     assert astinfo['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/orbit"
 
-    astinfo = AstInfo.taxonomies("1",get_uri=True)
+    astinfo = AstInfo.taxonomies("1", get_uri=True)
     assert astinfo[0]['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/data/taxonomies"
 
-    astinfo = AstInfo.all_astinfo("1",get_uri=True)
+    astinfo = AstInfo.all_astinfo("1", get_uri=True)
     assert astinfo['query_uri']['albedos'] == "https://asteroid.lowell.edu/api/asteroids/1/data/albedos"
