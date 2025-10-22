@@ -95,6 +95,10 @@ The list of returned columns can also be given as a comma-separated string to
 If no columns are given, the call will return a set of default columns.
 If you want all the columns returned, use ``columns='*'``
 
+To add a search offset column that gives the angular distance in arcminutes
+between the query position and the positions in the catalog,
+use the ``add_offset=True``:
+
 To do a full sky search, use ``spatial='all-sky'``:
 
 .. doctest-remote-data::
