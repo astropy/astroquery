@@ -421,16 +421,16 @@ class AstInfoClass(BaseQuery):
                                                  timeout=self.TIMEOUT, cache=cache)
 
         response['dynamical_family'] = self._request('GET',
-                                                    url=self.URL + object_name + '/data/dynamical-family',
-                                                    timeout=self.TIMEOUT, cache=cache)
+                                                     url=self.URL + object_name + '/data/dynamical-family',
+                                                     timeout=self.TIMEOUT, cache=cache)
 
         response['elements'] = self._request('GET',
                                              url=self.URL + object_name + '/elements',
                                              timeout=self.TIMEOUT, cache=cache)
 
         response['escape_routes'] = self._request('GET',
-                                                 url=self.URL + object_name + '/data/escape-routes',
-                                                 timeout=self.TIMEOUT, cache=cache)
+                                                  url=self.URL + object_name + '/data/escape-routes',
+                                                  timeout=self.TIMEOUT, cache=cache)
 
         response['lightcurves'] = self._request('GET',
                                                 url=self.URL + object_name + '/data/lightcurves',
@@ -468,7 +468,7 @@ class AstInfoClass(BaseQuery):
 
         # decode json response from Lowell astorbDB into ascii
         try:
-            if isinstance(response,dict):
+            if isinstance(response, dict):
                 src = OrderedDict()
                 for key in response:
                     src[key] = OrderedDict(json.loads(response[key].text))
@@ -520,13 +520,13 @@ class AstInfoClass(BaseQuery):
 
         # add query uri, if desired
         if self._uri is not None:
-            if self.query_type in ['designations','elements','orbit','all_astinfo']:
+            if self.query_type in ['designations', 'elements', 'orbit', 'all_astinfo']:
                 src['query_uri'] = self._uri
             else:
                 if len(src) > 0:
                     src[0]['query_uri'] = self._uri
                 else:
-                    src = [{'query_uri':self._uri}]
+                    src = [{'query_uri': self._uri}]
 
         return src
 
