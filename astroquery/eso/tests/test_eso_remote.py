@@ -35,11 +35,22 @@ SGRA_SURVEYS = ['195.B-0283',
                 'HAWKI',
                 'KMOS',
                 'MW-BULGE-PSFPHOT',
+                'SEDIGISM',
                 'VPHASplus',
                 'VVV',
                 'VVVX',
                 'XSHOOTER'
                 ]
+
+ONE_RECORD_SURVEYS = [
+    '081.C-0827',
+    '108.2289',
+    '1100.A-0528',
+    '60.A-9493',
+    'APEX-SciOps',
+    'HARPS',
+    'LESS',
+]
 
 
 @pytest.mark.remote_data
@@ -275,14 +286,20 @@ class TestEso:
 
         surveys = eso.list_surveys()
         for survey in surveys:
-            if survey in SGRA_SURVEYS:
-                with pytest.warns(MaxResultsWarning):
+            if survey in SGRA_SURVEYS:  # survey contains SGRA
+                if survey not in ONE_RECORD_SURVEYS:  # Expect warnings
+                    with pytest.warns(MaxResultsWarning):
+                        result_s = eso.query_surveys(
+                            surveys=survey,
+                            cone_ra=266.41681662, cone_dec=-29.00782497, cone_radius=0.1775)
+                else:  # No warnings expected
                     result_s = eso.query_surveys(
                         surveys=survey,
                         cone_ra=266.41681662, cone_dec=-29.00782497, cone_radius=0.1775)
+
                 assert isinstance(result_s, Table)
                 assert len(result_s) > 0
-            else:
+            else:  # survey does not contain SGRA
                 with pytest.warns(NoResultsWarning):
                     result_s = eso.query_surveys(surveys=survey, cone_ra=266.41681662,
                                                  cone_dec=-29.00782497,
@@ -291,12 +308,15 @@ class TestEso:
                     assert isinstance(result_s, Table)
                     assert len(result_s) == 0, f"Failed for survey {survey}"
 
-                with pytest.warns(MaxResultsWarning):
-                    generic_result = eso.query_surveys(surveys=survey)
+                if survey not in ONE_RECORD_SURVEYS:  # Expect warnings
+                    with pytest.warns(MaxResultsWarning):
+                        generic_result = eso.query_surveys(surveys=survey)
 
-                    assert isinstance(generic_result, Table)
-                    assert len(generic_result) > 0, \
-                        f"query_surveys({survey}) returned no records"
+                else:  # Do not expect warnings
+                    generic_result = eso.query_surveys(surveys=survey)
+                assert isinstance(generic_result, Table)
+                assert len(generic_result) > 0, \
+                    f"query_surveys({survey}) returned no records"
 
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     def test_mixed_case_instrument(self, tmp_path):

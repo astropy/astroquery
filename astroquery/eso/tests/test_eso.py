@@ -366,16 +366,16 @@ def test_issue_table_length_warnings():
     # should warn, since the table is empty
     t = Table()
     with pytest.warns(NoResultsWarning):
-        eso_instance._maybe_warn_about_table_length(t)
+        eso_instance._maybe_warn_about_table_length(t, 1)
 
     # should warn, since EXPECTED_MAXREC = eso_instance.maxrec
     t = Table({"col_name": [i for i in range(EXPECTED_MAXREC+1)]})
     with pytest.warns(MaxResultsWarning):
-        eso_instance._maybe_warn_about_table_length(t)
+        eso_instance._maybe_warn_about_table_length(t, EXPECTED_MAXREC+1)
 
     # should not warn
     t = Table({"col_name": [i for i in range(51)]})
-    eso_instance._maybe_warn_about_table_length(t)
+    eso_instance._maybe_warn_about_table_length(t, EXPECTED_MAXREC+1)
 
 
 def test_reorder_columns(monkeypatch):

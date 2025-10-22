@@ -223,7 +223,7 @@ class EsoClass(QueryWithLogin):
         else:
             return {}
 
-    def _maybe_warn_about_table_length(self, table_rowlim_plus_one):
+    def _maybe_warn_about_table_length(self, table_rowlim_plus_one, row_limit_plus_one):
         """
         Issues a warning when a table is empty or when the
         results are truncated
@@ -231,14 +231,7 @@ class EsoClass(QueryWithLogin):
         if len(table_rowlim_plus_one) < 1:
             warnings.warn("Query returned no results", NoResultsWarning)
 
-        # Just adding this case for clarification:
-        if len(table_rowlim_plus_one) == self.ROW_LIMIT:
-            # We asked for a table with ROW_LIMIT + 1 rows, and got a table with ROW_LIMIT rows.
-            # This means the table was not truncated, ROW_LIMIT coincides with the table length.
-            pass
-
-        if len(table_rowlim_plus_one) == 1 + self.ROW_LIMIT:
-            # The table has more than ROW_LIMIT rows, which means it will be artificially truncated.
+        if len(table_rowlim_plus_one) == row_limit_plus_one:
             warnings.warn(f"Results truncated to {self.ROW_LIMIT}. "
                           "To retrieve all the records set to None the ROW_LIMIT attribute",
                           MaxResultsWarning)
@@ -256,8 +249,12 @@ class EsoClass(QueryWithLogin):
                     f' >>> Eso().query_tap( "{query_str}" )\n\n')
 
         try:
-            table_with_an_extra_row = tap.search(query=query_str, maxrec=self.ROW_LIMIT+1).to_table()
-            self._maybe_warn_about_table_length(table_with_an_extra_row)
+            row_limit_plus_one = self.ROW_LIMIT
+            if self.ROW_LIMIT < sys.maxsize:
+                row_limit_plus_one = self.ROW_LIMIT + 1
+
+            table_with_an_extra_row = tap.search(query=query_str, maxrec=row_limit_plus_one).to_table()
+            self._maybe_warn_about_table_length(table_with_an_extra_row, row_limit_plus_one)
         except DALQueryError:
             log.error(message(query_str))
         except DALFormatError as e:
