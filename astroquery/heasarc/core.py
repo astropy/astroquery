@@ -653,6 +653,9 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                              '__row to the requested columns')
 
         if catalog_name is None:
+            if not hasattr(self, '_last_catalog_name'):
+                raise ValueError('locate_data needs a catalog_name, and none '
+                                 'found from a previous search. Please provide one.')
             catalog_name = self._last_catalog_name
         if not (
             isinstance(catalog_name, str)
