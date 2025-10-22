@@ -663,8 +663,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         ):
             raise ValueError(f'Unknown catalog name: {catalog_name}')
 
-        # datalink url
-        dlink_url = f'{self.VO_URL}/datalink/{catalog_name}'
+        # datalink url; use sizefiles=false to speed up the response
+        dlink_url = f'{self.VO_URL}/datalink/{catalog_name}?sizefiles=false&'
         query = pyvo.dal.adhoc.DatalinkQuery(
             baseurl=dlink_url,
             id=query_result['__row'],
