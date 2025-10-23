@@ -217,11 +217,13 @@ This allows you to query a catalog by specifying
 various column constraints. For example, the following query searches the ``chanmaster``
 catalog for all observations with exposure time greater than 190 ks.
 
+Note that when column filters are given and no position is specified,
+the search defaults to an all-sky search.
+
 .. doctest-remote-data::
 
     >>> from astroquery.heasarc import Heasarc
     >>> tab = Heasarc.query_region(
-    ...     spatial='all-sky',
     ...     catalog='chanmaster', column_filters={'exposure': ('>', '190000')}
     ... )
     >>> tab['name', 'obsid', 'ra', 'dec', 'exposure'][:3].pprint()
@@ -238,7 +240,6 @@ Another example may be to search the ``xmmmaster`` for a observation in some tim
 
     >>> from astroquery.heasarc import Heasarc
     >>> tab = Heasarc.query_region(
-    ...     spatial='all-sky',
     ...     catalog='xmmmaster', column_filters={'time': (52300, 52310)}
     ... )
     >>> tab['name', 'obsid', 'ra', 'dec', 'time', 'duration'][:3].pprint()

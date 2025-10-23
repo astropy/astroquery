@@ -499,6 +499,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         table : A `~astropy.table.Table` object.
         """
 
+        # if we have column_filters and no position, assume all-sky search
+        if position is None and column_filters is not None:
+            spatial = 'all-sky'
+
         if spatial.lower() == 'all-sky':
             where = ''
         elif spatial.lower() == 'polygon':
