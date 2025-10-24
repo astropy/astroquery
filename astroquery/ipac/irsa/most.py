@@ -282,16 +282,16 @@ class MostClass(BaseQuery):
             not have to be a real name. Will default to ``"TestAsteroid"`` or
             ``"TestComet"`` depending on selected object type.
             Required when input mode is ``"manual_input"``.
-        epoch : str or None
-            Epoch in MJD.
+        epoch : float, str or None
+            Epoch in MJD (float) or ``YYYY-MM-DD hh:mm:ss`` (str).
             Required when input mode is ``"manual_input"``.
         eccentricity : float or None
-            Eccentricity (0-1).
+            Eccentricity (>=0).
             Required when input mode is ``"manual_input"``.
         inclination : float or None
             Inclination (0-180 degrees).
             Required when input mode is ``"manual_input"``.
-        arg_perihelion : str or None
+        arg_perihelion : float or None
             Argument of perihelion (0-360 degrees).
             Required when input mode is ``"manual_input"``.
         ascend_node : float or None
@@ -301,7 +301,7 @@ class MostClass(BaseQuery):
             Semimajor axis (AU).
             Required when input mode is ``"manual_input"`` and object type is
             ``"Asteroid"``.
-        mean_anomaly : str or None
+        mean_anomaly : float or None
             Mean anomaly (degrees).
             Required when input mode is ``"manual_input"`` and object type is
             ``"Asteroid"``.
@@ -309,8 +309,8 @@ class MostClass(BaseQuery):
             Perihelion distance (AU).
             Required when input mode is ``"manual_input"`` and object type is
             ``"Comet"``.
-        perih_time : str or None
-            Perihelion time (YYYY+MM+DD+HH:MM:SS).
+        perih_time : float or None
+            Perihelion time (JD).
             Required when input mode is ``"manual_input"`` and object type is
             ``"Comet"``.
         get_query_payload : bool
@@ -451,16 +451,16 @@ class MostClass(BaseQuery):
             not have to be a real name. Will default to ``"TestAsteroid"`` or
             ``"TestComet"`` depending on selected object type.
             Required when input mode is ``"manual_input"``.
-        epoch : str or None
-            Epoch in MJD.
+        epoch : float, str or None
+            Epoch in MJD (float) or ``YYYY-MM-DD hh:mm:ss`` (str).
             Required when input mode is ``"manual_input"``.
         eccentricity : float or None
-            Eccentricity (0-1).
+            Eccentricity (>=0).
             Required when input mode is ``"manual_input"``.
         inclination : float or None
             Inclination (0-180 degrees).
             Required when input mode is ``"manual_input"``.
-        arg_perihelion : str or None
+        arg_perihelion : float or None
             Argument of perihelion (0-360 degrees).
             Required when input mode is ``"manual_input"``.
         ascend_node : float or None
@@ -470,7 +470,7 @@ class MostClass(BaseQuery):
             Semimajor axis (AU).
             Required when input mode is ``"manual_input"`` and object type is
             ``"Asteroid"``.
-        mean_anomaly : str or None
+        mean_anomaly : float or None
             Mean anomaly (degrees).
             Required when input mode is ``"manual_input"`` and object type is
             ``"Asteroid"``.
@@ -478,8 +478,8 @@ class MostClass(BaseQuery):
             Perihelion distance (AU).
             Required when input mode is ``"manual_input"`` and object type is
             ``"Comet"``.
-        perih_time : str or None
-            Perihelion time (YYYY+MM+DD+HH:MM:SS).
+        perih_time : float or None
+            Perihelion time (JD).
             Required when input mode is ``"manual_input"`` and object type is
             ``"Comet"``.
         get_query_payload : bool
