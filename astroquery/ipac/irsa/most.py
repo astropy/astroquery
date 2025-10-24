@@ -282,8 +282,8 @@ class MostClass(BaseQuery):
             not have to be a real name. Will default to ``"TestAsteroid"`` or
             ``"TestComet"`` depending on selected object type.
             Required when input mode is ``"manual_input"``.
-        epoch : str or None
-            Epoch in MJD.
+        epoch : float, str or None
+            Epoch in MJD (float) or ``YYYY-MM-DD hh:mm:ss`` (str).
             Required when input mode is ``"manual_input"``.
         eccentricity : float or None
             Eccentricity (>=0).
@@ -451,8 +451,8 @@ class MostClass(BaseQuery):
             not have to be a real name. Will default to ``"TestAsteroid"`` or
             ``"TestComet"`` depending on selected object type.
             Required when input mode is ``"manual_input"``.
-        epoch : str or None
-            Epoch in MJD.
+        epoch : float, str or None
+            Epoch in MJD (float) or ``YYYY-MM-DD hh:mm:ss`` (str).
             Required when input mode is ``"manual_input"``.
         eccentricity : float or None
             Eccentricity (>=0).
