@@ -243,7 +243,7 @@ class MastMissionsClass(MastQueryWithLogin):
         Raises
         ------
         InvalidQueryError
-            If the query radius is larger than the limit (30 arcminute).
+            If the query radius is larger than the limit (30 arcminutes).
         """
 
         self.limit = limit
@@ -329,7 +329,7 @@ class MastMissionsClass(MastQueryWithLogin):
         Raises
         ------
         InvalidQueryError
-            If the query radius is larger than the limit (30 arcminute).
+            If the query radius is larger than the limit (30 arcminutes).
         """
 
         self.limit = limit
