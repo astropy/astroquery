@@ -66,14 +66,14 @@ COLORS = {'Apophis': None,
           '3556': None,
           }
 
-DESIGS = {'Apophis': "Apophis",
-          'Beagle': "Beagle",
-          '3556': "Lixiaohua",
+DESIGS = {'Apophis': 'Apophis',
+          'Beagle': 'Beagle',
+          '3556': 'Lixiaohua',
           }
 
 DYNFAMILY = {'Apophis': None,
-             'Beagle': "Themis",
-             '3556': "Lixiaohua",
+             'Beagle': 'Themis',
+             '3556': 'Lixiaohua',
              }
 
 ELEMENTS = {'Apophis': 0.7460876463977817 * u.au,
@@ -96,8 +96,8 @@ ORBITS = {'Apophis': 18.068 * u.yr,
           '3556': 59.856 * u.yr,
           }
 
-TAXONOMIES = {'Apophis': "Sq",
-              'Beagle': "C",
+TAXONOMIES = {'Apophis': 'Sq',
+              'Beagle': 'C',
               '3556': None,
               }
 
@@ -132,7 +132,7 @@ def nonremote_request(self, method_name, **kwargs):
 # that mocks(monkeypatches) the actual 'requests.get' function:
 @pytest.fixture
 def patch_request(request):
-    mp = request.getfixturevalue("monkeypatch")
+    mp = request.getfixturevalue('monkeypatch')
 
     mp.setattr(AstInfoClass, '_request',
                nonremote_request)
@@ -146,45 +146,45 @@ def test_object_queries(patch_request):
 
         astinfo = AstInfo.albedos(objectname)
         if astinfo != []:
-            assert_quantity_allclose(astinfo[0]["albedo"],
+            assert_quantity_allclose(astinfo[0]['albedo'],
                                      ALBEDOS[objectname])
 
         astinfo = AstInfo.colors(objectname)
         if astinfo != []:
-            assert_quantity_allclose(astinfo[0]["color"],
+            assert_quantity_allclose(astinfo[0]['color'],
                                      COLORS[objectname])
 
         astinfo = AstInfo.designations(objectname)
         if astinfo != []:
-            assert astinfo["primary_designation"] == DESIGS[objectname]
+            assert astinfo['primary_designation'] == DESIGS[objectname]
 
         astinfo = AstInfo.dynamical_family(objectname)
         if astinfo != []:
-            assert astinfo[0]["family"] == DYNFAMILY[objectname]
+            assert astinfo[0]['family'] == DYNFAMILY[objectname]
 
         astinfo = AstInfo.elements(objectname)
         if astinfo != []:
-            assert_quantity_allclose(astinfo["q"],
+            assert_quantity_allclose(astinfo['q'],
                                      ELEMENTS[objectname])
 
         astinfo = AstInfo.escape_routes(objectname)
         if astinfo != []:
-            assert_quantity_allclose(astinfo[0]["p_nu6_complex"],
+            assert_quantity_allclose(astinfo[0]['p_nu6_complex'],
                                      ESCAPEROUTES[objectname])
 
         astinfo = AstInfo.lightcurves(objectname)
         if astinfo != []:
-            assert_quantity_allclose(astinfo[0]["period"],
+            assert_quantity_allclose(astinfo[0]['period'],
                                      LIGHTCURVES[objectname])
 
         astinfo = AstInfo.orbit(objectname)
         if astinfo != []:
-            assert_quantity_allclose(astinfo["arc"],
+            assert_quantity_allclose(astinfo['arc'],
                                      ORBITS[objectname])
 
         astinfo = AstInfo.taxonomies(objectname)
         if astinfo != []:
-            assert astinfo[0]["taxonomy"] == TAXONOMIES[objectname]
+            assert astinfo[0]['taxonomy'] == TAXONOMIES[objectname]
 
         astinfo = AstInfo.all_astinfo(objectname)
         if astinfo != []:
@@ -194,56 +194,56 @@ def test_object_queries(patch_request):
 def test_missing_value(patch_request):
     """test whether a missing value causes an error"""
 
-    astinfo = AstInfo.albedos("Ceres")
+    astinfo = AstInfo.albedos('Ceres')
     assert astinfo[0]['albedo'] is None
 
-    astinfo = AstInfo.colors("Ceres")
+    astinfo = AstInfo.colors('Ceres')
     assert astinfo[0]['color'] is None
 
-    astinfo = AstInfo.designations("Ceres")
+    astinfo = AstInfo.designations('Ceres')
     assert astinfo['name'] is None
 
-    astinfo = AstInfo.dynamical_family("Ceres")
+    astinfo = AstInfo.dynamical_family('Ceres')
     assert astinfo is None
 
-    astinfo = AstInfo.elements("Ceres")
+    astinfo = AstInfo.elements('Ceres')
     assert astinfo['a'] is None
 
-    astinfo = AstInfo.escape_routes("Ceres")
+    astinfo = AstInfo.escape_routes('Ceres')
     assert astinfo is None
 
-    astinfo = AstInfo.lightcurves("Ceres")
+    astinfo = AstInfo.lightcurves('Ceres')
     assert astinfo[0]['period'] is None
 
-    astinfo = AstInfo.orbit("Ceres")
+    astinfo = AstInfo.orbit('Ceres')
     assert astinfo['ephname'] is None
 
-    astinfo = AstInfo.taxonomies("Ceres")
+    astinfo = AstInfo.taxonomies('Ceres')
     assert astinfo[0]['taxonomy'] is None
 
 
 def test_quantities(patch_request):
     """Make sure query returns quantities"""
 
-    astinfo = AstInfo.albedos("1")
+    astinfo = AstInfo.albedos('Beagle')
     assert isinstance(astinfo[0]['diameter'], u.Quantity)
     assert astinfo[0]['diameter'].unit == u.km
 
-    astinfo = AstInfo.colors("1")
+    astinfo = AstInfo.colors('Beagle')
     assert isinstance(astinfo[0]['jd'], Time)
 
-    astinfo = AstInfo.elements("1")
+    astinfo = AstInfo.elements('Beagle')
     assert isinstance(astinfo['a'], u.Quantity)
     assert astinfo['a'].unit == u.au
 
-    astinfo = AstInfo.escape_routes("3200")
+    astinfo = AstInfo.escape_routes('Apophis')
     assert isinstance(astinfo[0]['epoch'], Time)
 
-    astinfo = AstInfo.lightcurves("1")
+    astinfo = AstInfo.lightcurves('Beagle')
     assert isinstance(astinfo[0]['period'], u.Quantity)
     assert astinfo[0]['period'].unit == u.h
 
-    astinfo = AstInfo.orbit("1")
+    astinfo = AstInfo.orbit('Beagle')
     assert isinstance(astinfo['arc'], u.Quantity)
     assert astinfo['arc'].unit == u.yr
 
@@ -251,32 +251,32 @@ def test_quantities(patch_request):
 def test_urls(patch_request):
     """Make sure URL query request returns URLs"""
 
-    astinfo = AstInfo.albedos("1", get_uri=True)
-    assert astinfo[0]['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/data/albedos"
+    astinfo = AstInfo.albedos('Beagle', get_uri=True)
+    assert astinfo[0]['query_uri'] == 'https://asteroid.lowell.edu/api/asteroids/Beagle/data/albedos'
 
-    astinfo = AstInfo.colors("1", get_uri=True)
-    assert astinfo[0]['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/data/colors"
+    astinfo = AstInfo.colors('Beagle', get_uri=True)
+    assert astinfo[0]['query_uri'] == 'https://asteroid.lowell.edu/api/asteroids/Beagle/data/colors'
 
-    astinfo = AstInfo.designations("1", get_uri=True)
-    assert astinfo['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/designations"
+    astinfo = AstInfo.designations('Beagle', get_uri=True)
+    assert astinfo['query_uri'] == 'https://asteroid.lowell.edu/api/asteroids/Beagle/designations'
 
-    astinfo = AstInfo.dynamical_family("1", get_uri=True)
-    assert astinfo[0]['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/data/dynamical-family"
+    astinfo = AstInfo.dynamical_family('Beagle', get_uri=True)
+    assert astinfo[0]['query_uri'] == 'https://asteroid.lowell.edu/api/asteroids/Beagle/data/dynamical-family'
 
-    astinfo = AstInfo.elements("1", get_uri=True)
-    assert astinfo['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/elements"
+    astinfo = AstInfo.elements('Beagle', get_uri=True)
+    assert astinfo['query_uri'] == 'https://asteroid.lowell.edu/api/asteroids/Beagle/elements'
 
-    astinfo = AstInfo.escape_routes("1", get_uri=True)
-    assert astinfo[0]['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/data/escape-routes"
+    astinfo = AstInfo.escape_routes('Beagle', get_uri=True)
+    assert astinfo[0]['query_uri'] == 'https://asteroid.lowell.edu/api/asteroids/Beagle/data/escape-routes'
 
-    astinfo = AstInfo.lightcurves("1", get_uri=True)
-    assert astinfo[0]['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/data/lightcurves"
+    astinfo = AstInfo.lightcurves('Beagle', get_uri=True)
+    assert astinfo[0]['query_uri'] == 'https://asteroid.lowell.edu/api/asteroids/Beagle/data/lightcurves'
 
-    astinfo = AstInfo.orbit("1", get_uri=True)
-    assert astinfo['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/orbit"
+    astinfo = AstInfo.orbit('Beagle', get_uri=True)
+    assert astinfo['query_uri'] == 'https://asteroid.lowell.edu/api/asteroids/Beagle/orbit'
 
-    astinfo = AstInfo.taxonomies("1", get_uri=True)
-    assert astinfo[0]['query_uri'] == "https://asteroid.lowell.edu/api/asteroids/1/data/taxonomies"
+    astinfo = AstInfo.taxonomies('Beagle', get_uri=True)
+    assert astinfo[0]['query_uri'] == 'https://asteroid.lowell.edu/api/asteroids/Beagle/data/taxonomies'
 
-    astinfo = AstInfo.all_astinfo("1", get_uri=True)
-    assert astinfo['query_uri']['albedos'] == "https://asteroid.lowell.edu/api/asteroids/1/data/albedos"
+    astinfo = AstInfo.all_astinfo('Beagle', get_uri=True)
+    assert astinfo['query_uri']['albedos'] == 'https://asteroid.lowell.edu/api/asteroids/Beagle/data/albedos'
