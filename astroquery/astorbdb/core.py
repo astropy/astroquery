@@ -476,7 +476,7 @@ class AstInfoClass(BaseQuery):
 
         # extract desired data and add units to values or
         #  convert data to Time objects where appropriate
-        
+
         if self.query_type == 'albedos':
             src = self._process_data_albedos(src)
 
