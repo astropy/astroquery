@@ -20,9 +20,6 @@ class AstInfoClass(BaseQuery):
     A class for querying Lowell Observatory's `astorbDB
     <https://asteroid.lowell.edu/>`_ service.
     """
-    # Not all the methods below are necessary but these cover most of the common
-    # cases, new methods may be added if necessary, follow the guidelines at
-    # <http://astroquery.readthedocs.io/en/latest/api.html>
 
     URL = conf.server
     TIMEOUT = conf.timeout
@@ -477,6 +474,9 @@ class AstInfoClass(BaseQuery):
         except ValueError:
             raise ValueError('Server response not readable.')
 
+        # extract desired data and add units to values or
+        #  convert data to Time objects where appropriate
+        
         if self.query_type == 'albedos':
             src = self._process_data_albedos(src)
 
@@ -532,7 +532,9 @@ class AstInfoClass(BaseQuery):
 
     def _process_data_albedos(self, src):
         """
-        internal routine to process raw data in Dict format
+        internal routine to return a dictionary of albedo data results
+        from REST interface output and assign units to values where
+        appropriate.
 
         """
 
@@ -550,7 +552,9 @@ class AstInfoClass(BaseQuery):
 
     def _process_data_colors(self, src):
         """
-        internal routine to process raw data in Dict format
+        internal routine to return a dictionary of color data results
+        from REST interface output and convert values to Time objects
+        where appropriate.
 
         """
 
@@ -596,7 +600,8 @@ class AstInfoClass(BaseQuery):
 
     def _process_data_designations(self, src):
         """
-        internal routine to process raw data in Dict format
+        internal routine to return a dictionary of designation
+        information results from REST interface output
 
         """
 
@@ -607,8 +612,8 @@ class AstInfoClass(BaseQuery):
 
     def _process_data_dynamical_family(self, src):
         """
-        internal routine to process raw data in Dict format, must
-        be able to work recursively
+        internal routine to return a dictionary of dynamical family
+        association results from REST interface output
 
         """
 
@@ -619,8 +624,9 @@ class AstInfoClass(BaseQuery):
 
     def _process_data_elements(self, src):
         """
-        internal routine to process raw data in Dict format, must
-        be able to work recursively
+        internal routine to return a dictionary of orbital element results
+        from REST interface output and assign units to values or convert
+        values to Time objects where appropriate.
 
         """
 
@@ -681,8 +687,9 @@ class AstInfoClass(BaseQuery):
 
     def _process_data_escape_routes(self, src):
         """
-        internal routine to process raw data in Dict format, must
-        be able to work recursively
+        internal routine to return a dictionary of NEO escape route
+        results from REST interface output and convert values to Time
+        objects where appropriate.
 
         """
 
@@ -697,8 +704,9 @@ class AstInfoClass(BaseQuery):
 
     def _process_data_lightcurves(self, src):
         """
-        internal routine to process raw data in Dict format, must
-        be able to work recursively
+        internal routine to return a dictionary of lightcurve data
+        results from REST interface output and assign units to values
+        where appropriate.
 
         """
 
@@ -716,8 +724,9 @@ class AstInfoClass(BaseQuery):
 
     def _process_data_orbit(self, src):
         """
-        internal routine to process raw data in Dict format, must
-        be able to work recursively
+        internal routine to return a dictionary of orbit fit data
+        results from REST interface output and assign units to values
+        where appropriate.
 
         """
 
@@ -736,8 +745,8 @@ class AstInfoClass(BaseQuery):
 
     def _process_data_taxonomies(self, src):
         """
-        internal routine to process raw data in Dict format, must
-        be able to work recursively
+        internal routine to return a dictionary of taxonomic
+        classification results from REST interface output
 
         """
 
@@ -748,9 +757,3 @@ class AstInfoClass(BaseQuery):
 
 
 AstInfo = AstInfoClass()
-
-# once your class is done, tests should be written
-# See ./tests for examples on this
-
-# Next you should write the docs in astroquery/docs/module_name
-# using Sphinx.
