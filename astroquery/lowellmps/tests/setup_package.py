@@ -7,5 +7,5 @@ import os
 def get_package_data():
     paths = [os.path.join('data', '*.dat')]  # etc, add other extensions
 
-    return {'astroquery.astorbdb.tests': paths,
-            'astroquery.solarsystem.astorbdb': paths}
+    return {'astroquery.lowellmps.tests': paths,
+            'astroquery.solarsystem.lowellmps': paths}

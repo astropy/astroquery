@@ -4,10 +4,10 @@
 New Tools and Services
 ----------------------
 
-astorbdb
-^^^^^^^^
+lowellmps
+^^^^^^^^^
 
-- module added to query the Lowell Observatory astorbdb database [#3203]
+- module added to query the Lowell Minor Planet Services database [#3203]
 
 API changes
 -----------
