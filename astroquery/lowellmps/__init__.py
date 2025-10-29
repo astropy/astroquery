@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 """
-ASTORBDB
+LOWELLMPS
 -------------------------
 
 :author: Henry Hsieh (hhsieh@gmail.com)
@@ -17,15 +17,15 @@ from astropy import config as _config
 
 class Conf(_config.ConfigNamespace):
     """
-    Configuration parameters for `astroquery.astorbdb`.
+    Configuration parameters for `astroquery.lowellmps`.
     """
     server = _config.ConfigItem(
         ['https://asteroid.lowell.edu/api/asteroids/'],
-        'AstorbDB')
+        'astorbDB')
 
     timeout = _config.ConfigItem(
         30,
-        'Time limit for connecting to astorbdb server.')
+        'Time limit for connecting to Lowell astorbDB server.')
 
 
 conf = Conf()
