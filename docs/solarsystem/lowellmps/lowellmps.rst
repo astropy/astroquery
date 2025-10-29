@@ -1,10 +1,10 @@
 .. doctest-skip-all
 
-.. _astroquery.solarsystem.astorbdb:
+.. _astroquery.solarsystem.lowellmps:
 
-***********************************************************
-Lowell AstorbDB Queries (`astroquery.solarsystem.astorbdb`)
-***********************************************************
+*************************************************************************
+Lowell Minor Planet Services Queries (`astroquery.solarsystem.lowellmps`)
+*************************************************************************
 
 This submodule provides
 an interface to the `Asteroid Information
@@ -20,11 +20,11 @@ submodule or directly from its top-level module.
 .. toctree::
   :maxdepth: 1
 
-  ../../astorbdb/astorbdb.rst
+  ../../lowellmps/lowellmps.rst
 
 
 Reference/API
 =============
 
-.. automodapi:: astroquery.solarsystem.astorbdb
+.. automodapi:: astroquery.solarsystem.lowellmps
     :no-inheritance-diagram:

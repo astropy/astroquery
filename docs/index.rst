@@ -303,7 +303,7 @@ These others are functional, but do not follow a common & consistent API:
   :maxdepth: 1
 
   alfalfa/alfalfa.rst
-  astorbdb/astorbdb.rst
+  lowellmps/lowellmps.rst
   cosmosim/cosmosim.rst
   exoplanet_orbit_database/exoplanet_orbit_database.rst
   fermi/fermi.rst
@@ -428,7 +428,7 @@ above categories. Those services are here:
 .. toctree::
   :maxdepth: 1
 
-  astorbdb/astorbdb.rst
+  lowellmps/lowellmps.rst
   astrometry_net/astrometry_net.rst
   imcce/imcce.rst
   jplhorizons/jplhorizons.rst

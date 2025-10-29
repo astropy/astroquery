@@ -17,8 +17,8 @@ __all__ = ['AstInfo', 'AstInfoClass']
 class AstInfoClass(BaseQuery):
 
     """
-    A class for querying Lowell Observatory's `astorbDB
-    <https://asteroid.lowell.edu/>`_ service.
+    A class for querying Lowell Observatory's `Lowell
+    Minor Planet Services <https://asteroid.lowell.edu/>`_ AstInfo tool.
     """
 
     URL = conf.server
@@ -34,8 +34,8 @@ class AstInfoClass(BaseQuery):
                       get_uri=False,
                       cache=True):
         """
-        This method uses a REST interface to query the `Lowell Observatory
-        astorbDB database <https://asteroid.lowell.edu/>`_ for albedo
+        This method uses a REST interface to query the `Lowell Minor Planet
+        Services database <https://asteroid.lowell.edu/>`_ for albedo
         data for a single object and returns a dictionary from JSON results
 
         Parameters
@@ -49,7 +49,7 @@ class AstInfoClass(BaseQuery):
 
         Examples
         --------
-        >>> from astroquery.astorbdb import AstInfo
+        >>> from astroquery.lowellmps import AstInfo
         >>> albedos = AstInfo.albedos('Beagle')  # doctest: +SKIP
         >>> print(albedos)  # doctest: +SKIP
         [{'albedo': 0.065, 'albedo_error_lower': -0.002, ..., 'survey_name': 'Usui et al. (2011)'},
@@ -72,8 +72,8 @@ class AstInfoClass(BaseQuery):
                      get_uri=False,
                      cache=True):
         """
-        This method uses a REST interface to query the `Lowell Observatory
-        astorbDB database <https://asteroid.lowell.edu/>`_ for color
+        This method uses a REST interface to query the `Lowell Minor Planet
+        Services database <https://asteroid.lowell.edu/>`_ for color
         data for a single object and returns a dictionary from JSON results
 
         Parameters
@@ -87,7 +87,7 @@ class AstInfoClass(BaseQuery):
 
         Examples
         --------
-        >>> from astroquery.astorbdb import AstInfo
+        >>> from astroquery.lowellmps import AstInfo
         >>> colors = AstInfo.colors('Beagle')  # doctest: +SKIP
         >>> print(colors)  # doctest: +SKIP
         [{..., 'color': 0.431, 'color_error': 0.035, ..., 'sys_color': 'J-H'},
@@ -110,8 +110,8 @@ class AstInfoClass(BaseQuery):
                            get_uri=False,
                            cache=True):
         """
-        This method uses a REST interface to query the `Lowell Observatory
-        astorbDB database <https://asteroid.lowell.edu/>`_ for designation
+        This method uses a REST interface to query the `Lowell Minor Planet
+        Services database <https://asteroid.lowell.edu/>`_ for designation
         data for a single object and returns a dictionary from JSON results
 
         Parameters
@@ -125,7 +125,7 @@ class AstInfoClass(BaseQuery):
 
         Examples
         --------
-        >>> from astroquery.astorbdb import AstInfo
+        >>> from astroquery.lowellmps import AstInfo
         >>> designations = AstInfo.designations('Beagle')  # doctest: +SKIP
         >>> print(designations)  # doctest: +SKIP
         {'alternate_designations': ['1954 HJ', ...], 'name': 'Beagle', 'number': 656, ...}
@@ -146,8 +146,8 @@ class AstInfoClass(BaseQuery):
                                get_uri=False,
                                cache=True):
         """
-        This method uses a REST interface to query the `Lowell Observatory
-        astorbDB database <https://asteroid.lowell.edu/>`_ for dynamical family
+        This method uses a REST interface to query the `Lowell Minor Planet
+        Services database <https://asteroid.lowell.edu/>`_ for dynamical family
         data for a single object and returns a dictionary from JSON results
 
         Parameters
@@ -161,7 +161,7 @@ class AstInfoClass(BaseQuery):
 
         Examples
         --------
-        >>> from astroquery.astorbdb import AstInfo
+        >>> from astroquery.lowellmps import AstInfo
         >>> dynamical_family = AstInfo.dynamical_family('Beagle')  # doctest: +SKIP
         >>> print(dynamical_family)  # doctest: +SKIP
         [{'citation_bibcode': '2015PDSS..234.....N', ..., 'family': 'Themis', ...},
@@ -183,8 +183,8 @@ class AstInfoClass(BaseQuery):
                        get_uri=False,
                        cache=True):
         """
-        This method uses a REST interface to query the `Lowell Observatory
-        astorbDB database <https://asteroid.lowell.edu/>`_ for orbital element
+        This method uses a REST interface to query the `Lowell Minor Planet
+        Services database <https://asteroid.lowell.edu/>`_ for orbital element
         data for a single object and returns a dictionary from JSON results
 
         Parameters
@@ -198,7 +198,7 @@ class AstInfoClass(BaseQuery):
 
         Examples
         --------
-        >>> from astroquery.astorbdb import AstInfo
+        >>> from astroquery.lowellmps import AstInfo
         >>> elements = AstInfo.elements('Beagle')  # doctest: +SKIP
         >>> print(elements)  # doctest: +SKIP
         {'a': <Quantity 3.15597543 AU>, 'aphelion_dist': <Quantity 3.57009832 AU>, ...}
@@ -219,8 +219,8 @@ class AstInfoClass(BaseQuery):
                             get_uri=False,
                             cache=True):
         """
-        This method uses a REST interface to query the `Lowell Observatory
-        astorbDB database <https://asteroid.lowell.edu/>`_ for NEO escape route
+        This method uses a REST interface to query the `Lowell Minor Planet
+        Services database <https://asteroid.lowell.edu/>`_ for NEO escape route
         data for a single object and returns a dictionary from JSON results
 
         Parameters
@@ -234,7 +234,7 @@ class AstInfoClass(BaseQuery):
 
         Examples
         --------
-        >>> from astroquery.astorbdb import AstInfo
+        >>> from astroquery.lowellmps import AstInfo
         >>> escape_routes = AstInfo.escape_routes('3552')  # doctest: +SKIP
         >>> print(escape_routes)  # doctest: +SKIP
         [{'citation_bibcode': '2018Icar..312..181G', ..., 'dp21_complex': 0.03695, 'dp31_complex': 0.00105, ...}]
@@ -255,8 +255,8 @@ class AstInfoClass(BaseQuery):
                           get_uri=False,
                           cache=True):
         """
-        This method uses a REST interface to query the `Lowell Observatory
-        astorbDB database <https://asteroid.lowell.edu/>`_ for lightcurve
+        This method uses a REST interface to query the `Lowell Minor Planet
+        Services database <https://asteroid.lowell.edu/>`_ for lightcurve
         data for a single object and returns a dictionary from JSON results
 
         Parameters
@@ -270,7 +270,7 @@ class AstInfoClass(BaseQuery):
 
         Examples
         --------
-        >>> from astroquery.astorbdb import AstInfo
+        >>> from astroquery.lowellmps import AstInfo
         >>> lightcurves = AstInfo.lightcurves('Beagle')  # doctest: +SKIP
         >>> print(lightcurves)  # doctest: +SKIP
         [{..., 'amp_max': <Quantity 1.2 mag>, 'amp_min': <Quantity 0.57 mag>, ..., 'period': <Quantity 7.035 h>, ...}]
@@ -291,8 +291,8 @@ class AstInfoClass(BaseQuery):
                     get_uri=False,
                     cache=True):
         """
-        This method uses a REST interface to query the `Lowell Observatory
-        astorbDB database <https://asteroid.lowell.edu/>`_ for orbit
+        This method uses a REST interface to query the `Lowell Minor Planet
+        Services database <https://asteroid.lowell.edu/>`_ for orbit fitting
         data for a single object and returns a dictionary from JSON results
 
         Parameters
@@ -306,7 +306,7 @@ class AstInfoClass(BaseQuery):
 
         Examples
         --------
-        >>> from astroquery.astorbdb import AstInfo
+        >>> from astroquery.lowellmps import AstInfo
         >>> orbit = AstInfo.orbit('Beagle')  # doctest: +SKIP
         >>> print(orbit)  # doctest: +SKIP
         {'a1con': <Quantity 0. AU / d2>, 'a2con': <Quantity 0. AU / d2>, ...}
@@ -327,8 +327,8 @@ class AstInfoClass(BaseQuery):
                          get_uri=False,
                          cache=True):
         """
-        This method uses a REST interface to query the `Lowell Observatory
-        astorbDB database <https://asteroid.lowell.edu/>`_ for taxonomy
+        This method uses a REST interface to query the `Lowell Minor Planet
+        Services database <https://asteroid.lowell.edu/>`_ for taxonomy
         data for a single object and returns a dictionary from JSON results
 
         Parameters
@@ -342,7 +342,7 @@ class AstInfoClass(BaseQuery):
 
         Examples
         --------
-        >>> from astroquery.astorbdb import AstInfo
+        >>> from astroquery.lowellmps import AstInfo
         >>> taxonomies = AstInfo.taxonomies('Beagle')  # doctest: +SKIP
         >>> print(taxonomies)  # doctest: +SKIP
         [{'citation_bibcode': '2011PDSS..145.....H', ..., 'survey_name': 'Carvano et al. (2010)', 'taxonomy': 'C', ...},
@@ -364,8 +364,8 @@ class AstInfoClass(BaseQuery):
                           get_uri=False,
                           cache=True):
         """
-        This method uses REST interfaces to query the `Lowell Observatory
-        astorbDB database <https://asteroid.lowell.edu/>`_ for all AstInfo
+        This method uses REST interfaces to query the `Lowell Minor Planet
+        Services database <https://asteroid.lowell.edu/>`_ for all AstInfo
         data for a single object and returns a dictionary from JSON results
 
         Parameters
@@ -379,7 +379,7 @@ class AstInfoClass(BaseQuery):
 
         Examples
         --------
-        >>> from astroquery.astorbdb import AstInfo
+        >>> from astroquery.lowellmps import AstInfo
         >>> all_astinfo = AstInfo.all_astinfo('Beagle')  # doctest: +SKIP
         >>> print(all_astinfo)  # doctest: +SKIP
         OrderedDict({
@@ -457,13 +457,13 @@ class AstInfoClass(BaseQuery):
 
     def _parse_result(self, response, *, verbose=None):
         """
-        Parser for astorbDB AstInfo request results
+        Parser for Lowell Minor Planet Services AstInfo request results
         """
 
         if self._return_raw:
             return response.text
 
-        # decode json response from Lowell astorbDB into ascii
+        # decode json response from Lowell Minor Planet Services query into ascii
         try:
             if isinstance(response, dict):
                 src = OrderedDict()
