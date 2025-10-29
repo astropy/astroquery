@@ -15,4 +15,4 @@ from .lowellmps import AstInfo, AstInfoClass
 
 __all__ = ["SBDB", "SBDBClass", "Horizons", "HorizonsClass",
            "Miriade", "MiriadeClass", "Skybot", "SkybotClass",
-           "MPC", "MPCClass","AstInfo", "AstInfoClass"]
+           "MPC", "MPCClass", "AstInfo", "AstInfoClass"]
