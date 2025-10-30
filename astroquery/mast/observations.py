@@ -670,11 +670,11 @@ class ObservationsClass(MastQueryWithLogin):
                     else:
                         log.warning("Falling back to mast download...")
                         self._download_file(escaped_url, local_path,
-                                            cache=cache, head_safe=True, continuation=False,
+                                            cache=cache, head_safe=True,
                                             verbose=verbose)
             else:
                 self._download_file(escaped_url, local_path,
-                                    cache=cache, head_safe=True, continuation=False,
+                                    cache=cache, head_safe=True,
                                     verbose=verbose)
 
             # check if file exists also this is where would perform md5,
