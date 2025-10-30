@@ -7,7 +7,7 @@ The Mast class provides more direct access to the MAST interface.  It requires
 more knowledge of the inner workings of the MAST API, and should be rarely
 needed.  However in the case of new functionality not yet implemented in
 astroquery, this class does allow access.  See the
-`MAST api documentation <https://mast.stsci.edu/api/v0/>`__ for more
+`MAST API documentation <https://mast.stsci.edu/api/v0/>`__ for more
 information.
 
 The basic MAST query function allows users to query through the following
@@ -18,12 +18,17 @@ their corresponding parameters and returns query results as an
 Filtered Mast Queries
 =====================
 
-MAST's Filtered services use the parameters 'columns' and 'filters'. The 'columns'
-parameter is a required string that specifies the columns to be returned as a
-comma-separated list. The 'filters' parameter is a required list of filters to be
-applied. The `~astroquery.mast.MastClass.mast_query` method accepts that list of
-filters as keyword arguments paired with a list of values, similar to
-`~astroquery.mast.ObservationsClass.query_criteria`.
+MAST's filtered services (i.e. those with "filtered" in the service name) accept service-specific parameters, MashupRequest properties, and 
+column filters as keyword arguments and return a table of matching observations. See the 
+`service documentation <https://mast.stsci.edu/api/v0/_services.html>`__ and the
+`MashupRequest Class Reference <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`__ for valid keyword arguments.
+
+Parameters that are not related to position or MashupRequest properties are treated as column filters.
+If the column has discrete values, the parameter value should be a single value or list of values, and values will be matched exactly. 
+If the column is continuous, you can filter by a single value, a list of values, or a range of values. If filtering by a range of values,
+the parameter value should be a dict in the form ``{'min': minVal, 'max': maxVal}``.
+
+The ``columns`` parameter specifies the columns to be returned in the response as a comma-separated string or list of strings.
 
 The following example uses a JWST service with column names and filters specific to
 JWST services. For the full list of valid parameters view the
@@ -34,22 +39,25 @@ JWST services. For the full list of valid parameters view the
    >>> from astroquery.mast import Mast
    ...
    >>> observations = Mast.mast_query('Mast.Jwst.Filtered.Nirspec',
-   ...                                columns='title, instrume, targname',
-   ...                                targoopp=['T'])
+   ...                                targoopp='T',
+   ...                                productLevel=['2a', '2b'],
+   ...                                duration={'min': 810, 'max': 820},
+   ...                                columns=['filename', 'targoopp', 'productLevel', 'duration'])
    >>> print(observations) # doctest: +IGNORE_OUTPUT
-               title               instrume     targname
-   ------------------------------- -------- ----------------
-                         ToO Comet  NIRSPEC  ZTF (C/2022 E3)
-                         ToO Comet  NIRSPEC  ZTF (C/2022 E3)
-                         ToO Comet  NIRSPEC  ZTF (C/2022 E3)
-                         ToO Comet  NIRSPEC  ZTF (C/2022 E3)
-   De-Mystifying SPRITEs with JWST  NIRSPEC      SPIRITS18nu
-                         ToO Comet  NIRSPEC  ZTF (C/2022 E3)
-                               ...      ...              ...
-                         ToO Comet  NIRSPEC  ZTF (C/2022 E3)
-                         ToO Comet  NIRSPEC  ZTF (C/2022 E3)
-                         ToO Comet  NIRSPEC  ZTF (C/2022 E3)
-   Length = 319 rows
+                     filename                   targoopp productLevel duration
+   -------------------------------------------- -------- ------------ --------
+       jw05324004001_03102_00004_nrs2_rate.fits        t           2a  816.978
+   jw05324004001_03102_00004_nrs2_rateints.fits        t           2a  816.978
+       jw05324004001_03102_00001_nrs2_rate.fits        t           2a  816.978
+   jw05324004001_03102_00001_nrs2_rateints.fits        t           2a  816.978
+       jw05324004001_03102_00005_nrs2_rate.fits        t           2a  816.978
+                                            ...      ...          ...      ...
+        jw05324004001_03102_00003_nrs1_s2d.fits        t           2b  816.978
+        jw05324004001_03102_00003_nrs1_x1d.fits        t           2b  816.978
+        jw05324004001_03102_00002_nrs1_cal.fits        t           2b  816.978
+        jw05324004001_03102_00002_nrs1_s2d.fits        t           2b  816.978
+        jw05324004001_03102_00002_nrs1_x1d.fits        t           2b  816.978
+   Length = 25 rows
 
 
 TESS Queries
@@ -181,7 +189,7 @@ result in a warning.
    ...                                ra=254.287,
    ...                                dec=-4.09933,
    ...                                radius=0.02) # doctest: +SHOW_WARNINGS
-   InputWarning: 'columns' parameter will not mask non-filtered services
+   InputWarning: 'columns' parameter is ignored for non-filtered services.
 
 Advanced Service Request
 ========================
