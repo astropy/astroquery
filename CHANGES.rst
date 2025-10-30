@@ -28,6 +28,7 @@ mast
 - Filtering by file extension or by a string column is now case-insensitive in ``MastMissions.filter_products``
   and ``Observations.filter_products``. [#3427]
 
+- Raise informative error if ``MastMissions`` query radius is too large. [#3447]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
