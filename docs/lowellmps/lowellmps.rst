@@ -234,7 +234,11 @@ Acknowledgements
 ================
 
 This submodule makes use of the `Lowell Minor Planet Services
-<https://asteroid.lowell.edu/>`_ system.
+<https://asteroid.lowell.edu/>`_ system.  Thanks to N. Moskovitz
+and B. Burt for support during the development of this submodule.
+This service makes use of the `astorbDB
+<https://scixplorer.org/abs/2022A&C....4100661M/abstract>`_
+database.
 
 The development of this submodule is funded through NASA PDART
 Grant No. 80NSSC18K0987 to the `sbpy project <https://sbpy.org>`_.
