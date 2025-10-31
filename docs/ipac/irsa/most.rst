@@ -1,8 +1,8 @@
 .. _astroquery.ipac.irsa.most:
 
-**********************************************************
-IRSA Moving Object Search Tool (astroquery.ipac.irsa.most)
-**********************************************************
+************************************************************
+IRSA Moving Object Search Tool (`astroquery.ipac.irsa.most`)
+************************************************************
 
 Moving Object Search Tool (MOST) can determine the orbit for a given solar system
 object then find images that covered the object's predicted positions in select
