@@ -601,7 +601,7 @@ class CatalogsClass(MastQueryWithLogin):
             bundler_response = response[0].json()
 
             local_path = os.path.join(download_dir, "{}.sh".format(download_file))
-            self._download_file(bundler_response['url'], local_path, head_safe=True, continuation=False)
+            self._download_file(bundler_response['url'], local_path, head_safe=True)
 
             status = "COMPLETE"
             msg = None

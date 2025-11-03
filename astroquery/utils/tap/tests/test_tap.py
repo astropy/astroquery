@@ -882,6 +882,65 @@ def test_rename_table():
     tap.rename_table(table_name=tableName, new_table_name=newTableName, new_column_names_dict=newColumnNames)
 
 
+def test_delete_user_table():
+    tableName = 'user_test.table_test_rename'
+    conn_handler = DummyConnHandler()
+    dummyResponse = DummyResponse(200)
+
+    url_encode = urlencode({'DELETE': 'TRUE', 'FORCE_REMOVAL': 'FALSE', 'TABLE_NAME': 'user_test.table_test_rename'})
+    conn_handler.set_default_response(dummyResponse)
+    conn_handler.execute_upload(data=url_encode)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+    tap.delete_user_table(table_name=tableName, force_removal=False, verbose=False)
+
+
+def test_delete_user_table_2():
+    conn_handler = DummyConnHandler()
+    dummyResponse = DummyResponse(200)
+
+    headers = [('Date', 'Sat, 12 Apr 2025 05:10:47 GMT'),
+               ('Server', 'Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips mod_jk/1.2.43'),
+               ('Set-Cookie', 'JSESSIONID=E677B51BA5C4837347D1E17D4E36647E; Path=/data-server; Secure; HttpOnly'),
+               ('X-Content-Type-Options', 'nosniff'), ('X-XSS-Protection', '0'),
+               ('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate'), ('Pragma', 'no-cache'),
+               ('Expires', '0'), ('X-Frame-Options', 'SAMEORIGIN'),
+               ('Set-Cookie', 'SESSION=ZjQ3MjIzMDAtNjNiYy00Mj; Path=/data-server; Secure; HttpOnly; SameSite=Lax'),
+               ('Transfer-Encoding', 'chunked'), ('Content-Type', 'text/plain; charset=UTF-8')]
+
+    dummyResponse.set_data(method='POST', headers=headers)
+
+    url_encode = urlencode({'DELETE': 'TRUE', 'FORCE_REMOVAL': 'FALSE', 'TABLE_NAME': 'user_test.table_test_rename'})
+    conn_handler.set_default_response(dummyResponse)
+    conn_handler.execute_upload(data=url_encode)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+    tap.login(user="user", password="password")
+
+    tableName = 'table_test_rename'
+
+    tap.delete_user_table(table_name=tableName, force_removal=False, verbose=False)
+
+
+def test_delete_user_table_exception():
+    tableName = 'test.table_test_rename'
+    conn_handler = DummyConnHandler()
+    dummyResponse = DummyResponse(200)
+
+    url_encode = urlencode({'DELETE': 'TRUE', 'FORCE_REMOVAL': 'FALSE', 'TABLE_NAME': 'user_test.table_test_rename'})
+    conn_handler.set_default_response(dummyResponse)
+    conn_handler.execute_upload(data=url_encode)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+
+    with pytest.raises(ValueError,
+                       match="Invalid table name test.table_test_rename: expected format user_<user_name>.<table_name"):
+        tap.delete_user_table(table_name=tableName, force_removal=False, verbose=False)
+
+    #
+
+    tableName = 'table_test_rename'
+    with pytest.raises(ValueError, match="You must login to delete the table"):
+        tap.delete_user_table(table_name=tableName, force_removal=False, verbose=False)
+
+
 def __find_table(schemaName, tableName, tables):
     qualified_name = f"{schemaName}.{tableName}"
     for table in tables:

@@ -770,16 +770,19 @@ class TestESAHubble:
                 {"observation_id": ["obs123"]},    # Second query result
                 {"instrument_name": ["instrumentXYZ"]}   # Third query result
             ]
-            mock_query_tap.side_effect = values + values
+            mock_query_tap.side_effect = values * 3
             # Set up the return value for the _get_decoded_string method
             mock_get_decoded_string.return_value = "/hstdata/hstdata_i/i/b4x/04"
             # Set up the return value for os.path.exists
-            mock_exists.return_value = True
+            mock_exists.side_effect = [True, False, True, True]
             # Example usage
             filename = "ib4x04ivq_flt.jpg"
             default_volume = None
             full_path = ehst.get_datalabs_path(filename=filename, default_volume=default_volume)
             assert full_path == "/data/user/hub_hstdata_i/i/b4x/04/ib4x04ivq_flt.jpg"
+
+            full_path = ehst.get_datalabs_path(filename=filename, default_volume=default_volume)
+            assert full_path == "/data/hub_hstdata_i/i/b4x/04/ib4x04ivq_flt.jpg"
 
             # Test with default_volume provided
             default_volume = "myPath"
