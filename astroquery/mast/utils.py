@@ -154,7 +154,7 @@ def resolve_object(objectname, *, resolver=None, resolve_all=False):
 
     Parameters
     ----------
-    objectname : str
+    objectname : str, or iterable of str
         Name(s) of astronomical object(s) to resolve.
     resolver : str, optional
         The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
@@ -179,7 +179,18 @@ def resolve_object(objectname, *, resolver=None, resolve_all=False):
         `~astropy.coordinates.SkyCoord` objects with the resolved coordinates.
     """
     # Normalize input
-    object_names = [objectname] if isinstance(objectname, str) else list(objectname)
+    try:
+        # Strings are iterable, so check explicitly
+        if isinstance(objectname, str):
+            raise TypeError
+        object_names = list(objectname)
+    except TypeError:
+        object_names = [objectname]
+
+    # If any items are not strings, raise an error
+    if not all(isinstance(name, str) for name in object_names):
+        raise InvalidQueryError('All object names must be strings.')
+
     single = len(object_names) == 1
 
     is_catalog = False  # Flag to check if object name belongs to a MAST catalog
@@ -445,6 +456,38 @@ def remove_duplicate_products(data_products, uri_key):
     return unique_products
 
 
+def apply_extension_filter(products, extension, filename_key):
+    """
+    Applies an extension filter to a product table.
+
+    Parameters
+    ----------
+    products : `~astropy.table.Table`
+        The product table to filter.
+    extension : str
+        The extension to filter by (e.g., 'fits', 'csv').
+    filename_key : str
+        The column name representing the filename of a product.
+
+    Returns
+    -------
+    ext_mask : `numpy.ndarray`
+        A boolean mask indicating which rows of the product table have the specified extension.
+    """
+    # Normalize extensions to lowercase
+    extensions = [extension] if isinstance(extension, str) else extension
+    extensions = tuple(ext.lower() for ext in extensions)
+
+    # Build mask
+    ext_mask = np.array(
+        [not isinstance(x, np.ma.core.MaskedConstant)
+         and str(x).lower().endswith(extensions)
+         for x in products[filename_key]],
+        dtype=bool
+    )
+    return ext_mask
+
+
 def _combine_positive_negative_masks(mask_funcs):
     """
     Combines a list of mask functions into a single mask according to:
@@ -571,7 +614,9 @@ def apply_column_filters(products, filters):
                 v = val[1:] if is_negated else val
 
                 def func(col, v=v):
-                    return np.isin(col, [v])
+                    # Normalize both column values and filter to lowercase strings for case-insensitive comparison
+                    col_lower = np.char.lower(col.astype(str))
+                    return np.isin(col_lower, [v.lower()])
                 mask_funcs.append((func, is_negated))
 
             this_mask = _combine_positive_negative_masks(mask_funcs)(col_data)

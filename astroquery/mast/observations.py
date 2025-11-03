@@ -594,12 +594,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         # Filter by file extension, if provided
         if extension:
-            extensions = [extension] if isinstance(extension, str) else extension
-            ext_mask = np.array(
-                [not isinstance(x, np.ma.core.MaskedConstant) and any(x.endswith(ext) for ext in extensions)
-                 for x in products["productFilename"]],
-                dtype=bool
-            )
+            ext_mask = utils.apply_extension_filter(products, extension, 'productFilename')
             filter_mask &= ext_mask
 
         # Apply column-based filters
@@ -675,11 +670,11 @@ class ObservationsClass(MastQueryWithLogin):
                     else:
                         log.warning("Falling back to mast download...")
                         self._download_file(escaped_url, local_path,
-                                            cache=cache, head_safe=True, continuation=False,
+                                            cache=cache, head_safe=True,
                                             verbose=verbose)
             else:
                 self._download_file(escaped_url, local_path,
-                                    cache=cache, head_safe=True, continuation=False,
+                                    cache=cache, head_safe=True,
                                     verbose=verbose)
 
             # check if file exists also this is where would perform md5,

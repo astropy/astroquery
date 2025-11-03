@@ -136,10 +136,10 @@ class TestEsaHubbleRemoteData:
         result = esa_hubble.get_datalabs_path(filename='ib4x04ivq_flt.jpg', default_volume=None)
         assert len(recwarn) == 1
         assert "ib4x04ivq_flt.jpg" in str(recwarn[0].message)
-        assert result == '/data/user/hub_hstdata_i/i/b4x/04/ib4x04ivq_flt.jpg'
+        assert result == '/data/hub_hstdata_i/i/b4x/04/ib4x04ivq_flt.jpg'
 
     def test_get_datalabs_path_fits(self, recwarn):
         result = esa_hubble.get_datalabs_path(filename='ib4x04ivq_flt.fits', default_volume=None)
         assert len(recwarn) == 1
         assert "ib4x04ivq_flt.fits" in str(recwarn[0].message)
-        assert result == '/data/user/hub_hstdata_i/i/b4x/04/ib4x04ivq_flt.fits.gz'
+        assert result == '/data/hub_hstdata_i/i/b4x/04/ib4x04ivq_flt.fits.gz'
