@@ -122,7 +122,7 @@ def test_remote_regex():
     assert len(tbl) == 558
     assert set(tbl.keys()) == colname_set
 
-    assert set(tbl['name']) == {'H2CN', 'HC-13-N, v=0'}
+    assert set(tbl['name']) == {'H2CN', 'HC-13-N, v=0', 'CO, v=0'}
 
 
 @pytest.mark.remote_data
