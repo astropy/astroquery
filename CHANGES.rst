@@ -52,15 +52,26 @@ mast
 
 - Raise informative error if ``MastMissions`` query radius is too large. [#3447]
 
+
 jplspec
 ^^^^^^^
 
+- Refactored to use linelists.core [#3456]
 - Moved to linelists/.  astroquery.jplspec is now deprecated in favor of astroquery.linelists.jplspec [#3455]
+
 
 linelists.jplspec
 ^^^^^^^^^^^^^^^^^
 
 - New location for jplspec.  astroquery.jplspec is now deprecated in favor of astroquery.linelists.jplspec [#3455]
+
+
+linelists
+^^^^^^^^^
+
+- General tools for both CDMS/JPL moved to linelists.core [#3456]
+- Added jplspec, moved from its previous location (astroquery.jplspec to astroquery.linelists.jplspec) [#3455]
+
 
 xmatch
 ^^^^^^
