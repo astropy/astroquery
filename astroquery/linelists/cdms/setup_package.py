@@ -9,6 +9,7 @@ def get_package_data():
     paths_test = [os.path.join('data', '028503 CO, v=0.data'),
                   os.path.join('data', '117501 HC7S.data'),
                   os.path.join('data', '099501 HC7N, v=0.data'),
+                  os.path.join('data', 'c058501.cat'),
                   os.path.join('data', 'post_response.html'),
                   ]
 
