@@ -90,15 +90,36 @@ def test_propanediol():
 
 
 @pytest.mark.remote_data
+@pytest.mark.xfail(reason="CDMS entry for H2NC is malformed")
+def test_h2nc():
+    tbl1 = CDMS.get_molecule('028528')
+    assert 'int' in tbl1['Q2'].dtype.name
+
+    tbl = CDMS.query_lines(min_frequency=139.3 * u.GHz,
+                           max_frequency=141.5 * u.GHz,
+                           molecule='028528 H2NC')
+    
+    # these are the results that SHOULD be return if it actually worked
+    assert isinstance(tbl, Table)
+    assert len(tbl) >= 1
+    assert 'H2NC' in tbl['name']
+    # check that the parser worked - this will be string or obj otherwise
+    assert 'int' in tbl['Ku'].dtype.name
+    assert tbl['MOLWT'][0] == 28
+    assert tbl['TAG'][0] == 28528
+
+
+@pytest.mark.remote_data
 def test_remote_regex():
 
     tbl = CDMS.query_lines(min_frequency=500 * u.GHz,
                            max_frequency=600 * u.GHz,
                            min_strength=-500,
-                           molecule=('028501 HC-13-N, v=0', '028502 H2CN' '028503 CO, v=0'))
+                           molecule=('028501 HC-13-N, v=0', '028502 H2CN', '028503 CO, v=0'))
 
     assert isinstance(tbl, Table)
-    assert len(tbl) == 557
+    # regression test fix: there's 1 CO line that got missed because of a missing comma
+    assert len(tbl) == 558
     assert set(tbl.keys()) == colname_set
 
     assert set(tbl['name']) == {'H2CN', 'HC-13-N, v=0'}

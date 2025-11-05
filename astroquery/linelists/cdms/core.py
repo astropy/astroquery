@@ -32,7 +32,7 @@ class CDMSClass(BaseQuery):
     SERVER = conf.server
     CLASSIC_URL = conf.classic_server
     TIMEOUT = conf.timeout
-    MALFORMATTED_MOLECULE_LIST = ['017506 NH3-wHFS', '028582 H2NC', '058501 H2C2S', '064527 HC3HCN']
+    MALFORMATTED_MOLECULE_LIST = ['017506 NH3-wHFS', '028528 H2NC', '058501 H2C2S', '064527 HC3HCN']
 
     def query_lines_async(self, min_frequency, max_frequency, *,
                           min_strength=-500, molecule='All',
@@ -278,40 +278,48 @@ class CDMSClass(BaseQuery):
                   'F3l': 83,
                   'name': 89}
 
-        result = ascii.read(text, header_start=None, data_start=0,
-                            comment=r'THIS|^\s{12,14}\d{4,6}.*',
-                            names=list(starts.keys()),
-                            col_starts=list(starts.values()),
-                            format='fixed_width', fast_reader=False)
+        try:
+            result = ascii.read(text, header_start=None, data_start=0,
+                                comment=r'THIS|^\s{12,14}\d{4,6}.*',
+                                names=list(starts.keys()),
+                                col_starts=list(starts.values()),
+                                format='fixed_width', fast_reader=False)
 
-        result['FREQ'].unit = u.MHz
-        result['ERR'].unit = u.MHz
+            result['FREQ'].unit = u.MHz
+            result['ERR'].unit = u.MHz
 
-        result['MOLWT'] = [int(x/1e3) for x in result['TAG']]
-        result['Lab'] = result['MOLWT'] < 0
-        result['MOLWT'] = np.abs(result['MOLWT'])
-        result['MOLWT'].unit = u.Da
+            result['MOLWT'] = [int(x/1e3) for x in result['TAG']]
+            result['Lab'] = result['MOLWT'] < 0
+            result['MOLWT'] = np.abs(result['MOLWT'])
+            result['MOLWT'].unit = u.Da
 
-        fix_keys = ['GUP']
-        for suf in 'ul':
-            for qn in ('J', 'v', 'K', 'F1', 'F2', 'F3'):
-                qnind = qn+suf
-                fix_keys.append(qnind)
-        for key in fix_keys:
-            if not np.issubdtype(result[key].dtype, np.integer):
-                intcol = np.array(list(map(parse_letternumber, result[key])),
-                                  dtype=int)
-                result[key] = intcol
+            fix_keys = ['GUP']
+            for suf in 'ul':
+                for qn in ('J', 'v', 'K', 'F1', 'F2', 'F3'):
+                    qnind = qn+suf
+                    fix_keys.append(qnind)
+            for key in fix_keys:
+                if not np.issubdtype(result[key].dtype, np.integer):
+                    intcol = np.array(list(map(parse_letternumber, result[key])),
+                                    dtype=int)
+                    result[key] = intcol
 
-        # if there is a crash at this step, something went wrong with the query
-        # and the _last_query_temperature was not set.  This shouldn't ever
-        # happen, but, well, I anticipate it will.
-        if self._last_query_temperature == 0:
-            result.rename_column('LGINT', 'LGAIJ')
-            result['LGAIJ'].unit = u.s**-1
-        else:
-            result['LGINT'].unit = u.nm**2 * u.MHz
-        result['ELO'].unit = u.cm**(-1)
+            # if there is a crash at this step, something went wrong with the query
+            # and the _last_query_temperature was not set.  This shouldn't ever
+            # happen, but, well, I anticipate it will.
+            if self._last_query_temperature == 0:
+                result.rename_column('LGINT', 'LGAIJ')
+                result['LGAIJ'].unit = u.s**-1
+            else:
+                result['LGINT'].unit = u.nm**2 * u.MHz
+            result['ELO'].unit = u.cm**(-1)
+        except ValueError as ex:
+            # Give users a more helpful exception when parsing fails
+            original_message = str(ex)
+            new_message = ("Failed to parse CDMS response.  This may be caused by a malformed search return. "
+                  "You can check this by running `CDMS.get_molecule('<id>')` instead; if it works, the "
+                  "problem is caused by the CDMS search interface and cannot be worked around.")
+            raise ValueError(new_message) from ex
 
         return result
 
@@ -421,14 +429,14 @@ class CDMSClass(BaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
         if return_response:
             return response
-        result = self._parse_cat(response)
+        result = self._parse_cat(response.text)
 
         species_table = self.get_species_table()
         result.meta = dict(species_table.loc[int(molecule_id)])
 
         return result
 
-    def _parse_cat(self, response, *, verbose=False):
+    def _parse_cat(self, text, *, verbose=False):
         """
         Parse a catalog response into an `~astropy.table.Table`
 
@@ -436,10 +444,9 @@ class CDMSClass(BaseQuery):
         but the catalog responses have a slightly different format.
         """
 
-        if 'Zero lines were found' in response.text:
-            raise EmptyResponseError(f"Response was empty; message was '{response.text}'.")
+        if 'Zero lines were found' in text:
+            raise EmptyResponseError(f"Response was empty; message was '{text}'.")
 
-        text = response.text
 
         # notes about the format
         # [F13.4, 2F8.4, I2, F10.4, I3, I7, I4, 12I2]: FREQ, ERR, LGINT, DR, ELO, GUP, TAG, QNFMT, QN  noqa
