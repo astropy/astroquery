@@ -13,9 +13,9 @@ images, and spectra curated by the NASA/IPAC Infrared Science Archive
 Euclid, Spitzer, WISE/NEOWISE, SOFIA, IRTF, 2MASS, Herschel, IRAS, and
 ZTF.
 
-The functionality in this module can be divided into three main categories: 
+The functionality in this module can be divided into three main categories:
 catalog searches, image and spectra searches, and miscellaneous tools.
-Below we provide an overview of these functionalities before giving detailed 
+Below we provide an overview of these functionalities before giving detailed
 examples of each in the following sections.
 
 Overview
@@ -24,46 +24,47 @@ Overview
 :ref:`Catalog searches <catalog_searches>`:
 
 Each catalog hosted at IRSA has a unique ID,
-which can be found with the `~.astroquery.ipac.irsa.IrsaClass.list_catalogs` 
-method, and is the ``catalog`` parameter needed for the 
-`~.astroquery.ipac.irsa.IrsaClass.query_region` and 
-`~.astroquery.ipac.irsa.IrsaClass.query_tap` methods. The 
+which can be found with the `~.astroquery.ipac.irsa.IrsaClass.list_catalogs`
+method, and is the ``catalog`` parameter needed for the
+`~.astroquery.ipac.irsa.IrsaClass.query_region` and
+`~.astroquery.ipac.irsa.IrsaClass.query_tap` methods. The
 `~.astroquery.ipac.irsa.IrsaClass.query_region` method performs simple
-spatial queries (cone, box, polygon, all-sky) on a specified catalog, while the 
+spatial queries (cone, box, polygon, all-sky) on a specified catalog, while the
 `~.astroquery.ipac.irsa.IrsaClass.query_tap` method allows for more complex
 ADQL queries to be sent to the IVOA Table Access Protocol (TAP) service
-at IRSA. For either method, the sources meeting the query constraints 
+at IRSA. For either method, the sources meeting the query constraints
 are returned as, or can easily be converted to, a `~astropy.table.Table` object.
 
 :ref:`Image and spectra searches <img_spec_searches>`:
 
-IRSA's implementations of the IVOA 
+IRSA's implementations of the IVOA
 Simple Image Access v2 (SIAv2) and Simple Spectral Access (SSA) protocols can be
-queried via the `~.astroquery.ipac.irsa.IrsaClass.query_sia` and 
+queried via the `~.astroquery.ipac.irsa.IrsaClass.query_sia` and
 `~.astroquery.ipac.irsa.IrsaClass.query_ssa` methods to identify images and spectra
-meeting query constraints. As for the catalogs, each image/spectra collection 
+meeting query constraints. As for the catalogs, each image/spectra collection
 has a unique ID string, which can be used to limit searches to a specific collection.
 These can be found with the `~.astroquery.ipac.irsa.IrsaClass.list_collections` method.
-Both `~.astroquery.ipac.irsa.IrsaClass.query_sia` and 
-`~.astroquery.ipac.irsa.IrsaClass.query_ssa` return a `~astropy.table.Table` 
+Both `~.astroquery.ipac.irsa.IrsaClass.query_sia` and
+`~.astroquery.ipac.irsa.IrsaClass.query_ssa` return a `~astropy.table.Table`
 listing metadata and access URLs for the identified images/spectra.
 
-:ref:`Miscellaneous tools <misc_tools>`: 
+:ref:`Miscellaneous tools <misc_tools>`:
 
-Separate (non-IVOA compliant) tools for 
+Separate (non-IVOA compliant) tools for
 performing moving object searches and accessing IRSA's dust extinction service
-are provided in the :doc:`most <most>` and  
-:doc:`irsa_dust <irsa_dust/irsa_dust>` modules, respectively. 
+are provided in the :doc:`most <most>` and
+:doc:`irsa_dust <irsa_dust/irsa_dust>` modules, respectively.
 
 .. _catalog_searches:
+
 Catalog Searches
 ================
 
 Available IRSA catalogs
 -----------------------
 
-The `~.astroquery.ipac.irsa.IrsaClass.query_region` and 
-`~.astroquery.ipac.irsa.IrsaClass.query_tap` methods can be used to query 
+The `~.astroquery.ipac.irsa.IrsaClass.query_region` and
+`~.astroquery.ipac.irsa.IrsaClass.query_tap` methods can be used to query
 catalogs at IRSA that support TAP.
 To get a concise list of IRSA catalogs available to query, use the
 `~.astroquery.ipac.irsa.IrsaClass.list_catalogs` method.
@@ -71,7 +72,7 @@ The output consists of two fields for each catalog, the name of the catalog
 and a very short description. To query a
 specific catalog, the first field can be entered as the value of the
 ``catalog`` parameter in the `~.astroquery.ipac.irsa.IrsaClass.query_region` method.
-You can also use the ``filter`` argument within the 
+You can also use the ``filter`` argument within the
 `~.astroquery.ipac.irsa.IrsaClass.list_catalogs` method
 to return only the catalogs with their
 name or short description matching to the specified string (case-insensitive matching).
@@ -116,7 +117,7 @@ Spatial search types
 --------------------
 
 The `~astroquery.ipac.irsa.IrsaClass.query_region` method performs queries
-of a specified catalog using spatial constraints. 
+of a specified catalog using spatial constraints.
 Four types of spatial searches are supported:
 
 Cone search
@@ -127,7 +128,7 @@ A cone search is performed by using `~astroquery.ipac.irsa.IrsaClass.query_regio
 of the cone search must be specified, and the radius can be
 changed from the default value of 10 arcsec using the radius
 parameter. The catalog to be searched must also be specified with the ``catalog``
-parameter (see above). 
+parameter (see above).
 
 The coordinates of the center of the cone search can be passed using
 the coordinates parameter and specified using a `~astropy.coordinates.SkyCoord` object or a
@@ -167,13 +168,13 @@ coordinates.
     >>> table = Irsa.query_region("M81", catalog="allwise_p3as_psd",
     ...                           spatial="Cone", radius="2 arcmin")
     >>> print(table)
-        designation          ra        dec     ...  spt_ind      htm20     
-                            deg        deg     ...                                                   
+        designation          ra        dec     ...  spt_ind      htm20
+                            deg        deg     ...
     ------------------- ----------- ---------- ... --------- --------------
     J095515.22+690427.3 148.8134265 69.0742504 ... 221313002 15904462174189
     J095552.88+690405.8 148.9703573 69.0683011 ... 221313002 15904462442478
     J095550.39+690450.9 148.9599629 69.0808194 ... 221313002 15904464313247
-                    ...         ...        ... ...       ...            ...    
+                    ...         ...        ... ...       ...            ...
     J095528.34+690239.8 148.8681089 69.0444070 ... 221313002 15904451161255
     J095543.03+690346.4 148.9293026 69.0629078 ... 221313002 15904462601752
     J095515.39+690404.2 148.8141427 69.0678377 ... 221313002 15904462203530
@@ -212,7 +213,7 @@ Polygon search
 ^^^^^^^^^^^^^^
 
 A polygon search is performed by using `~astroquery.ipac.irsa.IrsaClass.query_region` with
-the ``spatial`` parameter set to ``'Polygon'``. In this case the ``polygon`` parameter 
+the ``spatial`` parameter set to ``'Polygon'``. In this case the ``polygon`` parameter
 must be set with a list of coordinate pairs that define a
 convex polygon. The coordinates may be specified as usual by using the
 appropriate `~astropy.coordinates.SkyCoord` object. In addition to using a list of
@@ -225,11 +226,11 @@ tuples, each tuple containing the ra and dec values in degrees.
     >>> from astroquery.ipac.irsa import Irsa
     >>> from astropy import coordinates
     >>> table = Irsa.query_region("m31", catalog="fp_psc", spatial="Polygon",
-    ... polygon=[coordinates.SkyCoord(ra=10.1, dec=10.1, 
+    ... polygon=[coordinates.SkyCoord(ra=10.1, dec=10.1,
     ...                               unit=(u.deg, u.deg), frame='icrs'),
-    ...          coordinates.SkyCoord(ra=10.0, dec=10.1, 
+    ...          coordinates.SkyCoord(ra=10.0, dec=10.1,
     ...                               unit=(u.deg, u.deg), frame='icrs'),
-    ...          coordinates.SkyCoord(ra=10.0, dec=10.0, 
+    ...          coordinates.SkyCoord(ra=10.0, dec=10.0,
     ...                               unit=(u.deg, u.deg), frame='icrs')
     ...         ])
     >>> print(table)
@@ -290,7 +291,7 @@ star HIP 12 with just the ra, dec and w1mpro columns would be:
 .. doctest-remote-data::
 
     >>> from astroquery.ipac.irsa import Irsa
-    >>> table = Irsa.query_region("HIP 12", catalog="allwise_p3as_psd", 
+    >>> table = Irsa.query_region("HIP 12", catalog="allwise_p3as_psd",
     ...                           spatial="Cone", columns="ra,dec,w1mpro")
     >>> print(table)
          ra       dec     w1mpro
@@ -328,7 +329,7 @@ the query is sent in asynchronous mode.
 .. doctest-remote-data::
 
     >>> from astroquery.ipac.irsa import Irsa
-    >>> table = Irsa.query_region("HIP 12", catalog="allwise_p3as_psd", 
+    >>> table = Irsa.query_region("HIP 12", catalog="allwise_p3as_psd",
     ...                           spatial="Cone", async_job=True)
     >>> print(table)
         designation         ra        dec     sigra  ...         y                   z           spt_ind      htm20
@@ -339,12 +340,12 @@ the query is sent in asynchronous mode.
 Table Access Protocol queries
 -----------------------------
 
-The `~astroquery.ipac.irsa.IrsaClass.query_tap` method allows for a rich variety of queries. 
+The `~astroquery.ipac.irsa.IrsaClass.query_tap` method allows for a rich variety of queries.
 `ADQL <https://www.ivoa.net/documents/ADQL/>`_ queries
 provided via the ``query`` parameter are sent directly to the IRSA TAP server, and the result is
 returned as a `~pyvo.dal.TAPResults` object. Its ``to_table`` or ``to_qtable`` method convert the result to a
-`~astropy.table.Table` or `~astropy.table.QTable` object. For more information about constructing 
-TAP queries for IRSA, please refer to the 
+`~astropy.table.Table` or `~astropy.table.QTable` object. For more information about constructing
+TAP queries for IRSA, please refer to the
 `IRSA TAP documentation <https://irsa.ipac.caltech.edu/docs/program_interface/TAP.html>`_.
 
 .. doctest-remote-data::
@@ -372,11 +373,12 @@ TAP queries for IRSA, please refer to the
 
 
 .. _img_spec_searches:
+
 Image and Spectra Searches
 ==========================
 
-The `~astroquery.ipac.irsa` module also provides interfaces for both image 
-and spectra searches. These are based on performing IVOA Simple Image Access, 
+The `~astroquery.ipac.irsa` module also provides interfaces for both image
+and spectra searches. These are based on performing IVOA Simple Image Access,
 version 2 (SIAv2), and Simple Spectral Access (SSA) queries of the IRSA services.
 An auxiliary interface is provided to allow users to identify subsets -- "collections" --
 of the available image data, typically associated with individual missions.
@@ -446,7 +448,7 @@ Enhanced Imaging products in the centre of the COSMOS field as a `~astropy.table
    >>> spitzer_images = Irsa.query_sia(pos=(coord, 1 * u.arcmin), collection='spitzer_seip')
 
 The collection name, ``spitzer_seip`` in this example,
-can be obtained from the `~astroquery.ipac.irsa.IrsaClass.list_collections` method 
+can be obtained from the `~astroquery.ipac.irsa.IrsaClass.list_collections` method
 detailed above.
 
 The result, in this case in ``spitzer_images``, is a table of image metadata in the IVOA "ObsCore" format
@@ -455,8 +457,8 @@ The result, in this case in ``spitzer_images``, is a table of image metadata in 
 
 The access URLs given in the results table point to FITS images that
 can be downloaded or used to make cutouts on-the-fly.
-You can use either the the IRSA on-premises data, 
-listed in the ``access_url`` column, or the cloud version in the 
+You can use either the the IRSA on-premises data,
+listed in the ``access_url`` column, or the cloud version in the
 ``cloud_access`` column. For more info about fits
 cutouts, please visit :ref:`astropy:fits_io_cloud`.
 
@@ -465,10 +467,10 @@ cutouts, please visit :ref:`astropy:fits_io_cloud`.
    >>> from astropy.io import fits
    >>> from astropy.nddata import Cutout2D
    >>> from astropy.wcs import WCS
-   >>> science_image = spitzer_images[spitzer_images['dataproduct_subtype'] 
+   >>> science_image = spitzer_images[spitzer_images['dataproduct_subtype']
    ...                                == 'science'][0]
    >>> with fits.open(science_image['access_url'], use_fsspec=True) as hdul:
-   ...     cutout = Cutout2D(hdul[0].section, position=coord, 
+   ...     cutout = Cutout2D(hdul[0].section, position=coord,
    ...                       size=2 * u.arcmin, wcs=WCS(hdul[0].header))
 
 Now you can plot the cutout.
@@ -561,13 +563,14 @@ will return a `~astropy.table.Table`.
                     thrumms
 
 .. _misc_tools:
+
 Miscellaneous Tools
 ===================
 
 Moving Object Searches
 ----------------------
 
-The :doc:`most <most>` module provides access to IRSA's 
+The :doc:`most <most>` module provides access to IRSA's
 Moving Object Search Tool (MOST) which can determine if images,
 taken by a selection of surveys and missions, intersect in both
 space and time with the orbit of a known solar system object
