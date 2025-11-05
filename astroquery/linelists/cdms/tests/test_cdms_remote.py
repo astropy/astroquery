@@ -46,7 +46,9 @@ def test_remote_regex():
     tbl = CDMS.query_lines(min_frequency=500 * u.GHz,
                            max_frequency=600 * u.GHz,
                            min_strength=-500,
-                           molecule=('028501 HC-13-N, v=0', '028502 H2CN' '028503 CO, v=0'))
+                           molecule=('028501 HC-13-N, v=0',
+                                     '028502 H2CN',
+                                     '028503 CO, v=0'))
 
     assert isinstance(tbl, Table)
     assert len(tbl) == 557
