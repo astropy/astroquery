@@ -434,9 +434,9 @@ class MastMissionsClass(MastQueryWithLogin):
         if isinstance(datasets, Table) or isinstance(datasets, Row):
             dataset_kwd = self.get_dataset_kwd()
             if not dataset_kwd:
-                log.warning(f'Dataset keyword not found for mission {self.mission}. '
-                            'Please input dataset IDs as a string, list of strings, or `~astropy.table.Column`.')
-                return None
+                error_msg = (f'Dataset keyword not found for mission "{self.mission}". '
+                             'Please input dataset IDs as a string, list of strings, or `~astropy.table.Column`.')
+                raise InvalidQueryError(error_msg)
 
         # Extract dataset IDs based on input type and mission
         if isinstance(datasets, Table):

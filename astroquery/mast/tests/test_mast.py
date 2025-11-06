@@ -331,6 +331,11 @@ def test_missions_get_product_list_async(patch_post):
         mast.MastMissions.get_product_list_async([' '])
     assert 'Dataset list is empty' in str(err_empty.value)
 
+    # No dataset keyword
+    with pytest.raises(InvalidQueryError, match='Dataset keyword not found for mission "invalid"'):
+        missions = mast.MastMissions(mission='invalid')
+        missions.get_product_list_async(Table({'a': [1, 2, 3]}))
+
 
 def test_missions_get_product_list(patch_post):
     # String input
