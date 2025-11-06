@@ -305,21 +305,21 @@ def test_missions_query_criteria(patch_post):
 def test_missions_get_product_list_async(patch_post):
     # String input
     result = mast.MastMissions.get_product_list_async('Z14Z0104T')
-    assert isinstance(result, MockResponse)
+    assert isinstance(result, list)
 
     # List input
     in_datasets = ['Z14Z0104T', 'Z14Z0102T']
     result = mast.MastMissions.get_product_list_async(in_datasets)
-    assert isinstance(result, MockResponse)
+    assert isinstance(result, list)
 
     # Row input
     datasets = mast.MastMissions.query_object("M101", radius=".002 deg")
     result = mast.MastMissions.get_product_list_async(datasets[:3])
-    assert isinstance(result, MockResponse)
+    assert isinstance(result, list)
 
     # Table input
     result = mast.MastMissions.get_product_list_async(datasets[0])
-    assert isinstance(result, MockResponse)
+    assert isinstance(result, list)
 
     # Unsupported data type for datasets
     with pytest.raises(TypeError) as err_type:
@@ -824,6 +824,10 @@ def test_observations_get_product_list(patch_post):
     in_obsids = ['83229830', '1829332', '26074149', '24556715']
     result = mast.Observations.get_product_list(in_obsids)
     assert isinstance(result, Table)
+
+    # Error if no valid obsids are found
+    with pytest.raises(InvalidQueryError, match='Observation list is empty'):
+        mast.Observations.get_product_list([' '])
 
 
 def test_observations_filter_products(patch_post):
