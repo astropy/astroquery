@@ -1247,20 +1247,23 @@ class TapPlus(Tap):
             print(f"USER response = {user}")
         return user.startswith(f"{user_id}:") and user.count("\\n") == 0
 
-    def get_datalinks(self, ids, *, linking_parameter=None, verbose=False):
+    def get_datalinks(self, ids, *, linking_parameter=None, extra_options=None, verbose=False):
         """Gets datalinks associated to the provided identifiers
 
         Parameters
         ----------
         ids : str list, mandatory
-            list of identifiers
+            List of identifiers
         linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID, TRANSIT_ID, IMAGE_ID
             By default, all the identifiers are considered as source_id
             SOURCE_ID: the identifiers are considered as source_id
             TRANSIT_ID: the identifiers are considered as transit_id
             IMAGE_ID: the identifiers are considered as sif_observation_id
+        extra_options : str, optional, default None, valid values: METADATA
+            If present, an extra parameter OPTIONS will be added to the call, to be interpreted by the TAP service
+            METADATA: to retrieve extra metadata columns (currently supported by the Euclid archive)
         verbose : bool, optional, default 'False'
-            flag to display information about the process
+            Flag to display information about the process
 
         Returns
         -------
@@ -1282,15 +1285,17 @@ class TapPlus(Tap):
         if linking_parameter is not None:
             ids_arg = f'{ids_arg}&LINKING_PARAMETER={linking_parameter}'
 
+        if extra_options is not None:
+            ids_arg = f'{ids_arg}&OPTIONS={extra_options}'
+
         if verbose:
-            print(f"Datalink request: {ids_arg}")
-        connHandler = self.__getconnhandler()
-        response = connHandler.execute_datalinkpost(subcontext="links",
-                                                    data=ids_arg,
-                                                    verbose=verbose)
+            print(f"Datalink request: ID={ids_arg}")
+
+        conn_handler = self.__getconnhandler()
+        response = conn_handler.execute_datalinkpost(subcontext="links", data=ids_arg, verbose=verbose)
         if verbose:
             print(response.status, response.reason)
-        connHandler.check_launch_response_status(response, verbose, 200)
+        conn_handler.check_launch_response_status(response, verbose, 200)
         if verbose:
             print("Done.")
         results = utils.read_http_response(response, "votable", use_names_over_ids=self.use_names_over_ids)
