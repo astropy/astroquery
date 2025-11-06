@@ -315,7 +315,6 @@ class CDMSClass(BaseQuery):
             result['ELO'].unit = u.cm**(-1)
         except ValueError as ex:
             # Give users a more helpful exception when parsing fails
-            original_message = str(ex)
             new_message = ("Failed to parse CDMS response.  This may be caused by a malformed search return. "
                   "You can check this by running `CDMS.get_molecule('<id>')` instead; if it works, the "
                   "problem is caused by the CDMS search interface and cannot be worked around.")
@@ -421,14 +420,33 @@ class CDMSClass(BaseQuery):
     def get_molecule(self, molecule_id, *, cache=True, return_response=False):
         """
         Retrieve the whole molecule table for a given molecule id
+
+        Parameters
+        ----------
+        molecule_id : str
+            The 6-digit molecule identifier as a string
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
+        return_response : bool, optional
+            If True, return the raw `requests.Response` object instead of parsing
+            the response.  If this is set, the response will be returned whether
+            or not it was successful.  Default is False.
         """
         if not isinstance(molecule_id, str) or len(molecule_id) != 6:
             raise ValueError("molecule_id should be a length-6 string of numbers")
         url = f'{self.CLASSIC_URL}/entries/c{molecule_id}.cat'
         response = self._request(method='GET', url=url,
                                  timeout=self.TIMEOUT, cache=cache)
+
         if return_response:
             return response
+
+        response.raise_for_status()
+
+        if 'Zero lines were found' in response.text:
+            raise EmptyResponseError(f"Response was empty; message was '{text}'.")
+
         result = self._parse_cat(response.text)
 
         species_table = self.get_species_table()
@@ -443,11 +461,6 @@ class CDMSClass(BaseQuery):
         See details in _parse_response; this is a very similar function,
         but the catalog responses have a slightly different format.
         """
-
-        if 'Zero lines were found' in text:
-            raise EmptyResponseError(f"Response was empty; message was '{text}'.")
-
-
         # notes about the format
         # [F13.4, 2F8.4, I2, F10.4, I3, I7, I4, 12I2]: FREQ, ERR, LGINT, DR, ELO, GUP, TAG, QNFMT, QN  noqa
         #      13 21 29  31     41  44  51  55  57 59 61 63 65 67  69 71 73 75 77 79                   noqa
@@ -516,7 +529,9 @@ CDMS = CDMSClass()
 
 def parse_letternumber(st):
     """
-    Parse CDMS's two-letter QNs
+    Parse CDMS's two-letter QNs into integers.
+
+    Masked values are converted to -999999.
 
     From the CDMS docs:
     "Exactly two characters are available for each quantum number. Therefore, half
