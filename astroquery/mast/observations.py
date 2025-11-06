@@ -537,7 +537,8 @@ class ObservationsClass(MastQueryWithLogin):
             observations = observations['obsid'].tolist()
 
         # Clean and validate
-        observations = [str(obs).strip() for obs in observations if str(obs).strip()]
+        observations = [str(obs).strip() for obs in observations]
+        observations = [obs for obs in observations if obs]
         if not observations:
             raise InvalidQueryError('Observation list is empty, no associated products.')
 
