@@ -33,18 +33,18 @@ each setting yields:
    ...                             min_strength=-500,
    ...                             molecule="028503 CO",
    ...                             get_query_payload=False)
-   >>> response.pprint(max_width=120)
-        FREQ     ERR    LGINT   DR   ELO    GUP MOLWT TAG QNFMT  Ju  Ku  vu F1u F2u F3u  Jl  Kl  vl F1l F2l F3l   name  Lab
-        MHz      MHz   nm2 MHz      1 / cm        u
-    ----------- ------ ------- --- -------- --- ----- --- ----- --- --- --- --- --- --- --- --- --- --- --- --- ------- ----
-    115271.2018 0.0005 -5.0105   2      0.0   3    28 503   101   1  --  --  --  --  --   0  --  --  --  --  -- CO, v=0 True
-       230538.0 0.0005 -4.1197   2    3.845   5    28 503   101   2  --  --  --  --  --   1  --  --  --  --  -- CO, v=0 True
-    345795.9899 0.0005 -3.6118   2   11.535   7    28 503   101   3  --  --  --  --  --   2  --  --  --  --  -- CO, v=0 True
-    461040.7682 0.0005 -3.2657   2  23.0695   9    28 503   101   4  --  --  --  --  --   3  --  --  --  --  -- CO, v=0 True
-    576267.9305 0.0005 -3.0118   2  38.4481  11    28 503   101   5  --  --  --  --  --   4  --  --  --  --  -- CO, v=0 True
-    691473.0763 0.0005 -2.8193   2  57.6704  13    28 503   101   6  --  --  --  --  --   5  --  --  --  --  -- CO, v=0 True
-     806651.806  0.005 -2.6716   2  80.7354  15    28 503   101   7  --  --  --  --  --   6  --  --  --  --  -- CO, v=0 True
-       921799.7  0.005  -2.559   2 107.6424  17    28 503   101   8  --  --  --  --  --   7  --  --  --  --  -- CO, v=0 True
+   >>> response.pprint(max_width=150)
+         FREQ     ERR    LGINT   DR   ELO    GUP  TAG   QNFMT  Ju  Ku  vu F1u F2u F3u  Jl  Kl  vl F1l F2l F3l   name  MOLWT Lab
+         MHz      MHz   nm2 MHz      1 / cm                                                                             u
+      ----------- ------ ------- --- -------- --- ------ ----- --- --- --- --- --- --- --- --- --- --- --- --- ------- ----- ----
+      115271.2018 0.0005 -5.0105   2      0.0   3 -28503   101   1  --  --  --  --  --   0  --  --  --  --  -- CO, v=0    28 True
+         230538.0 0.0005 -4.1197   2    3.845   5 -28503   101   2  --  --  --  --  --   1  --  --  --  --  -- CO, v=0    28 True
+      345795.9899 0.0005 -3.6118   2   11.535   7 -28503   101   3  --  --  --  --  --   2  --  --  --  --  -- CO, v=0    28 True
+      461040.7682 0.0005 -3.2657   2  23.0695   9 -28503   101   4  --  --  --  --  --   3  --  --  --  --  -- CO, v=0    28 True
+      576267.9305 0.0005 -3.0118   2  38.4481  11 -28503   101   5  --  --  --  --  --   4  --  --  --  --  -- CO, v=0    28 True
+      691473.0763 0.0005 -2.8193   2  57.6704  13 -28503   101   6  --  --  --  --  --   5  --  --  --  --  -- CO, v=0    28 True
+      806651.806  0.005 -2.6716   2  80.7354  15 -28503   101   7  --  --  --  --  --   6  --  --  --  --  -- CO, v=0    28 True
+         921799.7  0.005  -2.559   2 107.6424  17 -28503   101   8  --  --  --  --  --   7  --  --  --  --  -- CO, v=0    28 True
 
 
 
@@ -71,32 +71,32 @@ The units of the columns of the query can be displayed by calling
    ...                             molecule="028503 CO",
    ...                             get_query_payload=False)
    >>> print(response.info)
-   <Table length=8>
-    name  dtype    unit     class     n_bad
-   ----- ------- ------- ------------ -----
-    FREQ float64     MHz       Column     0
-     ERR float64     MHz       Column     0
-   LGINT float64 nm2 MHz       Column     0
-      DR   int64               Column     0
-     ELO float64  1 / cm       Column     0
-     GUP   int64               Column     0
-   MOLWT   int64       u       Column     0
-     TAG   int64               Column     0
-   QNFMT   int64               Column     0
-      Ju   int64               Column     0
-      Ku   int64         MaskedColumn     8
-      vu   int64         MaskedColumn     8
-     F1u   int64         MaskedColumn     8
-     F2u   int64         MaskedColumn     8
-     F3u   int64         MaskedColumn     8
-      Jl   int64               Column     0
-      Kl   int64         MaskedColumn     8
-      vl   int64         MaskedColumn     8
-     F1l   int64         MaskedColumn     8
-     F2l   int64         MaskedColumn     8
-     F3l   int64         MaskedColumn     8
-    name    str7               Column     0
-     Lab    bool               Column     0
+      <Table length=8>
+      name  dtype    unit     class     n_bad
+      ----- ------- ------- ------------ -----
+      FREQ float64     MHz       Column     0
+      ERR float64     MHz       Column     0
+      LGINT float64 nm2 MHz       Column     0
+         DR   int64               Column     0
+      ELO float64  1 / cm       Column     0
+      GUP   int64               Column     0
+      TAG   int64               Column     0
+      QNFMT   int64               Column     0
+         Ju   int64               Column     0
+         Ku   int64         MaskedColumn     8
+         vu   int64         MaskedColumn     8
+      F1u   int64         MaskedColumn     8
+      F2u   int64         MaskedColumn     8
+      F3u   int64         MaskedColumn     8
+         Jl   int64               Column     0
+         Kl   int64         MaskedColumn     8
+         vl   int64         MaskedColumn     8
+      F1l   int64         MaskedColumn     8
+      F2l   int64         MaskedColumn     8
+      F3l   int64         MaskedColumn     8
+      name    str7               Column     0
+      MOLWT   int64       u       Column     0
+      Lab    bool               Column     0
 
 These come in handy for converting to other units easily, an example using a
 simplified version of the data above is shown below:
@@ -141,7 +141,7 @@ laboratory but not in space
    >>> result = CDMS.get_species_table()
    >>> mol = result[result['tag'] == 28503]
    >>> mol.pprint(max_width=160)
-    tag  molecule    Name   #lines lg(Q(1000)) lg(Q(500)) lg(Q(300)) ... lg(Q(9.375)) lg(Q(5.000)) lg(Q(2.725)) Ver. Documentation Date of entry    Entry   
+    tag  molecule    Name   #lines lg(Q(1000)) lg(Q(500)) lg(Q(300)) ... lg(Q(9.375)) lg(Q(5.000)) lg(Q(2.725)) Ver. Documentation Date of entry    Entry
    ----- -------- --------- ------ ----------- ---------- ---------- ... ------------ ------------ ------------ ---- ------------- ------------- -----------
    28503  CO, v=0 CO, v = 0     95      2.5595     2.2584     2.0369 ...       0.5733       0.3389       0.1478    1   e028503.cat     Oct. 2000 w028503.cat
 
@@ -316,7 +316,7 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
     >>> from astroquery.linelists.cdms import CDMS
     >>> CDMS.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
 
