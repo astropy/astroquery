@@ -13,6 +13,7 @@ from astroquery.utils import async_to_sync
 from astroquery.linelists.cdms import conf
 from astroquery.exceptions import InvalidQueryError, EmptyResponseError
 from astroquery import log
+from ..core import LineListClass
 
 import re
 import string
@@ -26,7 +27,7 @@ def data_path(filename):
 
 
 @async_to_sync
-class CDMSClass(BaseQuery):
+class CDMSClass(BaseQuery, LineListClass):
     # use the Configuration Items imported from __init__.py
     URL = conf.search
     SERVER = conf.server
@@ -461,67 +462,8 @@ class CDMSClass(BaseQuery):
         See details in _parse_response; this is a very similar function,
         but the catalog responses have a slightly different format.
         """
-        # notes about the format
-        # [F13.4, 2F8.4, I2, F10.4, I3, I7, I4, 12I2]: FREQ, ERR, LGINT, DR, ELO, GUP, TAG, QNFMT, QN  noqa
-        #      13 21 29  31     41  44  51  55  57 59 61 63 65 67  69 71 73 75 77 79                   noqa
-        starts = {'FREQ': 0,
-                  'ERR': 14,
-                  'LGINT': 22,
-                  'DR': 30,
-                  'ELO': 32,
-                  'GUP': 42,
-                  'TAG': 44,
-                  'QNFMT': 51,
-                  'Q1': 55,
-                  'Q2': 57,
-                  'Q3': 59,
-                  'Q4': 61,
-                  'Q5': 63,
-                  'Q6': 65,
-                  'Q7': 67,
-                  'Q8': 69,
-                  'Q9': 71,
-                  'Q10': 73,
-                  'Q11': 75,
-                  'Q12': 77,
-                  'Q13': 79,
-                  'Q14': 81,
-                  }
-
-        result = ascii.read(text, header_start=None, data_start=0,
-                            comment=r'THIS|^\s{12,14}\d{4,6}.*',
-                            names=list(starts.keys()),
-                            col_starts=list(starts.values()),
-                            format='fixed_width', fast_reader=False)
-
-        # int truncates - which is what we want
-        result['MOLWT'] = [int(x/1e3) for x in result['TAG']]
-
-        result['FREQ'].unit = u.MHz
-        result['ERR'].unit = u.MHz
-
-        result['Lab'] = result['MOLWT'] < 0
-        result['MOLWT'] = np.abs(result['MOLWT'])
-        result['MOLWT'].unit = u.Da
-
-        fix_keys = ['GUP']
-        for qn in (f'Q{ii}' for ii in range(1, 15)):
-            fix_keys.append(qn)
-        log.debug(f"fix_keys: {fix_keys} should include Q1, Q2, ..., Q14 and GUP")
-        for key in fix_keys:
-            if not np.issubdtype(result[key].dtype, np.integer):
-                intcol = np.array(list(map(parse_letternumber, result[key])),
-                                  dtype=int)
-                if any(intcol == -999999):
-                    intcol = np.ma.masked_where(intcol == -999999, intcol)
-                result[key] = intcol
-                if not np.issubdtype(result[key].dtype, np.integer):
-                    raise ValueError(f"Failed to parse {key} as integer")
-
-        result['LGINT'].unit = u.nm**2 * u.MHz
-        result['ELO'].unit = u.cm**(-1)
-
-        return result
+        # Use the base class method for CDMS format parsing
+        return self._parse_cat_cdms_format(text, verbose=verbose)
 
 
 CDMS = CDMSClass()

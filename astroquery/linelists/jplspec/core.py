@@ -10,6 +10,7 @@ from ...utils import async_to_sync
 from . import conf
 from . import lookup_table
 from astroquery.exceptions import EmptyResponseError, InvalidQueryError
+from ..core import LineListClass
 
 
 __all__ = ['JPLSpec', 'JPLSpecClass']
@@ -21,7 +22,7 @@ def data_path(filename):
 
 
 @async_to_sync
-class JPLSpecClass(BaseQuery):
+class JPLSpecClass(BaseQuery, LineListClass):
 
     # use the Configuration Items imported from __init__.py
     URL = conf.server
@@ -308,33 +309,8 @@ class JPLSpecClass(BaseQuery):
         Table : `~astropy.table.Table`
             Parsed catalog data.
         """
-        if 'Zero lines were found' in response.text or len(response.text.strip()) == 0:
-            raise EmptyResponseError(f"Response was empty; message was '{response.text}'.")
-
-        text = response.text
-
-        # Parse the catalog file with fixed-width format
-        # Format: FREQ(13.4), ERR(8.4), LGINT(8.4), DR(2), ELO(10.4), GUP(3), TAG(7), QNFMT(4), QN'(12), QN"(12)
-        result = ascii.read(text, header_start=None, data_start=0,
-                            comment=r'THIS|^\s{12,14}\d{4,6}.*',
-                            names=('FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
-                                   'TAG', 'QNFMT', 'QN\'', 'QN"'),
-                            col_starts=(0, 13, 21, 29, 31, 41, 44, 51, 55, 67),
-                            format='fixed_width', fast_reader=False)
-
-        # Add units
-        result['FREQ'].unit = u.MHz
-        result['ERR'].unit = u.MHz
-        result['LGINT'].unit = u.nm**2 * u.MHz
-        result['ELO'].unit = u.cm**(-1)
-
-        # Add laboratory measurement flag
-        # A negative TAG value indicates laboratory-measured frequency
-        result['Lab'] = result['TAG'] < 0
-        # Convert TAG to absolute value
-        result['TAG'] = abs(result['TAG'])
-
-        return result
+        # Use the base class method for JPL format parsing
+        return self._parse_cat_jpl_format(response.text, verbose=verbose)
 
 
 JPLSpec = JPLSpecClass()
