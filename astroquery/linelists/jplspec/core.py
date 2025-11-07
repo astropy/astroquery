@@ -234,6 +234,108 @@ class JPLSpecClass(BaseQuery):
 
         return result
 
+    def get_molecule(self, molecule_id, *, cache=True):
+        """
+        Retrieve the whole molecule table for a given molecule id from the JPL catalog.
+
+        Parameters
+        ----------
+        molecule_id : int or str
+            The molecule tag/identifier. Can be an integer (e.g., 18003 for H2O)
+            or a zero-padded 6-character string (e.g., '018003').
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+
+        Returns
+        -------
+        Table : `~astropy.table.Table`
+            Table containing all spectral lines for the requested molecule.
+
+        Examples
+        --------
+        >>> table = JPLSpec.get_molecule(18003)  # doctest: +SKIP
+        >>> print(table)  # doctest: +SKIP
+        """
+        # Convert to string and zero-pad to 6 digits
+        if isinstance(molecule_id, int):
+            molecule_str = f'{molecule_id:06d}'
+        elif isinstance(molecule_id, str):
+            if len(molecule_id) != 6 or not molecule_id.isdigit():
+                raise ValueError("molecule_id should be an integer or a length-6 string of numbers")
+            molecule_str = molecule_id
+        else:
+            raise ValueError("molecule_id should be an integer or a length-6 string of numbers")
+
+        # Construct the URL to the catalog file
+        url = f'https://spec.jpl.nasa.gov/ftp/pub/catalog/c{molecule_str}.cat'
+        
+        # Request the catalog file
+        response = self._request(method='GET', url=url,
+                                 timeout=self.TIMEOUT, cache=cache)
+        
+        # Parse the catalog file
+        result = self._parse_cat(response)
+        
+        # Add metadata from species table
+        species_table = self.get_species_table()
+        # Find the row matching this molecule_id
+        int_molecule_id = int(molecule_str)
+        matching_rows = species_table[species_table['TAG'] == int_molecule_id]
+        if len(matching_rows) > 0:
+            # Add metadata as a dictionary
+            result.meta = dict(zip(matching_rows.colnames, matching_rows[0]))
+        
+        return result
+
+    def _parse_cat(self, response, *, verbose=False):
+        """
+        Parse a catalog file response into an `~astropy.table.Table`.
+
+        The catalog data files are composed of 80-character card images, with
+        one card image per spectral line.  The format of each card image is:
+        FREQ, ERR, LGINT, DR,  ELO, GUP, TAG, QNFMT,  QN',  QN"
+        (F13.4,F8.4, F8.4,  I2,F10.4,  I3,  I7,    I4,  6I2,  6I2)
+
+        Parameters
+        ----------
+        response : `requests.Response`
+            The HTTP response from the catalog file request.
+        verbose : bool, optional
+            Not used currently.
+
+        Returns
+        -------
+        Table : `~astropy.table.Table`
+            Parsed catalog data.
+        """
+        if 'Zero lines were found' in response.text or len(response.text.strip()) == 0:
+            raise EmptyResponseError(f"Response was empty; message was '{response.text}'.")
+
+        text = response.text
+
+        # Parse the catalog file with fixed-width format
+        # Format: FREQ(13.4), ERR(8.4), LGINT(8.4), DR(2), ELO(10.4), GUP(3), TAG(7), QNFMT(4), QN'(12), QN"(12)
+        result = ascii.read(text, header_start=None, data_start=0,
+                            comment=r'THIS|^\s{12,14}\d{4,6}.*',
+                            names=('FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
+                                   'TAG', 'QNFMT', 'QN\'', 'QN"'),
+                            col_starts=(0, 13, 21, 29, 31, 41, 44, 51, 55, 67),
+                            format='fixed_width', fast_reader=False)
+
+        # Add units
+        result['FREQ'].unit = u.MHz
+        result['ERR'].unit = u.MHz
+        result['LGINT'].unit = u.nm**2 * u.MHz
+        result['ELO'].unit = u.cm**(-1)
+
+        # Add laboratory measurement flag
+        # A negative TAG value indicates laboratory-measured frequency
+        result['Lab'] = result['TAG'] < 0
+        # Convert TAG to absolute value
+        result['TAG'] = abs(result['TAG'])
+
+        return result
+
 
 JPLSpec = JPLSpecClass()
 

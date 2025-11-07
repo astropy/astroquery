@@ -39,3 +39,68 @@ def test_remote_regex():
     assert tbl['LGINT'][0] == -3.0118
     assert tbl['ERR'][7] == 8.3063
     assert tbl['FREQ'][15] == 946175.3151
+
+
+@pytest.mark.remote_data
+def test_get_molecule_remote():
+    """Test get_molecule with remote data retrieval."""
+    # Test with H2O
+    tbl = JPLSpec.get_molecule(18003)
+    
+    assert isinstance(tbl, Table)
+    assert len(tbl) > 0
+    
+    # Check expected columns including Lab flag
+    expected_cols = {'FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
+                     'TAG', 'QNFMT', 'QN\'', 'QN"', 'Lab'}
+    assert set(tbl.keys()) == expected_cols
+    
+    # Check units
+    assert tbl['FREQ'].unit == u.MHz
+    assert tbl['ERR'].unit == u.MHz
+    assert tbl['LGINT'].unit == u.nm**2 * u.MHz
+    assert tbl['ELO'].unit == u.cm**(-1)
+    
+    # Check metadata was attached
+    assert 'NAME' in tbl.meta
+    assert tbl.meta['NAME'].strip() == 'H2O'
+    assert 'TAG' in tbl.meta
+    assert tbl.meta['TAG'] == 18003
+    
+    # Check Lab flag
+    assert 'Lab' in tbl.colnames
+    assert tbl['Lab'].dtype == bool
+    
+    # H2O should have some lab measurements
+    assert sum(tbl['Lab']) > 0
+
+
+@pytest.mark.remote_data
+def test_get_molecule_string_id():
+    """Test get_molecule with string ID format."""
+    # Test with CO using string ID
+    tbl = JPLSpec.get_molecule('028001')
+    
+    assert isinstance(tbl, Table)
+    assert len(tbl) > 0
+    assert 'NAME' in tbl.meta
+    assert 'CO' in tbl.meta['NAME']
+
+
+@pytest.mark.remote_data
+def test_get_molecule_various():
+    """Test get_molecule with various molecules."""
+    test_molecules = [
+        (28001, 'CO'),      # Simple diatomic
+        (32003, 'CH3OH'),   # Complex organic
+    ]
+    
+    for mol_id, expected_name in test_molecules:
+        tbl = JPLSpec.get_molecule(mol_id)
+        assert isinstance(tbl, Table)
+        assert len(tbl) > 0
+        assert 'NAME' in tbl.meta
+        assert expected_name in tbl.meta['NAME']
+        
+        # Verify TAG values are positive
+        assert all(tbl['TAG'] > 0)

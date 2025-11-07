@@ -118,3 +118,46 @@ def test_query_multi():
     assert tbl['TAG'][0] == -18003
     assert tbl['TAG'][38] == -19002
     assert tbl['TAG'][207] == 21001
+
+
+def test_parse_cat():
+    """Test parsing of catalog files with _parse_cat method."""
+    
+    response = MockResponseSpec('H2O_sample.cat')
+    tbl = JPLSpec._parse_cat(response)
+    
+    # Check table structure
+    assert isinstance(tbl, Table)
+    assert len(tbl) > 0
+    assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
+                                   'TAG', 'QNFMT', 'QN\'', 'QN"', 'Lab'])
+    
+    # Check units
+    assert tbl['FREQ'].unit == u.MHz
+    assert tbl['ERR'].unit == u.MHz
+    assert tbl['LGINT'].unit == u.nm**2 * u.MHz
+    assert tbl['ELO'].unit == u.cm**(-1)
+    
+    # Check Lab flag exists and is boolean
+    assert 'Lab' in tbl.colnames
+    assert tbl['Lab'].dtype == bool
+    
+    # Check TAG values are positive (absolute values)
+    assert all(tbl['TAG'] > 0)
+
+
+def test_get_molecule_input_validation():
+    """Test input validation for get_molecule method."""
+    import pytest
+    
+    # Test invalid string format
+    with pytest.raises(ValueError):
+        JPLSpec.get_molecule('invalid')
+    
+    # Test invalid type
+    with pytest.raises(ValueError):
+        JPLSpec.get_molecule(12.34)
+    
+    # Test wrong length string
+    with pytest.raises(ValueError):
+        JPLSpec.get_molecule('123')
