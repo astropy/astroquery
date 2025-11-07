@@ -4,8 +4,8 @@ import warnings
 
 import astropy.units as u
 from astropy.io import ascii
-from ..query import BaseQuery
-from ..utils import async_to_sync
+from ...query import BaseQuery
+from ...utils import async_to_sync
 # import configurable items declared in __init__.py
 from . import conf
 from . import lookup_table
