@@ -11,5 +11,6 @@ def get_package_data():
                   os.path.join('data', 'multi.data')]
     paths_data = [os.path.join('data', 'catdir.cat')]
 
-    return {'astroquery.jplspec.tests': paths_test,
-            'astroquery.jplspec': paths_data, }
+    return {'astroquery.linelists.jplspec.tests': paths_test,
+            'astroquery.linelists.jplspec': paths_data, }
+

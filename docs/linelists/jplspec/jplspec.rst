@@ -1,8 +1,8 @@
-.. _astroquery.jplspec:
+.. _astroquery.linelists.jplspec:
 
-*********************************************
-JPL Spectroscopy Queries (astroquery.jplspec)
-*********************************************
+*******************************************************
+JPL Spectroscopy Queries (astroquery.linelists.jplspec)
+*******************************************************
 
 Getting Started
 ===============
@@ -26,7 +26,7 @@ what each setting yields:
 
 .. doctest-remote-data::
 
-   >>> from astroquery.jplspec import JPLSpec
+   >>> from astroquery.linelists.jplspec import JPLSpec
    >>> import astropy.units as u
    >>> response = JPLSpec.query_lines(min_frequency=100 * u.GHz,
    ...                                max_frequency=1000 * u.GHz,
@@ -120,7 +120,7 @@ the line frequency has been measured in the laboratory
 .. doctest-remote-data::
 
    >>> import matplotlib.pyplot as plt
-   >>> from astroquery.jplspec import JPLSpec
+   >>> from astroquery.linelists.jplspec import JPLSpec
    >>> result = JPLSpec.get_species_table()
    >>> mol = result[result['TAG'] == 28001] #do not include signs of TAG for this
    >>> print(mol)
@@ -210,7 +210,7 @@ to query these directly.
 
 .. doctest-remote-data::
 
-   >>> from astroquery.jplspec import JPLSpec
+   >>> from astroquery.linelists.jplspec import JPLSpec
    >>> import astropy.units as u
    >>> result = JPLSpec.query_lines(min_frequency=100 * u.GHz,
    ...                              max_frequency=1000 * u.GHz,
@@ -314,7 +314,7 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
 
 .. code-block:: python
 
-    >>> from astroquery.jplspec import JPLSpec
+    >>> from astroquery.linelists.jplspec import JPLSpec
     >>> JPLSpec.clear_cache()
 
 If this function is unavailable, upgrade your version of astroquery. 
@@ -324,5 +324,5 @@ The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 Reference/API
 =============
 
-.. automodapi:: astroquery.jplspec
+.. automodapi:: astroquery.linelists.jplspec
     :no-inheritance-diagram:
