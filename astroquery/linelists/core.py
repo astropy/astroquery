@@ -163,10 +163,11 @@ class LineListClass:
                     qn_col = f'QN\'{ii+1}'
                     # string parsing can truncate to length=2n or 2n-1 depending
                     # on whether there are any two-digit QNs in the column
-                    ind1 = max(0, qnlen - (ii + 1) * 2)
-                    ind2 = qnlen - ii * 2
-                    qnp = [int_or_pm(line[ind1: ind2].strip()) for line in tbl['QN\'']]
-                    qnpp = [int_or_pm(line[ind1: ind2].strip()) for line in tbl['QN"']]
+                    ind1 = ii * 2
+                    ind2 = ii * 2 + 2
+                    # rjust(qnlen) is needed to enforce that all strings retain their exact original shape
+                    qnp = [int_or_pm(line.rjust(qnlen)[ind1: ind2].strip()) for line in tbl['QN\'']]
+                    qnpp = [int_or_pm(line.rjust(qnlen)[ind1: ind2].strip()) for line in tbl['QN"']]
                     dtype = str if any('+' in str(x) for x in qnp) else int
                     tbl[f"QN'{ii+1}"] = np.array(qnp, dtype=dtype)
                     tbl[f'QN"{ii+1}'] = np.array(qnpp, dtype=dtype)

@@ -185,3 +185,19 @@ def test_get_molecule_qn4():
     for ii in range(1, 5):
         assert f'QN"{ii}' in tbl.colnames
         assert f"QN'{ii}" in tbl.colnames
+
+@pytest.mark.bigdata
+@pytest.mark.remote_data
+class TestRegressionAllMolecules:
+    """Test that we can get each molecule in JPL database"""
+    species_table = JPLSpec.get_species_table()
+
+    @pytest.mark.parametrize('row', species_table)
+    def test_regression_all_molecules(self, row):
+        """
+        Expensive test - try all the molecules
+        """
+        mol_id = row['TAG']
+        tbl = JPLSpec.get_molecule(mol_id)
+        assert isinstance(tbl, Table)
+        assert len(tbl) > 0
