@@ -118,7 +118,6 @@ class JPLSpecClass(BaseQuery, LineListClass):
 
         if molecule is not None:
             if parse_name_locally:
-                self.lookup_ids = build_lookup()
                 payload['Mol'] = tuple(self.lookup_ids.find(molecule, flags).values())
                 if len(molecule) == 0:
                     raise InvalidQueryError('No matching species found. Please '
@@ -174,8 +173,13 @@ class JPLSpecClass(BaseQuery, LineListClass):
 
         if 'Zero lines were found' in response.text:
             if self.fallback_to_getmolecule:
+                self.lookup_ids = build_lookup()
                 payload = parse_qs(response.request.body)
                 tbs = [self.get_molecule(mol) for mol in payload['Mol']]
+                for tb, mol in zip(tbs, payload['Mol']):
+                    tb['Name'] = self.lookup_ids.find(mol, flags=0)
+                    for key in tb.meta:
+                        tb.meta[f'{mol}_{key}'] = tb.meta.pop(key)
                 tb = table.vstack(tbs)
                 return tb
             else:

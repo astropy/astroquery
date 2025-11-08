@@ -8,6 +8,7 @@ import astropy.units as u
 from astropy.io import ascii
 from astroquery.exceptions import EmptyResponseError
 from astroquery import log
+from astropy import table
 
 
 __all__ = ['LineListClass', 'parse_letternumber']
@@ -135,13 +136,33 @@ class LineListClass:
 
         # parse QNs
         n_qns = result['QNFMT'] % 10
-        assert len(set(n_qns)) == 1, "All QNFMT values should have the same number of QNs"
-        n_qns = n_qns[0]
-        for ii in range(n_qns):
-            qn_col = f'QN{ii+1}'
-            result[qn_col] = np.array(
-                [int(line[8 - (ii + 1) * 2: 8 - ii * 2].strip()) for line in result['QN\'']],
-                dtype=int)
+        tables = [result[result['QNFMT'] % 10 == qq] for qq in set(n_qns)]
+
+        for tbl in tables:
+            n_qns = tbl['QNFMT'][0] % 10
+            if n_qns > 1:
+                qnlen = int(str(tbl['QN\''].dtype)[-1])
+                for ii in range(n_qns):
+                    qn_col = f'QN\'{ii+1}'
+                    # string parsing can truncate to length=2n or 2n-1 depending
+                    # on whether there are any two-digit QNs in the column
+                    ind1 = max(0, qnlen - (ii + 1) * 2)
+                    ind2 = qnlen - ii * 2
+                    tbl[qn_col] = np.array(
+                        [int(line[ind1: ind2].strip()) for line in tbl['QN\'']],
+                        dtype=int)
+                    qn_col = f'QN"{ii+1}'
+                    tbl[qn_col] = np.array(
+                        [int(line[ind1: ind2].strip()) for line in tbl['QN"']],
+                        dtype=int)
+                del tbl['QN\'']
+                del tbl['QN"']
+            else:
+                tbl['QN\''] = np.array(tbl['QN\''], dtype=int)
+                tbl['QN"'] = np.array(tbl['QN"'], dtype=int)
+        
+        result = table.vstack(tables)
+
 
         # Add laboratory measurement flag
         # A negative TAG value indicates laboratory-measured frequency

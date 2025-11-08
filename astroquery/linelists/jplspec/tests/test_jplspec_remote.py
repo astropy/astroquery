@@ -37,7 +37,10 @@ def test_remote_fallback():
     tbl = tbl[((tbl['FREQ'].quantity > 500*u.GHz) & (tbl['FREQ'].quantity < 1*u.THz))]
     assert len(tbl) == 36
     assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
-                                   'TAG', 'QNFMT', 'QN\'', 'QN"', 'Lab'])
+                                   'TAG', 'QNFMT', 'Lab', 'Name',
+                                   'QN"1', 'QN"2', 'QN"3', 'QN"4',
+                                   "QN'1", "QN'2", "QN'3", "QN'4"
+                                   ])
 
     assert tbl['FREQ'][0] == 503568.5200
     assert tbl['ERR'][0] == 0.0200
@@ -48,6 +51,10 @@ def test_remote_fallback():
 
 @pytest.mark.remote_data
 def test_remote_regex_fallback():
+    """
+    CO, H13CN, HC15N
+    Some of these have different combinations of QNs
+    """
     JPLSpec.fallback_to_getmolecule = True
     tbl = JPLSpec.query_lines(min_frequency=500 * u.GHz,
                               max_frequency=1000 * u.GHz,
@@ -56,8 +63,12 @@ def test_remote_regex_fallback():
     assert isinstance(tbl, Table)
     tbl = tbl[((tbl['FREQ'].quantity > 500*u.GHz) & (tbl['FREQ'].quantity < 1*u.THz))]
     assert len(tbl) == 16
+    # there are more QN formats than the original query had
     assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
-                                   'TAG', 'QNFMT', 'QN\'', 'QN"', 'Lab'])
+                                   'TAG', 'QNFMT', 'QN\'', 'QN"', 'Lab',
+                                   'QN"1', 'QN"2', "QN'", "QN'1", "QN'2",
+                                   'Name'
+                                   ])
 
     assert tbl['FREQ'][0] == 576267.9305
     assert tbl['ERR'][0] == .0005
@@ -77,7 +88,8 @@ def test_remote_regex():
     assert isinstance(tbl, Table)
     assert len(tbl) == 16
     assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
-                                   'TAG', 'QNFMT', 'QN\'', 'QN"'])
+                                   'TAG', 'QNFMT', 'QN\'', 'QN"',
+                                   ])
 
     assert tbl['FREQ'][0] == 576267.9305
     assert tbl['ERR'][0] == .0005
