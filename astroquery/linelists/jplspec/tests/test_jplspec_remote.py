@@ -159,7 +159,9 @@ def test_get_molecule_various():
         (28001, 'CO'),      # Simple diatomic
         (32003, 'CH3OH'),   # Complex organic
         (13002, 'CH'),      # another simple molecule w/5 QNs
-        (14004, 'CD'),
+        (14004, 'CD'),      # no 2-digit QNs in first col
+        (15001, 'NH'),      # incorrect QNFMT, says there are 5 QNs, only 4
+        (18004, 'NH2D'),    # ?
     ]
     
     for mol_id, expected_name in test_molecules:
