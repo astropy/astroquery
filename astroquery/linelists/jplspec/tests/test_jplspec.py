@@ -130,7 +130,10 @@ def test_parse_cat():
     assert isinstance(tbl, Table)
     assert len(tbl) > 0
     assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
-                                   'TAG', 'QNFMT', 'QN\'', 'QN"', 'Lab'])
+                                   'TAG', 'QNFMT', 'Lab',
+                                   'QN"1', 'QN"2', 'QN"3', 'QN"4',
+                                   "QN'1", "QN'2", "QN'3", "QN'4"
+                                   ])
     
     # Check units
     assert tbl['FREQ'].unit == u.MHz
