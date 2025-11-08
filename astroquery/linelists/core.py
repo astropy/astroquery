@@ -138,6 +138,23 @@ class LineListClass:
         n_qns = result['QNFMT'] % 10
         tables = [result[result['QNFMT'] % 10 == qq] for qq in set(n_qns)]
 
+        # some tables have +/-/blank entries in QNs
+        # pm_is_ok should be True when the QN columns contain '+' or '-'.
+        # (can't do a str check on np.integer dtype so have to filter that out first)
+        pm_is_ok = ((not np.issubdtype(result["QN'"].dtype, np.integer)) 
+                    and any(('+' in str(line) or '-' in str(line)) for line in result["QN'"]))
+        def int_or_pm(st):
+            try:
+                return int(st)
+            except ValueError:
+                try:
+                    return parse_letternumber(st)
+                except ValueError:
+                    if pm_is_ok and (st.strip() == '' or st.strip() == '+' or st.strip() == '-'):
+                        return st.strip()
+                    else:
+                        raise ValueError(f'"{st}" is not a valid +/-/blank entry')
+
         for tbl in tables:
             n_qns = tbl['QNFMT'][0] % 10
             if n_qns > 1:
@@ -148,13 +165,11 @@ class LineListClass:
                     # on whether there are any two-digit QNs in the column
                     ind1 = max(0, qnlen - (ii + 1) * 2)
                     ind2 = qnlen - ii * 2
-                    tbl[qn_col] = np.array(
-                        [int(line[ind1: ind2].strip()) for line in tbl['QN\'']],
-                        dtype=int)
-                    qn_col = f'QN"{ii+1}'
-                    tbl[qn_col] = np.array(
-                        [int(line[ind1: ind2].strip()) for line in tbl['QN"']],
-                        dtype=int)
+                    qnp = [int_or_pm(line[ind1: ind2].strip()) for line in tbl['QN\'']]
+                    qnpp = [int_or_pm(line[ind1: ind2].strip()) for line in tbl['QN"']]
+                    dtype = str if any('+' in str(x) for x in qnp) else int
+                    tbl[f"QN'{ii+1}"] = np.array(qnp, dtype=dtype)
+                    tbl[f'QN"{ii+1}'] = np.array(qnpp, dtype=dtype)
                 del tbl['QN\'']
                 del tbl['QN"']
             else:

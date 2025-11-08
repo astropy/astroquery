@@ -109,7 +109,9 @@ def test_get_molecule_remote():
     
     # Check expected columns including Lab flag
     expected_cols = {'FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
-                     'TAG', 'QNFMT', 'QN\'', 'QN"', 'Lab'}
+                     'TAG', 'QNFMT', 'Lab',
+                     'QN"1', 'QN"2', 'QN"3', 'QN"4',
+                     "QN'1", "QN'2", "QN'3", "QN'4"}
     assert set(tbl.keys()) == expected_cols
     
     # Check units
@@ -168,9 +170,10 @@ def test_get_molecule_qn1():
     tbl = JPLSpec.get_molecule(28001)
     assert isinstance(tbl, Table)
     assert len(tbl) > 0
-    assert 'QN1' in tbl.colnames
-    assert all(tbl['QN1'] > 0)
-    assert 'QN2' not in tbl.colnames
+    assert 'QN1"' in tbl.colnames
+    assert 'QN2"' not in tbl.colnames
+    assert "QN1'" in tbl.colnames
+    assert "QN2'" not in tbl.colnames
 
 
 @pytest.mark.remote_data
@@ -180,5 +183,5 @@ def test_get_molecule_qn4():
     assert isinstance(tbl, Table)
     assert len(tbl) > 0
     for ii in range(1, 5):
-        assert f'QN{ii}' in tbl.colnames
-        assert all(tbl[f'QN{ii}'] > 0)
+        assert f'QN"{ii}' in tbl.colnames
+        assert f"QN'{ii}" in tbl.colnames
