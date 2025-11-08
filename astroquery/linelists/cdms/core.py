@@ -39,7 +39,7 @@ class CDMSClass(BaseQuery, LineListClass):
                           min_strength=-500, molecule='All',
                           temperature_for_intensity=300, flags=0,
                           parse_name_locally=False, get_query_payload=False,
-                          cache=True):
+                          cache=True, fallback_to_getmolecule=False):
         """
         Creates an HTTP POST request based on the desired parameters and
         returns a response.
@@ -91,6 +91,10 @@ class CDMSClass(BaseQuery, LineListClass):
         cache : bool
             Defaults to True. If set overrides global caching behavior.
             See :ref:`caching documentation <astroquery_cache>`.
+
+        fallback_to_getmolecule : bool, optional
+            If specified, and if the molecule specified is in the list of
+            known malformatted molecules, return the get_molecule results instead.
 
         Returns
         -------
@@ -187,8 +191,11 @@ class CDMSClass(BaseQuery, LineListClass):
         badlist = (self.MALFORMATTED_MOLECULE_LIST +  # noqa
                    [y for x in self.MALFORMATTED_MOLECULE_LIST for y in x.split()])
         if 'Moleculesgrp' not in payload.keys() and payload['Molecules'] in badlist:
-            raise ValueError(f"Molecule {payload['Molecules']} is known not to comply with standard CDMS format.  "
-                             f"Try get_molecule({payload['Molecules']}) instead.")
+            if fallback_to_getmolecule:
+                return self.get_molecule(payload['Molecules'], cache=cache)
+            else:
+                raise ValueError(f"Molecule {payload['Molecules']} is known not to comply with standard CDMS format.  "
+                                 f"Try get_molecule({payload['Molecules']}) instead.")
 
         return response2
 

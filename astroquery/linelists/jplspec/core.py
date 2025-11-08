@@ -32,7 +32,9 @@ class JPLSpecClass(BaseQuery, LineListClass):
                           min_strength=-500,
                           max_lines=2000, molecule='All', flags=0,
                           parse_name_locally=False,
-                          get_query_payload=False, cache=True):
+                          get_query_payload=False, cache=True,
+                          fallback_to_getmolecule=True
+                          ):
         """
         Creates an HTTP POST request based on the desired parameters and
         returns a response.
@@ -127,6 +129,13 @@ class JPLSpecClass(BaseQuery, LineListClass):
         # built-in caching system
         response = self._request(method='POST', url=self.URL, data=payload,
                                  timeout=self.TIMEOUT, cache=cache)
+        response.raise_for_status()
+
+        if 'Zero lines were found for your search criteria' in response.text:
+            if fallback_to_getmolecule:
+                return self.get_molecule(payload['Mol'], cache=cache)
+            else:
+                raise ValueError(response.text)
 
         return response
 
