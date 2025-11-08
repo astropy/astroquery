@@ -11,6 +11,7 @@ from . import conf
 from . import lookup_table
 from astroquery.exceptions import EmptyResponseError, InvalidQueryError
 from ..core import LineListClass
+from urllib.parse import parse_qs
 
 
 __all__ = ['JPLSpec', 'JPLSpecClass']
@@ -21,6 +22,9 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
+dead_server_message = "The requested URL was not found on this server."
+
+
 @async_to_sync
 class JPLSpecClass(BaseQuery, LineListClass):
 
@@ -28,12 +32,15 @@ class JPLSpecClass(BaseQuery, LineListClass):
     URL = conf.server
     TIMEOUT = conf.timeout
 
+    def __init__(self, fallback_to_getmolecule=True):
+        super().__init__()
+        self.fallback_to_getmolecule = fallback_to_getmolecule
+
     def query_lines_async(self, min_frequency, max_frequency, *,
                           min_strength=-500,
                           max_lines=2000, molecule='All', flags=0,
                           parse_name_locally=False,
-                          get_query_payload=False, cache=True,
-                          fallback_to_getmolecule=True
+                          get_query_payload=False, cache=True
                           ):
         """
         Creates an HTTP POST request based on the desired parameters and
@@ -131,12 +138,6 @@ class JPLSpecClass(BaseQuery, LineListClass):
                                  timeout=self.TIMEOUT, cache=cache)
         response.raise_for_status()
 
-        if 'Zero lines were found for your search criteria' in response.text:
-            if fallback_to_getmolecule:
-                return self.get_molecule(payload['Mol'], cache=cache)
-            else:
-                raise ValueError(response.text)
-
         return response
 
     def _parse_result(self, response, *, verbose=False):
@@ -171,7 +172,12 @@ class JPLSpecClass(BaseQuery, LineListClass):
         """
 
         if 'Zero lines were found' in response.text:
-            raise EmptyResponseError(f"Response was empty; message was '{response.text}'.")
+            if self.fallback_to_getmolecule:
+                payload = parse_qs(response.request.body)
+                mol = payload['Mol'][0]
+                return self.get_molecule(mol)
+            else:
+                raise EmptyResponseError(f"Response was empty; message was '{response.text}'.")
 
         # data starts at 0 since regex was applied
         # Warning for a result with more than 1000 lines:
@@ -270,7 +276,9 @@ class JPLSpecClass(BaseQuery, LineListClass):
         if isinstance(molecule_id, int):
             molecule_str = f'{molecule_id:06d}'
         elif isinstance(molecule_id, str):
-            if len(molecule_id) != 6 or not molecule_id.isdigit():
+            try:
+                molecule_id = f"{int(molecule_id[:6]):06d}"
+            except ValueError:
                 raise ValueError("molecule_id should be an integer or a length-6 string of numbers")
             molecule_str = molecule_id
         else:
