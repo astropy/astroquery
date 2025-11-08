@@ -2,11 +2,14 @@ import pytest
 from astropy import units as u
 from astropy.table import Table
 
-from ....jplspec import JPLSpec
+from ..core import JPLSpec
+from astroquery.exceptions import EmptyResponseError
 
 
+@pytest.mark.xfail(reason="2025 server problems", raises=EmptyResponseError)
 @pytest.mark.remote_data
 def test_remote():
+    JPLSpec.fallback_to_getmolecule = False
     tbl = JPLSpec.query_lines(min_frequency=500 * u.GHz,
                               max_frequency=1000 * u.GHz,
                               min_strength=-500,
@@ -24,7 +27,49 @@ def test_remote():
 
 
 @pytest.mark.remote_data
+def test_remote_fallback():
+    JPLSpec.fallback_to_getmolecule = True
+    tbl = JPLSpec.query_lines(min_frequency=500 * u.GHz,
+                              max_frequency=1000 * u.GHz,
+                              min_strength=-500,
+                              molecule="18003 H2O")
+    assert isinstance(tbl, Table)
+    tbl = tbl[((tbl['FREQ'].quantity > 500*u.GHz) & (tbl['FREQ'].quantity < 1*u.THz))]
+    assert len(tbl) == 36
+    assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
+                                   'TAG', 'QNFMT', 'QN\'', 'QN"', 'Lab'])
+
+    assert tbl['FREQ'][0] == 503568.5200
+    assert tbl['ERR'][0] == 0.0200
+    assert tbl['LGINT'][0] == -4.9916
+    assert tbl['ERR'][7] == 12.4193
+    assert tbl['FREQ'][35] == 987926.7590
+
+
+@pytest.mark.remote_data
+def test_remote_regex_fallback():
+    JPLSpec.fallback_to_getmolecule = True
+    tbl = JPLSpec.query_lines(min_frequency=500 * u.GHz,
+                              max_frequency=1000 * u.GHz,
+                              min_strength=-500,
+                              molecule=("28001", "28002", "28003"))
+    assert isinstance(tbl, Table)
+    tbl = tbl[((tbl['FREQ'].quantity > 500*u.GHz) & (tbl['FREQ'].quantity < 1*u.THz))]
+    assert len(tbl) == 16
+    assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
+                                   'TAG', 'QNFMT', 'QN\'', 'QN"', 'Lab'])
+
+    assert tbl['FREQ'][0] == 576267.9305
+    assert tbl['ERR'][0] == .0005
+    assert tbl['LGINT'][0] == -3.0118
+    assert tbl['ERR'][7] == 8.3063
+    assert tbl['FREQ'][15] == 946175.3151
+
+
+@pytest.mark.xfail(reason="2025 server problems", raises=EmptyResponseError)
+@pytest.mark.remote_data
 def test_remote_regex():
+    JPLSpec.fallback_to_getmolecule = False
     tbl = JPLSpec.query_lines(min_frequency=500 * u.GHz,
                               max_frequency=1000 * u.GHz,
                               min_strength=-500,
@@ -104,3 +149,22 @@ def test_get_molecule_various():
         
         # Verify TAG values are positive
         assert all(tbl['TAG'] > 0)
+
+
+def test_get_molecule_qn1():
+    tbl = JPLSpec.get_molecule(28001)
+    assert isinstance(tbl, Table)
+    assert len(tbl) > 0
+    assert 'QN1' in tbl.colnames
+    assert all(tbl['QN1'] > 0)
+    assert 'QN2' not in tbl.colnames
+
+
+def test_get_molecule_qn4():
+    """ CN has 4 QNs """
+    tbl = JPLSpec.get_molecule(26001)
+    assert isinstance(tbl, Table)
+    assert len(tbl) > 0
+    for ii in range(1, 5):
+        assert f'QN{ii}' in tbl.colnames
+        assert all(tbl[f'QN{ii}'] > 0)

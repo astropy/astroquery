@@ -4,6 +4,7 @@ import warnings
 
 import astropy.units as u
 from astropy.io import ascii
+from astropy import table
 from ...query import BaseQuery
 from ...utils import async_to_sync
 # import configurable items declared in __init__.py
@@ -174,8 +175,9 @@ class JPLSpecClass(BaseQuery, LineListClass):
         if 'Zero lines were found' in response.text:
             if self.fallback_to_getmolecule:
                 payload = parse_qs(response.request.body)
-                mol = payload['Mol'][0]
-                return self.get_molecule(mol)
+                tbs = [self.get_molecule(mol) for mol in payload['Mol']]
+                tb = table.vstack(tbs)
+                return tb
             else:
                 raise EmptyResponseError(f"Response was empty; message was '{response.text}'.")
 

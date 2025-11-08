@@ -98,6 +98,8 @@ class LineListClass:
         FREQ, ERR, LGINT, DR,  ELO, GUP, TAG, QNFMT,  QN',  QN"
         (F13.4,F8.4, F8.4,  I2,F10.4,  I3,  I7,    I4,  6I2,  6I2)
 
+        https://spec.jpl.nasa.gov/ftp/pub/catalog/doc/catintro.pdf
+
         Parameters
         ----------
         text : str
@@ -130,6 +132,16 @@ class LineListClass:
         result['ERR'].unit = u.MHz
         result['LGINT'].unit = u.nm**2 * u.MHz
         result['ELO'].unit = u.cm**(-1)
+
+        # parse QNs
+        n_qns = result['QNFMT'] % 10
+        assert len(set(n_qns)) == 1, "All QNFMT values should have the same number of QNs"
+        n_qns = n_qns[0]
+        for ii in range(n_qns):
+            qn_col = f'QN{ii+1}'
+            result[qn_col] = np.array(
+                [int(line[8 - (ii + 1) * 2: 8 - ii * 2].strip()) for line in result['QN\'']],
+                dtype=int)
 
         # Add laboratory measurement flag
         # A negative TAG value indicates laboratory-measured frequency
