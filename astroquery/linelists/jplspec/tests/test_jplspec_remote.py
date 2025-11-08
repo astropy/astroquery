@@ -163,6 +163,7 @@ def test_get_molecule_various():
         assert all(tbl['TAG'] > 0)
 
 
+@pytest.mark.remote_data
 def test_get_molecule_qn1():
     tbl = JPLSpec.get_molecule(28001)
     assert isinstance(tbl, Table)
@@ -172,6 +173,7 @@ def test_get_molecule_qn1():
     assert 'QN2' not in tbl.colnames
 
 
+@pytest.mark.remote_data
 def test_get_molecule_qn4():
     """ CN has 4 QNs """
     tbl = JPLSpec.get_molecule(26001)

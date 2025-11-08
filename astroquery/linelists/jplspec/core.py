@@ -118,6 +118,7 @@ class JPLSpecClass(BaseQuery, LineListClass):
 
         if molecule is not None:
             if parse_name_locally:
+                self.lookup_ids = build_lookup()
                 payload['Mol'] = tuple(self.lookup_ids.find(molecule, flags).values())
                 if len(molecule) == 0:
                     raise InvalidQueryError('No matching species found. Please '
