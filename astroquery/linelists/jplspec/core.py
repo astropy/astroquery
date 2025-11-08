@@ -3,6 +3,7 @@ import os
 import warnings
 
 import astropy.units as u
+import numpy as np
 from astropy.io import ascii
 from astropy import table
 from ...query import BaseQuery
@@ -280,7 +281,7 @@ class JPLSpecClass(BaseQuery, LineListClass):
         >>> print(table)  # doctest: +SKIP
         """
         # Convert to string and zero-pad to 6 digits
-        if isinstance(molecule_id, int):
+        if isinstance(molecule_id, (int, np.int32, np.int64)):
             molecule_str = f'{molecule_id:06d}'
             if len(molecule_str) > 6:
                 raise ValueError("molecule_id should be an integer with fewer than 6 digits or a length-6 string of numbers")

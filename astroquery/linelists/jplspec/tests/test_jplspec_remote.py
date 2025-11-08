@@ -148,10 +148,18 @@ def test_get_molecule_string_id():
 
 @pytest.mark.remote_data
 def test_get_molecule_various():
-    """Test get_molecule with various molecules."""
+    """
+    Test get_molecule with various molecules.
+
+    CH & CD are both regression tests for difficult molecules with >4 QNs and
+    missing 2-digit QNs (i.e., columns with _only_ 1-digit QNs at the start of
+    the columns with QNs).
+    """
     test_molecules = [
         (28001, 'CO'),      # Simple diatomic
         (32003, 'CH3OH'),   # Complex organic
+        (13002, 'CH'),      # another simple molecule w/5 QNs
+        (14004, 'CD'),
     ]
     
     for mol_id, expected_name in test_molecules:

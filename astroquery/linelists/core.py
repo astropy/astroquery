@@ -158,7 +158,15 @@ class LineListClass:
         for tbl in tables:
             n_qns = tbl['QNFMT'][0] % 10
             if n_qns > 1:
-                qnlen = int(str(tbl['QN\''].dtype)[-1])
+                if tbl['QN\''].dtype.kind == 'U':  # Unicode
+                    qnlen = tbl['QN\''].dtype.itemsize // 4
+                elif tbl['QN\''].dtype.kind == 'S':  # Byte string
+                    qnlen = tbl['QN\''].dtype.itemsize
+                else:
+                    raise TypeError("Unexpected dtype for QN' column")
+                if qnlen % 2 == 1:
+                    # entries are always even, but the leftmost entry can get truncated by the reader
+                    qnlen += 1
                 for ii in range(n_qns):
                     qn_col = f'QN\'{ii+1}'
                     # string parsing can truncate to length=2n or 2n-1 depending
