@@ -40,7 +40,7 @@ def parse_letternumber(st):
 class LineListClass:
     """
     Base class for line list catalog queries (JPL, CDMS, etc.)
-    
+
     This class provides common functionality for parsing catalog files
     and retrieving molecule data from spectroscopic databases.
     """
@@ -127,7 +127,7 @@ class LineListClass:
 
         # Ensure TAG is integer type
         result['TAG'] = result['TAG'].astype(int)
-        
+
         # Add units
         result['FREQ'].unit = u.MHz
         result['ERR'].unit = u.MHz
@@ -160,7 +160,7 @@ class LineListClass:
             else:
                 tbl['QN\''] = np.array(tbl['QN\''], dtype=int)
                 tbl['QN"'] = np.array(tbl['QN"'], dtype=int)
-        
+
         result = table.vstack(tables)
 
 
@@ -177,7 +177,7 @@ class LineListClass:
         Parse a CDMS-format catalog file into an `~astropy.table.Table`.
 
         The catalog data files are composed of 80-character card images.
-        Format: [F13.4, 2F8.4, I2, F10.4, I3, I7, I4, 12I2]: 
+        Format: [F13.4, 2F8.4, I2, F10.4, I3, I7, I4, 12I2]:
         FREQ, ERR, LGINT, DR, ELO, GUP, TAG, QNFMT, QN
 
         Parameters
