@@ -170,10 +170,10 @@ def test_get_molecule_qn1():
     tbl = JPLSpec.get_molecule(28001)
     assert isinstance(tbl, Table)
     assert len(tbl) > 0
-    assert 'QN1"' in tbl.colnames
-    assert 'QN2"' not in tbl.colnames
-    assert "QN1'" in tbl.colnames
-    assert "QN2'" not in tbl.colnames
+    assert 'QN"' in tbl.colnames
+    assert 'QN1"' not in tbl.colnames
+    assert "QN'" in tbl.colnames
+    assert "QN1'" not in tbl.colnames
 
 
 @pytest.mark.remote_data
@@ -185,6 +185,40 @@ def test_get_molecule_qn4():
     for ii in range(1, 5):
         assert f'QN"{ii}' in tbl.colnames
         assert f"QN'{ii}" in tbl.colnames
+
+
+@pytest.mark.remote_data
+def test_get_molecule_parser_details():
+    """
+    Verifying a known hard-to-parse row
+         982.301   0.174 -17.8172 3  464.3000  9  320031304 4-2   2     5-5   2     
+         991.369   0.003  -9.8234 3  310.3570 37  32003130418 3 - 0    18 3 + 0     
+    """
+    tbl = JPLSpec.get_molecule(32003)
+    testrow = tbl[5]
+    assert testrow['FREQ'] == 982.301
+    assert testrow["QN'1"] == 4 
+    assert testrow["QN'2"] == -2 
+    assert testrow["QN'3"] == '' 
+    assert testrow["QN'4"] == 2 
+
+    assert testrow['QN"1'] == 5 
+    assert testrow['QN"2'] == -5 
+    assert testrow['QN"3'] == '' 
+    assert testrow['QN"4'] == 2 
+
+    testrow = tbl[6]
+    assert testrow['FREQ'] == 991.369
+    assert testrow["QN'1"] == 18 
+    assert testrow["QN'2"] == 3 
+    assert testrow["QN'3"] == '-' 
+    assert testrow["QN'4"] == 0 
+
+    assert testrow['QN"1'] == 18 
+    assert testrow['QN"2'] == 3 
+    assert testrow['QN"3'] == '+' 
+    assert testrow['QN"4'] == 0 
+
 
 @pytest.mark.bigdata
 @pytest.mark.remote_data
@@ -201,3 +235,4 @@ class TestRegressionAllMolecules:
         tbl = JPLSpec.get_molecule(mol_id)
         assert isinstance(tbl, Table)
         assert len(tbl) > 0
+
