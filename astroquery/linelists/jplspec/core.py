@@ -275,7 +275,10 @@ class JPLSpecClass(BaseQuery, LineListClass):
         # Convert to string and zero-pad to 6 digits
         if isinstance(molecule_id, int):
             molecule_str = f'{molecule_id:06d}'
+            if len(molecule_str) > 6:
+                raise ValueError("molecule_id should be an integer with fewer than 6 digits or a length-6 string of numbers")
         elif isinstance(molecule_id, str):
+            # this is for the common case where the molecule is specified e.g. as 028001 CO
             try:
                 molecule_id = f"{int(molecule_id[:6]):06d}"
             except ValueError:

@@ -4,7 +4,7 @@ import os
 
 from astropy import units as u
 from astropy.table import Table
-from ....jplspec import JPLSpec
+from ..core import JPLSpec
 
 file1 = 'CO.data'
 file2 = 'CO_6.data'
@@ -160,4 +160,4 @@ def test_get_molecule_input_validation():
     
     # Test wrong length string
     with pytest.raises(ValueError):
-        JPLSpec.get_molecule('123')
+        JPLSpec.get_molecule(1234567)
