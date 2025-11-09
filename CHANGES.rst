@@ -178,11 +178,46 @@ mast
 - Fix bug in ``utils.remove_duplicate_products`` that does not retain the
   order of the products in an input table. [#3314]
 
-- Added ``return_uri_map`` parameter to ``Observations.get_cloud_uris`` to return a mapping of the input data product URIs
-  to the returned cloud URIs. [#3314]
+- Add ``return_uri_map`` parameter to ``Observations.get_cloud_uris`` to return
+  a mapping of the input data product URIs to the returned cloud URIs. [#3314]
 
-- Added ``verbose`` parameter to ``Observations.get_cloud_uris`` to control whether warnings are logged when a product cannot
-  be found in the cloud. [#3314]
+- Add ``verbose`` parameter to ``Observations.get_cloud_uris`` to control
+  whether warnings are logged when a product cannot be found in the cloud.
+  [#3314]
+
+- Improved ``MastMissions`` queries to accept lists for query critieria
+  values, in addition to comma-delimited strings. [#3319]
+
+- Enhanced ``filter_products`` methods in ``MastMissions`` and ``Observations``
+  to support advanced filtering expressions for numeric columns and with
+  negative values. [#3365, #3393]
+
+- Fix bug where duplicate columns from server responses cause an error when
+  converting to an ``~astropy.table.Table``. [#3400]
+
+- Support for resolving multiple object names at once with ``resolve_object``,
+  including automatic batching into groups of up to 30 names per request to
+  the name translation service. [#3398]
+
+simbad
+^^^^^^
+
+- Add ``async_job`` option in all query methods. It provides slower to start,
+  but more robust queries for which the timeout can be increased. [#3305]
+
+skyview
+^^^^^^^
+
+- Add ``get_query_payload`` kwarg to ``Skyview.get_images()`` and
+  ``Skyview.get_images_list()`` to return the query payload. [#3318]
+
+- Changed SkyView URL to https. [#3346]
+
+utils.tap
+^^^^^^^^^
+
+- The method ``upload_table`` accepts file formats accepted by astropy's
+  ``Table.read()``. [#3295]
 
 
 Infrastructure, Utility and Other Changes and Additions
