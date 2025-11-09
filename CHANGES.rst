@@ -34,6 +34,12 @@ jplspec
 ^^^^^^^
 
 - Moved to linelists/ [#3455]
+- Refactored to use linelists.core [#3456]
+
+linelists
+^^^^^^^^^
+
+- General tools for both CDMS/JPL moved to linelists.core [#3456]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

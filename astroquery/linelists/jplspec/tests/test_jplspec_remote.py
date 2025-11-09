@@ -103,33 +103,33 @@ def test_get_molecule_remote():
     """Test get_molecule with remote data retrieval."""
     # Test with H2O
     tbl = JPLSpec.get_molecule(18003)
-    
+
     assert isinstance(tbl, Table)
     assert len(tbl) > 0
-    
+
     # Check expected columns including Lab flag
     expected_cols = {'FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
                      'TAG', 'QNFMT', 'Lab',
                      'QN"1', 'QN"2', 'QN"3', 'QN"4',
                      "QN'1", "QN'2", "QN'3", "QN'4"}
     assert set(tbl.keys()) == expected_cols
-    
+
     # Check units
     assert tbl['FREQ'].unit == u.MHz
     assert tbl['ERR'].unit == u.MHz
     assert tbl['LGINT'].unit == u.nm**2 * u.MHz
     assert tbl['ELO'].unit == u.cm**(-1)
-    
+
     # Check metadata was attached
     assert 'NAME' in tbl.meta
     assert tbl.meta['NAME'].strip() == 'H2O'
     assert 'TAG' in tbl.meta
     assert tbl.meta['TAG'] == 18003
-    
+
     # Check Lab flag
     assert 'Lab' in tbl.colnames
     assert tbl['Lab'].dtype == bool
-    
+
     # H2O should have some lab measurements
     assert sum(tbl['Lab']) > 0
 
@@ -139,7 +139,7 @@ def test_get_molecule_string_id():
     """Test get_molecule with string ID format."""
     # Test with CO using string ID
     tbl = JPLSpec.get_molecule('028001')
-    
+
     assert isinstance(tbl, Table)
     assert len(tbl) > 0
     assert 'NAME' in tbl.meta
@@ -169,7 +169,7 @@ def test_get_molecule_various(mol_id, expected_name):
     assert len(tbl) > 0
     assert 'NAME' in tbl.meta
     assert expected_name in tbl.meta['NAME']
-    
+
     # Verify TAG values are positive
     assert all(tbl['TAG'] > 0)
 
@@ -200,33 +200,33 @@ def test_get_molecule_qn4():
 def test_get_molecule_parser_details():
     """
     Verifying a known hard-to-parse row
-         982.301   0.174 -17.8172 3  464.3000  9  320031304 4-2   2     5-5   2     
-         991.369   0.003  -9.8234 3  310.3570 37  32003130418 3 - 0    18 3 + 0     
+         982.301   0.174 -17.8172 3  464.3000  9  320031304 4-2   2     5-5   2
+         991.369   0.003  -9.8234 3  310.3570 37  32003130418 3 - 0    18 3 + 0
     """
     tbl = JPLSpec.get_molecule(32003)
     testrow = tbl[5]
     assert testrow['FREQ'] == 982.301
-    assert testrow["QN'1"] == 4 
-    assert testrow["QN'2"] == -2 
-    assert testrow["QN'3"] == '' 
-    assert testrow["QN'4"] == 2 
+    assert testrow["QN'1"] == 4
+    assert testrow["QN'2"] == -2
+    assert testrow["QN'3"] == ''
+    assert testrow["QN'4"] == 2
 
-    assert testrow['QN"1'] == 5 
-    assert testrow['QN"2'] == -5 
-    assert testrow['QN"3'] == '' 
-    assert testrow['QN"4'] == 2 
+    assert testrow['QN"1'] == 5
+    assert testrow['QN"2'] == -5
+    assert testrow['QN"3'] == ''
+    assert testrow['QN"4'] == 2
 
     testrow = tbl[6]
     assert testrow['FREQ'] == 991.369
-    assert testrow["QN'1"] == 18 
-    assert testrow["QN'2"] == 3 
-    assert testrow["QN'3"] == '-' 
-    assert testrow["QN'4"] == 0 
+    assert testrow["QN'1"] == 18
+    assert testrow["QN'2"] == 3
+    assert testrow["QN'3"] == '-'
+    assert testrow["QN'4"] == 0
 
-    assert testrow['QN"1'] == 18 
-    assert testrow['QN"2'] == 3 
-    assert testrow['QN"3'] == '+' 
-    assert testrow['QN"4'] == 0 
+    assert testrow['QN"1'] == 18
+    assert testrow['QN"2'] == 3
+    assert testrow['QN"3'] == '+'
+    assert testrow['QN"4'] == 0
 
 
 @pytest.mark.bigdata
@@ -241,12 +241,14 @@ class TestRegressionAllMolecules:
         Expensive test - try all the molecules
         """
         mol_id = row['TAG']
-        if mol_id in (32001, 32002, 32005, 34001, 39003, 44004, 44009, 44012,
-        81001 # may be fine? not entirely sure what's wrong
-        ):  # O2 has masked QNs making it hard to test automatically
+        # O2 has masked QNs making it hard to test automatically (32...)
+        # 34001, 39003, 44004, 44009, 44012 are missing or corrupt molecules
+        # 81001 may be fine? not entirely sure what's wrong
+        if mol_id in (32001, 32002, 32005,
+                      34001, 39003, 44004, 44009, 44012,
+                      81001):
             # N2O = 44009 is just not there
             pytest.skip("Skipping O2 due to masked QNs")
         tbl = JPLSpec.get_molecule(mol_id)
         assert isinstance(tbl, Table)
         assert len(tbl) > 0
-

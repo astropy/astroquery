@@ -143,8 +143,9 @@ class LineListClass:
         # some tables have +/-/blank entries in QNs
         # pm_is_ok should be True when the QN columns contain '+' or '-'.
         # (can't do a str check on np.integer dtype so have to filter that out first)
-        pm_is_ok = ((not np.issubdtype(result["QN'"].dtype, np.integer)) 
+        pm_is_ok = ((not np.issubdtype(result["QN'"].dtype, np.integer))
                     and any(('+' in str(line) or '-' in str(line)) for line in result["QN'"]))
+
         def int_or_pm(st):
             try:
                 return int(st)
@@ -198,7 +199,6 @@ class LineListClass:
 
         result = table.vstack(tables)
 
-
         # Add laboratory measurement flag
         # A negative TAG value indicates laboratory-measured frequency
         result['Lab'] = result['TAG'] < 0
@@ -206,7 +206,6 @@ class LineListClass:
         result['TAG'] = abs(result['TAG'])
 
         return result
-
 
     def _parse_cat_cdms_format(self, text, *, verbose=False):
         """
