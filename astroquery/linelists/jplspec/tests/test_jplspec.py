@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, MagicMock, patch
 from astroquery.exceptions import EmptyResponseError
 
 import os
@@ -169,15 +169,64 @@ def test_get_molecule_input_validation():
         JPLSpec.get_molecule(1234567)
 
 
-def test_fallback_to_getmolecule_with_empty_response():
-    """Test that fallback_to_getmolecule works when query returns zero lines."""
-
-    # Create a mock response with "Zero lines were found"
+# Helper functions for fallback tests
+def _create_empty_response(molecules):
+    """Create a mock response with 'Zero lines were found'."""
     mock_response = Mock()
     mock_response.text = "Zero lines were found"
     mock_request = Mock()
-    mock_request.body = "Mol=18003"
+    if isinstance(molecules, str):
+        mock_request.body = f"Mol={molecules}"
+    else:
+        mock_request.body = "&".join(f"Mol={mol}" for mol in molecules)
     mock_response.request = mock_request
+    return mock_response
+
+
+def _setup_fallback_mocks(molecules_dict):
+    """
+    Set up mocks for fallback testing.
+
+    Parameters
+    ----------
+    molecules_dict : dict
+        Dictionary mapping molecule IDs to (name, table_data) tuples.
+        table_data should be a dict with 'FREQ' and optionally other columns.
+
+    Returns
+    -------
+    mock_get_molecule, mock_build_lookup
+        The mock objects that can be used in assertions.
+    """
+    # Mock build_lookup
+    mock_lookup = MagicMock()
+    if len(molecules_dict) == 1:
+        mol_id = list(molecules_dict.keys())[0]
+        mock_lookup.find.return_value = molecules_dict[mol_id][0]
+    else:
+        mock_lookup.find.side_effect = lambda mol_id, **kwargs: molecules_dict.get(mol_id, (None, None))[0]
+
+    # Mock get_molecule
+    def get_molecule_side_effect(mol_id):
+        if mol_id not in molecules_dict:
+            raise ValueError(f"Unexpected molecule ID: {mol_id}")
+        name, table_data = molecules_dict[mol_id]
+        mock_table = Table()
+        mock_table['FREQ'] = table_data.get('FREQ', [100.0, 200.0])
+        mock_table['TAG'] = [int(mol_id)] * len(mock_table['FREQ'])
+        # Add any additional columns from table_data
+        for key, value in table_data.items():
+            if key != 'FREQ' and key not in mock_table.colnames:
+                mock_table[key] = value
+        mock_table.meta = table_data.get('meta', {})
+        return mock_table
+
+    return get_molecule_side_effect, mock_lookup
+
+
+def test_fallback_to_getmolecule_with_empty_response():
+    """Test that fallback_to_getmolecule works when query returns zero lines."""
+    mock_response = _create_empty_response('18003')
 
     # Test with fallback disabled - should raise EmptyResponseError
     JPLSpec.fallback_to_getmolecule = False
@@ -186,79 +235,103 @@ def test_fallback_to_getmolecule_with_empty_response():
 
     # Test with fallback enabled - should call get_molecule
     JPLSpec.fallback_to_getmolecule = True
+    molecules = {'18003': ('H2O', {'FREQ': [100.0, 200.0]})}
+
     with patch.object(JPLSpec, 'get_molecule') as mock_get_molecule, \
          patch('astroquery.linelists.jplspec.core.build_lookup') as mock_build_lookup:
 
-        # Mock build_lookup to return a lookup object
-        from unittest.mock import MagicMock
-        mock_lookup = MagicMock()
-        mock_lookup.find.return_value = "H2O"
+        get_mol_func, mock_lookup = _setup_fallback_mocks(molecules)
+        mock_get_molecule.side_effect = get_mol_func
         mock_build_lookup.return_value = mock_lookup
-
-        # Mock get_molecule to return a simple table
-        mock_table = Table()
-        mock_table['FREQ'] = [100.0, 200.0]
-        mock_table['TAG'] = [18003, 18003]
-        mock_table.meta = {'NAME': 'H2O', 'TAG': 18003}
-        mock_get_molecule.return_value = mock_table
 
         result = JPLSpec._parse_result(mock_response)
 
-        # Verify get_molecule was called with the correct molecule ID
         mock_get_molecule.assert_called_once_with('18003')
-
-        # Verify we got the mocked table back
         assert isinstance(result, Table)
         assert len(result) == 2
         assert result.meta['molecule_id'] == '18003'
         assert result.meta['molecule_name'] == 'H2O'
 
-    # Reset to default
     JPLSpec.fallback_to_getmolecule = True
 
 
 def test_fallback_to_getmolecule_with_multiple_molecules():
     """Test fallback with multiple molecules in the request."""
-    # Create a mock response with "Zero lines were found" and multiple molecules
-    mock_response = Mock()
-    mock_response.text = "Zero lines were found"
-    mock_request = Mock()
-    mock_request.body = "Mol=18003&Mol=28001"
-    mock_response.request = mock_request
+    mock_response = _create_empty_response(['18003', '28001'])
 
     JPLSpec.fallback_to_getmolecule = True
+    molecules = {
+        '18003': ('H2O', {'FREQ': [100.0, 200.0]}),
+        '28001': ('CO', {'FREQ': [300.0, 400.0]})
+    }
+
     with patch.object(JPLSpec, 'get_molecule') as mock_get_molecule, \
          patch('astroquery.linelists.jplspec.core.build_lookup') as mock_build_lookup:
 
-        # Mock build_lookup to return a lookup object
-        mock_lookup = MagicMock()
-        mock_lookup.find.side_effect = lambda mol_id, **kwargs: "H2O" if mol_id == '18003' else "CO"
+        get_mol_func, mock_lookup = _setup_fallback_mocks(molecules)
+        mock_get_molecule.side_effect = get_mol_func
         mock_build_lookup.return_value = mock_lookup
-
-        # Mock get_molecule to return different tables
-        def get_molecule_side_effect(mol_id):
-            mock_table = Table()
-            if mol_id == '18003':
-                mock_table['FREQ'] = [100.0, 200.0]
-                mock_table.meta = {'NAME': 'H2O', 'TAG': 18003}
-            else:
-                mock_table['FREQ'] = [300.0, 400.0]
-                mock_table.meta = {'NAME': 'CO', 'TAG': 28001}
-            mock_table['TAG'] = [int(mol_id)] * len(mock_table)
-            return mock_table
-
-        mock_get_molecule.side_effect = get_molecule_side_effect
 
         result = JPLSpec._parse_result(mock_response)
 
-        # Verify get_molecule was called twice
         assert mock_get_molecule.call_count == 2
-
-        # Verify we got a stacked table
         assert isinstance(result, Table)
         assert len(result) == 4  # 2 rows from each molecule
         assert 'molecule_list' in result.meta
         assert 'Name' in result.colnames
 
-    # Reset to default
+    JPLSpec.fallback_to_getmolecule = True
+
+
+def test_query_lines_with_fallback():
+    """Test that query_lines uses fallback when server returns empty result."""
+
+    # Test with fallback disabled - should raise EmptyResponseError
+    JPLSpec.fallback_to_getmolecule = False
+    with patch.object(JPLSpec, '_request') as mock_request:
+        mock_response = _create_empty_response('28001')
+        mock_response.raise_for_status = Mock()
+        mock_request.return_value = mock_response
+
+        with pytest.raises(EmptyResponseError, match="Response was empty"):
+            JPLSpec.query_lines(min_frequency=100 * u.GHz,
+                                max_frequency=200 * u.GHz,
+                                min_strength=-500,
+                                molecule="28001 CO")
+
+    # Test with fallback enabled - should call get_molecule
+    JPLSpec.fallback_to_getmolecule = True
+    molecules = {'28001': ('CO', {
+        'FREQ': [115271.2018, 230538.0000],
+        'ERR': [0.0005, 0.0010],
+        'LGINT': [-5.0105, -4.5],
+        'DR': [2, 2],
+        'ELO': [0.0, 3.845],
+        'GUP': [3, 5],
+        'QNFMT': [1, 1]
+    })}
+
+    with patch.object(JPLSpec, '_request') as mock_request, \
+         patch.object(JPLSpec, 'get_molecule') as mock_get_molecule, \
+         patch('astroquery.linelists.jplspec.core.build_lookup') as mock_build_lookup:
+
+        mock_response = _create_empty_response('28001')
+        mock_response.raise_for_status = Mock()
+        mock_request.return_value = mock_response
+
+        get_mol_func, mock_lookup = _setup_fallback_mocks(molecules)
+        mock_get_molecule.side_effect = get_mol_func
+        mock_build_lookup.return_value = mock_lookup
+
+        result = JPLSpec.query_lines(
+            min_frequency=100 * u.GHz,
+            max_frequency=200 * u.GHz,
+            min_strength=-500,
+            molecule="28001 CO")
+
+        mock_get_molecule.assert_called_once_with('28001')
+        assert isinstance(result, Table)
+        assert len(result) > 0
+        assert 'molecule_id' in result.meta
+
     JPLSpec.fallback_to_getmolecule = True
