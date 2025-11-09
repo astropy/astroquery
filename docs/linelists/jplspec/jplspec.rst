@@ -57,7 +57,7 @@ what each setting yields:
    9942985.9145 3.3849 -33.2361   2 15338.0634 183 28001   101  91  90 False
    Length = 91 rows
    >>> response.meta
-   {'TAG': 28001, 'NAME': 'CO', 'NLINE': 91, 'QLOG1': 2.0369, 'QLOG2': 1.9123, 'QLOG3': 1.737, 'QLOG4': 1.4386, 'QLOG5': 1.1429, 'QLOG6': 0.8526, 'QLOG7': 0.5733, 'VER': '4*', 'molecule_id': '28001 CO'}
+   {'TAG': 28001, 'NAME': 'CO', 'NLINE': 91, 'QLOG1': 2.0369, 'QLOG2': 1.9123, 'QLOG3': 1.737, 'QLOG4': 1.4386, 'QLOG5': 1.1429, 'QLOG6': 0.8526, 'QLOG7': 0.5733, 'VER': '4*', 'molecule_id': '28001 CO', 'molecule_name': {}}
 
 The following example, with ``get_query_payload = True``, returns the payload:
 

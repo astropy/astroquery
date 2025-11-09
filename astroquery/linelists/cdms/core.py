@@ -64,7 +64,7 @@ class CDMSClass(BaseQuery, LineListClass):
         # extract molecule from the response or request
         requested_molecule = self._mol_to_payload(molecule, parse_name_locally, flags) if molecule != 'All' else None
 
-        if requested_molecule and requested_molecule in badlist:
+        if requested_molecule and requested_molecule in badlist and not get_query_payload:
             if fallback_to_getmolecule:
                 try:
                     return self.get_molecule(requested_molecule[:6])
@@ -87,15 +87,18 @@ class CDMSClass(BaseQuery, LineListClass):
                                  f"CDMS.fallback_to_getmolecule = True.")
         else:
             response = self.query_lines_async(min_frequency=min_frequency,
-                                            max_frequency=max_frequency,
-                                            min_strength=min_strength,
-                                            molecule=molecule,
-                                            temperature_for_intensity=temperature_for_intensity,
-                                            flags=flags,
-                                            parse_name_locally=parse_name_locally,
-                                            get_query_payload=get_query_payload,
-                                            cache=cache)
-            return self._parse_result(response, molname=molecule, verbose=verbose)
+                                              max_frequency=max_frequency,
+                                              min_strength=min_strength,
+                                              molecule=molecule,
+                                              temperature_for_intensity=temperature_for_intensity,
+                                              flags=flags,
+                                              parse_name_locally=parse_name_locally,
+                                              get_query_payload=get_query_payload,
+                                              cache=cache)
+            if get_query_payload:
+                return response
+            else:
+                return self._parse_result(response, molname=molecule, verbose=verbose)
 
     def query_lines_async(self, min_frequency, max_frequency, *,
                           min_strength=-500, molecule='All',
