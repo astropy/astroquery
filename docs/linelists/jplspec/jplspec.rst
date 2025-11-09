@@ -209,6 +209,8 @@ other temperatures using curve fitting models:
    The resulting plot from the example above
 
 
+.. _regex_querying_linelists:
+
 Querying the Catalog with Regexes and Relative names
 ----------------------------------------------------
 

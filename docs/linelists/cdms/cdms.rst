@@ -34,8 +34,8 @@ each setting yields:
    ...                             molecule="028503 CO",
    ...                             get_query_payload=False)
    >>> response.pprint(max_width=120)
-       FREQ     ERR    LGINT   DR   ELO    GUP  TAG   QNFMT  Ju  Ku  vu ... F3u  Jl  Kl  vl F1l F2l F3l   name  MOLWT Lab 
-       MHz      MHz   nm2 MHz      1 / cm                               ...                                       u       
+       FREQ     ERR    LGINT   DR   ELO    GUP  TAG   QNFMT  Ju  Ku  vu ... F3u  Jl  Kl  vl F1l F2l F3l   name  MOLWT Lab
+       MHz      MHz   nm2 MHz      1 / cm                               ...                                       u
    ----------- ------ ------- --- -------- --- ------ ----- --- --- --- ... --- --- --- --- --- --- --- ------- ----- ----
    115271.2018 0.0005 -5.0105   2      0.0   3 -28503   101   1  --  -- ...  --   0  --  --  --  --  -- CO, v=0    28 True
       230538.0 0.0005 -4.1197   2    3.845   5 -28503   101   2  --  -- ...  --   1  --  --  --  --  -- CO, v=0    28 True
@@ -142,7 +142,7 @@ laboratory but not in space
    >>> result = CDMS.get_species_table()
    >>> mol = result[result['tag'] == 28503]
    >>> mol.pprint(max_width=160)
-    tag  molecule    Name   #lines lg(Q(1000)) lg(Q(500)) lg(Q(300)) ... lg(Q(9.375)) lg(Q(5.000)) lg(Q(2.725)) Ver. Documentation Date of entry    Entry   
+    tag  molecule    Name   #lines lg(Q(1000)) lg(Q(500)) lg(Q(300)) ... lg(Q(9.375)) lg(Q(5.000)) lg(Q(2.725)) Ver. Documentation Date of entry    Entry
    ----- -------- --------- ------ ----------- ---------- ---------- ... ------------ ------------ ------------ ---- ------------- ------------- -----------
    28503  CO, v=0 CO, v = 0     95      2.5595     2.2584     2.0369 ...       0.5733       0.3389       0.1478    1   e028503.cat     Oct. 2000 w028503.cat
 
@@ -304,7 +304,15 @@ It can be valuable to check this for any given molecule.
 Querying the Catalog with Regexes and Relative names
 ----------------------------------------------------
 
-The regular expression parsing is analogous to that in the JPLSpec module.
+The regular expression parsing is analogous to that in
+:mod:`astroquery.linelists.jplspec`.  See :ref:`regex_querying_linelists`.
+
+Handling Malformatted Molecules
+-------------------------------
+
+There are some entries in the CDMS catalog that get mangled by the query tool,
+but the underlying data are still good.  This seems to affect primarily those
+molecules with excessive numbers of quantum numbers such as H2NC.
 
 
 Troubleshooting
@@ -317,7 +325,7 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
     >>> from astroquery.linelists.cdms import CDMS
     >>> CDMS.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
 

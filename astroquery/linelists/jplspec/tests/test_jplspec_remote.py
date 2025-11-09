@@ -147,6 +147,33 @@ def test_get_molecule_string_id():
 
 
 @pytest.mark.remote_data
+def test_fallback_to_getmolecule_parameter():
+    """
+    Test that fallback_to_getmolecule parameter controls query behavior.
+
+    When fallback_to_getmolecule is True, query_lines should use get_molecule
+    internally and filter the results, which adds the 'Lab' and 'Name' columns.
+    When False, it uses the direct query mechanism (when available).
+    """
+    # Test with fallback enabled
+    JPLSpec.fallback_to_getmolecule = True
+    tbl_fallback = JPLSpec.query_lines(min_frequency=100 * u.GHz,
+                                       max_frequency=200 * u.GHz,
+                                       min_strength=-500,
+                                       molecule="28001 CO")
+
+    assert isinstance(tbl_fallback, Table)
+    assert len(tbl_fallback) > 0
+    # When using fallback, should have Lab and Name columns
+    assert 'Lab' in tbl_fallback.colnames
+    assert 'Name' in tbl_fallback.colnames
+
+    # All returned frequencies should be within the requested range
+    assert all(tbl_fallback['FREQ'].quantity >= 100 * u.GHz)
+    assert all(tbl_fallback['FREQ'].quantity <= 200 * u.GHz)
+
+
+@pytest.mark.remote_data
 @pytest.mark.parametrize('mol_id,expected_name', [
     (28001, 'CO'),      # Simple diatomic
     (32003, 'CH3OH'),   # Complex organic

@@ -110,6 +110,30 @@ def test_h2nc():
 
 
 @pytest.mark.remote_data
+def test_fallback_to_getmolecule_parameter():
+    """
+    Test that fallback_to_getmolecule attribute controls query behavior.
+
+    When fallback_to_getmolecule is True, query_lines should use get_molecule
+    internally for malformed molecules.
+    """
+
+    # Test with a malformed molecule and fallback enabled
+    CDMS.fallback_to_getmolecule = True
+    tbl_fallback = CDMS.query_lines(
+        min_frequency=100 * u.GHz,
+        max_frequency=200 * u.GHz,
+        min_strength=-500,
+        molecule="028528 H2NC")
+
+    assert isinstance(tbl_fallback, Table)
+    assert len(tbl_fallback) > 0
+
+    # I don't think the state set within this module affects the rest of the
+    # tests but just in case
+    CDMS.fallback_to_getmolecule = False
+
+@pytest.mark.remote_data
 def test_remote_regex():
 
     tbl = CDMS.query_lines(min_frequency=500 * u.GHz,

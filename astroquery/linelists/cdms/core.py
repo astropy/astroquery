@@ -8,14 +8,13 @@ import astropy.units as u
 from astropy import table
 from astropy.io import ascii
 from astroquery.query import BaseQuery
-from astroquery.utils import async_to_sync
 # import configurable items declared in __init__.py
 from astroquery.linelists.cdms import conf
 from astroquery.exceptions import InvalidQueryError, EmptyResponseError
-from ..core import LineListClass
+from ..core import LineListClass, parse_letternumber
+from astroquery.utils import process_asyncs
 
 import re
-import string
 
 __all__ = ['CDMS', 'CDMSClass']
 
@@ -25,7 +24,6 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-@async_to_sync
 class CDMSClass(BaseQuery, LineListClass):
     # use the Configuration Items imported from __init__.py
     URL = conf.search
@@ -34,11 +32,36 @@ class CDMSClass(BaseQuery, LineListClass):
     TIMEOUT = conf.timeout
     MALFORMATTED_MOLECULE_LIST = ['017506 NH3-wHFS', '028528 H2NC', '058501 H2C2S', '064527 HC3HCN']
 
+    def __init__(self, fallback_to_getmolecule=False):
+        super().__init__()
+
+    def query_lines(self, min_frequency, max_frequency, *,
+                    min_strength=-500, molecule='All',
+                    temperature_for_intensity=300, flags=0,
+                    parse_name_locally=False, get_query_payload=False,
+                    fallback_to_getmolecule=False,
+                    cache=True):
+        response = self.query_lines_async(min_frequency=min_frequency,
+                                          max_frequency=max_frequency,
+                                          min_strength=min_strength,
+                                          molecule=molecule,
+                                          temperature_for_intensity=temperature_for_intensity,
+                                          flags=flags,
+                                          parse_name_locally=parse_name_locally,
+                                          get_query_payload=get_query_payload,
+                                          fallback_to_getmolecule=fallback_to_getmolecule,
+                                          cache=cache)
+        if fallback_to_getmolecule:
+            return response
+        else:
+            return self._parse_result(response)
+
     def query_lines_async(self, min_frequency, max_frequency, *,
                           min_strength=-500, molecule='All',
                           temperature_for_intensity=300, flags=0,
                           parse_name_locally=False, get_query_payload=False,
-                          cache=True, fallback_to_getmolecule=False):
+                          fallback_to_getmolecule=False,
+                          cache=True):
         """
         Creates an HTTP POST request based on the desired parameters and
         returns a response.
@@ -90,10 +113,6 @@ class CDMSClass(BaseQuery, LineListClass):
         cache : bool
             Defaults to True. If set overrides global caching behavior.
             See :ref:`caching documentation <astroquery_cache>`.
-
-        fallback_to_getmolecule : bool, optional
-            If specified, and if the molecule specified is in the list of
-            known malformatted molecules, return the get_molecule results instead.
 
         Returns
         -------
@@ -180,23 +199,31 @@ class CDMSClass(BaseQuery, LineListClass):
         if not ok:
             raise EmptyResponseError("Did not find table in response")
 
+        # Check if a malformatted molecule was requested and use fallback if enabled
+        # accounts for three formats, e.g.: '058501' or 'H2C2S' or '058501 H2C2S'
+        badlist = (self.MALFORMATTED_MOLECULE_LIST
+                   + [y for x in self.MALFORMATTED_MOLECULE_LIST for y in x.split()])
+
+        # extract molecule from the response or request
+        requested_molecule = payload['Molecules'][0]
+
+        if requested_molecule and requested_molecule in badlist:
+            if self.fallback_to_getmolecule:
+                return self.get_molecule(requested_molecule)
+            else:
+                raise ValueError(f"Molecule {requested_molecule} is known not to comply with standard CDMS format.  "
+                                 f"Try get_molecule({requested_molecule}) instead or set "
+                                 f"CDMS.fallback_to_getmolecule = True.")
+
         baseurl = self.URL.split('cgi-bin')[0]
         fullurl = f'{baseurl}/{url}'
 
         response2 = self._request(method='GET', url=fullurl,
                                   timeout=self.TIMEOUT, cache=cache)
 
-        # accounts for three formats, e.g.: '058501' or 'H2C2S' or '058501 H2C2S'
-        badlist = (self.MALFORMATTED_MOLECULE_LIST +  # noqa
-                   [y for x in self.MALFORMATTED_MOLECULE_LIST for y in x.split()])
-        if 'Moleculesgrp' not in payload.keys() and payload['Molecules'] in badlist:
-            if fallback_to_getmolecule:
-                return self.get_molecule(payload['Molecules'], cache=cache)
-            else:
-                raise ValueError(f"Molecule {payload['Molecules']} is known not to comply with standard CDMS format.  "
-                                 f"Try get_molecule({payload['Molecules']}) instead.")
-
         return response2
+
+    query_lines.__doc__ = process_asyncs.async_to_sync_docstr(query_lines_async.__doc__)
 
     def _parse_result(self, response, *, verbose=False):
         """
@@ -245,6 +272,9 @@ class CDMSClass(BaseQuery, LineListClass):
         soup = BeautifulSoup(response.text, 'html.parser')
         text = soup.find('pre').text
 
+
+        # this is a different workaround to try to make _some_ of the bad molecules parseable
+        # (it doesn't solve all of them, which is why the above fallback exists)
         need_to_filter_bad_molecules = False
         for bad_molecule in self.MALFORMATTED_MOLECULE_LIST:
             if text.find(bad_molecule.split()[1]) > -1:
@@ -473,29 +503,6 @@ class CDMSClass(BaseQuery, LineListClass):
 
 
 CDMS = CDMSClass()
-
-
-def parse_letternumber(st):
-    """
-    Parse CDMS's two-letter QNs into integers.
-
-    Masked values are converted to -999999.
-
-    From the CDMS docs:
-    "Exactly two characters are available for each quantum number. Therefore, half
-    integer quanta are rounded up ! In addition, capital letters are used to
-    indicate quantum numbers larger than 99. E. g. A0 is 100, Z9 is 359. Lower case characters
-    are used similarly to signal negative quantum numbers smaller than –9. e. g., a0 is –10, b0 is –20, etc."
-    """
-    if np.ma.is_masked(st):
-        return -999999
-
-    asc = string.ascii_lowercase
-    ASC = string.ascii_uppercase
-    newst = ''.join(['-' + str((asc.index(x)+1)) if x in asc else
-                     str((ASC.index(x)+10)) if x in ASC else
-                     x for x in st])
-    return int(newst)
 
 
 class Lookuptable(dict):
