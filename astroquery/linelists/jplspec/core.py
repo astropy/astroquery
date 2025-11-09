@@ -24,9 +24,6 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-dead_server_message = "The requested URL was not found on this server."
-
-
 @async_to_sync
 class JPLSpecClass(BaseQuery, LineListClass):
 
@@ -301,6 +298,10 @@ class JPLSpecClass(BaseQuery, LineListClass):
         # Request the catalog file
         response = self._request(method='GET', url=url,
                                  timeout=self.TIMEOUT, cache=cache)
+        response.raise_for_status()
+
+        if 'The requested URL was not found on this server.' in response.text:
+            raise EmptyResponseError(f"No data found for molecule ID {molecule_id}.")
         
         # Parse the catalog file
         result = self._parse_cat(response)

@@ -26,6 +26,8 @@ def parse_letternumber(st):
     indicate quantum numbers larger than 99. E. g. A0 is 100, Z9 is 359. Lower case characters
     are used similarly to signal negative quantum numbers smaller than –9. e. g., a0 is –10, b0 is –20, etc."
     """
+    if isinstance(st, (np.int32, np.int64, int)):
+        return st
     if np.ma.is_masked(st):
         return -999999
 
@@ -134,9 +136,9 @@ class LineListClass:
         result['LGINT'].unit = u.nm**2 * u.MHz
         result['ELO'].unit = u.cm**(-1)
 
-        # parse QNs
-        n_qns = result['QNFMT'] % 10
-        tables = [result[result['QNFMT'] % 10 == qq] for qq in set(n_qns)]
+        # split table by qnfmt; each chunk must be separately parsed.
+        qnfmts = np.unique(result['QNFMT'])
+        tables = [result[result['QNFMT'] == qq] for qq in qnfmts]
 
         # some tables have +/-/blank entries in QNs
         # pm_is_ok should be True when the QN columns contain '+' or '-'.
@@ -161,6 +163,9 @@ class LineListClass:
         }
         mol_tag = result['TAG'][0]
 
+        if mol_tag in (32001,):
+            raise NotImplementedError("Molecule O2 (32001) does not follow the format standard.")
+
         for tbl in tables:
             if mol_tag in bad_qnfmt_dict:
                 n_qns = bad_qnfmt_dict[mol_tag] % 10
@@ -169,22 +174,27 @@ class LineListClass:
             if n_qns > 1:
                 qnlen = 2 * n_qns
                 for ii in range(n_qns):
-                    qn_col = f'QN\'{ii+1}'
-                    # string parsing can truncate to length=2n or 2n-1 depending
-                    # on whether there are any two-digit QNs in the column
-                    ind1 = ii * 2
-                    ind2 = ii * 2 + 2
-                    # rjust(qnlen) is needed to enforce that all strings retain their exact original shape
-                    qnp = [int_or_pm(line.rjust(qnlen)[ind1: ind2].strip()) for line in tbl['QN\'']]
-                    qnpp = [int_or_pm(line.rjust(qnlen)[ind1: ind2].strip()) for line in tbl['QN"']]
-                    dtype = str if any('+' in str(x) for x in qnp) else int
-                    tbl[f"QN'{ii+1}"] = np.array(qnp, dtype=dtype)
-                    tbl[f'QN"{ii+1}'] = np.array(qnpp, dtype=dtype)
+                    if tbl["QN'"].dtype in (int, np.int32, np.int64):
+                        # for the case where it was already parsed as int
+                        # (53005 is an example)
+                        tbl[f"QN'{ii+1}"] = tbl["QN'"]
+                        tbl[f'QN"{ii+1}'] = tbl['QN"']
+                    else:
+                        # string parsing can truncate to length=2n or 2n-1 depending
+                        # on whether there are any two-digit QNs in the column
+                        ind1 = ii * 2
+                        ind2 = ii * 2 + 2
+                        # rjust(qnlen) is needed to enforce that all strings retain their exact original shape
+                        qnp = [int_or_pm(line.rjust(qnlen)[ind1: ind2].strip()) for line in tbl['QN\'']]
+                        qnpp = [int_or_pm(line.rjust(qnlen)[ind1: ind2].strip()) for line in tbl['QN"']]
+                        dtype = str if any('+' in str(x) for x in qnp) else int
+                        tbl[f"QN'{ii+1}"] = np.array(qnp, dtype=dtype)
+                        tbl[f'QN"{ii+1}'] = np.array(qnpp, dtype=dtype)
                 del tbl['QN\'']
                 del tbl['QN"']
             else:
-                tbl['QN\''] = np.array(tbl['QN\''], dtype=int)
-                tbl['QN"'] = np.array(tbl['QN"'], dtype=int)
+                tbl['QN\''] = np.array(list(map(parse_letternumber, tbl['QN\''])), dtype=int)
+                tbl['QN"'] = np.array(list(map(parse_letternumber, tbl['QN"'])), dtype=int)
 
         result = table.vstack(tables)
 
@@ -196,6 +206,7 @@ class LineListClass:
         result['TAG'] = abs(result['TAG'])
 
         return result
+
 
     def _parse_cat_cdms_format(self, text, *, verbose=False):
         """
