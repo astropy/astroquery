@@ -44,7 +44,7 @@ class CDMSClass(BaseQuery, LineListClass):
                                         'refine your search or read the Docs '
                                         'for pointers on how to search.')
             return tuple(f"{val:06d} {key}"
-                                            for key, val in luts.items())[0]
+                         for key, val in luts.items())[0]
         else:
             return molecule
 
@@ -73,12 +73,12 @@ class CDMSClass(BaseQuery, LineListClass):
                     if "molecule_id should be a length-6 string of numbers" in str(ex):
                         if parse_name_locally:
                             raise ValueError(f"Molecule {molecule} could not be parsed or identified."
-                                              "  Check that the name was correctly specified.")
+                                             "  Check that the name was correctly specified.")
                         else:
                             raise ValueError(f"Molecule {molecule} needs to be formatted as"
-                                              " a 6-digit string ID for the get_molecule fallback to work."
-                                              "  Try setting parse_name_locally=True "
-                                              "to turn your molecule name into a CDMS number ID.")
+                                             " a 6-digit string ID for the get_molecule fallback to work."
+                                             "  Try setting parse_name_locally=True "
+                                             "to turn your molecule name into a CDMS number ID.")
                     else:
                         raise ex
             else:
@@ -231,7 +231,6 @@ class CDMSClass(BaseQuery, LineListClass):
                 break
         if not ok:
             raise EmptyResponseError("Did not find table in response")
-
 
         baseurl = self.URL.split('cgi-bin')[0]
         fullurl = f'{baseurl}/{url}'

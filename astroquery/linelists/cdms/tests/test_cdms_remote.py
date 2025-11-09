@@ -125,7 +125,7 @@ def test_fallback_to_getmolecule_parameter():
         min_strength=-500,
         molecule="028528 H2NC",
         fallback_to_getmolecule=True
-        )
+    )
 
     assert isinstance(tbl_fallback, Table)
     assert len(tbl_fallback) > 0
@@ -133,6 +133,7 @@ def test_fallback_to_getmolecule_parameter():
     # I don't think the state set within this module affects the rest of the
     # tests but just in case
     CDMS.fallback_to_getmolecule = False
+
 
 @pytest.mark.remote_data
 def test_remote_regex():
