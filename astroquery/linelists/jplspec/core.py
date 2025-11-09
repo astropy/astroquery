@@ -7,12 +7,12 @@ import numpy as np
 from astropy.io import ascii
 from astropy import table
 from ...query import BaseQuery
-from ...utils import async_to_sync
 from ..core import parse_letternumber
 # import configurable items declared in __init__.py
 from . import conf
 from . import lookup_table
 from astroquery.exceptions import EmptyResponseError, InvalidQueryError
+from astroquery.utils import process_asyncs
 from urllib.parse import parse_qs
 
 
@@ -24,16 +24,14 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-@async_to_sync
 class JPLSpecClass(BaseQuery):
 
     # use the Configuration Items imported from __init__.py
     URL = conf.server
     TIMEOUT = conf.timeout
 
-    def __init__(self, fallback_to_getmolecule=True):
+    def __init__(self):
         super().__init__()
-        self.fallback_to_getmolecule = fallback_to_getmolecule
 
     def query_lines_async(self, min_frequency, max_frequency, *,
                           min_strength=-500,
@@ -139,7 +137,36 @@ class JPLSpecClass(BaseQuery):
 
         return response
 
-    def _parse_result(self, response, *, verbose=False):
+    def query_lines(self, min_frequency, max_frequency, *,
+                    min_strength=-500,
+                    max_lines=2000, molecule='All', flags=0,
+                    parse_name_locally=False,
+                    get_query_payload=False,
+                    fallback_to_getmolecule=False,
+                    cache=True):
+        """
+        Query the JPLSpec service for spectral lines.
+
+        This is a synchronous version of `query_lines_async`. 
+        See `query_lines_async` for full parameter documentation.
+        """
+        response = self.query_lines_async(min_frequency=min_frequency,
+                                          max_frequency=max_frequency,
+                                          min_strength=min_strength,
+                                          max_lines=max_lines,
+                                          molecule=molecule,
+                                          flags=flags,
+                                          parse_name_locally=parse_name_locally,
+                                          get_query_payload=get_query_payload,
+                                          cache=cache)
+        if get_query_payload:
+            return response
+        else:
+            return self._parse_result(response, fallback_to_getmolecule=fallback_to_getmolecule)
+
+    query_lines.__doc__ = process_asyncs.async_to_sync_docstr(query_lines_async.__doc__)
+
+    def _parse_result(self, response, *, verbose=False, fallback_to_getmolecule=False):
         """
         Parse a response into an `~astropy.table.Table`
 
@@ -171,7 +198,7 @@ class JPLSpecClass(BaseQuery):
         """
 
         if 'Zero lines were found' in response.text:
-            if self.fallback_to_getmolecule:
+            if fallback_to_getmolecule:
                 self.lookup_ids = build_lookup()
                 payload = parse_qs(response.request.body)
                 tbs = [self.get_molecule(mol) for mol in payload['Mol']]

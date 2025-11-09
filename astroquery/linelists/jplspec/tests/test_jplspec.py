@@ -229,12 +229,10 @@ def test_fallback_to_getmolecule_with_empty_response():
     mock_response = _create_empty_response('18003')
 
     # Test with fallback disabled - should raise EmptyResponseError
-    JPLSpec.fallback_to_getmolecule = False
     with pytest.raises(EmptyResponseError, match="Response was empty"):
-        JPLSpec._parse_result(mock_response)
+        JPLSpec._parse_result(mock_response, fallback_to_getmolecule=False)
 
     # Test with fallback enabled - should call get_molecule
-    JPLSpec.fallback_to_getmolecule = True
     molecules = {'18003': ('H2O', {'FREQ': [100.0, 200.0]})}
 
     with patch.object(JPLSpec, 'get_molecule') as mock_get_molecule, \
@@ -244,7 +242,7 @@ def test_fallback_to_getmolecule_with_empty_response():
         mock_get_molecule.side_effect = get_mol_func
         mock_build_lookup.return_value = mock_lookup
 
-        result = JPLSpec._parse_result(mock_response)
+        result = JPLSpec._parse_result(mock_response, fallback_to_getmolecule=True)
 
         mock_get_molecule.assert_called_once_with('18003')
         assert isinstance(result, Table)
@@ -252,14 +250,11 @@ def test_fallback_to_getmolecule_with_empty_response():
         assert result.meta['molecule_id'] == '18003'
         assert result.meta['molecule_name'] == 'H2O'
 
-    JPLSpec.fallback_to_getmolecule = True
-
 
 def test_fallback_to_getmolecule_with_multiple_molecules():
     """Test fallback with multiple molecules in the request."""
     mock_response = _create_empty_response(['18003', '28001'])
 
-    JPLSpec.fallback_to_getmolecule = True
     molecules = {
         '18003': ('H2O', {'FREQ': [100.0, 200.0]}),
         '28001': ('CO', {'FREQ': [300.0, 400.0]})
@@ -272,7 +267,7 @@ def test_fallback_to_getmolecule_with_multiple_molecules():
         mock_get_molecule.side_effect = get_mol_func
         mock_build_lookup.return_value = mock_lookup
 
-        result = JPLSpec._parse_result(mock_response)
+        result = JPLSpec._parse_result(mock_response, fallback_to_getmolecule=True)
 
         assert mock_get_molecule.call_count == 2
         assert isinstance(result, Table)
@@ -280,14 +275,11 @@ def test_fallback_to_getmolecule_with_multiple_molecules():
         assert 'molecule_list' in result.meta
         assert 'Name' in result.colnames
 
-    JPLSpec.fallback_to_getmolecule = True
-
 
 def test_query_lines_with_fallback():
     """Test that query_lines uses fallback when server returns empty result."""
 
     # Test with fallback disabled - should raise EmptyResponseError
-    JPLSpec.fallback_to_getmolecule = False
     with patch.object(JPLSpec, '_request') as mock_request:
         mock_response = _create_empty_response('28001')
         mock_response.raise_for_status = Mock()
@@ -297,10 +289,10 @@ def test_query_lines_with_fallback():
             JPLSpec.query_lines(min_frequency=100 * u.GHz,
                                 max_frequency=200 * u.GHz,
                                 min_strength=-500,
-                                molecule="28001 CO")
+                                molecule="28001 CO",
+                                fallback_to_getmolecule=False)
 
     # Test with fallback enabled - should call get_molecule
-    JPLSpec.fallback_to_getmolecule = True
     molecules = {'28001': ('CO', {
         'FREQ': [115271.2018, 230538.0000],
         'ERR': [0.0005, 0.0010],
@@ -327,11 +319,10 @@ def test_query_lines_with_fallback():
             min_frequency=100 * u.GHz,
             max_frequency=200 * u.GHz,
             min_strength=-500,
-            molecule="28001 CO")
+            molecule="28001 CO",
+            fallback_to_getmolecule=True)
 
         mock_get_molecule.assert_called_once_with('28001')
         assert isinstance(result, Table)
         assert len(result) > 0
         assert 'molecule_id' in result.meta
-
-    JPLSpec.fallback_to_getmolecule = True

@@ -9,11 +9,11 @@ from astroquery.exceptions import EmptyResponseError
 @pytest.mark.xfail(reason="2025 server problems", raises=EmptyResponseError)
 @pytest.mark.remote_data
 def test_remote():
-    JPLSpec.fallback_to_getmolecule = False
     tbl = JPLSpec.query_lines(min_frequency=500 * u.GHz,
                               max_frequency=1000 * u.GHz,
                               min_strength=-500,
-                              molecule="18003 H2O")
+                              molecule="18003 H2O",
+                              fallback_to_getmolecule=False)
     assert isinstance(tbl, Table)
     assert len(tbl) == 36
     assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
@@ -32,11 +32,11 @@ def test_remote_regex_fallback():
     CO, H13CN, HC15N
     Some of these have different combinations of QNs
     """
-    JPLSpec.fallback_to_getmolecule = True
     tbl = JPLSpec.query_lines(min_frequency=500 * u.GHz,
                               max_frequency=1000 * u.GHz,
                               min_strength=-500,
-                              molecule=("28001", "28002", "28003"))
+                              molecule=("28001", "28002", "28003"),
+                              fallback_to_getmolecule=True)
     assert isinstance(tbl, Table)
     tbl = tbl[((tbl['FREQ'].quantity > 500*u.GHz) & (tbl['FREQ'].quantity < 1*u.THz))]
     assert len(tbl) == 16
@@ -57,11 +57,11 @@ def test_remote_regex_fallback():
 @pytest.mark.xfail(reason="2025 server problems", raises=EmptyResponseError)
 @pytest.mark.remote_data
 def test_remote_regex():
-    JPLSpec.fallback_to_getmolecule = False
     tbl = JPLSpec.query_lines(min_frequency=500 * u.GHz,
                               max_frequency=1000 * u.GHz,
                               min_strength=-500,
-                              molecule=("28001", "28002", "28003"))
+                              molecule=("28001", "28002", "28003"),
+                              fallback_to_getmolecule=False)
     assert isinstance(tbl, Table)
     assert len(tbl) == 16
     assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
@@ -125,11 +125,11 @@ def test_get_molecule_string_id():
 
 @pytest.mark.remote_data
 def test_remote_fallback():
-    JPLSpec.fallback_to_getmolecule = True
     tbl = JPLSpec.query_lines(min_frequency=500 * u.GHz,
                               max_frequency=1000 * u.GHz,
                               min_strength=-500,
-                              molecule="18003 H2O")
+                              molecule="18003 H2O",
+                              fallback_to_getmolecule=True)
     assert isinstance(tbl, Table)
     tbl = tbl[((tbl['FREQ'].quantity > 500*u.GHz) & (tbl['FREQ'].quantity < 1*u.THz))]
     assert len(tbl) == 36
