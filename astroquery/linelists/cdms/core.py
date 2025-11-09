@@ -94,7 +94,6 @@ class CDMSClass(BaseQuery, LineListClass):
                                             flags=flags,
                                             parse_name_locally=parse_name_locally,
                                             get_query_payload=get_query_payload,
-                                            fallback_to_getmolecule=fallback_to_getmolecule,
                                             cache=cache)
             return self._parse_result(response, molname=molecule, verbose=verbose)
 
@@ -102,7 +101,6 @@ class CDMSClass(BaseQuery, LineListClass):
                           min_strength=-500, molecule='All',
                           temperature_for_intensity=300, flags=0,
                           parse_name_locally=False, get_query_payload=False,
-                          fallback_to_getmolecule=False,
                           cache=True):
         """
         Creates an HTTP POST request based on the desired parameters and
