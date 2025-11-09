@@ -281,7 +281,9 @@ class JPLSpecClass(BaseQuery, LineListClass):
         if isinstance(molecule_id, (int, np.int32, np.int64)):
             molecule_str = f'{molecule_id:06d}'
             if len(molecule_str) > 6:
-                raise ValueError("molecule_id should be an integer with fewer than 6 digits or a length-6 string of numbers")
+                raise ValueError("molecule_id should be an integer with"
+                                 " fewer than 6 digits or a length-6 "
+                                 "string of numbers")
         elif isinstance(molecule_id, str):
             # this is for the common case where the molecule is specified e.g. as 028001 CO
             try:
@@ -294,7 +296,7 @@ class JPLSpecClass(BaseQuery, LineListClass):
 
         # Construct the URL to the catalog file
         url = f'https://spec.jpl.nasa.gov/ftp/pub/catalog/c{molecule_str}.cat'
-        
+
         # Request the catalog file
         response = self._request(method='GET', url=url,
                                  timeout=self.TIMEOUT, cache=cache)
@@ -302,10 +304,10 @@ class JPLSpecClass(BaseQuery, LineListClass):
 
         if 'The requested URL was not found on this server.' in response.text:
             raise EmptyResponseError(f"No data found for molecule ID {molecule_id}.")
-        
+
         # Parse the catalog file
         result = self._parse_cat(response)
-        
+
         # Add metadata from species table
         species_table = self.get_species_table()
         # Find the row matching this molecule_id
@@ -314,7 +316,7 @@ class JPLSpecClass(BaseQuery, LineListClass):
         if len(matching_rows) > 0:
             # Add metadata as a dictionary
             result.meta = dict(zip(matching_rows.colnames, matching_rows[0]))
-        
+
         return result
 
     def _parse_cat(self, response, *, verbose=False):

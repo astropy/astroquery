@@ -13,4 +13,3 @@ def get_package_data():
 
     return {'astroquery.linelists.jplspec.tests': paths_test,
             'astroquery.linelists.jplspec': paths_data, }
-

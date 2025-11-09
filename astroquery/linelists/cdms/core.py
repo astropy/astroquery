@@ -12,7 +12,6 @@ from astroquery.utils import async_to_sync
 # import configurable items declared in __init__.py
 from astroquery.linelists.cdms import conf
 from astroquery.exceptions import InvalidQueryError, EmptyResponseError
-from astroquery import log
 from ..core import LineListClass
 
 import re
@@ -309,7 +308,7 @@ class CDMSClass(BaseQuery, LineListClass):
             for key in fix_keys:
                 if not np.issubdtype(result[key].dtype, np.integer):
                     intcol = np.array(list(map(parse_letternumber, result[key])),
-                                    dtype=int)
+                                      dtype=int)
                     result[key] = intcol
 
             # if there is a crash at this step, something went wrong with the query
@@ -324,8 +323,8 @@ class CDMSClass(BaseQuery, LineListClass):
         except ValueError as ex:
             # Give users a more helpful exception when parsing fails
             new_message = ("Failed to parse CDMS response.  This may be caused by a malformed search return. "
-                  "You can check this by running `CDMS.get_molecule('<id>')` instead; if it works, the "
-                  "problem is caused by the CDMS search interface and cannot be worked around.")
+                           "You can check this by running `CDMS.get_molecule('<id>')` instead; if it works, the "
+                           "problem is caused by the CDMS search interface and cannot be worked around.")
             raise ValueError(new_message) from ex
 
         return result
@@ -453,7 +452,7 @@ class CDMSClass(BaseQuery, LineListClass):
         response.raise_for_status()
 
         if 'Zero lines were found' in response.text:
-            raise EmptyResponseError(f"Response was empty; message was '{text}'.")
+            raise EmptyResponseError(f"Response was empty; message was '{response.text}'.")
 
         result = self._parse_cat(response.text)
 
