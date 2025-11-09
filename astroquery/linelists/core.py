@@ -4,12 +4,6 @@ Base classes and common utilities for linelist queries (JPLSpec, CDMS, etc.)
 """
 import numpy as np
 import string
-import astropy.units as u
-from astropy.io import ascii
-from astroquery.exceptions import EmptyResponseError
-from astroquery import log
-from astropy import table
-
 
 __all__ = ['parse_letternumber']
 
