@@ -38,6 +38,75 @@ def test_remote_300K():
     assert tbl['FREQ'][0] == 505366.7875
     assert tbl['ERR'][0] == 49.13
     assert tbl['LGINT'][0] == -4.2182
+    assert tbl['MOLWT'][0] == 18
+    assert tbl['TAG'][0] == 18505
+
+
+@pytest.mark.remote_data
+def test_co_basics():
+    tbl = CDMS.get_molecule('028503')
+    assert tbl['Q1'][0] == 1
+    assert tbl['Q7'][0] == 0
+    assert tbl['Q1'][10] == 11
+    assert tbl['Q7'][10] == 10
+    assert tbl['MOLWT'][0] == 28
+    assert tbl['TAG'][0] == -28503
+
+
+@pytest.mark.remote_data
+def test_ch3cn_negqn():
+    # 041505 = CH3CN on 2025-05-21
+    tbl = CDMS.get_molecule('041505')
+    assert tbl.meta['molecule'] == 'CH3CN, v=0'
+    fourtominusthree = tbl[(tbl['Q1'] == 4) & (tbl['Q2'] == -3)]
+    assert len(fourtominusthree) >= 1
+
+    # check specifically for -21, which is encoded as `b1`
+    twentytwominustwentyone = tbl[(tbl['Q1'] == 22) & (tbl['Q2'] == -21)]
+    assert len(twentytwominustwentyone) >= 1
+
+    assert tbl['TAG'][0] == 41505
+
+    twentythreeminustwentyone = tbl[(tbl['Q1'] == 23) & (tbl['Q2'] == -21)]
+    assert len(twentythreeminustwentyone) >= 1
+    assert twentythreeminustwentyone['TAG'][0] == -41505
+
+
+@pytest.mark.remote_data
+def test_propanediol():
+    tbl1 = CDMS.get_molecule('076513')
+    assert 'int' in tbl1['Q2'].dtype.name
+
+    tbl = CDMS.query_lines(min_frequency=100.3 * u.GHz,
+                           max_frequency=100.5 * u.GHz,
+                           molecule='076513')
+    assert isinstance(tbl, Table)
+    assert len(tbl) >= 1
+    assert 'aG\'g-1,2-Propanediol' in tbl['name']
+    # check that the parser worked - this will be string or obj otherwise
+    assert 'int' in tbl['Ku'].dtype.name
+    assert tbl['MOLWT'][0] == 76
+    assert tbl['TAG'][0] == 76513
+
+
+@pytest.mark.remote_data
+@pytest.mark.xfail(reason="CDMS entry for H2NC is malformed")
+def test_h2nc():
+    tbl1 = CDMS.get_molecule('028528')
+    assert 'int' in tbl1['Q2'].dtype.name
+
+    tbl = CDMS.query_lines(min_frequency=139.3 * u.GHz,
+                           max_frequency=141.5 * u.GHz,
+                           molecule='028528 H2NC')
+
+    # these are the results that SHOULD be return if it actually worked
+    assert isinstance(tbl, Table)
+    assert len(tbl) >= 1
+    assert 'H2NC' in tbl['name']
+    # check that the parser worked - this will be string or obj otherwise
+    assert 'int' in tbl['Ku'].dtype.name
+    assert tbl['MOLWT'][0] == 28
+    assert tbl['TAG'][0] == 28528
 
 
 @pytest.mark.remote_data
@@ -46,13 +115,14 @@ def test_remote_regex():
     tbl = CDMS.query_lines(min_frequency=500 * u.GHz,
                            max_frequency=600 * u.GHz,
                            min_strength=-500,
-                           molecule=('028501 HC-13-N, v=0', '028502 H2CN' '028503 CO, v=0'))
+                           molecule=('028501 HC-13-N, v=0', '028502 H2CN', '028503 CO, v=0'))
 
     assert isinstance(tbl, Table)
-    assert len(tbl) == 557
+    # regression test fix: there's 1 CO line that got missed because of a missing comma
+    assert len(tbl) == 558
     assert set(tbl.keys()) == colname_set
 
-    assert set(tbl['name']) == {'H2CN', 'HC-13-N, v=0'}
+    assert set(tbl['name']) == {'H2CN', 'HC-13-N, v=0', 'CO, v=0'}
 
 
 @pytest.mark.remote_data
@@ -66,16 +136,16 @@ def test_molecule_with_parens():
 
     MC = np.ma.core.MaskedConstant()
 
-    for col, val in zip(tbl[0].colnames, (232588.7246, 0.2828, -4.1005, 3, 293.8540, 445, 66,
-                        506, 303, 44, 14, 30, MC, MC, MC, 45, 13, 33, MC, MC, MC, 'H2C(CN)2', False)):
+    for col, val in zip(tbl[0].colnames, (232588.7246, 0.2828, -4.1005, 3, 293.8540, 445, 66506,
+                        303, 44, 14, 30, MC, MC, MC, 45, 13, 33, MC, MC, MC, 'H2C(CN)2', 66, False)):
         if val is MC:
             assert tbl[0][col].mask
         else:
             assert tbl[0][col] == val
 
     # this test row includes degeneracy = 1225, which covers one of the weird letter-is-number parser cases
-    for col, val in zip(tbl[16].colnames, (233373.369, 10.26, -4.8704, 3, 1229.0674, 1125, 66,
-                        506, 303, 112, 10, 102, MC, MC, MC, 112, 9, 103, MC, MC, MC, 'H2C(CN)2', False),):
+    for col, val in zip(tbl[16].colnames, (233373.369, 10.26, -4.8704, 3, 1229.0674, 1125, 66506,
+                        303, 112, 10, 102, MC, MC, MC, 112, 9, 103, MC, MC, MC, 'H2C(CN)2', 66, False),):
         if val is MC:
             assert tbl[16][col].mask
         else:
@@ -119,6 +189,20 @@ def test_retrieve_species_table():
     assert 'int' in species_table['tag'].dtype.name
     assert 'int' in species_table['#lines'].dtype.name
     assert 'float' in species_table['lg(Q(1000))'].dtype.name
+
+
+@pytest.mark.remote_data
+def test_remote_all_species():
+    tbl = CDMS.query_lines(min_frequency=100.3 * u.GHz,
+                           max_frequency=100.5 * u.GHz,
+                           min_strength=-5)
+    assert isinstance(tbl, Table)
+
+    AlS_is_in_table = (tbl['name'] == 'AlS').sum() > 0
+    Propanediol_is_in_table = (tbl['name'] == "aG'g-1,2-Propanediol").sum() > 0
+
+    assert AlS_is_in_table
+    assert Propanediol_is_in_table
 
 
 @pytest.mark.bigdata
