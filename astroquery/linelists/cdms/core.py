@@ -35,26 +35,68 @@ class CDMSClass(BaseQuery, LineListClass):
     def __init__(self, fallback_to_getmolecule=False):
         super().__init__()
 
+    def _mol_to_payload(self, molecule, parse_name_locally, flags):
+        if parse_name_locally:
+            self.lookup_ids = build_lookup()
+            luts = self.lookup_ids.find(molecule, flags)
+            if len(luts) == 0:
+                raise InvalidQueryError('No matching species found. Please '
+                                        'refine your search or read the Docs '
+                                        'for pointers on how to search.')
+            return tuple(f"{val:06d} {key}"
+                                            for key, val in luts.items())[0]
+        else:
+            return molecule
+
     def query_lines(self, min_frequency, max_frequency, *,
                     min_strength=-500, molecule='All',
                     temperature_for_intensity=300, flags=0,
                     parse_name_locally=False, get_query_payload=False,
                     fallback_to_getmolecule=False,
+                    verbose=False,
                     cache=True):
-        response = self.query_lines_async(min_frequency=min_frequency,
-                                          max_frequency=max_frequency,
-                                          min_strength=min_strength,
-                                          molecule=molecule,
-                                          temperature_for_intensity=temperature_for_intensity,
-                                          flags=flags,
-                                          parse_name_locally=parse_name_locally,
-                                          get_query_payload=get_query_payload,
-                                          fallback_to_getmolecule=fallback_to_getmolecule,
-                                          cache=cache)
-        if fallback_to_getmolecule:
-            return response
+
+        # Check if a malformatted molecule was requested and use fallback if enabled
+        # accounts for three formats, e.g.: '058501' or 'H2C2S' or '058501 H2C2S'
+        badlist = (self.MALFORMATTED_MOLECULE_LIST
+                   + [y for x in self.MALFORMATTED_MOLECULE_LIST for y in x.split()])
+
+        # extract molecule from the response or request
+        requested_molecule = self._mol_to_payload(molecule, parse_name_locally, flags) if molecule != 'All' else None
+
+        if requested_molecule and requested_molecule in badlist:
+            if fallback_to_getmolecule:
+                try:
+                    return self.get_molecule(requested_molecule[:6])
+                except ValueError as ex:
+                    # try to give the users good guidance on which parameters will work
+                    if "molecule_id should be a length-6 string of numbers" in str(ex):
+                        if parse_name_locally:
+                            raise ValueError(f"Molecule {molecule} could not be parsed or identified."
+                                              "  Check that the name was correctly specified.")
+                        else:
+                            raise ValueError(f"Molecule {molecule} needs to be formatted as"
+                                              " a 6-digit string ID for the get_molecule fallback to work."
+                                              "  Try setting parse_name_locally=True "
+                                              "to turn your molecule name into a CDMS number ID.")
+                    else:
+                        raise ex
+            else:
+                raise ValueError(f"Molecule {requested_molecule} is known not to comply with standard CDMS format.  "
+                                 f"Try get_molecule({requested_molecule}) instead or set "
+                                 f"CDMS.fallback_to_getmolecule = True.")
         else:
-            return self._parse_result(response)
+            response = self.query_lines_async(min_frequency=min_frequency,
+                                            max_frequency=max_frequency,
+                                            min_strength=min_strength,
+                                            molecule=molecule,
+                                            temperature_for_intensity=temperature_for_intensity,
+                                            flags=flags,
+                                            parse_name_locally=parse_name_locally,
+                                            get_query_payload=get_query_payload,
+                                            fallback_to_getmolecule=fallback_to_getmolecule,
+                                            cache=cache)
+            return self._parse_result(response, molname=molecule, verbose=verbose)
 
     def query_lines_async(self, min_frequency, max_frequency, *,
                           min_strength=-500, molecule='All',
@@ -163,17 +205,7 @@ class CDMSClass(BaseQuery, LineListClass):
             payload['Moleculesgrp'] = 'all species'
         else:
             if molecule is not None:
-                if parse_name_locally:
-                    self.lookup_ids = build_lookup()
-                    luts = self.lookup_ids.find(molecule, flags)
-                    if len(luts) == 0:
-                        raise InvalidQueryError('No matching species found. Please '
-                                                'refine your search or read the Docs '
-                                                'for pointers on how to search.')
-                    payload['Molecules'] = tuple(f"{val:06d} {key}"
-                                                 for key, val in luts.items())[0]
-                else:
-                    payload['Molecules'] = molecule
+                payload['Molecules'] = self._mol_to_payload(molecule, parse_name_locally, flags)
 
         if get_query_payload:
             return payload
@@ -199,21 +231,6 @@ class CDMSClass(BaseQuery, LineListClass):
         if not ok:
             raise EmptyResponseError("Did not find table in response")
 
-        # Check if a malformatted molecule was requested and use fallback if enabled
-        # accounts for three formats, e.g.: '058501' or 'H2C2S' or '058501 H2C2S'
-        badlist = (self.MALFORMATTED_MOLECULE_LIST
-                   + [y for x in self.MALFORMATTED_MOLECULE_LIST for y in x.split()])
-
-        # extract molecule from the response or request
-        requested_molecule = payload['Molecules'][0]
-
-        if requested_molecule and requested_molecule in badlist:
-            if self.fallback_to_getmolecule:
-                return self.get_molecule(requested_molecule)
-            else:
-                raise ValueError(f"Molecule {requested_molecule} is known not to comply with standard CDMS format.  "
-                                 f"Try get_molecule({requested_molecule}) instead or set "
-                                 f"CDMS.fallback_to_getmolecule = True.")
 
         baseurl = self.URL.split('cgi-bin')[0]
         fullurl = f'{baseurl}/{url}'
@@ -225,7 +242,7 @@ class CDMSClass(BaseQuery, LineListClass):
 
     query_lines.__doc__ = process_asyncs.async_to_sync_docstr(query_lines_async.__doc__)
 
-    def _parse_result(self, response, *, verbose=False):
+    def _parse_result(self, response, *, verbose=False, molname=None):
         """
         Parse a response into an `~astropy.table.Table`
 
@@ -271,7 +288,6 @@ class CDMSClass(BaseQuery, LineListClass):
 
         soup = BeautifulSoup(response.text, 'html.parser')
         text = soup.find('pre').text
-
 
         # this is a different workaround to try to make _some_ of the bad molecules parseable
         # (it doesn't solve all of them, which is why the above fallback exists)
@@ -353,7 +369,7 @@ class CDMSClass(BaseQuery, LineListClass):
         except ValueError as ex:
             # Give users a more helpful exception when parsing fails
             new_message = ("Failed to parse CDMS response.  This may be caused by a malformed search return. "
-                           "You can check this by running `CDMS.get_molecule('<id>')` instead; if it works, the "
+                           f"You can check this by running `CDMS.get_molecule('{molname}')` instead; if it works, the "
                            "problem is caused by the CDMS search interface and cannot be worked around.")
             raise ValueError(new_message) from ex
 

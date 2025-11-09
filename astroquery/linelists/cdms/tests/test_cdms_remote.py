@@ -119,12 +119,13 @@ def test_fallback_to_getmolecule_parameter():
     """
 
     # Test with a malformed molecule and fallback enabled
-    CDMS.fallback_to_getmolecule = True
     tbl_fallback = CDMS.query_lines(
         min_frequency=100 * u.GHz,
         max_frequency=200 * u.GHz,
         min_strength=-500,
-        molecule="028528 H2NC")
+        molecule="028528 H2NC",
+        fallback_to_getmolecule=True
+        )
 
     assert isinstance(tbl_fallback, Table)
     assert len(tbl_fallback) > 0
