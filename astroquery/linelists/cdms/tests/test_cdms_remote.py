@@ -98,7 +98,7 @@ def test_h2nc():
     tbl = CDMS.query_lines(min_frequency=139.3 * u.GHz,
                            max_frequency=141.5 * u.GHz,
                            molecule='028528 H2NC')
-    
+
     # these are the results that SHOULD be return if it actually worked
     assert isinstance(tbl, Table)
     assert len(tbl) >= 1
