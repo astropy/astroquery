@@ -25,7 +25,7 @@ def data_path(filename):
 
 
 @async_to_sync
-class JPLSpecClass(BaseQuery, LineListClass):
+class JPLSpecClass(BaseQuery):
 
     # use the Configuration Items imported from __init__.py
     URL = conf.server
@@ -351,6 +351,7 @@ class JPLSpecClass(BaseQuery, LineListClass):
         Table : `~astropy.table.Table`
             Parsed catalog data.
         """
+        text = response.text
         if 'Zero lines were found' in text or len(text.strip()) == 0:
             raise EmptyResponseError(f"Response was empty; message was '{text}'.")
 

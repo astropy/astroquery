@@ -13,6 +13,7 @@ from astroquery.linelists.cdms import conf
 from astroquery.exceptions import InvalidQueryError, EmptyResponseError
 from ..core import parse_letternumber
 from astroquery.utils import process_asyncs
+from astroquery import log
 
 import re
 
@@ -24,7 +25,7 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-class CDMSClass(BaseQuery, LineListClass):
+class CDMSClass(BaseQuery):
     # use the Configuration Items imported from __init__.py
     URL = conf.search
     SERVER = conf.server
