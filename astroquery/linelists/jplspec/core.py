@@ -175,11 +175,19 @@ class JPLSpecClass(BaseQuery, LineListClass):
                 self.lookup_ids = build_lookup()
                 payload = parse_qs(response.request.body)
                 tbs = [self.get_molecule(mol) for mol in payload['Mol']]
-                for tb, mol in zip(tbs, payload['Mol']):
-                    tb['Name'] = self.lookup_ids.find(mol, flags=0)
-                    for key in tb.meta:
-                        tb.meta[f'{mol}_{key}'] = tb.meta.pop(key)
-                tb = table.vstack(tbs)
+                if len(tbs) > 1:
+                    mols = []
+                    for tb, mol in zip(tbs, payload['Mol']):
+                        tb['Name'] = self.lookup_ids.find(mol, flags=0)
+                        for key in tb.meta:
+                            tb.meta[f'{mol}_{key}'] = tb.meta.pop(key)
+                        mols.append(mol)
+                    tb = table.vstack(tbs)
+                    tb.meta['molecule_list'] = mols
+                else:
+                    tb = tbs[0]
+                    tb.meta['molecule_id'] = payload['Mol'][0]
+
                 return tb
             else:
                 raise EmptyResponseError(f"Response was empty; message was '{response.text}'.")
