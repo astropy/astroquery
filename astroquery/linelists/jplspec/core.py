@@ -187,6 +187,7 @@ class JPLSpecClass(BaseQuery, LineListClass):
                 else:
                     tb = tbs[0]
                     tb.meta['molecule_id'] = payload['Mol'][0]
+                    tb.meta['molecule_name'] = self.lookup_ids.find(payload['Mol'][0], flags=0)
 
                 return tb
             else:

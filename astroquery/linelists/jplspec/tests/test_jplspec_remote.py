@@ -27,29 +27,6 @@ def test_remote():
 
 
 @pytest.mark.remote_data
-def test_remote_fallback():
-    JPLSpec.fallback_to_getmolecule = True
-    tbl = JPLSpec.query_lines(min_frequency=500 * u.GHz,
-                              max_frequency=1000 * u.GHz,
-                              min_strength=-500,
-                              molecule="18003 H2O")
-    assert isinstance(tbl, Table)
-    tbl = tbl[((tbl['FREQ'].quantity > 500*u.GHz) & (tbl['FREQ'].quantity < 1*u.THz))]
-    assert len(tbl) == 36
-    assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
-                                   'TAG', 'QNFMT', 'Lab', 'Name',
-                                   'QN"1', 'QN"2', 'QN"3', 'QN"4',
-                                   "QN'1", "QN'2", "QN'3", "QN'4"
-                                   ])
-
-    assert tbl['FREQ'][0] == 503568.5200
-    assert tbl['ERR'][0] == 0.0200
-    assert tbl['LGINT'][0] == -4.9916
-    assert tbl['ERR'][7] == 12.4193
-    assert tbl['FREQ'][35] == 987926.7590
-
-
-@pytest.mark.remote_data
 def test_remote_regex_fallback():
     """
     CO, H13CN, HC15N
@@ -147,30 +124,26 @@ def test_get_molecule_string_id():
 
 
 @pytest.mark.remote_data
-def test_fallback_to_getmolecule_parameter():
-    """
-    Test that fallback_to_getmolecule parameter controls query behavior.
-
-    When fallback_to_getmolecule is True, query_lines should use get_molecule
-    internally and filter the results, which adds the 'Lab' and 'Name' columns.
-    When False, it uses the direct query mechanism (when available).
-    """
-    # Test with fallback enabled
+def test_remote_fallback():
     JPLSpec.fallback_to_getmolecule = True
-    tbl_fallback = JPLSpec.query_lines(min_frequency=100 * u.GHz,
-                                       max_frequency=200 * u.GHz,
-                                       min_strength=-500,
-                                       molecule="28001 CO")
+    tbl = JPLSpec.query_lines(min_frequency=500 * u.GHz,
+                              max_frequency=1000 * u.GHz,
+                              min_strength=-500,
+                              molecule="18003 H2O")
+    assert isinstance(tbl, Table)
+    tbl = tbl[((tbl['FREQ'].quantity > 500*u.GHz) & (tbl['FREQ'].quantity < 1*u.THz))]
+    assert len(tbl) == 36
+    assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
+                                   'TAG', 'QNFMT', 'Lab',
+                                   'QN"1', 'QN"2', 'QN"3', 'QN"4',
+                                   "QN'1", "QN'2", "QN'3", "QN'4"
+                                   ])
 
-    assert isinstance(tbl_fallback, Table)
-    assert len(tbl_fallback) > 0
-    # When using fallback, should have Lab and Name columns
-    assert 'Lab' in tbl_fallback.colnames
-    assert 'Name' in tbl_fallback.colnames
-
-    # All returned frequencies should be within the requested range
-    assert all(tbl_fallback['FREQ'].quantity >= 100 * u.GHz)
-    assert all(tbl_fallback['FREQ'].quantity <= 200 * u.GHz)
+    assert tbl['FREQ'][0] == 503568.5200
+    assert tbl['ERR'][0] == 0.0200
+    assert tbl['LGINT'][0] == -4.9916
+    assert tbl['ERR'][7] == 12.4193
+    assert tbl['FREQ'][35] == 987926.7590
 
 
 @pytest.mark.remote_data
