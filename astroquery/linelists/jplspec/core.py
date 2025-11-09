@@ -179,7 +179,7 @@ class JPLSpecClass(BaseQuery, LineListClass):
                     mols = []
                     for tb, mol in zip(tbs, payload['Mol']):
                         tb['Name'] = self.lookup_ids.find(mol, flags=0)
-                        for key in tb.meta:
+                        for key in list(tb.meta.keys()):
                             tb.meta[f'{mol}_{key}'] = tb.meta.pop(key)
                         mols.append(mol)
                     tb = table.vstack(tbs)
