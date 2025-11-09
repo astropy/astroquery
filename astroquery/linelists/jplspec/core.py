@@ -147,7 +147,7 @@ class JPLSpecClass(BaseQuery):
         """
         Query the JPLSpec service for spectral lines.
 
-        This is a synchronous version of `query_lines_async`. 
+        This is a synchronous version of `query_lines_async`.
         See `query_lines_async` for full parameter documentation.
         """
         response = self.query_lines_async(min_frequency=min_frequency,
