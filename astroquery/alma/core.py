@@ -770,7 +770,6 @@ class AlmaClass(QueryWithLogin):
         return self.dataarchive_url
 
     def get_data_info(self, uids, *, expand_tarfiles=False,
-                      cutouts=True,
                       with_auxiliary=True, with_rawdata=True):
         """
         Return information about the data associated with ALMA uid(s)
@@ -849,9 +848,8 @@ class AlmaClass(QueryWithLogin):
                     recursive_access_url = self.get_adhoc_service_access_url(adhoc_service)
                     file_id = recursive_access_url.split('ID=')[1]
                     expanded_tar = self.get_data_info(file_id)
-                    if not cutouts:
-                        expanded_tar = expanded_tar[
-                            expanded_tar['semantics'] != '#cutout']
+                    expanded_tar = expanded_tar[
+                        expanded_tar['semantics'] != '#cutout']
                     if not expanded_result:
                         expanded_result = expanded_tar
                     else:
