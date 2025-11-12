@@ -30,6 +30,17 @@ mast
 
 - Switch to use HTTP continuation for partial downloads. [#3448]
 
+jplspec
+^^^^^^^
+
+- Moved to linelists/.  The old import (astroquery.jplspec) is deprecated. [#3455]
+- Refactored to use linelists.core [#3456]
+
+linelists
+^^^^^^^^^
+
+- General tools for both CDMS/JPL moved to linelists.core [#3456]
+- Added jplspec, moved from its previous location (astroquery.jplspec to astroquery.linelists.jplspec) [#3455]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
@@ -105,6 +116,8 @@ gaia
 - Rename datalink retrieval types EPOCH_SPECTRUM_RVS, EPOCH_SPECTRUM_XP_SSO,
   EPOCH_SPECTRUM_XP_CROWDING, MEAN_SPECTRUM_XP, EPOCH_SPECTRUM_XP and
   MEAN_SPECTRUM_XP_GRAVLENS. [#3382]
+
+- Add more complete support for CDMS quantum number and other value parsing. [#3302]
 
 heasarc
 ^^^^^^^
