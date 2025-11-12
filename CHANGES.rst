@@ -30,6 +30,15 @@ mast
 
 - Switch to use HTTP continuation for partial downloads. [#3448]
 
+jplspec
+^^^^^^^
+
+- Moved to linelists/.  astroquery.jplspec is now deprecated in favor of astroquery.linelists.jplspec [#3455]
+
+linelists.jplspec
+^^^^^^^^^^^^^^^^^
+
+- New location for jplspec.  astroquery.jplspec is now deprecated in favor of astroquery.linelists.jplspec [#3455]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
