@@ -33,13 +33,14 @@ mast
 jplspec
 ^^^^^^^
 
-- Moved to linelists/ [#3455]
+- Moved to linelists/.  The old import (astroquery.jplspec) is deprecated. [#3455]
 - Refactored to use linelists.core [#3456]
 
 linelists
 ^^^^^^^^^
 
 - General tools for both CDMS/JPL moved to linelists.core [#3456]
+- Added jplspec, moved from its previous location (astroquery.jplspec to astroquery.linelists.jplspec) [#3455]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
