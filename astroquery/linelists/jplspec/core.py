@@ -142,13 +142,18 @@ class JPLSpecClass(BaseQuery):
                     max_lines=2000, molecule='All', flags=0,
                     parse_name_locally=False,
                     get_query_payload=False,
-                    fallback_to_getmolecule=False,
+                    fallback_to_getmolecule=True,
                     cache=True):
         """
         Query the JPLSpec service for spectral lines.
 
         This is a synchronous version of `query_lines_async`.
         See `query_lines_async` for full parameter documentation.
+
+        fallback_to_getmolecule is a unique parameter to this method that
+        governs whether `get_molecule` will be used when no results are returned
+        by the query service.  This workaround is needed while JPLSpec's query
+        tool is broken.
         """
         response = self.query_lines_async(min_frequency=min_frequency,
                                           max_frequency=max_frequency,
