@@ -6,11 +6,10 @@ import astropy.units as u
 import numpy as np
 from astropy.io import ascii
 from astropy import table
-from ...query import BaseQuery
-from ..core import parse_letternumber
+from astroquery.query import BaseQuery
+from astroquery.linelists.core import parse_letternumber
 # import configurable items declared in __init__.py
-from . import conf
-from . import lookup_table
+from astroquery.linelists.jplspec import conf, lookup_table
 from astroquery.exceptions import EmptyResponseError, InvalidQueryError
 from astroquery.utils import process_asyncs
 from urllib.parse import parse_qs

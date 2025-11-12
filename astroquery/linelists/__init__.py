@@ -6,6 +6,6 @@ This module contains sub-modules for various molecular and atomic line list data
 as well as common utilities for parsing catalog files.
 """
 
-from .core import parse_letternumber
+from astroquery.linelists.core import parse_letternumber
 
 __all__ = ['parse_letternumber']

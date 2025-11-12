@@ -8,7 +8,7 @@ import os
 
 from astropy import units as u
 from astropy.table import Table
-from ..core import JPLSpec
+from astroquery.linelists.jplspec.core import JPLSpec
 
 file1 = 'CO.data'
 file2 = 'CO_6.data'
