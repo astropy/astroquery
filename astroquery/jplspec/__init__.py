@@ -3,7 +3,7 @@
 JPL Spectral Catalog (Deprecated Location)
 -------------------------------------------
 
-.. deprecated:: 0.4.8
+.. deprecated:: 0.4.12
     The `astroquery.jplspec` module has been moved to `astroquery.linelists.jplspec`.
     Please update your imports to use `from astroquery.linelists.jplspec import JPLSpec` instead.
     This backward compatibility layer will be removed in a future version.
