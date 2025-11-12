@@ -2,11 +2,6 @@
 """
 JPL Spectral Catalog
 --------------------
-
-
-:author: Giannina Guzman (gguzman2@villanova.edu)
-:author: Miguel de Val-Borro (miguel.deval@gmail.com)
-
 """
 from astropy import config as _config
 
