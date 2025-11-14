@@ -30,6 +30,11 @@ mast
 
 - Switch to use HTTP continuation for partial downloads. [#3448]
 
+noirlab
+^^^^^^^
+
+- Restore access to the `NSF NOIRLab <https://noirlab.edu>`_
+  `Astro Data Archive <https://astroarchive.noirlab.edu>`_ [#3359].
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
