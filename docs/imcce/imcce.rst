@@ -214,7 +214,7 @@ Pallas over an entire year with a time step of 1 day:
 The observer location is defined through the ``location`` keyword,
 expecting a string containing the official IAU observatory code, a
 spacecraft name, or a set of coordinates (see the `Miriade manual
-<http://vo.imcce.fr/webservices/miriade/?documentation#field_7>`_ for
+<https://ssp.imcce.fr/webservices/miriade/?documentation#field_7>`_ for
 details).
 
 
@@ -228,7 +228,7 @@ query, the coordinate type in
 `~astroquery.imcce.MiriadeClass.get_ephemerides` is defined through
 an integer value. For a full discussion of the different coordinate
 types we refer to `this section
-<http://vo.imcce.fr/webservices/miriade/?ephemcc#outputparam>`_ of the
+<https://ssp.imcce.fr/webservices/miriade/?ephemcc#outputparam>`_ of the
 Miriade website. The keyword ``coordtype`` controls which set of
 coordinates and properties are queried.
 
