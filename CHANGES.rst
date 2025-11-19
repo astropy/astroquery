@@ -156,6 +156,7 @@ linelists.cdms
 
 - Add a keyword to control writing of new species cache files.
   This is needed to prevent tests from overwriting those files. [#3297]
+- Add more complete support for CDMS quantum number and other value parsing. [#3302]
 
 mast
 ^^^^

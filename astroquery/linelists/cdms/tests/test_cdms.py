@@ -83,6 +83,7 @@ def test_query(patch_post):
     assert tbl['LGINT'][0] == -7.1425
     assert tbl['GUP'][0] == 3
     assert tbl['GUP'][7] == 17
+    assert tbl['MOLWT'][0] == 28
 
 
 def test_parseletternumber():
@@ -99,8 +100,11 @@ def test_parseletternumber():
     assert parse_letternumber("Z9") == 359
 
     # inferred?
-    assert parse_letternumber("z9") == -359
+    assert parse_letternumber("a0") == -10
+    assert parse_letternumber("b0") == -20
     assert parse_letternumber("ZZ") == 3535
+
+    assert parse_letternumber(np.ma.masked) == -999999
 
 
 def test_hc7s(patch_post):

@@ -12,6 +12,7 @@ from astroquery.utils import async_to_sync
 # import configurable items declared in __init__.py
 from astroquery.linelists.cdms import conf
 from astroquery.exceptions import InvalidQueryError, EmptyResponseError
+from astroquery import log
 
 import re
 import string
@@ -31,7 +32,7 @@ class CDMSClass(BaseQuery):
     SERVER = conf.server
     CLASSIC_URL = conf.classic_server
     TIMEOUT = conf.timeout
-    MALFORMATTED_MOLECULE_LIST = ['017506 NH3-wHFS', '028582 H2NC', '058501 H2C2S', '064527 HC3HCN']
+    MALFORMATTED_MOLECULE_LIST = ['017506 NH3-wHFS', '028528 H2NC', '058501 H2C2S', '064527 HC3HCN']
 
     def query_lines_async(self, min_frequency, max_frequency, *,
                           min_strength=-500, molecule='All',
@@ -54,7 +55,8 @@ class CDMSClass(BaseQuery):
         min_strength : int, optional
             Minimum strength in catalog units, the default is -500
 
-        molecule : list, string of regex if parse_name_locally=True, optional
+        molecule : list or string if parse_name_locally=False,
+            string of regex if parse_name_locally=True, optional
             Identifiers of the molecules to search for. If this parameter
             is not provided the search will match any species. Default is 'All'.
             As a first pass, the molecule will be searched for with a direct
@@ -134,18 +136,21 @@ class CDMSClass(BaseQuery):
         # changes interpretation of query
         self._last_query_temperature = temperature_for_intensity
 
-        if molecule is not None:
-            if parse_name_locally:
-                self.lookup_ids = build_lookup()
-                luts = self.lookup_ids.find(molecule, flags)
-                if len(luts) == 0:
-                    raise InvalidQueryError('No matching species found. Please '
-                                            'refine your search or read the Docs '
-                                            'for pointers on how to search.')
-                payload['Molecules'] = tuple(f"{val:06d} {key}"
-                                             for key, val in luts.items())[0]
-            else:
-                payload['Molecules'] = molecule
+        if molecule == 'All':
+            payload['Moleculesgrp'] = 'all species'
+        else:
+            if molecule is not None:
+                if parse_name_locally:
+                    self.lookup_ids = build_lookup()
+                    luts = self.lookup_ids.find(molecule, flags)
+                    if len(luts) == 0:
+                        raise InvalidQueryError('No matching species found. Please '
+                                                'refine your search or read the Docs '
+                                                'for pointers on how to search.')
+                    payload['Molecules'] = tuple(f"{val:06d} {key}"
+                                                 for key, val in luts.items())[0]
+                else:
+                    payload['Molecules'] = molecule
 
         if get_query_payload:
             return payload
@@ -180,7 +185,7 @@ class CDMSClass(BaseQuery):
         # accounts for three formats, e.g.: '058501' or 'H2C2S' or '058501 H2C2S'
         badlist = (self.MALFORMATTED_MOLECULE_LIST +  # noqa
                    [y for x in self.MALFORMATTED_MOLECULE_LIST for y in x.split()])
-        if payload['Molecules'] in badlist:
+        if 'Moleculesgrp' not in payload.keys() and payload['Molecules'] in badlist:
             raise ValueError(f"Molecule {payload['Molecules']} is known not to comply with standard CDMS format.  "
                              f"Try get_molecule({payload['Molecules']}) instead.")
 
@@ -233,15 +238,32 @@ class CDMSClass(BaseQuery):
         soup = BeautifulSoup(response.text, 'html.parser')
         text = soup.find('pre').text
 
+        need_to_filter_bad_molecules = False
+        for bad_molecule in self.MALFORMATTED_MOLECULE_LIST:
+            if text.find(bad_molecule.split()[1]) > -1:
+                need_to_filter_bad_molecules = True
+                break
+        if need_to_filter_bad_molecules:
+            text_new = ''
+            text = text.split('\n')
+            for line in text:
+                need_to_include_line = True
+                for bad_molecule in self.MALFORMATTED_MOLECULE_LIST:
+                    if line.find(bad_molecule.split()[1]) > -1:
+                        need_to_include_line = False
+                        break
+                if need_to_include_line:
+                    text_new = text_new + '\n' + line
+            text = text_new
+
         starts = {'FREQ': 0,
                   'ERR': 14,
                   'LGINT': 25,
                   'DR': 36,
                   'ELO': 38,
                   'GUP': 47,
-                  'MOLWT': 51,
-                  'TAG': 54,
-                  'QNFMT': 58,
+                  'TAG': 50,
+                  'QNFMT': 57,
                   'Ju': 61,
                   'Ku': 63,
                   'vu': 65,
@@ -256,39 +278,47 @@ class CDMSClass(BaseQuery):
                   'F3l': 83,
                   'name': 89}
 
-        result = ascii.read(text, header_start=None, data_start=0,
-                            comment=r'THIS|^\s{12,14}\d{4,6}.*',
-                            names=list(starts.keys()),
-                            col_starts=list(starts.values()),
-                            format='fixed_width', fast_reader=False)
+        try:
+            result = ascii.read(text, header_start=None, data_start=0,
+                                comment=r'THIS|^\s{12,14}\d{4,6}.*',
+                                names=list(starts.keys()),
+                                col_starts=list(starts.values()),
+                                format='fixed_width', fast_reader=False)
 
-        result['FREQ'].unit = u.MHz
-        result['ERR'].unit = u.MHz
+            result['FREQ'].unit = u.MHz
+            result['ERR'].unit = u.MHz
 
-        result['Lab'] = result['MOLWT'] < 0
-        result['MOLWT'] = np.abs(result['MOLWT'])
-        result['MOLWT'].unit = u.Da
+            result['MOLWT'] = [int(x/1e3) for x in result['TAG']]
+            result['Lab'] = result['MOLWT'] < 0
+            result['MOLWT'] = np.abs(result['MOLWT'])
+            result['MOLWT'].unit = u.Da
 
-        fix_keys = ['GUP']
-        for suf in 'ul':
-            for qn in ('J', 'v', 'K', 'F1', 'F2', 'F3'):
-                qnind = qn+suf
-                fix_keys.append(qnind)
-        for key in fix_keys:
-            if not np.issubdtype(result[key].dtype, np.integer):
-                intcol = np.array(list(map(parse_letternumber, result[key])),
-                                  dtype=int)
-                result[key] = intcol
+            fix_keys = ['GUP']
+            for suf in 'ul':
+                for qn in ('J', 'v', 'K', 'F1', 'F2', 'F3'):
+                    qnind = qn+suf
+                    fix_keys.append(qnind)
+            for key in fix_keys:
+                if not np.issubdtype(result[key].dtype, np.integer):
+                    intcol = np.array(list(map(parse_letternumber, result[key])),
+                                      dtype=int)
+                    result[key] = intcol
 
-        # if there is a crash at this step, something went wrong with the query
-        # and the _last_query_temperature was not set.  This shouldn't ever
-        # happen, but, well, I anticipate it will.
-        if self._last_query_temperature == 0:
-            result.rename_column('LGINT', 'LGAIJ')
-            result['LGAIJ'].unit = u.s**-1
-        else:
-            result['LGINT'].unit = u.nm**2 * u.MHz
-        result['ELO'].unit = u.cm**(-1)
+            # if there is a crash at this step, something went wrong with the query
+            # and the _last_query_temperature was not set.  This shouldn't ever
+            # happen, but, well, I anticipate it will.
+            if self._last_query_temperature == 0:
+                result.rename_column('LGINT', 'LGAIJ')
+                result['LGAIJ'].unit = u.s**-1
+            else:
+                result['LGINT'].unit = u.nm**2 * u.MHz
+            result['ELO'].unit = u.cm**(-1)
+        except ValueError as ex:
+            # Give users a more helpful exception when parsing fails
+            new_message = ("Failed to parse CDMS response.  This may be caused by a malformed search return. "
+                           "You can check this by running `CDMS.get_molecule('<id>')` instead; if it works, the "
+                           "problem is caused by the CDMS search interface and cannot be worked around.")
+            raise ValueError(new_message) from ex
 
         return result
 
@@ -387,35 +417,50 @@ class CDMSClass(BaseQuery):
 
         return result
 
-    def get_molecule(self, molecule_id, *, cache=True):
+    def get_molecule(self, molecule_id, *, cache=True, return_response=False):
         """
         Retrieve the whole molecule table for a given molecule id
+
+        Parameters
+        ----------
+        molecule_id : str
+            The 6-digit molecule identifier as a string
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
+        return_response : bool, optional
+            If True, return the raw `requests.Response` object instead of parsing
+            the response.  If this is set, the response will be returned whether
+            or not it was successful.  Default is False.
         """
         if not isinstance(molecule_id, str) or len(molecule_id) != 6:
             raise ValueError("molecule_id should be a length-6 string of numbers")
         url = f'{self.CLASSIC_URL}/entries/c{molecule_id}.cat'
         response = self._request(method='GET', url=url,
                                  timeout=self.TIMEOUT, cache=cache)
-        result = self._parse_cat(response)
+
+        if return_response:
+            return response
+
+        response.raise_for_status()
+
+        if 'Zero lines were found' in response.text:
+            raise EmptyResponseError(f"Response was empty; message was '{response.text}'.")
+
+        result = self._parse_cat(response.text)
 
         species_table = self.get_species_table()
         result.meta = dict(species_table.loc[int(molecule_id)])
 
         return result
 
-    def _parse_cat(self, response, *, verbose=False):
+    def _parse_cat(self, text, *, verbose=False):
         """
         Parse a catalog response into an `~astropy.table.Table`
 
         See details in _parse_response; this is a very similar function,
         but the catalog responses have a slightly different format.
         """
-
-        if 'Zero lines were found' in response.text:
-            raise EmptyResponseError(f"Response was empty; message was '{response.text}'.")
-
-        text = response.text
-
         # notes about the format
         # [F13.4, 2F8.4, I2, F10.4, I3, I7, I4, 12I2]: FREQ, ERR, LGINT, DR, ELO, GUP, TAG, QNFMT, QN  noqa
         #      13 21 29  31     41  44  51  55  57 59 61 63 65 67  69 71 73 75 77 79                   noqa
@@ -426,21 +471,21 @@ class CDMSClass(BaseQuery):
                   'ELO': 32,
                   'GUP': 42,
                   'TAG': 44,
-                  'QNFMT': 52,
-                  'Q1': 56,
-                  'Q2': 58,
-                  'Q3': 60,
-                  'Q4': 62,
-                  'Q5': 64,
-                  'Q6': 66,
-                  'Q7': 68,
-                  'Q8': 70,
-                  'Q9': 72,
-                  'Q10': 74,
-                  'Q11': 76,
-                  'Q12': 78,
-                  'Q13': 80,
-                  'Q14': 82,
+                  'QNFMT': 51,
+                  'Q1': 55,
+                  'Q2': 57,
+                  'Q3': 59,
+                  'Q4': 61,
+                  'Q5': 63,
+                  'Q6': 65,
+                  'Q7': 67,
+                  'Q8': 69,
+                  'Q9': 71,
+                  'Q10': 73,
+                  'Q11': 75,
+                  'Q12': 77,
+                  'Q13': 79,
+                  'Q14': 81,
                   }
 
         result = ascii.read(text, header_start=None, data_start=0,
@@ -450,7 +495,7 @@ class CDMSClass(BaseQuery):
                             format='fixed_width', fast_reader=False)
 
         # int truncates - which is what we want
-        result['MOLWT'] = [int(x/1e4) for x in result['TAG']]
+        result['MOLWT'] = [int(x/1e3) for x in result['TAG']]
 
         result['FREQ'].unit = u.MHz
         result['ERR'].unit = u.MHz
@@ -460,15 +505,18 @@ class CDMSClass(BaseQuery):
         result['MOLWT'].unit = u.Da
 
         fix_keys = ['GUP']
-        for suf in '':
-            for qn in (f'Q{ii}' for ii in range(1, 15)):
-                qnind = qn+suf
-                fix_keys.append(qnind)
+        for qn in (f'Q{ii}' for ii in range(1, 15)):
+            fix_keys.append(qn)
+        log.debug(f"fix_keys: {fix_keys} should include Q1, Q2, ..., Q14 and GUP")
         for key in fix_keys:
             if not np.issubdtype(result[key].dtype, np.integer):
                 intcol = np.array(list(map(parse_letternumber, result[key])),
                                   dtype=int)
+                if any(intcol == -999999):
+                    intcol = np.ma.masked_where(intcol == -999999, intcol)
                 result[key] = intcol
+                if not np.issubdtype(result[key].dtype, np.integer):
+                    raise ValueError(f"Failed to parse {key} as integer")
 
         result['LGINT'].unit = u.nm**2 * u.MHz
         result['ELO'].unit = u.cm**(-1)
@@ -481,18 +529,23 @@ CDMS = CDMSClass()
 
 def parse_letternumber(st):
     """
-    Parse CDMS's two-letter QNs
+    Parse CDMS's two-letter QNs into integers.
+
+    Masked values are converted to -999999.
 
     From the CDMS docs:
     "Exactly two characters are available for each quantum number. Therefore, half
     integer quanta are rounded up ! In addition, capital letters are used to
-    indicate quantum numbers larger than 99. E. g. A0 is 100, Z9 is 359. Small
-    types are used to signal corresponding negative quantum numbers."
+    indicate quantum numbers larger than 99. E. g. A0 is 100, Z9 is 359. Lower case characters
+    are used similarly to signal negative quantum numbers smaller than –9. e. g., a0 is –10, b0 is –20, etc."
     """
+    if np.ma.is_masked(st):
+        return -999999
+
     asc = string.ascii_lowercase
     ASC = string.ascii_uppercase
-    newst = ''.join(['-' + str(asc.index(x)+10) if x in asc else
-                     str(ASC.index(x)+10) if x in ASC else
+    newst = ''.join(['-' + str((asc.index(x)+1)) if x in asc else
+                     str((ASC.index(x)+10)) if x in ASC else
                      x for x in st])
     return int(newst)
 
