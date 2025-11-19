@@ -2,7 +2,7 @@ import pytest
 from astropy import units as u
 from astropy.table import Table
 
-from ...jplspec import JPLSpec
+from astroquery.linelists.jplspec import JPLSpec
 
 
 @pytest.mark.remote_data

@@ -276,7 +276,7 @@ The following modules have been completed using a common API:
   ipac/irsa/irsa_dust/irsa_dust.rst
   ipac/irsa/ibe/ibe.rst
   ipac/irsa/irsa.rst
-  jplspec/jplspec.rst
+  linelists/jplspec/jplspec.rst
   magpis/magpis.rst
   mast/mast.rst
   mocserver/mocserver.rst
@@ -412,7 +412,7 @@ well as  cross section and collision rates.  Those services are:
   atomic/atomic.rst
   linelists/cdms/cdms.rst
   hitran/hitran.rst
-  jplspec/jplspec.rst
+  linelists/jplspec/jplspec.rst
   lamda/lamda.rst
   nist/nist.rst
   splatalogue/splatalogue.rst
