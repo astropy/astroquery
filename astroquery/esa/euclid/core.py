@@ -1445,7 +1445,8 @@ class EuclidClass(TapPlus):
                                                verbose=verbose)
 
     def get_datalinks_metadata(self, ids, *, linking_parameter='SOURCE_ID', verbose=False):
-        """Gets datalinks associated to the provided identifiers, including additional metadata (the datalabs_path)
+        """Gets datalinks associated to the provided identifiers, including additional metadata like
+        datalabs_path, file_name & hdu_index.
         TAP+ only
 
         Parameters
