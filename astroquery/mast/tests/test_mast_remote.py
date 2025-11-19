@@ -417,16 +417,29 @@ class TestMast:
         assert len(result) == 10
 
     def test_mast_query(self):
-        result = Mast.mast_query('Mast.Caom.Cone', ra=184.3, dec=54.5, radius=0.2)
-
-        # Is result in the right format
+        # Cone search (unfiltered)
+        result = Mast.mast_query('Mast.Caom.Cone', ra=184.3, dec=54.5, radius=0.005)
         assert isinstance(result, Table)
-
-        # Are the GALEX observations in the results table
         assert "GALEX" in result['obs_collection']
-
-        # Are the two GALEX observations with obs_id 6374399093149532160 in the results table
         assert len(result[np.where(result["obs_id"] == "6374399093149532160")]) == 2
+
+        # Filtered query
+        columns = ['target_name', 'obs_collection', 'calib_level', 'sequence_number', 't_min']
+        result = Mast.mast_query('Mast.Caom.Filtered',
+                                 target_name=375422201,
+                                 obs_collection={'TESS'},
+                                 calib_level=np.asarray(3),
+                                 sequence_number=[15, 16],
+                                 t_min={'min': 58710, 'max': 58720},
+                                 columns=columns)
+        assert isinstance(result, Table)
+        assert all(result['target_name'] == '375422201')
+        assert all(result['obs_collection'] == 'TESS')
+        assert all(result['calib_level'] == 3)
+        assert all((result['sequence_number'] == 15) | (result['sequence_number'] == 16))
+        assert (result['t_min'] >= 58710).all() and (result['t_min'] <= 58720).all()
+        assert all(c in list(result.columns.keys()) for c in columns)
+        assert len(result.columns) == 5
 
     def test_mast_session_info(self):
         sessionInfo = Mast.session_info(verbose=False)

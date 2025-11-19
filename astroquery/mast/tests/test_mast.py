@@ -8,6 +8,7 @@ from shutil import copyfile
 from unittest.mock import patch
 
 import pytest
+import numpy as np
 
 from astropy.table import Table, unique
 from astropy.coordinates import SkyCoord
@@ -551,9 +552,11 @@ def test_mast_query(patch_post):
 
     # filtered search
     result = mast.Mast.mast_query('Mast.Caom.Filtered',
-                                  dataproduct_type=['image'],
-                                  proposal_pi=['Osten, Rachel A.'],
-                                  s_dec=[{'min': 43.5, 'max': 45.5}])
+                                  dataproduct_type=['image', 'spectrum'],
+                                  proposal_pi={'Osten, Rachel A.'},
+                                  calib_level=np.asarray(3),
+                                  s_dec={'min': 43.5, 'max': 45.5},
+                                  columns=['proposal_pi', 's_dec', 'obs_id'])
     pp_list = result['proposal_pi']
     sd_list = result['s_dec']
     assert isinstance(result, Table)
@@ -561,10 +564,18 @@ def test_mast_query(patch_post):
     assert max(sd_list) < 45.5
     assert min(sd_list) > 43.5
 
-    # error handling
-    with pytest.raises(InvalidQueryError) as invalid_query:
+    # warn if columns provided for non-filtered query
+    with pytest.warns(InputWarning, match="'columns' parameter is ignored"):
+        mast.Mast.mast_query('Mast.Caom.Cone', ra=23.34086, dec=60.658, radius=0.2, columns=['obs_id', 's_ra'])
+
+    # error if no filters provided for filtered query
+    with pytest.raises(InvalidQueryError, match="Please provide at least one filter."):
         mast.Mast.mast_query('Mast.Caom.Filtered')
-    assert "Please provide at least one filter." in str(invalid_query.value)
+
+    # error if a full range if not provided for range filter
+    with pytest.raises(InvalidQueryError,
+                       match='Range filter for "s_ra" must be a dictionary with "min" and "max" keys.'):
+        mast.Mast.mast_query('Mast.Caom.Filtered', s_ra={'min': 10.0})
 
 
 def test_resolve_object_single(patch_post):
