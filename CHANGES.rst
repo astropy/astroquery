@@ -80,7 +80,7 @@ eso
 ^^^
 
 - Switch querying interface from WDB to TAP in querying functions. [#3339]
-- Allow plain ADQL queries via ``query_tap_service`` (with authentication as well). [#3339]
+- Allow plain ADQL queries via ``query_tap`` (with authentication as well). [#3339]
 - Cone search using ``cone_ra`, ``cone_dec`, ``cone_radius`` arguments. [#3339]
 - Retrieve record count before querying the archive, via ``count_only`` argument. [#3339]
 - Ask query functions to print the underlying ADQL queries without issuing them. [#3339]

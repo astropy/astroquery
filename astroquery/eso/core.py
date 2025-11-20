@@ -41,6 +41,9 @@ from .utils import _UserParams, raise_if_coords_not_valid, _reorder_columns, \
     DEFAULT_LEAD_COLS_PHASE3, DEFAULT_LEAD_COLS_RAW
 
 
+__all__ = ['Eso', 'EsoClass']
+
+
 class CalSelectorError(Exception):
     """
     Raised on failure to parse CalSelector's response.
@@ -319,7 +322,7 @@ class EsoClass(QueryWithLogin):
         return table_to_return
 
     @unlimited_maxrec
-    @deprecated_renamed_argument('cache', None, since='0.4.11')
+    @deprecated_renamed_argument('cache', None, since='0.4.12')
     def list_instruments(self, cache=True) -> List[str]:
         """
         List all the available instrument-specific queries offered by the ESO archive.
@@ -346,7 +349,7 @@ class EsoClass(QueryWithLogin):
         return l_res
 
     @unlimited_maxrec
-    @deprecated_renamed_argument('cache', None, since='0.4.11')
+    @deprecated_renamed_argument('cache', None, since='0.4.12')
     def list_surveys(self, *, cache=True) -> List[str]:
         """
         List all the available surveys (phase 3) in the ESO archive.
@@ -408,7 +411,7 @@ class EsoClass(QueryWithLogin):
         return list(ret_table[0].values())[0] if user_params.count_only else ret_table
 
     @deprecated_renamed_argument(('open_form', 'cache'), (None, None),
-                                 since=['0.4.11', '0.4.11'])
+                                 since=['0.4.12', '0.4.12'])
     def query_surveys(
             self,
             surveys: Union[List[str], str] = None, *,
@@ -498,7 +501,7 @@ class EsoClass(QueryWithLogin):
         return t
 
     @deprecated_renamed_argument(('open_form', 'cache'), (None, None),
-                                 since=['0.4.11', '0.4.11'])
+                                 since=['0.4.12', '0.4.12'])
     def query_main(
             self,
             instruments: Union[List[str], str] = None, *,
@@ -588,7 +591,7 @@ class EsoClass(QueryWithLogin):
         return t
 
     @deprecated_renamed_argument(('open_form', 'cache'), (None, None),
-                                 since=['0.4.11', '0.4.11'])
+                                 since=['0.4.12', '0.4.12'])
     def query_instrument(
             self,
             instrument: str, *,
@@ -975,7 +978,7 @@ class EsoClass(QueryWithLogin):
         return files[0] if files and len(files) == 1 and return_string else files
 
     @deprecated_renamed_argument(('open_form', 'cache'), (None, None),
-                                 since=['0.4.11', '0.4.11'])
+                                 since=['0.4.12', '0.4.12'])
     def query_apex_quicklooks(self,
                               project_id: Union[List[str], str] = None, *,
                               columns: Union[List, str] = None,
