@@ -407,6 +407,7 @@ Queries retrieved results can be stored locally in memory (by default) or in a f
 Query without saving results in a file:
 
 .. doctest-remote-data::
+
   >>> from astroquery.gaia import Gaia
   >>> job = Gaia.launch_job_async("select top 100 designation,ra,dec "
   ...                             "from gaiadr3.gaia_source order by source_id")
@@ -423,10 +424,11 @@ Query without saving results in a file:
                 ...
   Length = 100 rows
 
+
 Query saving results in a file (you may use 'output_format' to specified the results data format,
 available formats are: 'votable', 'votable_plain', 'fits', 'csv' and 'json', default is 'votable'):
 
-.. doctest-skip-all::
+.. doctest-skip::
 
   >>> from astroquery.gaia import Gaia
   >>> job = Gaia.launch_job_async("select top 100 ra, dec "
@@ -444,12 +446,18 @@ available formats are: 'votable', 'votable_plain', 'fits', 'csv' and 'json', def
 
 To remove asynchronous jobs::
 
+
+.. doctest-skip::
+
   >>> from astroquery.gaia import Gaia
   >>> Gaia.remove_jobs(["job_id_1","job_id_2",...])
 
 
 2. Authenticated access
 -----------------------
+
+.. From here on all the examples require authentication, therefore we skip doctesting them
+.. doctest-skip-all::
 
 Authenticated users are able to access to TAP+ capabilities (shared tables, persistent jobs, etc.)
 In order to authenticate a user, ``login`` or ``login_gui`` methods must be called. After a
