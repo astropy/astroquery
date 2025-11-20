@@ -1233,7 +1233,7 @@ def test_get_datalinks(monkeypatch):
     assert isinstance(result, Table)
 
 
-def test_get_datalinks_metadata(monkeypatch):
+def test_get_datalinks_with_metadata(monkeypatch):
     def get_datalinks_monkeypatched(self, ids, linking_parameter, extra_options, verbose):
         table = TapTableMeta()
         table.name = extra_options
@@ -1246,7 +1246,7 @@ def test_get_datalinks_metadata(monkeypatch):
     monkeypatch.setattr(TapPlus, "get_datalinks", get_datalinks_monkeypatched)
     euclid = EuclidClass(show_server_messages=False)
 
-    result = euclid.get_datalinks_metadata(ids=[12345678], verbose=True)
+    result = euclid.get_datalinks(ids=[12345678], extra_options='METADATA', verbose=True)
     assert isinstance(result, TapTableMeta)
     assert result.name == "METADATA"
 

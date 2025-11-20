@@ -1419,7 +1419,10 @@ class EuclidClass(TapPlus):
         return files
 
     def get_datalinks(self, ids, *, linking_parameter='SOURCE_ID', extra_options=None, verbose=False):
-        """Gets datalinks associated to the provided identifiers
+        """
+        Description
+        -----------
+        Gets datalinks associated to the provided identifiers.
         TAP+ only
 
         Parameters
@@ -1429,7 +1432,8 @@ class EuclidClass(TapPlus):
         linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID
             By default, all the identifiers are considered as source_id
         extra_options : str, optional, default None, valid values: METADATA
-            To let customize the server behaviour, if present
+            To let customize the server behaviour, if present.
+            If provided with value METADATA, the extra fields datalabs_path, file_name & hdu_index will be retrieved.
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1443,31 +1447,6 @@ class EuclidClass(TapPlus):
                                                linking_parameter=linking_parameter,
                                                extra_options=extra_options,
                                                verbose=verbose)
-
-    def get_datalinks_metadata(self, ids, *, linking_parameter='SOURCE_ID', verbose=False):
-        """Gets datalinks associated to the provided identifiers, including additional metadata like
-        datalabs_path, file_name & hdu_index.
-        TAP+ only
-
-        Parameters
-        ----------
-        ids : str, int, list of str or list of int, mandatory
-            List of identifiers
-        linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID
-            By default, all the identifiers are considered as source_id
-        verbose : bool, optional, default 'False'
-            Flag to display information about the process
-
-        Returns
-        -------
-        A table object
-
-        """
-
-        return self.get_datalinks(ids=ids,
-                                  linking_parameter=linking_parameter,
-                                  extra_options='METADATA',
-                                  verbose=verbose)
 
     def get_scientific_product_list(self, *, observation_id=None, tile_index=None, category=None, group=None,
                                     product_type=None, dataset_release='REGREPROC1_R2', verbose=False):

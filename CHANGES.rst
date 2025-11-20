@@ -12,18 +12,13 @@ API changes
 esa.euclid
 ^^^^^^^^^^
 
-- Method ``get_datalinks`` has a new argument, extra_options, to customize
-  the results to be got from the server. [#3438]
+- Method ``get_datalinks`` has a new argument, ``extra_options``, to customize the results to be got
+  from the server. Specifically, passing ``'METADATA'`` to this argument will retrieve the extra fields
+  ``datalabs_path``, ``file_name`` and ``hdu_index``. [#3438]
 
 
 Service fixes and enhancements
 ------------------------------
-
-esa.euclid
-^^^^^^^^^^
-
-- New method, ``get_datalinks_metadata``, to retrieve additional columns
-  from the datalinks metadata. [#3438]
 
 esa.hubble
 ^^^^^^^^^^
