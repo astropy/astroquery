@@ -66,6 +66,11 @@ esa.hubble
 - Removal of the deprecated ``query_hst_tap`` method, use ``query_tap`` instead.
   [#3367]
 
+eso
+^^^
+
+- Deprecated ``open_form`` and ``cache`` in query functions [#3339]
+
 gaia
 ^^^^
 
@@ -103,6 +108,15 @@ esa.hubble
 ^^^^^^^^^^
 
 - Internal refactor of the module to use to PyVO. [#3367]
+
+eso
+^^^
+
+- Switch querying interface from WDB to TAP in querying functions. [#3339]
+- Allow plain ADQL queries via ``query_tap`` (with authentication as well). [#3339]
+- Cone search using ``cone_ra`, ``cone_dec`, ``cone_radius`` arguments. [#3339]
+- Retrieve record count before querying the archive, via ``count_only`` argument. [#3339]
+- Ask query functions to print the underlying ADQL queries without issuing them. [#3339]
 
 gaia
 ^^^^
