@@ -85,7 +85,7 @@ class CatalogCollection:
         ra_col, dec_col = self._get_ra_dec_column_names(metadata)
 
         # Determine if spatial queries are supported
-        supports_spatial_queries = ra_col and dec_col
+        supports_spatial_queries = (ra_col is not None and dec_col is not None)
         if supports_spatial_queries:
             # If an ra and dec column exist, test spatial query support
             spatial_query = (f'SELECT TOP 0 * FROM {catalog} WHERE CONTAINS(POINT(\'ICRS\', {ra_col}, {dec_col}), '
@@ -95,13 +95,16 @@ class CatalogCollection:
             except DALQueryError:
                 supports_spatial_queries = False
 
-        self._catalog_metadata_cache[catalog] = CatalogMetadata(
+        meta = CatalogMetadata(
             column_metadata=metadata,
             ra_column=ra_col,
             dec_column=dec_col,
-            supports_spatial_queries=supports_spatial_queries
+            supports_spatial_queries=supports_spatial_queries,
         )
-        return self._catalog_metadata_cache[catalog]
+
+        # Cache and return
+        self._catalog_metadata_cache[catalog] = meta
+        return meta
 
     def get_default_catalog(self):
         """
@@ -168,14 +171,19 @@ class CatalogCollection:
         """
         adql_functions = ['CIRCLE', 'POLYGON', 'POINT', 'CONTAINS', 'INTERSECTS']
         supported = []
-        capabilities = self.tap_service.capabilities
-        for cap in capabilities:
-            if cap.standardid == 'ivo://ivoa.net/std/TAP':  # TAP is supported
-                for lang in cap.languages:
-                    if lang.name == 'ADQL':  # ADQL is supported
-                        for func in adql_functions:
-                            if lang.get_feature('ivo://ivoa.net/std/TAPRegExt#features-adqlgeo', func):
-                                supported.append(func)
+        feature_id = 'ivo://ivoa.net/std/TAPRegExt#features-adqlgeo'
+        for capability in self.tap_service.capabilities:
+            if capability.standardid != 'ivo://ivoa.net/std/TAP':
+                continue
+
+            for lang in capability.languages:
+                if lang.name != 'ADQL':
+                    continue
+
+                for func in adql_functions:
+                    if lang.get_feature(feature_id, func):
+                        supported.append(func)
+
         return supported
 
     def _verify_catalog(self, catalog):
@@ -184,8 +192,6 @@ class CatalogCollection:
 
         Parameters
         ----------
-        collection : CatalogCollection
-            The collection to be verified.
         catalog : str
             The catalog to be verified.
 
@@ -250,10 +256,8 @@ class CatalogCollection:
 
         Parameters
         ----------
-        catalog : str
-            The catalog to be queried.
-        table : str
-            The table within the catalog to query.
+        column_metadata : `~astropy.table.Table`
+            The column metadata table for a catalog.
 
         Returns
         -------
