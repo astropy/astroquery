@@ -444,8 +444,7 @@ available formats are: 'votable', 'votable_plain', 'fits', 'csv' and 'json', def
 1.7. Asynchronous job removal
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To remove asynchronous jobs::
-
+To remove asynchronous jobs:
 
 .. doctest-skip::
 
