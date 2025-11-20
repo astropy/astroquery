@@ -651,6 +651,8 @@ def test_datalink():
     assert len(results) == 3
     results = tap.get_datalinks(['1', '2'])
     assert len(results) == 3
+    results = tap.get_datalinks(1, extra_options='METADATA', verbose=True)
+    assert len(results) == 3
 
 
 def test_get_new_column_values_for_update():

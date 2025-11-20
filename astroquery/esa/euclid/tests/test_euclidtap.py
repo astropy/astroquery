@@ -1241,12 +1241,11 @@ def test_get_datalinks_with_metadata(monkeypatch):
 
     # `EuclidClass` is a subclass of `TapPlus`, but it does not inherit
     # `get_datalinks()`, it replaces it with a call to the `get_datalinks()`
-    # of its `__eucliddata`. get_datalinks_metadata delegates to get_datalinks,
-    # which in turn delegates to TapPlus' get_datalinks
+    # of its `__eucliddata`.
     monkeypatch.setattr(TapPlus, "get_datalinks", get_datalinks_monkeypatched)
     euclid = EuclidClass(show_server_messages=False)
 
-    result = euclid.get_datalinks(ids=[12345678], extra_options='METADATA', verbose=True)
+    result = euclid.get_datalinks(ids=[12345678], extra_options='METADATA')
     assert isinstance(result, TapTableMeta)
     assert result.name == "METADATA"
 
