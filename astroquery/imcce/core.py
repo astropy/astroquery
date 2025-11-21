@@ -263,7 +263,6 @@ class MiriadeClass(BaseQuery):
             ('-oscelem', elements),
             ('-mime', 'votable')])
 
-        print(radial_velocity)
         if radial_velocity:
             request_payload['-output'] += ',--rv'
 
@@ -274,7 +273,6 @@ class MiriadeClass(BaseQuery):
         response = self._request('GET', URL, params=request_payload,
                                  timeout=TIMEOUT, cache=cache)
         self._query_uri = response.url
-        print( self._query_uri)
         self._get_raw_response = get_raw_response
 
         return response
