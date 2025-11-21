@@ -54,6 +54,14 @@ class MockTap:
         'TAPname': None
     }
 
+    def search(self, query, language='ADQL', maxrec=1000, uploads=None):
+        return MockResult()
+
+
+class MockResult:
+    def to_table(self):
+        return Table({'value': ['1.5', '1.2', '-0.3']})
+
 
 @pytest.fixture
 def mock_tap():
@@ -92,7 +100,7 @@ def test_query_region_cone(coordinates, radius, offset):
         radius=radius,
         columns="*",
         get_query_payload=True,
-        add_offset=True,
+        add_offset=offset,
     )
 
     # We don't fully float compare in this string, there are slight
@@ -169,6 +177,29 @@ def test_query_region_polygon(polygon):
     )
 
 
+def test_query_region_polygon_no_unit():
+    # position is not used for polygon
+    poly = [
+        (10.1, 10.1),
+        (10.0, 10.1),
+        (10.0, 10.0),
+    ]
+    with pytest.warns(UserWarning, match="Polygon endpoints are being interpreted as"):
+        query = Heasarc.query_region(
+            catalog="suzamaster",
+            spatial="polygon",
+            polygon=poly,
+            columns="*",
+            get_query_payload=True,
+        )
+
+    assert query == (
+        "SELECT * FROM suzamaster "
+        "WHERE CONTAINS(POINT('ICRS',ra,dec),POLYGON('ICRS',"
+        "10.1,10.1,10.0,10.1,10.0,10.0))=1"
+    )
+
+
 def test_query_allsky():
     query1 = Heasarc.query_region(
         catalog="suzamaster", spatial="all-sky", columns="*",
@@ -193,9 +224,230 @@ def test_spatial_invalid(spatial):
         )
 
 
+def test_spatial_cone_no_position():
+    with pytest.raises(InvalidQueryError):
+        Heasarc.query_region(catalog="xmmmaster", columns="*", spatial="cone")
+
+
 def test_no_catalog():
     with pytest.raises(InvalidQueryError):
-        Heasarc.query_region("m31", spatial="cone", columns="*")
+        # OBJ_LIST[0] and radius added to avoid a remote call
+        Heasarc.query_region(
+            OBJ_LIST[0], spatial="cone", columns="*", radius="2arcmin")
+
+
+def test__query_execute_no_catalog():
+    with pytest.raises(InvalidQueryError):
+        # OBJ_LIST[0] and radius added to avoid a remote call
+        Heasarc._query_execute(None)
+
+
+def test_parse_constraints_no_filter():
+    assert Heasarc._parse_constraints(column_filters=None) == []
+    assert Heasarc._parse_constraints(column_filters={}) == []
+
+
+def test_parse_constraints_range():
+    constraints = Heasarc._parse_constraints(column_filters={"flux": (1e-12, 1e-10)})
+    assert constraints == ["flux BETWEEN 1e-12 AND 1e-10"]
+
+
+def test_parse_constraints_eq_float():
+    constraints = Heasarc._parse_constraints(column_filters={"flux": 1.2})
+    assert constraints == ["flux = 1.2"]
+
+
+def test_parse_constraints_eq_str():
+    constraints = Heasarc._parse_constraints(column_filters={"flux": "1.2"})
+    assert constraints == ["flux = '1.2'"]
+
+
+def test_parse_constraints_cmp_float():
+    constraints = Heasarc._parse_constraints(column_filters={"flux": ('>', 1.2)})
+    assert constraints == ["flux > 1.2"]
+
+
+def test_parse_constraints_cmp_float_2():
+    constraints = Heasarc._parse_constraints(column_filters={"flux": ('>', 1.2), "magnitude": ('<=', 15)})
+    assert constraints == ["flux > 1.2", "magnitude <= 15"]
+
+
+def test_parse_constraints_list():
+    constraints = Heasarc._parse_constraints(column_filters={"flux": [1.2, 2.3, 3.4]})
+    assert constraints == ["flux IN (1.2, 2.3, 3.4)"]
+
+
+def test_query_region_no_filter():
+    query = Heasarc.query_region(
+        catalog="suzamaster",
+        spatial="all-sky",
+        column_filters={},
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query == "SELECT * FROM suzamaster"
+
+
+def test_query_region_filter_range():
+    query = Heasarc.query_region(
+        catalog="suzamaster",
+        spatial="all-sky",
+        column_filters={"flux": (1e-12, 1e-10)},
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query == "SELECT * FROM suzamaster WHERE flux BETWEEN 1e-12 AND 1e-10"
+
+
+def test_query_region_filter_eq_float():
+    query = Heasarc.query_region(
+        catalog="suzamaster",
+        spatial="all-sky",
+        column_filters={"flux": 1.2},
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query == "SELECT * FROM suzamaster WHERE flux = 1.2"
+
+
+def test_query_region_filter_eq_str():
+    query = Heasarc.query_region(
+        catalog="suzamaster",
+        spatial="all-sky",
+        column_filters={"flux": "1.2"},
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query == "SELECT * FROM suzamaster WHERE flux = '1.2'"
+
+
+def test_query_region_filter_cmp_float():
+    query = Heasarc.query_region(
+        catalog="suzamaster",
+        spatial="all-sky",
+        column_filters={"flux": ('>', 1.2)},
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query == "SELECT * FROM suzamaster WHERE flux > 1.2"
+
+
+def test_query_region_filter_cmp_float_2():
+    query = Heasarc.query_region(
+        catalog="suzamaster",
+        spatial="all-sky",
+        column_filters={"flux": ('>', 1.2), "magnitude": ('<=', 15)},
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query == ("SELECT * FROM suzamaster WHERE flux > 1.2 "
+                     "AND magnitude <= 15")
+
+
+def test_query_region_filter_list():
+    query = Heasarc.query_region(
+        catalog="suzamaster",
+        spatial="all-sky",
+        column_filters={"flux": [1.2, 2.3, 3.4]},
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query == "SELECT * FROM suzamaster WHERE flux IN (1.2, 2.3, 3.4)"
+
+
+@pytest.mark.parametrize("coordinates", OBJ_LIST)
+def test_query_region_cone_with_filter(coordinates):
+    # use columns='*' to avoid remote call to obtain the default columns
+    query = Heasarc.query_region(
+        coordinates,
+        catalog="suzamaster",
+        spatial="cone",
+        radius=2 * u.arcmin,
+        columns="*",
+        get_query_payload=True,
+        column_filters={"flux": (1e-12, 1e-10)},
+    )
+    assert ("SELECT *") in query
+    assert (
+        "FROM suzamaster WHERE CONTAINS(POINT('ICRS',ra,dec),"
+        "CIRCLE('ICRS',182.63" in query
+    )
+    assert ",39.40" in query
+    assert ",0.0333" in query
+    assert "AND flux BETWEEN 1e-12 AND 1e-10" in query
+
+
+def test__query_execute_none_where():
+    query = Heasarc._query_execute(
+        catalog="suzamaster",
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query == ("SELECT * FROM suzamaster")
+
+
+def test__query_execute_extra_where():
+    query = Heasarc._query_execute(
+        catalog="suzamaster",
+        where=" EXTRA",
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query == ("SELECT * FROM suzamaster EXTRA")
+
+
+def test__query_execute_add_row():
+    query1 = Heasarc._query_execute(
+        catalog="suzamaster",
+        where="",
+        columns="col1, col2",
+        get_query_payload=True,
+    )
+    query2 = Heasarc._query_execute(
+        catalog="suzamaster",
+        where=None,
+        columns="col1, col2",
+        get_query_payload=True,
+    )
+    assert query1 == query2 == ("SELECT col1, col2, __row FROM suzamaster")
+
+
+def test__query_execute_extra_space():
+    query1 = Heasarc._query_execute(
+        catalog="suzamaster",
+        where="WHERE EXTRA",
+        columns="*",
+        get_query_payload=True,
+    )
+
+    query2 = Heasarc._query_execute(
+        catalog="suzamaster",
+        where=" WHERE EXTRA",
+        columns="*",
+        get_query_payload=True,
+    )
+    assert query1 == query2 == ("SELECT * FROM suzamaster WHERE EXTRA")
+
+
+def test_query_execute_columns1(mock_tap, mock_default_cols):
+    query = Heasarc._query_execute(
+        catalog="suzamaster",
+        where="WHERE EXTRA",
+        columns=None,
+        get_query_payload=True,
+    )
+    assert query == ("SELECT col-3, col-2, __row FROM suzamaster WHERE EXTRA")
+
+
+def test_query_execute_columns2(mock_tap, mock_default_cols):
+    _ = Heasarc._query_execute(
+        catalog="suzamaster",
+        where="WHERE EXTRA",
+        columns='*'
+    )
+    assert Heasarc._last_catalog_name == "suzamaster"
+    # reset last result to avoid interference with other tests
+    Heasarc._last_result = None
 
 
 def test_tap_def():
@@ -207,9 +459,6 @@ def test_tap_def():
 
 
 def test_meta_def():
-    class MockResult:
-        def to_table(self):
-            return Table({'value': ['1.5', '1.2', '-0.3']})
     # Use a new HeasarcClass object
     Heasarc = HeasarcClass()
     assert Heasarc._meta_info is None
@@ -258,6 +507,13 @@ def test_list_catalogs_keywords_list_non_str():
         Heasarc.list_catalogs(keywords=['x-ray', 12])
 
 
+def test__list_catalogs_keywords(mock_tap):
+    catalogs = Heasarc.list_catalogs(keywords=['xmm'])
+    assert list(catalogs['name']) == [
+        lab for lab, desc in MockTap().tables.items() if 'TAP' not in lab and 'xmm' in desc.description.lower()
+    ]
+
+
 def test__list_columns__missing_table(mock_tap):
     with pytest.raises(ValueError, match="not available as a public catalog"):
         Heasarc.list_columns(catalog_name='missing-table')
@@ -294,6 +550,29 @@ def test_locate_data_row():
 
     with pytest.raises(ValueError, match="No __row column found"):
         Heasarc.locate_data(table[0:2], catalog_name="xray")
+
+
+def test__guess_host_default():
+    # Use a new HeasarcClass object
+    assert Heasarc._guess_host(host=None) == 'heasarc'
+
+
+@pytest.mark.parametrize("host", ["heasarc", "sciserver", "aws"])
+def test__guess_host_know(host):
+    # Use a new HeasarcClass object
+    assert Heasarc._guess_host(host=host) == host
+
+
+def test__guess_host_sciserver(monkeypatch):
+    monkeypatch.setenv("HOME", "/home/idies")
+    monkeypatch.setattr("os.path.exists", lambda path: path.startswith('/FTP'))
+    assert Heasarc._guess_host(host=None) == 'sciserver'
+
+
+@pytest.mark.parametrize("var", ["AWS_REGION", "AWS_REGION_DEFAULT", "AWS_ROLE_ARN"])
+def test__guess_host_aws(monkeypatch, var):
+    monkeypatch.setenv("AWS_REGION", var)
+    assert Heasarc._guess_host(host=None) == 'aws'
 
 
 def test_download_data__empty():

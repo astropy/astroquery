@@ -1,6 +1,4 @@
-
 import os
-
 import shutil
 import requests
 import tarfile
@@ -261,7 +259,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         cols = [col.upper() for col in cols['name'] if '__' not in col]
         return cols
 
-    def query_tap(self, query, *, maxrec=None):
+    def query_tap(self, query, *, maxrec=None, uploads=None):
         """
         Send query to HEASARC's Xamin TAP using ADQL.
         Results in `~pyvo.dal.TAPResults` format.
@@ -273,6 +271,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             ADQL query to be executed
         maxrec : int
             maximum number of records to return
+        uploads : dict
+            a mapping from table names used in the query to file like
+            objects containing a votable
+            (e.g. a file path or `~astropy.table.Table`).
 
         Returns
         -------
@@ -286,7 +288,130 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         """
         log.debug(f'TAP query: {query}')
         self._saved_query = query
-        return self.tap.search(query, language='ADQL', maxrec=maxrec)
+        return self.tap.search(
+            query, language='ADQL', maxrec=maxrec, uploads=uploads)
+
+    def _query_execute(self, catalog=None, where=None, *,
+                       get_query_payload=False, columns=None,
+                       verbose=False, maxrec=None):
+        """Queries some catalog using the HEASARC TAP server based on the
+        'where' condition and returns an `~astropy.table.Table`.
+
+        Parameters
+        ----------
+        catalog : str
+            The catalog to query. To list the available catalogs, use
+            :meth:`~astroquery.heasarc.HeasarcClass.list_catalogs`.
+        where : str
+            The WHERE condition to be used in the query. It must
+            include the 'WHERE' keyword or be empty.
+        get_query_payload : bool, optional
+            If `True` then returns the generated ADQL query as str.
+            Defaults to `False`.
+        columns : str, optional
+            Target column list with value separated by a comma(,).
+            Use * for all the columns. The default is to return a subset
+            of the columns that are generally the most useful.
+        verbose : bool, optional
+            If False, suppress vo warnings.
+        maxrec : int, optional
+            Maximum number of records
+
+
+        Returns
+        -------
+        table : A `~astropy.table.Table` object.
+        """
+        # if verbose is False then suppress any VOTable related warnings
+        if not verbose:
+            commons.suppress_vo_warnings()
+
+        if catalog is None:
+            raise InvalidQueryError("catalog name is required! Use 'xray' "
+                                    "to search the master X-ray catalog")
+
+        if where is None:
+            where = ''
+
+        # __row is needed for locate_data; we add it if not already present
+        # and remove it afterwards only if the user requested specific
+        # columns. keep_row tracks that.
+        keep_row = (
+            columns in (None, '*')
+            or isinstance(columns, str) and '__row' in columns
+        )
+
+        if columns is None:
+            columns = ', '.join(self._get_default_columns(catalog))
+
+        if '__row' not in columns and columns != '*':
+            columns += ', __row'
+
+        if where != '' and not where.startswith(' '):
+            where = ' ' + where.strip()
+        adql = f'SELECT {columns} FROM {catalog}{where}'
+
+        if get_query_payload:
+            return adql
+        response = self.query_tap(query=adql, maxrec=maxrec)
+
+        # save the response in case we want to use it later
+        self._last_result = response
+        self._last_catalog_name = catalog
+
+        table = response.to_table()
+        if not keep_row and '__row' in table.colnames:
+            table.remove_column('__row')
+        return table
+
+    def _parse_constraints(self, column_filters):
+        """Convert constraints dictionary to ADQL WHERE clause
+
+        Parameters
+        ----------
+        column_filters : dict
+            A dictionary of column constraint filters to include in the query.
+            Each key-value pair will be translated into an ADQL condition.
+            See `query_region` for details.
+
+        Returns
+        -------
+        conditions : list
+            a list of ADQL conditions as str
+
+        """
+        conditions = []
+        if column_filters is None:
+            return conditions
+        for key, value in column_filters.items():
+            if isinstance(value, tuple):
+                if (
+                    len(value) == 2
+                    and all(isinstance(v, (int, float)) for v in value)
+                ):
+                    conditions.append(
+                        f"{key} BETWEEN {value[0]} AND {value[1]}"
+                    )
+                elif (
+                    len(value) == 2
+                    and value[0] in (">", "<", ">=", "<=")
+                ):
+                    conditions.append(f"{key} {value[0]} {value[1]}")
+            elif isinstance(value, list):
+                # handle list values: key IN (...)
+                formatted = []
+                for v in value:
+                    if isinstance(v, str):
+                        formatted.append(f"'{v}'")
+                    else:
+                        formatted.append(str(v))
+                conditions.append(f"{key} IN ({', '.join(formatted)})")
+            else:
+                conditions.append(
+                    f"{key} = '{value}'"
+                    if isinstance(value, str) else f"{key} = {value}"
+                )
+        return conditions
 
     @deprecated_renamed_argument(
         ('mission', 'fields', 'resultmax', 'entry', 'coordsys', 'equinox',
@@ -298,8 +423,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                        True, True, True, False)
     )
     def query_region(self, position=None, catalog=None, radius=None, *,
-                     spatial='cone', width=None, polygon=None, add_offset=False,
-                     get_query_payload=False, columns=None, cache=False,
+                     spatial='cone', width=None, polygon=None, column_filters=None,
+                     add_offset=False, get_query_payload=False, columns=None, cache=False,
                      verbose=False, maxrec=None,
                      **kwargs):
         """Queries the HEASARC TAP server around a coordinate and returns a
@@ -335,6 +460,23 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             outlining the polygon to search in. It can also be a list of
             `astropy.coordinates` object or strings that can be parsed by
             `astropy.coordinates.ICRS`.
+        column_filters : dict
+            A dictionary of column constraint filters to include in the query.
+            Each key-value pair will be translated into an ADQL condition.
+            - For a range query, use a tuple of two values (min, max).
+            e.g. ``{'flux': (1e-12, 1e-10)}`` translates to
+            ``flux BETWEEN 1e-12 AND 1e-10``.
+            - For list values, use a list of values.
+            e.g. ``{'object_type': ['QSO', 'GALAXY']}`` translates to
+            ``object_type IN ('QSO', 'GALAXY')``.
+            - For comparison queries, use a tuple of (operator, value),
+            where operator is one of '=', '!=', '<', '>', '<=', '>='.
+            e.g. ``{'magnitude': ('<', 15)}`` translates to ``magnitude < 15``.
+            - For exact matches, use a single value (str, int, float).
+            e.g. ``{'object_type': 'QSO'}`` translates to
+            ``object_type = 'QSO'``.
+            The keys should correspond to valid column names in the catalog.
+            Use `list_columns` to see the available columns.
         add_offset: bool
             If True and spatial=='cone', add a search_offset column that
             indicates the separation (in arcmin) between the requested
@@ -356,18 +498,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         -------
         table : A `~astropy.table.Table` object.
         """
-        # if verbose is False then suppress any VOTable related warnings
-        if not verbose:
-            commons.suppress_vo_warnings()
 
-        if catalog is None:
-            raise InvalidQueryError("catalog name is required! Use 'xray' "
-                                    "to search the master X-ray catalog")
-
-        if columns is None:
-            columns = ', '.join(self._get_default_columns(catalog))
-            if '__row' not in columns:
-                columns += ',__row'
+        # if we have column_filters and no position, assume all-sky search
+        if position is None and column_filters is not None:
+            spatial = 'all-sky'
 
         if spatial.lower() == 'all-sky':
             where = ''
@@ -390,9 +524,14 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
             coords_str = [f'{coord.ra.deg},{coord.dec.deg}'
                           for coord in coords_list]
-            where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),"
+            where = ("WHERE CONTAINS(POINT('ICRS',ra,dec),"
                      f"POLYGON('ICRS',{','.join(coords_str)}))=1")
         else:
+            if position is None:
+                raise InvalidQueryError(
+                    "position is required to for spatial='cone' (default). "
+                    "Use spatial='all-sky' For all-sky searches."
+                )
             coords_icrs = parse_coordinates(position).icrs
             ra, dec = coords_icrs.ra.deg, coords_icrs.dec.deg
 
@@ -401,7 +540,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                     radius = self.get_default_radius(catalog)
                 elif isinstance(radius, str):
                     radius = coordinates.Angle(radius)
-                where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE("
+                where = ("WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE("
                          f"'ICRS',{ra},{dec},{radius.to(u.deg).value}))=1")
                 # add search_offset for the case of cone
                 if add_offset:
@@ -410,24 +549,33 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             elif spatial.lower() == 'box':
                 if isinstance(width, str):
                     width = coordinates.Angle(width)
-                where = (" WHERE CONTAINS(POINT('ICRS',ra,dec),"
+                where = ("WHERE CONTAINS(POINT('ICRS',ra,dec),"
                          f"BOX('ICRS',{ra},{dec},{width.to(u.deg).value},"
                          f"{width.to(u.deg).value}))=1")
             else:
                 raise ValueError("Unrecognized spatial query type. Must be one"
                                  " of 'cone', 'box', 'polygon', or 'all-sky'.")
 
-        adql = f'SELECT {columns} FROM {catalog}{where}'
+        # handle column filters
+        if column_filters is not None:
+            conditions = self._parse_constraints(column_filters)
+            if len(conditions) > 0:
+                constraints_str = ' AND '.join(conditions)
+                if where == '':
+                    where = 'WHERE ' + constraints_str
+                else:
+                    where += ' AND ' + constraints_str
 
+        table_or_query = self._query_execute(
+            catalog=catalog, where=where,
+            get_query_payload=get_query_payload,
+            columns=columns, verbose=verbose,
+            maxrec=maxrec
+        )
         if get_query_payload:
-            return adql
-        response = self.query_tap(query=adql, maxrec=maxrec)
+            return table_or_query
+        table = table_or_query
 
-        # save the response in case we want to use it later
-        self._last_result = response
-        self._last_catalog_name = catalog
-
-        table = response.to_table()
         if add_offset:
             table['search_offset'].unit = u.arcmin
         if len(table) == 0:
@@ -505,9 +653,13 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         if '__row' not in query_result.colnames:
             raise ValueError('No __row column found in query_result. '
                              'query_result needs to be the output of '
-                             'query_region or a subset.')
+                             'query_region or a subset. try adding '
+                             '__row to the requested columns')
 
         if catalog_name is None:
+            if not hasattr(self, '_last_catalog_name'):
+                raise ValueError('locate_data needs a catalog_name, and none '
+                                 'found from a previous search. Please provide one.')
             catalog_name = self._last_catalog_name
         if not (
             isinstance(catalog_name, str)
@@ -515,8 +667,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         ):
             raise ValueError(f'Unknown catalog name: {catalog_name}')
 
-        # datalink url
-        dlink_url = f'{self.VO_URL}/datalink/{catalog_name}'
+        # datalink url; use sizefiles=false to speed up the response
+        dlink_url = f'{self.VO_URL}/datalink/{catalog_name}?sizefiles=false&'
         query = pyvo.dal.adhoc.DatalinkQuery(
             baseurl=dlink_url,
             id=query_result['__row'],
@@ -592,7 +744,41 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         self.s3_client = self.s3_resource.meta.client
 
-    def download_data(self, links, host='heasarc', location='.'):
+    def _guess_host(self, host):
+        """Guess the host to use for downloading data
+
+        Parameters
+        ----------
+        host : str
+            The host provided by the user
+
+        Returns
+        -------
+        host : str
+            The guessed host
+
+        """
+        if host in ['heasarc', 'sciserver', 'aws']:
+            return host
+        elif host is not None:
+            raise ValueError(
+                'host has to be one of heasarc, sciserver, aws or None')
+
+        # host is None, so we guess
+        if (
+            'HOME' in os.environ
+            and os.environ['HOME'] == '/home/idies'
+            and os.path.exists('/FTP/')
+        ):
+            # we are on idies, so we can use sciserver
+            return 'sciserver'
+
+        for var in ['AWS_REGION', 'AWS_DEFAULT_REGION', 'AWS_ROLE_ARN']:
+            if var in os.environ:
+                return 'aws'
+        return 'heasarc'
+
+    def download_data(self, links, *, host=None, location='.'):
         """Download data products in links with a choice of getting the
         data from either the heasarc server, sciserver, or the cloud in AWS.
 
@@ -600,9 +786,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         Parameters
         ----------
         links : `astropy.table.Table` or `astropy.table.Row`
-            The result from locate_data
-        host : str
-            The data host. The options are: heasarc (default), sciserver, aws.
+            A table (or row) of data links, typically the result of locate_data.
+        host : str or None
+            The data host. The options are: None (default), heasarc, sciserver, aws.
+            If None, the host is guessed based on the environment.
             If host == 'sciserver', data is copied from the local mounted
             data drive.
             If host == 'aws', data is downloaded from Amazon S3 Open
@@ -623,8 +810,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         if isinstance(links, Row):
             links = links.table[[links.index]]
 
-        if host not in ['heasarc', 'sciserver', 'aws']:
-            raise ValueError('host has to be one of heasarc, sciserver, aws')
+        # guess the host if not provided
+        host = self._guess_host(host)
 
         host_column = 'access_url' if host == 'heasarc' else host
         if host_column not in links.colnames:

@@ -26,7 +26,7 @@ Query a Catalog
 The basic use case is one where we want to query a catalog from some position in the sky.
 In this example, we query the NuSTAR master catalog ``numaster`` for all observations
 of the AGN ``NGC 3783``. We use `~astropy.coordinates.SkyCoord` to obtain the coordinates
-and then pass them to `~astroquery.heasarc.HeasarcClass.query_region`. In following, we
+and then pass them to `~astroquery.heasarc.HeasarcClass.query_region`. In the following, we
 also select only columns with ``time > 0``. Zero values are typically used for observations
 that have been approved but not observed.
 
@@ -95,11 +95,35 @@ The list of returned columns can also be given as a comma-separated string to
 If no columns are given, the call will return a set of default columns.
 If you want all the columns returned, use ``columns='*'``
 
+To add a search offset column that gives the angular distance in arcminutes
+between the query position and the positions in the catalog,
+use the ``add_offset=True``:
+
+To do a full sky search, use ``spatial='all-sky'``:
+
+.. doctest-remote-data::
+
+    >>> from astroquery.heasarc import Heasarc
+    >>> tab = Heasarc.query_region(catalog='chanmaster', spatial='all-sky',
+    ...                            columns='name, obsid, ra, dec')
+    >>> tab[:5].pprint()
+            name         obsid     ra       dec   
+                                  deg       deg   
+    -------------------- ----- --------- ---------
+             ESO005-G004 21421  91.42333 -86.63194
+    1RXSJ200924.1-853911 10143 302.30417 -85.64633
+            RE J0317-853 22326  49.31604 -85.54043
+                ACO 4023 15124 354.93333 -85.17583
+               GRB020321  3477 242.76000 -83.70000
+
 List Available Catalogs
 -----------------------
 The collection of available catalogs can be obtained by calling the `~astroquery.heasarc.HeasarcClass.list_catalogs`
-method. In this example, we query the master catalogs only by passing ``master=True``.
-which is ``False`` by default (i.e. return all catalogs). `~astroquery.heasarc.HeasarcClass.list_catalogs` returns an
+method. In this example, we request the master catalogs only by passing ``master=True``.
+Master catalogs are catalogs that contain one entry per observation, as opposed to
+other catalogs that may record other information. There is typically one master catalog
+per mission. The ``master`` parameter is a boolean flag, which is ``False`` by default 
+(i.e. return all catalogs). `~astroquery.heasarc.HeasarcClass.list_catalogs` returns an
 `~astropy.table.Table` with two columns containing the names and description of the available
 catalogs.
 
@@ -111,8 +135,8 @@ catalogs.
        name                             description
     ---------- -------------------------------------------------------------
     ascamaster ASCA Master Catalog
+    burcbmastr BurstCube Master Observation Catalog
     chanmaster Chandra Observations
-    cmbmaster  LAMBDA Cosmic Microwave Background Experiments Master Catalog
     ...
 
 If you do not know the name of the catalog you are looking for, you can use the ``keywords``
@@ -138,7 +162,7 @@ are related to Chandra, you can do:
     cargm31cxo          Carina Nebula Gum 31 Chandra X-Ray Point Source Catalog
     carinaclas                 Carina Nebula Chandra X-Ray Point Source Classes
 
-If you are interested only finding the master catalogs, you can also set ``master`` to ``True``.
+If you are interested only finding the master catalogs only, you can set ``master`` to ``True``.
 
 .. doctest-remote-data::
 
@@ -177,6 +201,58 @@ following for instance will find master catalogs that have keywords 'nicer' or '
     nicermastr NICER Master Catalog
     swiftmastr Swift Master Catalog
 
+
+Adding Column Constraints
+----------------------------------------
+In addition to region search in `~astroquery.heasarc.HeasarcClass.query_region`,
+you can also pass other column constraints. This is done by passing a dictionary
+to the ``column_filters`` parameter. The keys of the dictionary are the column names
+and the values are the constraints. Exampels include:
+- ``{'flux': (1e-12, 1e-10)}`` translates to a flux range.
+- ``{'exposure': ('>', 10000)}`` translates to exposure greater than 10000.
+- ``{'instrument': ['ACIS', 'HRC']}`` translates to a value in a list.
+- ``{'obsid': '12345'}`` translates to obsid equal to 12345.
+
+This allows you to query a catalog by specifying
+various column constraints. For example, the following query searches the ``chanmaster``
+catalog for all observations with exposure time greater than 190 ks.
+
+Note that when column filters are given and no position is specified,
+the search defaults to an all-sky search.
+
+.. doctest-remote-data::
+
+    >>> from astroquery.heasarc import Heasarc
+    >>> tab = Heasarc.query_region(
+    ...     catalog='chanmaster', column_filters={'exposure': ('>', '190000')}
+    ... )
+    >>> tab['name', 'obsid', 'ra', 'dec', 'exposure'][:3].pprint()
+        name      obsid     ra       dec    exposure
+                            deg       deg       s    
+    --------------- ----- --------- --------- --------
+       GW Transient 29852        --        --   300000
+             Sgr A* 13842 266.41667 -29.00781   191760
+    IGR J17480-2446 30481 267.02013 -24.78024   200000
+
+Another example may be to search the ``xmmmaster`` for a observation in some time range:
+
+.. doctest-remote-data::
+
+    >>> from astroquery.heasarc import Heasarc
+    >>> tab = Heasarc.query_region(
+    ...     catalog='xmmmaster', column_filters={'time': (52300, 52310)}
+    ... )
+    >>> tab['name', 'obsid', 'ra', 'dec', 'time', 'duration'][:3].pprint()
+         name       obsid       ra       dec          time       duration
+                                deg       deg           d            s    
+    ------------- ---------- -------- --------- ---------------- --------
+        NGC 1316 0091770101 50.95833 -37.28333 52308.6872337963    60362
+        NGC 1316 0091770201 50.67296 -37.20928  52308.642974537     3462
+    Fei 16 offset 0154150101 28.64374  -6.86667 52305.2210416667    24619
+
+To see the available columns that can be queried for a given catalog and their units,
+use `~astroquery.heasarc.HeasarcClass.list_columns` (see below).
+
 Links to Data Products
 ----------------------
 Once the query result is obtained, you can query any data products associated
@@ -191,10 +267,10 @@ with those results.
     >>> tab = tab[tab['exposure'] > 0]
     >>> links = Heasarc.locate_data(tab[:2])
     >>> links['access_url'].pprint()
-                                access_url
+                                  access_url
     ---------------------------------------------------------------------
-    https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2018_08//1100120101/
-    https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2018_08//1100120102/
+    https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2025_01//7100120102/
+    https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2025_01//7100120101/
 
 The ``links`` table has three relevant columns: ``access_url``, ``sciserver`` and ``aws``.
 The first gives the url to the data from the main heasarc server. The second gives
@@ -203,6 +279,7 @@ You can specify where the data are to be downloaded using the ``location`` param
 
 To download the data, you can pass ``links`` table (or row) to `~astroquery.heasarc.HeasarcClass.download_data`,
 specifying from where you want the data to be fetched by specifying the ``host`` parameter. By default,
+the function will try to guess the best host based on your environment. If it cannot guess, then
 the data is fetched from the main HEASARC servers.
 The recommendation is to use different hosts depending on where your code is running:
 * ``host='sciserver'``: Use this option if you running you analysis on Sciserver. Because
@@ -249,6 +326,44 @@ returns the constructed ADQL query.
     121.92084 39.00417              UGC4229 0138950101
     121.92084 39.00417              UGC4229 0138951401
     121.92099 39.00422              MRK 622 0852180501
+
+Table Uploads
+-----------------
+You can also upload a table of positions to be queried. The table can be an
+`~astropy.table.Table` or a path to a file in VOtable format. The following example 
+shows how to use the upload feature to do a cross-match between the
+``chanmaster`` catalog and a list of known source positions:
+
+.. doctest-remote-data::
+    
+    >>> from astroquery.heasarc import Heasarc
+    >>> from astropy.table import Table
+    >>> sample = Table({
+    ...     'ra': [1.58, 188.90],
+    ...     'dec': [20.20, -39.90]
+    ... })
+    >>> query = """
+    ... SELECT cat.name, cat.ra, cat.dec, cat.obsid
+    ... FROM chanmaster cat, tap_upload.mytable mt
+    ... WHERE 1=CONTAINS(POINT('ICRS', mt.ra, mt.dec), CIRCLE('ICRS',cat.ra, cat.dec, 0.1))
+    ... """
+    >>> result = Heasarc.query_tap(query, uploads={'mytable': sample}).to_table()
+    >>> result.pprint()
+        name        ra       dec    obsid
+                   deg       deg         
+    ----------- --------- --------- -----
+       NGC 4507 188.90250 -39.90928 12292
+       NGC 4507 188.90208 -39.90925  2150
+         HR4796 189.00417 -39.86950  7414
+    KUG0003+199   1.58134  20.20291 23709
+        Mrk 335   1.58142  20.20295 23292
+        Mrk 335   1.58142  20.20295 23297
+        Mrk 335   1.58142  20.20295 23298
+        Mrk 335   1.58142  20.20295 23299
+        Mrk 335   1.58142  20.20295 23300
+        Mrk 335   1.58142  20.20295 23301
+        Mrk 335   1.58142  20.20295 23302
+
 
 Complex Regions
 ---------------
