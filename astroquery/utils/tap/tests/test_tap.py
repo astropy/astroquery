@@ -635,6 +635,8 @@ def test_datalink():
     responseResultsJob.set_data(method='GET', body=TEST_DATA["job_1.vot"])
     req = "links?ID=1,2"
     conn_handler.set_response(req, responseResultsJob)
+    req = "links?ID=1&OPTIONS=METADATA"
+    conn_handler.set_response(req, responseResultsJob)
 
     # error
     responseResultsJob.set_status_code(500)
@@ -650,6 +652,8 @@ def test_datalink():
     results = tap.get_datalinks([1, 2])
     assert len(results) == 3
     results = tap.get_datalinks(['1', '2'])
+    assert len(results) == 3
+    results = tap.get_datalinks(1, extra_options='METADATA', verbose=True)
     assert len(results) == 3
 
 
