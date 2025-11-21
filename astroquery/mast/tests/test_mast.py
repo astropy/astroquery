@@ -511,6 +511,22 @@ def test_missions_get_dataset_kwd(patch_post, caplog):
     with caplog.at_level('WARNING', logger='astroquery'):
         assert 'The mission "unknown" does not have a known dataset ID keyword' in caplog.text
 
+
+@pytest.mark.parametrize(
+    'method, kwargs,',
+    [['query_region', dict()],
+     ['query_criteria', dict(ang_sep=0.6)]]
+)
+def test_missions_radius_too_large(method, kwargs, patch_post):
+    m = mast.MastMissions(mission='jwst')
+    coordinates = SkyCoord(0, 0, unit=u.deg)
+    radius = m._max_query_radius + 0.1 * u.deg
+    with pytest.raises(
+        InvalidQueryError, match='Query radius too large. Must be*'
+    ):
+        getattr(m, method)(coordinates=coordinates, radius=radius, **kwargs)
+
+
 ###################
 # MastClass tests #
 ###################

@@ -46,6 +46,8 @@ mast
 - Expand the supported data types for filter values in ``Mast.mast_query``. Previously, users had to input
   filter values enclosed in lists, even when specifying a single value or dictionary. [#3422]
 
+- Raise informative error if ``MastMissions`` query radius is too large. [#3447]
+
 jplspec
 ^^^^^^^
 

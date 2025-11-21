@@ -47,6 +47,9 @@ class MastMissionsClass(MastQueryWithLogin):
                              'spectral_type', 'bmv0_mag', 'u_mag', 'b_mag', 'v_mag', 'gaia_g_mean_mag', 'star_mass',
                              'instrument', 'grating', 'filter', 'observation_id']
 
+    # maximum supported query radius
+    _max_query_radius = 30 * u.arcmin
+
     def __init__(self, *, mission='hst', mast_token=None):
         super().__init__(mast_token=mast_token)
 
@@ -217,6 +220,7 @@ class MastMissionsClass(MastQueryWithLogin):
             Default is 3 arcminutes. The radius around the coordinates to search within.
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from `~astropy.units` may also be used.
+            The maximum supported query radius is 30 arcminutes.
         limit : int
             Default is 5000. The maximum number of dataset IDs in the results.
         offset : int
@@ -235,6 +239,11 @@ class MastMissionsClass(MastQueryWithLogin):
         Returns
         -------
         response : list of `~requests.Response`
+
+        Raises
+        ------
+        InvalidQueryError
+            If the query radius is larger than the limit (30 arcminutes).
         """
 
         self.limit = limit
@@ -248,6 +257,11 @@ class MastMissionsClass(MastQueryWithLogin):
 
         # If radius is just a number, assume arcminutes
         radius = coord.Angle(radius, u.arcmin)
+
+        if radius > self._max_query_radius:
+            raise InvalidQueryError(
+                f"Query radius too large. Must be ≤{self._max_query_radius}, got {radius}."
+            )
 
         # Dataset ID column should always be returned
         if select_cols:
@@ -284,6 +298,7 @@ class MastMissionsClass(MastQueryWithLogin):
             Default is 3 arcminutes. The radius around the coordinates to search within.
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from `~astropy.units` may also be used.
+            The maximum supported query radius is 30 arcminutes.
         limit : int
             Default is 5000. The maximum number of dataset IDs in the results.
         offset : int
@@ -310,6 +325,11 @@ class MastMissionsClass(MastQueryWithLogin):
         Returns
         -------
         response : list of `~requests.Response`
+
+        Raises
+        ------
+        InvalidQueryError
+            If the query radius is larger than the limit (30 arcminutes).
         """
 
         self.limit = limit
@@ -326,6 +346,11 @@ class MastMissionsClass(MastQueryWithLogin):
 
         # if radius is just a number we assume degrees
         radius = coord.Angle(radius, u.arcmin)
+
+        if radius > self._max_query_radius:
+            raise InvalidQueryError(
+                f"Query radius too large. Must be ≤{self._max_query_radius}, got {radius}."
+            )
 
         # Dataset ID column should always be returned
         if select_cols:
