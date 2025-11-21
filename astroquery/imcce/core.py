@@ -25,7 +25,7 @@ __all__ = ['Miriade', 'MiriadeClass', 'Skybot', 'SkybotClass']
 class MiriadeClass(BaseQuery):
     """
     A class for querying the
-    `IMCCE/Miriade <http://vo.imcce.fr/webservices/miriade/>`_ service.
+    `IMCCE/Miriade <https://ssp.imcce.fr/webservices/miriade>`_ service.
     """
 
     _query_uri = None  # uri used in query
@@ -51,8 +51,8 @@ class MiriadeClass(BaseQuery):
                               get_raw_response=False, cache=True):
         """
         Query the
-        `IMCCE Miriade <http://vo.imcce.fr/webservices/miriade/>`_
-        `ephemcc <http://vo.imcce.fr/webservices/miriade/?ephemcc>`_
+        `IMCCE Miriade <https://ssp.imcce.fr/webservices/miriade>`_
+        `ephemcc <https://ssp.imcce.fr/webservices/miriade/api/ephemcc/>`_
         service.
 
 
@@ -87,14 +87,14 @@ class MiriadeClass(BaseQuery):
         location : str, optional
             Location of the observer on Earth as a code or a set of
             coordinates. See the
-            `Miriade manual <http://vo.imcce.fr/webservices/miriade/?documentation#field_7>`_
+            `Miriade manual <https://ssp.imcce.fr/webservices/miriade/api/ephemcc/#http-request>`_
             for details. Default: geocentric location (``'500'``)
 
         coordtype : int, optional
             Type of coordinates to be calculated: ``1``: spherical, ``2``:
             rectangular, ``3``: local coordinates (azimuth and elevation),
-            ``4``: hour angle coordinates, ``5``: dedicated to observation,
-            ``6``: dedicated to AO observation. Default: ``1``
+            ``4``: hour angle coordinates, ``5``: dedicated to observation.
+            Default: ``1``
 
         timescale : str, optional
             The time scale used in the computation of the ephemerides:
@@ -254,7 +254,7 @@ class MiriadeClass(BaseQuery):
             ('-step', epoch_step),
             ('-nbd', epoch_nsteps),
             ('-observer', location),
-            ('-output', '--jul'),
+            ('-output', '--jd'),
             ('-tscale', timescale),
             ('-theory', planetary_theory),
             ('-teph', ephtype),
@@ -263,6 +263,7 @@ class MiriadeClass(BaseQuery):
             ('-oscelem', elements),
             ('-mime', 'votable')])
 
+        print(radial_velocity)
         if radial_velocity:
             request_payload['-output'] += ',--rv'
 
@@ -273,7 +274,7 @@ class MiriadeClass(BaseQuery):
         response = self._request('GET', URL, params=request_payload,
                                  timeout=TIMEOUT, cache=cache)
         self._query_uri = response.url
-
+        print( self._query_uri)
         self._get_raw_response = get_raw_response
 
         return response
@@ -302,15 +303,20 @@ class MiriadeClass(BaseQuery):
         data = votable.get_first_table().to_table()
 
         # modify table columns
+        data.rename_column('date', 'epoch')
         data['epoch'].unit = u.d
 
-        if 'ra' in data.columns:
-            data['ra'] = Angle(data['ra'], unit=u.hourangle).deg*u.deg
-            data.rename_column('ra', 'RA')
+        if 'RA' in data.columns:
+            data['RA'] = Angle(data['RA'], unit=u.hourangle).deg*u.deg
 
-        if 'dec' in data.columns:
-            data['dec'] = Angle(data['dec'], unit=u.deg).deg*u.deg
-            data.rename_column('dec', 'DEC')
+        if 'DEC' in data.columns:
+            data['DEC'] = Angle(data['DEC'], unit=u.deg).deg*u.deg
+
+        if 'LONG' in data.columns:
+            data['LONG'] = Angle(data['LONG'], unit=u.deg).deg*u.deg
+
+        if 'LAT' in data.columns:
+            data['LAT'] = Angle(data['LAT'], unit=u.deg).deg*u.deg
 
         if 'raJ2000' in data.columns and 'decJ2000' in data.columns:
             data['raJ2000'] = Angle(
@@ -344,47 +350,53 @@ class MiriadeClass(BaseQuery):
                 data['vy_h'].unit = u.au/u.day
                 data['vz_h'].unit = u.au/u.day
 
-        if 'distance' in data.columns:
-            data.rename_column('distance', 'delta')
+        if 'dobs' in data.columns:
+            data.rename_column('dobs', 'delta')
 
-        if 'obsdistance' in data.columns:
-            data.rename_column('obsdistance', 'delta')
+        if 'dobs' in data.columns:
+            data.rename_column('dobs', 'delta')
 
-        if 'heliodistance' in data.columns:
-            data.rename_column('heliodistance', 'heldist')
+        if 'dhelio' in data.columns:
+            data.rename_column('dhelio', 'heldist')
 
-        if 'azimut' in data.columns and 'elevation' in data.columns:
-            data['azimut'] = Angle(data['azimut'], unit=u.deg).deg * u.deg
-            data['elevation'] = Angle(
-                data['elevation'], unit=u.deg).deg * u.deg
-            data.rename_column('azimut', 'AZ')
-            data.rename_column('elevation', 'EL')
+        if 'az' in data.columns and 'elev' in data.columns:
+            data['az'] = Angle(data['az'], unit=u.deg).deg * u.deg
+            data['elev'] = Angle(
+                data['elev'], unit=u.deg).deg * u.deg
+            data.rename_column('az', 'AZ')
+            data.rename_column('elev', 'EL')
 
-        if 'mv' in data.columns:
-            data.rename_column('mv', 'V')
+        if 'vmag' in data.columns:
+            data.rename_column('vmag', 'V')
             data['V'].unit = u.mag
 
         if 'phase' in data.columns:
             data.rename_column('phase', 'alpha')
 
-        if 'elongation' in data.columns:
-            data.rename_column('elongation', 'elong')
+        if 'dRAcosDEC' in data.columns:
+            data.rename_column('dRAcosDEC', 'RAcosD_rate')
 
-        if 'dracosdec' in data.columns:
-            data.rename_column('dracosdec', 'RAcosD_rate')
+        if 'dDEC' in data.columns:
+            data.rename_column('dDEC', 'DEC_rate')
 
-        if 'ddec' in data.columns:
-            data.rename_column('ddec', 'DEC_rate')
+        if 'dLONGcosLAT' in data.columns:
+            data.rename_column('dLONGcosLAT', 'LONGcosLAT_rate')
 
+        if 'dLAT' in data.columns:
+            data.rename_column('dLAT', 'LAT_rate')
+            
         if 'dist_dot' in data.columns:
             data.rename_column('dist_dot', 'delta_rate')
 
         if 'lst' in data.columns:
             data.rename_column('lst', 'siderealtime')
 
-        if 'hourangle' in data.columns:
+        if 'ha' in data.columns:
+            data.rename_column('ha', 'hourangle')
             data['hourangle'] = Angle(data['hourangle'],
                                       unit=u.hourangle).deg * u.deg
+        if 'am' in data.columns:
+            data.rename_column('am', 'airmass')
 
         if 'aeu' in data.columns:
             data.rename_column('aeu', 'posunc')
@@ -398,7 +410,7 @@ Miriade = MiriadeClass()
 @async_to_sync
 class SkybotClass(BaseQuery):
     """A class for querying the `IMCCE SkyBoT
-    <https://vo.imcce.fr/webservices/skybot/>`_ service.
+    <https://ssp.imcce.fr/webservices/skybot/>`_ service.
     """
     _uri = None  # query uri
     _get_raw_response = False
