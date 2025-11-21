@@ -1,5 +1,10 @@
 .. _astroquery.esa.euclid:
 
+.. almost all code examples require remote-data access, thus only using this
+   one at the very top
+.. doctest-remote-data-all::
+
+
 ********************************************
 ESA EUCLID Archive (`astroquery.esa.euclid`)
 ********************************************
@@ -80,10 +85,6 @@ Examples
 ========
 
 It is highly recommended checking the status of Euclid TAP before executing this module. To do this:
-
-.. almost all code examples require remote-data access, thus only using this
-   one at the first example
-.. doctest-remote-data-all::
 
   >>> from astroquery.esa.euclid import Euclid
   >>> Euclid.get_status_messages()
