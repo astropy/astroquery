@@ -830,7 +830,7 @@ class EuclidClass(TapPlus):
             files.append(output_file_full_path)
             return files
 
-    def get_observation_products(self, *, id=None, release="sedm", product_type=None, product_subtype="STK",
+    def get_observation_products(self, *, id=None, schema="sedm", product_type=None, product_subtype="STK",
                                  filter="VIS", dsr_part1=None, dsr_part2=None, dsr_part3=None, output_file=None,
                                  verbose=False):
         """
@@ -841,7 +841,7 @@ class EuclidClass(TapPlus):
         ----------
         id : str, mandatory
             observation identifier (observation id for observations, mosaic id for mosaics)
-        release : str, optional
+        schema : str, optional
             release name. Default value is 'sedm'.
         product_type : str, mandatory, default None
             list only products of the given type.
@@ -860,8 +860,8 @@ class EuclidClass(TapPlus):
         dsr_part2: str, optional, default None
             the data set release part 2: for OTF environment, the patch id (a positive integer); for REG and IDR,
             the activity code
-        dsr_part3: str, optional, default None
-            the data set release part 3: for OTF, REG and IDR environment, the version (a integer greater than 1)
+        dsr_part3: int, optional, default None
+            the data set release part 3: for OTF, REG and IDR environment, the version (an integer greater than 1)
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -878,7 +878,7 @@ class EuclidClass(TapPlus):
             raise ValueError(f"Invalid product type {product_type}. Valid values: {conf.PRODUCT_TYPES}")
 
         params_dict = {'TYPE': product_subtype, 'RETRIEVAL_ACCESS': 'DIRECT', 'TAPCLIENT': 'ASTROQUERY',
-                       'RELEASE': release}
+                       'RELEASE': schema}
 
         if product_type == 'observation':
             params_dict['FILTER'] = filter
@@ -1119,8 +1119,8 @@ class EuclidClass(TapPlus):
         dsr_part2: str, optional, default None
             the data set release part 2: for OTF environment, the patch id (a positive integer); for REG and IDR,
             the activity code
-        dsr_part3: str, optional, default None
-            the data set release part 3: for OTF, REG and IDR environment, the version (a integer greater than 1)
+        dsr_part3: int, optional, default None
+            the data set release part 3: for OTF, REG and IDR environment, the version (an integer greater than 1)
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1144,7 +1144,7 @@ class EuclidClass(TapPlus):
         if product_type in conf.OBSERVATION_STACK_PRODUCTS:
             table = 'sedm.observation_stack'
 
-            dsr_condition = self.__get_data_set_release_condition(dsr_part1, dsr_part2, dsr_part3, 'observation_stack')
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'observation_stack')
             extra_condition = '' if dsr_condition is None else f' AND {dsr_condition}'
 
             query = (f"SELECT observation_stack.file_name, observation_stack.observation_stack_oid, "
@@ -1152,18 +1152,17 @@ class EuclidClass(TapPlus):
                      f"observation_stack.instrument_name, observation_stack.filter_name, "
                      "observation_stack.release_name, observation_stack.category, observation_stack.second_type, "
                      f"observation_stack.technique, observation_stack.product_type, observation_stack.start_time, "
-                     f"observation_stack.duration, observation_stack.data_set_release_part1, "
-                     f"observation_stack.data_set_release_part2, observation_stack.data_set_release_part3 FROM "
-                     f"{table} WHERE "
+                     f"observation_stack.duration, observation_stack.{self.dsr_1}, observation_stack.{self.dsr_2}, "
+                     f"observation_stack.{self.dsr_3} FROM {table} WHERE "
                      f" observation_stack.observation_id = '{observation_id}' AND observation_stack.product_type = '"
                      f"{product_type}' {extra_condition};")
 
         if product_type in conf.BASIC_DOWNLOAD_DATA_PRODUCTS:
             table = 'sedm.basic_download_data'
 
-            dsr_condition = self.__get_data_set_release_condition(dsr_part1, dsr_part2, dsr_part3,
-                                                                  'basic_download_data')
-            extra_condition = '' if dsr_condition is None else f' AND {dsr_condition}'
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3,
+                                                               'basic_download_data')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
 
             query = (
                 f"SELECT basic_download_data.basic_download_data_oid, basic_download_data.product_type, "
@@ -1171,25 +1170,25 @@ class EuclidClass(TapPlus):
                 f"observation_id_list, CAST(basic_download_data.tile_index_list as text) AS tile_index_list, "
                 f"CAST(basic_download_data.patch_id_list as text) AS patch_id_list, "
                 f"CAST(basic_download_data.filter_name as text) AS filter_name, basic_download_data.release_name, "
-                f"basic_download_data.data_set_release_part2, basic_download_data.data_set_release_part3 FROM "
-                f"{table} WHERE '{observation_id}'=ANY(observation_id_list) AND product_type = '"
+                f"basic_download_data.{self.dsr_1}, basic_download_data.{self.dsr_2}, basic_download_data.{self.dsr_3} "
+                f"FROM {table} WHERE '{observation_id}'=ANY(observation_id_list) AND product_type = '"
                 f"{product_type}' {extra_condition}"
                 f"ORDER BY observation_id_list ASC;")
 
         if product_type in conf.MER_SEGMENTATION_MAP_PRODUCTS:
             table = 'sedm.mer_segmentation_map'
 
-            dsr_condition = self.__get_data_set_release_condition(dsr_part1, dsr_part2, dsr_part3,
-                                                                  'mer_segmentation_map')
-            extra_condition = '' if dsr_condition is None else f' AND {dsr_condition}'
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3,
+                                                               'mer_segmentation_map')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
 
             query = (
                 f"SELECT mer_segmentation_map.file_name, mer_segmentation_map.segmentation_map_oid, "
                 f"mer_segmentation_map.ra, mer_segmentation_map.dec, mer_segmentation_map.stc_s, "
                 f"mer_segmentation_map.tile_index, "
                 f"mer_segmentation_map.product_type, mer_segmentation_map.product_id, "
-                f"mer_segmentation_map.release_name, mer_segmentation_map.data_set_release_part2, "
-                f"mer_segmentation_map.data_set_release_part3 FROM {table} "
+                f"mer_segmentation_map.release_name, mer_segmentation_map.{self.dsr_1}, "
+                f"mer_segmentation_map.{self.dsr_2}, mer_segmentation_map.{self.dsr_3} FROM {table} "
                 f"WHERE ( observation_id_list = '{observation_id}' OR observation_id_list like '{observation_id},"
                 f"%' OR observation_id_list "
                 f"like '%,{observation_id}' OR CAST(observation_id_list as TEXT) like '%,{observation_id},%' ) AND "
@@ -1198,8 +1197,8 @@ class EuclidClass(TapPlus):
         if product_type in conf.RAW_FRAME_PRODUCTS:
             table = 'sedm.raw_frame'
 
-            dsr_condition = self.__get_data_set_release_condition(dsr_part1, dsr_part2, dsr_part3, 'raw_frame')
-            extra_condition = '' if dsr_condition is None else f' AND {dsr_condition}'
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'raw_frame')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
 
             if product_type == "dpdNispRawFrame":
                 instrument_name = "NISP"
@@ -1211,72 +1210,70 @@ class EuclidClass(TapPlus):
                 f"raw_frame.instrument_name, raw_frame.data_set_release, raw_frame.filter_name, "
                 f"raw_frame.observation_mode, raw_frame.grism_wheel_pos, raw_frame.cal_block_id, "
                 f"raw_frame.cal_block_variant, raw_frame.ra, raw_frame.dec, raw_frame.obs_time_utc, "
-                f"raw_frame.exposure_time, raw_frame.release_name, raw_frame.data_set_release_part1, "
-                f"raw_frame.data_set_release_part2, raw_frame.data_set_release_part3 FROM {table} WHERE "
+                f"raw_frame.exposure_time, raw_frame.release_name, raw_frame.{self.dsr_1}, "
+                f"raw_frame.{self.dsr_2}, raw_frame.{self.dsr_3} FROM {table} WHERE "
                 f"raw_frame.observation_id = '{observation_id}' "
                 f"AND raw_frame.instrument_name = '{instrument_name}' {extra_condition};")
 
         if product_type in conf.CALIBRATED_FRAME_PRODUCTS:
             table = 'sedm.calibrated_frame'
 
-            dsr_condition = self.__get_data_set_release_condition(dsr_part1, dsr_part2, dsr_part3, 'calibrated_frame')
-            extra_condition = '' if dsr_condition is None else f' AND {dsr_condition}'
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'calibrated_frame')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
 
             query = (
                 f"SELECT calibrated_frame.file_name, calibrated_frame.calibrated_frame_oid, "
                 f"calibrated_frame.observation_id, calibrated_frame.instrument_name, calibrated_frame.filter_name, "
                 f"calibrated_frame.ra, calibrated_frame.dec, calibrated_frame.stc_s, calibrated_frame.start_time, "
-                f"calibrated_frame.end_time, calibrated_frame.duration, calibrated_frame.data_set_release_part1, "
-                f"calibrated_frame.data_set_release_part2, calibrated_frame.data_set_release_part3 "
+                f"calibrated_frame.end_time, calibrated_frame.duration, calibrated_frame.{self.dsr_1}, "
+                f"calibrated_frame.{self.dsr_2}, calibrated_frame.{self.dsr_3} "
                 f"FROM {table} WHERE calibrated_frame.observation_id = '{observation_id}' AND "
                 f"calibrated_frame.product_type = '{product_type}' {extra_condition};")
 
         if product_type in conf.FRAME_CATALOG_PRODUCTS:
             table = 'sedm.frame_catalog'
 
-            dsr_condition = self.__get_data_set_release_condition(dsr_part1, dsr_part2, dsr_part3, 'frame_catalog')
-            extra_condition = '' if dsr_condition is None else f' AND {dsr_condition}'
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'frame_catalog')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
 
             query = (
                 f"SELECT frame_catalog.file_name, frame_catalog.catalog_oid, frame_catalog.observation_id, "
                 f"frame_catalog.instrument_name, frame_catalog.filter_name, frame_catalog.ra, frame_catalog.dec, "
                 f"frame_catalog.datarange_start_time, frame_catalog.datarange_end_time, "
-                f"frame_catalog.product_type, frame_catalog.product_id, frame_catalog.data_set_release_part1, "
-                f"frame_catalog.data_set_release_part2, frame_catalog.data_set_release_part3 FROM {table} "
+                f"frame_catalog.product_type, frame_catalog.product_id, frame_catalog.{self.dsr_1}, "
+                f"frame_catalog.{self.dsr_2}, frame_catalog.{self.dsr_3} FROM {table} "
                 f"WHERE frame_catalog.observation_id = '{observation_id}' AND frame_catalog.product_type = '"
                 f"{product_type}' {extra_condition};")
 
         if product_type in conf.COMBINED_SPECTRA_PRODUCTS:
             table = 'sedm.combined_spectra'
 
-            dsr_condition = self.__get_data_set_release_condition(dsr_part1, dsr_part2, dsr_part3, 'combined_spectra')
-            extra_condition = '' if dsr_condition is None else f' AND {dsr_condition}'
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'combined_spectra')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
 
             query = (
                 f"SELECT combined_spectra.combined_spectra_oid, combined_spectra.lambda_range, "
                 f"combined_spectra.tile_index, combined_spectra.stc_s, combined_spectra.product_type, "
-                f"combined_spectra.product_id, combined_spectra.data_set_release_part1, "
-                f"combined_spectra.data_set_release_part2, combined_spectra.data_set_release_part3 FROM {table} "
-                f"WHERE ( observation_id_list = '{observation_id}' OR observation_id_list like '{observation_id} %' "
-                f"OR observation_id_list "
-                f"like '% {observation_id}' OR observation_id_list like '% {observation_id} %' ) AND "
+                f"combined_spectra.product_id, combined_spectra.{self.dsr_1}, combined_spectra.{self.dsr_2}, "
+                f"combined_spectra.{self.dsr_3} FROM {table} WHERE ( observation_id_list = '{observation_id}' "
+                f"OR observation_id_list like '{observation_id} %' OR observation_id_list like '% {observation_id}' "
+                f"OR observation_id_list like '% {observation_id} %' ) AND "
                 f"combined_spectra.product_type = '{product_type}' {extra_condition};")
 
         if product_type in conf.SIR_SCIENCE_FRAME_PRODUCTS:
             table = 'sedm.sir_science_frame'
 
-            dsr_condition = self.__get_data_set_release_condition(dsr_part1, dsr_part2, dsr_part3, 'sir_science_frame')
-            extra_condition = '' if dsr_condition is None else f' AND {dsr_condition}'
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'sir_science_frame')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
 
             instrument_name = "NISP"
 
             query = (
                 f"SELECT sir_science_frame.file_name, sir_science_frame.science_frame_oid, "
                 f"sir_science_frame.observation_id, sir_science_frame.instrument_name, sir_science_frame.stc_s, "
-                f"sir_science_frame.prod_sdc, sir_science_frame.data_set_release_part1, "
-                f"sir_science_frame.data_set_release_part2, sir_science_frame.data_set_release_part3 FROM {table} "
-                f"WHERE sir_science_frame.observation_id = '{observation_id}' AND sir_science_frame.instrument_name = '"
-                f"{instrument_name}' {extra_condition};")
+                f"sir_science_frame.prod_sdc, sir_science_frame.{self.dsr_1}, sir_science_frame.{self.dsr_2}, "
+                f"sir_science_frame.{self.dsr_3} FROM {table} WHERE sir_science_frame.observation_id = '"
+                f"{observation_id}' AND sir_science_frame.instrument_name = '{instrument_name}' {extra_condition};")
 
         if query is None:
             raise ValueError(f"Invalid product type {product_type}.")
@@ -1285,54 +1282,33 @@ class EuclidClass(TapPlus):
                                  format_with_results_compressed=('votable_gzip',))
         return job.get_results()
 
-    def __get_data_set_release_condition(self, dsr_1_value=None, dsr_2_value=None, dsr_3_value=None, alias=None):
+    def __get_data_set_release_by_env(self, dsr_1_value=None, dsr_2_value=None, dsr_3_value=None,
+                                      alias=None):
 
         query = None
         if dsr_1_value is not None:
-            dsr_1_final = '.'.join(filter(None, [alias, 'data_set_release_part1']))
-            query = f"{dsr_1_final} = '{dsr_1_value}'"
+            dsr_1_key = '.'.join(filter(None, [alias, self.dsr_1]))
+            query = f"{dsr_1_key} = '{dsr_1_value}'"
 
         if dsr_2_value is not None:
-            dsr_2_final = '.'.join(filter(None, [alias, 'data_set_release_part2']))
+            dsr_2_key = '.'.join(filter(None, [alias, self.dsr_2]))
+            subquery = f"{dsr_2_key} = '{dsr_2_value}'"
             if query is not None:
-                query = f"{query} AND {dsr_2_final} = '{dsr_2_value}'"
+                query = f"{query} AND {subquery}"
             else:
-                query = f"{dsr_2_final} = '{dsr_2_value}'"
+                query = subquery
 
         if dsr_3_value is not None:
-            dsr_3_final = '.'.join(filter(None, [alias, 'data_set_release_part3']))
+            dsr_3_key = '.'.join(filter(None, [alias, str(self.dsr_3)]))
+            subquery = f"{dsr_3_key} = {dsr_3_value}"
             if query is not None:
-                query = f"{query} AND {dsr_3_final} = {dsr_3_value}"
+                query = f"{query} AND {subquery}"
             else:
-                query = f"{dsr_3_final} = {dsr_3_value}"
+                query = subquery
 
         return query
 
-    def __get_data_set_release_condition_from_environment(self, dsr_1_value=None, dsr_2_value=None, dsr_3_value=None,
-                                                          alias=None):
-
-        query = None
-        if dsr_1_value is not None:
-            dsr_1_final = '.'.join(filter(None, [alias, self.dsr_1]))
-            query = f"{dsr_1_final} = '{dsr_1_value}'"
-
-        if dsr_2_value is not None:
-            dsr_2_final = '.'.join(filter(None, [alias, self.dsr_2]))
-            if query is not None:
-                query = f"{query} AND {dsr_2_final} = '{dsr_2_value}'"
-            else:
-                query = f"{dsr_2_final} = '{dsr_2_value}'"
-
-        if dsr_3_value is not None:
-            dsr_3_final = '.'.join(filter(None, [alias, str(self.dsr_3)]))
-            if query is not None:
-                query = f"{query} AND {dsr_3_final} = {dsr_3_value}"
-            else:
-                query = f"{dsr_3_final} = {dsr_3_value}"
-
-        return query
-
-    def get_product(self, *, file_name=None, product_id=None, release='sedm', output_file=None, dsr_part1=None,
+    def get_product(self, *, file_name=None, product_id=None, schema='sedm', output_file=None, dsr_part1=None,
                     dsr_part2=None, dsr_part3=None, verbose=False):
         """
         Downloads a product given its file name or product id
@@ -1344,7 +1320,7 @@ class EuclidClass(TapPlus):
             is mandatory
         product_id : str, optional, default None
             product id. More than one can be specified between comma. Either file_name or product_id is mandatory
-        release : str, optional, default 'sedm'
+        schema : str, optional, default 'sedm'
             the data release name in which the product should be searched
         output_file : str, optional
             output file, use zip extension when downloading multiple files
@@ -1355,8 +1331,8 @@ class EuclidClass(TapPlus):
         dsr_part2: str, optional, default None
             the data set release part 2: for OTF environment, the patch id (a positive integer); for REG and IDR,
             the activity code. Not applicable if product_id is None
-        dsr_part3: str, optional, default None
-            the data set release part 3: for OTF, REG and IDR environment, the version (a integer greater than 1).
+        dsr_part3: int, optional, default None
+            the data set release part 3: for OTF, REG and IDR environment, the version (an integer greater than 1).
             Not applicable if product_id is None
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -1369,7 +1345,7 @@ class EuclidClass(TapPlus):
         if file_name is None and product_id is None:
             raise ValueError("'file_name' and 'product_id' are both None")
 
-        params_dict = {'TAPCLIENT': 'ASTROQUERY', 'RELEASE': release}
+        params_dict = {'TAPCLIENT': 'ASTROQUERY', 'RELEASE': schema}
 
         if file_name is not None:
             params_dict['FILE_NAME'] = file_name
@@ -1615,8 +1591,8 @@ class EuclidClass(TapPlus):
         dsr_part2: str, optional, default None
             the data set release part 2: for OTF environment, the patch id (a positive integer); for REG and IDR,
             the activity code
-        dsr_part3: str, optional, default None
-            the data set release part 3: for OTF, REG and IDR environment, the version (a integer greater than 1)
+        dsr_part3: int, optional, default None
+            the data set release part 3: for OTF, REG and IDR environment, the version (an integer greater than 1)
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1641,7 +1617,7 @@ class EuclidClass(TapPlus):
         if tile_index is not None:
             query_extra_condition = f" AND '{tile_index}' = ANY(tile_index_list) "
 
-        dsr_condition = self.__get_data_set_release_condition(dsr_part1, dsr_part2, dsr_part3)
+        dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3)
         dsr_extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
 
         if observation_id is not None:

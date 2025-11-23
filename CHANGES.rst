@@ -173,6 +173,8 @@ esa.euclid
   products. [#3313]
 
 - New cross-match method [#3386]
+- New parameters in the methods get_observation_products, get_product_list, get_product and get_scientific_product_list
+  to retrieve the products by the dataset release [#3514]
 
 esa.hubble
 ^^^^^^^^^^
