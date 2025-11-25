@@ -25,10 +25,10 @@ __all__ = ['Catalogs', 'CatalogsClass']
 @async_to_sync
 class CatalogsClass(MastQueryWithLogin):
     """
-    MAST catalog query class.
-
-    Class for querying MAST catalog data.
+    Class for discovering and querying MAST catalog collections.
     """
+
+    TAP_BASE_URL = 'https://masttest.stsci.edu/vo-tap/api/v0.1/'
 
     def __init__(self, collection="hsc", catalog=None):
 
@@ -75,7 +75,6 @@ class CatalogsClass(MastQueryWithLogin):
         Setter that verifies that the catalog is valid for the current collection.
         """
         self.collection._verify_catalog(catalog)
-        log.debug(f"Set catalog to: {catalog}")
         self._catalog = catalog
 
     @class_or_instance
@@ -94,7 +93,7 @@ class CatalogsClass(MastQueryWithLogin):
 
         # Otherwise, fetch from the TAP service
         log.debug("Fetching available collections from MAST TAP service.")
-        url = "https://masttest.stsci.edu/vo-tap/api/v0.1/openapi.json"
+        url = self.TAP_BASE_URL + "openapi.json"
         response = requests.get(url)
         response.raise_for_status()
         data = response.json()
@@ -180,15 +179,23 @@ class CatalogsClass(MastQueryWithLogin):
     def _get_collection_obj(self, collection_name):
         """
         Given a collection name, find or create the corresponding CatalogCollection object.
+
+        Parameters
+        ----------
+        collection_name : str
+            The name of the collection.
+
+        Returns
+        -------
+        CatalogCollection
+            The corresponding CatalogCollection object.
         """
         collection_name = collection_name.lower().strip()
         if collection_name in self._collections_cache:
-            log.debug("Using cached CatalogCollection for collection: " + collection_name)
             return self._collections_cache[collection_name]
 
         self._verify_collection(collection_name)
         collection_obj = CatalogCollection(collection_name)
-        log.debug("Cached CatalogCollection for collection: " + collection_name)
         self._collections_cache[collection_name] = collection_obj
         return collection_obj
 
@@ -208,7 +215,6 @@ class CatalogsClass(MastQueryWithLogin):
         tuple
             A tuple containing the (collection, catalog) to be queried.
         """
-
         collection_obj = self._get_collection_obj(collection) if collection else self.collection
 
         if not catalog:
