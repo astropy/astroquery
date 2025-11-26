@@ -62,6 +62,11 @@ linelists.jplspec
 
 - New location for jplspec.  astroquery.jplspec is now deprecated in favor of astroquery.linelists.jplspec [#3455]
 
+xmatch
+^^^^^^
+
+- change url of xmatch to use the new CDS domain name [#3465]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
