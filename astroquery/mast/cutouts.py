@@ -156,6 +156,32 @@ class TesscutClass(MastQueryWithLogin):
         if product.upper() != "SPOC":
             raise InvalidQueryError("Input product must be SPOC.")
 
+    def _get_moving_target_sectors(self, objectname, mt_type=None):
+        """
+        Helper method to fetch unique sectors for a moving target
+
+        Parameters
+        ----------
+        objectname : str
+            The name or ID of the moving target.
+        mt_type : str, optional
+            The moving target type (majorbody or smallbody).
+
+        Returns
+        -------
+        sectors : list or None
+            Sorted list of unique sector numbers, or None if no sectors are available.
+        """
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=NoResultsWarning)
+            sector_table = self.get_sectors(objectname=objectname, moving_target=True, mt_type=mt_type)
+
+        if len(sector_table) == 0:
+            warnings.warn("Coordinates are not in any TESS sector.", NoResultsWarning)
+            return None
+
+        return sorted(set(sector_table["sector"]))
+
     @deprecated_renamed_argument('product', None, since='0.4.11', message='Tesscut no longer supports operations on '
                                  'TESS Image Calibrator (TICA) products. '
                                  'The `product` argument is deprecated and will be removed in a future version.')
@@ -321,18 +347,11 @@ class TesscutClass(MastQueryWithLogin):
         # For moving targets without a sector specified, fetch sectors first and make
         # individual requests per sector to reduce memory pressure on the service
         if moving_target and sector is None:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=NoResultsWarning)
-                sector_table = self.get_sectors(objectname=objectname, moving_target=True, mt_type=mt_type)
-
             localpath_table = Table(names=["Local Path"], dtype=[str])
+            unique_sectors = self._get_moving_target_sectors(objectname, mt_type)
 
-            if len(sector_table) == 0:
-                warnings.warn("Coordinates are not in any TESS sector.", NoResultsWarning)
+            if unique_sectors is None:
                 return localpath_table
-
-            # Get unique sectors
-            unique_sectors = sorted(set(sector_table["sector"]))
 
             # Make individual requests per sector and combine results
             all_paths = []
@@ -469,16 +488,10 @@ class TesscutClass(MastQueryWithLogin):
         # For moving targets without a sector specified, fetch sectors first and make
         # individual requests per sector to reduce memory pressure on the service
         if moving_target and sector is None:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=NoResultsWarning)
-                sector_table = self.get_sectors(objectname=objectname, moving_target=True, mt_type=mt_type)
+            unique_sectors = self._get_moving_target_sectors(objectname, mt_type)
 
-            if len(sector_table) == 0:
-                warnings.warn("Coordinates are not in any TESS sector.", NoResultsWarning)
+            if unique_sectors is None:
                 return []
-
-            # Get unique sectors
-            unique_sectors = sorted(set(sector_table["sector"]))
 
             # Make individual requests per sector and combine results
             all_cutouts = []
