@@ -1330,6 +1330,37 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
     assert "Input product must be SPOC." in str(invalid_query.value)
 
 
+def test_tesscut_get_cutouts_mt_no_sector(patch_post):
+    """Test get_cutouts with moving target but no sector specified.
+
+    When sector is not specified for moving targets, the method should
+    automatically fetch available sectors and make individual requests per sector.
+    """
+    # Moving target without specifying sector - should automatically fetch sectors
+    cutout_hdus_list = mast.Tesscut.get_cutouts(objectname="Eleonora", moving_target=True, mt_type="small_body", size=5)
+    assert isinstance(cutout_hdus_list, list)
+    # Mock returns 1 sector, so we expect 1 cutout
+    assert len(cutout_hdus_list) == 1
+    assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+
+def test_tesscut_download_cutouts_mt_no_sector(patch_post, tmpdir):
+    """Test download_cutouts with moving target but no sector specified.
+
+    When sector is not specified for moving targets, the method should
+    automatically fetch available sectors and make individual requests per sector.
+    """
+    # Moving target without specifying sector - should automatically fetch sectors
+    manifest = mast.Tesscut.download_cutouts(
+        objectname="Eleonora", moving_target=True, mt_type="small_body", size=5, path=str(tmpdir)
+    )
+    assert isinstance(manifest, Table)
+    # Mock returns 1 sector, so we expect 1 file
+    assert len(manifest) == 1
+    assert manifest["Local Path"][0][-4:] == "fits"
+    assert os.path.isfile(manifest[0]["Local Path"])
+
+
 ######################
 # ZcutClass tests #
 ######################
