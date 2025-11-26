@@ -504,7 +504,7 @@ class ObservationsClass(MastQueryWithLogin):
         return obs_table[mask]
 
     @class_or_instance
-    def get_product_list_async(self, observations, batch_size=500):
+    def get_product_list_async(self, observations, *, batch_size=500):
         """
         Given a "Product Group Id" (column name obsid) returns a list of associated data products.
         Note that obsid is NOT the same as obs_id, and inputting obs_id values will result in
@@ -1048,7 +1048,7 @@ class ObservationsClass(MastQueryWithLogin):
         # Query for product URIs
         return self._cloud_connection.get_cloud_uri(data_product, include_bucket, full_url)
 
-    def get_unique_product_list(self, observations):
+    def get_unique_product_list(self, observations, *, batch_size=500):
         """
         Given a "Product Group Id" (column name obsid), returns a list of associated data products with
         unique dataURIs. Note that obsid is NOT the same as obs_id, and inputting obs_id values will result in
@@ -1060,13 +1060,16 @@ class ObservationsClass(MastQueryWithLogin):
             Row/Table of MAST query results (e.g. output from `query_object`)
             or single/list of MAST Product Group Id(s) (obsid).
             See description `here <https://masttest.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
+        batch_size : int, optional
+            Default 500. Number of obsids to include in each batch request to the server.
+            If you experience timeouts or connection errors, consider lowering this value.
 
         Returns
         -------
         unique_products : `~astropy.table.Table`
             Table containing products with unique dataURIs.
         """
-        products = self.get_product_list(observations)
+        products = self.get_product_list(observations, batch_size=batch_size)
         unique_products = utils.remove_duplicate_products(products, 'dataURI')
         if len(unique_products) < len(products):
             log.info("To return all products, use `Observations.get_product_list`")

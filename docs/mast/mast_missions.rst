@@ -203,11 +203,16 @@ Each observation returned from a MAST query can have one or more associated data
 one or more datasets or dataset IDs, the `~astroquery.mast.MastMissionsClass.get_product_list` function 
 will return a `~astropy.table.Table` containing the associated data products.
 
+`~astroquery.mast.MastMissionsClass.get_product_list` also includes an optional ``batch_size`` parameter, 
+which controls how many datasets are sent to the MAST service per request. This can be useful for managing 
+memory usage or avoiding timeouts when requesting product lists for large numbers of datasets.
+If not provided, batch_size defaults to 1000.
+
 .. doctest-remote-data::
    >>> datasets = missions.query_criteria(sci_pep_id=12451,
    ...                                    sci_instrume='ACS',
    ...                                    sci_hlsp='>1')
-   >>> products = missions.get_product_list(datasets[:2])
+   >>> products = missions.get_product_list(datasets[:2], batch_size=1000)
    >>> print(products[:5])  # doctest: +IGNORE_OUTPUT
            product_key          access  dataset  ...  category     size     type 
    ---------------------------- ------ --------- ... ---------- --------- -------
