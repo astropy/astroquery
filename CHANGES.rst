@@ -52,6 +52,10 @@ mast
 
 - Raise informative error if ``MastMissions`` query radius is too large. [#3447]
 
+- Add ``batch_size`` parameter to ``MastMissions.get_product_list``, ``Observations.get_product_list``,
+  and ``utils.resolve_object`` to allow controlling the number of items sent in each batch request to the server.
+  This can help avoid timeouts or connection errors for large requests. [#3454]
+
 jplspec
 ^^^^^^^
 

@@ -504,7 +504,7 @@ class ObservationsClass(MastQueryWithLogin):
         return obs_table[mask]
 
     @class_or_instance
-    def get_product_list_async(self, observations):
+    def get_product_list_async(self, observations, *, batch_size=500):
         """
         Given a "Product Group Id" (column name obsid) returns a list of associated data products.
         Note that obsid is NOT the same as obs_id, and inputting obs_id values will result in
@@ -518,31 +518,50 @@ class ObservationsClass(MastQueryWithLogin):
             Row/Table of MAST query results (e.g. output from `query_object`)
             or single/list of MAST Product Group Id(s) (obsid).
             See description `here <https://masttest.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
+        batch_size : int, optional
+            Default 500. Number of obsids to include in each batch request to the server.
+            If you experience timeouts or connection errors, consider lowering this value.
 
         Returns
         -------
         response : list of `~requests.Response`
+            A list of asynchronous response objects for each batch request.
         """
-
-        # getting the obsid list
+        # Getting the obsids as a list
         if np.isscalar(observations):
-            observations = np.array([observations])
-        if isinstance(observations, Table) or isinstance(observations, Row):
+            observations = [observations]
+        elif isinstance(observations, (Row, Table)):
             # Filter out TESS FFIs and TICA FFIs
             # Can only perform filtering on Row or Table because of access to `target_name` field
             observations = self._filter_ffi_observations(observations)
-            observations = observations['obsid']
-        if isinstance(observations, list):
-            observations = np.array(observations)
+            observations = observations['obsid'].tolist()
 
-        observations = observations[observations != ""]
-        if observations.size == 0:
-            raise InvalidQueryError("Observation list is empty, no associated products.")
+        # Clean and validate
+        observations = [str(obs).strip() for obs in observations]
+        observations = [obs for obs in observations if obs]
+        if not observations:
+            raise InvalidQueryError('Observation list is empty, no associated products.')
 
-        service = self._caom_products
-        params = {'obsid': ','.join(observations)}
+        # Define a helper to join obsids for each batch request
+        def _request_joined_obsid(params):
+            """Join batched obsid list into comma-separated string and send async request."""
+            pp = dict(params)
+            vals = pp.get('obsid', [])
+            pp['obsid'] = ','.join(map(str, vals))
+            return self._portal_api_connection.service_request_async(self._caom_products, pp)[0]
 
-        return self._portal_api_connection.service_request_async(service, params)
+        # Perform batched requests
+        results = utils._batched_request(
+            items=observations,
+            params={},
+            max_batch=batch_size,
+            param_key='obsid',
+            request_func=_request_joined_obsid,
+            extract_func=lambda r: [r],
+            desc=f'Fetching products for {len(observations)} unique observations'
+        )
+
+        return results
 
     def filter_products(self, products, *, mrp_only=False, extension=None, **filters):
         """
@@ -1029,7 +1048,7 @@ class ObservationsClass(MastQueryWithLogin):
         # Query for product URIs
         return self._cloud_connection.get_cloud_uri(data_product, include_bucket, full_url)
 
-    def get_unique_product_list(self, observations):
+    def get_unique_product_list(self, observations, *, batch_size=500):
         """
         Given a "Product Group Id" (column name obsid), returns a list of associated data products with
         unique dataURIs. Note that obsid is NOT the same as obs_id, and inputting obs_id values will result in
@@ -1041,13 +1060,16 @@ class ObservationsClass(MastQueryWithLogin):
             Row/Table of MAST query results (e.g. output from `query_object`)
             or single/list of MAST Product Group Id(s) (obsid).
             See description `here <https://masttest.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
+        batch_size : int, optional
+            Default 500. Number of obsids to include in each batch request to the server.
+            If you experience timeouts or connection errors, consider lowering this value.
 
         Returns
         -------
         unique_products : `~astropy.table.Table`
             Table containing products with unique dataURIs.
         """
-        products = self.get_product_list(observations)
+        products = self.get_product_list(observations, batch_size=batch_size)
         unique_products = utils.remove_duplicate_products(products, 'dataURI')
         if len(unique_products) < len(products):
             log.info("To return all products, use `Observations.get_product_list`")
