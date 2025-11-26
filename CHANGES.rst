@@ -52,6 +52,8 @@ mast
 
 - Raise informative error if ``MastMissions`` query radius is too large. [#3447]
 
+- Separate requests for moving target cutouts in ``Tesscut`` to one per sector. [#3467]
+
 jplspec
 ^^^^^^^
 
