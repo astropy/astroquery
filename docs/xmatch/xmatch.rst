@@ -108,4 +108,4 @@ Reference/API
     :no-inheritance-diagram:
 
 
-.. _xMatch: http://cdsxmatch.u-strasbg.fr/xmatch/doc/
+.. _xMatch: https://cdsxmatch.cds.unistra.fr/xmatch/doc/
