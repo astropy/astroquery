@@ -20,6 +20,7 @@ jobs:
     name: Analyze
     runs-on: ubuntu-latest
 
+    if: github.repository == 'astropy/astroquery'
     strategy:
       fail-fast: false
       matrix:
