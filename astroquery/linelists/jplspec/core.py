@@ -5,15 +5,12 @@ import warnings
 import astropy.units as u
 import numpy as np
 from astropy.io import ascii
-from astroquery.query import BaseQuery
-from astroquery.utils import async_to_sync
 from astropy import table
 from astroquery.query import BaseQuery
 from astroquery.linelists.core import parse_letternumber
 # import configurable items declared in __init__.py
 from astroquery.linelists.jplspec import conf, lookup_table
 from astroquery.exceptions import EmptyResponseError, InvalidQueryError
-from astroquery.linelists.core import LineListClass
 from astroquery.utils import process_asyncs
 from urllib.parse import parse_qs
 
