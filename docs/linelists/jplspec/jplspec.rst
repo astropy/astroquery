@@ -14,6 +14,18 @@ module outputs the results that would arise from the `browser form
 using similar search criteria as the ones found in the form, and presents
 the output as a `~astropy.table.Table`.
 
+
+.. warning::
+   Starting in mid-2025, the JPL web interface query tool went down for a
+   prolonged period.  As of November 2025, it is still not up, but JPL staff are
+   aware of and seeking solutions to the problem.  Until that web interface is
+   restored, the astroquery.jplspec module relies on workarounds that involve
+   downloading the full catalog files, which results in slightly larger data
+   transfers and un-filtered full-table results.  Some metadata may also be
+   different.  The examples and documents have been updated to show what to
+   expect in the current, partially-functional state.
+
+
 Examples
 ========
 
@@ -33,18 +45,19 @@ what each setting yields:
    ...                                min_strength=-500,
    ...                                molecule="28001 CO",
    ...                                get_query_payload=False)
-   >>> print(response)
-       FREQ     ERR    LGINT   DR   ELO   GUP  TAG   QNFMT QN' QN"
-       MHz      MHz   nm2 MHz      1 / cm
-   ----------- ------ ------- --- -------- --- ------ ----- --- ---
-   115271.2018 0.0005 -5.0105   2      0.0   3 -28001   101   1   0
-      230538.0 0.0005 -4.1197   2    3.845   5 -28001   101   2   1
-   345795.9899 0.0005 -3.6118   2   11.535   7 -28001   101   3   2
-   461040.7682 0.0005 -3.2657   2  23.0695   9 -28001   101   4   3
-   576267.9305 0.0005 -3.0118   2  38.4481  11 -28001   101   5   4
-   691473.0763 0.0005 -2.8193   2  57.6704  13 -28001   101   6   5
-    806651.806  0.005 -2.6716   2  80.7354  15 -28001   101   7   6
-      921799.7  0.005  -2.559   2 107.6424  17 -28001   101   8   7
+   >>> response.pprint(max_lines=10)
+       FREQ      ERR    LGINT    DR    ELO     GUP  TAG  QNFMT QN' QN"  Lab 
+       MHz       MHz   nm2 MHz        1 / cm                                
+   ------------ ------ -------- --- ---------- --- ----- ----- --- --- -----
+    115271.2018 0.0005  -5.0105   2        0.0   3 28001   101   1   0  True
+       230538.0 0.0005  -4.1197   2      3.845   5 28001   101   2   1  True
+            ...    ...      ... ...        ... ...   ...   ... ... ...   ...
+   9747448.9491 3.0112 -31.6588   2  14684.516 179 28001   101  89  88 False
+   9845408.2504 3.1938 -32.4351   2 15009.6559 181 28001   101  90  89 False
+   9942985.9145 3.3849 -33.2361   2 15338.0634 183 28001   101  91  90 False
+   Length = 91 rows
+   >>> response.meta
+   {'TAG': 28001, 'NAME': 'CO', 'NLINE': 91, 'QLOG1': 2.0369, 'QLOG2': 1.9123, 'QLOG3': 1.737, 'QLOG4': 1.4386, 'QLOG5': 1.1429, 'QLOG6': 0.8526, 'QLOG7': 0.5733, 'VER': '4*', 'molecule_id': '28001 CO', 'molecule_name': {}}
 
 The following example, with ``get_query_payload = True``, returns the payload:
 
@@ -68,54 +81,58 @@ The units of the columns of the query can be displayed by calling
    ...                                min_strength=-500,
    ...                                molecule="28001 CO")
    >>> print(response.info)
-      <Table length=8>
-     name  dtype    unit
-    ----- ------- -------
-     FREQ float64     MHz
-      ERR float64     MHz
-    LGINT float64 nm2 MHz
-       DR   int64
-      ELO float64  1 / cm
-      GUP   int64
-      TAG   int64
-    QNFMT   int64
-      QN'   int64
-      QN"   int64
+   <Table length=91>
+    name  dtype    unit 
+   ----- ------- -------
+    FREQ float64     MHz
+     ERR float64     MHz
+   LGINT float64 nm2 MHz
+      DR   int64        
+     ELO float64  1 / cm
+     GUP   int64        
+     TAG   int64        
+   QNFMT   int64        
+     QN'   int64        
+     QN"   int64        
+     Lab    bool        
+   <BLANKLINE>
 
 These come in handy for converting to other units easily, an example using a
 simplified version of the data above is shown below:
 
 .. doctest-remote-data::
 
-   >>> print (response['FREQ', 'ERR', 'ELO'])
-       FREQ     ERR     ELO
-       MHz      MHz    1 / cm
-   ----------- ------ --------
-   115271.2018 0.0005      0.0
-      230538.0 0.0005    3.845
-   345795.9899 0.0005   11.535
-   461040.7682 0.0005  23.0695
-   576267.9305 0.0005  38.4481
-   691473.0763 0.0005  57.6704
-    806651.806  0.005  80.7354
-      921799.7  0.005 107.6424
-   >>> response['FREQ'].quantity
-   <Quantity [115271.2018, 230538.    , 345795.9899, 461040.7682, 576267.9305, 691473.0763, 806651.806 , 921799.7   ] MHz>
-   >>> response['FREQ'].to('GHz')
-   <Quantity [115.2712018, 230.538    , 345.7959899, 461.0407682, 576.2679305, 691.4730763, 806.651806 , 921.7997   ] GHz>
+   >>> response['FREQ', 'ERR', 'ELO'].pprint(max_lines=10)
+       FREQ      ERR      ELO    
+       MHz       MHz     1 / cm  
+   ------------ ------ ----------
+    115271.2018 0.0005        0.0
+       230538.0 0.0005      3.845
+            ...    ...        ...
+   9747448.9491 3.0112  14684.516
+   9845408.2504 3.1938 15009.6559
+   9942985.9145 3.3849 15338.0634
+   Length = 91 rows
+   >>> response['FREQ'][:10].quantity
+   <Quantity [ 115271.2018,  230538.    ,  345795.9899,  461040.7682,
+               576267.9305,  691473.0763,  806651.806 ,  921799.7   ,
+              1036912.393 , 1151985.452 ] MHz>
+   >>> response['FREQ'][:10].to('GHz')
+   <Quantity [ 115.2712018,  230.538    ,  345.7959899,  461.0407682,
+               576.2679305,  691.4730763,  806.651806 ,  921.7997   ,
+              1036.912393 , 1151.985452 ] GHz>
 
 The parameters and response keys are described in detail under the
 Reference/API section.
 
 
 Looking Up More Information from the catdir.cat file
-------------------------------------------------------
+----------------------------------------------------
 
-If you have found a molecule you are interested in, the TAG field
-in the results provides enough information to access specific
-molecule information such as the partition functions at different
-temperatures. Keep in mind that a negative TAG value signifies that
-the line frequency has been measured in the laboratory
+If you have found a molecule you are interested in, the TAG field in the results
+provides enough information to access specific molecule information such as the
+partition functions at different temperatures. A negative TAG value signifies
+that the line frequency has been measured in the laboratory.
 
 .. doctest-remote-data::
 
@@ -139,11 +156,9 @@ through metadata:
    {'Temperature (K)': [300, 225, 150, 75, 37.5, 18.5,
                         9.375]}
 
-One of the advantages of using JPLSpec is the availability in the catalog
-of the partition function at different temperatures for the molecules. As a
-continuation of the example above, an example that accesses and plots the
-partition function against the temperatures found in the metadata is shown
-below:
+JPLSpec catalogs the partition function at several temperatures for each
+molecule.  This example accesses and plots the partition function against the
+temperatures found in the metadata:
 
 .. doctest-skip::
 
@@ -153,7 +168,7 @@ below:
    >>> plt.scatter(temp,part)
    >>> plt.xlabel('Temperature (K)')
    >>> plt.ylabel('Partition Function Value')
-   >>> plt.title('Parititon Fn vs Temp')
+   >>> plt.title('Partition Fn vs Temp')
    >>> plt.show()
 
 
@@ -194,6 +209,8 @@ other temperatures using curve fitting models:
    The resulting plot from the example above
 
 
+.. _regex_querying_linelists:
+
 Querying the Catalog with Regexes and Relative names
 ----------------------------------------------------
 
@@ -217,23 +234,27 @@ to query these directly.
    ...                              min_strength=-500,
    ...                              molecule="H2O",
    ...                              parse_name_locally=True)
-   >>> print(result)
-       FREQ      ERR     LGINT    DR    ELO    GUP  TAG   QNFMT   QN'      QN"
-       MHz       MHz    nm2 MHz        1 / cm
-   ----------- -------- -------- --- --------- --- ------ ----- -------- --------
-   115542.5692   0.6588 -13.2595   3 4606.1683  35  18003  1404 17 810 0 18 513 0
-    139614.293     0.15  -9.3636   3 3080.1788  87 -18003  1404 14 6 9 0 15 312 0
-    177317.068     0.15 -10.3413   3 3437.2774  31 -18003  1404 15 610 0 16 313 0
-    183310.087    0.001  -3.6463   3  136.1639   7 -18003  1404  3 1 3 0  2 2 0 0
-   ...
-   Length = 2000 rows
+   >>> result.pprint(max_lines=10)
+       FREQ      ERR    LGINT    DR    ELO    GUP  TAG  QNFMT QN'1 QN"1 QN'2 QN"2 QN'3 QN"3 QN'4 QN"4  Lab 
+       MHz       MHz   nm2 MHz        1 / cm                                                               
+   ------------ ------ -------- --- --------- --- ----- ----- ---- ---- ---- ---- ---- ---- ---- ---- -----
+      8006.5805  2.851 -18.6204   3 6219.6192  45 18003  1404   22   21    4    7   18   15    0    0 False
+     12478.2535 0.2051 -13.1006   3 3623.7652  31 18003  1404   15   16    7    4    9   12    0    0 False
+            ...    ...      ... ...       ... ...   ...   ...  ...  ...  ...  ...  ...  ...  ...  ...   ...
+    9981215.769 6.1776 -12.0101   3 5271.3682  45 18003  1404   22   23    2    1   20   23    0    0 False
+   9981323.7676 6.1773 -11.5329   3 5271.3682 135 18003  1404   22   23    3    0   20   23    0    0 False
+   9992065.9213 0.0482   -5.528   3  882.8904  15 18003  1404    7    8    6    1    2    7    0    0 False
+   Length = 1376 rows
+
 
 Searches like these can lead to very broad queries, and may be limited in
 response length:
 
 .. doctest-remote-data::
 
-   >>> print(result.meta['comments'])
+   >>> # the 'comments' metadata field is only populated if the query tool is run
+   >>> # the get-whole-table workaround (November 2025) will not populate it
+   >>> print(result.meta['comments'])   # doctest:  +SKIP
    ['', '', '', '', '', 'form is currently limilted to 2000 lines. Please limit your search.']
 
 Inspecting the returned molecules shows that the 'H2O' string was processed as a
@@ -247,7 +268,7 @@ combination of characters 'H2O':
    ...            for (species, tag) in JPLSpec.lookup_ids.items()
    ...            if tag in tags}
    >>> print(species)
-   {'H2O': 18003, 'H2O v2,2v2,v': 18005, 'H2O-17': 19003, 'H2O-18': 20003, 'H2O2': 34004}
+   {'H2O': 18003}
 
 A few examples that show the power of the regex option are the following:
 
