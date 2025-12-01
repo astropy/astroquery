@@ -768,7 +768,6 @@ class EuclidClass(TapPlus):
                     except IndexError:
                         print("Archive down for maintenance")
 
-
     @staticmethod
     def __set_dirs(output_file, observation_id):
         if output_file is None:
