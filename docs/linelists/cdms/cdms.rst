@@ -33,18 +33,18 @@ each setting yields:
    ...                             min_strength=-500,
    ...                             molecule="028503 CO",
    ...                             get_query_payload=False)
-   >>> response.pprint(max_width=150)
-         FREQ     ERR    LGINT   DR   ELO    GUP  TAG   QNFMT  Ju  Ku  vu F1u F2u F3u  Jl  Kl  vl F1l F2l F3l   name  MOLWT Lab
-         MHz      MHz   nm2 MHz      1 / cm                                                                             u
-      ----------- ------ ------- --- -------- --- ------ ----- --- --- --- --- --- --- --- --- --- --- --- --- ------- ----- ----
-      115271.2018 0.0005 -5.0105   2      0.0   3 -28503   101   1  --  --  --  --  --   0  --  --  --  --  -- CO, v=0    28 True
-         230538.0 0.0005 -4.1197   2    3.845   5 -28503   101   2  --  --  --  --  --   1  --  --  --  --  -- CO, v=0    28 True
-      345795.9899 0.0005 -3.6118   2   11.535   7 -28503   101   3  --  --  --  --  --   2  --  --  --  --  -- CO, v=0    28 True
-      461040.7682 0.0005 -3.2657   2  23.0695   9 -28503   101   4  --  --  --  --  --   3  --  --  --  --  -- CO, v=0    28 True
-      576267.9305 0.0005 -3.0118   2  38.4481  11 -28503   101   5  --  --  --  --  --   4  --  --  --  --  -- CO, v=0    28 True
-      691473.0763 0.0005 -2.8193   2  57.6704  13 -28503   101   6  --  --  --  --  --   5  --  --  --  --  -- CO, v=0    28 True
-      806651.806  0.005 -2.6716   2  80.7354  15 -28503   101   7  --  --  --  --  --   6  --  --  --  --  -- CO, v=0    28 True
-         921799.7  0.005  -2.559   2 107.6424  17 -28503   101   8  --  --  --  --  --   7  --  --  --  --  -- CO, v=0    28 True
+   >>> response.pprint(max_width=120)
+       FREQ     ERR    LGINT   DR   ELO    GUP  TAG   QNFMT  Ju  Ku  vu ... F3u  Jl  Kl  vl F1l F2l F3l   name  MOLWT Lab
+       MHz      MHz   nm2 MHz      1 / cm                               ...                                       u
+   ----------- ------ ------- --- -------- --- ------ ----- --- --- --- ... --- --- --- --- --- --- --- ------- ----- ----
+   115271.2018 0.0005 -5.0105   2      0.0   3 -28503   101   1  --  -- ...  --   0  --  --  --  --  -- CO, v=0    28 True
+      230538.0 0.0005 -4.1197   2    3.845   5 -28503   101   2  --  -- ...  --   1  --  --  --  --  -- CO, v=0    28 True
+   345795.9899 0.0005 -3.6118   2   11.535   7 -28503   101   3  --  -- ...  --   2  --  --  --  --  -- CO, v=0    28 True
+   461040.7682 0.0005 -3.2657   2  23.0695   9 -28503   101   4  --  -- ...  --   3  --  --  --  --  -- CO, v=0    28 True
+   576267.9305 0.0005 -3.0118   2  38.4481  11 -28503   101   5  --  -- ...  --   4  --  --  --  --  -- CO, v=0    28 True
+   691473.0763 0.0005 -2.8193   2  57.6704  13 -28503   101   6  --  -- ...  --   5  --  --  --  --  -- CO, v=0    28 True
+    806651.806  0.005 -2.6716   2  80.7354  15 -28503   101   7  --  -- ...  --   6  --  --  --  --  -- CO, v=0    28 True
+      921799.7  0.005  -2.559   2 107.6424  17 -28503   101   8  --  -- ...  --   7  --  --  --  --  -- CO, v=0    28 True
 
 
 
@@ -71,32 +71,33 @@ The units of the columns of the query can be displayed by calling
    ...                             molecule="028503 CO",
    ...                             get_query_payload=False)
    >>> print(response.info)
-      <Table length=8>
-      name  dtype    unit     class     n_bad
-      ----- ------- ------- ------------ -----
-      FREQ float64     MHz       Column     0
-      ERR float64     MHz       Column     0
-      LGINT float64 nm2 MHz       Column     0
-         DR   int64               Column     0
-      ELO float64  1 / cm       Column     0
-      GUP   int64               Column     0
-      TAG   int64               Column     0
-      QNFMT   int64               Column     0
-         Ju   int64               Column     0
-         Ku   int64         MaskedColumn     8
-         vu   int64         MaskedColumn     8
-      F1u   int64         MaskedColumn     8
-      F2u   int64         MaskedColumn     8
-      F3u   int64         MaskedColumn     8
-         Jl   int64               Column     0
-         Kl   int64         MaskedColumn     8
-         vl   int64         MaskedColumn     8
-      F1l   int64         MaskedColumn     8
-      F2l   int64         MaskedColumn     8
-      F3l   int64         MaskedColumn     8
-      name    str7               Column     0
-      MOLWT   int64       u       Column     0
-      Lab    bool               Column     0
+   <Table length=8>
+    name  dtype    unit     class     n_bad
+   ----- ------- ------- ------------ -----
+    FREQ float64     MHz       Column     0
+     ERR float64     MHz       Column     0
+   LGINT float64 nm2 MHz       Column     0
+      DR   int64               Column     0
+     ELO float64  1 / cm       Column     0
+     GUP   int64               Column     0
+     TAG   int64               Column     0
+   QNFMT   int64               Column     0
+      Ju   int64               Column     0
+      Ku   int64         MaskedColumn     8
+      vu   int64         MaskedColumn     8
+     F1u   int64         MaskedColumn     8
+     F2u   int64         MaskedColumn     8
+     F3u   int64         MaskedColumn     8
+      Jl   int64               Column     0
+      Kl   int64         MaskedColumn     8
+      vl   int64         MaskedColumn     8
+     F1l   int64         MaskedColumn     8
+     F2l   int64         MaskedColumn     8
+     F3l   int64         MaskedColumn     8
+    name    str7               Column     0
+   MOLWT   int64       u       Column     0
+     Lab    bool               Column     0
+   <BLANKLINE>
 
 These come in handy for converting to other units easily, an example using a
 simplified version of the data above is shown below:
@@ -303,7 +304,15 @@ It can be valuable to check this for any given molecule.
 Querying the Catalog with Regexes and Relative names
 ----------------------------------------------------
 
-The regular expression parsing is analogous to that in the JPLSpec module.
+The regular expression parsing is analogous to that in
+:mod:`astroquery.linelists.jplspec`.  See :ref:`regex_querying_linelists`.
+
+Handling Malformatted Molecules
+-------------------------------
+
+There are some entries in the CDMS catalog that get mangled by the query tool,
+but the underlying data are still good.  This seems to affect primarily those
+molecules with excessive numbers of quantum numbers such as H2NC.
 
 
 Troubleshooting
