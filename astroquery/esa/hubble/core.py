@@ -922,13 +922,12 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
         the status of eHST TAP
         """
 
-        subContext = conf.EHST_MESSAGES
-        connHandler = self.tap._TapPlus__getconnhandler()
-        response = connHandler.execute_tapget(subContext, verbose=False)
-        if response.status == 200:
-            for line in response:
-                string_message = line.decode("utf-8")
-                print(string_message[string_message.index('=') + 1:])
+        esautils.execute_servlet_request(
+            url=conf.EHST_TAP_SERVER + "/" + conf.EHST_MESSAGES,
+            tap=self.tap,
+            query_params={},
+            parser_method=self.parse_messages_response
+        )
 
     def parse_messages_response(self, response):
         string_messages = []
