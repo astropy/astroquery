@@ -857,7 +857,7 @@ class ESAHubbleClass(EsaTap):
         """
 
         subContext = conf.EHST_MESSAGES
-        connHandler = self._tap._TapPlus__getconnhandler()
+        connHandler = self.tap._TapPlus__getconnhandler()
         response = connHandler.execute_tapget(subContext, verbose=False)
         if response.status == 200:
             for line in response:
