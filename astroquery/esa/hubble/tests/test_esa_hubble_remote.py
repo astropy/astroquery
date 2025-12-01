@@ -144,3 +144,10 @@ class TestEsaHubbleRemoteData:
         assert len(recwarn) == 1
         assert "ib4x04ivq_flt.fits" in str(recwarn[0].message)
         assert result == '/data/hub_hstdata_i/i/b4x/04/ib4x04ivq_flt.fits.gz'
+
+
+@pytest.mark.remote_data
+def test_get_status_messages():
+    esa_hubble = ESAHubble(show_messages=True)
+    # redundant, but added to be extra-explicit
+    esa_hubble.get_status_messages()

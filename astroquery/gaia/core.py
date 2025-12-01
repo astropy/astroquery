@@ -1171,6 +1171,7 @@ class GaiaClass(TapPlus):
         sub_context = self.GAIA_MESSAGES
         conn_handler = self._TapPlus__getconnhandler()
         response = conn_handler.execute_tapget(sub_context, verbose=False)
+        response.raise_for_status()
         if response.status == 200:
             if isinstance(response, Iterable):
                 for line in response:

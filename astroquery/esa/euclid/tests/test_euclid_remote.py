@@ -76,3 +76,10 @@ def test_get_tables():
 
     table = euclid.load_table("catalogue.mer_catalogue")
     assert len(table.columns) == 471
+
+
+@pytest.mark.remote_data
+def test_get_status_messages():
+    euclid = EuclidClass(show_server_messages=True)
+    # redundant, but added to be extra-explicit
+    euclid.get_status_messages()
