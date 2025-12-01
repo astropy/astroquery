@@ -2,10 +2,8 @@
 import sys
 import importlib
 import pytest
-import socket
 from unittest.mock import patch
 from pytest_remotedata.disable_internet import no_internet
-from pytest_remotedata.disable_internet import INTERNET_OFF
 
 # List of all astroquery modules to test
 ASTROQUERY_MODULES = [
@@ -62,6 +60,7 @@ ASTROQUERY_MODULES = [
     'astroquery.xmatch',
 ]
 
+
 class SocketTracker:
     def __init__(self):
         self.socket_attempts = []
@@ -96,6 +95,7 @@ def test_no_http_calls_during_import(module_name):
 
         assert not tracker.socket_attempts, (
             f"Module {module_name} attempted to create {len(tracker.socket_attempts)} "
-            f"socket(s) during import:\n" +
-            "\n".join(f"  - {args} {kwargs}" for args, kwargs in tracker.socket_attempts)
+            "socket(s) during import:\n" + (
+                "\n".join(f"  - {args} {kwargs}" for args, kwargs in tracker.socket_attempts)
+            )
         )
