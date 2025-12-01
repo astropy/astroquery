@@ -697,6 +697,7 @@ class JwstClass(BaseQuery):
         subContext = conf.JWST_MESSAGES
         connHandler = self.__jwsttap._TapPlus__getconnhandler()
         response = connHandler.execute_tapget(subContext, verbose=False)
+        response.raise_for_status()
         if response.status == 200:
             for line in response:
                 string_message = line.decode("utf-8")
