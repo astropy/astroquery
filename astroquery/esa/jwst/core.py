@@ -17,6 +17,7 @@ import tarfile as esatar
 import zipfile
 from datetime import datetime, timezone
 from urllib.parse import urlencode
+from requests.exceptions import HTTPError
 
 import astroquery.esa.utils.utils as esautils
 
