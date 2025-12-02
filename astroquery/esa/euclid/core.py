@@ -757,7 +757,6 @@ class EuclidClass(TapPlus):
         sub_context = self.EUCLID_MESSAGES
         conn_handler = self._TapPlus__getconnhandler()
         response = conn_handler.execute_tapget(sub_context, verbose=verbose)
-        response.raise_for_status()
         if response.status == 200:
             if isinstance(response, Iterable):
                 for line in response:
@@ -768,6 +767,8 @@ class EuclidClass(TapPlus):
                         print(e)
                     except IndexError:
                         print("Archive down for maintenance")
+        else:
+            raise HTTPError(f"Failed to retrieve status messages. HTTP status code: {response.status}")
 
     @staticmethod
     def __set_dirs(output_file, observation_id):

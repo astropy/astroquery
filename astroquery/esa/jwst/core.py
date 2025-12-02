@@ -697,11 +697,12 @@ class JwstClass(BaseQuery):
         subContext = conf.JWST_MESSAGES
         connHandler = self.__jwsttap._TapPlus__getconnhandler()
         response = connHandler.execute_tapget(subContext, verbose=False)
-        response.raise_for_status()
         if response.status == 200:
             for line in response:
                 string_message = line.decode("utf-8")
                 print(string_message[string_message.index('=') + 1:])
+        else:
+            raise HTTPError(f"Failed to retrieve status messages. HTTP status code: {response.status}")
 
     def get_product_list(self, *, observation_id=None,
                          cal_level="ALL",
