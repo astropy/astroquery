@@ -928,8 +928,8 @@ class MPCClass(BaseQuery):
             if len(m) == 0:
                 raise ValueError(('Cannot interpret target '
                                   'identifier "{}".').format(targetid))
-            else:
-                m = m[0]
+
+            m = m[0]
 
             request_payload['object_type'] = 'M'
             if m[1] != '':
@@ -961,8 +961,8 @@ class MPCClass(BaseQuery):
                 if len(m) == 0:
                     raise ValueError(('Cannot parse comet type '
                                       'from "{}".').format(targetid))
-                else:
-                    m = m[0]
+
+                m = m[0]
 
                 if m[0] != '':
                     request_payload['object_type'] = m[0][-1]
