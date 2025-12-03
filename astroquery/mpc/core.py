@@ -909,7 +909,7 @@ class MPCClass(BaseQuery):
         if id_type is None:
 
             pat = ('(^[0-9]*$)|'  # [0] asteroid number
-                   '(^[0-9]{1,3}[PIA]$)'  # [1] periodic comet or interstellar object: 1P, 2P, 1I, 2I, etc.
+                   '(^[0-9]{1,3}[PI]$)'  # [1] periodic comet or interstellar object: 1P, 2P, 1I, 2I, etc.
                    '(-[1-9A-Z]{0,2})?$|'  # [2] fragment clause for [1]
                    '(^[PDCXAI]/[- 0-9A-Za-z]*)'  # [3] comet designation
                    '(-[1-9A-Z]{0,2})?$|'  # [4] fragment clause for [3]
