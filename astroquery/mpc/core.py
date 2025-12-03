@@ -909,11 +909,10 @@ class MPCClass(BaseQuery):
         if id_type is None:
 
             pat = ('(^[0-9]*$)|'  # [0] asteroid number
-                   '(^[0-9]{1,3}[PIA]$)'  # [1] periodic comet number
-                   '(-[1-9A-Z]{0,2})?$|'  # [2] fragment
-                   '(^[PDCXAI]/[- 0-9A-Za-z]*)'
-                   # [3] comet designation
-                   '(-[1-9A-Z]{0,2})?$|'  # [4] fragment
+                   '(^[0-9]{1,3}[PIA]$)'  # [1] periodic comet or interstellar object: 1P, 2P, 1I, 2I, etc.
+                   '(-[1-9A-Z]{0,2})?$|'  # [2] fragment clause for [1]
+                   '(^[PDCXAI]/[- 0-9A-Za-z]*)'  # [3] comet designation
+                   '(-[1-9A-Z]{0,2})?$|'  # [4] fragment clause for [3]
                    '(^([1A][8-9][0-9]{2}[ _][A-Z]{2}[0-9]{0,3}$|'
                    '^20[0-9]{2}[ _][A-Z]{2}[0-9]{0,3}$)|'
                    '(^[1-9][0-9]{3}[ _](P-L|T-[1-3]))$)'
@@ -931,16 +930,20 @@ class MPCClass(BaseQuery):
 
             m = m[0]
 
+            # assume asteroid (minor planet) unless proven otherwise
             request_payload['object_type'] = 'M'
+
             if m[1] != '':
+                # numbered periodic comet or interstellar object
                 request_payload['object_type'] = 'P'
             if m[3] != '':
+                # comet-style temporary designation
                 request_payload['object_type'] = m[3][0]
 
             if m[0] != '':
                 request_payload['number'] = m[0]  # asteroid number
             elif m[1] != '':
-                request_payload['number'] = m[1][:-1]  # per.  comet number
+                request_payload['number'] = m[1][:-1]  # periodic comet or interstellar object number
             elif m[3] != '':
                 request_payload['designation'] = m[3]  # comet designation
             elif m[5] != '':
