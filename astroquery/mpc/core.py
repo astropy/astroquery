@@ -935,7 +935,7 @@ class MPCClass(BaseQuery):
 
             if m[1] != '':
                 # numbered periodic comet or interstellar object
-                request_payload['object_type'] = 'P'
+                request_payload['object_type'] = m[1][-1]
             if m[3] != '':
                 # comet-style temporary designation
                 request_payload['object_type'] = m[3][0]
