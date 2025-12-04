@@ -6,17 +6,25 @@ MAST Collections
 This module contains methods for discovering and querying MAST catalog collections.
 """
 import difflib
+import warnings
+import re
+from collections.abc import Iterable
 
+import astropy.units as u
+import astropy.coordinates as coord
 import requests
 from astropy.table import Table
+from astropy.utils.decorators import deprecated_renamed_argument
+from regions import CircleSkyRegion, PolygonSkyRegion
 
 from astroquery import log
-from astroquery.utils import async_to_sync
-from astroquery.utils.class_or_instance import class_or_instance
-from astroquery.exceptions import InvalidQueryError
+from ..utils import async_to_sync
+from ..exceptions import InputWarning, InvalidQueryError
+from ..utils.class_or_instance import class_or_instance
 
-from .core import MastQueryWithLogin
+from . import utils
 from .catalog_collection import CatalogCollection
+from .core import MastQueryWithLogin
 
 
 __all__ = ['Catalogs', 'CatalogsClass']
@@ -146,9 +154,211 @@ class CatalogsClass(MastQueryWithLogin):
         collection_obj, catalog = self._parse_inputs(collection, catalog)
         return collection_obj.get_catalog_metadata(catalog).column_metadata
 
+    @class_or_instance
+    @deprecated_renamed_argument('version', None, since='0.4.12', message='The `version` argument is deprecated and '
+                                 'will be removed in a future release. Please use `collection` and `catalog` instead.')
+    @deprecated_renamed_argument('pagesize', None, since='0.4.12', message='The `pagesize` argument is deprecated '
+                                 'and will be removed in a future release. Please use `limit` instead.')
+    @deprecated_renamed_argument('page', None, since='0.4.12', message='The `page` argument is deprecated '
+                                 'and will be removed in a future release. Please use `offset` instead.')
+    def query_criteria(self, collection=None, *, catalog=None, coordinates=None, region=None, objectname=None,
+                       radius=0.2*u.deg, resolver=None, limit=5000, offset=0, count_only=False, select_cols=None,
+                       sort_by=None, sort_desc=False, version=None, pagesize=None, page=None, **criteria):
+        """
+        Query a MAST catalog from a given collection using criteria filters. To return columns for a given
+        collection and catalog, use `~astroquery.mast.collections.get_catalog_metadata`.
+
+        Parameters
+        ----------
+        collection : str, optional
+            The collection to be queried. If None, uses the instance's `collection` attribute.
+        catalog : str, optional
+            The catalog within the collection to query. If None, uses the instance's `catalog` attribute.
+        coordinates : str or `~astropy.coordinates` object, optional
+            The target around which to search. It may be specified as a string (e.g., '350 -80') or as an
+            Astropy coordinates object.
+        region : str | iterable | `~astropy.regions.Region`, optional
+            The region to search within. It may be specified as a string (e.g., 'circle(350 -80, 0.2d)') or as
+            an Astropy regions object.
+        objectname : str, optional
+            The name of the object to resolve and search around.
+        radius : str or `~astropy.units.Quantity` object, optional
+            The search radius around the target coordinates or object. Default 0.2 degrees.
+        resolver : str, optional
+            The name resolver service to use when resolving ``objectname``.
+        limit : int, optional
+            The maximum number of results to return. Default is 5000.
+        offset : int, optional
+            The number of rows to skip before starting to return rows. Default is 0.
+        count_only : bool, optional
+            If True, only return the count of matching records instead of the records themselves. Default is False.
+        select_cols : list of str, optional
+            List of column names to include in the result. If None or empty, all columns are returned.
+        sort_by : str or list of str, optional
+            Column name(s) to sort the results by.
+        sort_desc : bool or list of bool, optional
+            Indicates whether to sort in descending order for each column in `sort_by`. If a single bool,
+            applies to all columns. If a list, must match length of `sort_by`. Default is False (ascending order).
+        version : str, optional
+            Deprecated. The version argument is no longer used. Please use `collection` and `catalog` instead.
+        pagesize : int, optional
+            Deprecated. The pagesize argument is no longer used. Please use `limit` instead.
+        page : int, optional
+            Deprecated. The page argument is no longer used. Please use `offset` instead.
+        **criteria
+            Keyword arguments representing criteria filters to apply.
+
+                Criteria syntax
+                ----------------
+                - Strings support wildcards using '*' (converted to SQL '%') and '%'.
+                - Lists are combined with OR for positive values; empty lists yield no matches.
+                - Numeric columns support comparison operators ('<', '<=', '>', '>=') and inclusive ranges using
+                    the syntax 'low..high' (e.g., '5..10'). Mixed lists of numbers and comparisons are OR-combined.
+                - Negation: Prefix any value with '!' to negate that predicate. For list inputs, all negated values
+                    for the same column are AND-combined, then ANDed with the OR of the positive values:
+                        (neg1 AND neg2 AND ...) AND (pos1 OR pos2 OR ...).
+
+                Examples
+                --------
+                - file_suffix=['A', 'B', '!C'] -> (file_suffix != 'C') AND (file_suffix IN ('A', 'B'))
+                - size=['!14400', '<20000'] -> (size != 14400) AND (size < 20000)
+
+        Returns
+        -------
+        response : `~astropy.table.Table`
+            A table containing the query results.
+        """
+        # Should not specify both region and coordinates
+        if coordinates and region:
+            raise InvalidQueryError('Specify either `region` or `coordinates`, not both.')
+
+        # Should not specify both region and objectname
+        if objectname and region:
+            raise InvalidQueryError('Specify either `region` or `objectname`, not both.')
+
+        collection_obj, catalog = self._parse_inputs(collection, catalog)
+        collection_obj._verify_criteria(catalog, **criteria)
+        column_metadata = collection_obj.get_catalog_metadata(catalog).column_metadata
+        columns = '*' if not select_cols else self._parse_select_cols(select_cols, column_metadata)
+        adql = (f'SELECT TOP {limit} {columns} FROM '
+                f'{catalog.lower()} ' if not count_only else f'SELECT COUNT(*) AS count_all FROM {catalog.lower()} ')
+        if region or coordinates or objectname:
+            # Check if the catalog supports spatial queries
+            if not collection_obj.get_catalog_metadata(catalog).supports_spatial_queries:
+                raise InvalidQueryError(f"Catalog '{catalog}' in collection '{collection_obj.name}' does not "
+                                        "support spatial queries.")
+
+            # Positional query
+            adql_region = ''
+            if region:
+                adql_region = self._create_adql_region(region)
+            if objectname or coordinates:  # Cone search
+                coordinates = utils.parse_input_location(coordinates=coordinates,
+                                                         objectname=objectname,
+                                                         resolver=resolver)
+                radius = coord.Angle(radius, u.deg)  # If radius is just a number we assume degrees
+                adql_region = f'CIRCLE(\'ICRS\', {coordinates.ra.deg}, {coordinates.dec.deg}, {radius.to(u.deg).value})'
+
+            region_types = ['POLYGON', 'CIRCLE']
+            for region_type in region_types:
+                if region_type in adql_region and region_type not in collection_obj.supported_adql_functions:
+                    raise InvalidQueryError(f"Catalog '{catalog}' in collection '{collection_obj.name} '"
+                                            f"does not support ADQL region type '{region_type}'.")
+
+            # Get RA/Dec column names
+            ra_col = collection_obj.get_catalog_metadata(catalog).ra_column
+            dec_col = collection_obj.get_catalog_metadata(catalog).dec_column
+            adql += (f'WHERE CONTAINS(POINT(\'ICRS\', {ra_col}, {dec_col}), {adql_region}) = 1 ')
+
+        # Add additional constraints
+        if criteria:
+            conditions = self._format_criteria_conditions(collection_obj, catalog, criteria)
+            if 'WHERE' in adql:
+                adql += 'AND ' + ' AND '.join(conditions)
+            else:
+                adql += 'WHERE ' + ' AND '.join(conditions)
+
+        # Add sorting if specified
+        if sort_by:
+            # Add ORDER BY clause
+            if isinstance(sort_by, str):
+                sort_by = [sort_by]
+            if isinstance(sort_desc, bool):
+                sort_desc = [sort_desc]
+
+            if len(sort_desc) not in [1, len(sort_by)]:
+                raise InvalidQueryError("Length of 'sort_desc' must be 1 or equal to length of 'sort_by'.")
+            if len(sort_desc) == 1:
+                sort_desc = sort_desc * len(sort_by)
+
+            sort_adql = ''
+            for col in sort_by:
+                if col not in collection_obj.get_catalog_metadata(catalog).column_metadata['name'].tolist():
+                    raise InvalidQueryError(f"Sort column '{col}' not found in catalog '{catalog}'.")
+                sort_adql += f"{col} " + ("DESC" if sort_desc[sort_by.index(col)] else "ASC") + ", "
+
+            adql += f'ORDER BY {sort_adql.rstrip(", ")} '
+        result = collection_obj.run_tap_query(adql)
+
+        if count_only:
+            return result['count_all'][0]
+        return result
+
+    @class_or_instance
+    @deprecated_renamed_argument('version', None, since='0.4.12', message='The `version` argument is deprecated and '
+                                 'will be removed in a future release. Please use `collection` and `catalog` instead.')
+    @deprecated_renamed_argument('pagesize', None, since='0.4.12', message='The `pagesize` argument is deprecated '
+                                 'and will be removed in a future release. Please use `limit` instead.')
+    @deprecated_renamed_argument('page', None, since='0.4.12', message='The `page` argument is deprecated '
+                                 'and will be removed in a future release. Please use `offset` instead.')
+    def query_region(self, coordinates=None, *, radius=0.2*u.deg, collection=None, catalog=None,
+                     region=None, limit=5000, offset=0, count_only=False, select_cols=None,
+                     sort_by=None, sort_desc=False, version=None, pagesize=None, page=None, **criteria):
+        # Must specify one of region or coordinates
+        if region is None and coordinates is None:
+            raise InvalidQueryError('Must specify either `region` or `coordinates`. For non-positional queries, '
+                                    'use `Catalogs.query_criteria`.')
+
+        return self.query_criteria(collection=collection,
+                                   catalog=catalog,
+                                   coordinates=coordinates,
+                                   region=region,
+                                   radius=radius,
+                                   limit=limit,
+                                   offset=offset,
+                                   count_only=count_only,
+                                   select_cols=select_cols,
+                                   sort_by=sort_by,
+                                   sort_desc=sort_desc,
+                                   **criteria)
+
+    @class_or_instance
+    @deprecated_renamed_argument('version', None, since='0.4.12', message='The `version` argument is deprecated and '
+                                 'will be removed in a future release. Please use `collection` and `catalog` instead.')
+    @deprecated_renamed_argument('pagesize', None, since='0.4.12', message='The `pagesize` argument is deprecated '
+                                 'and will be removed in a future release. Please use `limit` instead.')
+    @deprecated_renamed_argument('page', None, since='0.4.12', message='The `page` argument is deprecated '
+                                 'and will be removed in a future release. Please use `offset` instead.')
+    def query_object(self, objectname, *, radius=0.2*u.deg, collection=None, catalog=None, resolver=None,
+                     limit=5000, offset=0, count_only=False, select_cols=None, sort_by=None, sort_desc=False,
+                     version=None, pagesize=None, page=None, **criteria):
+        return self.query_criteria(collection=collection,
+                                   catalog=catalog,
+                                   objectname=objectname,
+                                   radius=radius,
+                                   resolver=resolver,
+                                   limit=limit,
+                                   offset=offset,
+                                   count_only=count_only,
+                                   select_cols=select_cols,
+                                   sort_by=sort_by,
+                                   sort_desc=sort_desc,
+                                   **criteria)
+
     def _verify_collection(self, collection):
         """
-        Verify that the specified collection is valid.
+        Verify that the specified collection is valid. Warns the user if the collection has been renamed and
+        raises an error if the collection is not valid.
 
         Parameters
         ----------
@@ -160,7 +370,17 @@ class CatalogsClass(MastQueryWithLogin):
         InvalidQueryError
             If the specified collection is not valid.
         """
-        if collection.lower() not in self.available_collections:
+        collection = collection.lower().strip()
+        if collection in self.available_collections:
+            return collection
+        else:
+            if collection in self._renamed_collections:
+                new_name = self._renamed_collections[collection]
+                warn_msg = (f"Collection '{collection}' has been renamed. Please use '{new_name}' instead.")
+                warnings.warn(warn_msg, InputWarning)
+                return new_name
+
+            error_msg = ""
             if collection in self._no_longer_supported_collections:
                 error_msg = (f"Collection '{collection}' is no longer supported. To query from this catalog, "
                              f"please use a version of Astroquery older than 0.4.12.")
@@ -192,14 +412,14 @@ class CatalogsClass(MastQueryWithLogin):
         if collection_name in self._collections_cache:
             return self._collections_cache[collection_name]
 
-        self._verify_collection(collection_name)
+        collection_name = self._verify_collection(collection_name)
         collection_obj = CatalogCollection(collection_name)
         self._collections_cache[collection_name] = collection_obj
         return collection_obj
 
     def _parse_inputs(self, collection=None, catalog=None):
         """
-        Return (collection, catalog) applying default attributes, validation, and normalization.
+        Parse and validate the collection and catalog inputs.
 
         Parameters
         ----------
@@ -224,9 +444,399 @@ class CatalogsClass(MastQueryWithLogin):
                 catalog = collection_obj.default_catalog
         else:
             catalog = catalog.lower()
-            collection_obj._verify_catalog(catalog)
+            # For backwards compatibility, check if the user is trying to specify a collection via catalog
+            if (catalog in self.available_collections or catalog in self._no_longer_supported_collections
+                    or catalog in self._renamed_collections):
+                warnings.warn(f"Specifying collection '{catalog}' via the `catalog` parameter is deprecated. "
+                              f"Please use the `collection` parameter instead.", DeprecationWarning)
+                # TODO: Should this work?
+                collection_obj = self._get_collection_obj(catalog)
+                catalog = collection_obj.default_catalog
+            else:
+                collection_obj._verify_catalog(catalog)
 
         return collection_obj, catalog
+
+    def _parse_select_cols(self, select_cols, column_metadata):
+        """
+        Validate and parse the select_cols parameter.
+
+        Parameters
+        ----------
+        select_cols : list of str
+            List of column names to include in the result.
+        catalog_metadata : `~astropy.table.Table`
+            Metadata table for the catalog.
+
+        Returns
+        -------
+        str
+            Comma-separated string of valid column names for ADQL SELECT clause.
+
+        Raises
+        ------
+        InvalidQueryError
+            If any specified column is not found in the catalog metadata.
+        """
+        valid_columns = column_metadata['name'].tolist()
+        valid_selected = []
+        for col in select_cols:
+            if col not in valid_columns:
+                closest_match = difflib.get_close_matches(col, valid_columns, n=1)
+                if closest_match:
+                    warnings.warn(f"Column '{col}' not found in catalog. Did you mean '{closest_match[0]}'?",
+                                  InputWarning)
+                else:
+                    warnings.warn(f"Column '{col}' not found in catalog.", InputWarning)
+            else:
+                valid_selected.append(col)
+        return ', '.join(valid_selected)
+
+    def _create_adql_region(self, region):
+        """
+        Returns the ADQL description of the given polygon or circle region.
+
+        Parameters
+        ----------
+        region : str | iterable | astropy.regions.Region
+            - Iterable of RA/Dec pairs as lists/sequences
+            - STC-S POLYGON or CIRCLE string
+            - astropy region (PolygonSkyRegion, CircleSkyRegion, etc.)
+
+        Returns
+        -------
+        adql_region : str
+            ADQL representation of the region (POLYGON or CIRCLE)
+        """
+        # Case 1: region is a string (e.g. STC-S syntax)
+        if isinstance(region, str):
+            parts = region.strip().lower().split()
+            shape = parts[0]
+
+            if shape == 'polygon':
+                # Handle POLYGON (with or without coord frame)
+                try:
+                    float(parts[1])  # Check if next token is numeric
+                    point_parts = parts[1:]
+                except ValueError:
+                    point_parts = parts[2:]  # skip frame name if present
+                point_string = ','.join(point_parts)
+                return f"POLYGON('ICRS',{point_string})"
+            elif shape == 'circle':
+                # Handle CIRCLE (with or without coord frame)
+                try:
+                    float(parts[1])
+                    ra, dec, radius = parts[1], parts[2], parts[3]
+                except ValueError:
+                    ra, dec, radius = parts[2], parts[3], parts[4]
+                return f"CIRCLE('ICRS',{ra},{dec},{radius})"
+            else:
+                raise ValueError(f"Unrecognized region string: {region}")
+
+        # Case 2: region is an astropy region object
+        elif isinstance(region, CircleSkyRegion):
+            center = region.center.icrs
+            radius = region.radius.to(u.deg).value
+            return f"CIRCLE('ICRS',{center.ra.deg},{center.dec.deg},{radius})"
+        elif isinstance(region, PolygonSkyRegion):
+            verts = region.vertices.icrs
+            point_string = ','.join(f"{v.ra.deg},{v.dec.deg}" for v in verts)
+            return f"POLYGON('ICRS',{point_string})"
+
+        # Case 3: region is an iterable of coordinate pairs
+        elif isinstance(region, Iterable):
+            # Expect something like [(ra1, dec1), (ra2, dec2), ...]
+            try:
+                points = [float(x) for point in region for x in point]
+            except Exception as e:
+                raise ValueError(f"Invalid iterable region format: {region}") from e
+            return f"POLYGON('ICRS',{','.join(str(x) for x in points)})"
+
+        else:
+            raise TypeError(f"Unsupported region type: {type(region)}")
+
+    def _get_numeric_columns(self, collection_obj, catalog):
+        """
+        Return a set of column names with numeric types for a given table.
+        Relies on metadata types to detect numeric columns.
+
+        Parameters
+        ----------
+        collection_obj : `CatalogCollection`
+            The collection object.
+        catalog : str
+            The catalog name.
+
+        Returns
+        -------
+        set
+            A set of column names with numeric types.
+        """
+        meta = collection_obj.get_catalog_metadata(catalog).column_metadata
+        num_types = (
+            'int', 'integer', 'smallint', 'bigint', 'long',
+            'float', 'double', 'double precision', 'real', 'numeric', 'decimal'
+        )
+        return {
+            n for n, t in zip(meta["name"], meta["data_type"])
+            if isinstance(t, str) and t.lower() in num_types
+        }
+
+    def _quote_adql_string(self, adql_str):
+        """Escape single quotes in ADQL query strings by doubling them."""
+        return adql_str.replace("'", "''")
+
+    def _parse_numeric_expr(self, col, expr):
+        """
+        Parse a numeric expression for a column and return the corresponding ADQL predicate.
+
+        Parameters
+        ----------
+        col : str
+            The column name.
+        expr : str
+            The numeric expression (e.g., "5", "<10", "5..10").
+
+        Returns
+        -------
+        str
+            The ADQL predicate for the numeric expression.
+        """
+        expr = expr.strip()
+
+        # Check for range (e.g., "5..10")
+        range_match = re.fullmatch(
+            r"([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)\s*\.\.\s*([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)",
+            expr)
+        if range_match:
+            return f"{col} BETWEEN {range_match.group(1)} AND {range_match.group(2)}"
+
+        # Check for comparison (e.g., "<10", ">=5.5")
+        cmp_match = re.fullmatch(r"(<=|>=|<|>)\s*([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)", expr)
+        if cmp_match:
+            return f"{col} {cmp_match.group(1)} {cmp_match.group(2)}"
+
+        try:
+            return f"{col} = {float(expr)}"
+        except ValueError:
+            raise InvalidQueryError(
+                f"Column '{col}' is numeric; unsupported value '{expr}'. Use numbers, comparisons like '<10', or "
+                "ranges like '5..10'."
+            )
+
+    def _format_scalar_predicate(self, col, val, numeric_cols):
+        """
+        Build predicate for a scalar value, aware of column type.
+
+        Parameters
+        ----------
+        col : str
+            The column name.
+        val : scalar
+            The value to build the predicate for.
+        numeric_cols : set
+            Set of numeric column names.
+
+        Returns
+        -------
+        str
+            The ADQL predicate for the scalar value.
+        """
+        if isinstance(val, bool):
+            # Booleans stored as integers
+            return f"{col} = {int(val)}"
+        if isinstance(val, str):
+            # Check for negation
+            is_neg = val.startswith('!')
+            sval = val[1:].strip() if is_neg else val
+
+            # Strings for numeric columns
+            if col in numeric_cols:
+                parsed = self._parse_numeric_expr(col, sval)
+                return f"NOT ({parsed})" if is_neg else parsed
+
+            # Non-numeric strings
+            has_wild = ('*' in sval) or ('%' in sval)
+            pattern = self._quote_adql_string(sval.replace('*', '%'))
+            expr = f"{col} LIKE '{pattern}'" if has_wild else f"{col} = '{pattern}'"
+            return f"NOT ({expr})" if is_neg else expr
+
+        # Numerics or others
+        return f"{col} = {val}"
+
+    def _combine_predicates(self, pos_parts, neg_parts):
+        """
+        Combine positive and negative predicate parts into a single ADQL expression.
+
+        Parameters
+        ----------
+        pos_parts : list of str
+            List of positive predicate strings.
+        neg_parts : list of str
+            List of negative predicate strings.
+
+        Returns
+        -------
+        str
+            The combined ADQL predicate.
+        """
+        pos_expr = ''
+        if len(pos_parts) == 1:
+            pos_expr = pos_parts[0]
+        elif len(pos_parts) > 1:
+            pos_expr = '(' + ' OR '.join(pos_parts) + ')'
+
+        if neg_parts and pos_expr:
+            return '(' + ' AND '.join(neg_parts) + ') AND ' + pos_expr
+        if neg_parts:
+            return ' AND '.join(neg_parts)
+        return pos_expr
+
+    def _build_numeric_list_predicate(self, col, pos_items, neg_items):
+        """
+        Build predicate for multiple values passed into a numeric column with separated positives and negatives.
+
+        Parameters
+        ----------
+        col : str
+            The column name.
+        pos_items : list
+            List of positive values.
+        neg_items : list
+            List of negative values.
+
+        Returns
+        -------
+        str
+            The ADQL predicate for the numeric list.
+        """
+        # Positives: split into simple numbers and complex expressions
+        simple_numbers = []
+        complex_parts = []
+        for val in pos_items:
+            if isinstance(val, (int, float)):
+                simple_numbers.append(val)
+            elif isinstance(val, bool):
+                simple_numbers.append(int(val))
+            elif isinstance(val, str):
+                parsed = self._parse_numeric_expr(col, val)
+                if 'BETWEEN' in parsed or '<' in parsed or '>' in parsed:
+                    complex_parts.append(parsed)
+                else:
+                    simple_numbers.append(float(val))
+            else:
+                simple_numbers.append(val)
+
+        pos_parts = []
+        if simple_numbers:
+            vals = [str(sn) for sn in simple_numbers]
+            pos_parts.append(f"{col} IN (" + ", ".join(vals) + ")")
+        pos_parts.extend(complex_parts)
+
+        # Negatives: NOT(complex) or != numeric
+        neg_parts = [
+            self._format_scalar_predicate(col, f"!{v}", numeric_cols={col})
+            for v in neg_items
+        ]
+
+        return self._combine_predicates(pos_parts, neg_parts)
+
+    def _build_string_list_predicate(self, col, pos_items, neg_items):
+        """
+        Build predicate for multiple values passed into a string column with separated positives and negatives.
+
+        Parameters
+        ----------
+        col : str
+            The column name.
+        pos_items : list
+            List of positive values.
+        neg_items : list
+            List of negative values.
+
+        Returns
+        -------
+        str
+            The ADQL predicate for the string list.
+        """
+        simple_strings = []
+        pattern_parts = []
+        for v in pos_items:
+            if isinstance(v, bool):
+                simple_strings.append(str(int(v)))
+            elif isinstance(v, str):
+                if ('*' in v) or ('%' in v):
+                    patt = self._quote_adql_string(v.replace('*', '%'))
+                    pattern_parts.append(f"{col} LIKE '{patt}'")
+                else:
+                    simple_strings.append("'" + self._quote_adql_string(v) + "'")
+            else:
+                simple_strings.append(str(v))
+
+        pos_parts = []
+        if simple_strings:
+            pos_parts.append(f"{col} IN (" + ", ".join(simple_strings) + ")")
+        pos_parts.extend(pattern_parts)
+
+        # Negative predicates → use helper
+        neg_parts = [
+            self._format_scalar_predicate(col, f"!{v}", numeric_cols=set())
+            for v in neg_items
+        ]
+
+        return self._combine_predicates(pos_parts, neg_parts)
+
+    def _format_criteria_conditions(self, collection_obj, catalog, criteria):
+        """
+        Turn a criteria dict into ADQL WHERE clause expressions, aware of column types.
+
+        - Scalars: equality (strings quoted; booleans -> 0/1; numerics raw).
+        - Strings with wildcards '*' or '%': uses LIKE (converting '*' to '%').
+        - Lists/Tuples: if any string contains wildcard, build OR of LIKEs; otherwise use IN (...).
+        - Numeric columns: support comparison strings ('<10', '>= 5') and ranges ('5..10', inclusive).
+            Empty lists yield a false predicate (1=0).
+        - Negation: a value prefixed with '!' is treated as a negated predicate. For list values, all negations are
+            AND'ed together and combined with the OR of positives: (neg1 AND neg2) AND (pos1 OR pos2 ...).
+
+        Parameters
+        ----------
+        criteria : dict
+            Mapping of column name -> scalar or list of scalars.
+
+        Returns
+        -------
+        list of str
+            ADQL predicate strings (without leading WHERE/AND), suitable for joining with ' AND '.
+        """
+        numeric_cols = self._get_numeric_columns(collection_obj, catalog)
+        conditions = []
+        for key, value in criteria.items():
+            # Handle list-like values => IN or OR(LIKE ...)
+            if isinstance(value, (list, tuple)):
+                values = list(value)
+                if len(values) == 0:
+                    conditions.append("1=0")
+                    continue
+                # Separate negatives (prefixed with '!') and positives
+                neg_items = []
+                pos_items = []
+                for v in values:
+                    if isinstance(v, str) and v.startswith('!'):
+                        neg_items.append(v[1:].strip())
+                    else:
+                        pos_items.append(v)
+
+                if key in numeric_cols:
+                    expr = self._build_numeric_list_predicate(key, pos_items, neg_items)
+                    if expr:
+                        conditions.append(expr)
+                else:
+                    expr = self._build_string_list_predicate(key, pos_items, neg_items)
+                    if expr:
+                        conditions.append(expr)
+            else:
+                conditions.append(self._format_scalar_predicate(key, value, numeric_cols))
+        return conditions
 
 
 Catalogs = CatalogsClass()

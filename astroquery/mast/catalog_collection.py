@@ -10,6 +10,25 @@ from astroquery.exceptions import InvalidQueryError
 
 __all__ = ['CatalogCollection']
 
+DEFAULT_TABLES = {
+    'caom': 'dbo.obspointing',
+    'gaia': 'dbo.gaia_source',
+    'hscv3': 'dbo.SumMagAper2CatView',
+    'hscv2': 'dbo.SumMagAper2CatView',
+    'missionmast': 'dbo.hst_science_missionmast',
+    'ps1dr1': 'dbo.MeanObjectView',
+    'ps1dr2': 'dbo.MeanObjectView',
+    'pd1_dr2': 'ps1_dr2.forced_mean_object',
+    'skymapper': 'dr4.master',
+    'tic': 'dbo.CatalogRecord',
+    'classy': 'dbo.targets',
+    'ullyses': 'dbo.sciencemetadata',
+    'goods': 'dbo.goods_master_view',
+    '3dhst': 'dbo.HLSP_3DHST_summary',
+    'candels': 'dbo.candels_master_view',
+    'deepspace': 'dbo.DeepSpace_Summary'
+}
+
 
 @dataclass
 class CatalogMetadata:
@@ -115,6 +134,10 @@ class CatalogCollection:
         str
             The default catalog name.
         """
+        # Check if collection has a known default catalog
+        if self.name in DEFAULT_TABLES:
+            return DEFAULT_TABLES[self.name]
+
         # Pick default catalog = first one that does NOT start with "tap_schema."
         default_catalog = next((c for c in self.catalog_names if not c.startswith("tap_schema.")), None)
 
@@ -200,7 +223,7 @@ class CatalogCollection:
         InvalidQueryError
             If the specified catalog is not valid for the given collection.
         """
-        lower_map = {name.lower(): name for name in self.catalog_names}
+        lower_map = {name.lower().split('.')[-1]: name for name in self.catalog_names}
         if catalog.lower() not in lower_map:
             closest_match = difflib.get_close_matches(catalog, self.catalog_names, n=1)
             error_msg = (
@@ -229,7 +252,8 @@ class CatalogCollection:
         log.debug(f"Fetching column metadata for collection '{self.name}', catalog '{catalog}' from MAST TAP service.")
 
         # Case-insensitive match to find the table
-        tap_table = next((t for name, t in self.tap_service.tables.items() if name.lower() == catalog.lower()), None)
+        tap_table = next((t for name, t in self.tap_service.tables.items()
+                          if name.lower().split('.')[-1] == catalog.lower()), None)
 
         # Extract column metadata
         col_names = [col.name for col in tap_table.columns]
@@ -295,8 +319,7 @@ class CatalogCollection:
         """
         if not criteria:
             return
-        self._verify_catalog(catalog)
-        col_names = list(self.get_catalog_metadata(catalog)['column_metadata']['name'])
+        col_names = list(self.get_catalog_metadata(catalog).column_metadata['name'])
 
         # Check each criteria argument for validity
         for kwd in criteria.keys():
