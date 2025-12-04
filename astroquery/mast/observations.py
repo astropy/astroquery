@@ -718,7 +718,43 @@ class ObservationsClass(MastQueryWithLogin):
         response : `~astropy.table.Table`
         """
 
-        manifest_array = []
+        generator = self._download_files_generator(products, base_dir, flat=flat, 
+                                                             cache=cache, cloud_only=cloud_only, 
+                                                             verbose=verbose)
+        manifest_list = []
+        for local_path, status, msg, url, data_product_row in generator:
+            manifest_list.append((local_path, status, msg, url))
+        return Table(rows=manifest_list, names=('Local Path', 'Status', 'Message', "URL"))
+
+    def _download_files_generator(self, products, base_dir, *, flat=False, cache=True, cloud_only=False, verbose=True):
+        """
+        A generator that takes an `~astropy.table.Table` of data products and downloads them into the 
+        directory given by base_dir.
+
+        Parameters
+        ----------
+        products : `~astropy.table.Table`
+            Table containing products to be downloaded.
+        base_dir : str
+            Directory in which files will be downloaded.
+        flat : bool
+            Default is False.  If set to True, no subdirectories will be made for the
+            downloaded files.
+        cache : bool
+            Default is True. If file is found on disk it will not be downloaded again.
+        cloud_only : bool, optional
+            Default False. If set to True and cloud data access is enabled (see `enable_cloud_dataset`)
+            files that are not found in the cloud will be skipped rather than downloaded from MAST
+            as is the default behavior. If cloud access is not enables this argument as no affect.
+        verbose : bool, optional
+            Default True. Whether to show download progress in the console.
+
+        Returns
+        -------
+        generator
+            a generator yielding tuples (local_path, status, msg, url, data_product_row) (see `download_file` for details)
+        """
+
         for data_product in products:
 
             # create the local file download path
@@ -733,12 +769,8 @@ class ObservationsClass(MastQueryWithLogin):
             # download the files
             status, msg, url = self.download_file(data_product["dataURI"], local_path=local_path,
                                                   cache=cache, cloud_only=cloud_only, verbose=verbose)
-
-            manifest_array.append([local_path, status, msg, url])
-
-        manifest = Table(rows=manifest_array, names=('Local Path', 'Status', 'Message', "URL"))
-
-        return manifest
+    
+            yield local_path, status, msg, url, data_product
 
     def _download_curl_script(self, products, out_dir, verbose=True):
         """
@@ -877,6 +909,97 @@ class ObservationsClass(MastQueryWithLogin):
                                             verbose=verbose)
 
         return manifest
+    
+
+    def download_products_iter(self, products, *, download_dir=None, flat=False,
+                               cache=True, mrp_only=False, cloud_only=False, verbose=True,
+                               **filters):
+        """
+        An iterator to download data products.
+        If cloud access is enabled, files will be downloaded from the cloud if possible.
+
+        Parameters
+        ----------
+        products : str, list, `~astropy.table.Table`
+            Either a single or list of obsids (as can be given to `get_product_list`),
+            or a Table of products (as is returned by `get_product_list`)
+        download_dir : str, optional
+            Optional.  Directory to download files to.  Defaults to current directory.
+        flat : bool, optional
+            Default is False.  If set to True, and download_dir is specified, it will put
+            all files into download_dir without subdirectories.  Or if set to True and
+            download_dir is not specified, it will put files in the current directory,
+            again with no subdirs.  The default of False puts files into the standard
+            directory structure of "mastDownload/<obs_collection>/<obs_id>/".  If
+            curl_flag=True, the flat flag has no effect, as astroquery does not control
+            how MAST generates the curl download script.
+        cache : bool, optional
+            Default is True. If file is found on disc it will not be downloaded again.
+            Note: has no affect when downloading curl script.
+        mrp_only : bool, optional
+            Default False. When set to true only "Minimum Recommended Products" will be returned.
+        cloud_only : bool, optional
+            Default False. If set to True and cloud data access is enabled (see `enable_cloud_dataset`)
+            files that are not found in the cloud will be skipped rather than downloaded from MAST
+            as is the default behavior. If cloud access is not enables this argument as no affect.
+        verbose : bool, optional
+            Default True. Whether to show download progress in the console.
+        **filters :
+            Filters to be applied.  Valid filters are all products fields returned by
+            ``get_metadata("products")`` and 'extension' which is the desired file extension.
+            The Column Name (or 'extension') is the keyword, with the argument being one or
+            more acceptable values for that parameter.
+            Filter behavior is AND between the filters and OR within a filter set.
+            For example: productType="SCIENCE",extension=["fits","jpg"]
+
+        Returns
+        -------
+        generator
+            a generator yielding tuples (local_path, status, msg, url, data_product_row) (see `download_file` for details)
+        """
+        # If the products list is a row we need to cast it as a table
+        if isinstance(products, Row):
+            products = Table(products, masked=True)
+
+        # If the products list is not already a table of products we need to
+        # get the products and filter them appropriately
+        if not isinstance(products, Table):
+
+            if isinstance(products, str):
+                products = [products]
+
+            # collect list of products
+            product_lists = []
+            for oid in products:
+                product_lists.append(self.get_product_list(oid))
+
+            products = vstack(product_lists)
+
+        # apply filters
+        products = self.filter_products(products, mrp_only=mrp_only, **filters)
+
+        # remove duplicate products
+        products = utils.remove_duplicate_products(products, 'dataURI')
+
+        if not len(products):
+            warnings.warn("No products to download.", NoResultsWarning)
+            return
+
+        # set up the download directory and paths
+        if not download_dir:
+            download_dir = '.'
+
+        if flat:
+            base_dir = download_dir
+        else:
+            base_dir = os.path.join(download_dir, "mastDownload")
+        for local_path, status, msg, url, data_product_row in self._download_files_generator(products,
+                                                                                         base_dir=base_dir, 
+                                                                                         flat=flat,
+                                                                                         cache=cache,
+                                                                                         cloud_only=cloud_only,
+                                                                                         verbose=verbose):
+            yield local_path, status, msg, url, data_product_row
 
     def get_cloud_uris(self, data_products=None, *, include_bucket=True, full_url=False, pagesize=None, page=None,
                        mrp_only=False, extension=None, filter_products={}, return_uri_map=False, verbose=True,
