@@ -10,6 +10,25 @@ from astroquery.exceptions import InvalidQueryError
 
 __all__ = ['CatalogCollection']
 
+DEFAULT_CATALOGS = {
+    'caom': 'dbo.obspointing',
+    'gaiadr3': 'dbo.gaia_source',
+    'hsc': 'dbo.SumMagAper2CatView',
+    'hscv2': 'dbo.SumMagAper2CatView',
+    'missionmast': 'dbo.hst_science_missionmast',
+    'ps1dr1': 'dbo.MeanObjectView',
+    'ps1dr2': 'dbo.MeanObjectView',
+    'ps1_dr2': 'ps1_dr2.forced_mean_object',
+    'skymapperdr4': 'dr4.master',
+    'tic': 'dbo.CatalogRecord',
+    'classy': 'dbo.targets',
+    'ullyses': 'dbo.sciencemetadata',
+    'goods': 'dbo.goods_master_view',
+    '3dhst': 'dbo.HLSP_3DHST_summary',
+    'candels': 'dbo.candels_master_view',
+    'deepspace': 'dbo.DeepSpace_Summary'
+}
+
 
 @dataclass
 class CatalogMetadata:
@@ -76,7 +95,7 @@ class CatalogCollection:
             return self._catalog_metadata_cache[catalog]
 
         # Verify catalog validity for this collection
-        self._verify_catalog(catalog)
+        catalog = self._verify_catalog(catalog)
 
         # Get column metadata
         metadata = self._get_column_metadata(catalog)
@@ -115,6 +134,10 @@ class CatalogCollection:
         str
             The default catalog name.
         """
+        # Check if collection has a known default catalog
+        if self.name in DEFAULT_CATALOGS:
+            return DEFAULT_CATALOGS[self.name]
+
         # Pick default catalog = first one that does NOT start with "tap_schema."
         default_catalog = next((c for c in self.catalog_names if not c.startswith("tap_schema.")), None)
 
@@ -188,29 +211,63 @@ class CatalogCollection:
 
     def _verify_catalog(self, catalog):
         """
-        Verify that the specified catalog is valid for the given collection.
+        Verify that the specified catalog is valid for this collection and return the correct catalog name.
+        Raises an error if the catalog is not valid.
 
         Parameters
         ----------
         catalog : str
             The catalog to be verified.
 
+        Returns
+        -------
+        str
+            The validated catalog name.
+
         Raises
         ------
         InvalidQueryError
             If the specified catalog is not valid for the given collection.
         """
-        lower_map = {name.lower(): name for name in self.catalog_names}
-        if catalog.lower() not in lower_map:
-            closest_match = difflib.get_close_matches(catalog, self.catalog_names, n=1)
-            error_msg = (
-                f"Catalog '{catalog}' is not recognized for collection '{self.name}'. "
-                f"Did you mean '{closest_match[0]}'?"
-                if closest_match
-                else f"Catalog '{catalog}' is not recognized for collection '{self.name}'."
+        catalog = catalog.lower()
+
+        # Build a mapping for case-insensitive and no-prefix lookup
+        lookup = {}
+        no_prefix_map = {}
+        for cat in self.catalog_names:
+            cat_lower = cat.lower()
+            lookup[cat_lower] = cat  # case-insensitive match
+            no_prefix = cat_lower.split('.')[-1]
+            if no_prefix not in no_prefix_map:
+                no_prefix_map[no_prefix] = [cat]  # no-prefix match (first occurrence)
+            else:
+                no_prefix_map[no_prefix].append(cat)
+
+        # Add unambiguous no-prefix matches to lookup
+        for no_prefix, cats in no_prefix_map.items():
+            if len(cats) == 1:
+                lookup[no_prefix] = cats[0]
+
+        # Direct or unambiguous no-prefix match
+        if catalog in lookup:
+            return lookup[catalog]
+
+        # Check for ambiguous no-prefix matches
+        if catalog in no_prefix_map and len(no_prefix_map[catalog]) > 1:
+            matches = ', '.join(no_prefix_map[catalog])
+            raise InvalidQueryError(
+                f"Catalog '{catalog}' is ambiguous for collection '{self.name}'. "
+                f"It matches multiple catalogs: {matches}. Please specify the full catalog name."
             )
-            error_msg += " Available catalogs are: " + ", ".join(self.catalog_names)
-            raise InvalidQueryError(error_msg)
+
+        # Suggest closest match (based on full catalog names)
+        closest = difflib.get_close_matches(catalog, self.catalog_names, n=1)
+        suggestion = f" Did you mean '{closest[0]}'?" if closest else ""
+
+        raise InvalidQueryError(
+            f"Catalog '{catalog}' is not recognized for collection '{self.name}'."
+            f"{suggestion} Available catalogs are: {', '.join(self.catalog_names)}"
+        )
 
     def _get_column_metadata(self, catalog):
         """
@@ -229,7 +286,9 @@ class CatalogCollection:
         log.debug(f"Fetching column metadata for collection '{self.name}', catalog '{catalog}' from MAST TAP service.")
 
         # Case-insensitive match to find the table
-        tap_table = next((t for name, t in self.tap_service.tables.items() if name.lower() == catalog.lower()), None)
+        tap_table = next((t for name, t in self.tap_service.tables.items() if name == catalog), None)
+        if tap_table is None:
+            raise InvalidQueryError(f"Catalog '{catalog}' not found in collection '{self.name}'.")
 
         # Extract column metadata
         col_names = [col.name for col in tap_table.columns]
@@ -295,17 +354,15 @@ class CatalogCollection:
         """
         if not criteria:
             return
-        self._verify_catalog(catalog)
-        col_names = list(self.get_catalog_metadata(catalog)['column_metadata']['name'])
+        col_names = list(self.get_catalog_metadata(catalog).column_metadata['name'])
 
         # Check each criteria argument for validity
         for kwd in criteria.keys():
             if kwd not in col_names:
-                closest_match = difflib.get_close_matches(kwd, col_names, n=1)
-                error_msg = (
-                    f"Filter '{kwd}' is not recognized for collection '{self.name}' and catalog '{catalog}'. "
-                    f"Did you mean '{closest_match[0]}'?"
-                    if closest_match
-                    else f"Filter '{kwd}' is not recognized for collection '{self.name}' and catalog '{catalog}'."
+                # Suggest closest match for invalid keyword
+                closest = difflib.get_close_matches(kwd, col_names, n=1)
+                suggestion = f" Did you mean '{closest[0]}'?" if closest else ""
+                raise InvalidQueryError(
+                    f"Filter '{kwd}' is not recognized for collection '{self.name}' and "
+                    f"catalog '{catalog}'.{suggestion}"
                 )
-                raise InvalidQueryError(error_msg)
