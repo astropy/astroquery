@@ -178,7 +178,7 @@ This query returns a list containing a single table:
 .. doctest-remote-data::
 
     >>> print(ast_impacts[0])  # doctest: +IGNORE_OUTPUT
-              date             MJD    sigma  sigimp ... Exp. Energy in MT   PS   TS
+              date             MJD    sigma  sigimp ... Imp. Energy in MT   PS   TS
     ----------------------- --------- ------ ------ ... ----------------- ----- ---
     2056-12-12 21:38:52.800 72344.902  0.255    0.0 ...             0.013 -2.86   0
     2065-12-16 11:06:43.200 75635.463  -1.11    0.0 ...           3.3e-05 -5.42   0

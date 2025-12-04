@@ -392,7 +392,7 @@ def test_tabs_impacts(patch_get):
     meta_keys = ['Column Info', 'observation_accepted', 'observation_rejected', 'arc_start',
                  'arc_end', 'info', 'computation', 'additional_note']
     impact_columns = ['date', 'MJD', 'sigma', 'sigimp', 'dist', 'width', 'stretch', 'p_RE',
-                      'Exp. Energy in MT', 'PS', 'TS']
+                      'Imp. Energy in MT', 'PS', 'TS']
 
     # Asteroid 1979XB
     impact_tab_list = neocc.neocc.query_object(name='1979XB', tab='impacts')
