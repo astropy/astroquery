@@ -317,7 +317,7 @@ class CatalogsClass(MastQueryWithLogin):
                                  'and will be removed in a future release. Please use `limit` instead.')
     @deprecated_renamed_argument('page', None, since='0.4.12', message='The `page` argument is deprecated '
                                  'and will be removed in a future release. Please use `offset` instead.')
-    def query_region(self, coordinates=None, *, radius=0.2*u.deg, region=None, collection=None, 
+    def query_region(self, coordinates=None, *, radius=0.2*u.deg, region=None, collection=None,
                      catalog=None, limit=5000, offset=0, count_only=False, select_cols=None,
                      sort_by=None, sort_desc=False, version=None, pagesize=None, page=None, **criteria):
         """
@@ -409,8 +409,8 @@ class CatalogsClass(MastQueryWithLogin):
                      limit=5000, offset=0, count_only=False, select_cols=None, sort_by=None, sort_desc=False,
                      version=None, pagesize=None, page=None, **criteria):
         """
-        Query for MAST catalog entries around a specified object name using criteria filters. To return columns for a given
-        collection and catalog, use `~astroquery.mast.collections.get_catalog_metadata`.
+        Query for MAST catalog entries around a specified object name using criteria filters. To return columns
+        for a given collection and catalog, use `~astroquery.mast.collections.get_catalog_metadata`.
 
         Parameters
         ----------
