@@ -30,12 +30,13 @@ class CatalogsClass(MastQueryWithLogin):
 
     TAP_BASE_URL = 'https://masttest.stsci.edu/vo-tap/api/v0.1/'
 
-    def __init__(self, collection="hsc", catalog=None):
+    def __init__(self, collection='hsc', catalog=None):
 
         super().__init__()
 
         self.available_collections = self.get_collections()['collection_name'].tolist()
         self._no_longer_supported_collections = ['ctl', 'diskdetective', 'galex', 'plato']
+        self._renamed_collections = {'panstarrs': 'ps1_dr2', 'gaia': 'gaiadr3'}
         self._collections_cache = dict()
 
         self.collection = collection
@@ -59,7 +60,7 @@ class CatalogsClass(MastQueryWithLogin):
         self._collection = collection_obj
 
         # Only change catalog if not set yet or invalid for this collection
-        if not hasattr(self, "_catalog") or self._catalog not in collection_obj.catalog_names:
+        if not hasattr(self, '_catalog') or self._catalog not in collection_obj.catalog_names:
             self._catalog = collection_obj.default_catalog
 
     @property
@@ -84,8 +85,8 @@ class CatalogsClass(MastQueryWithLogin):
 
         Returns
         -------
-        response : list of str
-            A list of available MAST collections.
+        response : `~astropy.table.Table`
+            A table containing the available MAST collections.
         """
         # If already cached, use it directly
         if getattr(self, "available_collections", None):
@@ -101,9 +102,6 @@ class CatalogsClass(MastQueryWithLogin):
         # Extract collection enumeration
         collection_enum = data["components"]["schemas"]["CatalogName"]["enum"]
 
-        # Cache the results
-        self.available_collections = collection_enum
-
         # Build an Astropy Table to hold the results
         collection_table = Table([collection_enum], names=('collection_name',))
         return collection_table
@@ -111,17 +109,17 @@ class CatalogsClass(MastQueryWithLogin):
     @class_or_instance
     def get_catalogs(self, collection=None):
         """
-        For a given Catalogs.MAST collection, return a list of available catalogs.
+        For a given collection, return a list of available catalogs.
 
         Parameters
         ----------
-        collection : str
+        collection : str, optional
             The collection to be queried.
 
         Returns
         -------
-        response : list of str
-            A list of available catalogs for the specified collection.
+        response : `~astropy.table.Table`
+            A table containing the available catalogs within the specified collection.
         """
         # If no collection specified, use the class attribute
         collection_obj = self._get_collection_obj(collection) if collection else self.collection
@@ -130,13 +128,13 @@ class CatalogsClass(MastQueryWithLogin):
     @class_or_instance
     def get_catalog_metadata(self, collection=None, catalog=None):
         """
-        For a given Catalogs.MAST collection and catalog, return metadata about the catalog.
+        For a given collection and catalog, return metadata about the catalog.
 
         Parameters
         ----------
-        collection : str
+        collection : str, optional
             The collection to be queried.
-        catalog : str
+        catalog : str, optional
             The catalog within the collection to get metadata for.
 
         Returns
