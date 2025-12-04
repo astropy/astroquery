@@ -129,6 +129,7 @@ The following packages are optional dependencies and are required for the
 full functionality of the `~astroquery.mast` and `~astroquery.heasarc` modules:
 
 * `boto3 <https://boto3.amazonaws.com/v1/documentation/api/latest/index.html>`_
+* ``botocore``
 
 Using astroquery
 ----------------
