@@ -197,7 +197,7 @@ def parse_impacts(resp_str):
     # Build the main data table
     impact_tble = Table.read(resp_lst[1], format='ascii', data_start=3,
                              names=["date", "MJD", "sigma", "sigimp", "dist", "+/-", "width",
-                                    "stretch", "p_RE", "Exp. Energy in MT", "PS", "TS"])
+                                    "stretch", "p_RE", "Imp. Energy in MT", "PS", "TS"])
     impact_tble.remove_column("+/-")
     impact_tble['date'] = convert_time(impact_tble['date'])
 
@@ -216,8 +216,7 @@ def parse_impacts(resp_str):
                                                    'This is a close cousin of the Lyapounov exponent. Units are in '
                                                    'Earth radii divided by sigma (RE/sig)'),
                                        'p_RE': 'probability of Earth Impact (IP)',
-                                       'Exp. Energy in MT': ('Expected energy. It is the product of the impact energy '
-                                                             'and the impact probability'),
+                                       'Exp. Energy in MT': 'Impact energy.',
                                        'PS': 'Palermo Scale',
                                        'TS': 'Torino Scale'}
 
