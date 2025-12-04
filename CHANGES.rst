@@ -67,6 +67,12 @@ mpc
 
 - Fix bug in queries for interstellar objects with `MPC.get_observations` and enable queries for "dead" comets [#3474]
 
+noirlab
+^^^^^^^
+
+- Restore access to the `NSF NOIRLab <https://noirlab.edu>`_
+  `Astro Data Archive <https://astroarchive.noirlab.edu>`_ [#3359].
+
 xmatch
 ^^^^^^
 
