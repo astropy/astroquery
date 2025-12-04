@@ -17,6 +17,7 @@ import tarfile as esatar
 import zipfile
 from datetime import datetime, timezone
 from urllib.parse import urlencode
+from requests.exceptions import HTTPError
 
 import astroquery.esa.utils.utils as esautils
 
@@ -694,16 +695,15 @@ class JwstClass(BaseQuery):
         the status of JWST TAP
         """
 
-        try:
-            subContext = conf.JWST_MESSAGES
-            connHandler = self.__jwsttap._TapPlus__getconnhandler()
-            response = connHandler.execute_tapget(subContext, verbose=False)
-            if response.status == 200:
-                for line in response:
-                    string_message = line.decode("utf-8")
-                    print(string_message[string_message.index('=') + 1:])
-        except OSError:
-            print("Status messages could not be retrieved")
+        subContext = conf.JWST_MESSAGES
+        connHandler = self.__jwsttap._TapPlus__getconnhandler()
+        response = connHandler.execute_tapget(subContext, verbose=False)
+        if response.status == 200:
+            for line in response:
+                string_message = line.decode("utf-8")
+                print(string_message[string_message.index('=') + 1:])
+        else:
+            raise HTTPError(f"Failed to retrieve status messages. HTTP status code: {response.status}")
 
     def get_product_list(self, *, observation_id=None,
                          cal_level="ALL",
@@ -1275,4 +1275,4 @@ class JwstClass(BaseQuery):
             return str
 
 
-Jwst = JwstClass()
+Jwst = JwstClass(show_messages=False)
