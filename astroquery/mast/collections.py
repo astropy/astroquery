@@ -83,7 +83,7 @@ class CatalogsClass(MastQueryWithLogin):
         """
         Setter that verifies that the catalog is valid for the current collection.
         """
-        self.collection._verify_catalog(catalog)
+        catalog = self.collection._verify_catalog(catalog)
         self._catalog = catalog
 
     @class_or_instance
@@ -228,6 +228,7 @@ class CatalogsClass(MastQueryWithLogin):
         response : `~astropy.table.Table`
             A table containing the query results.
         """
+        # TODO: Implement offset when VO-TAP supports it
         # Should not specify both region and coordinates
         if coordinates and region:
             raise InvalidQueryError('Specify either `region` or `coordinates`, not both.')
@@ -298,11 +299,16 @@ class CatalogsClass(MastQueryWithLogin):
                 sort_adql += f"{col} " + ("DESC" if sort_desc[sort_by.index(col)] else "ASC") + ", "
 
             adql += f'ORDER BY {sort_adql.rstrip(", ")} '
-        result = collection_obj.run_tap_query(adql)
+        result_table = collection_obj.run_tap_query(adql)
 
         if count_only:
-            return result['count_all'][0]
-        return result
+            return result_table['count_all'][0]
+        else:
+            # TODO: Add metadata to the result table
+            result_table.meta['collection'] = collection_obj.name
+            result_table.meta['catalog'] = catalog
+            result_table.meta['schema_browser_url'] = "something"
+        return result_table
 
     @class_or_instance
     @deprecated_renamed_argument('version', None, since='0.4.12', message='The `version` argument is deprecated and '
@@ -311,9 +317,69 @@ class CatalogsClass(MastQueryWithLogin):
                                  'and will be removed in a future release. Please use `limit` instead.')
     @deprecated_renamed_argument('page', None, since='0.4.12', message='The `page` argument is deprecated '
                                  'and will be removed in a future release. Please use `offset` instead.')
-    def query_region(self, coordinates=None, *, radius=0.2*u.deg, collection=None, catalog=None,
-                     region=None, limit=5000, offset=0, count_only=False, select_cols=None,
+    def query_region(self, coordinates=None, *, radius=0.2*u.deg, region=None, collection=None, 
+                     catalog=None, limit=5000, offset=0, count_only=False, select_cols=None,
                      sort_by=None, sort_desc=False, version=None, pagesize=None, page=None, **criteria):
+        """
+        Query for MAST catalog entries within a specified region using criteria filters. To return columns for a given
+        collection and catalog, use `~astroquery.mast.collections.get_catalog_metadata`.
+
+        Parameters
+        ----------
+        coordinates : str or `~astropy.coordinates` object, optional
+            The target around which to search. It may be specified as a string (e.g., '350 -80') or as an
+            Astropy coordinates object.
+        radius : str or `~astropy.units.Quantity` object, optional
+            The search radius around the target coordinates or object. Default 0.2 degrees.
+        region : str | iterable | `~astropy.regions.Region`, optional
+            The region to search within. It may be specified as a string (e.g., 'circle(350 -80, 0.2d)') or as
+            an Astropy regions object.
+        collection : str, optional
+            The collection to be queried. If None, uses the instance's `collection` attribute.
+        catalog : str, optional
+            The catalog within the collection to query. If None, uses the instance's `catalog` attribute.
+        limit : int, optional
+            The maximum number of results to return. Default is 5000.
+        offset : int, optional
+            The number of rows to skip before starting to return rows. Default is 0.
+        count_only : bool, optional
+            If True, only return the count of matching records instead of the records themselves. Default is False.
+        select_cols : list of str, optional
+            List of column names to include in the result. If None or empty, all columns are returned.
+        sort_by : str or list of str, optional
+            Column name(s) to sort the results by.
+        sort_desc : bool or list of bool, optional
+            Indicates whether to sort in descending order for each column in `sort_by`. If a single bool,
+            applies to all columns. If a list, must match length of `sort_by`. Default is False (ascending order).
+        version : str, optional
+            Deprecated. The version argument is no longer used. Please use `collection` and `catalog` instead.
+        pagesize : int, optional
+            Deprecated. The pagesize argument is no longer used. Please use `limit` instead.
+        page : int, optional
+            Deprecated. The page argument is no longer used. Please use `offset` instead.
+        **criteria
+            Keyword arguments representing criteria filters to apply.
+
+                Criteria syntax
+                ----------------
+                - Strings support wildcards using '*' (converted to SQL '%') and '%'.
+                - Lists are combined with OR for positive values; empty lists yield no matches.
+                - Numeric columns support comparison operators ('<', '<=', '>', '>=') and inclusive ranges using
+                    the syntax 'low..high' (e.g., '5..10'). Mixed lists of numbers and comparisons are OR-combined.
+                - Negation: Prefix any value with '!' to negate that predicate. For list inputs, all negated values
+                    for the same column are AND-combined, then ANDed with the OR of the positive values:
+                        (neg1 AND neg2 AND ...) AND (pos1 OR pos2 OR ...).
+
+                Examples
+                --------
+                - file_suffix=['A', 'B', '!C'] -> (file_suffix != 'C') AND (file_suffix IN ('A', 'B'))
+                - size=['!14400', '<20000'] -> (size != 14400) AND (size < 20000)
+
+        Returns
+        -------
+        response : `~astropy.table.Table`
+            A table containing the query results.
+        """
         # Must specify one of region or coordinates
         if region is None and coordinates is None:
             raise InvalidQueryError('Must specify either `region` or `coordinates`. For non-positional queries, '
@@ -342,6 +408,64 @@ class CatalogsClass(MastQueryWithLogin):
     def query_object(self, objectname, *, radius=0.2*u.deg, collection=None, catalog=None, resolver=None,
                      limit=5000, offset=0, count_only=False, select_cols=None, sort_by=None, sort_desc=False,
                      version=None, pagesize=None, page=None, **criteria):
+        """
+        Query for MAST catalog entries around a specified object name using criteria filters. To return columns for a given
+        collection and catalog, use `~astroquery.mast.collections.get_catalog_metadata`.
+
+        Parameters
+        ----------
+        objectname : str, optional
+            The name of the object to resolve and search around.
+        radius : str or `~astropy.units.Quantity` object, optional
+            The search radius around the target coordinates or object. Default 0.2 degrees.
+        collection : str, optional
+            The collection to be queried. If None, uses the instance's `collection` attribute.
+        catalog : str, optional
+            The catalog within the collection to query. If None, uses the instance's `catalog` attribute.
+        resolver : str, optional
+            The name resolver service to use when resolving ``objectname``.
+        limit : int, optional
+            The maximum number of results to return. Default is 5000.
+        offset : int, optional
+            The number of rows to skip before starting to return rows. Default is 0.
+        count_only : bool, optional
+            If True, only return the count of matching records instead of the records themselves. Default is False.
+        select_cols : list of str, optional
+            List of column names to include in the result. If None or empty, all columns are returned.
+        sort_by : str or list of str, optional
+            Column name(s) to sort the results by.
+        sort_desc : bool or list of bool, optional
+            Indicates whether to sort in descending order for each column in `sort_by`. If a single bool,
+            applies to all columns. If a list, must match length of `sort_by`. Default is False (ascending order).
+        version : str, optional
+            Deprecated. The version argument is no longer used. Please use `collection` and `catalog` instead.
+        pagesize : int, optional
+            Deprecated. The pagesize argument is no longer used. Please use `limit` instead.
+        page : int, optional
+            Deprecated. The page argument is no longer used. Please use `offset` instead.
+        **criteria
+            Keyword arguments representing criteria filters to apply.
+
+                Criteria syntax
+                ----------------
+                - Strings support wildcards using '*' (converted to SQL '%') and '%'.
+                - Lists are combined with OR for positive values; empty lists yield no matches.
+                - Numeric columns support comparison operators ('<', '<=', '>', '>=') and inclusive ranges using
+                    the syntax 'low..high' (e.g., '5..10'). Mixed lists of numbers and comparisons are OR-combined.
+                - Negation: Prefix any value with '!' to negate that predicate. For list inputs, all negated values
+                    for the same column are AND-combined, then ANDed with the OR of the positive values:
+                        (neg1 AND neg2 AND ...) AND (pos1 OR pos2 OR ...).
+
+                Examples
+                --------
+                - file_suffix=['A', 'B', '!C'] -> (file_suffix != 'C') AND (file_suffix IN ('A', 'B'))
+                - size=['!14400', '<20000'] -> (size != 14400) AND (size < 20000)
+
+        Returns
+        -------
+        response : `~astropy.table.Table`
+            A table containing the query results.
+        """
         return self.query_criteria(collection=collection,
                                    catalog=catalog,
                                    objectname=objectname,
@@ -357,8 +481,8 @@ class CatalogsClass(MastQueryWithLogin):
 
     def _verify_collection(self, collection):
         """
-        Verify that the specified collection is valid. Warns the user if the collection has been renamed and
-        raises an error if the collection is not valid.
+        Verify that the specified collection is valid and return the correct collection name.
+        Warns the user if the collection has been renamed and raises an error if the collection is not valid.
 
         Parameters
         ----------
@@ -385,12 +509,9 @@ class CatalogsClass(MastQueryWithLogin):
                 error_msg = (f"Collection '{collection}' is no longer supported. To query from this catalog, "
                              f"please use a version of Astroquery older than 0.4.12.")
             else:
-                closest_match = difflib.get_close_matches(collection, self.available_collections, n=1)
-                error_msg = (
-                    f"Collection '{collection}' is not recognized. Did you mean '{closest_match[0]}'?"
-                    if closest_match
-                    else f"Collection '{collection}' is not recognized."
-                )
+                closest = difflib.get_close_matches(collection, self.available_collections, n=1)
+                suggestion = f" Did you mean '{closest[0]}'?" if closest else ""
+                error_msg = f"Collection '{collection}' is not recognized.{suggestion}"
             error_msg += " Available collections are: " + ", ".join(self.available_collections)
             raise InvalidQueryError(error_msg)
 
@@ -445,15 +566,15 @@ class CatalogsClass(MastQueryWithLogin):
         else:
             catalog = catalog.lower()
             # For backwards compatibility, check if the user is trying to specify a collection via catalog
-            if (catalog in self.available_collections or catalog in self._no_longer_supported_collections
-                    or catalog in self._renamed_collections):
+            if ((catalog in self.available_collections or catalog in self._no_longer_supported_collections
+                    or catalog in self._renamed_collections) and not collection):
                 warnings.warn(f"Specifying collection '{catalog}' via the `catalog` parameter is deprecated. "
                               f"Please use the `collection` parameter instead.", DeprecationWarning)
-                # TODO: Should this work?
+                # As a convenience to the user, set the collection accordingly and use its default catalog
                 collection_obj = self._get_collection_obj(catalog)
                 catalog = collection_obj.default_catalog
             else:
-                collection_obj._verify_catalog(catalog)
+                catalog = collection_obj._verify_catalog(catalog)
 
         return collection_obj, catalog
 
@@ -482,12 +603,9 @@ class CatalogsClass(MastQueryWithLogin):
         valid_selected = []
         for col in select_cols:
             if col not in valid_columns:
-                closest_match = difflib.get_close_matches(col, valid_columns, n=1)
-                if closest_match:
-                    warnings.warn(f"Column '{col}' not found in catalog. Did you mean '{closest_match[0]}'?",
-                                  InputWarning)
-                else:
-                    warnings.warn(f"Column '{col}' not found in catalog.", InputWarning)
+                closest = difflib.get_close_matches(col, valid_columns, n=1)
+                suggestion = f" Did you mean '{closest[0]}'?" if closest else ""
+                warnings.warn(f"Column '{col}' not found in catalog.{suggestion}", InputWarning)
             else:
                 valid_selected.append(col)
         return ', '.join(valid_selected)

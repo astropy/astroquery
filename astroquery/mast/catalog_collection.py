@@ -95,7 +95,7 @@ class CatalogCollection:
             return self._catalog_metadata_cache[catalog]
 
         # Verify catalog validity for this collection
-        self._verify_catalog(catalog)
+        catalog = self._verify_catalog(catalog)
 
         # Get column metadata
         metadata = self._get_column_metadata(catalog)
@@ -211,29 +211,45 @@ class CatalogCollection:
 
     def _verify_catalog(self, catalog):
         """
-        Verify that the specified catalog is valid for the given collection.
+        Verify that the specified catalog is valid for this collection and return the correct catalog name.
+        Raises an error if the catalog is not valid.
 
         Parameters
         ----------
         catalog : str
             The catalog to be verified.
 
+        Returns
+        -------
+        str
+            The validated catalog name.
+
         Raises
         ------
         InvalidQueryError
             If the specified catalog is not valid for the given collection.
         """
-        lower_map = {name.lower().split('.')[-1]: name for name in self.catalog_names}
-        if catalog.lower() not in lower_map:
-            closest_match = difflib.get_close_matches(catalog, self.catalog_names, n=1)
-            error_msg = (
-                f"Catalog '{catalog}' is not recognized for collection '{self.name}'. "
-                f"Did you mean '{closest_match[0]}'?"
-                if closest_match
-                else f"Catalog '{catalog}' is not recognized for collection '{self.name}'."
-            )
-            error_msg += " Available catalogs are: " + ", ".join(self.catalog_names)
-            raise InvalidQueryError(error_msg)
+        catalog = catalog.lower()
+
+        # Build a mapping for case-insensitive and no-prefix lookup
+        lookup = {}
+        for cat in self.catalog_names:
+            cat_lower = cat.lower()
+            lookup[cat_lower] = cat  # case-insensitive match
+            lookup[cat_lower.split('.')[-1]] = cat  # no-prefix match
+
+        # Direct or no-prefix match
+        if catalog in lookup:
+            return lookup[catalog]
+
+        # Suggest closest match (based on full catalog names)
+        closest = difflib.get_close_matches(catalog, self.catalog_names, n=1)
+        suggestion = f" Did you mean '{closest[0]}'?" if closest else ""
+
+        raise InvalidQueryError(
+            f"Catalog '{catalog}' is not recognized for collection '{self.name}'."
+            f"{suggestion} Available catalogs are: {', '.join(self.catalog_names)}"
+        )
 
     def _get_column_metadata(self, catalog):
         """
@@ -252,8 +268,7 @@ class CatalogCollection:
         log.debug(f"Fetching column metadata for collection '{self.name}', catalog '{catalog}' from MAST TAP service.")
 
         # Case-insensitive match to find the table
-        tap_table = next((t for name, t in self.tap_service.tables.items()
-                          if name.lower().split('.')[-1] == catalog.lower()), None)
+        tap_table = next((t for name, t in self.tap_service.tables.items() if name == catalog), None)
 
         # Extract column metadata
         col_names = [col.name for col in tap_table.columns]
@@ -324,11 +339,10 @@ class CatalogCollection:
         # Check each criteria argument for validity
         for kwd in criteria.keys():
             if kwd not in col_names:
-                closest_match = difflib.get_close_matches(kwd, col_names, n=1)
-                error_msg = (
-                    f"Filter '{kwd}' is not recognized for collection '{self.name}' and catalog '{catalog}'. "
-                    f"Did you mean '{closest_match[0]}'?"
-                    if closest_match
-                    else f"Filter '{kwd}' is not recognized for collection '{self.name}' and catalog '{catalog}'."
+                # Suggest closest match for invalid keyword
+                closest = difflib.get_close_matches(kwd, col_names, n=1)
+                suggestion = f" Did you mean '{closest[0]}'?" if closest else ""
+                raise InvalidQueryError(
+                    f"Filter '{kwd}' is not recognized for collection '{self.name}' and "
+                    f"catalog '{catalog}'.{suggestion}"
                 )
-                raise InvalidQueryError(error_msg)
