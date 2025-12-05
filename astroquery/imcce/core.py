@@ -394,7 +394,7 @@ class MiriadeClass(BaseQuery):
 
         if 'dLAT' in data.columns:
             data.rename_column('dLAT', 'LAT_rate')
-            
+
         if 'dist_dot' in data.columns:
             data.rename_column('dist_dot', 'delta_rate')
 
