@@ -214,17 +214,22 @@ Getting Product Lists
 ---------------------
 
 Each observation returned from a MAST query can have one or more associated data products.
-Given one or more observations or MAST Product Group IDs ("obsid")
+Given one or more observations or MAST Product Group IDs ("obsid"),
 `~astroquery.mast.ObservationsClass.get_product_list` will return
 a `~astropy.table.Table` containing the associated data products.
 The product fields are documented `here <https://mast.stsci.edu/api/v0/_productsfields.html>`__.
+
+`~astroquery.mast.ObservationsClass.get_product_list` also includes an optional ``batch_size`` parameter, 
+which controls how many observations are sent to the MAST service per request. This can be useful for managing 
+memory usage or avoiding timeouts when requesting product lists for large numbers of observations. 
+If not provided, batch_size defaults to 500.
 
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Observations
    ...
    >>> obs_table = Observations.query_criteria(objectname="M8", obs_collection=["K2", "IUE"])
-   >>> data_products_by_obs = Observations.get_product_list(obs_table[0:2])
+   >>> data_products_by_obs = Observations.get_product_list(obs_table[0:2], batch_size=500)
    >>> print(data_products_by_obs)  # doctest: +IGNORE_OUTPUT
    obsID  obs_collection dataproduct_type ... dataRights calib_level filters
    ------ -------------- ---------------- ... ---------- ----------- -------

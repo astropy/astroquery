@@ -199,19 +199,25 @@ class TestMast:
 
         # Table as input
         responses = MastMissions.get_product_list_async(datasets[:3])
-        assert isinstance(responses, Response)
+        assert isinstance(responses, list)
 
         # Row as input
         responses = MastMissions.get_product_list_async(datasets[0])
-        assert isinstance(responses, Response)
+        assert isinstance(responses, list)
 
         # String as input
         responses = MastMissions.get_product_list_async(datasets[0]['sci_data_set_name'])
-        assert isinstance(responses, Response)
+        assert isinstance(responses, list)
 
         # Column as input
         responses = MastMissions.get_product_list_async(datasets[:3]['sci_data_set_name'])
-        assert isinstance(responses, Response)
+        assert isinstance(responses, list)
+
+        # Batching
+        responses = MastMissions.get_product_list_async(datasets[:4], batch_size=2)
+        assert isinstance(responses, list)
+        assert len(responses) == 2
+        assert isinstance(responses[0], Response)
 
         # Unsupported data type for datasets
         with pytest.raises(TypeError) as err_type:
@@ -248,14 +254,13 @@ class TestMast:
         assert isinstance(result, Table)
         assert (result['dataset'] == 'IBKH03020').all()
 
-        # Test batching by creating a list of 1001 different strings
-        # This won't return any results, but will test the batching
-        dataset_list = [f'{i}' for i in range(1001)]
-        result = MastMissions.get_product_list(dataset_list)
+        # Test batching
+        result_batch = MastMissions.get_product_list(datasets[:2], batch_size=1)
         out, _ = capsys.readouterr()
-        assert isinstance(result, Table)
-        assert len(result) == 0
-        assert 'Fetching products for 1001 unique datasets in 2 batches' in out
+        assert isinstance(result_batch, Table)
+        assert len(result_batch) == len(result_table)
+        assert set(result_batch['filename']) == set(result_table['filename'])
+        assert 'Fetching products for 2 unique datasets in 2 batches' in out
 
     def test_missions_get_unique_product_list(self, caplog):
         # Check that no rows are filtered out when all products are unique
@@ -593,7 +598,11 @@ class TestMast:
         responses = Observations.get_product_list_async(observations[0:4])
         assert isinstance(responses, list)
 
-    def test_observations_get_product_list(self):
+        # Batching
+        responses = Observations.get_product_list_async(observations[0:4], batch_size=2)
+        assert isinstance(responses, list)
+
+    def test_observations_get_product_list(self, capsys):
         observations = Observations.query_criteria(objectname='M8', obs_collection=['K2', 'IUE'])
         test_obs_id = str(observations[0]['obsid'])
         mult_obs_ids = str(observations[0]['obsid']) + ',' + str(observations[1]['obsid'])
@@ -625,6 +634,14 @@ class TestMast:
         assert isinstance(result, Table)
         assert len(obs_collection) == 1
         assert obs_collection[0] == 'IUE'
+
+        # Test batching
+        result_batch = Observations.get_product_list(observations[:2], batch_size=1)
+        out, _ = capsys.readouterr()
+        assert isinstance(result_batch, Table)
+        assert len(result_batch) == len(result1)
+        assert set(result_batch['productFilename']) == set(filenames1)
+        assert 'Fetching products for 2 unique observations in 2 batches' in out
 
     def test_observations_get_product_list_tess_tica(self, caplog):
         # Get observations and products with both TESS and TICA FFIs

@@ -97,22 +97,14 @@ class MastMissionsClass(MastQueryWithLogin):
         list
             A list of products extracted from the response.
         """
-        def normalize_products(products):
-            """
-            Normalize the products list to ensure it is flat and not nested.
-            """
+        combined = []
+        for resp in response:
+            products = resp.json().get('products', [])
+            # Flatten if nested
             if products and isinstance(products[0], list):
-                return products[0]
-            return products
-
-        if isinstance(response, list):  # multiple async responses from batching
-            combined = []
-            for resp in response:
-                products = normalize_products(resp.json().get('products', []))
-                combined.extend(products)
-            return combined
-        else:  # single response
-            return normalize_products(response.json().get('products', []))
+                products = products[0]
+            combined.extend(products)
+        return combined
 
     def _parse_result(self, response, *, verbose=False):  # Used by the async_to_sync decorator functionality
         """
@@ -417,7 +409,7 @@ class MastMissionsClass(MastQueryWithLogin):
                                        select_cols=select_cols, **criteria)
 
     @class_or_instance
-    def get_product_list_async(self, datasets):
+    def get_product_list_async(self, datasets, *, batch_size=1000):
         """
         Given a dataset ID or list of dataset IDs, returns a list of associated data products.
 
@@ -428,6 +420,9 @@ class MastMissionsClass(MastQueryWithLogin):
         datasets : str, list, `~astropy.table.Row`, `~astropy.table.Column`, `~astropy.table.Table`
             Row/Table of MastMissions query results (e.g. output from `query_object`)
             or single/list of dataset ID(s).
+        batch_size : int, optional
+            Default 1000. Number of dataset IDs to include in each batch request to the server.
+            If you experience timeouts or connection errors, consider lowering this value.
 
         Returns
         -------
@@ -439,8 +434,8 @@ class MastMissionsClass(MastQueryWithLogin):
         if isinstance(datasets, Table) or isinstance(datasets, Row):
             dataset_kwd = self.get_dataset_kwd()
             if not dataset_kwd:
-                log.warning('Please input dataset IDs as a string, list of strings, or `~astropy.table.Column`.')
-                return None
+                raise InvalidQueryError(f'Dataset keyword not found for mission "{self.mission}". Please input '
+                                        'dataset IDs as a string, list of strings, or `~astropy.table.Column`.')
 
         # Extract dataset IDs based on input type and mission
         if isinstance(datasets, Table):
@@ -466,17 +461,17 @@ class MastMissionsClass(MastQueryWithLogin):
         results = utils._batched_request(
             datasets,
             params={},
-            max_batch=1000,
+            max_batch=batch_size,
             param_key="dataset_ids",
             request_func=lambda p: self._service_api_connection.missions_request_async(self.service, p),
             extract_func=lambda r: [r],  # missions_request_async already returns one result
             desc=f"Fetching products for {len(datasets)} unique datasets"
         )
 
-        # Return a list of responses only if multiple requests were made
-        return results[0] if len(results) == 1 else results
+        # Return a list of responses
+        return results
 
-    def get_unique_product_list(self, datasets):
+    def get_unique_product_list(self, datasets, *, batch_size=1000):
         """
         Given a dataset ID or list of dataset IDs, returns a list of associated data products with unique
         filenames.
@@ -486,13 +481,16 @@ class MastMissionsClass(MastQueryWithLogin):
         datasets : str, list, `~astropy.table.Row`, `~astropy.table.Column`, `~astropy.table.Table`
             Row/Table of MastMissions query results (e.g. output from `query_object`)
             or single/list of dataset ID(s).
+        batch_size : int, optional
+            Default 1000. Number of dataset IDs to include in each batch request to the server.
+            If you experience timeouts or connection errors, consider lowering this value.
 
         Returns
         -------
         unique_products : `~astropy.table.Table`
             Table containing products with unique URIs.
         """
-        products = self.get_product_list(datasets)
+        products = self.get_product_list(datasets, batch_size=batch_size)
         unique_products = utils.remove_duplicate_products(products, 'filename')
         if len(unique_products) < len(products):
             log.info("To return all products, use `MastMissions.get_product_list`")
