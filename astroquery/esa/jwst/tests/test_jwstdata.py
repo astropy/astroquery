@@ -66,3 +66,10 @@ def test_login_error():
     with pytest.raises(HTTPError) as err:
         jwst.login(user="dummy", password="dummy")
     assert "Unauthorized" in err.value.args[0]
+
+
+@pytest.mark.remote_data
+def test_get_status_messages():
+    jwst = JwstClass(show_messages=True)
+    # redundant, but added to be extra-explicit
+    jwst.get_status_messages()
