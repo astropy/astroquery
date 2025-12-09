@@ -263,7 +263,7 @@ class CatalogsClass(MastQueryWithLogin):
             region_types = ['POLYGON', 'CIRCLE']
             for region_type in region_types:
                 if region_type in adql_region and region_type not in collection_obj.supported_adql_functions:
-                    raise InvalidQueryError(f"Catalog '{catalog}' in collection '{collection_obj.name} '"
+                    raise InvalidQueryError(f"Catalog '{catalog}' in collection '{collection_obj.name}' "
                                             f"does not support ADQL region type '{region_type}'.")
 
             # Get RA/Dec column names
@@ -290,7 +290,7 @@ class CatalogsClass(MastQueryWithLogin):
             if len(sort_desc) not in [1, len(sort_by)]:
                 raise InvalidQueryError("Length of 'sort_desc' must be 1 or equal to length of 'sort_by'.")
             if len(sort_desc) == 1:
-                sort_desc = sort_desc * len(sort_by)
+                sort_desc = [sort_desc[0]] * len(sort_by)
 
             sort_adql = ''
             for col in sort_by:
@@ -304,10 +304,9 @@ class CatalogsClass(MastQueryWithLogin):
         if count_only:
             return result_table['count_all'][0]
         else:
-            # TODO: Add metadata to the result table
+            # TODO: Add schema browser URL to the result table metadata when available
             result_table.meta['collection'] = collection_obj.name
             result_table.meta['catalog'] = catalog
-            result_table.meta['schema_browser_url'] = "something"
         return result_table
 
     @class_or_instance
@@ -586,8 +585,8 @@ class CatalogsClass(MastQueryWithLogin):
         ----------
         select_cols : list of str
             List of column names to include in the result.
-        catalog_metadata : `~astropy.table.Table`
-            Metadata table for the catalog.
+        column_metadata : `~astropy.table.Table`
+            The catalog's column metadata table.
 
         Returns
         -------
@@ -608,6 +607,8 @@ class CatalogsClass(MastQueryWithLogin):
                 warnings.warn(f"Column '{col}' not found in catalog.{suggestion}", InputWarning)
             else:
                 valid_selected.append(col)
+        if not valid_selected:
+            raise InvalidQueryError("No valid columns specified in `select_cols`.")
         return ', '.join(valid_selected)
 
     def _create_adql_region(self, region):
@@ -631,23 +632,47 @@ class CatalogsClass(MastQueryWithLogin):
             parts = region.strip().lower().split()
             shape = parts[0]
 
-            if shape == 'polygon':
-                # Handle POLYGON (with or without coord frame)
+            if shape == "polygon":
+                # POLYGON lon1 lat1 lon2 lat2 ...
+                # Optional format: POLYGON ICRS lon1 lat1 ...
+                # parts = ["POLYGON", maybe_frame?, ...coords...]
+
+                # Determine if parts[1] is a coord or a frame name
+                if len(parts) < 3:
+                    raise InvalidQueryError(f"Invalid POLYGON region string: {region}")
                 try:
-                    float(parts[1])  # Check if next token is numeric
+                    float(parts[1])  # numeric → no frame name
                     point_parts = parts[1:]
                 except ValueError:
-                    point_parts = parts[2:]  # skip frame name if present
-                point_string = ','.join(point_parts)
+                    point_parts = parts[2:]  # skip optional frame name
+
+                if len(point_parts) < 6 or len(point_parts) % 2 != 0:
+                    # polygon requires at least 3 points (6 numbers), and must be pairs
+                    raise InvalidQueryError(f"Invalid POLYGON region string: {region}")
+
+                point_string = ",".join(point_parts)
                 return f"POLYGON('ICRS',{point_string})"
-            elif shape == 'circle':
-                # Handle CIRCLE (with or without coord frame)
+
+            elif shape == "circle":
+                # CIRCLE ra dec radius   (or CIRCLE ICRS ra dec radius)
+                if len(parts) < 4:
+                    raise InvalidQueryError(f"Invalid CIRCLE region string: {region}")
+
+                # Try interpreting parts[1] as RA. If not numeric, assume it's a frame
                 try:
                     float(parts[1])
+                    # Format: CIRCLE ra dec radius
+                    if len(parts) < 4:
+                        raise InvalidQueryError(f"Invalid CIRCLE region string: {region}")
                     ra, dec, radius = parts[1], parts[2], parts[3]
                 except ValueError:
+                    # Format: CIRCLE FRAME ra dec radius
+                    if len(parts) < 5:
+                        raise InvalidQueryError(f"Invalid CIRCLE region string: {region}")
                     ra, dec, radius = parts[2], parts[3], parts[4]
+
                 return f"CIRCLE('ICRS',{ra},{dec},{radius})"
+
             else:
                 raise ValueError(f"Unrecognized region string: {region}")
 

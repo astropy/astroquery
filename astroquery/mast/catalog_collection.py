@@ -18,7 +18,7 @@ DEFAULT_CATALOGS = {
     'missionmast': 'dbo.hst_science_missionmast',
     'ps1dr1': 'dbo.MeanObjectView',
     'ps1dr2': 'dbo.MeanObjectView',
-    'pd1_dr2': 'ps1_dr2.forced_mean_object',
+    'ps1_dr2': 'ps1_dr2.forced_mean_object',
     'skymapper': 'dr4.master',
     'tic': 'dbo.CatalogRecord',
     'classy': 'dbo.targets',
@@ -233,14 +233,32 @@ class CatalogCollection:
 
         # Build a mapping for case-insensitive and no-prefix lookup
         lookup = {}
+        no_prefix_map = {}
         for cat in self.catalog_names:
             cat_lower = cat.lower()
             lookup[cat_lower] = cat  # case-insensitive match
-            lookup[cat_lower.split('.')[-1]] = cat  # no-prefix match
+            no_prefix = cat_lower.split('.')[-1]
+            if no_prefix not in no_prefix_map:
+                no_prefix_map[no_prefix] = [cat]  # no-prefix match (first occurrence)
+            else:
+                no_prefix_map[no_prefix].append(cat)
 
-        # Direct or no-prefix match
+        # Add unambiguous no-prefix matches to lookup
+        for no_prefix, cats in no_prefix_map.items():
+            if len(cats) == 1:
+                lookup[no_prefix] = cats[0]
+
+        # Direct or unambiguous no-prefix match
         if catalog in lookup:
             return lookup[catalog]
+
+        # Check for ambiguous no-prefix matches
+        if catalog in no_prefix_map and len(no_prefix_map[catalog]) > 1:
+            matches = ', '.join(no_prefix_map[catalog])
+            raise InvalidQueryError(
+                f"Catalog '{catalog}' is ambiguous for collection '{self.name}'. "
+                f"It matches multiple catalogs: {matches}. Please specify the full catalog name."
+            )
 
         # Suggest closest match (based on full catalog names)
         closest = difflib.get_close_matches(catalog, self.catalog_names, n=1)
@@ -269,6 +287,8 @@ class CatalogCollection:
 
         # Case-insensitive match to find the table
         tap_table = next((t for name, t in self.tap_service.tables.items() if name == catalog), None)
+        if tap_table is None:
+            raise InvalidQueryError(f"Catalog '{catalog}' not found in collection '{self.name}'.")
 
         # Extract column metadata
         col_names = [col.name for col in tap_table.columns]
