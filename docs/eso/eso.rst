@@ -34,8 +34,7 @@ ESO Queries (`astroquery.eso`)
 Getting started
 ===============
 
-This is a python interface for querying the ESO archive web service.
-For now, it supports the following:
+This is a dummy text to test docs build.
 
 - listing available instruments
 - listing available surveys (phase 3)
