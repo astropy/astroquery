@@ -104,25 +104,25 @@ interaction with the ESO archive.
     ERROR: Access denied to https://dataportal.eso.org/dataPortal/file/ADP.2023-03-02T01:01:24.355
 
 .. note::
-    Even after logging with `Eso.login()`, TAP queries are not authenticated by default. To issue
-    authenticated queries, the keyword argument `authenticated` must be set to `True` explicitly in
+    Even after logging with `~astroquery.eso.EsoClass.login()`, TAP queries are not authenticated by default. To issue
+    authenticated queries, the keyword argument ``authenticated`` must be set to `True` explicitly in
     the query functions. For example:
 
     .. doctest-skip::
 
-        eso = Eso()
-        eso.ROW_LIMIT = None
-        eso.login(username="ICONDOR")
-
-        # Some files are missing without `authenticated=True`
-        files_tbl = eso.query_instrument("nirps")
-
-        # Get all files to which the authenticated user has access
-        files_tbl = eso.query_instrument("nirps", authenticated=True)
+        >>> eso = Eso()
+        >>> eso.ROW_LIMIT = None
+        >>> eso.login(username="ICONDOR")
+        >>>
+        >>> # Some files are missing without `authenticated=True`
+        >>> files_tbl = eso.query_instrument("nirps")
+        >>>
+        >>> # Get all files to which the authenticated user has access
+        >>> files_tbl = eso.query_instrument("nirps", authenticated=True)
 
     Review your queries carefully and update them accordingly to ensure you are retrieving
-    all your expected results. If you don't stricly need to run an authenticated query, use 
-    the default `authenticated=False`, since it will retrieve your results much faster.
+    all your expected results. If you don't stricly need to run an authenticated query, use
+    the default ``authenticated=False``, since it will retrieve your results much faster.
 
 Automatic password
 ------------------
