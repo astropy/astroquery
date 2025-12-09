@@ -69,7 +69,7 @@ linelists.jplspec
 mpc
 ^^^
 
-- Fix bug in queries for interstellar objects with `MPC.get_observations` and enable queries for "dead" comets [#3474]
+- Fix bug in queries for interstellar objects with ``MPC.get_observations`` and enable queries for "dead" comets [#3474]
 
 xmatch
 ^^^^^^
