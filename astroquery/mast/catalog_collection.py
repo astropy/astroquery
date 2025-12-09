@@ -10,7 +10,7 @@ from astroquery.exceptions import InvalidQueryError
 
 __all__ = ['CatalogCollection']
 
-DEFAULT_TABLES = {
+DEFAULT_CATALOGS = {
     'caom': 'dbo.obspointing',
     'gaia': 'dbo.gaia_source',
     'hscv3': 'dbo.SumMagAper2CatView',
@@ -135,8 +135,8 @@ class CatalogCollection:
             The default catalog name.
         """
         # Check if collection has a known default catalog
-        if self.name in DEFAULT_TABLES:
-            return DEFAULT_TABLES[self.name]
+        if self.name in DEFAULT_CATALOGS:
+            return DEFAULT_CATALOGS[self.name]
 
         # Pick default catalog = first one that does NOT start with "tap_schema."
         default_catalog = next((c for c in self.catalog_names if not c.startswith("tap_schema.")), None)
