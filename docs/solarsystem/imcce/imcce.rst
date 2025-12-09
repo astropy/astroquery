@@ -2,9 +2,9 @@
 
 .. _astroquery.solarsystem.imcce:
 
-***********************************************
-IMCCE Services (`astroquery.solarsystem.imcce`)
-***********************************************
+**************
+IMCCE Services
+**************
 
 This submodule is a collection of Solar System-related services
 provided by the `Institut de Mécanique Céleste et de Calcul des Éphémérides (IMCCE)
@@ -18,9 +18,3 @@ For a list of available services, please refer to:
   :maxdepth: 1
 
   ../../imcce/imcce.rst
-  
-Reference/API
-=============
-
-.. automodapi:: astroquery.solarsystem.imcce
-    :no-inheritance-diagram:

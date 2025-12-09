@@ -2,9 +2,9 @@
 
 .. _astroquery.solarsystem.jpl:
 
-********************************************************
-JPL Solar System Services (`astroquery.solarsystem.jpl`)
-********************************************************
+*************************
+JPL Solar System Services
+*************************
 
 This submodule is a collection of Solar System-related services
 provided by the `Jet Propulsion Laboratory (JPL)
@@ -18,11 +18,4 @@ their top-level modules.
   :maxdepth: 1
 
   ../../jplsbdb/jplsbdb.rst
-  ../../jplhorizons/jplhorizons.rst   
-
-  
-Reference/API
-=============
-
-.. automodapi:: astroquery.solarsystem.jpl
-    :no-inheritance-diagram:
+  ../../jplhorizons/jplhorizons.rst

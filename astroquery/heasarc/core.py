@@ -86,8 +86,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         catalog_name : str
             The name of catalog as a str
 
-        Return
-        ------
+        Returns
+        -------
         a list of column names
 
         """
