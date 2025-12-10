@@ -246,14 +246,6 @@ The ``get_molecule`` method accepts either an integer or a zero-padded
    >>> len(table1) == len(table2)
    True
 
-This method is particularly useful when:
-
-- You need the complete line list without frequency filtering
-- You want to perform custom filtering or analysis on all lines
-- You're working with a specific molecule tag from a previous query
-- The web query form is unavailable (see warning at top of page)
-
-
 .. _regex_querying_linelists:
 
 Querying the Catalog with Regexes and Relative names
