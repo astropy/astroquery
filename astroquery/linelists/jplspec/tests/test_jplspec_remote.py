@@ -54,6 +54,7 @@ def test_remote_regex_fallback():
     assert tbl['FREQ'][15] == 946175.3151
 
 
+# Starting in 2025, the JPL CGI server that did search queries broke totally.  See #3363
 @pytest.mark.xfail(reason="2025 server problems", raises=EmptyResponseError)
 @pytest.mark.remote_data
 def test_remote_regex():

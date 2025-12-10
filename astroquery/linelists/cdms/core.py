@@ -11,7 +11,7 @@ from astroquery.query import BaseQuery
 # import configurable items declared in __init__.py
 from astroquery.linelists.cdms import conf
 from astroquery.exceptions import InvalidQueryError, EmptyResponseError
-from ..core import parse_letternumber
+from astroquery.linelists.core import parse_letternumber
 from astroquery.utils import process_asyncs
 from astroquery import log
 
@@ -33,10 +33,21 @@ class CDMSClass(BaseQuery):
     TIMEOUT = conf.timeout
     MALFORMATTED_MOLECULE_LIST = ['017506 NH3-wHFS', '028528 H2NC', '058501 H2C2S', '064527 HC3HCN']
 
-    def __init__(self, fallback_to_getmolecule=False):
+    def __init__(self, *, fallback_to_getmolecule=False):
+        """
+        CDMS line list query class
+
+        Parameters
+        ----------
+        fallback_to_getmolecule : bool, optional
+            If True, when a molecule is requested that results in a malformatted
+            or unparseable response, ``get_molecule`` will be attempted
+            automatically to retrieve the full catalog for that molecule.  In
+            this case, no frequency-based selection will be applied.
+        """
         super().__init__()
 
-    def _mol_to_payload(self, molecule, parse_name_locally, flags):
+    def _mol_to_payload(self, molecule, *, parse_name_locally=False, flags=0):
         if parse_name_locally:
             self.lookup_ids = build_lookup()
             luts = self.lookup_ids.find(molecule, flags)

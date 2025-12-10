@@ -2,10 +2,8 @@
 """
 Linelists module
 ----------------
-This module contains sub-modules for various molecular and atomic line list databases,
-as well as common utilities for parsing catalog files.
+This module contains sub-modules to support molecular and atomic line list
+modules and common utilities for parsing catalog files.
 """
 
 from astroquery.linelists.core import parse_letternumber
-
-__all__ = ['parse_letternumber']

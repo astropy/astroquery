@@ -5,8 +5,6 @@ Base classes and common utilities for linelist queries (JPLSpec, CDMS, etc.)
 import numpy as np
 import string
 
-__all__ = ['parse_letternumber']
-
 
 def parse_letternumber(st):
     """
