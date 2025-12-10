@@ -153,13 +153,13 @@ method retrieves the complete catalog file for a given molecule using its
    461040.7682 0.0005 -3.2657   2  23.0695   9 -28503   101   4  --  -- ...  --   3  --  --  --  --  -- CO, v=0    28 True
    576267.9305 0.0005 -3.0118   2  38.4481  11 -28503   101   5  --  -- ...  --   4  --  --  --  --  -- CO, v=0    28 True
 
-The molecule identifier must be a 6-digit string.
+The molecule identifier must be a number that can be converted to a 6-digit string.
 
 The returned table includes metadata from the species table:
 
 .. doctest-remote-data::
 
-   >>> table = CDMS.get_molecule('028503')
+   >>> table = CDMS.get_molecule(28503)
    >>> print(table.meta['molecule'])
    CO, v=0
    >>> print(table.meta['Name'])
