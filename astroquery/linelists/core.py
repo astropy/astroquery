@@ -29,3 +29,44 @@ def parse_letternumber(st):
                      str((ASC.index(x)+10)) if x in ASC else
                      x for x in st])
     return int(newst)
+
+
+def parse_molid(mol_id):
+    """
+    Parse molecule ID to ensure it is a zero-padded 6-character string.
+    
+    Parameters
+    ----------
+    mol_id : int or str
+        The molecule identifier. Can be an integer (e.g., 18003 for H2O)
+        or a zero-padded 6-character string (e.g., '018003').
+        
+    Returns
+    -------
+    str
+        Zero-padded 6-character string representation of the molecule ID.
+        
+    Raises
+    ------
+    ValueError
+        If mol_id is not an integer or string, or if it cannot be converted
+        to a valid 6-digit identifier.
+    """
+    # Convert to string and zero-pad to 6 digits
+    if isinstance(mol_id, (int, np.int32, np.int64)):
+        molecule_str = f'{mol_id:06d}'
+        if len(molecule_str) > 6:
+            raise ValueError("molecule_id should be an integer with"
+                             " fewer than 6 digits or a length-6 "
+                             "string of numbers")
+    elif isinstance(mol_id, str):
+        # this is for the common case where the molecule is specified e.g. as 028001 CO
+        try:
+            molecule_id = f"{int(mol_id[:6]):06d}"
+        except ValueError:
+            raise ValueError("molecule_id should be an integer or a length-6 string of numbers")
+        molecule_str = molecule_id
+    else:
+        raise ValueError("molecule_id should be an integer or a length-6 string of numbers")
+
+    return molecule_str

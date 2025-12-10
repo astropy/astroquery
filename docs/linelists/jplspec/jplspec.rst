@@ -209,6 +209,51 @@ other temperatures using curve fitting models:
    The resulting plot from the example above
 
 
+Retrieving Complete Molecule Catalogs
+-------------------------------------
+
+If you need all spectral lines for a specific molecule without filtering by
+frequency range or strength, you can use the ``get_molecule`` method. This
+method retrieves the complete catalog file for a given molecule.  Starting in
+2025, during a prolonged outage of the JPL web query tool, this is the only way
+to retrieve data from JPLSpec via astroquery.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.linelists.jplspec import JPLSpec
+   >>> # Retrieve all lines for CO (molecule tag 28001)
+   >>> table = JPLSpec.get_molecule(28001)
+   >>> print(f"Retrieved {len(table)} lines for CO")
+   Retrieved 91 lines for CO
+   >>> table[:5].pprint()
+       FREQ      ERR    LGINT    DR    ELO    GUP  TAG  QNFMT QN' QN"  Lab
+       MHz       MHz   nm2 MHz        1 / cm
+   ------------ ------ -------- --- -------- --- ----- ----- --- --- -----
+    115271.2018 0.0005  -5.0105   2      0.0   3 28001   101   1   0  True
+       230538.0 0.0005  -4.1197   2    3.845   5 28001   101   2   1  True
+    345795.9899 0.0005  -3.6118   2   11.535   7 28001   101   3   2  True
+    461040.7682 0.0005  -3.2657   2  23.0695   9 28001   101   4   3  True
+    576267.9305 0.0005  -3.0118   2  38.4481  11 28001   101   5   4  True
+
+The ``get_molecule`` method accepts either an integer or a zero-padded
+6-character string as the molecule identifier:
+
+.. doctest-remote-data::
+
+   >>> # These are equivalent
+   >>> table1 = JPLSpec.get_molecule(18003)      # H2O as integer
+   >>> table2 = JPLSpec.get_molecule('018003')   # H2O as string
+   >>> len(table1) == len(table2)
+   True
+
+This method is particularly useful when:
+
+- You need the complete line list without frequency filtering
+- You want to perform custom filtering or analysis on all lines
+- You're working with a specific molecule tag from a previous query
+- The web query form is unavailable (see warning at top of page)
+
+
 .. _regex_querying_linelists:
 
 Querying the Catalog with Regexes and Relative names

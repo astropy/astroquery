@@ -59,7 +59,7 @@ mast
 jplspec
 ^^^^^^^
 
-- Refactored to use linelists.core [#3456]
+- Refactored to use linelists.core.  Added new ``get_molecule`` method [#3456]
 - Moved to linelists/.  astroquery.jplspec is now deprecated in favor of astroquery.linelists.jplspec [#3455]
 
 

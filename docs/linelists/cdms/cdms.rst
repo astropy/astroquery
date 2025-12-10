@@ -124,7 +124,46 @@ simplified version of the data above is shown below:
                691.4730763, 806.651806 , 921.7997   ] GHz>
 
 The parameters and response keys are described in detail under the
-Reference/API section.
+`Reference/API`_ section.
+
+Retrieving Complete Molecule Catalogs
+-------------------------------------
+
+If you need all spectral lines for a specific molecule without filtering by
+frequency range or strength, or if there is a problem with the query tool's
+version of a table (which occurs for some molecules with particularly
+complicated quantum numbers), you can use the ``get_molecule`` method. This
+method retrieves the complete catalog file for a given molecule using its
+6-digit identifier.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.linelists.cdms import CDMS
+   >>> # Retrieve all lines for CO (molecule tag 028503)
+   >>> table = CDMS.get_molecule('028503')
+   >>> print(f"Retrieved {len(table)} lines for CO")
+   Retrieved 95 lines for CO
+   >>> table[:5].pprint(max_width=120)
+       FREQ     ERR    LGINT   DR   ELO    GUP  TAG   QNFMT  Ju  Ku  vu ... F3u  Jl  Kl  vl F1l F2l F3l   name  MOLWT Lab
+       MHz      MHz   nm2 MHz      1 / cm                               ...                                       u
+   ----------- ------ ------- --- -------- --- ------ ----- --- --- --- ... --- --- --- --- --- --- --- ------- ----- ----
+   115271.2018 0.0005 -5.0105   2      0.0   3 -28503   101   1  --  -- ...  --   0  --  --  --  --  -- CO, v=0    28 True
+      230538.0 0.0005 -4.1197   2    3.845   5 -28503   101   2  --  -- ...  --   1  --  --  --  --  -- CO, v=0    28 True
+   345795.9899 0.0005 -3.6118   2   11.535   7 -28503   101   3  --  -- ...  --   2  --  --  --  --  -- CO, v=0    28 True
+   461040.7682 0.0005 -3.2657   2  23.0695   9 -28503   101   4  --  -- ...  --   3  --  --  --  --  -- CO, v=0    28 True
+   576267.9305 0.0005 -3.0118   2  38.4481  11 -28503   101   5  --  -- ...  --   4  --  --  --  --  -- CO, v=0    28 True
+
+The molecule identifier must be a 6-digit string.
+
+The returned table includes metadata from the species table:
+
+.. doctest-remote-data::
+
+   >>> table = CDMS.get_molecule('028503')
+   >>> print(table.meta['molecule'])
+   CO, v=0
+   >>> print(table.meta['Name'])
+   CO, v = 0
 
 Looking Up More Information from the partition function file
 ------------------------------------------------------------

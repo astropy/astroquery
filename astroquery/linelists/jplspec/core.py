@@ -7,7 +7,7 @@ import numpy as np
 from astropy.io import ascii
 from astropy import table
 from astroquery.query import BaseQuery
-from astroquery.linelists.core import parse_letternumber
+from astroquery.linelists.core import parse_letternumber, parse_molid
 # import configurable items declared in __init__.py
 from astroquery.linelists.jplspec import conf, lookup_table
 from astroquery.exceptions import EmptyResponseError, InvalidQueryError
@@ -317,22 +317,7 @@ class JPLSpecClass(BaseQuery):
         >>> table = JPLSpec.get_molecule(18003)  # doctest: +SKIP
         >>> print(table)  # doctest: +SKIP
         """
-        # Convert to string and zero-pad to 6 digits
-        if isinstance(molecule_id, (int, np.int32, np.int64)):
-            molecule_str = f'{molecule_id:06d}'
-            if len(molecule_str) > 6:
-                raise ValueError("molecule_id should be an integer with"
-                                 " fewer than 6 digits or a length-6 "
-                                 "string of numbers")
-        elif isinstance(molecule_id, str):
-            # this is for the common case where the molecule is specified e.g. as 028001 CO
-            try:
-                molecule_id = f"{int(molecule_id[:6]):06d}"
-            except ValueError:
-                raise ValueError("molecule_id should be an integer or a length-6 string of numbers")
-            molecule_str = molecule_id
-        else:
-            raise ValueError("molecule_id should be an integer or a length-6 string of numbers")
+        molecule_id = parse_molid(molecule_id)
 
         # Construct the URL to the catalog file
         url = f'https://spec.jpl.nasa.gov/ftp/pub/catalog/c{molecule_str}.cat'

@@ -11,7 +11,7 @@ from astroquery.query import BaseQuery
 # import configurable items declared in __init__.py
 from astroquery.linelists.cdms import conf
 from astroquery.exceptions import InvalidQueryError, EmptyResponseError
-from astroquery.linelists.core import parse_letternumber
+from astroquery.linelists.core import parse_letternumber, parse_molid
 from astroquery.utils import process_asyncs
 from astroquery import log
 
@@ -488,8 +488,9 @@ class CDMSClass(BaseQuery):
 
         Parameters
         ----------
-        molecule_id : str
-            The 6-digit molecule identifier as a string
+        molecule_id : int or str
+            The molecule tag/identifier. Can be an integer (e.g., 18003 for H2O)
+            or a zero-padded 6-character string (e.g., '018003').
         cache : bool
             Defaults to True. If set overrides global caching behavior.
             See :ref:`caching documentation <astroquery_cache>`.
@@ -498,8 +499,8 @@ class CDMSClass(BaseQuery):
             the response.  If this is set, the response will be returned whether
             or not it was successful.  Default is False.
         """
-        if not isinstance(molecule_id, str) or len(molecule_id) != 6:
-            raise ValueError("molecule_id should be a length-6 string of numbers")
+        molecule_id = parse_molid(molecule_id)
+
         url = f'{self.CLASSIC_URL}/entries/c{molecule_id}.cat'
         response = self._request(method='GET', url=url,
                                  timeout=self.TIMEOUT, cache=cache)
