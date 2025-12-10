@@ -21,8 +21,16 @@ from astropy import units as u
 
 from astropy.units import Quantity
 from astropy.io import fits
-from pyvo.auth.authsession import AuthSession
+from astropy.table import Table
+import pyvo
 
+from PIL import Image
+import requests
+from io import BytesIO
+
+import numbers
+
+from astroquery.query import BaseVOQuery, BaseQuery
 
 TARGET_RESOLVERS = ['ALL', 'SIMBAD', 'NED', 'VIZIER']
 
@@ -34,12 +42,12 @@ if hasattr(esatar, "fully_trusted_filter"):
 
 
 # Subclass AuthSession to customize requests
-class ESAAuthSession(AuthSession):
+class ESAAuthSession(pyvo.auth.authsession.AuthSession):
     """
     Session to login/logout an ESA TAP using PyVO
     """
 
-    def __init__(self: str):
+    def __init__(self, request_parameters=None):
         """
         Initialize the custom authentication session.
 
@@ -47,6 +55,7 @@ class ESAAuthSession(AuthSession):
             login_url (str): The login endpoint URL.
         """
         super().__init__()
+        self.request_parameters = request_parameters or {}
 
     def login(self, login_url, *, user=None, password=None):
         """
@@ -129,11 +138,509 @@ class ESAAuthSession(AuthSession):
         # Add the custom query parameter to the URL
         additional_params = {'TAPCLIENT': 'ASTROQUERY',
                              'format': 'votable_plain'}
+        # Merge the default parameters with the additional request parameters
+        additional_params = additional_params | self.request_parameters
         if kwargs is not None and 'params' in kwargs:
             kwargs['params'].update(additional_params)
         elif kwargs is not None:
             kwargs['params'] = additional_params
         return super()._request(method, url, **kwargs)
+
+
+def check_initial_params(**kwargs):
+    """
+    Verify that the initial parameters for an ESA TAP class are initialized
+
+    Returns
+    -------
+    A value error in case a parameter has not been defined
+    """
+    null_vars = [name for name, value in kwargs.items() if value is None]
+    if null_vars:
+        raise ValueError(f"Null elements found: {', '.join(null_vars)}")
+
+
+class EsaTap(BaseVOQuery, BaseQuery):
+
+    ESA_ARCHIVE_NAME: str  # must be defined for each module
+    TAP_URL: str  # must be defined for each module
+    LOGIN_URL: str  # must be defined for each module
+    LOGOUT_URL: str  # must be defined for each module
+    TIMEOUT = 60
+    REQUEST_PARAMETERS = {}  # Additional parameters to be added to all requests
+
+    """
+    Class to init ESA TAP Module to communicate with {ESA_ARCHIVE_NAME} Science Archive
+
+    Subclasses must define:
+        ESA_ARCHIVE_NAME: str
+        TAP_URL: str
+        LOGIN_URL: str
+        LOGOUT_URL: str
+        TIMEOUT (Optional) =  60
+        REQUEST_PARAMETERS = {}
+    """
+
+    def __init__(self, auth_session=None, tap_url=None):
+        """
+        Set the session, alternative TAP url, initial parameter for the TAP connection
+
+        Parameters
+        ----------
+        auth_session : pyvo.auth.authsession.AuthSession, optional, default None
+            Authentication session to manage login
+        tap_url : str, optional, default None
+            In case an alternative URL for the TAP needs to be defined
+
+        Returns
+        -------
+        A list of table objects
+        """
+
+        super().__init__()
+
+        # Checks if auth session has been defined. If not, create a new session
+        if auth_session:
+            self._auth_session = auth_session
+        else:
+            self._auth_session = ESAAuthSession(self.REQUEST_PARAMETERS)
+
+        # Checks if a different URL need to be defined
+        if tap_url:
+            self.TAP_URL = tap_url
+
+        self._auth_session.timeout = self.TIMEOUT
+        self._tap = None
+        self._tap_url = self.TAP_URL
+
+    def __init_subclass__(cls, **kwargs):
+        """
+        Include the name of the ESA Science Archive within the docstrings
+        """
+
+        super().__init_subclass__(**kwargs)
+
+        # Check if all mandatory attributes are defined
+        mandatory_attrs = ['ESA_ARCHIVE_NAME', 'TAP_URL', 'LOGIN_URL', 'LOGOUT_URL']
+        null_attrs = [name for name in mandatory_attrs if getattr(cls, name, None) is None]
+
+        # Automatically add default value to optional attributes if not set
+        if not hasattr(cls, "TIMEOUT") or cls.TIMEOUT is None:
+            cls.TIMEOUT = EsaTap.TIMEOUT
+        if not hasattr(cls, "REQUEST_PARAMETERS") or cls.REQUEST_PARAMETERS is None:
+            cls.REQUEST_PARAMETERS = EsaTap.REQUEST_PARAMETERS
+
+        if null_attrs:
+            raise ValueError(f" The following parameters for {cls.__name__} are mandatory: {', '.join(null_attrs)}")
+
+        archive = getattr(cls, "ESA_ARCHIVE_NAME", None)
+
+        # Only iterate over non-special attributes
+        for name in dir(cls):
+            if name.startswith("__") and name.endswith("__"):
+                continue  # skip dunder attributes
+            try:
+                attr = getattr(cls, name)
+            except AttributeError:
+                continue  # skip inaccessible attributes
+            if callable(attr) and hasattr(attr, "__doc__") and attr.__doc__:
+                if "{ESA_ARCHIVE_NAME}" in attr.__doc__:
+                    attr.__doc__ = attr.__doc__.format(ESA_ARCHIVE_NAME=archive)
+
+    @property
+    def tap(self) -> pyvo.dal.TAPService:
+        """
+        Initialize {ESA_ARCHIVE_NAME} TAP connection
+
+        Returns
+        -------
+        A pyvo.dal.TAPService object connected to {ESA_ARCHIVE_NAME} TAP
+        """
+        if self._tap is None:
+            self._tap = pyvo.dal.TAPService(
+                self.TAP_URL, session=self._auth_session)
+
+        return self._tap
+
+    def get_tables(self, *, only_names=False):
+        """
+        Gets all public tables within {ESA_ARCHIVE_NAME} TAP
+
+        Parameters
+        ----------
+        only_names : bool, optional, default False
+            True to load table names only
+
+        Returns
+        -------
+        A list of table objects
+        """
+        table_set = self.tap.tables
+        if only_names:
+            return list(table_set.keys())
+        else:
+            return list(table_set.values())
+
+    def get_table(self, table):
+        """
+        Gets the specified table from {ESA_ARCHIVE_NAME} TAP
+
+        Parameters
+        ----------
+        table : str, mandatory
+            full qualified table name (i.e. schema name + table name)
+
+        Returns
+        -------
+        A table object
+        """
+        tables = self.get_tables()
+        for t in tables:
+            if table == t.name:
+                return t
+
+    def get_metadata(self, table):
+        """
+        Gets the specified table from {ESA_ARCHIVE_NAME} TAP
+
+        Parameters
+        ----------
+        table : str, mandatory
+        full qualified table name (i.e. schema name.table name)
+
+        Returns
+        -------
+        A table object
+        """
+        tap_table = self.get_table(table)
+        if tap_table is None:
+            raise ValueError(f'Table {tap_table} does not exist.')
+
+        columns = tap_table.columns
+        metadata_table = Table(names=('Column', 'Description', 'Unit', 'Data Type', 'UCD', 'UType'),
+                               dtype=(str, object, object, str, object, object), masked=True)
+        for column in columns:
+            metadata_table.add_row([column.name, column.description, column.unit, column.datatype.content,
+                                    column.ucd, column.utype])
+
+        return metadata_table
+
+    def get_job(self, jobid):
+        """
+        Returns the job corresponding to an ID from {ESA_ARCHIVE_NAME} TAP.
+        Note that the user must be able to see the job in the current security context.
+
+        Parameters
+        ----------
+        jobid : str, mandatory
+            ID of the job to view
+
+        Returns
+        -------
+        JobSummary corresponding to the job ID
+        """
+
+        return self.tap.get_job(job_id=jobid)
+
+    def get_job_list(self, *, phases=None, after=None, last=None,
+                     short_description=True):
+        """
+        Returns all the asynchronous jobs stored in {ESA_ARCHIVE_NAME} TAP.
+        Note that the user must be able to see the job in the current security context.
+
+        Parameters
+        ----------
+        phases : list of str
+            Union of job phases to filter the results by.
+        after : datetime
+            Return only jobs created after this datetime
+        last : int
+            Return only the most recent number of jobs
+        short_description : flag - True or False
+            If True, the jobs in the list will contain only the information
+            corresponding to the TAP ShortJobDescription object (job ID, phase,
+            run ID, owner ID and creation ID) whereas if False, a separate GET
+            call to each job is performed for the complete job description
+
+        Returns
+        -------
+        A list of Job objects
+        """
+
+        return self.tap.get_job_list(phases=phases, after=after, last=last,
+                                     short_description=short_description)
+
+    def login(self, *, user=None, password=None):
+        """
+        Performs a login in {ESA_ARCHIVE_NAME} TAP.
+        TAP+ only
+        User and password shall be used
+
+        Parameters
+        ----------
+        user : str, mandatory, default None
+            Username. If no value is provided, a prompt to type it will appear
+        password : str, mandatory, default None
+            User password. If no value is provided, a prompt to type it will appear
+        """
+        self._auth_session.login(login_url=self.LOGIN_URL, user=user, password=password)
+
+    def logout(self):
+        """
+        Performs a logout in {ESA_ARCHIVE_NAME} TAP.
+        TAP+ only
+        """
+        self._auth_session.logout(logout_url=self.LOGOUT_URL)
+
+    def query_tap(self, query, *, async_job=False, output_file=None, output_format='votable', verbose=False):
+        """
+        Launches a synchronous or asynchronous job to query the {ESA_ARCHIVE_NAME} TAP
+
+        Parameters
+        ----------
+        query : str, mandatory
+            query (adql) to be executed
+        async_job : bool, optional, default 'False'
+            executes the query (job) in asynchronous/synchronous mode (default
+            synchronous)
+        output_file : str, optional, default None
+            file name where the results are saved.
+            If this parameter is not provided
+        output_format : str, optional, default 'votable'
+            results format
+        verbose: bool, optional, default False
+            To log the query when executing this method.
+
+        Returns
+        -------
+        An astropy.table object containing the results
+        """
+        if async_job:
+            query_result = self.tap.run_async(query)
+            result = query_result.to_table()
+        else:
+            result = self.tap.search(query).to_table()
+
+        if output_file:
+            download_table(result, output_file, output_format)
+
+        if verbose:
+            print(f"Executed query:{query}")
+
+        return result
+
+    def create_cone_search_query(self, ra, dec, ra_column, dec_column, radius):
+        return f"1=CONTAINS(POINT('ICRS', {ra_column}, {dec_column}),CIRCLE('ICRS', {ra}, {dec}, {radius}))"
+
+    def query_table(self, table_name, *, columns=None, custom_filters=None, get_metadata=False, async_job=False,
+                    output_file=None, output_format='votable', **filters):
+        """
+        Query a set of columns from a specific table in {ESA_ARCHIVE_NAME} TAP, using filters defined by the user
+
+        Parameters
+        ----------
+        table_name : str, mandatory
+            name of the table where this query will be executed
+        columns : list of str or str, optional, default 'None'
+            columns from the table to be retrieved
+        custom_filters : str, optional, default 'None'
+            No SQL filters defined by the user
+            E.g. ADQL Intersect filter
+        get_metadata: bool, optional, default False
+            If set to true, the method will return an astropy.Table
+            containing the available columns for this table, including
+            the description, units, ucd, utype and data type
+        async_job : bool, optional, default 'False'
+            executes the query (job) in asynchronous/synchronous mode (default
+            synchronous)
+        output_file : str, optional, default None
+            file name where the results are saved
+        output_format : str, optional, default 'votable'
+            results format
+        Users can defined more parameters, using the column names. They will be
+        used to generate the SQL filters for the query. Some examples are described below,
+        where the left side is the parameter defined for this method and the right side the
+        SQL filter generated:
+        StarName='star1' -> StarName = 'star1'
+        StarName='star*' -> StarName ILIKE 'star%'
+        StarName='star%' -> StarName ILIKE 'star%'
+        StarName=['star1', 'star2'] -> StarName = 'star1' OR StarName - 'star2'
+        ra=('>', 30) -> ra > 30
+        ra=(20, 30) -> ra >= 20 AND ra <= 30
+
+        Returns
+        -------
+        An astropy.table object containing the results
+        """
+        if get_metadata:
+            return self.get_metadata(table_name)
+
+        # If columns is defined and a list, join them.
+        # If it is a simple value, use it
+        # If not defined, the columns are '*'
+        result_columns = (
+            (lambda c: ', '.join(c) if isinstance(c, list) else c)(columns)
+            if columns else '*'
+        )
+
+        # If filters are defined, generate the associated query criteria
+        query_filters = (
+            self.__create_sql_criteria(filters)
+            if filters and len(filters) > 0 else ''
+        )
+
+        # If custom filters are added, if query filters exists, add a new condition
+        # If they don't exist, this is the WHERE clause
+        # If custom_filters filters are not defined, this is an empty string
+        additional_filters = (
+            (lambda has_qf: f" AND {custom_filters}" if has_qf else f"WHERE {custom_filters}")
+            (bool(query_filters))
+            if custom_filters else ''
+        )
+
+        query = f"SELECT {result_columns} FROM {table_name} {query_filters}{additional_filters}"
+        return self.query_tap(query=query, async_job=async_job, output_file=output_file,
+                              output_format=output_format, verbose=True)
+
+    def __create_sql_criteria(self, filters):
+        """
+        Create the SQL clause associated to the query_criteria filters
+
+        Parameters
+        ----------
+        query_criteria : str, mandatory
+            table name where the query will be executed
+        Returns
+        -------
+        A string containing the list of SQL filters
+        """
+        sql_clauses = []
+        for key, value in filters.items():
+            # Checks if the value is not defined NULL
+            if value is None:
+                sql_clauses.append(f"{key} IS NULL")
+
+            # Detect if the value is a list
+            elif isinstance(value, list):
+                sql_clauses.append(self.__create_multiple_criteria(column=key, value_list=value))
+
+            else:
+                sql_clauses.append(self.__create_single_criteria(column=key, value=value))
+
+        where_sql = f" WHERE {' AND '.join(sql_clauses)}"
+        return where_sql
+
+    def __create_string_criteria(self, column, value):
+        """
+        Create the filter for a string value
+        Parameters
+        ----------
+        column : str, mandatory
+            column where this filter is applied
+        value : str, mandatory
+            value to be used to compare. Wildcards can be used
+        Returns
+        -------
+        The SQL filter for a string column
+        """
+        if '*' in value or '%' in value:
+            return f"{column} ILIKE '{value.replace('*', '%')}'"
+        else:
+            return f"{column} = '{value}'"
+
+    def __create_boolean_criteria(self, column, value):
+        """
+        Create the filter for a boolean value
+        Parameters
+        ----------
+        column : str, mandatory
+            column where this filter is applied
+        value : bool, mandatory
+            value to be used to compare.
+        Returns
+        -------
+        The SQL filter for a boolean column
+        """
+        return f"{column} = '{value}'"
+
+    def __create_number_criteria(self, column, value, comparator='='):
+        """
+        Create the filter for a numeric value
+        Parameters
+        ----------
+        column : str, mandatory
+            column where this filter is applied
+        value : number, mandatory
+            value to be used to compare
+        Returns
+        -------
+        The SQL filter for a numeric column
+        """
+        # For exact searches in not integer values, check the number is
+        # within a threshold of 1e-5
+        threshold = 1e-5
+        if not isinstance(value, numbers.Integral) and comparator == '=':
+            return (f"({column} >= {value - threshold} and "
+                    f"{column} <= {value + threshold})")
+        else:
+            return f"{column} {comparator} {value}"
+
+    def __create_single_criteria(self, column, value):
+        """
+        Create the filter for a single value of different types
+        Parameters
+        ----------
+        column : str, mandatory
+            column where this filter is applied
+        value : object, mandatory
+            value to be used to compare
+        Returns
+        -------
+        The SQL filter for the column
+        """
+        if isinstance(value, str):
+            return self.__create_string_criteria(column, value)
+        if isinstance(value, bool):
+            return self.__create_boolean_criteria(column, value)
+        if isinstance(value, numbers.Number):
+            return self.__create_number_criteria(column, value, "=")
+        # For numeric values, a tuple shall be provided
+        if isinstance(value, tuple):
+            if len(value) != 2:
+                raise ValueError(f"For numeric values, a tuple (comparator, value) shall be provided")
+            # First value can be a comparator or a minimum value
+            # Second value should always be a number
+            first_value, second_value = value
+            if not isinstance(second_value, numbers.Number):
+                raise ValueError(f"Comparator can only be applied to numeric values.")
+            # If first value is also a number, the filter is between two numbers
+            if isinstance(first_value, numbers.Number):
+                min_value_filter = self.__create_number_criteria(column, first_value, ">=")
+                max_value_filter = self.__create_number_criteria(column, second_value, "<=")
+                return f"{min_value_filter} AND {max_value_filter}"
+            else:
+                return self.__create_number_criteria(column, second_value, first_value)
+
+    def __create_multiple_criteria(self, column, value_list):
+        """
+        Create the filter for a single value of different types
+        Parameters
+        ----------
+        column : str, mandatory
+            column where this filter is applied
+        value_list : list of objects, mandatory
+            values to be used to compare
+        Returns
+        -------
+        The SQL filter for the column including all the values
+        """
+        if isinstance(value_list[0], str):
+            string_criteria_list = [self.__create_string_criteria(column=column, value=val) for val in value_list]
+            return f"({' OR '.join(string_criteria_list)})"
+        if isinstance(value_list[0], numbers.Number):
+            min_value_clause = self.__create_number_criteria(column, value_list[0], ">=")
+            max_value_clause = self.__create_number_criteria(column, value_list[1], "<=")
+            return f"({min_value_clause} AND {max_value_clause})"
 
 
 def get_degree_radius(radius):
@@ -471,3 +978,9 @@ def resolve_target(url, session, target_name, target_resolver):
             return SkyCoord(ra=ra, dec=dec, unit="deg")
     except (ValueError, KeyError) as err:
         raise ValueError('This target cannot be resolved. {}'.format(err))
+
+
+def load_image_from_url(url):
+    response = requests.get(url)
+    response.raise_for_status()        # raise an error if download failed
+    return Image.open(BytesIO(response.content))
