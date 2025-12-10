@@ -317,7 +317,7 @@ class JPLSpecClass(BaseQuery):
         >>> table = JPLSpec.get_molecule(18003)  # doctest: +SKIP
         >>> print(table)  # doctest: +SKIP
         """
-        molecule_id = parse_molid(molecule_id)
+        molecule_str = parse_molid(molecule_id)
 
         # Construct the URL to the catalog file
         url = f'https://spec.jpl.nasa.gov/ftp/pub/catalog/c{molecule_str}.cat'
