@@ -83,7 +83,7 @@ class CDMSClass(BaseQuery):
                     return self.get_molecule(requested_molecule[:6])
                 except ValueError as ex:
                     # try to give the users good guidance on which parameters will work
-                    if "molecule_id should be a length-6 string of numbers" in str(ex):
+                    if "molecule_id should be an integer or a length-6 string of numbers" in str(ex):
                         if parse_name_locally:
                             raise ValueError(f"Molecule {molecule} could not be parsed or identified."
                                              "  Check that the name was correctly specified.")
