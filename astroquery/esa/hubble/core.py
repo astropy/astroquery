@@ -30,36 +30,25 @@ from astroquery import log
 __all__ = ['ESAHubble', 'ESAHubbleClass']
 
 
-class ESAHubbleClass(BaseVOQuery, BaseQuery):
+class ESAHubbleClass(esautils.EsaTap):
     """
     Class to init ESA Hubble Module and communicate with eHST TAP
     """
-    TIMEOUT = conf.TIMEOUT
+    ESA_ARCHIVE_NAME = "ESA HST"
+    TAP_URL = conf.EHST_TAP_SERVER
+    LOGIN_URL = conf.EHST_LOGIN_SERVER
+    LOGOUT_URL = conf.EHST_LOGOUT_SERVER
+
     calibration_levels = {"AUXILIARY": 0, "RAW": 1, "CALIBRATED": 2,
                           "PRODUCT": 3}
     product_types = ["SCIENCE", "PREVIEW", "THUMBNAIL", "AUXILIARY"]
     copying_string = "Copying file to {0}..."
 
-    def __init__(self, *, show_messages=True, auth_session=None):
-        super().__init__()
-
-        self._tap = None
-        # Checks if auth session has been defined. If not, create a new session
-        if auth_session:
-            self._auth_session = auth_session
-        else:
-            self._auth_session = esautils.ESAAuthSession()
+    def __init__(self, *, show_messages=False, auth_session=None, tap_url=None):
+        super().__init__(auth_session=auth_session, tap_url=tap_url)
 
         if show_messages:
             self.get_status_messages()
-
-    @property
-    def tap(self) -> pyvo.dal.TAPService:
-        if self._tap is None:
-            self._tap = pyvo.dal.TAPService(
-                conf.EHST_TAP_SERVER, session=self._auth_session)
-
-        return self._tap
 
     def download_product(self, observation_id, *, calibration_level=None,
                          filename=None, folder=None, verbose=False, product_type=None):
@@ -741,40 +730,6 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
 
         return table
 
-    def query_tap(self, query, *, async_job=False, output_file=None,
-                  output_format="votable", verbose=False):
-        """Launches a synchronous or asynchronous job to query the HST tap
-
-                Parameters
-                ----------
-                query : str, mandatory
-                    query (adql) to be executed
-                async_job : bool, optional, default 'False'
-                    executes the query (job) in asynchronous/synchronous mode (default
-                    synchronous)
-                output_file : str, optional, default None
-                    file name where the results are saved if dumpToFile is True.
-                    If this parameter is not provided, the jobid is used instead
-                output_format : str, optional, default 'votable'
-                    results format
-                verbose : bool, optional, default 'False'
-                    flag to display information about the process
-
-                Returns
-                -------
-                A table object
-                """
-        if async_job:
-            query_result = self.tap.run_async(query)
-            result = query_result.to_table()
-        else:
-            result = self.tap.run_sync(query).to_table()
-
-        if output_file:
-            esautils.download_table(result, output_file, output_format)
-
-        return result
-
     def query_criteria(self, *, calibration_level=None,
                        data_product_type=None, intent=None,
                        obs_collection=None, instrument_name=None,
@@ -896,26 +851,6 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
         else:
             raise ValueError("One of the lists is empty or there are "
                              "elements that are not strings")
-
-    def get_tables(self, *, only_names=True, verbose=False):
-        """Get the available table in EHST TAP service
-
-        Parameters
-        ----------
-        only_names : bool, TAP+ only, optional, default 'False'
-            True to load table names only
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A list of tables
-        """
-        tables = self.tap.tables
-        if only_names:
-            return list(tables.keys())
-        else:
-            return list(tables.values())
 
     def get_status_messages(self):
         """Retrieve the messages to inform users about

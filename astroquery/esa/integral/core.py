@@ -23,174 +23,23 @@ from datetime import datetime
 __all__ = ['Integral', 'IntegralClass']
 
 
-class IntegralClass(BaseVOQuery, BaseQuery):
+class IntegralClass(esautils.EsaTap):
+
     """
-    Class to init ESA Integral Module and communicate with isla
+    This module connects with ESA Integral TAP
     """
 
-    def __init__(self, auth_session=None):
-        super().__init__()
+    ESA_ARCHIVE_NAME = "ISLA"
+    TAP_URL = conf.ISLA_TAP_SERVER
+    LOGIN_URL = conf.ISLA_LOGIN_SERVER
+    LOGOUT_URL = conf.ISLA_LOGOUT_SERVER
 
-        # Checks if auth session has been defined. If not, create a new session
-        if auth_session:
-            self._auth_session = auth_session
-        else:
-            self._auth_session = esautils.ESAAuthSession()
-
-        self._auth_session.timeout = conf.TIMEOUT
-        self._tap = None
-        self._tap_url = conf.ISLA_TAP_SERVER
+    def __init__(self, auth_session=None, tap_url=None):
+        super().__init__(auth_session=auth_session, tap_url=tap_url)
 
         self.instruments = []
         self.bands = []
         self.instrument_band_map = {}
-
-    @property
-    def tap(self) -> pyvo.dal.TAPService:
-        if self._tap is None:
-            self._tap = pyvo.dal.TAPService(
-                conf.ISLA_TAP_SERVER, session=self._auth_session)
-            # Retrieve the instruments and bands available within ISLA Archive
-            self.get_instrument_band_map()
-
-        return self._tap
-
-    def get_tables(self, *, only_names=False):
-        """
-        Gets all public tables within ISLA TAP
-
-        Parameters
-        ----------
-        only_names : bool, optional, default False
-            True to load table names only
-
-        Returns
-        -------
-        A list of table objects
-        """
-        table_set = self.tap.tables
-        if only_names:
-            return list(table_set.keys())
-        else:
-            return list(table_set.values())
-
-    def get_table(self, table):
-        """
-        Gets the specified table from ISLA TAP
-
-        Parameters
-        ----------
-        table : str, mandatory
-            full qualified table name (i.e. schema name + table name)
-
-        Returns
-        -------
-        A table object
-        """
-        tables = self.get_tables()
-        for t in tables:
-            if table == t.name:
-                return t
-
-    def get_job(self, jobid):
-        """
-        Returns the job corresponding to an ID. Note that the caller must be able to see
-        the job in the current security context.
-
-        Parameters
-        ----------
-        jobid : str, mandatory
-            ID of the job to view
-
-        Returns
-        -------
-        JobSummary corresponding to the job ID
-        """
-
-        return self.tap.get_job(job_id=jobid)
-
-    def get_job_list(self, *, phases=None, after=None, last=None,
-                     short_description=True):
-        """
-        Returns all the asynchronous jobs
-
-        Parameters
-        ----------
-        phases : list of str
-            Union of job phases to filter the results by.
-        after : datetime
-            Return only jobs created after this datetime
-        last : int
-            Return only the most recent number of jobs
-        short_description : flag - True or False
-            If True, the jobs in the list will contain only the information
-            corresponding to the TAP ShortJobDescription object (job ID, phase,
-            run ID, owner ID and creation ID) whereas if False, a separate GET
-            call to each job is performed for the complete job description
-
-        Returns
-        -------
-        A list of Job objects
-        """
-
-        return self.tap.get_job_list(phases=phases, after=after, last=last,
-                                     short_description=short_description)
-
-    def login(self, *, user=None, password=None):
-        """
-        Performs a login.
-        TAP+ only
-        User and password shall be used
-
-        Parameters
-        ----------
-        user : str, mandatory, default None
-            Username. If no value is provided, a prompt to type it will appear
-        password : str, mandatory, default None
-            User password. If no value is provided, a prompt to type it will appear
-        """
-        self.tap._session.login(login_url=conf.ISLA_LOGIN_SERVER, user=user, password=password)
-
-    def logout(self):
-        """
-        Performs a logout.
-        TAP+ only
-        """
-        self.tap._session.logout(logout_url=conf.ISLA_LOGOUT_SERVER)
-
-    def query_tap(self, query, *, async_job=False, output_file=None, output_format='votable'):
-        """Launches a synchronous or asynchronous job to query the ISLA tap
-
-        Parameters
-        ----------
-        query : str, mandatory
-            query (adql) to be executed
-        async_job : bool, optional, default 'False'
-            executes the query (job) in asynchronous/synchronous mode (default
-            synchronous)
-        output_file : str, optional, default None
-            file name where the results are saved if dumpToFile is True.
-            If this parameter is not provided, the jobid is used instead
-        output_format : str, optional, default 'votable'
-            results format
-
-        Returns
-        -------
-        An astropy.table object containing the results
-        """
-        if async_job:
-            job = self.tap.submit_job(query)
-            job.run()
-            while job.phase == 'EXECUTING':
-                time.sleep(3)
-            result = job.fetch_result().to_table()
-        else:
-            result = self.tap.search(query).to_table()
-
-        if output_file:
-            esautils.download_table(result, output_file, output_format)
-
-        return result
 
     def get_sources(self, target_name, *, async_job=False, output_file=None, output_format=None):
         """Retrieve the coordinates of an INTEGRAL source
@@ -684,7 +533,7 @@ class IntegralClass(BaseVOQuery, BaseQuery):
 
         Returns
         -------
-        An object containing te metadata from the target
+        An object containing the metadata from the target
         """
         query_params = {
             'REQUEST': 'sources',
@@ -703,6 +552,9 @@ class IntegralClass(BaseVOQuery, BaseQuery):
     def get_instrument_band_map(self):
         """
         Maps the bands and instruments included in ISLA
+        Returns
+        -------
+        An object containing the instruments and bands
         """
 
         if len(self.instrument_band_map) == 0:
@@ -723,6 +575,8 @@ class IntegralClass(BaseVOQuery, BaseQuery):
             self.instruments = instruments
             self.bands = bands
             self.instrument_band_map = instrument_band_map
+
+        return self.instrument_band_map
 
     def get_instruments(self):
         """

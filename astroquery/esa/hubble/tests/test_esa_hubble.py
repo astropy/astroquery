@@ -220,7 +220,7 @@ class TestESAHubble:
                "astropy.coordinates" in err.value.args[0]
 
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.run_sync')
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.search')
     def test_query_tap(self, mock_search):
         parameters = {'query': "select top 10 * from hsc_v2.hubble_sc2",
                       'async_job': False,
@@ -278,7 +278,7 @@ class TestESAHubble:
         mock_table = "mocked table result"
         mock_search_result = MagicMock()
         mock_search_result.to_table.return_value = mock_table
-        mock_tap_service.run_sync.return_value = mock_search_result
+        mock_tap_service.search.return_value = mock_search_result
 
         ehst = ESAHubbleClass(show_messages=False)
         result = ehst.get_associated_files(observation_id=observation_id)
@@ -738,7 +738,7 @@ class TestESAHubble:
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     def test_show_messages(self, mock_execute_servlet_request):
-        ESAHubbleClass()
+        ESAHubbleClass(show_messages=True)
         mock_execute_servlet_request.assert_called()
 
     def test_parse_messages_response(self):

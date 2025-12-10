@@ -53,6 +53,7 @@ def close_files(file_list):
 
 class TestIntegralTap:
 
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     def test_get_tables(self):
         # default parameters
         table_set = PropertyMock()
@@ -64,6 +65,7 @@ class TestIntegralTap:
             assert len(isla.get_tables(only_names=True)) == 2
             assert len(isla.get_tables()) == 2
 
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     def test_get_table(self):
         table_set = PropertyMock()
         tables_result = [Mock() for _ in range(3)]
@@ -186,19 +188,15 @@ class TestIntegralTap:
         search_mock.assert_called_with(query)
         table_mock.assert_called()
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
-    @patch('pyvo.dal.AsyncTAPJob')
-    @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.submit_job')
-    def test_query_tap_async(self, submit_job_mock, instrument_band_mock, async_job_mock):
-        instrument_band_mock.return_value = mocks.get_instrument_bands()
-        async_job_mock.phase.return_value = 'COMPLETE'
-        async_job_mock.fetch_result.return_value = mocks.get_dal_table()
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.run_async')
+    def test_query_tap_async(self, async_job_mock):
+        async_job_mock.return_value = mocks.get_dal_table()
 
         query = 'select * from ivoa.obscore'
         isla = IntegralClass()
         isla.query_tap(query=query, async_job=True)
-        submit_job_mock.assert_called_with(query)
+        async_job_mock.assert_called_with(query)
 
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
