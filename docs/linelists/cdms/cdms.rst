@@ -24,7 +24,12 @@ The default option to return the query payload is set to ``False``.  In the
 following examples we have explicitly set it to False and True to show the what
 each setting yields:
 
+.. testsetup:: shared
+   from astroquery.linelists.cdms import CDMS
+   import astropy.units as u
+
 .. doctest-remote-data::
+   :group: shared
 
    >>> from astroquery.linelists.cdms import CDMS
    >>> import astropy.units as u
@@ -51,6 +56,7 @@ each setting yields:
 The following example, with ``get_query_payload = True``, returns the payload:
 
 .. doctest-remote-data::
+   :group: shared
 
    >>> response = CDMS.query_lines(min_frequency=100 * u.GHz,
    ...                             max_frequency=1000 * u.GHz,
@@ -64,6 +70,7 @@ The units of the columns of the query can be displayed by calling
 ``response.info``:
 
 .. doctest-remote-data::
+   :group: shared
 
    >>> response = CDMS.query_lines(min_frequency=100 * u.GHz,
    ...                             max_frequency=1000 * u.GHz,
@@ -103,6 +110,7 @@ These come in handy for converting to other units easily, an example using a
 simplified version of the data above is shown below:
 
 .. doctest-remote-data::
+   :group: shared
 
    >>> print(response['FREQ', 'ERR', 'ELO'])
         FREQ     ERR     ELO

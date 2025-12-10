@@ -218,7 +218,7 @@ class CDMSClass(BaseQuery):
             payload['Moleculesgrp'] = 'all species'
         else:
             if molecule is not None:
-                payload['Molecules'] = self._mol_to_payload(molecule, parse_name_locally, flags)
+                payload['Molecules'] = self._mol_to_payload(molecule, parse_name_locally=parse_name_locally, flags=flags)
 
         if get_query_payload:
             return payload
