@@ -226,14 +226,14 @@ to retrieve data from JPLSpec via astroquery.
    >>> print(f"Retrieved {len(table)} lines for CO")
    Retrieved 91 lines for CO
    >>> table[:5].pprint()
-       FREQ      ERR    LGINT    DR    ELO    GUP  TAG  QNFMT QN' QN"  Lab
-       MHz       MHz   nm2 MHz        1 / cm
-   ------------ ------ -------- --- -------- --- ----- ----- --- --- -----
-    115271.2018 0.0005  -5.0105   2      0.0   3 28001   101   1   0  True
-       230538.0 0.0005  -4.1197   2    3.845   5 28001   101   2   1  True
-    345795.9899 0.0005  -3.6118   2   11.535   7 28001   101   3   2  True
-    461040.7682 0.0005  -3.2657   2  23.0695   9 28001   101   4   3  True
-    576267.9305 0.0005  -3.0118   2  38.4481  11 28001   101   5   4  True
+       FREQ     ERR    LGINT   DR   ELO   GUP  TAG  QNFMT QN' QN" Lab 
+       MHz      MHz   nm2 MHz      1 / cm                             
+   ----------- ------ ------- --- ------- --- ----- ----- --- --- ----
+   115271.2018 0.0005 -5.0105   2     0.0   3 28001   101   1   0 True
+      230538.0 0.0005 -4.1197   2   3.845   5 28001   101   2   1 True
+   345795.9899 0.0005 -3.6118   2  11.535   7 28001   101   3   2 True
+   461040.7682 0.0005 -3.2657   2 23.0695   9 28001   101   4   3 True
+   576267.9305 0.0005 -3.0118   2 38.4481  11 28001   101   5   4 True
 
 The ``get_molecule`` method accepts either an integer or a zero-padded
 6-character string as the molecule identifier:
