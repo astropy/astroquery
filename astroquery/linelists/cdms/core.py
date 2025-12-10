@@ -74,7 +74,8 @@ class CDMSClass(BaseQuery):
                    + [y for x in self.MALFORMATTED_MOLECULE_LIST for y in x.split()])
 
         # extract molecule from the response or request
-        requested_molecule = self._mol_to_payload(molecule, parse_name_locally=parse_name_locally, flags=flags) if molecule != 'All' else None
+        requested_molecule = self._mol_to_payload(molecule, parse_name_locally=parse_name_locally,
+                                                  flags=flags) if molecule != 'All' else None
 
         if requested_molecule and requested_molecule in badlist and not get_query_payload:
             if fallback_to_getmolecule:
@@ -218,7 +219,9 @@ class CDMSClass(BaseQuery):
             payload['Moleculesgrp'] = 'all species'
         else:
             if molecule is not None:
-                payload['Molecules'] = self._mol_to_payload(molecule, parse_name_locally=parse_name_locally, flags=flags)
+                payload['Molecules'] = self._mol_to_payload(molecule,
+                                                            parse_name_locally=parse_name_locally,
+                                                            flags=flags)
 
         if get_query_payload:
             return payload

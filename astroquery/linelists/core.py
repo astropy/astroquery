@@ -34,18 +34,18 @@ def parse_letternumber(st):
 def parse_molid(mol_id):
     """
     Parse molecule ID to ensure it is a zero-padded 6-character string.
-    
+
     Parameters
     ----------
     mol_id : int or str
         The molecule identifier. Can be an integer (e.g., 18003 for H2O)
         or a zero-padded 6-character string (e.g., '018003').
-        
+
     Returns
     -------
     str
         Zero-padded 6-character string representation of the molecule ID.
-        
+
     Raises
     ------
     ValueError

@@ -5,5 +5,3 @@ Linelists module
 This module contains sub-modules to support molecular and atomic line list
 modules and common utilities for parsing catalog files.
 """
-
-from astroquery.linelists.core import parse_letternumber
