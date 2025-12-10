@@ -1475,6 +1475,36 @@ class TestMast:
             Tesscut.get_cutouts(objectname=moving_target_name)
         assert error_nameresolve in str(error_msg.value)
 
+    def test_tesscut_get_cutouts_mt_no_sector(self):
+        """Test get_cutouts with moving target but no sector specified.
+
+        When sector is not specified for moving targets, the method should
+        automatically fetch available sectors and make individual requests per sector.
+        """
+        moving_target_name = "Eleonora"
+        # Moving target without specifying sector - should automatically fetch sectors
+        cutout_hdus_list = Tesscut.get_cutouts(objectname=moving_target_name, moving_target=True, size=1)
+        assert isinstance(cutout_hdus_list, list)
+        # Should return cutouts for all available sectors
+        assert len(cutout_hdus_list) >= 1
+        assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+    def test_tesscut_download_cutouts_mt_no_sector(self, tmpdir):
+        """Test download_cutouts with moving target but no sector specified.
+
+        When sector is not specified for moving targets, the method should
+        automatically fetch available sectors and make individual requests per sector.
+        """
+        moving_target_name = "Eleonora"
+        # Moving target without specifying sector - should automatically fetch sectors
+        manifest = Tesscut.download_cutouts(objectname=moving_target_name, moving_target=True, size=1, path=str(tmpdir))
+        assert isinstance(manifest, Table)
+        # Should return files for all available sectors
+        assert len(manifest) >= 1
+        assert manifest["Local Path"][0][-4:] == "fits"
+        for row in manifest:
+            assert os.path.isfile(row["Local Path"])
+
     ###################
     # ZcutClass tests #
     ###################

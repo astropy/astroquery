@@ -1330,6 +1330,69 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
     assert "Input product must be SPOC." in str(invalid_query.value)
 
 
+def test_tesscut_get_cutouts_mt_no_sector(patch_post):
+    """Test get_cutouts with moving target but no sector specified.
+
+    When sector is not specified for moving targets, the method should
+    automatically fetch available sectors and make individual requests per sector.
+    """
+    # Moving target without specifying sector - should automatically fetch sectors
+    cutout_hdus_list = mast.Tesscut.get_cutouts(objectname="Eleonora", moving_target=True, mt_type="small_body", size=5)
+    assert isinstance(cutout_hdus_list, list)
+    # Mock returns 1 sector, so we expect 1 cutout
+    assert len(cutout_hdus_list) == 1
+    assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+
+def test_tesscut_download_cutouts_mt_no_sector(patch_post, tmpdir):
+    """Test download_cutouts with moving target but no sector specified.
+
+    When sector is not specified for moving targets, the method should
+    automatically fetch available sectors and make individual requests per sector.
+    """
+    # Moving target without specifying sector - should automatically fetch sectors
+    manifest = mast.Tesscut.download_cutouts(
+        objectname="Eleonora", moving_target=True, mt_type="small_body", size=5, path=str(tmpdir)
+    )
+    assert isinstance(manifest, Table)
+    # Mock returns 1 sector, so we expect 1 file
+    assert len(manifest) == 1
+    assert manifest["Local Path"][0][-4:] == "fits"
+    assert os.path.isfile(manifest[0]["Local Path"])
+
+
+def test_tesscut_get_cutouts_mt_no_sector_empty_results(patch_post, monkeypatch):
+    """Test get_cutouts with moving target when no sectors are available.
+
+    When get_sectors returns an empty table, the method should warn and return an empty list.
+    """
+    # Mock get_sectors to return an empty Table
+    empty_sector_table = Table(names=["sectorName", "sector", "camera", "ccd"], dtype=[str, int, int, int])
+    monkeypatch.setattr(mast.Tesscut, "get_sectors", lambda *args, **kwargs: empty_sector_table)
+
+    with pytest.warns(NoResultsWarning, match="Coordinates are not in any TESS sector"):
+        cutout_hdus_list = mast.Tesscut.get_cutouts(objectname="NonExistentObject", moving_target=True, size=5)
+    assert isinstance(cutout_hdus_list, list)
+    assert len(cutout_hdus_list) == 0
+
+
+def test_tesscut_download_cutouts_mt_no_sector_empty_results(patch_post, tmpdir, monkeypatch):
+    """Test download_cutouts with moving target when no sectors are available.
+
+    When get_sectors returns an empty table, the method should warn and return an empty Table.
+    """
+    # Mock get_sectors to return an empty Table
+    empty_sector_table = Table(names=["sectorName", "sector", "camera", "ccd"], dtype=[str, int, int, int])
+    monkeypatch.setattr(mast.Tesscut, "get_sectors", lambda *args, **kwargs: empty_sector_table)
+
+    with pytest.warns(NoResultsWarning, match="Coordinates are not in any TESS sector"):
+        manifest = mast.Tesscut.download_cutouts(
+            objectname="NonExistentObject", moving_target=True, size=5, path=str(tmpdir)
+        )
+    assert isinstance(manifest, Table)
+    assert len(manifest) == 0
+
+
 ######################
 # ZcutClass tests #
 ######################

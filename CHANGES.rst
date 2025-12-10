@@ -56,6 +56,8 @@ mast
   and ``utils.resolve_object`` to allow controlling the number of items sent in each batch request to the server.
   This can help avoid timeouts or connection errors for large requests. [#3454]
 
+- Separate requests for moving target cutouts in ``Tesscut`` to one per sector. [#3467]
+
 jplspec
 ^^^^^^^
 
