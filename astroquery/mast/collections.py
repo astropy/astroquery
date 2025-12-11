@@ -8,13 +8,15 @@ This module contains methods for discovering and querying MAST catalog collectio
 import difflib
 import warnings
 import re
+import os
+import time
 from collections.abc import Iterable
 
 import astropy.units as u
 import astropy.coordinates as coord
 import requests
-from astropy.table import Table
-from astropy.utils.decorators import deprecated_renamed_argument
+from astropy.table import Table, Row
+from astropy.utils.decorators import deprecated_renamed_argument, deprecated
 from regions import CircleSkyRegion, PolygonSkyRegion
 
 from astroquery import log
@@ -479,6 +481,179 @@ class CatalogsClass(MastQueryWithLogin):
                                    sort_by=sort_by,
                                    sort_desc=sort_desc,
                                    **criteria)
+
+    @class_or_instance
+    @deprecated(since='v0.4.12',
+                message=('This function is deprecated and will be removed in a future release.'))
+    def query_hsc_matchid_async(self, match, *, version=3, pagesize=None, page=None):
+        """
+        Returns all the matches for a given Hubble Source Catalog MatchID.
+
+        Parameters
+        ----------
+        match : int or `~astropy.table.Row`
+            The matchID or HSC entry to return matches for.
+        version : int, optional
+            The HSC version to match against. Default is v3.
+        pagesize : int, optional
+            Can be used to override the default pagesize.
+            E.g. when using a slow internet connection.
+        page : int, optional
+            Can be used to override the default behavior of all results being returned to obtain
+            one specific page of results.
+
+        Returns
+        -------
+        response : list of `~requests.Response`
+        """
+        self._current_connection = self._portal_api_connection
+
+        match = match["MatchID"] if isinstance(match, Row) else match
+        match = str(match)  # np.int64 gives json serializer problems, so stringify right here
+
+        if version == 2:
+            service = "Mast.HscMatches.Db.v2"
+        else:
+            if version not in (3, None):
+                warnings.warn("Invalid HSC version number, defaulting to v3.", InputWarning)
+            service = "Mast.HscMatches.Db.v3"
+
+        params = {"input": match}
+
+        return self._current_connection.service_request_async(service, params, pagesize, page)
+
+    @class_or_instance
+    @deprecated(since='v0.4.12',
+                message=('This function is deprecated and will be removed in a future release.'))
+    def get_hsc_spectra_async(self, *, pagesize=None, page=None):
+        """
+        Returns all Hubble Source Catalog spectra.
+
+        Parameters
+        ----------
+        pagesize : int, optional
+            Can be used to override the default pagesize.
+            E.g. when using a slow internet connection.
+        page : int, optional
+            Can be used to override the default behavior of all results being returned to obtain
+            one specific page of results.
+
+        Returns
+        -------
+        response : list of `~requests.Response`
+        """
+        self._current_connection = self._portal_api_connection
+        return self._current_connection.service_request_async("Mast.HscSpectra.Db.All", {}, pagesize, page)
+
+    @deprecated(since='v0.4.12',
+                message=('This function is deprecated and will be removed in a future release.'))
+    def download_hsc_spectra(self, spectra, *, download_dir=None, cache=True, curl_flag=False):
+        """
+        Download one or more Hubble Source Catalog spectra.
+
+        Parameters
+        ----------
+        spectra : `~astropy.table.Table` or `~astropy.table.Row`
+            One or more HSC spectra to be downloaded.
+        download_dir : str, optional
+           Specify the base directory to download spectra into.
+           Spectra will be saved in the subdirectory download_dir/mastDownload/HSC.
+           If download_dir is not specified the base directory will be '.'.
+        cache : bool, optional
+            Default is True. If file is found on disc it will not be downloaded again.
+            Note: has no affect when downloading curl script.
+        curl_flag : bool, optional
+            Default is False.  If true instead of downloading files directly, a curl script
+            will be downloaded that can be used to download the data files at a later time.
+
+        Returns
+        -------
+        response : list of `~requests.Response`
+        """
+        # Normalize spectra input to a list
+        if isinstance(spectra, Row):
+            spectra = [spectra]
+
+        # Ensure download directory is set
+        download_dir = download_dir or "."
+
+        if curl_flag:
+            timestamp = time.strftime("%Y%m%d%H%M%S")
+            bundle_name = "mastDownload_" + timestamp
+            url_list = [self._make_data_url(spec) for spec in spectra]
+            path_list = [f"{bundle_name}/HSC/{spec['DatasetName']}.fits" for spec in spectra]
+
+            params = dict(
+                urlList=",".join(url_list),
+                filename=bundle_name,
+                pathList=",".join(path_list),
+                descriptionList=[""] * len(spectra),
+                productTypeList=["spectrum"] * len(spectra),
+                extension="curl"
+            )
+
+            service = "Mast.Bundle.Request"
+            response = self._portal_api_connection.service_request_async(service, params)
+            bundle_info = response[0].json()
+            local_script = os.path.join(download_dir, f"{bundle_name}.sh")
+            self._download_file(bundle_info["url"], local_script, head_safe=True)
+
+            # Build manifest row
+            exists = os.path.isfile(local_script)
+            missing = [k for k, v in bundle_info.get("statusList", {}).items() if v != "COMPLETE"]
+            manifest = Table(
+                {
+                    "Local Path": [local_script],
+                    "Status": ["COMPLETE" if exists else "ERROR"],
+                    "Message": [
+                        None
+                        if exists and not missing
+                        else (
+                            f"{len(missing)} files could not be added to curl script"
+                            if exists
+                            else "Curl script could not be downloaded"
+                        )
+                    ],
+                    "URL": [
+                        None if exists and not missing else (
+                            ",".join(missing) if missing else bundle_info["url"]
+                        )
+                    ],
+                }
+            )
+            return manifest
+
+        base_dir = os.path.join(download_dir, "mastDownload", "HSC")
+        os.makedirs(base_dir, exist_ok=True)
+        manifest_rows = []
+
+        for row in spectra:
+            dataset = row["DatasetName"]
+            url = self._make_data_url(row)
+            local_path = os.path.join(base_dir, f"{dataset}.fits")
+            status = "COMPLETE"
+            message = None
+
+            try:
+                self._download_file(url, local_path, cache=cache, head_safe=True)
+
+                if not os.path.exists(local_path):
+                    status = "ERROR"
+                    message = "File was not downloaded"
+            except requests.HTTPError as err:
+                status = "ERROR"
+                message = f"HTTPError: {err}"
+
+            manifest_rows.append([local_path, status, message, url])
+
+        return Table(
+            rows=manifest_rows,
+            names=("Local Path", "Status", "Message", "URL")
+        )
+
+    def _parse_result(self, response, *, verbose=False):
+        """Parse the async responses from HSC queries."""
+        return self._current_connection._parse_result(response, verbose=verbose)
 
     def _verify_collection(self, collection):
         """
@@ -983,6 +1158,13 @@ class CatalogsClass(MastQueryWithLogin):
             else:
                 conditions.append(self._format_scalar_predicate(key, value, numeric_cols))
         return conditions
+
+    def _make_data_url(self, row):
+        """Return the correct data URL for a given spectrum row."""
+        dataset = row["DatasetName"]
+        if row["SpectrumType"] < 2:
+            return f"https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset={dataset}"
+        return f"https://hla.stsci.edu/cgi-bin/ecfproxy?file_id={dataset}.fits"
 
 
 Catalogs = CatalogsClass()
