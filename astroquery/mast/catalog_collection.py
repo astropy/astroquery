@@ -12,14 +12,14 @@ __all__ = ['CatalogCollection']
 
 DEFAULT_CATALOGS = {
     'caom': 'dbo.obspointing',
-    'gaia': 'dbo.gaia_source',
-    'hscv3': 'dbo.SumMagAper2CatView',
+    'gaiadr3': 'dbo.gaia_source',
+    'hsc': 'dbo.SumMagAper2CatView',
     'hscv2': 'dbo.SumMagAper2CatView',
     'missionmast': 'dbo.hst_science_missionmast',
     'ps1dr1': 'dbo.MeanObjectView',
     'ps1dr2': 'dbo.MeanObjectView',
     'ps1_dr2': 'ps1_dr2.forced_mean_object',
-    'skymapper': 'dr4.master',
+    'skymapperdr4': 'dr4.master',
     'tic': 'dbo.CatalogRecord',
     'classy': 'dbo.targets',
     'ullyses': 'dbo.sciencemetadata',
