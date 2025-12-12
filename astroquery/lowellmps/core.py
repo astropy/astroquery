@@ -287,42 +287,6 @@ class AstInfoClass(BaseQuery):
 
         return response
 
-    def orbit_async(self, object_name, *,
-                    get_uri=False,
-                    cache=True):
-        """
-        This method uses a REST interface to query the `Lowell Minor Planet
-        Services database <https://asteroid.lowell.edu/>`_ for orbit fitting
-        data for a single object and returns a dictionary from JSON results
-
-        Parameters
-        ----------
-        object_name : str
-            name of the identifier to query.
-
-        Returns
-        -------
-        res : A dictionary holding available orbit fitting data
-
-        Examples
-        --------
-        >>> from astroquery.lowellmps import AstInfo
-        >>> orbit = AstInfo.orbit('Beagle')  # doctest: +SKIP
-        >>> print(orbit)  # doctest: +SKIP
-        {'a1con': <Quantity 0. AU / d2>, 'a2con': <Quantity 0. AU / d2>, ...}
-        """
-
-        self.query_type = 'orbit'
-
-        response = self._request('GET',
-                                 url=self.URL + object_name + '/orbit',
-                                 timeout=self.TIMEOUT, cache=cache)
-
-        if get_uri:
-            self._uri = response.url
-
-        return response
-
     def taxonomies_async(self, object_name, *,
                          get_uri=False,
                          cache=True):
@@ -395,7 +359,6 @@ class AstInfoClass(BaseQuery):
         'elements': {'a': <Quantity 3.15597543 AU>, 'aphelion_dist': <Quantity 3.57009832 AU>, ...},
         'escape_routes': [],
         'lightcurves': [{..., 'amp_max': <Quantity 1.2 mag>, ..., 'period': <Quantity 7.035 h>, ...}],
-        'orbit': {'a1con': <Quantity 0. AU / d2>, 'a2con': <Quantity 0. AU / d2>, ...},
         'taxonomies': [{..., 'survey_name': 'Carvano et al. (2010)', 'taxonomy': 'C', ...},
                        {..., 'survey_name': 'DeMeo et al. (2013)', 'taxonomy': 'C', ...}]
         })
@@ -433,10 +396,6 @@ class AstInfoClass(BaseQuery):
                                                 url=self.URL + object_name + '/data/lightcurves',
                                                 timeout=self.TIMEOUT, cache=cache)
 
-        response['orbit'] = self._request('GET',
-                                          url=self.URL + object_name + '/orbit',
-                                          timeout=self.TIMEOUT, cache=cache)
-
         response['taxonomies'] = self._request('GET',
                                                url=self.URL + object_name + '/data/taxonomies',
                                                timeout=self.TIMEOUT, cache=cache)
@@ -449,7 +408,6 @@ class AstInfoClass(BaseQuery):
                          'elements': response['elements'].url,
                          'escape_routes': response['escape_routes'].url,
                          'lightcurves': response['lightcurves'].url,
-                         'orbit': response['orbit'].url,
                          'taxonomies': response['taxonomies'].url
                          }
 
@@ -498,9 +456,6 @@ class AstInfoClass(BaseQuery):
         elif self.query_type == 'lightcurves':
             src = self._process_data_lightcurves(src)
 
-        elif self.query_type == 'orbit':
-            src = self._process_data_orbit(src)
-
         elif self.query_type == 'taxonomies':
             src = self._process_data_taxonomies(src)
 
@@ -512,7 +467,6 @@ class AstInfoClass(BaseQuery):
             src['elements'] = self._process_data_elements(src['elements'])
             src['escape_routes'] = self._process_data_escape_routes(src['escape_routes'])
             src['lightcurves'] = self._process_data_lightcurves(src['lightcurves'])
-            src['orbit'] = self._process_data_orbit(src['orbit'])
             src['taxonomies'] = self._process_data_taxonomies(src['taxonomies'])
 
         else:
@@ -521,7 +475,7 @@ class AstInfoClass(BaseQuery):
 
         # add query uri, if desired
         if self._uri is not None:
-            if self.query_type in ['designations', 'elements', 'orbit', 'all_astinfo']:
+            if self.query_type in ['designations', 'elements', 'all_astinfo']:
                 src['query_uri'] = self._uri
             else:
                 if len(src) > 0:
@@ -688,27 +642,6 @@ class AstInfoClass(BaseQuery):
                     src[i]['amp_min'] = u.Quantity(src[i]['amp_min'], u.mag)
                 if src[i]['period'] is not None:
                     src[i]['period'] = u.Quantity(src[i]['period'], u.h)
-
-        return src
-
-    def _process_data_orbit(self, src):
-        """
-        internal routine to return a dictionary of orbit fit data
-        results from REST interface output and assign units to values
-        where appropriate.
-
-        """
-
-        if 'orbit' in src:
-            src = src['orbit']
-            if src['a1con'] is not None:
-                src['a1con'] = u.Quantity(src['a1con'], u.au/(u.d ** 2))
-            if src['a2con'] is not None:
-                src['a2con'] = u.Quantity(src['a2con'], u.au/(u.d ** 2))
-            if src['a3con'] is not None:
-                src['a3con'] = u.Quantity(src['a3con'], u.au/(u.d ** 2))
-            if src['arc'] is not None:
-                src['arc'] = u.Quantity(src['arc'], u.yr)
 
         return src
 

@@ -43,10 +43,6 @@ class TestAstInfoClass:
         astinfo = AstInfo.lightcurves('656')
         assert astinfo[0]['period'] == 7.035 * u.h
 
-    def test_orbit(self):
-        astinfo = AstInfo.orbit('656')
-        assert astinfo['arc'] == 117.17 * u.yr
-
     def test_taxonomies(self):
         astinfo = AstInfo.taxonomies('656')
         assert astinfo[0]['taxonomy'] == 'C'
