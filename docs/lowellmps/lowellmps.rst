@@ -10,12 +10,15 @@ Overview
 
 The :class:`~astroquery.lowellmps.AstInfoClass` class provides
 an interface to the `Asteroid Information
-<https://asteroid.lowell.edu/astinfo/>`_ (AstInfo) tool provided as part of
+<https://asteroid.lowell.edu/astinfo/>`_ (AstInfo)
+tool provided as part of
 the Lowell Minor Planet Services which utilize the `astorbDB
-<https://scixplorer.org/abs/2022A&C....4100661M/abstract>`_ database maintained by
+<https://scixplorer.org/abs/2022A&C....4100661M/abstract>`_
+database maintained by
 `Lowell Observatory <https://lowell.edu/>`_.
-Information on all data sources used to populate the astorbDB database is available
-on `this web page <https://asteroid.lowell.edu/definitions/data-sources/>`_.
+Information on all data sources used to populate
+the astorbDB database is available on
+`this web page <https://asteroid.lowell.edu/definitions/data-sources/>`_.
 
 AstInfo provides detailed information on a specific known small body,
 including lists of alternate designations, orbit information, and
@@ -43,8 +46,8 @@ Albedo data
 -----------
 
 This query returns a list of dictionaries of albedo-related data and associated
-metadata for a specified object from different published sources, where citation information
-is provided as part of the query results.
+metadata for a specified object from different published sources, where
+citation information is provided as part of the query results.
 
 .. doctest-remote-data::
 
@@ -57,8 +60,8 @@ Color data
 ----------
 
 This query returns a list of dictionaries of color data and associated
-metadata for a specified object from different published sources, where citation information
-is provided as part of the query results.
+metadata for a specified object from different published sources, where
+citation information is provided as part of the query results.
 
 .. doctest-remote-data::
 
@@ -115,7 +118,8 @@ Escape route probabilities
 
 This query returns computed probabilities, where available, for a specified near-Earth
 object for different escape routes from the main asteroid belt.  These computations are based
-on the near-Earth object population model developed by `Granvik et al. (2018) <https://ui.adsabs.harvard.edu/abs/2018Icar..312..181G/abstract>`_.
+on the near-Earth object population model developed by `Granvik et al. (2018)
+<https://ui.adsabs.harvard.edu/abs/2018Icar..312..181G/abstract>`_.
 
 .. doctest-remote-data::
 
@@ -142,8 +146,8 @@ Taxonomy information
 --------------------
 
 This query returns a list of dictionaries containing taxonomic classifications, where
-available, for a specified object from different published sources, where citation information
-is provided as part of the query results.
+available, for a specified object from different published sources, where citation
+information is provided as part of the query results.
 
 .. doctest-remote-data::
 
