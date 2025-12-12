@@ -13,7 +13,6 @@ from .. import AstInfo, AstInfoClass
 DATA_FILES = {'Apophis':
               {'designations': 'apophis_desig.dat',
                'elements': 'apophis_elements.dat',
-               'orbit': 'apophis_orbit.dat',
                'albedos': 'apophis_albedos.dat',
                'colors': 'apophis_colors.dat',
                'taxonomies': 'apophis_taxonomies.dat',
@@ -24,7 +23,6 @@ DATA_FILES = {'Apophis':
               'Beagle':
               {'designations': 'beagle_desig.dat',
                'elements': 'beagle_elements.dat',
-               'orbit': 'beagle_orbit.dat',
                'albedos': 'beagle_albedos.dat',
                'colors': 'beagle_colors.dat',
                'taxonomies': 'beagle_taxonomies.dat',
@@ -35,7 +33,6 @@ DATA_FILES = {'Apophis':
               '3556':
               {'designations': 'lixiaohua_desig.dat',
                'elements': 'lixiaohua_elements.dat',
-               'orbit': 'lixiaohua_orbit.dat',
                'albedos': 'lixiaohua_albedos.dat',
                'colors': 'lixiaohua_colors.dat',
                'taxonomies': 'lixiaohua_taxonomies.dat',
@@ -46,7 +43,6 @@ DATA_FILES = {'Apophis':
               'Ceres':
               {'designations': 'ceres_missing_value_desig.dat',
                'elements': 'ceres_missing_value_elements.dat',
-               'orbit': 'ceres_missing_value_orbit.dat',
                'albedos': 'ceres_missing_value_albedos.dat',
                'colors': 'ceres_missing_value_colors.dat',
                'taxonomies': 'ceres_missing_value_taxonomies.dat',
@@ -91,11 +87,6 @@ LIGHTCURVES = {'Apophis': 30.56 * u.h,
                '3556': None,
                }
 
-ORBITS = {'Apophis': 18.068 * u.yr,
-          'Beagle': 116.943 * u.yr,
-          '3556': 59.856 * u.yr,
-          }
-
 TAXONOMIES = {'Apophis': 'Sq',
               'Beagle': 'C',
               '3556': None,
@@ -114,13 +105,13 @@ def nonremote_request(self, method_name, **kwargs):
 
     query_type = path_elements[-1]
 
-    if query_type in ['designations', 'elements', 'orbit']:
+    if query_type in ['designations', 'elements']:
         object_name = path_elements[-2]
     else:
         object_name = path_elements[-3]
 
     with open(data_path(DATA_FILES[object_name][query_type]), 'rb') as f:
-        if query_type in ['designations', 'elements', 'orbit']:
+        if query_type in ['designations', 'elements']:
             response = MockResponse(content=f.read(), url=self.URL + object_name + '/' + query_type)
         else:
             response = MockResponse(content=f.read(), url=self.URL + object_name + '/data/' + query_type)
@@ -177,11 +168,6 @@ def test_object_queries(patch_request):
             assert_quantity_allclose(astinfo[0]['period'],
                                      LIGHTCURVES[objectname])
 
-        astinfo = AstInfo.orbit(objectname)
-        if astinfo != []:
-            assert_quantity_allclose(astinfo['arc'],
-                                     ORBITS[objectname])
-
         astinfo = AstInfo.taxonomies(objectname)
         if astinfo != []:
             assert astinfo[0]['taxonomy'] == TAXONOMIES[objectname]
@@ -215,9 +201,6 @@ def test_missing_value(patch_request):
     astinfo = AstInfo.lightcurves('Ceres')
     assert astinfo[0]['period'] is None
 
-    astinfo = AstInfo.orbit('Ceres')
-    assert astinfo['ephname'] is None
-
     astinfo = AstInfo.taxonomies('Ceres')
     assert astinfo[0]['taxonomy'] is None
 
@@ -243,10 +226,6 @@ def test_quantities(patch_request):
     assert isinstance(astinfo[0]['period'], u.Quantity)
     assert astinfo[0]['period'].unit == u.h
 
-    astinfo = AstInfo.orbit('Beagle')
-    assert isinstance(astinfo['arc'], u.Quantity)
-    assert astinfo['arc'].unit == u.yr
-
 
 def test_urls(patch_request):
     """Make sure URL query request returns URLs"""
@@ -271,9 +250,6 @@ def test_urls(patch_request):
 
     astinfo = AstInfo.lightcurves('Beagle', get_uri=True)
     assert astinfo[0]['query_uri'] == 'https://asteroid.lowell.edu/api/asteroids/Beagle/data/lightcurves'
-
-    astinfo = AstInfo.orbit('Beagle', get_uri=True)
-    assert astinfo['query_uri'] == 'https://asteroid.lowell.edu/api/asteroids/Beagle/orbit'
 
     astinfo = AstInfo.taxonomies('Beagle', get_uri=True)
     assert astinfo[0]['query_uri'] == 'https://asteroid.lowell.edu/api/asteroids/Beagle/data/taxonomies'
