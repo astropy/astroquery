@@ -2,6 +2,7 @@
 """
 JPL Spectral Catalog
 --------------------
+
 """
 from astropy import config as _config
 

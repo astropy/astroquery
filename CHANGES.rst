@@ -61,7 +61,9 @@ mast
 jplspec
 ^^^^^^^
 
+- Refactored to use linelists.core.  Added new ``get_molecule`` method [#3456]
 - Moved to linelists/.  astroquery.jplspec is now deprecated in favor of astroquery.linelists.jplspec [#3455]
+
 
 linelists.jplspec
 ^^^^^^^^^^^^^^^^^
@@ -72,6 +74,12 @@ mpc
 ^^^
 
 - Fix bug in queries for interstellar objects with ``MPC.get_observations`` and enable queries for "dead" comets [#3474]
+
+linelists
+^^^^^^^^^
+
+- General tools for both CDMS/JPL moved to linelists.core [#3456]
+- Added jplspec, moved from its previous location (astroquery.jplspec to astroquery.linelists.jplspec) [#3455]
 
 xmatch
 ^^^^^^

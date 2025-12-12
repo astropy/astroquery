@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 JPL Spectral Catalog (Deprecated Location)
--------------------------------------------
+------------------------------------------
 
 .. deprecated:: 0.4.12
     The `astroquery.jplspec` module has been moved to `astroquery.linelists.jplspec`.
