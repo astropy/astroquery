@@ -120,7 +120,6 @@ This query returns computed probabilities, where available, for a specified near
 object for different escape routes from the main asteroid belt.  These computations are based
 on the `Granvik et al. (2018)
 <https://ui.adsabs.harvard.edu/abs/2018Icar..312..181G/abstract>`_ near-Earth object population model.
->>>>>>> cbe87034 (small formatting edits to lowellmps documentation)
 
 .. doctest-remote-data::
 
