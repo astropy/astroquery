@@ -118,8 +118,8 @@ Escape route probabilities
 
 This query returns computed probabilities, where available, for a specified near-Earth
 object for different escape routes from the main asteroid belt.  These computations are based
-on the near-Earth object population model developed by `Granvik et al. (2018)
-<https://ui.adsabs.harvard.edu/abs/2018Icar..312..181G/abstract>`_.
+on the `Granvik et al. (2018)
+<https://ui.adsabs.harvard.edu/abs/2018Icar..312..181G/abstract>`_ near-Earth object population model.
 
 .. doctest-remote-data::
 
