@@ -240,7 +240,8 @@ This service makes use of the `astorbDB
 database.
 
 The development of this submodule is funded through NASA PDART
-Grant No. 80NSSC18K0987 to the `sbpy project <https://sbpy.org>`_.
+Grant No. 80NSSC18K0987 to the
+`sbpy project <https://sbpy.org>`_.
 
 
 Reference/API
