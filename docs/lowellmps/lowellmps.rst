@@ -33,8 +33,8 @@ page.
 
 Because of its relevance to Solar System science, this service can
 also be accessed from the topical submodule
-`astroquery.solarsystem.lowellmps`. The functionality of that service
-is identical to the one presented here.
+`astroquery.solarsystem.lowellmps`. The functionality of that service is
+identical to the one presented here.
 
 Examples
 ========
