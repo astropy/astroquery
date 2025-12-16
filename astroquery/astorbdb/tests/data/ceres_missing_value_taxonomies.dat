@@ -1,0 +1,105 @@
+{
+  "identifier": "1",
+  "taxonomies": [
+    {
+      "citation_bibcode": "1989aste.conf.1139T",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/1989aste.conf.1139T",
+      "measurement_techniques": [
+        "Visible photometry"
+      ],
+      "modifier": "",
+      "survey_name": "Tholen (1989)",
+      "taxonomy": null,
+      "taxonomy_system": "Tholen_ECAS"
+    },
+    {
+      "citation_bibcode": "1987Icar...72..304B",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/1987Icar...72..304B",
+      "measurement_techniques": [
+        "Visible photometry",
+        "Mid IR photometry"
+      ],
+      "modifier": "",
+      "survey_name": "Barucci et al. (1987)",
+      "taxonomy": "G0",
+      "taxonomy_system": "Barucci_Gmode"
+    },
+    {
+      "citation_bibcode": "1989AJ.....97..580T",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/1989AJ.....97..580T",
+      "measurement_techniques": [
+        "Visible photometry",
+        "Mid IR photometry"
+      ],
+      "modifier": ":",
+      "survey_name": "Tedesco et al. (1989)",
+      "taxonomy": "G",
+      "taxonomy_system": "Tedesco_3parameter"
+    },
+    {
+      "citation_bibcode": "1994JGR....9910847H",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/1994JGR....9910847H",
+      "measurement_techniques": [
+        "Visible photometry",
+        "Near IR spectroscopy"
+      ],
+      "modifier": "",
+      "survey_name": "Howell et al. (1994)",
+      "taxonomy": "Cv",
+      "taxonomy_system": "Howell_Neural"
+    },
+    {
+      "citation_bibcode": "2002Icar..158..146B",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/2002Icar..158..146B",
+      "measurement_techniques": [
+        "Visible spectroscopy"
+      ],
+      "modifier": "",
+      "survey_name": "SMASSII",
+      "taxonomy": "C",
+      "taxonomy_system": "Bus_SMASSII"
+    },
+    {
+      "citation_bibcode": "2004Icar..172..179L",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/2004Icar..172..179L",
+      "measurement_techniques": [
+        "Visible spectroscopy"
+      ],
+      "modifier": "",
+      "survey_name": "Solar System Objects Spectroscopic Survey (S3OS2)",
+      "taxonomy": "C",
+      "taxonomy_system": "S3OS2_Tholen"
+    },
+    {
+      "citation_bibcode": "2004Icar..172..179L",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/2004Icar..172..179L",
+      "measurement_techniques": [
+        "Visible spectroscopy"
+      ],
+      "modifier": "",
+      "survey_name": "Solar System Objects Spectroscopic Survey (S3OS2)",
+      "taxonomy": "C",
+      "taxonomy_system": "Bus_SMASSII"
+    },
+    {
+      "citation_bibcode": "2009Icar..202..160D",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/2009Icar..202..160D",
+      "measurement_techniques": [
+        "Near IR spectroscopy"
+      ],
+      "modifier": "",
+      "survey_name": "DeMeo et al. (2009)",
+      "taxonomy": "C",
+      "taxonomy_system": "Bus-DeMeo"
+    },
+    {
+      "citation_bibcode": "2019Icar..324...41B",
+      "citation_url": "http://smass.mit.edu/minus.html",
+      "measurement_techniques": null,
+      "modifier": "",
+      "survey_name": "MITHNEOS",
+      "taxonomy": "C",
+      "taxonomy_system": "Bus-DeMeo"
+    }
+  ]
+}
