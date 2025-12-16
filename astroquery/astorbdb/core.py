@@ -12,7 +12,6 @@ from . import conf
 
 __all__ = ['AstInfo', 'AstInfoClass']
 
-
 @async_to_sync
 class AstInfoClass(BaseQuery):
 
@@ -707,6 +706,7 @@ class AstInfoClass(BaseQuery):
             src = src['taxonomies']
 
         return src
+
 
 AstInfo = AstInfoClass()
 
