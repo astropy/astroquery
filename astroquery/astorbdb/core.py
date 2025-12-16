@@ -86,7 +86,7 @@ class AstInfoClass(BaseQuery):
 
         Returns
         -------
-        res : A dictionary holding available designation data
+        res : A dictionary holding available color data
 
         Examples
         --------
@@ -302,7 +302,7 @@ class AstInfoClass(BaseQuery):
         ----------
         object_name : str
             name of the identifier to query.
-
+        
         Returns
         -------
         res : A dictionary holding available orbit data
@@ -713,6 +713,7 @@ class AstInfoClass(BaseQuery):
             src = src['taxonomies']
 
         return src
+
 
 AstInfo = AstInfoClass()
 
