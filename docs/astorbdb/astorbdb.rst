@@ -195,40 +195,6 @@ orbit intersection distance of the target with respect to Jupiter
    213726796.8838375 km
 
 
-Other Features
-==============
-
-Checking the original AstInfo output
-------------------------------------
-
-For all query types, the query URI (the URI is what you would put
-into the URL field of your web browser) that is used to request
-data from the Lowell Minor Planet Services server can be obtained
-after a query has been performed.
-
-For queries that return dictionaries,
-the query URI is assigned the keyword ``query_uri``.
-
-.. code-block:: python
-
-   >>> from astroquery.astorbdb import AstInfo
-   >>> designations = AstInfo.designations('656',get_uri=True)
-   >>> print(designations['query_uri'])   # doctest: +IGNORE_OUTPUT
-   https://asteroid.lowell.edu/api/asteroids/656/designations
-
-For queries that return lists of dictionaries, the query URI is
-assigned the keyword ``query_uri`` in the first dictionary in the
-list (or in a new dictionary if the list returned by the query is
-otherwise empty).
-
-.. code-block:: python
-
-   >>> from astroquery.astorbdb import AstInfo
-   >>> albedos = AstInfo.albedos('656',get_uri=True)
-   >>> print(albedos[0]['query_uri'])   # doctest: +IGNORE_OUTPUT
-   https://asteroid.lowell.edu/api/asteroids/656/data/albedos
-
-
 
 Acknowledgements
 ================
