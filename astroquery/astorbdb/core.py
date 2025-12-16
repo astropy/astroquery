@@ -12,6 +12,7 @@ from . import conf
 
 __all__ = ['AstInfo', 'AstInfoClass']
 
+
 @async_to_sync
 class AstInfoClass(BaseQuery):
 
@@ -516,6 +517,7 @@ class AstInfoClass(BaseQuery):
 
         else:
             raise ValueError('Query type not recognized.')
+
 
         # add query uri, if desired
         if self._uri is not None:
