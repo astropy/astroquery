@@ -21,10 +21,3 @@ submodule or directly from its top-level module.
   :maxdepth: 1
 
   ../../lowellmps/lowellmps.rst
-
-
-Reference/API
-=============
-
-.. automodapi:: astroquery.solarsystem.lowellmps
-    :no-inheritance-diagram:
