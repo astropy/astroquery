@@ -472,6 +472,7 @@ class AstInfoClass(BaseQuery):
         else:
             raise ValueError('Query type not recognized.')
 
+
         # add query uri, if desired
         if self._uri is not None:
             if self.query_type in ['designations', 'elements', 'all_astinfo']:
