@@ -25,7 +25,7 @@ class Conf(_config.ConfigNamespace):
 
     timeout = _config.ConfigItem(
         30,
-        'Time limit for connecting to astorbdb server.')
+        'Time limit for connecting to template_module server.')
 
 
 conf = Conf()

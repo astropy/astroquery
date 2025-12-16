@@ -273,7 +273,7 @@ def test_object_queries(patch_request):
         if astinfo != []:
             assert astinfo["primary_designation"] == DESIGS[objectname]
 
-        astinfo = AstInfo.dynamical_family(objectname)
+        astinfo = AstInfo.dynamicalfamily(objectname)
         if astinfo != []:
             assert astinfo[0]["family"] == DYNFAMILY[objectname]
 
@@ -282,7 +282,7 @@ def test_object_queries(patch_request):
             assert_quantity_allclose(astinfo["q"],
                                         ELEMENTS[objectname])
 
-        astinfo = AstInfo.escape_routes(objectname)
+        astinfo = AstInfo.escaperoutes(objectname)
         if astinfo != []:
             assert_quantity_allclose(astinfo[0]["p_nu6_complex"],
                                         ESCAPEROUTES[objectname])
@@ -315,13 +315,13 @@ def test_missing_value(patch_request):
     astinfo = AstInfo.designations("Ceres")
     assert astinfo['name'] is None
 
-    astinfo = AstInfo.dynamical_family("Ceres")
+    astinfo = AstInfo.dynamicalfamily("Ceres")
     assert astinfo is None
 
     astinfo = AstInfo.elements("Ceres")
     assert astinfo['a'] is None
 
-    astinfo = AstInfo.escape_routes("Ceres")
+    astinfo = AstInfo.escaperoutes("Ceres")
     assert astinfo is None
 
     astinfo = AstInfo.lightcurves("Ceres")
@@ -356,5 +356,5 @@ def test_quantities(patch_request):
     assert isinstance(astinfo[0]['period'], u.Quantity)
     assert astinfo[0]['period'].unit == u.h
 
-    astinfo = AstInfo.escape_routes("3200")
+    astinfo = AstInfo.escaperoutes("3200")
     assert isinstance(astinfo[0]['epoch'], Time)

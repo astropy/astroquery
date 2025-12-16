@@ -26,16 +26,16 @@ class TestAstInfoClass:
         astinfo = AstInfo.designations('656')
         assert astinfo['name'] == 'Beagle'
 
-    def test_dynamical_family(self):
-        astinfo = AstInfo.dynamical_family('656')
+    def test_dynamicalfamily(self):
+        astinfo = AstInfo.dynamicalfamily('656')
         assert astinfo[0]['family'] == 'Themis'
 
     def test_elements(self):
         astinfo = AstInfo.elements('656')
         assert astinfo['a'] == 3.156090767861024 * u.au
 
-    def test_escape_routes(self):
-        astinfo = AstInfo.escape_routes('3200')
+    def test_escaperoutes(self):
+        astinfo = AstInfo.escaperoutes('3200')
         assert astinfo[0]['p_nu6_complex'] == 0.64189
 
     def test_lightcurves(self):
