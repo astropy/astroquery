@@ -209,7 +209,7 @@ after a query has been performed.
 For queries that return dictionaries,
 the query URI is assigned the keyword ``query_uri``.
 
-.. doctest-remote-data::
+.. code-block:: python
 
    >>> from astroquery.astorbdb import AstInfo
    >>> designations = AstInfo.designations('656',get_uri=True)
@@ -221,7 +221,7 @@ assigned the keyword ``query_uri`` in the first dictionary in the
 list (or in a new dictionary if the list returned by the query is
 otherwise empty).
 
-.. doctest-remote-data::
+.. code-block:: python
 
    >>> from astroquery.astorbdb import AstInfo
    >>> albedos = AstInfo.albedos('656',get_uri=True)
