@@ -364,6 +364,7 @@ class AstInfoClass(BaseQuery):
         return response
 
     def lightcurves_async(self, object_name, *,
+                          get_raw_response=False,
                           get_uri=False,
                           cache=True):
         """
@@ -394,12 +395,16 @@ class AstInfoClass(BaseQuery):
                                  url=self.URL + object_name + '/data/lightcurves',
                                  timeout=self.TIMEOUT, cache=cache)
 
+        if get_raw_response:
+            self._return_raw = True
+
         if get_uri:
             self._uri = response.url
 
         return response
 
     def orbit_async(self, object_name, *,
+                    get_raw_response=False,
                     get_uri=False,
                     cache=True):
         """
@@ -421,7 +426,7 @@ class AstInfoClass(BaseQuery):
         >>> from astroquery.astorbdb import AstInfo
         >>> orbit = AstInfo.orbit('Beagle')  # doctest: +SKIP
         >>> print(orbit)  # doctest: +SKIP
-        {'a1con': <Quantity 0. AU / d2>, 'a2con': <Quantity 0. AU / d2>, ...}
+        OrderedDict({'a1con': <Quantity 0. AU / d2>, 'a2con': <Quantity 0. AU / d2>, ...})
         """
 
         self.query_type = 'orbit'
@@ -430,12 +435,16 @@ class AstInfoClass(BaseQuery):
                                  url=self.URL + object_name + '/orbit',
                                  timeout=self.TIMEOUT, cache=cache)
 
+        if get_raw_response:
+            self._return_raw = True
+
         if get_uri:
             self._uri = response.url
 
         return response
 
     def taxonomies_async(self, object_name, *,
+                         get_raw_response=False,
                          get_uri=False,
                          cache=True):
         """
@@ -466,6 +475,9 @@ class AstInfoClass(BaseQuery):
         response = self._request('GET',
                                  url=self.URL + object_name + '/data/taxonomies',
                                  timeout=self.TIMEOUT, cache=cache)
+
+        if get_raw_response:
+            self._return_raw = True
 
         if get_uri:
             self._uri = response.url
@@ -636,38 +648,6 @@ class AstInfoClass(BaseQuery):
                     src[0]['query_uri'] = self._uri
                 else:
                     src = [{'query_uri':self._uri}]
-
-        return src
-
-    def _process_data_albedos(self, src):
-        """
-        internal routine to process raw data in Dict format
-
-        """
-
-        if 'albedos' in src:
-            src = src['albedos']
-            for i in range(len(src)):
-                if src[i]['diameter'] is not None:
-                    src[i]['diameter'] = u.Quantity(src[i]['diameter'], u.km)
-                if src[i]['diameter_error_lower'] is not None:
-                    src[i]['diameter_error_lower'] = u.Quantity(src[i]['diameter_error_lower'], u.km)
-                if src[i]['diameter_error_upper'] is not None:
-                    src[i]['diameter_error_upper'] = u.Quantity(src[i]['diameter_error_upper'], u.km)
-
-        return src
-
-    def _process_data_colors(self, src):
-        """
-        internal routine to process raw data in Dict format
-
-        """
-
-        if 'colors' in src:
-            src = src['colors']
-            for i in range(len(src)):
-                if src[i]['jd'] is not None:
-                    src[i]['jd'] = Time(src[i]['jd'], format='jd', scale='utc')
 
         return src
 
