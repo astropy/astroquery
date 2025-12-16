@@ -2,9 +2,9 @@
 
 .. _astroquery.solarsystem.lowellmps:
 
-*************************************************************************
-Lowell Minor Planet Services Queries (`astroquery.solarsystem.lowellmps`)
-*************************************************************************
+************************************
+Lowell Minor Planet Services Queries
+************************************
 
 This submodule provides
 an interface to the `Asteroid Information
