@@ -11,7 +11,7 @@ Overview
 The :class:`~astroquery.astorbdb.AstInfoClass` class provides
 an interface to the `Asteroid Information
 <https://asteroid.lowell.edu/astinfo/>`_ (AstInfo) tool provided as part of
-the Lowell Minor Planet Services
+the `Lowell Minor Planet Services <https://https://asteroid.lowell.edu/>`_
 which utilize the astorbDB database maintained by
 `Lowell Observatory <https://lowell.edu/>`_.
 
