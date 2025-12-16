@@ -11,7 +11,6 @@ import astropy.units as u
 
 from .. import AstInfo
 
-
 @pytest.mark.remote_data
 class TestAstInfoClass:
 
