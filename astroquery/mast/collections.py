@@ -177,9 +177,9 @@ class CatalogsClass(MastQueryWithLogin):
         coordinates : str or `~astropy.coordinates` object, optional
             The target around which to search. It may be specified as a string (e.g., '350 -80') or as an
             Astropy coordinates object.
-        region : str | iterable | `~astropy.regions.Region`, optional
-            The region to search within. It may be specified as a string (e.g., 'circle(350 -80, 0.2d)') or as
-            an Astropy regions object.
+        region : str | iterable | `~astropy.regions.CircleSkyRegion` | `~astropy.regions.PolygonSkyRegion`, optional
+            The region to search within. It may be specified as a STC-S POLYGON or CIRCLE string (e.g., 'circle(350 -80, 0.2d)'), 
+            an iterable of coordinate pairs, or as an `~astropy.regions.CircleSkyRegion` or `~astropy.regions.PolygonSkyRegion`.
         objectname : str, optional
             The name of the object to resolve and search around.
         radius : str or `~astropy.units.Quantity` object, optional
@@ -330,9 +330,9 @@ class CatalogsClass(MastQueryWithLogin):
             Astropy coordinates object.
         radius : str or `~astropy.units.Quantity` object, optional
             The search radius around the target coordinates or object. Default 0.2 degrees.
-        region : str | iterable | `~astropy.regions.Region`, optional
-            The region to search within. It may be specified as a string (e.g., 'circle(350 -80, 0.2d)') or as
-            an Astropy regions object.
+        region : str | iterable | `~astropy.regions.CircleSkyRegion` | `~astropy.regions.PolygonSkyRegion`, optional
+            The region to search within. It may be specified as a STC-S POLYGON or CIRCLE string (e.g., 'circle(350 -80, 0.2d)'), 
+            an iterable of coordinate pairs, or as an `~astropy.regions.CircleSkyRegion` or `~astropy.regions.PolygonSkyRegion`.
         collection : str, optional
             The collection to be queried. If None, uses the instance's `collection` attribute.
         catalog : str, optional
@@ -620,7 +620,7 @@ class CatalogsClass(MastQueryWithLogin):
         region : str | iterable | astropy.regions.Region
             - Iterable of RA/Dec pairs as lists/sequences
             - STC-S POLYGON or CIRCLE string
-            - astropy region (PolygonSkyRegion, CircleSkyRegion, etc.)
+            - `~astropy.regions.CircleSkyRegion` or `~astropy.regions.PolygonSkyRegion`
 
         Returns
         -------
