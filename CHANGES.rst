@@ -58,6 +58,8 @@ mast
 
 - Separate requests for moving target cutouts in ``Tesscut`` to one per sector. [#3467]
 
+- Improved robustness of PanSTARRS column metadata parsing. This prevents metadata-related query errors. [#3485]
+
 jplspec
 ^^^^^^^
 
