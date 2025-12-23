@@ -1,0 +1,1955 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "tap_search",
+        "version": "0.1"
+    },
+    "servers": [
+        {
+            "url": "/vo-tap/api/v0.1"
+        }
+    ],
+    "paths": {
+        "/{catalog}/": {
+            "get": {
+                "tags": [
+                    "sync",
+                    "sync"
+                ],
+                "summary": "Taphandler.Get Site Page",
+                "description": "Returns the service query manager doc page",
+                "operationId": "TAPHandler_get_site_page__catalog___get",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog to view example queries for."
+                        },
+                        "description": "Catalog to view example queries for."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/{catalog}/sync": {
+            "get": {
+                "tags": [
+                    "sync",
+                    "sync"
+                ],
+                "summary": "Taphandler.Get",
+                "description": "VO TAP Search",
+                "operationId": "TAPHandler_get__catalog__sync_get",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "catalog to search"
+                        },
+                        "description": "catalog to search"
+                    },
+                    {
+                        "name": "lang",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/LangName",
+                            "description": "Query language to be used for this request"
+                        },
+                        "description": "Query language to be used for this request"
+                    },
+                    {
+                        "name": "responseformat",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/EncodingEnum",
+                            "description": "Content type of the response",
+                            "default": "votable"
+                        },
+                        "description": "Content type of the response"
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/EncodingEnum",
+                            "description": "Content type of the response",
+                            "default": "votable"
+                        },
+                        "description": "Content type of the response"
+                    },
+                    {
+                        "name": "query",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "Query to perform",
+                            "title": "Query"
+                        },
+                        "description": "Query to perform"
+                    },
+                    {
+                        "name": "maxrec",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "Maximum number of records to be returned (max 100k)",
+                            "default": 100000,
+                            "title": "Maxrec"
+                        },
+                        "description": "Maximum number of records to be returned (max 100k)"
+                    },
+                    {
+                        "name": "runid",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "maxLength": 64
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "RUNID for the request",
+                            "title": "Runid"
+                        },
+                        "description": "RUNID for the request"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "sync",
+                    "sync"
+                ],
+                "summary": "Taphandler.Post",
+                "description": "VO TAP Search (FORM)",
+                "operationId": "TAPHandler_post__catalog__sync_post",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "catalog to search"
+                        },
+                        "description": "catalog to search"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_TAPHandler_post__catalog__sync_post"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/{catalog}/examples": {
+            "get": {
+                "tags": [
+                    "sync",
+                    "sync"
+                ],
+                "summary": "Exampleshandler.Get",
+                "description": "Page displaying example TAP queries.\n\nThese example pages conform to the DALI-examples spec and are used to provide both human and machine-readable\nexample queries to the user.\n\nhttps://www.ivoa.net/documents/DALI/20170517/REC-DALI-1.1.html#tth_sEc2.3\n\nDuring automated testing, the queries on this page are stripped from the XHTML and used as test queries.\nThe XHTML element tags of the queries are specific to this testing/spec and should not be changed without\nconsulting the above specification, then also changing the necessary tests.",
+                "operationId": "ExamplesHandler_get__catalog__examples_get",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog to view example queries for."
+                        },
+                        "description": "Catalog to view example queries for."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/{catalog}/tables": {
+            "get": {
+                "tags": [
+                    "vosi",
+                    "vosi"
+                ],
+                "summary": "Vositableshandler.Get All Tables",
+                "description": "Return information on all available tables.",
+                "operationId": "VOSITablesHandler_get_all_tables__catalog__tables_get",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog to view VOSI table info for."
+                        },
+                        "description": "Catalog to view VOSI table info for."
+                    },
+                    {
+                        "name": "detail",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Amount of table detail to return.",
+                            "default": "min",
+                            "title": "Detail"
+                        },
+                        "description": "Amount of table detail to return."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/{catalog}/tables/{table}": {
+            "get": {
+                "tags": [
+                    "vosi",
+                    "vosi"
+                ],
+                "summary": "Vositableshandler.Get Table",
+                "description": "Return information for a specific table.",
+                "operationId": "VOSITablesHandler_get_table__catalog__tables__table__get",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog to view VOSI table info for."
+                        },
+                        "description": "Catalog to view VOSI table info for."
+                    },
+                    {
+                        "name": "table",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "The specific table to view info for.",
+                            "title": "Table"
+                        },
+                        "description": "The specific table to view info for."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/{catalog}/availability": {
+            "get": {
+                "tags": [
+                    "vosi",
+                    "vosi"
+                ],
+                "summary": "Vosiavailabilityhandler.Get Availability",
+                "description": "Availability metadata defined in the VOSI 1.1 spec at:\nhttps://www.ivoa.net/documents/VOSI/20170524/REC-VOSI-1.1.html#tth_sEc3.2",
+                "operationId": "VOSIAvailabilityHandler_get_availability__catalog__availability_get",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog to view VOSI availability info for."
+                        },
+                        "description": "Catalog to view VOSI availability info for."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/{catalog}/capabilities": {
+            "get": {
+                "tags": [
+                    "vosi",
+                    "vosi"
+                ],
+                "summary": "Vosicapabilitieshandler.Get Capabilities",
+                "description": "TAP specific capability metadata as described in the service VOResource",
+                "operationId": "VOSICapabilitiesHandler_get_capabilities__catalog__capabilities_get",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "description": "Catalog to view VOSI capability info for.",
+                            "title": "Catalog"
+                        },
+                        "description": "Catalog to view VOSI capability info for."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/{catalog}/async": {
+            "get": {
+                "tags": [
+                    "async",
+                    "async"
+                ],
+                "summary": "Tapasynchandler.Get Async",
+                "description": "Returns Jobs list per UWS spec\nhttps://www.ivoa.net/documents/UWS/20161024/REC-UWS-1.1-20161024.html#RESTbinding",
+                "operationId": "TAPAsyncHandler_get_async__catalog__async_get",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog to view example queries for."
+                        },
+                        "description": "Catalog to view example queries for."
+                    },
+                    {
+                        "name": "phase",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ExecutionPhase"
+                                    }
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "The current execution phase to filter jobs by.",
+                            "title": "Phase"
+                        },
+                        "description": "The current execution phase to filter jobs by."
+                    },
+                    {
+                        "name": "after",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Return jobs with creation times after the given date.",
+                            "title": "After"
+                        },
+                        "description": "Return jobs with creation times after the given date."
+                    },
+                    {
+                        "name": "last",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Return the given number of most recently created jobs.",
+                            "title": "Last"
+                        },
+                        "description": "Return the given number of most recently created jobs."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "async",
+                    "async"
+                ],
+                "summary": "Tapasynchandler.Post",
+                "description": "VO TAP Search, asynchronous job setup via form",
+                "operationId": "TAPAsyncHandler_post__catalog__async_post",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog to query."
+                        },
+                        "description": "Catalog to query."
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_TAPAsyncHandler_post__catalog__async_post"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/{catalog}/async/{job_id}/results/result": {
+            "get": {
+                "tags": [
+                    "async",
+                    "async"
+                ],
+                "summary": "Tapasynchandler.Get Job Results",
+                "description": "Returns job results if existent, per UWS spec\nhttps://www.ivoa.net/documents/UWS/20161024/REC-UWS-1.1-20161024.html#RESTbinding",
+                "operationId": "TAPAsyncHandler_get_job_results__catalog__async__job_id__results_result_get",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog for querying"
+                        },
+                        "description": "Catalog for querying"
+                    },
+                    {
+                        "name": "job_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "description": "Server-assigned job ID for the request",
+                            "title": "Job Id"
+                        },
+                        "description": "Server-assigned job ID for the request"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/{catalog}/async/{job_id}/results": {
+            "get": {
+                "tags": [
+                    "async",
+                    "async"
+                ],
+                "summary": "Tapasynchandler.Get Job Info Detail Results",
+                "description": "Return job details per UWS spec\nhttps://www.ivoa.net/documents/UWS/20161024/REC-UWS-1.1-20161024.html#RESTbinding",
+                "operationId": "TAPAsyncHandler_get_job_info_detail_results__catalog__async__job_id__results_get",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog for querying"
+                        },
+                        "description": "Catalog for querying"
+                    },
+                    {
+                        "name": "job_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "description": "Server-assigned job ID for the request",
+                            "title": "Job Id"
+                        },
+                        "description": "Server-assigned job ID for the request"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/{catalog}/async/{job_id}/error": {
+            "get": {
+                "tags": [
+                    "async",
+                    "async"
+                ],
+                "summary": "Tapasynchandler.Get Job Info Detail Error",
+                "description": "Return job details per UWS spec\nhttps://www.ivoa.net/documents/UWS/20161024/REC-UWS-1.1-20161024.html#RESTbinding\nIn case of a valid job with no errors, an empty 200 OK response is returned.\n\nFor a TAP service, the response should match the requested format, if specified.\nhttps://www.ivoa.net/documents/TAP/20190927/REC-TAP-1.1.html#tth_sEc3.3",
+                "operationId": "TAPAsyncHandler_get_job_info_detail_error__catalog__async__job_id__error_get",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog for querying"
+                        },
+                        "description": "Catalog for querying"
+                    },
+                    {
+                        "name": "job_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "description": "Server-assigned job ID for the request",
+                            "title": "Job Id"
+                        },
+                        "description": "Server-assigned job ID for the request"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/{catalog}/async/{job_id}/phase": {
+            "get": {
+                "tags": [
+                    "async",
+                    "async"
+                ],
+                "summary": "Tapasynchandler.Get Job Info Detail Phase",
+                "description": "Return job details per UWS spec\nhttps://www.ivoa.net/documents/UWS/20161024/REC-UWS-1.1-20161024.html#RESTbinding",
+                "operationId": "TAPAsyncHandler_get_job_info_detail_phase__catalog__async__job_id__phase_get",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog for querying"
+                        },
+                        "description": "Catalog for querying"
+                    },
+                    {
+                        "name": "job_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "description": "Server-assigned job ID for the request",
+                            "title": "Job Id"
+                        },
+                        "description": "Server-assigned job ID for the request"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "async",
+                    "async"
+                ],
+                "summary": "Tapasynchandler.Post Update Job Phase",
+                "description": "Job control for existing jobs via POST per UWS spec\nhttps://www.ivoa.net/documents/UWS/20161024/REC-UWS-1.1-20161024.html#RESTbinding",
+                "operationId": "TAPAsyncHandler_post_update_job_phase__catalog__async__job_id__phase_post",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog associated with this job."
+                        },
+                        "description": "Catalog associated with this job."
+                    },
+                    {
+                        "name": "job_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "description": "Server-assigned job ID for the request",
+                            "title": "Job Id"
+                        },
+                        "description": "Server-assigned job ID for the request"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_TAPAsyncHandler_post_update_job_phase__catalog__async__job_id__phase_post"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/{catalog}/async/{job_id}/executionduration": {
+            "get": {
+                "tags": [
+                    "async",
+                    "async"
+                ],
+                "summary": "Tapasynchandler.Get Job Info Detail Executionduration",
+                "description": "Execution Duration is a potentially client-negotiated timeout value in seconds.\nIf it is not explicitly set by the client, a server default is used.\nReturn job details per UWS spec\nhttps://www.ivoa.net/documents/UWS/20161024/REC-UWS-1.1-20161024.html#RESTbinding",
+                "operationId": "TAPAsyncHandler_get_job_info_detail_executionduration__catalog__async__job_id__executionduration_get",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog for querying"
+                        },
+                        "description": "Catalog for querying"
+                    },
+                    {
+                        "name": "job_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "description": "Server-assigned job ID for the request",
+                            "title": "Job Id"
+                        },
+                        "description": "Server-assigned job ID for the request"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "async",
+                    "async"
+                ],
+                "summary": "Tapasynchandler.Post Update Job Execution Duration",
+                "description": "Updates job execution timeout, in seconds.\nOnly has an effect before the job is set to Phase RUN.\nNot supported on all catalogs. Limited by a server side max.\nJob control for existing jobs via POST per UWS spec\nhttps://www.ivoa.net/documents/UWS/20161024/REC-UWS-1.1-20161024.html#RESTbinding",
+                "operationId": "TAPAsyncHandler_post_update_job_execution_duration__catalog__async__job_id__executionduration_post",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog associated with this job."
+                        },
+                        "description": "Catalog associated with this job."
+                    },
+                    {
+                        "name": "job_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "description": "Server-assigned job ID for the request",
+                            "title": "Job Id"
+                        },
+                        "description": "Server-assigned job ID for the request"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_TAPAsyncHandler_post_update_job_execution_duration__catalog__async__job_id__executionduration_post"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/{catalog}/async/{job_id}/destruction": {
+            "get": {
+                "tags": [
+                    "async",
+                    "async"
+                ],
+                "summary": "Tapasynchandler.Get Job Info Detail Destruction",
+                "description": "Return job details per UWS spec\nhttps://www.ivoa.net/documents/UWS/20161024/REC-UWS-1.1-20161024.html#RESTbinding",
+                "operationId": "TAPAsyncHandler_get_job_info_detail_destruction__catalog__async__job_id__destruction_get",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog for querying"
+                        },
+                        "description": "Catalog for querying"
+                    },
+                    {
+                        "name": "job_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "description": "Server-assigned job ID for the request",
+                            "title": "Job Id"
+                        },
+                        "description": "Server-assigned job ID for the request"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "async",
+                    "async"
+                ],
+                "summary": "Tapasynchandler.Post Update Job Destruction",
+                "description": "Job control for existing jobs via POST per UWS spec:\nhttps://www.ivoa.net/documents/UWS/20161024/REC-UWS-1.1-20161024.html#DestructionTime\nThe service may forbid changes, or may set limits on the allowed destruction time.\nDestruction datetime is expected in ISO 8601 UTC format with Z for UTC times:\nhttps://www.ivoa.net/documents/VOResource/20180625/REC-VOResource-1.1.html#tth_sEc2.2.4",
+                "operationId": "TAPAsyncHandler_post_update_job_destruction__catalog__async__job_id__destruction_post",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog to view example queries for."
+                        },
+                        "description": "Catalog to view example queries for."
+                    },
+                    {
+                        "name": "job_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "description": "Server-assigned job ID for the request",
+                            "title": "Job Id"
+                        },
+                        "description": "Server-assigned job ID for the request"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_TAPAsyncHandler_post_update_job_destruction__catalog__async__job_id__destruction_post"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/{catalog}/async/{job_id}/quote": {
+            "get": {
+                "tags": [
+                    "async",
+                    "async"
+                ],
+                "summary": "Tapasynchandler.Get Job Info Detail Quote",
+                "description": "Job completion time estimate quote not provided by this service, returns empty value.\nReturn job details per UWS spec\nhttps://www.ivoa.net/documents/UWS/20161024/REC-UWS-1.1-20161024.html#RESTbinding",
+                "operationId": "TAPAsyncHandler_get_job_info_detail_quote__catalog__async__job_id__quote_get",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog for querying"
+                        },
+                        "description": "Catalog for querying"
+                    },
+                    {
+                        "name": "job_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "description": "Server-assigned job ID for the request",
+                            "title": "Job Id"
+                        },
+                        "description": "Server-assigned job ID for the request"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/{catalog}/async/{job_id}/parameters": {
+            "get": {
+                "tags": [
+                    "async",
+                    "async"
+                ],
+                "summary": "Tapasynchandler.Get Job Info Detail Parameters",
+                "description": "Return job details per UWS spec\nhttps://www.ivoa.net/documents/UWS/20161024/REC-UWS-1.1-20161024.html#RESTbinding",
+                "operationId": "TAPAsyncHandler_get_job_info_detail_parameters__catalog__async__job_id__parameters_get",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog for querying"
+                        },
+                        "description": "Catalog for querying"
+                    },
+                    {
+                        "name": "job_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "description": "Server-assigned job ID for the request",
+                            "title": "Job Id"
+                        },
+                        "description": "Server-assigned job ID for the request"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "async",
+                    "async"
+                ],
+                "summary": "Tapasynchandler.Update Job Info Parameters",
+                "description": "Update job parameters by submitting a POST of key-value pairs.",
+                "operationId": "TAPAsyncHandler_update_job_info_parameters__catalog__async__job_id__parameters_post",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog for querying"
+                        },
+                        "description": "Catalog for querying"
+                    },
+                    {
+                        "name": "job_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "description": "Server-assigned job ID for the request",
+                            "title": "Job Id"
+                        },
+                        "description": "Server-assigned job ID for the request"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_TAPAsyncHandler_update_job_info_parameters__catalog__async__job_id__parameters_post"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/{catalog}/async/{job_id}/owner": {
+            "get": {
+                "tags": [
+                    "async",
+                    "async"
+                ],
+                "summary": "Tapasynchandler.Get Job Info Detail Owner",
+                "description": "Return job details per UWS spec\nhttps://www.ivoa.net/documents/UWS/20161024/REC-UWS-1.1-20161024.html#RESTbinding",
+                "operationId": "TAPAsyncHandler_get_job_info_detail_owner__catalog__async__job_id__owner_get",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog for querying."
+                        },
+                        "description": "Catalog for querying."
+                    },
+                    {
+                        "name": "job_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "description": "Server-assigned job ID for the request",
+                            "title": "Job Id"
+                        },
+                        "description": "Server-assigned job ID for the request"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/{catalog}/async/{job_id}": {
+            "get": {
+                "tags": [
+                    "async",
+                    "async"
+                ],
+                "summary": "Tapasynchandler.Get Job Info",
+                "description": "Returns specific Job info per UWS spec\nhttps://www.ivoa.net/documents/UWS/20161024/REC-UWS-1.1-20161024.html#RESTbinding",
+                "operationId": "TAPAsyncHandler_get_job_info__catalog__async__job_id__get",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog to view example queries for."
+                        },
+                        "description": "Catalog to view example queries for."
+                    },
+                    {
+                        "name": "job_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "description": "Server-assigned job ID for the request",
+                            "title": "Job Id"
+                        },
+                        "description": "Server-assigned job ID for the request"
+                    },
+                    {
+                        "name": "wait",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "integer"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Maximum time in seconds to block until a job status change",
+                            "title": "Wait"
+                        },
+                        "description": "Maximum time in seconds to block until a job status change"
+                    },
+                    {
+                        "name": "phase",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/ExecutionPhase"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "For blocking behavior, can supply the current execution phase to monitor for changes",
+                            "title": "Phase"
+                        },
+                        "description": "For blocking behavior, can supply the current execution phase to monitor for changes"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "async",
+                    "async"
+                ],
+                "summary": "Tapasynchandler.Post Update Job Info",
+                "description": "Job control for existing jobs via POST per UWS spec\nhttps://www.ivoa.net/documents/UWS/20161024/REC-UWS-1.1-20161024.html#RESTbinding",
+                "operationId": "TAPAsyncHandler_post_update_job_info__catalog__async__job_id__post",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog to view example queries for."
+                        },
+                        "description": "Catalog to view example queries for."
+                    },
+                    {
+                        "name": "job_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "description": "Server-assigned job ID for the request",
+                            "title": "Job Id"
+                        },
+                        "description": "Server-assigned job ID for the request"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_TAPAsyncHandler_post_update_job_info__catalog__async__job_id__post"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "async",
+                    "async"
+                ],
+                "summary": "Tapasynchandler.Delete Job Route",
+                "description": "Deletes specific Job info per UWS spec. Cancels if running. Note the /jobs path for TAP is just /async\nPer https://www.ivoa.net/documents/UWS/20161024/REC-UWS-1.1-20161024.html#d1e1390:\nSending a HTTP DELETE to a Job resource destroys that job, with the meaning noted in the definition\nof the Job object, above. No other resource of the UWS may be directly deleted by the client.\nThe response to this request must have code 303 \u201cSee other\u201d and the Location header of the response\nmust point to the Job List at the /{jobs} URI.",
+                "operationId": "TAPAsyncHandler_delete_job_route__catalog__async__job_id__delete",
+                "parameters": [
+                    {
+                        "name": "catalog",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/CatalogName",
+                            "description": "Catalog to view example queries for."
+                        },
+                        "description": "Catalog to view example queries for."
+                    },
+                    {
+                        "name": "job_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "description": "Server-assigned job ID for the request",
+                            "title": "Job Id"
+                        },
+                        "description": "Server-assigned job ID for the request"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Body_TAPAsyncHandler_post__catalog__async_post": {
+                "properties": {
+                    "lang": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/LangName"
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ],
+                        "title": "Lang",
+                        "description": "Query language to be used for this request",
+                        "default": "ADQL"
+                    },
+                    "responseformat": {
+                        "$ref": "#/components/schemas/EncodingEnum",
+                        "description": "Content type of the response",
+                        "default": "votable"
+                    },
+                    "param_format": {
+                        "$ref": "#/components/schemas/EncodingEnum",
+                        "description": "Content type of the response",
+                        "default": "votable"
+                    },
+                    "query": {
+                        "type": "string",
+                        "title": "Query",
+                        "description": "Query to perform",
+                        "default": ""
+                    },
+                    "maxrec": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Maxrec",
+                        "description": "Maximum number of records to be returned (max 100k)",
+                        "default": 100000
+                    },
+                    "runid": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 64
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Runid",
+                        "description": "RUNID for the request",
+                        "default": ""
+                    },
+                    "phase": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "enum": [
+                                    "RUN"
+                                ],
+                                "const": "RUN"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Phase",
+                        "description": "Execution Phase (set to RUN for autorun)"
+                    }
+                },
+                "type": "object",
+                "title": "Body_TAPAsyncHandler_post__catalog__async_post"
+            },
+            "Body_TAPAsyncHandler_post_update_job_destruction__catalog__async__job_id__destruction_post": {
+                "properties": {
+                    "destruction": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Destruction",
+                        "description": "ISO 8601 UTC datetime for proposed job destruction"
+                    }
+                },
+                "type": "object",
+                "title": "Body_TAPAsyncHandler_post_update_job_destruction__catalog__async__job_id__destruction_post"
+            },
+            "Body_TAPAsyncHandler_post_update_job_execution_duration__catalog__async__job_id__executionduration_post": {
+                "properties": {
+                    "execution_duration": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Execution Duration",
+                        "description": "Requested execution duration in seconds",
+                        "default": 600
+                    }
+                },
+                "type": "object",
+                "title": "Body_TAPAsyncHandler_post_update_job_execution_duration__catalog__async__job_id__executionduration_post"
+            },
+            "Body_TAPAsyncHandler_post_update_job_info__catalog__async__job_id__post": {
+                "properties": {
+                    "phase": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PhaseAction"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "Execution Phase"
+                    },
+                    "destruction": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Destruction",
+                        "description": "ISO 8601 UTC datetime for proposed job destruction"
+                    },
+                    "action": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Action",
+                        "description": "Action to apply to job: Only DELETE supported."
+                    }
+                },
+                "type": "object",
+                "title": "Body_TAPAsyncHandler_post_update_job_info__catalog__async__job_id__post"
+            },
+            "Body_TAPAsyncHandler_post_update_job_phase__catalog__async__job_id__phase_post": {
+                "properties": {
+                    "phase": {
+                        "$ref": "#/components/schemas/PhaseAction",
+                        "description": "Execution Phase"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "phase"
+                ],
+                "title": "Body_TAPAsyncHandler_post_update_job_phase__catalog__async__job_id__phase_post"
+            },
+            "Body_TAPAsyncHandler_update_job_info_parameters__catalog__async__job_id__parameters_post": {
+                "properties": {
+                    "query": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Query",
+                        "description": "Query to be executed"
+                    },
+                    "lang": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/LangName"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "Query langauge to be used."
+                    },
+                    "responseformat": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/EncodingEnum"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "Content type of the response"
+                    },
+                    "param_format": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/EncodingEnum"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "Content type of the response"
+                    },
+                    "maxrec": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Maxrec",
+                        "description": "Maximum number of records to return"
+                    },
+                    "runid": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Runid",
+                        "description": "Run ID to be used"
+                    }
+                },
+                "type": "object",
+                "title": "Body_TAPAsyncHandler_update_job_info_parameters__catalog__async__job_id__parameters_post"
+            },
+            "Body_TAPHandler_post__catalog__sync_post": {
+                "properties": {
+                    "lang": {
+                        "$ref": "#/components/schemas/LangName",
+                        "description": "Query language to be used for this request"
+                    },
+                    "responseformat": {
+                        "$ref": "#/components/schemas/EncodingEnum",
+                        "description": "Content type of the response",
+                        "default": "votable"
+                    },
+                    "param_format": {
+                        "$ref": "#/components/schemas/EncodingEnum",
+                        "description": "Content type of the response",
+                        "default": "votable"
+                    },
+                    "query": {
+                        "type": "string",
+                        "title": "Query",
+                        "description": "Query to perform"
+                    },
+                    "maxrec": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Maxrec",
+                        "description": "Maximum number of records to be returned (max 100k)",
+                        "default": 100000
+                    },
+                    "runid": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 64
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Runid",
+                        "description": "RUNID for the request"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "lang",
+                    "query"
+                ],
+                "title": "Body_TAPHandler_post__catalog__sync_post"
+            },
+            "CatalogName": {
+                "type": "string",
+                "enum": [
+                    "caom",
+                    "classy",
+                    "gaiadr3",
+                    "greenplum",
+                    "hsc",
+                    "hscv2",
+                    "missionmast",
+                    "ps1dr1",
+                    "ps1dr2",
+                    "ps1_dr2",
+                    "registry",
+                    "roman",
+                    "romanspectra",
+                    "skymapperdr4",
+                    "tic",
+                    "ullyses",
+                    "goods",
+                    "candels",
+                    "3dhst",
+                    "deepspace"
+                ],
+                "title": "CatalogName"
+            },
+            "EncodingEnum": {
+                "type": "string",
+                "enum": [
+                    "json",
+                    "csv",
+                    "xml",
+                    "votable"
+                ],
+                "title": "EncodingEnum",
+                "description": "Enumeration class for the format_param (format) query param"
+            },
+            "ExecutionPhase": {
+                "type": "string",
+                "enum": [
+                    "PENDING",
+                    "QUEUED",
+                    "EXECUTING",
+                    "COMPLETED",
+                    "ERROR",
+                    "UNKNOWN",
+                    "HELD",
+                    "SUSPENDED",
+                    "ABORTED",
+                    "ARCHIVED"
+                ],
+                "title": "ExecutionPhase",
+                "description": "Enumeration of possible phases of job execution."
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "LangName": {
+                "type": "string",
+                "enum": [
+                    "ADQL",
+                    "ADQL-2.0"
+                ],
+                "title": "LangName",
+                "description": "Enum for language names as param"
+            },
+            "PhaseAction": {
+                "type": "string",
+                "enum": [
+                    "ABORT",
+                    "RUN"
+                ],
+                "title": "PhaseAction",
+                "description": "Enum for async job phase requests"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}
