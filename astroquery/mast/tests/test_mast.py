@@ -4,25 +4,47 @@ import json
 import os
 import re
 import warnings
+from pathlib import Path
 from shutil import copyfile
 from unittest.mock import MagicMock, patch
-from pathlib import Path
 
 import astropy.units as u
-import pytest
 import numpy as np
-from astropy.table import Table, unique
+import pytest
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
+from astropy.table import Table, unique
 from astropy.utils.exceptions import AstropyDeprecationWarning
+from pyvo.dal import TAPResults
+from pyvo.dal.exceptions import DALQueryError
+from pyvo.io.vosi import parse_capabilities
 from requests import HTTPError, Response
 
-from astroquery.mast import (Catalogs, MastMissions, Observations, Tesscut, Zcut, Mast, utils, services,
-                             discovery_portal, auth, core, cloud)
+from astroquery.exceptions import (
+    BlankResponseWarning,
+    InputWarning,
+    InvalidQueryError,
+    MaxResultsWarning,
+    NoResultsWarning,
+    RemoteServiceError,
+    ResolverError,
+)
+from astroquery.mast import (
+    Catalogs,
+    Mast,
+    MastMissions,
+    Observations,
+    Tesscut,
+    Zcut,
+    auth,
+    cloud,
+    core,
+    discovery_portal,
+    services,
+    utils,
+)
 from astroquery.mast.cloud import CloudAccess
 from astroquery.utils.mocks import MockResponse
-from astroquery.exceptions import (BlankResponseWarning, InvalidQueryError, InputWarning, MaxResultsWarning,
-                                   NoResultsWarning, RemoteServiceError, ResolverError)
 
 try:
     # Optional dependency import for cloud access functionality
@@ -61,6 +83,11 @@ DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'get_cloud_paths': 'mast_relative_path.json',
               'panstarrs': 'panstarrs.json',
               'panstarrs_columns': 'panstarrs_columns.json',
+              'tap_collections': 'tap_collections.json',  # Collections available
+              'tap_catalogs': 'tap_catalogs.vot',  # Catalogs for TIC
+              'tap_columns': 'tap_columns.vot',  # Column metadata
+              'tap_capabilities': 'tap_capabilities.xml',  # TAP service capabilities
+              'tap_results': 'tap_results.vot',  # Results of a TAP query
               'tess_cutout': 'astrocut_107.27_-70.0_5x5.zip',
               'tess_sector': 'tess_sector.json',
               'z_cutout_fit': 'astrocut_189.49206_62.20615_100x100px_f.zip',
@@ -81,6 +108,10 @@ def patch_post(request):
     mp.setattr(discovery_portal.PortalAPI, '_request', post_mockreturn)
     mp.setattr(services.ServiceAPI, '_request', service_mockreturn)
     mp.setattr(auth.MastAuth, 'session_info', session_info_mockreturn)
+    mp.setattr(
+        'astroquery.mast.catalog_collection.TAPService',
+        lambda *args, **kwargs: vo_tap_mock()
+    )
 
     mp.setattr(Tesscut, '_download_file', tesscut_download_mockreturn)
     mp.setattr(Zcut, '_download_file', zcut_download_mockreturn)
@@ -178,6 +209,8 @@ def request_mockreturn(url, params={}):
         filename = data_path(DATA_FILES['panstarrs_columns'])
     elif 'path_lookup' in url:
         filename = data_path(DATA_FILES['get_cloud_paths'])
+    elif 'vo-tap' in url:
+        filename = data_path(DATA_FILES['tap_collections'])
     with open(filename, 'rb') as infile:
         content = infile.read()
     return MockResponse(content)
@@ -236,12 +269,43 @@ def zcut_download_mockreturn(url, file_path):
     return
 
 
+def vo_tap_mock():
+    def run_sync_mock(query, **kwargs):
+        print(query)
+        if 'invalid' in query:
+            # Use this when wanting to simulate a DALQueryError
+            # Where it occurs will depend on where you pass it (collection, catalog, parameter, etc.)
+            raise DALQueryError('Simulated TAP query error for testing.')
+        elif 'tap_schema.tables' in query:
+            # Queries to get catalogs
+            filename = data_path(DATA_FILES['tap_catalogs'])
+        elif 'tap_schema.columns' in query:
+            # Queries to get column metadata
+            filename = data_path(DATA_FILES['tap_columns'])
+        elif 'WHERE' in query:
+            # Queries with results, keep in mind this is not meaninful and results won't match the query
+            filename = data_path(DATA_FILES['tap_results'])
+        votable = parse(filename)
+        return TAPResults(votable)
+
+    # Mock TAPService
+    mock_tap = MagicMock()
+    mock_tap.run_sync.side_effect = run_sync_mock
+
+    # Capabilities -> Not much to do here
+    filename = data_path(DATA_FILES['tap_capabilities'])
+    with open(filename, "rb") as f:
+        caps = parse_capabilities(f)
+    mock_tap.capabilities = caps
+
+    return mock_tap
+
 ###########################
 # MissionSearchClass Test #
 ###########################
 
 
-def test_missions_query_region_async():
+def test_missions_query_region_async(patch_post):
     responses = MastMissions.query_region_async(regionCoords, radius=0.002, sci_pi_last_name='GORDON')
     assert isinstance(responses, MockResponse)
 
