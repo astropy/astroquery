@@ -174,7 +174,7 @@ class CatalogCollection:
         """
         log.debug(f"Running TAP query on collection '{self.name}': {adql}")
         try:
-            result = self.tap_service.search(adql)
+            result = self.tap_service.run_sync(adql)
         except DALQueryError as e:
             raise InvalidQueryError(f"TAP query failed for collection '{self.name}': {e}")
         return result.to_table()

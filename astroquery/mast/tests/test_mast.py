@@ -18,6 +18,9 @@ from astropy.coordinates import SkyCoord
 from astropy.io import fits
 from astropy.table import Table, unique
 from astropy.utils.exceptions import AstropyDeprecationWarning
+from pyvo.dal import TAPResults
+from pyvo.dal.exceptions import DALQueryError
+from pyvo.io.vosi import parse_capabilities
 from requests import HTTPError, Response
 
 from astroquery.exceptions import (AuthenticationWarning, BlankResponseWarning, InputWarning, InvalidQueryError,
@@ -84,6 +87,11 @@ DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'get_cloud_paths': 'mast_relative_path.json',
               'panstarrs': 'panstarrs.json',
               'panstarrs_columns': 'panstarrs_columns.json',
+              'tap_collections': 'tap_collections.json',  # Collections available
+              'tap_catalogs': 'tap_catalogs.vot',  # Catalogs for TIC
+              'tap_columns': 'tap_columns.vot',  # Column metadata
+              'tap_capabilities': 'tap_capabilities.xml',  # TAP service capabilities
+              'tap_results': 'tap_results.vot',  # Results of a TAP query
               'tess_cutout': 'astrocut_107.27_-70.0_5x5.zip',
               'tess_sector': 'tess_sector.json',
               'z_cutout_fit': 'astrocut_189.49206_62.20615_100x100px_f.zip',
@@ -213,6 +221,8 @@ def request_mockreturn(url, params={}, headers=None, allow_redirects=False):
         response = MagicMock()
         response.headers = {'Location': redirect_url}
         return response
+    elif 'vo-tap' in url:
+        filename = data_path(DATA_FILES['tap_collections'])
     with open(filename, 'rb') as infile:
         content = infile.read()
     return MockResponse(content)
@@ -271,12 +281,43 @@ def zcut_download_mockreturn(url, file_path):
     return
 
 
+def vo_tap_mock():
+    def run_sync_mock(query, **kwargs):
+        print(query)
+        if 'invalid' in query:
+            # Use this when wanting to simulate a DALQueryError
+            # Where it occurs will depend on where you pass it (collection, catalog, parameter, etc.)
+            raise DALQueryError('Simulated TAP query error for testing.')
+        elif 'tap_schema.tables' in query:
+            # Queries to get catalogs
+            filename = data_path(DATA_FILES['tap_catalogs'])
+        elif 'tap_schema.columns' in query:
+            # Queries to get column metadata
+            filename = data_path(DATA_FILES['tap_columns'])
+        elif 'WHERE' in query:
+            # Queries with results, keep in mind this is not meaninful and results won't match the query
+            filename = data_path(DATA_FILES['tap_results'])
+        votable = parse(filename)
+        return TAPResults(votable)
+
+    # Mock TAPService
+    mock_tap = MagicMock()
+    mock_tap.run_sync.side_effect = run_sync_mock
+
+    # Capabilities -> Not much to do here
+    filename = data_path(DATA_FILES['tap_capabilities'])
+    with open(filename, "rb") as f:
+        caps = parse_capabilities(f)
+    mock_tap.capabilities = caps
+
+    return mock_tap
+
 ###########################
 # MissionSearchClass Test #
 ###########################
 
 
-def test_missions_query_region_async():
+def test_missions_query_region_async(patch_post):
     responses = MastMissions.query_region_async(regionCoords, radius=0.002, sci_pi_last_name='GORDON')
     assert isinstance(responses, MockResponse)
 
