@@ -51,7 +51,7 @@ DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.HscMatches.Db.v3': 'matchid.json',
               'Mast.HscMatches.Db.v2': 'matchid.json',
               'Mast.HscSpectra.Db.All': 'spectra.json',
-              'mast_relative_path': 'mast_relative_path.json',
+              'get_cloud_paths': 'mast_relative_path.json',
               'panstarrs': 'panstarrs.json',
               'panstarrs_columns': 'panstarrs_columns.json',
               'tess_cutout': 'astrocut_107.27_-70.0_5x5.zip',
@@ -144,7 +144,7 @@ def request_mockreturn(url, params={}):
     elif 'panstarrs' in url:
         filename = data_path(DATA_FILES['panstarrs_columns'])
     elif 'path_lookup' in url:
-        filename = data_path(DATA_FILES['mast_relative_path'])
+        filename = data_path(DATA_FILES['get_cloud_paths'])
     with open(filename, 'rb') as infile:
         content = infile.read()
     return MockResponse(content)

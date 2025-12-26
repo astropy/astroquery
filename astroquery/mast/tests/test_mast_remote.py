@@ -820,7 +820,8 @@ class TestMast:
         check_result(result, local_path_file)
 
     @pytest.mark.parametrize("in_uri", [
-        'mast:HLA/url/cgi-bin/getdata.cgi?download=1&filename=hst_05206_01_wfpc2_f375n_wf_daophot_trm.cat',
+        'mast:GALEX/url/data/GR6/pipe/01-vsn/03329-MISDR1_18916_0459/d/01-main/0001-img/07-try/'
+        'MISDR1_18916_0459-fd-flagstar.fits.gz',
         'mast:HST/product/u24r0102t_c3m.fits'
     ])
     def test_observations_download_file_cloud(self, tmp_path, in_uri):
