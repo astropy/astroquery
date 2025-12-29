@@ -679,6 +679,7 @@ class CatalogsClass(MastQueryWithLogin):
                 raise ValueError(f"Unrecognized region string: {region}")
 
         # Case 2: region is an astropy region object
+        # TODO: When released, change these to use `CircleSphericalSkyRegion` and `PolygonSphericalSkyRegion`
         elif isinstance(region, CircleSkyRegion):
             center = region.center.icrs
             radius = region.radius.to(u.deg).value
