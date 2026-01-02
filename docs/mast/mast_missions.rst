@@ -1,7 +1,7 @@
 
-****************
-Mission Searches
-****************
+************************
+Mission-Specific Queries
+************************
 
 The `~astroquery.mast.MastMissionsClass` class allows for search queries based on mission-specific 
 metadata for a given data collection. This metadata includes header keywords, proposal information, and observational parameters.
@@ -10,6 +10,8 @@ The following missions/products are currently available for search:
 - `Hubble Space Telescope <https://www.stsci.edu/hst>`_ (``'hst'``)
 
 - `James Webb Space Telescope <https://www.stsci.edu/jwst>`_ (``'jwst'``)
+
+- `International Ultraviolet Explorer <https://archive.stsci.edu/iue/>`_ (``'iue'``)
 
 - `High Level Science Products <https://outerspace.stsci.edu/display/MASTDOCS/About+HLSPs>`_
 
@@ -193,8 +195,8 @@ Here are some tips and tricks for writing more advanced queries:
         N4A702010 GAL-CLUS-0026+1653-ARCC         F110W        IMAGE
         N4A705010 GAL-CLUS-0026+1653-ARCC         F110W        IMAGE
 
-Downloding Data
-===============
+Retrieving Data Products
+========================
 
 Getting Product Lists
 ----------------------
@@ -277,6 +279,10 @@ The filter below returns FITS products that are "science" type **and** less than
    ---------------------------- ------ --------- ... -------------- ----- -------
    JBTAA0010_jbtaa0010_asn.fits PUBLIC JBTAA0010 ...            AUX 11520 science
    JBTAA0020_jbtaa0020_asn.fits PUBLIC JBTAA0020 ...            AUX 11520 science
+
+
+Downloding Data
+===============
 
 Downloading Data Products
 -------------------------
