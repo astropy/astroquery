@@ -86,10 +86,10 @@ class CloudAccess:  # pragma:no-cover
                 prefix = prefix_info['Prefix'].rstrip('/')
 
                 if prefix == 'mast':
-                    # 'mast/' contains missions underneath
+                    # 'mast/' contains sub-prefixes for different high-level science products
                     mast_response = self.s3_client.list_objects_v2(
                         Bucket=self.pubdata_bucket,
-                        Prefix='mast/',
+                        Prefix='mast/hlsp/',
                         Delimiter='/',
                     )
                     missions.extend(
@@ -230,7 +230,6 @@ class CloudAccess:  # pragma:no-cover
             s3_key = data_product.replace(f's3://{self.pubdata_bucket}/', '', 1)
         else:
             s3_key = self.get_cloud_uri_list([data_product], include_bucket=False, verbose=False)[0]
-            print(self.get_cloud_uri(data_product, include_bucket=False))
 
         # If s3_key is None, the product was not found in the cloud
         if s3_key is None:
