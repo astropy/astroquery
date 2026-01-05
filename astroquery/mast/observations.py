@@ -681,15 +681,17 @@ class ObservationsClass(MastQueryWithLogin):
                     self._cloud_connection.download_file_from_cloud(uri, local_path, cache, verbose)
                 except Exception as ex:
                     if cloud_only:
-                        log.warning('Could not download %s from cloud: %s. Skipping download.', uri, ex)
+                        warnings.warn(f'Could not download {uri} from cloud: {ex}. Skipping download.',
+                                      NoResultsWarning)
                         return "SKIPPED", None, None
 
-                    log.info('Could not download %s from cloud: %s. Falling back to MAST download.', uri, ex)
+                    warnings.warn(f'Could not download {uri} from cloud: {ex}. Falling back to MAST download.',
+                                  InputWarning)
                     self._download_file(escaped_url, local_path, cache=cache, head_safe=True, verbose=verbose)
             else:
                 if cloud_only:
-                    log.warning("`cloud_only` is True but cloud data access is not enabled. "
-                                "Falling back to MAST download.")
+                    warnings.warn("`cloud_only` is True but cloud data access is not enabled. "
+                                  "Falling back to MAST download.", InputWarning)
                 self._download_file(escaped_url, local_path, cache=cache, head_safe=True, verbose=verbose)
 
             # check if file exists also this is where would perform md5,
@@ -759,25 +761,33 @@ class ObservationsClass(MastQueryWithLogin):
                         status = 'COMPLETE'
                     except Exception as ex:
                         if cloud_only:
-                            log.warning('Could not download %s from cloud: %s. Skipping download.', cloud_uri, ex)
+                            warnings.warn(f'Could not download {cloud_uri} from cloud: {ex}. Skipping download.',
+                                          NoResultsWarning)
                             status = 'SKIPPED'
                             msg = str(ex)
                         else:
-                            log.info('Could not download %s from cloud: %s. Falling back to MAST download.',
-                                     cloud_uri, ex)
+                            warnings.warn(f'Could not download {cloud_uri} from cloud: {ex}. '
+                                          'Falling back to MAST download.', InputWarning)
                             status, msg, url = self.download_file(mast_uri, local_path=local_path, cache=cache,
                                                                   skip_cloud=True, verbose=verbose)
                 else:
-                    if cloud_only and cloud_uri_map is not None:
+                    if cloud_uri_map is not None:
                         # Cloud is enabled, but product was not found
-                        log.warning('The product %s was not found in the cloud. Skipping download.', mast_uri)
-                        status = 'SKIPPED'
-                        msg = 'Product not found in cloud'
-                    else:
                         if cloud_only:
-                            log.warning("`cloud_only` is True but cloud data access is not enabled. "
-                                        "Falling back to MAST download.")
+                            warnings.warn(f'The product {mast_uri} was not found in the cloud. Skipping download.',
+                                          NoResultsWarning)
+                            status = 'SKIPPED'
+                            msg = 'Product not found in cloud'
+                        else:
+                            warnings.warn(f'The product {mast_uri} was not found in the cloud. '
+                                          'Falling back to MAST download.', InputWarning)
+                            status, msg, url = self.download_file(mast_uri, local_path=local_path, cache=cache,
+                                                                  skip_cloud=True, verbose=verbose)
+                    else:
                         # Cloud is not enabled
+                        if cloud_only:
+                            warnings.warn("`cloud_only` is True but cloud data access is not enabled. "
+                                          "Falling back to MAST download.", InputWarning)
                         status, msg, url = self.download_file(mast_uri, local_path=local_path, cache=cache,
                                                               cloud_only=False, skip_cloud=True, verbose=verbose)
 
@@ -928,14 +938,15 @@ class ObservationsClass(MastQueryWithLogin):
 
         return manifest
 
-    def get_supported_cloud_missions(self):
+    def get_cloud_missions(self):
         """
-        Returns a list of missions that support cloud data access.
+        Returns a list of missions that support cloud data access. Missions are the prefixes
+        present in the MAST public data bucket on AWS S3.
 
         Returns
         -------
         response : list
-            List of mission names that support cloud data access.
+            List of mission prefixes that support cloud data access.
         """
         if self._cloud_connection is None:
             raise RemoteServiceError(

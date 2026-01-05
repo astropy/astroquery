@@ -996,16 +996,154 @@ def test_observations_download_products(patch_post, tmpdir):
     result1 = Observations.download_products(products[0], download_dir=str(tmpdir))
     assert isinstance(result1, Table)
 
+    # Warn if no products to download
+    with pytest.warns(NoResultsWarning, match='No products to download'):
+        result = Observations.download_products('2003738726',
+                                                     download_dir=str(tmpdir),
+                                                     productType=["INVALID_TYPE"])
+        assert result is None
 
-@patch.object(os.path, 'isfile', return_value=True)
+    # Warn if curl_flag and flags are both set
+    with pytest.warns(InputWarning, match='flat=True has no effect on curl downloads.'):
+        result = Observations.download_products('2003738726',
+                                                     curl_flag=True,
+                                                     flat=True)
+        assert isinstance(result, Table)
+
+
+@patch('boto3.resource')
+@patch('boto3.client')
+@patch.object(Path, "is_file", return_value=True)
+def test_observations_download_products_cloud(mock_is_file, mock_client, mock_resource, patch_post,
+                                              monkeypatch):
+    pytest.importorskip("boto3")
+    mock_client.return_value.head_object.return_value = {'ContentLength': 12345}
+    mock_resource.return_value.Bucket.return_value.download_file.return_value = None
+    obsid = '2003738726'
+    data_uri = 'mast:HST/product/u9o40504m_c3m.fits'
+
+    # Enable access to public AWS S3 bucket
+    Observations.enable_cloud_dataset()
+
+    result = Observations.download_products(obsid,
+                                                 dataURI=data_uri)
+    assert isinstance(result, Table)
+    assert result[0]['Status'] == 'COMPLETE'
+
+    # Mock cloud download failure, fallback to on-prem
+    mock_resource.return_value.Bucket.return_value.download_file.side_effect = Exception('Not found in cloud')
+    # Check that info message is logged
+    with pytest.warns(InputWarning, match='Falling back to MAST download'):
+        result = Observations.download_products(obsid,
+                                                     dataURI=data_uri)
+    assert result[0]['Status'] == 'COMPLETE'
+
+    # Cloud download failure, do not fallback to on-prem
+    with pytest.warns(NoResultsWarning, match='Skipping download.'):
+        result = Observations.download_products(obsid,
+                                                     dataURI=data_uri,
+                                                     cloud_only=True)
+    assert result[0]['Status'] == 'SKIPPED'
+
+    # Products not found in cloud, skip download
+    monkeypatch.setattr(Observations, 'get_cloud_uris', lambda *a, **k: {})
+    with pytest.warns(NoResultsWarning, match='was not found in the cloud. Skipping download.'):
+        result = Observations.download_products(obsid,
+                                                     dataURI=data_uri,
+                                                     cloud_only=True)
+    assert result[0]['Status'] == 'SKIPPED'
+    assert result[0]['Message'] == 'Product not found in cloud'
+
+    # Products not found in cloud, fall back
+    with pytest.warns(InputWarning, match='was not found in the cloud. Falling back to MAST download'):
+        result = Observations.download_products(obsid,
+                                                     dataURI=data_uri)
+    assert result[0]['Status'] == 'COMPLETE'
+
+    Observations.disable_cloud_dataset()
+
+    # Cloud access not enabled, warn if cloud_only is True
+    with pytest.warns(InputWarning, match='cloud data access is not enabled'):
+        result = Observations.download_products('2003738726',
+                                                     dataURI='mast:HST/product/u9o40504m_c3m.fits',
+                                                     cloud_only=True)
+    assert result[0]['Status'] == 'COMPLETE'
+
+
+@patch.object(Path, "is_file", return_value=True)
 def test_observations_download_file(mock_is_file, patch_post, tmpdir):
-    # pull a single data product
-    products = Observations.get_product_list('2003738726')
-    uri = products['dataURI'][0]
+    mast_uri = 'mast:HST/product/u9o40504m_c3m.fits'
 
-    # download it
-    result = Observations.download_file(uri)
+    result = Observations.download_file(mast_uri, local_path=tmpdir)
     assert result == ('COMPLETE', None, None)
+
+    unauth_uri = 'mast:HST/product/unauthorized.fits'
+    result = Observations.download_file(unauth_uri)
+    assert result[0] == 'ERROR'
+    assert 'HTTPError' in result[1]
+
+
+def test_observations_download_file_not_found(patch_post, tmpdir):
+    mast_uri = 'mast:HST/product/u9o40504m_c3m.fits'
+
+    result = Observations.download_file(mast_uri, local_path=tmpdir)
+    assert result[0] == 'ERROR'
+    assert result[1] == 'File was not downloaded'
+
+
+@patch('boto3.resource')
+@patch('boto3.client')
+@patch.object(Path, "is_file", return_value=True)
+def test_observations_download_file_cloud(mock_is_file, mock_client, mock_resource, patch_post):
+    pytest.importorskip("boto3")
+    mock_client.return_value.head_object.return_value = {'ContentLength': 12345}
+    mock_resource.return_value.Bucket.return_value.download_file.return_value = None
+
+    # Enable access to public AWS S3 bucket
+    Observations.enable_cloud_dataset()
+    mast_uri = 'mast:HST/product/u9o40504m_c3m.fits'
+
+    # Warn if both cloud_only and skip_cloud are True
+    with pytest.warns(InputWarning, match='Both `cloud_only` and `skip_cloud` are set to True'):
+        result = Observations.download_file(mast_uri, cloud_only=True, skip_cloud=True)
+        assert result == ('COMPLETE', None, None)
+
+    # Skip file if cloud_only is True but file is not in cloud
+    nonexistent_uri = 'mast:HST/product/does_not_exist.fits'
+    with pytest.warns(NoResultsWarning, match=f'Could not download {nonexistent_uri} from cloud'):
+        result = Observations.download_file(nonexistent_uri, cloud_only=True)
+        assert result == ('SKIPPED', None, None)
+
+    # Use on-prem download if cloud_only is False and file is not in cloud
+    with pytest.warns(InputWarning, match=f'Could not download {nonexistent_uri} from cloud'):
+        result = Observations.download_file(nonexistent_uri, cloud_only=False)
+        assert result == ('COMPLETE', None, None)
+
+    Observations.disable_cloud_dataset()
+
+    # Warning if cloud dataset is not enabled
+    with pytest.warns(InputWarning, match='cloud data access is not enabled'):
+        result = Observations.download_file(mast_uri, cloud_only=True)
+        assert result == ('COMPLETE', None, None)
+
+
+@patch('boto3.client')
+def test_observations_get_cloud_missions(mock_client, patch_post):
+    pytest.importorskip('boto3')
+    mock_client.return_value.list_objects_v2.return_value = {
+        'CommonPrefixes': [{'Prefix': 'hst/'}, {'Prefix': 'jwst/'}]
+    }
+
+    with pytest.raises(RemoteServiceError):
+        Observations.get_cloud_missions()
+
+    Observations.enable_cloud_dataset()
+    supported = Observations.get_cloud_missions()
+    assert isinstance(supported, list)
+    assert 'hst' in supported
+    assert 'jwst' in supported
+
+    Observations.disable_cloud_dataset()
 
 
 @patch('boto3.client')
@@ -1080,6 +1218,8 @@ def test_observations_get_cloud_uris(mock_client, patch_post):
     with pytest.warns(NoResultsWarning, match='Failed to retrieve MAST relative path'):
         Observations.get_cloud_uris(['mast:HST/product/does_not_exist.fits'])
 
+    Observations.disable_cloud_dataset()
+
 
 @patch('boto3.client')
 def test_observations_get_cloud_uris_query(mock_client, patch_post):
@@ -1101,6 +1241,8 @@ def test_observations_get_cloud_uris_query(mock_client, patch_post):
     with pytest.warns(NoResultsWarning, match='No matching products'):
         Observations.get_cloud_uris(target_name=234295610,
                                     filter_products={'productSubGroupDescription': 'LC'})
+
+    Observations.disable_cloud_dataset()
 
 
 ######################

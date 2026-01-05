@@ -783,6 +783,45 @@ class TestMast:
         with caplog.at_level("INFO", logger="astroquery"):
             assert "products were duplicates" in caplog.text
 
+    def test_observations_download_products_cloud(self, tmp_path, msa_product_table):
+        pytest.importorskip('boto3')
+
+        Observations.enable_cloud_dataset()
+
+        # Adding a product that's not in the cloud to test mixed downloads
+        in_uri = "mast:IUE/url/pub/vospectra/iue2/swp18830mxlo_vo.fits"
+        new_row = {col: msa_product_table[col][0] for col in msa_product_table.colnames}
+        new_row["dataURI"] = in_uri
+        new_row["productFilename"] = Path(in_uri).name
+        msa_product_table = msa_product_table.copy()
+        msa_product_table.add_row(new_row)
+
+        with pytest.warns(NoResultsWarning, match='Skipping download'):
+            result = Observations.download_products(msa_product_table,
+                                                    download_dir=tmp_path,
+                                                    cloud_only=True)
+        assert isinstance(result, Table)
+        assert len(result) == 2
+        # First product should be downloaded from cloud, second should be skipped
+        assert result['Status'][0] == 'COMPLETE'
+        assert result['Status'][1] == 'SKIPPED'
+        assert Path(result['Local Path'][0]).exists()
+        assert not Path(result['Local Path'][1]).exists()
+        Path.unlink(result['Local Path'][0])  # clean up file
+
+        # Should fall back and download if cloud_only is False
+        with pytest.warns(InputWarning, match='Falling back to MAST download.'):
+            result = Observations.download_products(msa_product_table,
+                                                    download_dir=tmp_path)
+        assert isinstance(result, Table)
+        assert len(result) == 2
+        assert result['Status'][0] == 'COMPLETE'
+        assert result['Status'][1] == 'COMPLETE'
+        assert Path(result['Local Path'][0]).exists()
+        assert Path(result['Local Path'][1]).exists()
+
+        Observations.disable_cloud_dataset()
+
     def test_observations_download_file(self, tmp_path):
 
         def check_result(result, path):
@@ -834,6 +873,29 @@ class TestMast:
         assert result == ('COMPLETE', None, None)
         assert Path(tmp_path, filename).exists()
 
+        Observations.disable_cloud_dataset()
+
+    def test_observations_download_file_cloud_not_found(self, tmp_path):
+        pytest.importorskip("boto3")
+        in_uri = 'mast:IUE/url/pub/vospectra/iue2/swp18830mxlo_vo.fits'
+
+        Observations.enable_cloud_dataset()
+
+        # Warn and fallback
+        with pytest.warns(InputWarning, match='Falling back to MAST download.'):
+            result = Observations.download_file(uri=in_uri, local_path=tmp_path)
+            assert result == ('COMPLETE', None, None)
+            assert Path(tmp_path, Path(in_uri).name).exists()
+            Path.unlink(Path(tmp_path, Path(in_uri).name))  # clean up file
+
+        # Skip if cloud_only is set
+        with pytest.warns(NoResultsWarning, match='Skipping download'):
+            result = Observations.download_file(uri=in_uri, cloud_only=True, local_path=tmp_path)
+            assert result == ('SKIPPED', None, None)
+            assert not Path(tmp_path, Path(in_uri).name).exists()
+
+        Observations.disable_cloud_dataset()
+
     def test_observations_download_file_escaped(self, tmp_path):
         # test that `download_file` correctly escapes a URI
         in_uri = 'mast:HLA/url/cgi-bin/fitscut.cgi?' \
@@ -864,6 +926,16 @@ class TestMast:
         assert result == ("COMPLETE", None, None)
         assert Path(tmp_path, filename).exists()
 
+    def test_observations_get_cloud_missions(self):
+        pytest.importorskip('boto3')
+        Observations.enable_cloud_dataset()
+        missions = Observations.get_cloud_missions()
+        assert isinstance(missions, list)
+        assert len(missions) > 0
+        for m in ['hst', 'jwst', 'panstarrs', 'galex', 'tess']:
+            assert m in missions
+        Observations.disable_cloud_dataset()
+
     @pytest.mark.parametrize("test_data_uri, expected_cloud_uri", [
         ("mast:HST/product/u24r0102t_c1f.fits",
          "s3://stpubdata/hst/public/u24r/u24r0102t/u24r0102t_c1f.fits"),
@@ -889,6 +961,8 @@ class TestMast:
         uri = Observations.get_cloud_uri(test_data_uri)
         assert uri == expected_cloud_uri, f'Cloud URI does not match expected. ({uri} != {expected_cloud_uri})'
 
+        Observations.disable_cloud_dataset()
+
     @pytest.mark.parametrize("test_obs_id", ["25568122", "31411", "107604081"])
     def test_observations_get_cloud_uris(self, test_obs_id):
         pytest.importorskip("boto3")
@@ -912,6 +986,8 @@ class TestMast:
         with pytest.warns(NoResultsWarning):
             Observations.get_cloud_uris(products,
                                         extension='png')
+
+        Observations.disable_cloud_dataset()
 
     def test_observations_get_cloud_uris_list_input(self):
         pytest.importorskip("boto3")
@@ -945,6 +1021,8 @@ class TestMast:
         with pytest.warns(NoResultsWarning, match='Failed to retrieve MAST relative path'):
             Observations.get_cloud_uris(['mast:HST/product/does_not_exist.fits'])
 
+        Observations.disable_cloud_dataset()
+
     def test_observations_get_cloud_uris_query(self):
         pytest.importorskip("boto3")
 
@@ -970,6 +1048,8 @@ class TestMast:
         with pytest.warns(NoResultsWarning):
             Observations.get_cloud_uris(target_name=234295611)
 
+        Observations.disable_cloud_dataset()
+
     def test_observations_get_cloud_uris_no_duplicates(self, msa_product_table):
         pytest.importorskip("boto3")
 
@@ -984,6 +1064,8 @@ class TestMast:
         # Check that only one URI is returned
         uris = Observations.get_cloud_uris(products)
         assert len(uris) == 1
+
+        Observations.disable_cloud_dataset()
 
     ######################
     # CatalogClass tests #
