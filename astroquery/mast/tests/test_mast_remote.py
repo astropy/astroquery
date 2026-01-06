@@ -1018,7 +1018,7 @@ class TestMast:
                                         extension='png')
 
         # check for warning if one of the URIs is not found
-        with pytest.warns(NoResultsWarning, match='Failed to retrieve MAST relative path'):
+        with pytest.warns(NoResultsWarning, match='Failed to retrieve cloud path'):
             Observations.get_cloud_uris(['mast:HST/product/does_not_exist.fits'])
 
         Observations.disable_cloud_dataset()

@@ -655,6 +655,9 @@ class ObservationsClass(MastQueryWithLogin):
         url : str
             The full url download path
         """
+        if not uri or not isinstance(uri, str):
+            raise InvalidQueryError("A valid data product URI must be provided.")
+
         base_url = base_url or self._portal_api_connection.MAST_DOWNLOAD_URL
         data_url = f"{base_url}?uri={uri}"
         escaped_url = f"{base_url}?uri={quote(uri, safe=':/')}"
