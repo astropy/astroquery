@@ -14,6 +14,7 @@ import requests
 import platform
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
+from astropy.utils import deprecated
 from astropy.utils.console import ProgressBarOrSpinner
 from astropy import units as u
 
@@ -370,6 +371,16 @@ def split_list_into_chunks(input_list, chunk_size):
         yield input_list[idx:idx + chunk_size]
 
 
+@deprecated(since='v0.4.12',
+            message=('This function is deprecated.'),
+            alternative='astroquery.mast.utils.get_cloud_paths')
+def mast_relative_path(mast_uri, *, verbose=True):
+    """
+    Deprecated function. Use `astroquery.mast.utils.get_cloud_paths` instead.
+    """
+    return get_cloud_paths(mast_uri, verbose=verbose)
+
+
 def get_cloud_paths(mast_uri, *, verbose=True):
     """
     Given one or more MAST dataURI(s), return a list of associated cloud path(s).
@@ -405,7 +416,7 @@ def get_cloud_paths(mast_uri, *, verbose=True):
             path = json_response.get(uri)["path"]
             if path is None:
                 if verbose:
-                    warnings.warn(f"Failed to retrieve MAST relative path for {uri}. Skipping...", NoResultsWarning)
+                    warnings.warn(f"Failed to retrieve cloud path for {uri}. Skipping...", NoResultsWarning)
             else:
                 path = path.lstrip("/")
             cloud_paths.append(path)
