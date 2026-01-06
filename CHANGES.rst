@@ -64,6 +64,9 @@ mast
 
 - Improved robustness of PanSTARRS column metadata parsing. This prevents metadata-related query errors. [#3485]
 
+- Added a new ``Observations.get_cloud_missions()`` method for querying cloud-supported MAST missions, alongside 
+  improvements to cloud download handling. [#3488]
+
 jplspec
 ^^^^^^^
 

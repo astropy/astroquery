@@ -148,7 +148,7 @@ class CloudAccess:  # pragma:no-cover
 
         # Making sure we got at least 1 URI from the query above.
         if not uri_list or uri_list[0] is None:
-            warnings.warn('Unable to locate file {}.'.format(data_product[0]), NoResultsWarning)
+            return
         else:
             # Output from ``get_cloud_uri_list`` is always a list even when it's only 1 URI
             return uri_list[0]
@@ -200,7 +200,7 @@ class CloudAccess:  # pragma:no-cover
                     if e.response['Error']['Code'] != "404":
                         raise
                     if verbose:
-                        warnings.warn("Unable to locate file {}.".format(path), NoResultsWarning)
+                        warnings.warn(f"Failed to retrieve cloud path for {path}", NoResultsWarning)
                     uri_list.append(None)
 
         return uri_list
@@ -222,9 +222,6 @@ class CloudAccess:  # pragma:no-cover
             Default is True. Whether to show download progress in the console.
         """
         # TODO: Function that checks if a particular product, by dataURI, can be found in the cloud
-        if not data_product or not isinstance(data_product, str):
-            raise ValueError("A valid data product URI must be provided.")
-
         # Normalize to an S3 key (no bucket)
         if data_product.strip().startswith("s3://"):
             s3_key = data_product.replace(f's3://{self.pubdata_bucket}/', '', 1)

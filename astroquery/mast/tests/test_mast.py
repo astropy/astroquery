@@ -14,6 +14,7 @@ import numpy as np
 from astropy.table import Table, unique
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
+from botocore.exceptions import ClientError
 
 import astropy.units as u
 from requests import HTTPError, Response
@@ -1017,6 +1018,10 @@ def test_observations_download_file_cloud(mock_is_file, mock_client, mock_resour
         result = mast.Observations.download_file(nonexistent_uri, cloud_only=False)
         assert result == ('COMPLETE', None, None)
 
+    # Error if data product is not a string
+    with pytest.raises(InvalidQueryError, match='A valid data product URI'):
+        mast.Observations.download_file(12345, cloud_only=True)
+
     mast.Observations.disable_cloud_dataset()
 
     # Warning if cloud dataset is not enabled
@@ -1029,17 +1034,33 @@ def test_observations_download_file_cloud(mock_is_file, mock_client, mock_resour
 def test_observations_get_cloud_missions(mock_client, patch_post):
     pytest.importorskip('boto3')
     mock_client.return_value.list_objects_v2.return_value = {
-        'CommonPrefixes': [{'Prefix': 'hst/'}, {'Prefix': 'jwst/'}]
+        'CommonPrefixes': [{'Prefix': 'hst/'}, {'Prefix': 'jwst/'}, {'Prefix': 'mast/'}]
     }
-
-    with pytest.raises(RemoteServiceError):
-        mast.Observations.get_cloud_missions()
 
     mast.Observations.enable_cloud_dataset()
     supported = mast.Observations.get_cloud_missions()
     assert isinstance(supported, list)
     assert 'hst' in supported
     assert 'jwst' in supported
+    assert 'mast' in supported
+
+    mast.Observations.disable_cloud_dataset()
+
+
+@patch('boto3.client')
+def test_observations_get_cloud_missions_error(mock_client, patch_post, caplog):
+    pytest.importorskip('boto3')
+
+    # Error without cloud connection
+    with pytest.raises(RemoteServiceError):
+        mast.Observations.get_cloud_missions()
+
+    # Mock an error when listing objects
+    mock_client.return_value.list_objects_v2.side_effect = Exception('AWS error')
+
+    mast.Observations.enable_cloud_dataset()
+    supported = mast.Observations.get_cloud_missions()
+    assert supported == []
 
     mast.Observations.disable_cloud_dataset()
 
@@ -1068,6 +1089,10 @@ def test_observations_get_cloud_uri(mock_client, patch_post):
     # String input
     uri = mast.Observations.get_cloud_uri(mast_uri)
     assert uri == expected
+
+    # Warn if not found
+    with pytest.warns(NoResultsWarning, match='Failed to retrieve cloud path'):
+        mast.Observations.get_cloud_uri('mast:HST/product/does_not_exist.fits')
 
     mast.Observations.disable_cloud_dataset()
 
@@ -1101,6 +1126,11 @@ def test_observations_get_cloud_uris(mock_client, patch_post):
     assert len(uris) == 1
     assert uris[0] == expected
 
+    # Return full URLs
+    uris = mast.Observations.get_cloud_uris([mast_uri], include_bucket=False, full_url=True)
+    assert isinstance(uris, list)
+    assert uris[0].startswith('http://s3.amazonaws.com/')
+
     # Return a map of URIs
     uri_map = mast.Observations.get_cloud_uris([mast_uri], return_uri_map=True)
     assert isinstance(uri_map, dict)
@@ -1113,8 +1143,32 @@ def test_observations_get_cloud_uris(mock_client, patch_post):
                                          extension='png')
 
     # Warn if not found
-    with pytest.warns(NoResultsWarning, match='Failed to retrieve MAST relative path'):
+    with pytest.warns(NoResultsWarning, match='Failed to retrieve cloud path'):
         mast.Observations.get_cloud_uris(['mast:HST/product/does_not_exist.fits'])
+
+    mast.Observations.disable_cloud_dataset()
+
+
+@patch('boto3.client')
+def test_observations_get_cloud_uris_error(mock_client, patch_post):
+    pytest.importorskip("boto3")
+
+    # Mock head_object to raise an exception
+    # Raise the error if not a 404
+    exc = ClientError({'Error': {'Code': '500', 'Message': 'Internal Server Error'}}, 'HeadObject')
+    mock_client.return_value.head_object.side_effect = exc
+
+    mast.Observations.enable_cloud_dataset()
+    with pytest.raises(ClientError):
+        mast.Observations.get_cloud_uris(['mast:HST/product/u9o40504m_c3m.fits'])
+
+    # Only warn if the error is a 404
+    exc = ClientError({'Error': {'Code': '404', 'Message': 'Not Found'}}, 'HeadObject')
+    mock_client.return_value.head_object.side_effect = exc
+
+    with pytest.warns(NoResultsWarning, match='Failed to retrieve cloud path'):
+        uris = mast.Observations.get_cloud_uris(['mast:HST/product/u9o40504m_c3m.fits'])
+    assert uris == []
 
     mast.Observations.disable_cloud_dataset()
 
@@ -1628,3 +1682,92 @@ def test_parse_input_location(patch_post):
     with pytest.warns(InputWarning, match="Resolver is only used when resolving object names"):
         loc = mast.utils.parse_input_location(coordinates=coord, resolver="SIMBAD")
         assert isinstance(loc, SkyCoord)
+
+
+################
+# Cloud tests #
+################
+
+@patch("boto3.resource")
+@patch("boto3.client")
+def test_download_file_from_cloud(mock_client, mock_resource, patch_post):
+    pytest.importorskip("boto3")
+
+    cloud = mast.cloud.CloudAccess()
+
+    mock_client.return_value.head_object.return_value = {'ContentLength': 123}
+    mock_resource.return_value.Bucket.return_value.download_file.return_value = None
+
+    cloud.download_file_from_cloud(
+        "s3://stpubdata/hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits",
+        "local.fits",
+        verbose=False
+    )
+    mock_resource.return_value.Bucket.return_value.download_file.assert_called_once()
+
+
+@patch("boto3.resource")
+@patch("boto3.client")
+def test_download_file_from_cloud_not_found(mock_client, mock_resource, patch_post):
+    pytest.importorskip("boto3")
+
+    cloud = mast.cloud.CloudAccess()
+
+    # Force get_cloud_uri_list to return [None]
+    cloud.get_cloud_uri_list = lambda *a, **k: [None]
+
+    with pytest.raises(ValueError, match="not found in S3 cloud storage"):
+        cloud.download_file_from_cloud(
+            "mast:HST/product/missing.fits",
+            "local.fits",
+        )
+
+
+@patch('os.path.exists', return_value=True)
+@patch('os.path.getsize', return_value=123)
+@patch('boto3.resource')
+@patch('boto3.client')
+def test_download_file_from_cloud_existing(mock_client, mock_resource, mock_getsize, mock_exists, patch_post):
+    pytest.importorskip("boto3")
+
+    mock_client.return_value.head_object.return_value = {'ContentLength': 123}
+    cloud = mast.cloud.CloudAccess()
+
+    # File exists locally with same size
+    cloud.download_file_from_cloud(
+        "mast:HST/product/u9o40504m_c3m.fits",
+        "local.fits",
+        verbose=False
+    )
+    # No download should be attempted
+    mock_resource.return_value.Bucket.return_value.download_file.assert_not_called()
+
+    # File exists locally with different size
+    mock_getsize.return_value = 456
+    cloud.download_file_from_cloud(
+        "mast:HST/product/u9o40504m_c3m.fits",
+        "local.fits",
+        verbose=False
+    )
+    # Download should be attempted
+    mock_resource.return_value.Bucket.return_value.download_file.assert_called_once()
+
+
+@patch("boto3.resource")
+@patch("boto3.client")
+def test_download_file_from_cloud_verbose(mock_client, mock_resource, patch_post):
+    pytest.importorskip("boto3")
+
+    cloud = mast.cloud.CloudAccess()
+
+    mock_client.return_value.head_object.return_value = {'ContentLength': 123}
+    mock_resource.return_value.Bucket.return_value.download_file.return_value = None
+
+    cloud.download_file_from_cloud(
+        "s3://stpubdata/hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits",
+        "local.fits",
+        verbose=True
+    )
+    # Ensure callback was supplied
+    _, kwargs = mock_resource.return_value.Bucket.return_value.download_file.call_args
+    assert "Callback" in kwargs
