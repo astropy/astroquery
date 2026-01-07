@@ -154,7 +154,7 @@ The following example demonstrates how to request a TESS cutout using sky coordi
    ...
    >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
    >>> hdulist = Tesscut.get_cutouts(coordinates=cutout_coord, sector=33)
-   >>> hdulist[0].info()  # doctest: +IGNORE_OUTPUT
+   >>> hdulist[0].info()
    Filename: <class '_io.BytesIO'>
    No.    Name      Ver    Type      Cards   Dimensions   Format
    0  PRIMARY       1 PrimaryHDU      57   ()
@@ -269,7 +269,7 @@ returned.
    >>> coord = SkyCoord(189.49206, 62.20615, unit="deg")
    >>> survey_list = Zcut.get_surveys(coordinates=coord)
    >>> print(survey_list)    # doctest: +IGNORE_OUTPUT
-   ['candels_gn_60mas', 'candels_gn_30mas', 'goods_north']
+   ['candels_gn_60mas', 'candels_gn_30mas', 'goods_north', '3dhst_goods-n']
 
 
 Cutouts in Memory
