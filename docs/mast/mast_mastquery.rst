@@ -3,36 +3,64 @@
 MAST Queries
 ************
 
-The Mast class provides more direct access to the MAST interface.  It requires
-more knowledge of the inner workings of the MAST API, and should be rarely
-needed.  However in the case of new functionality not yet implemented in
-astroquery, this class does allow access.  See the
-`MAST API documentation <https://mast.stsci.edu/api/v0/>`__ for more
-information.
+The `~astroquery.mast.MastClass` class provides low-level, direct access to the
+`MAST Portal API <https://mast.stsci.edu/api/v0/>`__.
+It is intended for advanced use cases and requires familiarity with the
+structure and parameters of the MAST API. Most users will not need to interact
+with this class directly. However, it can be useful when accessing new or
+specialized functionality that has not yet been wrapped by higher-level
+astroquery interfaces.
 
-The basic MAST query function allows users to query through the following
-`MAST Services <https://mast.stsci.edu/api/v0/_services.html>`__ using
-their corresponding parameters and returns query results as an
-`~astropy.table.Table`.
+The `~astroquery.mast.MastClass.mast_query` method allows users to submit requests to the available
+`MAST services <https://mast.stsci.edu/api/v0/_services.html>`__ by specifying
+the appropriate service name and parameters. Query results are returned as an
+`~astropy.table.Table`, enabling straightforward inspection and downstream
+analysis.
 
 Filtered Mast Queries
 =====================
 
-MAST's filtered services (i.e. those with "filtered" in the service name) accept service-specific parameters, MashupRequest properties, and 
-column filters as keyword arguments and return a table of matching observations. See the 
-`service documentation <https://mast.stsci.edu/api/v0/_services.html>`__ and the
-`MashupRequest Class Reference <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`__ for valid keyword arguments.
+MAST filtered services (i.e. those with "filtered" in the service name) allow users to
+query observational metadata using a combination of service-specific parameters, general
+MashupRequest properties, and column-based filters. These queries return a table of
+observations that match the specified criteria.
 
-Parameters that are not related to position or MashupRequest properties are treated as column filters.
-If the column has discrete values, the parameter value should be a single value or list of values, and values will be matched exactly. 
-If the column is continuous, you can filter by a single value, a list of values, or a range of values. If filtering by a range of values,
-the parameter value should be a dict in the form ``{'min': minVal, 'max': maxVal}``.
+Valid keyword arguments fall into three broad categories:
 
-The ``columns`` parameter specifies the columns to be returned in the response as a comma-separated string or list of strings.
+1. **Service-specific Parameters**
 
-The following example uses a JWST service with column names and filters specific to
-JWST services. For the full list of valid parameters view the
-`JWST Field Documentation <https://mast.stsci.edu/api/v0/_jwst_inst_keywd.html>`__.
+   Each filtered service defines its own set of supported parameters, which correspond to
+   mission- or instrument-specific metadata fields. The available parameters and their meanings
+   are described in the `service documentation <https://mast.stsci.edu/api/v0/_services.html>`__ and, for JWST
+   services specifically, the `JWST Field Documentation <https://mast.stsci.edu/api/v0/_jwst_inst_keywd.html>`__.
+
+2. **MashupRequest Properties**
+
+   General request options such as pagination, sorting, or formatting are handled through
+   ``MashupRequest`` properties. A full list of supported properties is available in the
+   `MashupRequest Class Reference <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`__.
+
+3. **Column-based Filters**
+
+   Any keyword argument that does not correspond to a positional constraint or a
+   ``MashupRequest`` property is interpreted as a column filter. These filters restrict the query
+   results based on the values in a specific metadata column.
+
+   Filtering behavior depends on the type of column being queried:
+
+   - **Discrete columns** (for example, instrument names or proposal categories)
+     accept a single value or a list of values. Matches must be exact.
+   - **Continuous columns** (for example, exposure time or wavelength)
+     accept a single value, a list of values, or a range. Ranges are specified using a dictionary
+     in the form ``{'min': minVal, 'max': maxVal}``.
+
+The ``columns`` parameter controls which metadata fields are included in the response. It may
+be provided as a comma-separated string or as a list of column names. By default, a standard
+set of columns is returned.
+
+The example below demonstrates a query against a JWST filtered service, using column names
+and filters specific to JWST data products. For a complete list of valid parameters and
+metadata fields, refer to the `JWST Field Documentation <https://mast.stsci.edu/api/v0/_jwst_inst_keywd.html>`__.
 
 .. doctest-remote-data::
 
@@ -60,8 +88,8 @@ JWST services. For the full list of valid parameters view the
    Length = 25 rows
 
 
-TESS Queries
-------------
+TESS Filtered Queries
+---------------------
 
 TESS queries have 2 types of filtered services. To output a table and specify
 columns for a TESS query, use TIC or CTL services with '.Rows' on the end
@@ -70,16 +98,28 @@ columns for a TESS query, use TIC or CTL services with '.Rows' on the end
 Valid parameters for TIC and CTL services are detailed in the
 `TIC Field Documentation <https://mast.stsci.edu/api/v0/_t_i_cfields.html>`__.
 
+TESS filtered queries are available through two related service types: **TIC** (TESS Input
+Catalog) and **CTL** (Candidate Target List). The TIC is a comprehensive catalog of known
+stellar properties, while the CTL is a curated subset optimized for identifying promising
+TESS targets. To return results as a table and to explicitly control which columns are
+included in the response, users should query the corresponding ``.Rows`` services (for
+example,
+`Mast.Catalogs.Filtered.Tic.Rows <https://mast.stsci.edu/api/v0/_services.html#MastCatalogsFilteredTicRows>`__).
+
+The TIC and CTL ``.Rows`` services support column-based filtering and return results as an
+`~astropy.table.Table`. Valid query parameters and available metadata fields for these
+services are described in the `TIC Field Documentation <https://mast.stsci.edu/api/v0/_t_i_cfields.html>`__.
+
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Mast
    ...
    >>> observations = Mast.mast_query('Mast.Catalogs.Filtered.Tic.Rows',
    ...                                columns='id',
-   ...                                dec=[{'min': -90, 'max': -30}],
-   ...                                Teff=[{'min': 4250, 'max': 4500}],
-   ...                                logg=[{'min': 4.5, 'max': 5.0}],
-   ...                                Tmag=[{'min': 8, 'max': 10}])
+   ...                                dec={'min': -90, 'max': -30},
+   ...                                Teff={'min': 4250, 'max': 4500},
+   ...                                logg={'min': 4.5, 'max': 5.0},
+   ...                                Tmag={'min': 8, 'max': 10})
    >>> print(observations) # doctest: +IGNORE_OUTPUT
       ID
    ---------
@@ -99,9 +139,12 @@ Valid parameters for TIC and CTL services are detailed in the
    92131304
    Length = 814 rows
 
-TESS services without '.Rows' in the title are used for count queries and will
-not mask the output tables using the columns parameter. Additionally, using a
-'.Rows' service for a count query will result in an error.
+TESS filtered services without ``.Rows`` in the service name are intended for **count
+queries** only. These services return the number of matching records and do not return tabular
+results, so the ``columns`` parameter is ignored.
+
+Conversely, ``.Rows`` services must be used when requesting tabular output. Attempting to use
+a ``.Rows`` service for a count-only query will result in an error.
 
 .. doctest-skip::
 
@@ -109,10 +152,10 @@ not mask the output tables using the columns parameter. Additionally, using a
    ...
    >>> observations = Mast.mast_query('Mast.Catalogs.Filtered.Tic.Rows',
    ...                                columns = 'COUNT_BIG(*)',
-   ...                                dec=[{'min': -90, 'max': -30}],
-   ...                                Teff=[{'min': 4250, 'max': 4500}],
-   ...                                logg=[{'min': 4.5, 'max': 5.0}],
-   ...                                Tmag=[{'min': 8, 'max': 10}])
+   ...                                dec={'min': -90, 'max': -30},
+   ...                                Teff={'min': 4250, 'max': 4500},
+   ...                                logg={'min': 4.5, 'max': 5.0},
+   ...                                Tmag={'min': 8, 'max': 10})
    Traceback (most recent call last):
    ...
    astroquery.exceptions.RemoteServiceError: Incorrect syntax near '*'.
@@ -123,6 +166,26 @@ Cone Searches
 
 MAST's cone search services use the parameters 'ra', 'dec', and 'radius' and return
 a table of observations with all columns present.
+
+MAST cone search services perform **positional searches on the sky**, returning all records
+within a circular region centered on a specified coordinate. These services are useful when
+you want to find observations or catalog entries near a known sky position without applying
+additional metadata filters.
+
+Cone searches are defined by three required parameters:
+
+- ``ra``: Right ascension of the search center, in decimal degrees
+- ``dec``: Declination of the search center, in decimal degrees
+- ``radius``: Search radius, in decimal degrees
+
+Cone search services return a table of matching observations and **always include all
+available columns** in the response. Unlike filtered services, cone searches **do not support
+column selection or column-based filtering** through keyword arguments. Attempting to use
+these parameters with a cone search service will either result in an error or warning.
+
+Because cone searches operate purely on spatial constraints, they are often used as a
+starting point for exploratory searches or for identifying nearby data products before
+applying more restrictive filters through other MAST services.
 
 .. doctest-remote-data::
 
@@ -160,54 +223,28 @@ a table of observations with all columns present.
    Length = 77 rows
 
 
-Cone search services only require positional parameters. Using the wrong service
-parameters will result in an error. Read the
-`MAST API services documentation <https://mast.stsci.edu/api/v0/_services.html>`__
-for more information on valid service parameters.
+Advanced Service Requests
+=========================
 
-.. doctest-skip::
+Some MAST services, such as
+`Mast.Name.Lookup <https://mast.stsci.edu/api/v0/_services.html#MastNameLookup>`__, return
+response formats that are not compatible with `~astroquery.mast.MastClass.mast_query`.
+The method expects results in a standard JSON format so that they can
+be automatically parsed into an `~astropy.table.Table`. When a service returns a different
+response type by default, this automatic conversion is not possible.
 
-   >>> from astroquery.mast import Mast
-   ...
-   >>> observations = Mast.mast_query('Mast.Caom.Cone',
-   ...                                columns='ra',
-   ...                                Teff=[{'min': 4250, 'max': 4500}],
-   ...                                logg=[{'min': 4.5, 'max': 5.0}])
-   Traceback (most recent call last):
-   ...
-   astroquery.exceptions.RemoteServiceError: Request Object is Missing Required Parameter : RA
-
-Using the 'columns' parameter in addition to the required cone search parameters will
-result in a warning.
-
-.. doctest-remote-data::
-
-   >>> from astroquery.mast import Mast
-   ...
-   >>> observations = Mast.mast_query('Mast.Catalogs.GaiaDR1.Cone',
-   ...                                columns="ra",
-   ...                                ra=254.287,
-   ...                                dec=-4.09933,
-   ...                                radius=0.02) # doctest: +SHOW_WARNINGS
-   InputWarning: 'columns' parameter is ignored for non-filtered services.
-
-Advanced Service Request
-========================
-
-Certain MAST Services, such as `Mast.Name.Lookup
-<https://mast.stsci.edu/api/v0/_services.html#MastNameLookup>`__ will not work with
-`astroquery.mast.MastClass.mast_query` due to it's return type. If the output of a query
-is not the MAST json result type it cannot be properly parsed into a `~astropy.table.Table`.
-In this case, the `~astroquery.mast.MastClass.service_request_async` method should be used
-to get the raw http response, which can then be manually parsed.
+For these services, users should instead call
+`~astroquery.mast.MastClass.service_request_async`, which returns the raw HTTP response from
+the MAST Portal API. The response content can then be inspected and parsed manually according to the
+service’s documented output format.
 
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Mast
    ...
    >>> service = 'Mast.Name.Lookup'
-   >>> params ={'input':"M8",
-   ...          'format':'json'}
+   >>> params = {'input': 'M8',
+   ...           'format': 'json'}
    ...
    >>> response = Mast.service_request_async(service, params)
    >>> result = response[0].json()

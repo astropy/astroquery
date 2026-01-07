@@ -118,25 +118,20 @@ The table to query is a required parameter.
 .. doctest-remote-data::
 
    >>> catalog_data = Catalogs.query_region("158.47924 -7.30962", 
-   ...                                      radius=0.1,
+   ...                                      radius=0.01,
    ...                                      catalog="Panstarrs", 
    ...                                      data_release="dr1", 
    ...                                      table="mean")
-   >>> print("Number of results:",len(catalog_data))
-   Number of results: 7007
-   >>> print(catalog_data[:10])     # doctest: +IGNORE_OUTPUT
-            ObjName           objAltName1 ... yFlags       distance
-   -------------------------- ----------- ... ------ --------------------
-   PSO J103359.653-071622.382        -999 ...  16416  0.04140441098310487
-   PSO J103359.605-071622.873        -999 ...      0  0.04121935961328582
-   PSO J103359.691-071640.232        -999 ...      0  0.03718729257758985
-   PSO J103400.268-071639.192        -999 ...      0  0.03870112803784765
-   PSO J103400.073-071637.358        -999 ...      0  0.03867536827891155
-   PSO J103359.789-071632.606        -999 ...      0  0.03921557769883566
-   PSO J103359.192-071654.790        -999 ...      0  0.03266232705300051
-   PSO J103359.959-071655.155        -999 ...      0 0.034361022297827955
-   PSO J103359.847-071655.610        -999 ...      0 0.033986082329893995
-   PSO J103400.586-071656.646        -999 ...      0 0.035645179491121386
+   >>> print("Number of results:",len(catalog_data))  # doctest: +IGNORE_OUTPUT
+   Number of results: 42
+   >>> print(catalog_data[:5])     # doctest: +IGNORE_OUTPUT
+             objName           objAltName1 ... yFlags        distance      
+   -------------------------- ----------- ... ------ ---------------------
+   PSO J103357.027-071828.380        -999 ...      0  0.008463641060218161
+   PSO J103357.130-071834.314        -999 ...   4120  0.008734008139467626
+   PSO J103357.065-071832.617        -999 ...   4120  0.008480972171475138
+   PSO J103355.542-071833.037        -999 ...  16416 0.0022151507196657037
+   PSO J103356.363-071839.939        -999 ...      0  0.005754569818470991
 
 Catalog Criteria Queries
 ========================
@@ -147,7 +142,7 @@ The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can 
 
    >>> from astroquery.mast import Catalogs
    ...
-   >>> catalog_data = Catalogs.query_criteria(catalog="Tic",Bmag=[30,50],objType="STAR")
+   >>> catalog_data = Catalogs.query_criteria(catalog="Tic", Bmag=[30,50], objType="STAR")
    >>> print(catalog_data)  # doctest: +IGNORE_OUTPUT
        ID    version  HIP TYC ...     e_Dec_orig     raddflag wdflag   objID
    --------- -------- --- --- ... ------------------ -------- ------ ----------
