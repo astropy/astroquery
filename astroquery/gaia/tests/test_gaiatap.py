@@ -467,6 +467,10 @@ def cross_match_basic_2_kwargs():
             "table_b_column_dec": "dec"}
 
 
+def test_number_retrieval_types():
+    assert len(conf.VALID_DATALINK_RETRIEVAL_TYPES) == 26
+
+
 def test_show_message():
     print(JOB_DATA_FILE_NAME)
     connHandler = DummyConnHandler()
@@ -1458,7 +1462,7 @@ def test_cross_match_basic_3(monkeypatch, background, mock_querier_async):
     assert job.get_phase() == "EXECUTING" if background else "COMPLETED"
     assert job.failed is False
 
-    radius_quantity = Quantity(value=1.0/3600.0, unit=u.deg)
+    radius_quantity = Quantity(value=1.0 / 3600.0, unit=u.deg)
     job = mock_querier_async.cross_match_basic(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
                                                table_a_column_dec="dec", radius=radius_quantity, background=background)
     assert job.async_ is True
