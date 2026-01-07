@@ -30,6 +30,10 @@ heasarc
 - Add support for uploading tables when using TAP directly through ``query_tap``. [#3403]
 - Add automatic guessing for the data host in ``download_data``. [#3403]
 
+gaia
+^^^^
+
+- New datalink DR4 retrieval type RESIDUAL_IMAGE. [#3489]
 
 esa.hubble
 ^^^^^^^^^^
