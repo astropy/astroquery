@@ -63,17 +63,32 @@ class CatalogCollection:
         self.tap_service = TAPService(self.TAP_BASE_URL + self.name)
 
         # Get catalogs within this collection
-        self.catalogs = self._get_catalogs()
-        self.catalog_names = self.catalogs['catalog_name'].tolist()
+        self._catalogs = None  # Lazy-loaded property
 
         # ADQL functions supported by this collection's TAP service
-        self.supported_adql_functions = self._get_adql_supported_functions()
+        self._supported_adql_functions = None  # Lazy-loaded property
 
         # Determine the default catalog for this collection
         self.default_catalog = self.get_default_catalog()
 
         # Cache for catalog metadata to avoid redundant queries
         self._catalog_metadata_cache: Dict[str, CatalogMetadata] = dict()
+
+    @property
+    def catalogs(self):
+        if self._catalogs is None:
+            self._catalogs = self._fetch_catalogs()
+        return self._catalogs
+
+    @property
+    def catalog_names(self):
+        return self.catalogs['catalog_name'].tolist()
+
+    @property
+    def supported_adql_functions(self):
+        if self._supported_adql_functions is None:
+            self._supported_adql_functions = self._fetch_adql_supported_functions()
+        return self._supported_adql_functions
 
     def get_catalog_metadata(self, catalog):
         """
@@ -90,12 +105,12 @@ class CatalogCollection:
             A CatalogMetadata object containing metadata about the specified catalog, including column metadata,
             RA/Dec column names, and spatial query support.
         """
+        # Verify catalog validity for this collection
+        catalog = self._verify_catalog(catalog)
+
         # Check cache first
         if catalog in self._catalog_metadata_cache:
             return self._catalog_metadata_cache[catalog]
-
-        # Verify catalog validity for this collection
-        catalog = self._verify_catalog(catalog)
 
         # Get column metadata
         metadata = self._get_column_metadata(catalog)
@@ -165,7 +180,7 @@ class CatalogCollection:
         result = self.tap_service.search(adql)
         return result.to_table()
 
-    def _get_catalogs(self):
+    def _fetch_catalogs(self):
         """
         Retrieve the list of catalogs in this collection.
 
@@ -175,15 +190,15 @@ class CatalogCollection:
             List of catalog names.
         """
         log.debug(f"Fetching available tables for collection '{self.name}' from MAST TAP service.")
-        tables = self.tap_service.tables
-        names = [t.name for t in tables]
-        descriptions = [t.description for t in tables]
+        query = 'SELECT table_name, description FROM tap_schema.tables'
+        result = self.tap_service.run_sync(query)
 
-        # Create an Astropy Table to hold the results
-        result_table = Table([names, descriptions], names=('catalog_name', 'description'))
+        # Rename table_name to catalog_name for clarity
+        result_table = result.to_table()
+        result_table.rename_column('table_name', 'catalog_name')
         return result_table
 
-    def _get_adql_supported_functions(self):
+    def _fetch_adql_supported_functions(self):
         """
         Retrieve the ADQL supported functions of the TAP service.
 
@@ -285,28 +300,22 @@ class CatalogCollection:
         """
         log.debug(f"Fetching column metadata for collection '{self.name}', catalog '{catalog}' from MAST TAP service.")
 
-        # Case-insensitive match to find the table
-        tap_table = next((t for name, t in self.tap_service.tables.items() if name == catalog), None)
-        if tap_table is None:
+        query = f"""
+            SELECT
+                column_name,
+                datatype,
+                unit,
+                ucd,
+                description
+            FROM tap_schema.columns
+            WHERE table_name = '{catalog}'
+        """
+        result = self.tap_service.run_sync(query)
+
+        if len(result) == 0:
             raise InvalidQueryError(f"Catalog '{catalog}' not found in collection '{self.name}'.")
 
-        # Extract column metadata
-        col_names = [col.name for col in tap_table.columns]
-        col_datatypes = []
-        for col in tap_table.columns:
-            try:
-                col_datatypes.append(col.datatype._content)
-            except AttributeError:
-                # Some pyvo versions store datatype differently; fall back gracefully
-                # Fallback: str(col.datatype) or None
-                col_datatypes.append(getattr(col.datatype, '_content', str(col.datatype)))
-        col_units = [col.unit for col in tap_table.columns]
-        col_ucds = [col.ucd for col in tap_table.columns]
-        col_descriptions = [col.description for col in tap_table.columns]
-
-        # Create an Astropy Table to hold the metadata
-        column_metadata = Table([col_names, col_datatypes, col_units, col_ucds, col_descriptions],
-                                names=('name', 'data_type', 'unit', 'ucd', 'description'))
+        column_metadata = result.to_table()
         return column_metadata
 
     def _get_ra_dec_column_names(self, column_metadata):
@@ -326,7 +335,7 @@ class CatalogCollection:
         # Look for a column with UCD 'pos.eq.ra;meta.main' and 'pos.eq.dec;meta.main'
         ra_col = None
         dec_col = None
-        for name, ucd in zip(column_metadata['name'], column_metadata['ucd']):
+        for name, ucd in zip(column_metadata['column_name'], column_metadata['ucd']):
             if ucd and 'pos.eq.ra;meta.main' in ucd:
                 # TODO: ps1_dr2.mean_object and ps1_dr2.stacked_object has a column that can be used,
                 # but is not labeled with "meta.main"
@@ -354,7 +363,7 @@ class CatalogCollection:
         """
         if not criteria:
             return
-        col_names = list(self.get_catalog_metadata(catalog).column_metadata['name'])
+        col_names = list(self.get_catalog_metadata(catalog).column_metadata['column_name'])
 
         # Check each criteria argument for validity
         for kwd in criteria.keys():
