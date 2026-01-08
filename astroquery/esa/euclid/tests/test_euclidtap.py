@@ -160,25 +160,25 @@ def column_attrs():
 
 
 def test_load_environments():
-    tap = EuclidClass(environment='PDR')
+    tap = EuclidClass(environment='PDR', show_server_messages=False)
 
     assert tap is not None
 
-    tap = EuclidClass(environment='IDR')
+    tap = EuclidClass(environment='IDR', show_server_messages=False)
 
     assert tap is not None
 
-    tap = EuclidClass(environment='OTF')
+    tap = EuclidClass(environment='OTF', show_server_messages=False)
 
     assert tap is not None
 
-    tap = EuclidClass(environment='REG')
+    tap = EuclidClass(environment='REG', show_server_messages=False)
 
     assert tap is not None
 
     environment = 'WRONG'
     try:
-        tap = EuclidClass(environment='WRONG')
+        tap = EuclidClass(environment='WRONG', show_server_messages=False)
     except Exception as e:
         assert str(e).startswith(f"Invalid environment {environment}. Valid values: {list(conf.ENVIRONMENTS.keys())}")
 
@@ -672,7 +672,7 @@ def test_get_product_list_by_tile_index():
 
 
 def test_get_product_list_errors():
-    tap = EuclidClass()
+    tap = EuclidClass(show_server_messages=False)
 
     with pytest.raises(ValueError, match="Missing required argument: 'product_type'"):
         tap.get_product_list(observation_id='13', product_type=None)
@@ -1140,7 +1140,7 @@ def test_get_scientific_data_product_list():
 
 
 def test_get_scientific_data_product_list_exceptions():
-    eculid = EuclidClass()
+    eculid = EuclidClass(show_server_messages=False)
 
     with pytest.raises(ValueError, match="Include a valid parameter to retrieve a LE3 product."):
         eculid.get_scientific_product_list(observation_id=None, tile_index=None, category=None, group=None,
