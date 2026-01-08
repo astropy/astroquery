@@ -31,6 +31,13 @@ vizier
 
 - Methods ``get_catalog``, ``get_catalog_async`` and ``query_*`` now always return UCD1+ instead of UCD1. [#3458]
 
+mast
+^^^^
+- ``utils.mast_relative_path`` is now deprecated in favor of ``utils.get_cloud_paths``. [#3488]
+- When cloud access is enabled, ``Observations.download_file`` and ``Observations.download_products`` 
+  now check all requested products against cloud storage. As a result, setting ``cloud_only=True`` will skip 
+  any products that are not available in the cloud, rather than falling back to on-prem downloads.
+
 Service fixes and enhancements
 ------------------------------
 
