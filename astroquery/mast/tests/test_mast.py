@@ -1002,9 +1002,9 @@ def test_observations_download_file_cloud(mock_is_file, mock_client, mock_resour
     mast.Observations.enable_cloud_dataset()
     mast_uri = 'mast:HST/product/u9o40504m_c3m.fits'
 
-    # Warn if both cloud_only and skip_cloud are True
-    with pytest.warns(InputWarning, match='Both `cloud_only` and `skip_cloud` are set to True'):
-        result = mast.Observations.download_file(mast_uri, cloud_only=True, skip_cloud=True)
+    # Warn if both cloud_only and force_on_prem are True
+    with pytest.warns(InputWarning, match='Both `cloud_only` and `force_on_prem` are set to True'):
+        result = mast.Observations.download_file(mast_uri, cloud_only=True, force_on_prem=True)
         assert result == ('COMPLETE', None, None)
 
     # Skip file if cloud_only is True but file is not in cloud
@@ -1031,14 +1031,14 @@ def test_observations_download_file_cloud(mock_is_file, mock_client, mock_resour
 
 
 @patch('boto3.client')
-def test_observations_get_cloud_missions(mock_client, patch_post):
+def test_observations_list_cloud_missions(mock_client, patch_post):
     pytest.importorskip('boto3')
     mock_client.return_value.list_objects_v2.return_value = {
         'CommonPrefixes': [{'Prefix': 'hst/'}, {'Prefix': 'jwst/'}, {'Prefix': 'mast/'}]
     }
 
     mast.Observations.enable_cloud_dataset()
-    supported = mast.Observations.get_cloud_missions()
+    supported = mast.Observations.list_cloud_datasets()
     assert isinstance(supported, list)
     assert 'hst' in supported
     assert 'jwst' in supported
@@ -1048,18 +1048,18 @@ def test_observations_get_cloud_missions(mock_client, patch_post):
 
 
 @patch('boto3.client')
-def test_observations_get_cloud_missions_error(mock_client, patch_post, caplog):
+def test_observations_list_cloud_missions_error(mock_client, patch_post, caplog):
     pytest.importorskip('boto3')
 
     # Error without cloud connection
     with pytest.raises(RemoteServiceError):
-        mast.Observations.get_cloud_missions()
+        mast.Observations.list_cloud_datasets()
 
     # Mock an error when listing objects
     mock_client.return_value.list_objects_v2.side_effect = Exception('AWS error')
 
     mast.Observations.enable_cloud_dataset()
-    supported = mast.Observations.get_cloud_missions()
+    supported = mast.Observations.list_cloud_datasets()
     assert supported == []
 
     mast.Observations.disable_cloud_dataset()
