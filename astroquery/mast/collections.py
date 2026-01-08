@@ -297,7 +297,7 @@ class CatalogsClass(MastQueryWithLogin):
 
             sort_adql = ''
             for col in sort_by:
-                if col not in collection_obj.get_catalog_metadata(catalog).column_metadata['name'].tolist():
+                if col not in collection_obj.get_catalog_metadata(catalog).column_metadata['column_name'].tolist():
                     raise InvalidQueryError(f"Sort column '{col}' not found in catalog '{catalog}'.")
                 sort_adql += f"{col} " + ("DESC" if sort_desc[sort_by.index(col)] else "ASC") + ", "
 
@@ -775,7 +775,7 @@ class CatalogsClass(MastQueryWithLogin):
         InvalidQueryError
             If any specified column is not found in the catalog metadata.
         """
-        valid_columns = column_metadata['name'].tolist()
+        valid_columns = column_metadata['column_name'].tolist()
         valid_selected = []
         for col in select_cols:
             if col not in valid_columns:
@@ -899,7 +899,7 @@ class CatalogsClass(MastQueryWithLogin):
             'float', 'double', 'double precision', 'real', 'numeric', 'decimal'
         )
         return {
-            n for n, t in zip(meta["name"], meta["data_type"])
+            n for n, t in zip(meta["column_name"], meta["datatype"])
             if isinstance(t, str) and t.lower() in num_types
         }
 
