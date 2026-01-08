@@ -58,23 +58,23 @@ class CloudAccess:  # pragma:no-cover
         self.pubdata_bucket = "stpubdata"
         self.s3_client = self.boto3.client('s3', config=self.config)
 
-        # Cached list of missions available in the cloud
-        self._supported_missions = self._fetch_supported_missions()
+        # Cached list of datasets available in the cloud
+        self._supported_datasets = self._fetch_supported_datasets()
 
         if verbose:
             log.info("Using the S3 STScI public dataset")
 
-    def _fetch_supported_missions(self):
+    def _fetch_supported_datasets(self):
         """
-        Returns the list of missions that have data available in the cloud.
+        Returns the list of datasets that have data available in the cloud.
 
         Returns
         -------
         response : list
-              List of supported missions.
+              List of supported datasets.
         """
         try:
-            missions = []
+            datasets = []
 
             # Top-level prefixes in the bucket
             response = self.s3_client.list_objects_v2(
@@ -92,35 +92,35 @@ class CloudAccess:  # pragma:no-cover
                         Prefix='mast/hlsp/',
                         Delimiter='/',
                     )
-                    missions.extend(
+                    datasets.extend(
                         cp['Prefix'].rstrip('/')
                         for cp in mast_response.get('CommonPrefixes', [])
                     )
                 else:
-                    missions.append(prefix)
+                    datasets.append(prefix)
 
-            return missions
+            return datasets
 
         except Exception as e:
-            log.error('Failed to retrieve supported missions from S3 bucket %s: %s', self.pubdata_bucket, e)
+            log.error('Failed to retrieve supported datasets from S3 bucket %s: %s', self.pubdata_bucket, e)
             return []
 
-    def get_supported_missions(self):
+    def get_supported_datasets(self):
         """
-        Returns the list of missions that have data available in the cloud.
+        Returns the list of datasets that have data available in the cloud.
 
         Returns
         -------
         response : list
-              List of supported missions.
+              List of supported datasets.
         """
-        return list(self._supported_missions)
+        return list(self._supported_datasets)
 
     def get_cloud_uri(self, data_product, include_bucket=True, full_url=False):
         """
         For a given data product, returns the associated cloud URI.
-        If the product is from a mission that does not support cloud access an
-        exception is raised. If the mission is supported but the product
+        If the product is from a dataset that does not support cloud access an
+        exception is raised. If the dataset is supported but the product
         cannot be found in the cloud, the returned path is None.
 
         Parameters

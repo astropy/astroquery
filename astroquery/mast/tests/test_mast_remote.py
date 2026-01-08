@@ -926,10 +926,10 @@ class TestMast:
         assert result == ("COMPLETE", None, None)
         assert Path(tmp_path, filename).exists()
 
-    def test_observations_get_cloud_missions(self):
+    def test_observations_list_cloud_missions(self):
         pytest.importorskip('boto3')
         Observations.enable_cloud_dataset()
-        missions = Observations.get_cloud_missions()
+        missions = Observations.list_cloud_datasets()
         assert isinstance(missions, list)
         assert len(missions) > 0
         for m in ['hst', 'jwst', 'panstarrs', 'galex', 'tess']:

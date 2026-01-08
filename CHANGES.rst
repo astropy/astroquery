@@ -83,7 +83,7 @@ mast
 
 - Added full support for the International Ultraviolet Explorer (IUE) mission in ``MastMissions``. [#3517]
 
-- Added a new ``Observations.get_cloud_missions()`` method for querying cloud-supported MAST missions, alongside 
+- Added a new ``Observations.list_cloud_datasets()`` method for querying cloud-supported MAST datasets, alongside 
   improvements to cloud download handling. [#3488]
 
 jplspec
