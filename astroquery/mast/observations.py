@@ -623,7 +623,7 @@ class ObservationsClass(MastQueryWithLogin):
         return products[filter_mask]
 
     def download_file(self, uri, *, local_path=None, base_url=None, cache=True, cloud_only=False,
-                      skip_cloud=False, verbose=True):
+                      force_on_prem=False, verbose=True):
         """
         Downloads a single file based on the data URI
 
@@ -641,8 +641,9 @@ class ObservationsClass(MastQueryWithLogin):
             Default False. If set to True and cloud data access is enabled (see `enable_cloud_dataset`)
             files that are not found in the cloud will be skipped rather than downloaded from MAST
             as is the default behavior. If cloud access is not enabled, this argument has no effect.
-        skip_cloud : bool, optional
-            Default False. If set to True, cloud data access will be skipped even if it is enabled.
+        force_on_prem : bool, optional
+            Default False. If set to True, cloud data access will be bypassed and the
+            file will be downloaded from MAST on-prem servers even if cloud access is enabled.
         verbose : bool, optional
             Default True. Whether to show download progress in the console.
 
@@ -662,10 +663,10 @@ class ObservationsClass(MastQueryWithLogin):
         data_url = f"{base_url}?uri={uri}"
         escaped_url = f"{base_url}?uri={quote(uri, safe=':/')}"
 
-        if cloud_only and skip_cloud:
-            warnings.warn("Both `cloud_only` and `skip_cloud` are set to True. "
-                          "`skip_cloud` will be ignored and cloud download will be attempted first.", InputWarning)
-            skip_cloud = False
+        if cloud_only and force_on_prem:
+            warnings.warn("Both `cloud_only` and `force_on_prem` are set to True. "
+                          "`force_on_prem` will be ignored and cloud download will be attempted first.", InputWarning)
+            force_on_prem = False
 
         #  Resolve local output path
         filename = os.path.basename(uri)
@@ -679,7 +680,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         try:
             # Attempt cloud download first (if enabled)
-            if self._cloud_connection is not None and not skip_cloud:
+            if self._cloud_connection is not None and not force_on_prem:
                 try:
                     self._cloud_connection.download_file_from_cloud(uri, local_path, cache, verbose)
                 except Exception as ex:
@@ -772,7 +773,7 @@ class ObservationsClass(MastQueryWithLogin):
                             warnings.warn(f'Could not download {cloud_uri} from cloud: {ex}. '
                                           'Falling back to MAST download.', InputWarning)
                             status, msg, url = self.download_file(mast_uri, local_path=local_path, cache=cache,
-                                                                  skip_cloud=True, verbose=verbose)
+                                                                  force_on_prem=True, verbose=verbose)
                 else:
                     if cloud_uri_map is not None:
                         # Cloud is enabled, but product was not found
@@ -785,14 +786,14 @@ class ObservationsClass(MastQueryWithLogin):
                             warnings.warn(f'The product {mast_uri} was not found in the cloud. '
                                           'Falling back to MAST download.', InputWarning)
                             status, msg, url = self.download_file(mast_uri, local_path=local_path, cache=cache,
-                                                                  skip_cloud=True, verbose=verbose)
+                                                                  force_on_prem=True, verbose=verbose)
                     else:
                         # Cloud is not enabled
                         if cloud_only:
                             warnings.warn("`cloud_only` is True but cloud data access is not enabled. "
                                           "Falling back to MAST download.", InputWarning)
                         status, msg, url = self.download_file(mast_uri, local_path=local_path, cache=cache,
-                                                              cloud_only=False, skip_cloud=True, verbose=verbose)
+                                                              cloud_only=False, force_on_prem=True, verbose=verbose)
 
             except Exception as ex:
                 log.exception('Download failed for %s: %s', mast_uri, ex)
@@ -941,22 +942,22 @@ class ObservationsClass(MastQueryWithLogin):
 
         return manifest
 
-    def get_cloud_missions(self):
+    def list_cloud_datasets(self):
         """
-        Returns a list of missions that support cloud data access. Missions are the prefixes
+        Returns a list of datasets that support cloud data access. Datasets are the prefixes
         present in the MAST public data bucket on AWS S3.
 
         Returns
         -------
         response : list
-            List of mission prefixes that support cloud data access.
+            List of dataset prefixes that support cloud data access.
         """
         if self._cloud_connection is None:
             raise RemoteServiceError(
                 'Please enable anonymous cloud access by calling `enable_cloud_dataset` method. '
                 'Refer to `~astroquery.mast.ObservationsClass.enable_cloud_dataset` documentation for more info.')
 
-        return self._cloud_connection.get_supported_missions()
+        return self._cloud_connection.get_supported_datasets()
 
     def get_cloud_uris(self, data_products=None, *, include_bucket=True, full_url=False, pagesize=None, page=None,
                        mrp_only=False, extension=None, filter_products={}, return_uri_map=False, verbose=True,
@@ -1078,8 +1079,8 @@ class ObservationsClass(MastQueryWithLogin):
     def get_cloud_uri(self, data_product, *, include_bucket=True, full_url=False):
         """
         For a given data product, returns the associated cloud URI.
-        If the product is from a mission that does not support cloud access an
-        exception is raised. If the mission is supported but the product
+        If the product is from a dataset that does not support cloud access an
+        exception is raised. If the dataset is supported but the product
         cannot be found in the cloud, the returned path is None.
 
         Parameters
