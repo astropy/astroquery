@@ -3,22 +3,14 @@
 =============
 TAP plus
 =============
-
-@author: Juan Carlos Segovia
-@contact: juan.carlos.segovia@sciops.esa.int
-
-European Space Astronomy Centre (ESAC)
-European Space Agency (ESA)
-
-Created on 30 jun. 2016
-
-
 """
-
+import gzip
+import os
 import time
 from urllib.parse import urlencode
 
 import requests
+from astropy.io import votable
 from astropy.logger import log
 
 from astroquery.utils.tap import taputils
@@ -127,14 +119,14 @@ class Job:
                 # a request for RUN does not mean the server executes the job
                 phase = 'QUEUED'
                 if response.status != 200 and response.status != 303:
-                    errMsg = taputils.get_http_response_error(response)
-                    print(response.status, errMsg)
-                    raise requests.exceptions.HTTPError(errMsg)
+                    err_msg = taputils.get_http_response_error(response)
+                    print(response.status, err_msg)
+                    raise requests.exceptions.HTTPError(err_msg)
             else:
                 if response.status != 200:
-                    errMsg = taputils.get_http_response_error(response)
-                    print(response.status, errMsg)
-                    raise requests.exceptions.HTTPError(errMsg)
+                    err_msg = taputils.get_http_response_error(response)
+                    print(response.status, err_msg)
+                    raise requests.exceptions.HTTPError(err_msg)
             self._phase = phase
             return response
         else:
@@ -149,6 +141,8 @@ class Job:
             Parameter name.
         value : string
             Parameter value.
+        verbose : bool, optional, default 'False'
+            flag to display information about the process
         """
         if self._phase == 'PENDING':
             # send post parameter/value
@@ -161,9 +155,9 @@ class Job:
                 print(response.getheaders())
             self.__last_phase_response_status = response.status
             if response.status != 200:
-                errMsg = taputils.get_http_response_error(response)
-                print(response.status, errMsg)
-                raise requests.exceptions.HTTPError(errMsg)
+                err_msg = taputils.get_http_response_error(response)
+                print(response.status, err_msg)
+                raise requests.exceptions.HTTPError(err_msg)
             return response
         else:
             raise ValueError(f"Cannot start a job in phase: {self._phase}")
@@ -174,7 +168,7 @@ class Job:
         Parameters
         ----------
         update : bool
-            if True, the phase will by updated by querying the server before
+            if True, the phase will be updated by querying the server before
             returning.
 
         Returns
@@ -187,9 +181,9 @@ class Job:
 
             self.__last_phase_response_status = response.status
             if response.status != 200:
-                errMsg = taputils.get_http_response_error(response)
-                print(response.status, errMsg)
-                raise requests.exceptions.HTTPError(errMsg)
+                err_msg = taputils.get_http_response_error(response)
+                print(response.status, err_msg)
+                raise requests.exceptions.HTTPError(err_msg)
 
             self._phase = str(response.read().decode('utf-8'))
         return self._phase
@@ -233,6 +227,9 @@ class Job:
         # read_results_table_from_file checks whether
         # the file already exists or not
         output_format = self.parameters['format']
+        if 'responseformat' in self.parameters:
+            output_format = self.parameters['responseformat']
+
         results = modelutils.read_results_table_from_file(self.outputFile,
                                                           output_format, use_names_over_ids=self.use_names_over_ids)
         if results is not None:
@@ -271,7 +268,17 @@ class Job:
         if self.__resultInMemory:
             if verbose:
                 print(f"Saving results to: {self.outputFile}")
-            self.results.to_xml(self.outputFile)
+
+            if type(self.results) is votable:
+                self.results.to_xml(self.outputFile)
+            else:
+                filename, file_extension = os.path.splitext(self.outputFile)
+                if file_extension == '.gz':
+                    filename, file_extension = os.path.splitext(filename)
+                    self.write_results(file_extension, gzip.decompress(self.outputFile))
+                else:
+                    self.write_results(file_extension, self.outputFile)
+
         else:
             if not self.async_:
                 # sync: cannot access server again
@@ -284,11 +291,11 @@ class Job:
                 if verbose:
                     print(response.status, response.reason)
                     print(response.getheaders())
-                isError = self.connHandler. \
+                is_error = self.connHandler. \
                     check_launch_response_status(response,
                                                  verbose,
                                                  200)
-                if isError:
+                if is_error:
                     print(response.reason)
                     raise Exception(response.reason)
                 if self.outputFileUser is None:
@@ -303,6 +310,18 @@ class Job:
                 if verbose:
                     print(f"Saving results to: {output}")
                 self.connHandler.dump_to_file(output, response)
+
+    def write_results(self, file_extension, output_file):
+        if file_extension == '.vot' or file_extension == '.xml':
+            self.results.write(output_file, format='votable', overwrite=True)
+        elif file_extension == '.ecsv':
+            self.results.write(output_file, format='ascii.ecsv', overwrite=True)
+        elif file_extension == '.csv':
+            self.results.write(output_file, format='ascii.csv', overwrite=True)
+        elif file_extension == '.json':
+            self.results.write(output_file, format='pandas.json', overwrite=True)
+        else:
+            self.results.write(output_file, overwrite=True)
 
     def wait_for_job_end(self, *, verbose=False):
         """Waits until a job is finished
@@ -331,7 +350,7 @@ class Job:
             lphase = responseData.upper().strip()
             if verbose:
                 print(f"Job {self.jobid} status: {lphase}")
-            if ("PENDING" != lphase and "QUEUED" != lphase and "EXECUTING" != lphase):
+            if "PENDING" != lphase and "QUEUED" != lphase and "EXECUTING" != lphase:
                 break
             # PENDING, QUEUED, EXECUTING, COMPLETED, ERROR, ABORTED, UNKNOWN,
             # HELD, SUSPENDED, ARCHIVED:
@@ -349,23 +368,26 @@ class Job:
 
         resultsResponse = self.__handle_redirect_if_required(resultsResponse,
                                                              verbose=debug)
-        isError = self.connHandler. \
+        is_error = self.connHandler. \
             check_launch_response_status(resultsResponse,
                                          debug,
                                          200)
         self._phase = phase
         if phase == 'ERROR':
-            errMsg = self.get_error(verbose=debug)
-            raise SystemError(errMsg)
+            err_msg = self.get_error(verbose=debug)
+            raise SystemError(err_msg)
         else:
-            if isError:
-                errMsg = taputils.get_http_response_error(resultsResponse)
-                print(resultsResponse.status, errMsg)
-                raise requests.exceptions.HTTPError(errMsg)
+            if is_error:
+                err_msg = taputils.get_http_response_error(resultsResponse)
+                print(resultsResponse.status, err_msg)
+                raise requests.exceptions.HTTPError(err_msg)
             else:
-                outputFormat = self.parameters['format']
+                output_format = self.parameters['format']
+                if 'responseformat' in self.parameters:
+                    output_format = self.parameters['responseformat']
+
                 results = utils.read_http_response(resultsResponse,
-                                                   outputFormat, use_names_over_ids=self.use_names_over_ids)
+                                                   output_format, use_names_over_ids=self.use_names_over_ids)
                 self.set_results(results)
 
     def __handle_redirect_if_required(self, resultsResponse, *, verbose=False):
@@ -402,9 +424,9 @@ class Job:
             print(resultsResponse.status, resultsResponse.reason)
             print(resultsResponse.getheaders())
         if (resultsResponse.status != 200 and resultsResponse.status != 303 and resultsResponse.status != 302):
-            errMsg = taputils.get_http_response_error(resultsResponse)
-            print(resultsResponse.status, errMsg)
-            raise requests.exceptions.HTTPError(errMsg)
+            err_msg = taputils.get_http_response_error(resultsResponse)
+            print(resultsResponse.status, err_msg)
+            raise requests.exceptions.HTTPError(err_msg)
         else:
             if resultsResponse.status == 303 or resultsResponse.status == 302:
                 # get location
@@ -421,22 +443,22 @@ class Job:
                     execute_tapget(relativeLocationSubContext)
                 response = self.__handle_redirect_if_required(response,
                                                               verbose=verbose)
-                isError = self.connHandler. \
+                is_error = self.connHandler. \
                     check_launch_response_status(response, verbose, 200)
-                if isError:
-                    errMsg = taputils.get_http_response_error(resultsResponse)
-                    print(resultsResponse.status, errMsg)
-                    raise requests.exceptions.HTTPError(errMsg)
+                if is_error:
+                    err_msg = taputils.get_http_response_error(resultsResponse)
+                    print(resultsResponse.status, err_msg)
+                    raise requests.exceptions.HTTPError(err_msg)
             else:
                 response = resultsResponse
-            errMsg = taputils.get_http_response_error(response)
-        return errMsg
+            err_msg = taputils.get_http_response_error(response)
+        return err_msg
 
     def is_finished(self):
         """Returns whether the job is finished (ERROR, ABORTED, COMPLETED) or not
 
         """
-        if (self._phase == 'ERROR' or self._phase == 'ABORTED' or self._phase == 'COMPLETED'):
+        if self._phase == 'ERROR' or self._phase == 'ABORTED' or self._phase == 'COMPLETED':
             return True
         else:
             return False
