@@ -194,9 +194,9 @@ class GaiaClass(TapPlus):
             'EPOCH_PHOTOMETRY_CROWDED_FIELD', 'EPOCH_IMAGE', 'EPOCH_PHOTOMETRY_CCD', 'EPOCH_SPECTRUM_XP_SSO',
             'EPOCH_SPECTRUM_XP_CROWDING', 'MEAN_SPECTRUM_XP', 'EPOCH_SPECTRUM_XP', 'CROWDED_FIELD_IMAGE',
             'EPOCH_ASTROMETRY_BRIGHT', 'MEAN_SPECTRUM_XP_GRAVLENS', 'EPOCH_FLAGS_NSS', 'EPOCH_PARAMETERS_RVS_SINGLE',
-            'EPOCH_PARAMETERS_RVS_DOUBLE', 'EPOCH_FLAGS_VARI']. Note that for 'CROWDED_FIELD_IMAGE', only the format
-            'fits' can be used, and its image, in the principal header, will not be available in the returned
-            dictionary. Set 'output_file' to retrieve all data: image + tables. Note that for 'RESIDUAL_IMAGE',
+            'EPOCH_PARAMETERS_RVS_DOUBLE', 'EPOCH_FLAGS_VARI', 'RESIDUAL_IMAGE']. Note that for 'CROWDED_FIELD_IMAGE',
+            only the format 'fits' can be used, and its image, in the principal header, will not be available in the
+            returned dictionary. Set 'output_file' to retrieve all data: image + tables. Note that for 'RESIDUAL_IMAGE',
             only the format 'fits' can be used. Since the fits files only contain images, the returned table will be
             empty. Therefore, set 'output_file' to save the files to get access to their content.
         linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID, TRANSIT_ID, IMAGE_ID
@@ -357,6 +357,12 @@ class GaiaClass(TapPlus):
             elif key.endswith('.csv'):
                 tables = []
                 table = Table.read(value, format='ascii.csv', fast_reader=False)
+                tables.append(table)
+                files[key] = tables
+
+            elif key.endswith('.ecsv'):
+                tables = []
+                table = Table.read(value, format='ascii.ecsv', fast_reader=False)
                 tables.append(table)
                 files[key] = tables
 
