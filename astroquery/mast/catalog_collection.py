@@ -119,15 +119,11 @@ class CatalogCollection:
         ra_col, dec_col = self._get_ra_dec_column_names(metadata)
 
         # Determine if spatial queries are supported
-        supports_spatial_queries = (ra_col is not None and dec_col is not None)
-        if supports_spatial_queries:
-            # If an ra and dec column exist, test spatial query support
-            spatial_query = (f'SELECT TOP 0 * FROM {catalog} WHERE CONTAINS(POINT(\'ICRS\', {ra_col}, {dec_col}), '
-                             'CIRCLE(\'ICRS\', 0, 0, 0.1)) = 1')
-            try:
-                self.tap_service.search(spatial_query)
-            except DALQueryError:
-                supports_spatial_queries = False
+        supports_adql_geometry = all(
+            func in self.supported_adql_functions
+            for func in ('POINT', 'CIRCLE', 'CONTAINS')
+        )
+        supports_spatial_queries = (supports_adql_geometry and ra_col is not None and dec_col is not None)
 
         meta = CatalogMetadata(
             column_metadata=metadata,
@@ -177,7 +173,10 @@ class CatalogCollection:
             The result of the TAP query as an Astropy Table.
         """
         log.debug(f"Running TAP query on collection '{self.name}': {adql}")
-        result = self.tap_service.search(adql)
+        try:
+            result = self.tap_service.search(adql)
+        except DALQueryError as e:
+            raise InvalidQueryError(f"TAP query failed for collection '{self.name}': {e}")
         return result.to_table()
 
     def _fetch_catalogs(self):
