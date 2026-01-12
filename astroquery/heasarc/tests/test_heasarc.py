@@ -7,6 +7,7 @@ from unittest.mock import patch, PropertyMock
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
 import astropy.units as u
+from astropy.time import Time
 
 from astroquery.heasarc import Heasarc, HeasarcClass
 from astroquery.exceptions import InvalidQueryError
@@ -470,7 +471,7 @@ def test__constraint_matches():
             """
     assert constraint_large == desired_large
     
-    constraint_time = HeasarcClass._time_constraint(start_time="2017-01-01",end_time="2017-01-02")
+    constraint_time = HeasarcClass._time_constraint(start_time=Time("2017-01-01"),end_time=Time("2017-01-02"))
     desired_time = "end_time > 57754.000000 AND start_time < 57755.000000"
     assert constraint_time == desired_time
     

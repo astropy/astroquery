@@ -617,12 +617,12 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             End of time range of interest as a string in ISOT format
             or Time object.
         get_query_payload : bool, optional
-            If `True` then returns the generated ADQL query as str.
+            If `True` then returns the generated ADQL query as str and does not send the query.
             Defaults to `False`.
         verbose : bool, optional
             If True, prints additional information about the query. Default is False.
         maxrec : int, optional
-            The maximum number of records to return. If None, all matching records are returned.
+            The maximum number of records to return. If None, all matching records are returned up to the server limit.
         **kwargs : dict, optional
             Additional keyword arguments:
 
