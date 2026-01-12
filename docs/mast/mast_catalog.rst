@@ -1,337 +1,415 @@
 
-
 ***************
 Catalog Queries
 ***************
 
-The Catalogs class provides access to a subset of the astronomical catalogs stored at MAST.
-The catalogs currently available through this interface are:
+The `~astroquery.mast.Catalogs` interface provides toold for discovering and querying the wide
+range of astronomical catalogs hosted by MAST. These catalogs span multiple missions and surveys
+and are organized into **collections**, each of which may contain one or more **catalogs** with
+distinct schemas and capabilties. This interface is designed for **flexible, SQL-like querying** of 
+catalog data, including spatial searches and column-based filtering.
 
-- The Hubble Source Catalog (HSC)
-- The GALEX Catalog (V2 and V3)
-- The Gaia (DR1 and DR2) and TGAS Catalogs
-- The TESS Input Catalog (TIC)
-- The TESS Candidate Target List (CTL)
-- The Disk Detective Catalog
-- The PanSTARRS Catalog (DR1 and DR2)
-- The All-Sky PLATO Input Catalog (DR1)
+At a high level, querying MAST catalogs follows three steps:
+  1. Discover available collections and catalogs.
+  2. Inspect catalog metadata to understand available fields and data types.
+  3. Query the catalog using positional and/or criteria-based filters.
 
-Catalog Positional Queries
-==========================
-
-Positional queries can be based on a sky position or a target name.
-The returned fields vary by catalog, find the field documentation for specific catalogs
-`here <https://mast.stsci.edu/api/v0/pages.html>`__.
-If no catalog is specified, the Hubble Source Catalog will be queried.
-
- 
-.. doctest-remote-data::
-
-   >>> from astroquery.mast import Catalogs
-   ...
-   >>> catalog_data = Catalogs.query_region("158.47924 -7.30962", catalog="Galex")
-   >>> print(catalog_data[:10])  # doctest: +IGNORE_OUTPUT
-    distance_arcmin          objID        survey ... fuv_flux_aper_7 fuv_artifact
-   ------------------ ------------------- ------ ... --------------- ------------
-   0.3493802506329695 6382034098673685038    AIS ...     0.047751952            0
-   0.7615422488595471 6382034098672634783    AIS ...              --            0
-   0.9243329366166956 6382034098672634656    AIS ...              --            0
-    1.162615739258038 6382034098672634662    AIS ...              --            0
-   1.2670891287503308 6382034098672634735    AIS ...              --            0
-    1.492173395497916 6382034098674731780    AIS ...    0.0611195639            0
-   1.6051235757244107 6382034098672634645    AIS ...              --            0
-    1.705418541388336 6382034098672634716    AIS ...              --            0
-   1.7463721100195875 6382034098672634619    AIS ...              --            0
-   1.7524423152919317 6382034098672634846    AIS ...              --            0
-
-
-Some catalogs have a maximum number of results they will return.
-If a query results in this maximum number of results a warning will be displayed to alert
-the user that they might be getting a subset of the true result set.
-
-.. doctest-remote-data::
-
-   >>> from astroquery.mast import Catalogs
-   ...
-   >>> catalog_data = Catalogs.query_region("322.49324 12.16683", 
-   ...                                      catalog="HSC", 
-   ...                                      magtype=2)  # doctest: +SHOW_WARNINGS
-   InputWarning: Coordinate string is being interpreted as an ICRS coordinate provided in degrees.
-   MaxResultsWarning: Maximum catalog results returned, may not include all sources within radius.
-   >>> print(catalog_data[:10])
-    MatchID        Distance            MatchRA       ... W3_F160W_MAD W3_F160W_N
-   --------- -------------------- ------------------ ... ------------ ----------
-    50180585 0.003984902849540913  322.4931746094701 ...          nan          0
-     8150896 0.006357935819940561 322.49334740450234 ...          nan          0
-   100906349  0.00808206428937523  322.4932839715549 ...          nan          0
-   105434103 0.011947078376104195 322.49324000530777 ...          nan          0
-   103116183  0.01274757103013683  322.4934207202404 ...          nan          0
-    45593349 0.013026569623011767  322.4933878707698 ...          nan          0
-   103700905  0.01306760650244682  322.4932769229944 ...          nan          0
-   102470085 0.014611879195009472 322.49311034430366 ...          nan          0
-    93722307  0.01476438046135455 322.49348351134466 ...          nan          0
-    24781941 0.015234351867433582 322.49300148743345 ...          nan          0
-
-Radius is an optional parameter and the default is 0.2 degrees.
-
-.. doctest-remote-data::
-
-   >>> from astroquery.mast import Catalogs
-   ...
-   >>> catalog_data = Catalogs.query_object("M10", radius=.02, catalog="TIC")
-   >>> print(catalog_data[:10])   # doctest: +IGNORE_OUTPUT
-       ID            ra               dec        ... wdflag     dstArcSec
-   ---------- ---------------- ----------------- ... ------ ------------------
-    510188144 254.287449269816 -4.09954224264168 ...     -1 0.7650443624931581
-    510188143  254.28717785824 -4.09908635292493 ...     -1 1.3400566638148848
-    189844423 254.287799703996  -4.0994998249247 ...      0 1.3644407138867785
-   1305764031 254.287147439535 -4.09866105132406 ...     -1  2.656905409847388
-   1305763882 254.286696117371 -4.09925522448626 ...     -1 2.7561196688252894
-    510188145 254.287431890823 -4.10017293344746 ...     -1  3.036238557555728
-   1305763844 254.286675148545 -4.09971617257086 ...      0 3.1424781549696217
-   1305764030 254.287249718516 -4.09841883152995 ...     -1  3.365991083435227
-   1305764097 254.287599269103 -4.09837925361712 ...     -1    3.4590276863989
-   1305764215  254.28820865799 -4.09859677020253 ...     -1 3.7675526728257034
-
-
-The Hubble Source Catalog, the Gaia Catalog, and the PanSTARRS Catalog have multiple versions.
-An optional version parameter allows you to select which version you want, the default is the highest version.
-
-.. doctest-remote-data::
-
-   >>> catalog_data = Catalogs.query_region("158.47924 -7.30962", radius=0.1,
-   ...                                       catalog="Gaia", version=2)
-   >>> print("Number of results:",len(catalog_data))
-   Number of results: 111
-   >>> print(catalog_data[:4])
-       solution_id             designation          ...      distance
-   ------------------- ---------------------------- ... ------------------
-   1635721458409799680 Gaia DR2 3774902350511581696 ... 0.6326770410972467
-   1635721458409799680 Gaia DR2 3774901427093274112 ... 0.8440033390947586
-   1635721458409799680 Gaia DR2 3774902148648277248 ... 0.9199206487344911
-   1635721458409799680 Gaia DR2 3774902453590798208 ... 1.3578181104319944
-
-The PanSTARRS Catalog has multiple data releases as well as multiple queryable tables.
-An optional data release parameter allows you to select which data release is desired, with the default being the latest version (dr2).
-The table to query is a required parameter.
-
-.. doctest-remote-data::
-
-   >>> catalog_data = Catalogs.query_region("158.47924 -7.30962", 
-   ...                                      radius=0.1,
-   ...                                      catalog="Panstarrs", 
-   ...                                      data_release="dr1", 
-   ...                                      table="mean")
-   >>> print("Number of results:",len(catalog_data))
-   Number of results: 7007
-   >>> print(catalog_data[:10])     # doctest: +IGNORE_OUTPUT
-            ObjName           objAltName1 ... yFlags       distance
-   -------------------------- ----------- ... ------ --------------------
-   PSO J103359.653-071622.382        -999 ...  16416  0.04140441098310487
-   PSO J103359.605-071622.873        -999 ...      0  0.04121935961328582
-   PSO J103359.691-071640.232        -999 ...      0  0.03718729257758985
-   PSO J103400.268-071639.192        -999 ...      0  0.03870112803784765
-   PSO J103400.073-071637.358        -999 ...      0  0.03867536827891155
-   PSO J103359.789-071632.606        -999 ...      0  0.03921557769883566
-   PSO J103359.192-071654.790        -999 ...      0  0.03266232705300051
-   PSO J103359.959-071655.155        -999 ...      0 0.034361022297827955
-   PSO J103359.847-071655.610        -999 ...      0 0.033986082329893995
-   PSO J103400.586-071656.646        -999 ...      0 0.035645179491121386
-
-Catalog Criteria Queries
+Collections and Catalogs
 ========================
 
-The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can also be queried based on non-positional criteria.
+MAST catalogs are organized into **collections**, where each collection represents a related set of catalogs
+with a shared scientific or mission context (for example, Hubble source catalogs, Gaia data releases, etc).
+Within a collection, one or more **catalogs** may be available, each with its own schema and data.
+
+`~astroquery.mast.CatalogsClass` maintains a current collection and catalog as attributes. If no collection or catalog
+is specified in a query, these attributes will be used as defaults. The ``collection`` attribute is a 
+`~astroquery.mast.catalog_collection.CatalogCollection` instance representing the current collection,
+and the ``catalog`` attribute is a string representing the name of the current catalog within that collection.
 
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Catalogs
    ...
-   >>> catalog_data = Catalogs.query_criteria(catalog="Tic",Bmag=[30,50],objType="STAR")
-   >>> print(catalog_data)  # doctest: +IGNORE_OUTPUT
-       ID    version  HIP TYC ...     e_Dec_orig     raddflag wdflag   objID
-   --------- -------- --- --- ... ------------------ -------- ------ ----------
-   125413929 20190415  --  -- ...  0.293682765259495        1      0  579825059
-   261459129 20190415  --  -- ...  0.200397148604244        1      0 1701625107
-    64575709 20190415  --  -- ...   0.21969663115091        1      0  595775997
-    94322581 20190415  --  -- ...  0.205286802302475        1      0  606092549
-   125414201 20190415  --  -- ...   0.22398993783274        1      0  579825329
-   463721073 20190415  --  -- ...  0.489828592248652       -1      1  710312391
-    81609218 20190415  --  -- ...  0.146788572369267        1      0  630541794
-   282024596 20190415  --  -- ...  0.548806522539047        1      0  573765450
-    23868624 20190415  --  -- ...            355.949       --      0  916384285
-   282391528 20190415  --  -- ...   0.47766300834538        0      0  574723760
-   123585000 20190415  --  -- ...  0.618316068787371        0      0  574511442
-   260216294 20190415  --  -- ...  0.187170498094167        1      0  683390717
-   406300991 20190415  --  -- ... 0.0518318978617112        0      0 1411465651
+   >>> print("Default collection:", Catalogs.collection.name)
+   Default collection: hsc
+   >>> print("Default catalog:", Catalogs.catalog)
+   Default catalog: dbo.SumMagAper2CatView
 
+These attributes may be changed at any time to set new defaults. Both ``collection`` and ``catalog`` will be validated
+when set. When changing the collection, the catalog will be reset to the default for the new collection.
+
+.. doctest-remote-data::
+
+   >>> Catalogs.collection = "TIC"  # set collection to TESS Input Catalog
+   >>> print("New collection:", Catalogs.collection.name)
+   New collection: tic
+   >>> print("New catalog:", Catalogs.catalog)
+   New catalog: dbo.CatalogRecord
+
+Discovering Available Collections
+---------------------------------
+
+To list all available catalog collections hosted at MAST, use the
+`~astroquery.mast.CatalogsClass.get_collections` method.
+
+This returns an `~astropy.table.Table` containing the names of all available collections.
+
+Some historical collections are no longer supported for querying, and will not appear in this list. If a collection 
+has been renamed or deprecated, Astroquery will issue a warning and suggest the appropriate replacement where possible.
+
+.. doctest-remote-data::
+
+   >>> collections = Catalogs.get_collections()
+   >>> print(collections)  # doctest: +IGNORE_OUTPUT
+   collection_name
+   ---------------
+              caom
+            classy
+           gaiadr3
+               hsc
+             hscv2
+       missionmast
+            ps1dr1
+            ps1dr2
+           ps1_dr2
+          registry
+      skymapperdr4
+               tic
+           ullyses
+             goods
+           candels
+             3dhst
+         deepspace
+
+Discovering Catalogs in a Collection
+-------------------------------------
+
+Once a collection is selected, you can list the catalogs available within it using the
+`~astroquery.mast.catalog_collection.CatalogCollection.get_catalogs` method.
+
+To query catalogs for a specific collection without changing the class state, you can pass the 
+collection name as an argument to the method.
+
+.. doctest-remote-data::
+
+   >>> catalogs = Catalogs.get_catalogs('hsc')
+   >>> catalogs.pprint(max_width=-1)  # doctest: +IGNORE_OUTPUT
+          catalog_name                              description                      
+   -------------------------- -------------------------------------------------------
+           tap_schema.schemas                  description of schemas in this dataset
+            tap_schema.tables                   description of tables in this dataset
+           tap_schema.columns                  description of columns in this dataset
+              tap_schema.keys             description of foreign keys in this dataset
+       tap_schema.key_columns      description of foreign key columns in this dataset
+          dbo.detailedcatalog              Detailed list of source catalog parameters
+          dbo.hcvdetailedview Detailed list of Hubble Catalog of Variables parameters
+           dbo.hcvsummaryview  Summary list of Hubble Catalog of Variables parameters
+        dbo.propermotionsview                       List of proper motion information
+      dbo.sourcepositionsview                     List of source position information
+       dbo.summagaper2catview    Summary list of source catalog with Aper2 magnitudes
+        dbo.summagautocatview  Summary list of source catalog with MagAuto magnitudes
+   dbo.catalog_image_metadata               Summary list of Image processing metadata
+
+Inspecting Catalog Metadata
+----------------------------
+
+Before querying a catalog, it is often useful to inspect its metadata to understand the available columns,
+data types, and supported query capabilties. The `~astroquery.mast.CatalogsClass.get_catalog_metadata` method returns
+an `~astropy.table.Table` describing the catalog schema, including column names, data types, units, and descriptions.
+This metadata can help you construct valid queries, select columns of interest, and understand which fields support
+numeric comparions, string matching, or spatial queries.
+
+Again, you can specify a collection and catalog explicitly as inputs to the function, or use the current defaults.
+If you only specify a collection, the default catalog for that collection will be used.
 
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Catalogs
    ...
-   >>> catalog_data = Catalogs.query_criteria(catalog="Ctl",
-   ...                                        objectname='M101', 
-   ...                                        radius=1, 
-   ...                                        Tmag=[10.75,11])
-   >>> print(catalog_data)
-       ID    version  HIP     TYC      ... raddflag wdflag   objID
-   --------- -------- --- ------------ ... -------- ------ ---------
-   233458861 20190415  -- 3852-01407-1 ...        1      0 150390757
-   441662028 20190415  -- 3855-00941-1 ...        1      0 150395533
-   441658008 20190415  -- 3852-00116-1 ...        1      0 150246361
-   441639577 20190415  -- 3852-00429-1 ...        1      0 150070672
-   441658179 20190415  -- 3855-00816-1 ...        1      0 150246482
-   154258521 20190415  -- 3852-01403-1 ...        1      0 150281963
-   441659970 20190415  -- 3852-00505-1 ...        1      0 150296707
-   441660006 20190415  -- 3852-00341-1 ...        1      0 150296738
+   >>> catalog_metadata = Catalogs.get_catalog_metadata('gaiadr3', 'dbo.gaia_source')
+   >>> catalog_metadata[:5].pprint(max_width=-1)
+   column_name  datatype unit        ucd                description         
+   ------------ -------- ---- ----------------- ----------------------------
+   solution_id     long           meta.version              catalog version
+   designation     char      meta.id;meta.main                  designation
+      source_id     long                meta.id                    source id
+   random_index     long              meta.code                 random index
+      ref_epoch   double   yr        time.epoch reference epoch julian years
 
 
-.. doctest-remote-data::
+Querying Catalogs
+==================
 
-   >>> from astroquery.mast import Catalogs
-   ...
-   >>> catalog_data = Catalogs.query_criteria(catalog="DiskDetective",
-   ...                                        objectname="M10",
-   ...                                        radius=2,
-   ...                                        state="complete")
-   >>> print(catalog_data)      # doctest: +IGNORE_OUTPUT
-       designation     ...                    ZooniverseURL
-   ------------------- ... ----------------------------------------------------
-   J165628.40-054630.8 ... https://talk.diskdetective.org/#/subjects/AWI0005cka
-   J165748.96-054915.4 ... https://talk.diskdetective.org/#/subjects/AWI0005ckd
-   J165427.11-022700.4 ... https://talk.diskdetective.org/#/subjects/AWI0005ck5
-   J165749.79-040315.1 ... https://talk.diskdetective.org/#/subjects/AWI0005cke
-   J165327.01-042546.2 ... https://talk.diskdetective.org/#/subjects/AWI0005ck3
-   J165949.90-054300.7 ... https://talk.diskdetective.org/#/subjects/AWI0005ckk
-   J170314.11-035210.4 ... https://talk.diskdetective.org/#/subjects/AWI0005ckv
+The Catalogs interface provides three closely related query methods. All three methods return results from a MAST 
+catalog as an `~astropy.table.Table` (or a scalar count, if requested), and all three support column-based filtering, 
+sorting, and result limiting. The primary difference between them is how positional constraints are specified.
 
+At a high level:
+  - `~astroquery.mast.CatalogsClass.query_criteria` is the most flexible method. It supports purely column-based queries, 
+    purely positional queries, or a combination of both.
 
-The `~astroquery.mast.CatalogsClass.query_criteria` function requires at least one non-positional parameter.
-These parameters are the column names listed in the `field descriptions <https://mast.stsci.edu/api/v0/pages.html>`__
-of the catalog being queried. They do not include objectname, coordinates, or radius. Running a query with only positional
-parameters will result in an error.
+  - `~astroquery.mast.CatalogsClass.query_region` is a convenience wrapper for positional queries using coordinates or an explicit region.
 
-.. doctest-remote-data::
+  - `~astroquery.mast.CatalogsClass.query_object` is a convenience wrapper for cone searches centered on a resolved object name.
 
-   >>> from astroquery.mast import Catalogs
-   ...
-   >>> catalog_data = Catalogs.query_criteria(catalog="Tic",
-   ...                                        objectname='M101', radius=1)
-   Traceback (most recent call last):
-   ...
-   astroquery.exceptions.InvalidQueryError: At least one non-positional criterion must be supplied.
+All three methods ultimately construct and execute an ADQL query against the MAST TAP service.
 
+Shared Query Parameters
+------------------------
 
-The PanSTARRS catalog also accepts additional parameters to allow for query refinement. These options include column selection,
-sorting, column criteria, page size and page number. Additional information on PanSTARRS queries may be found
-`here <https://catalogs.mast.stsci.edu/docs/panstarrs.html>`__.
+The following parameters are supported by all three query methods:
+  - ``collection`` : The catalog collection to query. If not specified, the value of the instance's ``collection`` attribute is used.
 
-Columns returned from the query may be submitted with the columns parameter as a list of column names.
+  - ``catalog`` : The catalog within the collection to query. If not specified, the value of the instance's ``catalog`` attribute is used, or if ``collection`` is specified, the default catalog for that collection.
 
-The query may be sorted  with the sort_by parameter composed of either a single column name (to sort ascending),
-or a list of multiple column names and/or tuples of direction and column name (ASC/DESC, column name).
+  - ``limit`` : Maximum number of rows to return (default: 5000).
 
-To filter the query, criteria per column name are accepted. The 'AND' operation is performed between all
-column name criteria, and the 'OR' operation is performed within column name criteria. Per each column name
-parameter, criteria may consist of either a value or a list. The list may consist of a mix of values and
-tuples of criteria decorator (min, gte, gt, max, lte, lt, like, contains) and value.
+  - ``offset`` : Number of rows to skip before returning results (default: 0).
 
-.. doctest-remote-data::
+  - ``count_only`` : If True, return only the number of matching records instead of the records themselves.
 
-   >>> catalog_data = Catalogs.query_criteria(coordinates="5.97754 32.53617", 
-   ...                                        radius=0.01,
-   ...                                        catalog="PANSTARRS", 
-   ...                                        table="mean", 
-   ...                                        data_release="dr2",
-   ...                                        nStackDetections=[("gte", 2)],
-   ...                                        columns=["objName", "objID", "nStackDetections", "distance"],
-   ...                                        sort_by=[("desc", "distance")], 
-   ...                                        pagesize=15)
-   >>> print(catalog_data[:10])   # doctest: +IGNORE_OUTPUT
-          objName              objID        nStackDetections        distance
-   --------------------- ------------------ ---------------- ---------------------
-   PSO J005.9812+32.5270 147030059812483022                5  0.009651200148871086
-   PSO J005.9726+32.5278 147030059727583992                2    0.0093857181370567
-   PSO J005.9787+32.5453 147050059787164914                4  0.009179045509852305
-   PSO J005.9722+32.5418 147050059721440704                4  0.007171813230776031
-   PSO J005.9857+32.5377 147040059855825725                4  0.007058815429178634
-   PSO J005.9810+32.5424 147050059809651427                2  0.006835678269917365
-   PSO J005.9697+32.5368 147040059697224794                2  0.006654002479439699
-   PSO J005.9712+32.5330 147040059711340087                4  0.006212461367287632
-   PSO J005.9747+32.5413 147050059747400181                5 0.0056515210592035965
-   PSO J005.9775+32.5314 147030059774678271                3  0.004739286624336443
+  - ``select_cols`` : A list of column names to include in the result. If omitted, all columns are returned.
 
+  - ``sort_by``: One or more column names to sort by.
 
-Hubble Source Catalog (HSC) specific queries
-============================================
+  - ``sort_desc`` : Whether to sort in descending order (either a single boolean applied to all ``sort_by`` columns or one per column).
 
-Given an HSC Match ID, return all catalog results.
+These parameters allow users to control the scope and format of their queries consistently across all three methods.
+
+Writing Queries
+----------------
+
+The `~astroquery.mast.CatalogsClass.query_criteria` method supports both positional parameters and column-based filters.
+Positional constraints are optional. 
+
+Supported positional parameters include:
+  - ``coordinates`` : Sky coordinates around which to perform a cone search.
+  - ``objectname`` : Name of the object around which to perform a cone search.
+  - ``resolver`` : Resolver service to use for object name resolution.
+  - ``radius`` : Radius of the cone search around the specified coordinates or object name. Can be defined as an `~astropy.units.Quantity`, a string with units (e.g., ``"10 arcsec"``), or a numeric value interpreted as degrees.
+  - ``region`` : Explicit region specification for the search. See :ref:`specifying-spatial-regions` below for more details.
+
+If no positional parameters are supplied, the query is purely criteria-based. If positional parameters are supplied, 
+they are combined with any column-based criteria using logical **AND**.
 
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Catalogs
    ...
-   >>> catalog_data = Catalogs.query_object("M10", 
-   ...                                      radius=.001,
-   ...                                      catalog="HSC", 
-   ...                                      magtype=1)
-   >>> matchid = catalog_data[0]["MatchID"]
-   >>> print(matchid)
-   7542452
-   >>> matches = Catalogs.query_hsc_matchid(matchid)
-   >>> print(matches)
-     CatID   MatchID ...                       cd_matrix                       
-   --------- ------- ... ------------------------------------------------------
-   419094794 7542452 ...   -1.10056e-005 5.65193e-010 5.65193e-010 1.10056e-005
-   419094795 7542452 ...   -1.10056e-005 5.65193e-010 5.65193e-010 1.10056e-005
-   401289578 7542452 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
-   401289577 7542452 ...   -1.10056e-005 1.56577e-009 1.56577e-009 1.10056e-005
-   257194049 7542452 ... -1.38889e-005 -5.26157e-010 -5.26157e-010 1.38889e-005
-   257438887 7542452 ... -1.38889e-005 -5.26157e-010 -5.26157e-010 1.38889e-005
+   >>> result = Catalogs.query_criteria(collection='hsc',
+   ...                                  coordinates="322.49324 12.16683",
+   ...                                  radius='2 arcsec',
+   ...                                  sort_by=['numimages', 'starttime'],
+   ...                                  sort_desc=[False, True],
+   ...                                  limit=5,
+   ...                                  select_cols=['matchid', 'matchra', 'matchdec', 'numimages', 'starttime'])
+   >>> result.pprint(max_width=-1)
+    matchid       matchra            matchdec      numimages         starttime         
+                    deg                deg                                             
+   --------- ------------------ ------------------ --------- --------------------------
+   100906349  322.4932839715549 12.166957658789572         1 2013-09-01 14:42:57.487000
+    37053748 322.49333237602906 12.167170257824768         1 2013-09-01 14:09:53.487000
+    61895629   322.493715383149 12.166629788750484         1 2011-10-22 08:10:21.217000
+    19779150 322.49277386636714 12.166728768957904         2 2013-09-01 14:09:53.487000
+    11562863 322.49294957070185 12.166668540816076         2 2006-05-02 01:13:43.920000
 
+To filter results based on column values, users may specify criteria as keyword arguments,
+where the keyword is the column name and the value is the desired filter. Multiple criteria are combined
+using logical **AND**.
 
-HSC spectra accessed through this class as well. `~astroquery.mast.CatalogsClass.get_hsc_spectra`
-does not take any arguments, and simply loads all HSC spectra.
+Criteria syntax supports a variety of operations, including:
+
+- Exact matches by specifying a value for a column.
+
+- To filter by multiple values for a single column, use a list of values. This performs an **OR** operation between the values.
+
+- A filter value can be negated by prefiing it with ``!``, meaning that rows matching that value will be excluded from the results.
+  When a negated value is present in a list of filters, any positive values in that set are combined with **OR** logic, and any negated 
+  values are combined with **AND** logic against the positives.
+
+- For columns with a numeric data type, filter using comparison values (``<``, ``>``, ``<=``, ``>=``).
+
+  - ``<``: Return values less than or before the given number/date
+
+  - ``>``: Return values greater than or after the given number/date
+
+  - ``<=``: Return values less than or equal to the given number/date
+
+  - ``>=``: Return values greater than or equal to the given number/date
+
+- For columns with a numeric data type, select an inclusive range with the syntax ``'#..#'``.
+
+- Wildcards are special characters used in search patterns to represent one or more unknown characters, 
+  allowing for flexible matching of strings. The wildcard characters are ``*`` and ``%`` and they replace any number
+  of characters preceding, following, or in between existing characters, depending on their placement.
 
 .. doctest-remote-data::
 
-   >>> from astroquery.mast import Catalogs
-   ...
-   >>> all_spectra = Catalogs.get_hsc_spectra()
-   >>> print(all_spectra[:10])
-   ObjID                 DatasetName                  MatchID  ... PropID HSCMatch
-   ----- -------------------------------------------- -------- ... ------ --------
-   20010 HAG_J072655.67+691648.9_J8HPAXAEQ_V01.SPEC1D 19657846 ...   9482        Y
-   20011 HAG_J072655.69+691648.9_J8HPAOZMQ_V01.SPEC1D 19657846 ...   9482        Y
-   20012 HAG_J072655.76+691729.7_J8HPAOZMQ_V01.SPEC1D 19659745 ...   9482        Y
-   20013 HAG_J072655.82+691620.0_J8HPAOZMQ_V01.SPEC1D 19659417 ...   9482        Y
-   20014 HAG_J072656.34+691704.7_J8HPAXAEQ_V01.SPEC1D 19660230 ...   9482        Y
-   20015 HAG_J072656.36+691704.7_J8HPAOZMQ_V01.SPEC1D 19660230 ...   9482        Y
-   20016 HAG_J072656.36+691744.9_J8HPAOZMQ_V01.SPEC1D 19658847 ...   9482        Y
-   20017 HAG_J072656.37+691630.2_J8HPAXAEQ_V01.SPEC1D 19660827 ...   9482        Y
-   20018 HAG_J072656.39+691630.2_J8HPAOZMQ_V01.SPEC1D 19660827 ...   9482        Y
-   20019 HAG_J072656.41+691734.9_J8HPAOZMQ_V01.SPEC1D 19656620 ...   9482        Y
+   >>> result = Catalogs.query_criteria(collection='ullyses',
+   ...                                  catalog='sciencemetadata',
+   ...                                  target_name_ullyses='NGC*',
+   ...                                  target_classification='!Galaxy',
+   ...                                  known_binary=False,
+   ...                                  sp_class=['O', 'B'],
+   ...                                  gaia_parallax=['<-0.1', '>=0'],
+   ...                                  star_teff='30000..50000',
+   ...                                  select_cols=['target_name_ullyses', 'target_classification', 'known_binary', 'sp_class', 'gaia_parallax', 'star_teff'])
+   >>> result.pprint(max_width=-1)
+   target_name_ullyses target_classification known_binary sp_class gaia_parallax star_teff
+                                                                        mas          K    
+   ------------------- --------------------- ------------ -------- ------------- ---------
+        NGC346 ELS 043         Early B Dwarf        False        B     -0.111579   33000.0
+        NGC346 MPG 487          Late O Dwarf        False        O     -0.389724   35800.0
+       NGC 3109 EBU 20      Mid O Supergiant        False        O      0.876327   31150.0
+       NGC 3109 EBU 34      Mid O Supergiant        False        O     -0.126069   33050.0
 
 
-Individual or ranges of spectra can be downloaded using the
-`~astroquery.mast.CatalogsClass.download_hsc_spectra` function.
+The `~astroquery.mast.CatalogsClass.query_region` and `~astroquery.mast.CatalogsClass.query_object` methods are 
+convenience wrappers around `~astroquery.mast.CatalogsClass.query_criteria`:
+
+  - `~astroquery.mast.CatalogsClass.query_region` requires a positional constraint (``coordinates`` or ``region``).
+
+  - `~astroquery.mast.CatalogsClass.query_object` requires an ``objectname`` and performs a cone search.
+
+Both methods also accept column-based criteria, which are applied in the same way as in `~astroquery.mast.CatalogsClass.query_criteria`.
 
 .. doctest-remote-data::
 
-   >>> from astroquery.mast import Catalogs
-   ...
-   >>> all_spectra = Catalogs.get_hsc_spectra()
-   >>> manifest = Catalogs.download_hsc_spectra(all_spectra[100:104])   # doctest: +IGNORE_OUTPUT
-   Downloading URL https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=HAG_J072704.61+691530.3_J8HPAOZMQ_V01.SPEC1D.fits to ./mastDownload/HSC/HAG_J072704.61+691530.3_J8HPAOZMQ_V01.SPEC1D.fits ... [Done]
-   Downloading URL https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=HAG_J072704.68+691535.9_J8HPAOZMQ_V01.SPEC1D.fits to ./mastDownload/HSC/HAG_J072704.68+691535.9_J8HPAOZMQ_V01.SPEC1D.fits ... [Done]
-   Downloading URL https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=HAG_J072704.70+691530.2_J8HPAOZMQ_V01.SPEC1D.fits to ./mastDownload/HSC/HAG_J072704.70+691530.2_J8HPAOZMQ_V01.SPEC1D.fits ... [Done]
-   Downloading URL https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=HAG_J072704.73+691808.0_J8HPAOZMQ_V01.SPEC1D.fits to ./mastDownload/HSC/HAG_J072704.73+691808.0_J8HPAOZMQ_V01.SPEC1D.fits ... [Done]
-   ...
-   >>> print(manifest)     # doctest: +IGNORE_OUTPUT
-                                Local Path                              ... URL
-   -------------------------------------------------------------------- ... ----
-   ./mastDownload/HSC/HAG_J072704.61+691530.3_J8HPAOZMQ_V01.SPEC1D.fits ... None
-   ./mastDownload/HSC/HAG_J072704.68+691535.9_J8HPAOZMQ_V01.SPEC1D.fits ... None
-   ./mastDownload/HSC/HAG_J072704.70+691530.2_J8HPAOZMQ_V01.SPEC1D.fits ... None
-   ./mastDownload/HSC/HAG_J072704.73+691808.0_J8HPAOZMQ_V01.SPEC1D.fits ... None
+   >>> result = Catalogs.query_region(collection='skymapperdr4',
+   ...                                coordinates="158.47924 -7.30962", 
+   ...                                radius='1 arcmin',
+   ...                                select_cols=['object_id', 'raj2000', 'dej2000'])
+   >>> result.pprint(max_width=-1)
+   object_id   raj2000    dej2000 
+                 deg        deg   
+   ---------- ---------- ---------
+   1116262239 158.475216  -7.29985
+     92307496 158.483015 -7.323183
+     92307428  158.46783 -7.319955
+   2151499732 158.466411 -7.319867
+
+.. doctest-remote-data::
+
+   >>> result = Catalogs.query_object(collection='skymapperdr4',
+   ...                                objectname='M11', 
+   ...                                radius=0.01,
+   ...                                catwise_id='2825m061*',
+   ...                                sort_by='mean_epoch',
+   ...                                select_cols=['object_id', 'raj2000', 'dej2000', 'catwise_id', 'mean_epoch'])
+   >>> result[:5].pprint(max_width=-1)
+   object_id   raj2000    dej2000      catwise_id     mean_epoch
+                 deg        deg                           d     
+   ---------- ---------- --------- ------------------ ----------
+    277772662  282.75865 -6.273223 2825m061_b0-113841 56833.6242
+    277772668 282.762729 -6.274544 2825m061_b0-010099 56834.1188
+   2389914703 282.768791 -6.275556 2825m061_b0-045485 56834.6156
+    277772658 282.758508 -6.276218 2825m061_b0-049457 56834.6167
+    277772511 282.764593  -6.27897 2825m061_b0-046693 56895.2497
+
+.. _specifying-spatial-regions:
+
+Specifying Spatial Regions
+--------------------------
+
+Catalogs that support spatial queries allow regions to be specified in several ways.
+
+Cone Searches
+^^^^^^^^^^^^^
+
+Cone searches are the most common type of spatial query, defined by a center position and a radius. They may be specifed using:
+  - ``coordinates`` and ``radius``
+  - ``objectname`` and ``radius``
+  - A `~astropy.regions.CircleSkyRegion` object as the ``region`` parameter
+  - A Space-Time Coordinate (STC) CIRCLE region string as the ``region`` parameter
+
+An STC-S CIRCLE region string has the following format:
+
+``CIRCLE [frame] <ra> <dec> <radius>``
+
+For example: 
+
+``CIRCLE ICRS 210.8 54.35 0.05``
+
+This means:
+  - ICRS: Coordinate frame (optional; defaults to ICRS if omitted)
+  - 210.8: Right Ascension in degrees
+  - 54.35: Declination in degrees
+  - 0.05: Radius in degrees
+
+.. doctest-remote-data::
+   >>> result = Catalogs.query_region(collection='ps1_dr2',
+   ...                                region='CIRCLE ICRS 18.895 -6.944 0.01',
+   ...                                sort_by='objID',
+   ...                                select_cols=['objName', 'objID', 'raMean', 'decMean'])
+   >>> result[:5].pprint(max_width=-1)
+           objName               objID             raMean           decMean      
+                                                    deg               deg        
+   ----------------------- ----------------- ----------------- ------------------
+   PSX J011534.22-065706.1 99650188926188340       18.89261844        -6.95171552
+   PSX J011534.90-065704.8 99650188954378784       18.89543744        -6.95134445
+   PSX J011533.84-065651.9 99660188909803092 18.89100927680362 -6.947762708324004
+   PSX J011533.97-065643.6 99660188915395866        18.8915527         -6.9454449
+   PSX J011534.30-065636.0 99660188931668392       18.89294147        -6.94333417
+
+Polygon Searches
+^^^^^^^^^^^^^^^^^
+
+Polygon searches allow for more complex spatial queries by defining a polygonal region on the sky.
+They may be specified using any of the following as the ``region`` parameter:
+
+  - An iterable of coordinate pairs
+  - A `~astropy.regions.PolygonSkyRegion` object
+  - A Space-Time Coordinate (STC) POLYGON region string
+
+An STC-S POLYGON string has the form:
+
+``POLYGON [frame] <ra1> <dec1> <ra2> <dec2> <ra3> <dec3> ...``
+
+For example: 
+
+``POLYGON ICRS 210.7 54.3 210.9 54.3 210.9 54.4 210.7 54.4``
+
+This defines a four-vertex polygon with vertices given as (RA, Dec) pairs in degrees. At least three vertices (six numbers) are required.
+
+.. doctest-remote-data::
+   >>> result = Catalogs.query_criteria(collection='caom',
+   ...                                  region='POLYGON ICRS 18.85 -6.95 18.86 -6.95 18.86 -6.94 18.85 -6.94',
+   ...                                  limit=5,
+   ...                                  select_cols=['target_name', 'obs_id', 's_ra', 's_dec'])
+   >>> result.pprint(max_width=-1)
+   target_name                                   obs_id                                         s_ra             s_dec       
+                                                                                                deg               deg        
+   ----------- ------------------------------------------------------------------------- ----------------- ------------------
+     408084461 hlsp_tglc_tess_ffi_gaiaid-2475555794352572672-s0003-cam1-ccd3_tess_v1_llc 18.85365901920825 -6.941643227687541
+     408084461           hlsp_t16_tess_ffi_s0003-cam1-ccd3-02475555794352572672_tess_v01     18.8536465402      -6.9416358523
+     408084461         hlsp_tasoc_tess_ffi_tic00408084461-s0003-cam1-ccd3-c1800_tess_v05  18.8532579321195  -6.94140657784404
+     408084461       hlsp_gsfc-eleanor-lite_tess_ffi_s0003-0000000408084461_tess_v1.0_lc  18.8532579321195 -6.941406577844042
+     408084461                     hlsp_qlp_tess_ffi_s0097-0000000408084461_tess_v01_llc     18.8532579321     -6.94140657784
+
+
+Counting Results
+-----------------
+
+All query methods support a ``count_only=True`` option, which returns only the number of matching records:
+
+.. doctest-remote-data::
+
+   >>> count = Catalogs.query_criteria(collection='skymapperdr4',
+   ...                                 region=[(20, -5), (20, -6), (21, -6), (21, -5)],
+   ...                                 count_only=True)
+   >>> print('Number of matching records:', count)
+   Number of matching records: 5479
+
+This is useful for estimating result sizes before executing large queries.
+
+Deprecated Interfaces
+======================
+
+Several legacy methods related to the Hubble Source Catalog (HSC) remain available but are deprecated and will be removed
+in a future release. These methods include:
+
+- `~astroquery.mast.CatalogsClass.query_hsc_matchid`
+- `~astroquery.mast.CatalogsClass.get_hsc_spectra`
+- `~astroquery.mast.CatalogsClass.download_hsc_spectra`
+
+New workflows should use the general `~astroquery.mast.CatalogsClass` interface described above.

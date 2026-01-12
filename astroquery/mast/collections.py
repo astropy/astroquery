@@ -895,7 +895,7 @@ class CatalogsClass(MastQueryWithLogin):
         """
         meta = collection_obj.get_catalog_metadata(catalog).column_metadata
         num_types = (
-            'int', 'integer', 'smallint', 'bigint', 'long',
+            'int', 'integer', 'smallint', 'bigint', 'long', 'short',
             'float', 'double', 'double precision', 'real', 'numeric', 'decimal'
         )
         return {
