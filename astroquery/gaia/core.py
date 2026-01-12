@@ -196,7 +196,9 @@ class GaiaClass(TapPlus):
             'EPOCH_ASTROMETRY_BRIGHT', 'MEAN_SPECTRUM_XP_GRAVLENS', 'EPOCH_FLAGS_NSS', 'EPOCH_PARAMETERS_RVS_SINGLE',
             'EPOCH_PARAMETERS_RVS_DOUBLE', 'EPOCH_FLAGS_VARI']. Note that for 'CROWDED_FIELD_IMAGE', only the format
             'fits' can be used, and its image, in the principal header, will not be available in the returned
-            dictionary. Set 'output_file' to retrieve all data: image + tables.
+            dictionary. Set 'output_file' to retrieve all data: image + tables. Note that for 'RESIDUAL_IMAGE',
+            only the format 'fits' can be used. Since the fits files only contain images, the returned table will be
+            empty. Therefore, set 'output_file' to save the files to get access to their content.
         linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID, TRANSIT_ID, IMAGE_ID
             By default, all the identifiers are considered as source_id
             SOURCE_ID: the identifiers are considered as source_id

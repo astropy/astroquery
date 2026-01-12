@@ -7,6 +7,7 @@ from astropy import units as u
 from astropy.table import Table
 from astroquery.linelists.cdms.core import CDMS, parse_letternumber, build_lookup
 from astroquery.utils.mocks import MockResponse
+from astroquery.exceptions import InvalidQueryError
 
 colname_set = set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP', 'TAG', 'QNFMT',
                    'Ju', 'Jl', "vu", "F1u", "F2u", "F3u", "vl", "Ku", "Kl",
@@ -21,10 +22,18 @@ def data_path(filename):
 
 def mockreturn(*args, method='GET', data={}, url='', **kwargs):
     if method == 'GET':
-        molecule = url.split('cdmstab')[1].split('.')[0]
-        with open(data_path(molecule+".data"), 'rb') as fh:
-            content = fh.read()
-        return MockResponse(content=content)
+        # Handle get_molecule requests (classic URL format)
+        if '/entries/c' in url:
+            molecule = url.split('/entries/c')[1].split('.')[0]
+            with open(data_path(f"c{molecule}.cat"), 'rb') as fh:
+                content = fh.read()
+            return MockResponse(content=content)
+        # Handle regular query_lines requests
+        else:
+            molecule = url.split('cdmstab')[1].split('.')[0]
+            with open(data_path(molecule+".data"), 'rb') as fh:
+                content = fh.read()
+            return MockResponse(content=content)
     elif method == 'POST':
         molecule = dict(data)['Molecules']
         with open(data_path("post_response.html"), 'r') as fh:
@@ -83,6 +92,7 @@ def test_query(patch_post):
     assert tbl['LGINT'][0] == -7.1425
     assert tbl['GUP'][0] == 3
     assert tbl['GUP'][7] == 17
+    assert tbl['MOLWT'][0] == 28
 
 
 def test_parseletternumber():
@@ -99,8 +109,11 @@ def test_parseletternumber():
     assert parse_letternumber("Z9") == 359
 
     # inferred?
-    assert parse_letternumber("z9") == -359
+    assert parse_letternumber("a0") == -10
+    assert parse_letternumber("b0") == -20
     assert parse_letternumber("ZZ") == 3535
+
+    assert parse_letternumber(np.ma.masked) == -999999
 
 
 def test_hc7s(patch_post):
@@ -201,3 +214,120 @@ def test_lut_literal():
     assert thirteenco['13CO'] == 29501
     thirteencostar = lut.find('13CO*', 0)
     assert len(thirteencostar) >= 252
+
+
+def test_malformatted_molecule_raises_error(patch_post):
+    """
+    Test that querying a malformatted molecule raises an error when
+    fallback_to_getmolecule is False (default behavior)
+    """
+    # H2C2S is in the MALFORMATTED_MOLECULE_LIST
+    with pytest.raises(ValueError, match="is known not to comply with standard CDMS format"):
+        CDMS.query_lines(min_frequency=100 * u.GHz,
+                         max_frequency=300 * u.GHz,
+                         molecule='058501 H2C2S',
+                         fallback_to_getmolecule=False)
+
+
+def test_malformatted_molecule_with_fallback(patch_post):
+    """
+    Test that querying a malformatted molecule with fallback_to_getmolecule=True
+    successfully falls back to get_molecule
+    """
+    # H2C2S is in the MALFORMATTED_MOLECULE_LIST
+    tbl = CDMS.query_lines(min_frequency=100 * u.GHz,
+                           max_frequency=300 * u.GHz,
+                           molecule='058501 H2C2S',
+                           fallback_to_getmolecule=True)
+
+    assert isinstance(tbl, Table)
+    assert len(tbl) == 3
+    assert tbl['FREQ'][0] == 114.9627
+    assert tbl['FREQ'][1] == 344.8868
+    assert tbl['FREQ'][2] == 689.7699
+    assert tbl['TAG'][0] == 58501
+    assert tbl['GUP'][0] == 9
+
+
+def test_malformatted_molecule_id_only_with_fallback(patch_post):
+    """
+    Test that querying with just the molecule ID (058501) also works with fallback
+    """
+    # Just the ID is also in the badlist
+    tbl = CDMS.query_lines(min_frequency=100 * u.GHz,
+                           max_frequency=300 * u.GHz,
+                           molecule='058501',
+                           fallback_to_getmolecule=True)
+
+    assert isinstance(tbl, Table)
+    assert len(tbl) == 3
+    assert tbl['FREQ'][0] == 114.9627
+
+
+def test_malformatted_molecule_name_only_with_fallback_error(patch_post):
+    """
+    Test that querying with just the molecule name (H2C2S) without parse_name_locally
+    raises an error because H2C2S (5 chars) is not a valid 6-digit molecule ID.
+
+    When parse_name_locally=False, "H2C2S" is passed as-is to _mol_to_payload,
+    which returns "H2C2S". This is in the badlist, so fallback is triggered,
+    but get_molecule("H2C2S") fails because it's not a 6-digit ID.
+    """
+    # Just the name is also in the badlist, but it's not a 6-digit ID
+    with pytest.raises(ValueError, match="needs to be formatted as.*6-digit string ID"):
+        CDMS.query_lines(min_frequency=100 * u.GHz,
+                         max_frequency=300 * u.GHz,
+                         molecule='H2C2S',
+                         parse_name_locally=False,
+                         fallback_to_getmolecule=True)
+
+
+def test_malformatted_molecule_name_with_parse_locally_success(patch_post):
+    """
+    Test that querying with just the molecule name (H2C2S) WITH parse_name_locally=True
+    successfully resolves to "058501 H2C2S" and then falls back to get_molecule.
+
+    When parse_name_locally=True, "H2C2S" is looked up and converted to "058501 H2C2S",
+    which is in the badlist, so fallback is triggered and succeeds.
+    """
+    tbl = CDMS.query_lines(min_frequency=100 * u.GHz,
+                           max_frequency=300 * u.GHz,
+                           molecule='H2C2S',
+                           parse_name_locally=True,
+                           fallback_to_getmolecule=True)
+
+    assert isinstance(tbl, Table)
+    assert len(tbl) == 3
+    assert tbl['TAG'][0] == 58501
+
+
+def test_get_query_payload_skips_fallback(patch_post):
+    """
+    Test that when get_query_payload=True, the fallback is not triggered
+    even for malformatted molecules
+    """
+    # This should return the payload without triggering fallback or error
+    payload = CDMS.query_lines(min_frequency=100 * u.GHz,
+                               max_frequency=300 * u.GHz,
+                               molecule='058501 H2C2S',
+                               get_query_payload=True)
+
+    assert isinstance(payload, dict)
+    assert 'Molecules' in payload
+    assert payload['Molecules'] == '058501 H2C2S'
+
+
+def test_malformatted_with_parse_name_locally_and_fallback_error():
+    """
+    Test that when parse_name_locally=True with a malformatted molecule
+    and fallback is enabled, but molecule can't be resolved, we get
+    proper error message about parsing failure
+    """
+    # First, the lookup will fail to find 'NOTREALMOLECULE' and raise InvalidQueryError
+    # before we even get to the fallback logic
+    with pytest.raises(InvalidQueryError, match="No matching species found"):
+        CDMS.query_lines(min_frequency=100 * u.GHz,
+                         max_frequency=300 * u.GHz,
+                         molecule='NOTREALMOLECULE',
+                         parse_name_locally=True,
+                         fallback_to_getmolecule=True)

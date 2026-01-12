@@ -148,7 +148,7 @@ def _batched_request(
         return extract_func(resp)
 
 
-def resolve_object(objectname, *, resolver=None, resolve_all=False):
+def resolve_object(objectname, *, resolver=None, resolve_all=False, batch_size=30):
     """
     Resolves one or more object names to a position on the sky.
 
@@ -164,6 +164,9 @@ def resolve_object(objectname, *, resolver=None, resolve_all=False):
     resolve_all : bool, optional
         If True, will try to resolve the object name using all available resolvers ("NED", "SIMBAD").
         Default is False.
+    batch_size : int, optional
+        Default 30. Number of object names to include in each batch request to the server.
+        If you experience timeouts or connection errors, consider lowering this value.
 
     Returns
     -------
@@ -230,7 +233,7 @@ def resolve_object(objectname, *, resolver=None, resolve_all=False):
     results = _batched_request(
         object_names,
         params,
-        max_batch=30,
+        max_batch=batch_size,
         param_key="name",
         request_func=lambda p: _simple_request("http://mastresolver.stsci.edu/Santa-war/query", p),
         extract_func=lambda r: r.json().get("resolvedCoordinate") or [],

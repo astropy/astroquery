@@ -269,8 +269,6 @@ class EuclidClass(TapPlus):
     def launch_job(self, query, *, name=None, dump_to_file=False, output_file=None, output_format="csv", verbose=False,
                    upload_resource=None, upload_table_name=None):
         """
-        Description
-        -----------
         Launches a synchronous job
 
         Parameters
@@ -315,8 +313,6 @@ class EuclidClass(TapPlus):
     def launch_job_async(self, query, *, name=None, dump_to_file=False, output_file=None, output_format="csv",
                          verbose=False, background=False, upload_resource=None, upload_table_name=None, autorun=True):
         """
-        Description
-        -----------
         Launches an asynchronous job
 
         Parameters
@@ -370,8 +366,6 @@ class EuclidClass(TapPlus):
     def query_object(self, coordinate, *, radius=None, width=None, height=None,
                      async_job=False, verbose=False, columns=None):
         """
-        Description
-        -----------
         Searches for objects around a given position with the default catalog sascat_pvpr01.mer_final_cat_pvpr01
 
         Parameters
@@ -510,8 +504,6 @@ class EuclidClass(TapPlus):
                     verbose=False,
                     columns=None):
         """
-        Description
-        -----------
         Cone search for a given catalog and sky position, results sorted by distance
 
         Parameters
@@ -605,8 +597,6 @@ class EuclidClass(TapPlus):
 
     def login(self, *, user=None, password=None, credentials_file=None, verbose=False):
         """
-        Description
-        -----------
         Performs a login
 
         User and password can be used or a file that contains username and password
@@ -649,8 +639,6 @@ class EuclidClass(TapPlus):
 
     def login_gui(self, verbose=False):
         """
-        Description
-        -----------
         Performs a login using a GUI dialog
 
         Parameters
@@ -690,8 +678,6 @@ class EuclidClass(TapPlus):
 
     def logout(self, verbose=False):
         """
-        Description
-        -----------
         Performs a logout
 
         Parameters
@@ -743,8 +729,6 @@ class EuclidClass(TapPlus):
 
     def get_status_messages(self, verbose=False):
         """
-        Description
-        -----------
         Retrieve the messages to inform users about
         the status of Euclid TAP
 
@@ -822,8 +806,6 @@ class EuclidClass(TapPlus):
     def get_observation_products(self, *, id=None, schema="sedm", product_type=None, product_subtype="STK",
                                  filter="VIS", output_file=None, verbose=False):
         """
-        Description
-        -----------
         Downloads the products for a given EUCLID observation_id (observations) or tile_index (mosaics)
         For big files the download may require a long time
 
@@ -892,9 +874,7 @@ class EuclidClass(TapPlus):
 
     def __get_tile_catalogue_list(self, *, tile_index, product_type, verbose=False):
         """
-         Description
-         -----------
-         Get the list of products of a given EUCLID tile_index (mosaics)
+        Get the list of products of a given EUCLID tile_index (mosaics)
 
         Parameters
         ----------
@@ -1000,8 +980,6 @@ class EuclidClass(TapPlus):
 
     def get_product_list(self, *, observation_id=None, tile_index=None, product_type, verbose=False):
         """
-        Description
-        -----------
         Get the list of products of a given EUCLID id searching by observation_id or tile_index.
 
         Parameters
@@ -1203,8 +1181,6 @@ class EuclidClass(TapPlus):
 
     def get_product(self, *, file_name=None, product_id=None, schema='sedm', output_file=None, verbose=False):
         """
-        Description
-        -----------
         Downloads a product given its file name or product id
 
         Parameters
@@ -1262,8 +1238,6 @@ class EuclidClass(TapPlus):
     def get_cutout(self, *, file_path=None, instrument=None, id=None, coordinate, radius, output_file=None,
                    verbose=False):
         """
-        Description
-        -----------
         Downloads a cutout given its file path, instrument and obs_id, and the cutout region
 
         Parameters
@@ -1329,8 +1303,6 @@ class EuclidClass(TapPlus):
 
     def get_spectrum(self, *, source_id, schema='sedm', retrieval_type="ALL", output_file=None, verbose=False):
         """
-        Description
-        -----------
         Downloads a spectrum with datalink.
 
         The spectrum associated with the source_id is downloaded as a compressed fits file, and the files it contains
@@ -1418,9 +1390,9 @@ class EuclidClass(TapPlus):
 
         return files
 
-    def get_datalinks(self, ids, *, linking_parameter='SOURCE_ID', verbose=False):
-        """Gets datalinks associated to the provided identifiers
-        TAP+ only
+    def get_datalinks(self, ids, *, linking_parameter='SOURCE_ID', extra_options=None, verbose=False):
+        """
+        Gets datalinks associated to the provided identifiers (TAP+ only).
 
         Parameters
         ----------
@@ -1428,6 +1400,9 @@ class EuclidClass(TapPlus):
             list of identifiers
         linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID
             By default, all the identifiers are considered as source_id
+        extra_options : str, optional, default None, valid values: METADATA
+            To let customize the server behaviour, if present.
+            If provided with value METADATA, the extra fields datalabs_path, file_name & hdu_index will be retrieved.
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1437,7 +1412,10 @@ class EuclidClass(TapPlus):
 
         """
 
-        return self.__eucliddata.get_datalinks(ids=ids, linking_parameter=linking_parameter, verbose=verbose)
+        return self.__eucliddata.get_datalinks(ids=ids,
+                                               linking_parameter=linking_parameter,
+                                               extra_options=extra_options,
+                                               verbose=verbose)
 
     def get_scientific_product_list(self, *, observation_id=None, tile_index=None, category=None, group=None,
                                     product_type=None, dataset_release='REGREPROC1_R2', verbose=False):

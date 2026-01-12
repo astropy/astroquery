@@ -1,5 +1,10 @@
 .. _astroquery.esa.euclid:
 
+.. almost all code examples require remote-data access, thus only using this
+   one at the very top
+.. doctest-remote-data-all::
+
+
 ********************************************
 ESA EUCLID Archive (`astroquery.esa.euclid`)
 ********************************************
@@ -80,10 +85,6 @@ Examples
 ========
 
 It is highly recommended checking the status of Euclid TAP before executing this module. To do this:
-
-.. almost all code examples require remote-data access, thus only using this
-   one at the first example
-.. doctest-remote-data-all::
 
   >>> from astroquery.esa.euclid import Euclid
   >>> Euclid.get_status_messages()
@@ -1215,6 +1216,20 @@ To find out the resources associated with a given source:
   sedm 2707008224650763513         SOURCE_ID https://eas.esac.esa.int/sas-dd/data?ID=sedm+2707008224650763513&RETRIEVAL_TYPE=SPECTRA_BGS                               #this Spectra Blue Source                          --
 
 
+This method also provides a way to get the extra columns datalabs_path, file_name & hdu_index in the call:
+
+.. Skipping authentication requiring examples
+.. doctest-skip::
+
+  >>> from astroquery.esa.euclid import Euclid
+  >>> Euclid.login()
+  >>> result = Euclid.get_datalinks(ids=2707008224650763513, extra_options='METADATA')
+  >>> print(result)
+             ID            linking_parameter                                       access_url                                            ...                           file_name                           hdu_index
+                                                                                                                                         ...
+  ------------------------ ----------------- ------------------------------------------------------------------------------------------- ... ------------------------------------------------------------- ---------
+  sedm 2707008224650763513         SOURCE_ID https://eas.esac.esa.int/sas-dd/data?ID=sedm+2707008224650763513&RETRIEVAL_TYPE=SPECTRA_RGS ... EUC_SIR_W-COMBSPEC_102158586_2024-11-05T16:05:44.880543Z.fits      1602
+  sedm 2707008224650763513         SOURCE_ID https://eas.esac.esa.int/sas-dd/data?ID=sedm+2707008224650763513&RETRIEVAL_TYPE=SPECTRA_BGS ... EUC_SIR_W-COMBSPEC_102158586_2024-11-05T16:05:44.880543Z.fits      1602
 
 
 The query below retrieves a random sample of Euclid sources having spectra.

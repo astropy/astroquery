@@ -10,15 +10,15 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.eso`.
     """
 
-    row_limit = _config.ConfigItem(
-        50,
+    ROW_LIMIT = _config.ConfigItem(
+        1000,
         'Maximum number of rows returned (set to -1 for unlimited).')
     username = _config.ConfigItem(
         "",
         'Optional default username for ESO archive.')
-    query_instrument_url = _config.ConfigItem(
-        "http://archive.eso.org/wdb/wdb/eso",
-        'Root query URL for main and instrument queries.')
+    tap_url = _config.ConfigItem(
+        "https://archive.eso.org/tap_obs",
+        'URL for TAP queries.')
 
 
 conf = Conf()

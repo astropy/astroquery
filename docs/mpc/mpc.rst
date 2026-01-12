@@ -1,8 +1,8 @@
 .. _astroquery.mpc:
 
-*************************************************************************
-Minor Planet Center Queries (`astroquery.mpc`/astroquery.solarsystem.MPC)
-*************************************************************************
+****************************************************************************
+Minor Planet Center Queries (`astroquery.mpc` or astroquery.solarsystem.MPC)
+****************************************************************************
 
 Getting started
 ===============
@@ -497,7 +497,7 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
     >>> from astroquery.mpc import MPC
     >>> MPC.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
 

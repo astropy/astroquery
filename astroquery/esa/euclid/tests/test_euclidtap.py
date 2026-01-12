@@ -1220,17 +1220,34 @@ def test_logout(mock_logout):
 
 
 def test_get_datalinks(monkeypatch):
-    def get_datalinks_monkeypatched(self, ids, linking_parameter, verbose):
+    def get_datalinks_monkeypatched(self, ids, linking_parameter, extra_options, verbose):
         return Table()
 
     # `EuclidClass` is a subclass of `TapPlus`, but it does not inherit
     # `get_datalinks()`, it replaces it with a call to the `get_datalinks()`
-    # of its `__gaiadata`.
+    # of its `__eucliddata`.
     monkeypatch.setattr(TapPlus, "get_datalinks", get_datalinks_monkeypatched)
     euclid = EuclidClass(show_server_messages=False)
 
     result = euclid.get_datalinks(ids=[12345678], verbose=True)
     assert isinstance(result, Table)
+
+
+def test_get_datalinks_with_metadata(monkeypatch):
+    def get_datalinks_monkeypatched(self, ids, linking_parameter, extra_options, verbose):
+        table = TapTableMeta()
+        table.name = extra_options
+        return table
+
+    # `EuclidClass` is a subclass of `TapPlus`, but it does not inherit
+    # `get_datalinks()`, it replaces it with a call to the `get_datalinks()`
+    # of its `__eucliddata`.
+    monkeypatch.setattr(TapPlus, "get_datalinks", get_datalinks_monkeypatched)
+    euclid = EuclidClass(show_server_messages=False)
+
+    result = euclid.get_datalinks(ids=[12345678], extra_options='METADATA')
+    assert isinstance(result, TapTableMeta)
+    assert result.name == "METADATA"
 
 
 @pytest.mark.parametrize("background", [False, True])

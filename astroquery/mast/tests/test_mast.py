@@ -8,6 +8,7 @@ from shutil import copyfile
 from unittest.mock import patch
 
 import pytest
+import numpy as np
 
 from astropy.table import Table, unique
 from astropy.coordinates import SkyCoord
@@ -304,21 +305,21 @@ def test_missions_query_criteria(patch_post):
 def test_missions_get_product_list_async(patch_post):
     # String input
     result = mast.MastMissions.get_product_list_async('Z14Z0104T')
-    assert isinstance(result, MockResponse)
+    assert isinstance(result, list)
 
     # List input
     in_datasets = ['Z14Z0104T', 'Z14Z0102T']
     result = mast.MastMissions.get_product_list_async(in_datasets)
-    assert isinstance(result, MockResponse)
+    assert isinstance(result, list)
 
     # Row input
     datasets = mast.MastMissions.query_object("M101", radius=".002 deg")
     result = mast.MastMissions.get_product_list_async(datasets[:3])
-    assert isinstance(result, MockResponse)
+    assert isinstance(result, list)
 
     # Table input
     result = mast.MastMissions.get_product_list_async(datasets[0])
-    assert isinstance(result, MockResponse)
+    assert isinstance(result, list)
 
     # Unsupported data type for datasets
     with pytest.raises(TypeError) as err_type:
@@ -329,6 +330,11 @@ def test_missions_get_product_list_async(patch_post):
     with pytest.raises(InvalidQueryError) as err_empty:
         mast.MastMissions.get_product_list_async([' '])
     assert 'Dataset list is empty' in str(err_empty.value)
+
+    # No dataset keyword
+    with pytest.raises(InvalidQueryError, match='Dataset keyword not found for mission "invalid"'):
+        missions = mast.MastMissions(mission='invalid')
+        missions.get_product_list_async(Table({'a': [1, 2, 3]}))
 
 
 def test_missions_get_product_list(patch_post):
@@ -510,6 +516,22 @@ def test_missions_get_dataset_kwd(patch_post, caplog):
     with caplog.at_level('WARNING', logger='astroquery'):
         assert 'The mission "unknown" does not have a known dataset ID keyword' in caplog.text
 
+
+@pytest.mark.parametrize(
+    'method, kwargs,',
+    [['query_region', dict()],
+     ['query_criteria', dict(ang_sep=0.6)]]
+)
+def test_missions_radius_too_large(method, kwargs, patch_post):
+    m = mast.MastMissions(mission='jwst')
+    coordinates = SkyCoord(0, 0, unit=u.deg)
+    radius = m._max_query_radius + 0.1 * u.deg
+    with pytest.raises(
+        InvalidQueryError, match='Query radius too large. Must be*'
+    ):
+        getattr(m, method)(coordinates=coordinates, radius=radius, **kwargs)
+
+
 ###################
 # MastClass tests #
 ###################
@@ -551,9 +573,11 @@ def test_mast_query(patch_post):
 
     # filtered search
     result = mast.Mast.mast_query('Mast.Caom.Filtered',
-                                  dataproduct_type=['image'],
-                                  proposal_pi=['Osten, Rachel A.'],
-                                  s_dec=[{'min': 43.5, 'max': 45.5}])
+                                  dataproduct_type=['image', 'spectrum'],
+                                  proposal_pi={'Osten, Rachel A.'},
+                                  calib_level=np.asarray(3),
+                                  s_dec={'min': 43.5, 'max': 45.5},
+                                  columns=['proposal_pi', 's_dec', 'obs_id'])
     pp_list = result['proposal_pi']
     sd_list = result['s_dec']
     assert isinstance(result, Table)
@@ -561,10 +585,18 @@ def test_mast_query(patch_post):
     assert max(sd_list) < 45.5
     assert min(sd_list) > 43.5
 
-    # error handling
-    with pytest.raises(InvalidQueryError) as invalid_query:
+    # warn if columns provided for non-filtered query
+    with pytest.warns(InputWarning, match="'columns' parameter is ignored"):
+        mast.Mast.mast_query('Mast.Caom.Cone', ra=23.34086, dec=60.658, radius=0.2, columns=['obs_id', 's_ra'])
+
+    # error if no filters provided for filtered query
+    with pytest.raises(InvalidQueryError, match="Please provide at least one filter."):
         mast.Mast.mast_query('Mast.Caom.Filtered')
-    assert "Please provide at least one filter." in str(invalid_query.value)
+
+    # error if a full range if not provided for range filter
+    with pytest.raises(InvalidQueryError,
+                       match='Range filter for "s_ra" must be a dictionary with "min" and "max" keys.'):
+        mast.Mast.mast_query('Mast.Caom.Filtered', s_ra={'min': 10.0})
 
 
 def test_resolve_object_single(patch_post):
@@ -797,6 +829,10 @@ def test_observations_get_product_list(patch_post):
     in_obsids = ['83229830', '1829332', '26074149', '24556715']
     result = mast.Observations.get_product_list(in_obsids)
     assert isinstance(result, Table)
+
+    # Error if no valid obsids are found
+    with pytest.raises(InvalidQueryError, match='Observation list is empty'):
+        mast.Observations.get_product_list([' '])
 
 
 def test_observations_filter_products(patch_post):
@@ -1292,6 +1328,69 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
         with pytest.warns(AstropyDeprecationWarning, match="Tesscut no longer supports"):
             mast.Tesscut.get_cutouts(objectname="M101", product="spooc")
     assert "Input product must be SPOC." in str(invalid_query.value)
+
+
+def test_tesscut_get_cutouts_mt_no_sector(patch_post):
+    """Test get_cutouts with moving target but no sector specified.
+
+    When sector is not specified for moving targets, the method should
+    automatically fetch available sectors and make individual requests per sector.
+    """
+    # Moving target without specifying sector - should automatically fetch sectors
+    cutout_hdus_list = mast.Tesscut.get_cutouts(objectname="Eleonora", moving_target=True, mt_type="small_body", size=5)
+    assert isinstance(cutout_hdus_list, list)
+    # Mock returns 1 sector, so we expect 1 cutout
+    assert len(cutout_hdus_list) == 1
+    assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+
+def test_tesscut_download_cutouts_mt_no_sector(patch_post, tmpdir):
+    """Test download_cutouts with moving target but no sector specified.
+
+    When sector is not specified for moving targets, the method should
+    automatically fetch available sectors and make individual requests per sector.
+    """
+    # Moving target without specifying sector - should automatically fetch sectors
+    manifest = mast.Tesscut.download_cutouts(
+        objectname="Eleonora", moving_target=True, mt_type="small_body", size=5, path=str(tmpdir)
+    )
+    assert isinstance(manifest, Table)
+    # Mock returns 1 sector, so we expect 1 file
+    assert len(manifest) == 1
+    assert manifest["Local Path"][0][-4:] == "fits"
+    assert os.path.isfile(manifest[0]["Local Path"])
+
+
+def test_tesscut_get_cutouts_mt_no_sector_empty_results(patch_post, monkeypatch):
+    """Test get_cutouts with moving target when no sectors are available.
+
+    When get_sectors returns an empty table, the method should warn and return an empty list.
+    """
+    # Mock get_sectors to return an empty Table
+    empty_sector_table = Table(names=["sectorName", "sector", "camera", "ccd"], dtype=[str, int, int, int])
+    monkeypatch.setattr(mast.Tesscut, "get_sectors", lambda *args, **kwargs: empty_sector_table)
+
+    with pytest.warns(NoResultsWarning, match="Coordinates are not in any TESS sector"):
+        cutout_hdus_list = mast.Tesscut.get_cutouts(objectname="NonExistentObject", moving_target=True, size=5)
+    assert isinstance(cutout_hdus_list, list)
+    assert len(cutout_hdus_list) == 0
+
+
+def test_tesscut_download_cutouts_mt_no_sector_empty_results(patch_post, tmpdir, monkeypatch):
+    """Test download_cutouts with moving target when no sectors are available.
+
+    When get_sectors returns an empty table, the method should warn and return an empty Table.
+    """
+    # Mock get_sectors to return an empty Table
+    empty_sector_table = Table(names=["sectorName", "sector", "camera", "ccd"], dtype=[str, int, int, int])
+    monkeypatch.setattr(mast.Tesscut, "get_sectors", lambda *args, **kwargs: empty_sector_table)
+
+    with pytest.warns(NoResultsWarning, match="Coordinates are not in any TESS sector"):
+        manifest = mast.Tesscut.download_cutouts(
+            objectname="NonExistentObject", moving_target=True, size=5, path=str(tmpdir)
+        )
+    assert isinstance(manifest, Table)
+    assert len(manifest) == 0
 
 
 ######################

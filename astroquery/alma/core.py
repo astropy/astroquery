@@ -707,8 +707,8 @@ class AlmaClass(QueryWithLogin):
     >>> uploads = {'tmptable': '/tmp/tmptable_def.xml'}
     >>> rslt = query_tap(self, query, maxrec=None, uploads=uploads)
 
-        Return
-        ------
+        Returns
+        -------
         result : `~pyvo.dal.TAPResults`
             TAP query result
 

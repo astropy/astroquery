@@ -2,9 +2,9 @@
 
 .. _astroquery.solarsystem:
 
-************************************************
-Solar System Services (`astroquery.solarsystem`)
-************************************************
+**************************************************
+Solar System Services (``astroquery.solarsystem``)
+**************************************************
 
 This submodule is a collection of Solar System-related services,
 sorted by the organizations that provide these services. Modules,
@@ -21,11 +21,3 @@ The currently available service providers and services are:
   mpc/mpc.rst
   neodys/neodys.rst
   pds/pds.rst
-
-
-
-Reference/API
-=============
-
-.. automodapi:: astroquery.solarsystem
-    :no-inheritance-diagram:

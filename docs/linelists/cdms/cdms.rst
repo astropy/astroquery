@@ -24,7 +24,12 @@ The default option to return the query payload is set to ``False``.  In the
 following examples we have explicitly set it to False and True to show the what
 each setting yields:
 
+.. testsetup:: shared
+   from astroquery.linelists.cdms import CDMS
+   import astropy.units as u
+
 .. doctest-remote-data::
+   :group: shared
 
    >>> from astroquery.linelists.cdms import CDMS
    >>> import astropy.units as u
@@ -34,23 +39,24 @@ each setting yields:
    ...                             molecule="028503 CO",
    ...                             get_query_payload=False)
    >>> response.pprint(max_width=120)
-        FREQ     ERR    LGINT   DR   ELO    GUP MOLWT TAG QNFMT  Ju  Ku  vu F1u F2u F3u  Jl  Kl  vl F1l F2l F3l   name  Lab
-        MHz      MHz   nm2 MHz      1 / cm        u
-    ----------- ------ ------- --- -------- --- ----- --- ----- --- --- --- --- --- --- --- --- --- --- --- --- ------- ----
-    115271.2018 0.0005 -5.0105   2      0.0   3    28 503   101   1  --  --  --  --  --   0  --  --  --  --  -- CO, v=0 True
-       230538.0 0.0005 -4.1197   2    3.845   5    28 503   101   2  --  --  --  --  --   1  --  --  --  --  -- CO, v=0 True
-    345795.9899 0.0005 -3.6118   2   11.535   7    28 503   101   3  --  --  --  --  --   2  --  --  --  --  -- CO, v=0 True
-    461040.7682 0.0005 -3.2657   2  23.0695   9    28 503   101   4  --  --  --  --  --   3  --  --  --  --  -- CO, v=0 True
-    576267.9305 0.0005 -3.0118   2  38.4481  11    28 503   101   5  --  --  --  --  --   4  --  --  --  --  -- CO, v=0 True
-    691473.0763 0.0005 -2.8193   2  57.6704  13    28 503   101   6  --  --  --  --  --   5  --  --  --  --  -- CO, v=0 True
-     806651.806  0.005 -2.6716   2  80.7354  15    28 503   101   7  --  --  --  --  --   6  --  --  --  --  -- CO, v=0 True
-       921799.7  0.005  -2.559   2 107.6424  17    28 503   101   8  --  --  --  --  --   7  --  --  --  --  -- CO, v=0 True
+       FREQ     ERR    LGINT   DR   ELO    GUP  TAG   QNFMT  Ju  Ku  vu ... F3u  Jl  Kl  vl F1l F2l F3l   name  MOLWT Lab
+       MHz      MHz   nm2 MHz      1 / cm                               ...                                       u
+   ----------- ------ ------- --- -------- --- ------ ----- --- --- --- ... --- --- --- --- --- --- --- ------- ----- ----
+   115271.2018 0.0005 -5.0105   2      0.0   3 -28503   101   1  --  -- ...  --   0  --  --  --  --  -- CO, v=0    28 True
+      230538.0 0.0005 -4.1197   2    3.845   5 -28503   101   2  --  -- ...  --   1  --  --  --  --  -- CO, v=0    28 True
+   345795.9899 0.0005 -3.6118   2   11.535   7 -28503   101   3  --  -- ...  --   2  --  --  --  --  -- CO, v=0    28 True
+   461040.7682 0.0005 -3.2657   2  23.0695   9 -28503   101   4  --  -- ...  --   3  --  --  --  --  -- CO, v=0    28 True
+   576267.9305 0.0005 -3.0118   2  38.4481  11 -28503   101   5  --  -- ...  --   4  --  --  --  --  -- CO, v=0    28 True
+   691473.0763 0.0005 -2.8193   2  57.6704  13 -28503   101   6  --  -- ...  --   5  --  --  --  --  -- CO, v=0    28 True
+    806651.806  0.005 -2.6716   2  80.7354  15 -28503   101   7  --  -- ...  --   6  --  --  --  --  -- CO, v=0    28 True
+      921799.7  0.005  -2.559   2 107.6424  17 -28503   101   8  --  -- ...  --   7  --  --  --  --  -- CO, v=0    28 True
 
 
 
 The following example, with ``get_query_payload = True``, returns the payload:
 
 .. doctest-remote-data::
+   :group: shared
 
    >>> response = CDMS.query_lines(min_frequency=100 * u.GHz,
    ...                             max_frequency=1000 * u.GHz,
@@ -64,6 +70,7 @@ The units of the columns of the query can be displayed by calling
 ``response.info``:
 
 .. doctest-remote-data::
+   :group: shared
 
    >>> response = CDMS.query_lines(min_frequency=100 * u.GHz,
    ...                             max_frequency=1000 * u.GHz,
@@ -80,7 +87,6 @@ The units of the columns of the query can be displayed by calling
       DR   int64               Column     0
      ELO float64  1 / cm       Column     0
      GUP   int64               Column     0
-   MOLWT   int64       u       Column     0
      TAG   int64               Column     0
    QNFMT   int64               Column     0
       Ju   int64               Column     0
@@ -96,12 +102,15 @@ The units of the columns of the query can be displayed by calling
      F2l   int64         MaskedColumn     8
      F3l   int64         MaskedColumn     8
     name    str7               Column     0
+   MOLWT   int64       u       Column     0
      Lab    bool               Column     0
+   <BLANKLINE>
 
 These come in handy for converting to other units easily, an example using a
 simplified version of the data above is shown below:
 
 .. doctest-remote-data::
+   :group: shared
 
    >>> print(response['FREQ', 'ERR', 'ELO'])
         FREQ     ERR     ELO
@@ -123,7 +132,46 @@ simplified version of the data above is shown below:
                691.4730763, 806.651806 , 921.7997   ] GHz>
 
 The parameters and response keys are described in detail under the
-Reference/API section.
+`Reference/API`_ section.
+
+Retrieving Complete Molecule Catalogs
+-------------------------------------
+
+If you need all spectral lines for a specific molecule without filtering by
+frequency range or strength, or if there is a problem with the query tool's
+version of a table (which occurs for some molecules with particularly
+complicated quantum numbers), you can use the ``get_molecule`` method. This
+method retrieves the complete catalog file for a given molecule using its
+6-digit identifier.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.linelists.cdms import CDMS
+   >>> # Retrieve all lines for CO (molecule tag 028503)
+   >>> table = CDMS.get_molecule('028503')
+   >>> print(f"Retrieved {len(table)} lines for CO")
+   Retrieved 95 lines for CO
+   >>> table[:5].pprint(max_width=120)
+       FREQ     ERR    LGINT   DR   ELO   GUP  TAG   QNFMT  Q1  Q2  Q3 ...  Q6  Q7  Q8  Q9 Q10 Q11 Q12 Q13 Q14 MOLWT Lab 
+       MHz      MHz   nm2 MHz      1 / cm                              ...                                       u       
+   ----------- ------ ------- --- ------- --- ------ ----- --- --- --- ... --- --- --- --- --- --- --- --- --- ----- ----
+   115271.2018 0.0005 -5.0105   2     0.0   3 -28503   101   1  --  -- ...  --   0  --  --  --  --  --  --  --    28 True
+      230538.0 0.0005 -4.1197   2   3.845   5 -28503   101   2  --  -- ...  --   1  --  --  --  --  --  --  --    28 True
+   345795.9899 0.0005 -3.6118   2  11.535   7 -28503   101   3  --  -- ...  --   2  --  --  --  --  --  --  --    28 True
+   461040.7682 0.0005 -3.2657   2 23.0695   9 -28503   101   4  --  -- ...  --   3  --  --  --  --  --  --  --    28 True
+   576267.9305 0.0005 -3.0118   2 38.4481  11 -28503   101   5  --  -- ...  --   4  --  --  --  --  --  --  --    28 True
+
+The molecule identifier must be a number that can be converted to a 6-digit string.
+
+The returned table includes metadata from the species table:
+
+.. doctest-remote-data::
+
+   >>> table = CDMS.get_molecule(28503)
+   >>> print(table.meta['molecule'])
+   CO, v=0
+   >>> print(table.meta['Name'])
+   CO, v = 0
 
 Looking Up More Information from the partition function file
 ------------------------------------------------------------
@@ -141,7 +189,7 @@ laboratory but not in space
    >>> result = CDMS.get_species_table()
    >>> mol = result[result['tag'] == 28503]
    >>> mol.pprint(max_width=160)
-    tag  molecule    Name   #lines lg(Q(1000)) lg(Q(500)) lg(Q(300)) ... lg(Q(9.375)) lg(Q(5.000)) lg(Q(2.725)) Ver. Documentation Date of entry    Entry   
+    tag  molecule    Name   #lines lg(Q(1000)) lg(Q(500)) lg(Q(300)) ... lg(Q(9.375)) lg(Q(5.000)) lg(Q(2.725)) Ver. Documentation Date of entry    Entry
    ----- -------- --------- ------ ----------- ---------- ---------- ... ------------ ------------ ------------ ---- ------------- ------------- -----------
    28503  CO, v=0 CO, v = 0     95      2.5595     2.2584     2.0369 ...       0.5733       0.3389       0.1478    1   e028503.cat     Oct. 2000 w028503.cat
 
@@ -303,7 +351,15 @@ It can be valuable to check this for any given molecule.
 Querying the Catalog with Regexes and Relative names
 ----------------------------------------------------
 
-The regular expression parsing is analogous to that in the JPLSpec module.
+The regular expression parsing is analogous to that in
+:mod:`astroquery.linelists.jplspec`.  See :ref:`regex_querying_linelists`.
+
+Handling Malformatted Molecules
+-------------------------------
+
+There are some entries in the CDMS catalog that get mangled by the query tool,
+but the underlying data are still good.  This seems to affect primarily those
+molecules with excessive numbers of quantum numbers such as H2NC.
 
 
 Troubleshooting
@@ -316,7 +372,7 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
     >>> from astroquery.linelists.cdms import CDMS
     >>> CDMS.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
 

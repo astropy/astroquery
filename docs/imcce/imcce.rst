@@ -1,8 +1,8 @@
 .. _astroquery.imcce:
 
-******************************************************************************************************************************************
-Institut de Mécanique Céleste et de Calcul des Éphémérides (IMCCE) Solar System Services (`astroquery.imcce`/astroquery.solarsystem.imcce)
-******************************************************************************************************************************************
+*********************************************************************************************************************************************
+Institut de Mécanique Céleste et de Calcul des Éphémérides (IMCCE) Solar System Services (`astroquery.imcce` or astroquery.solarsystem.imcce)
+*********************************************************************************************************************************************
 
 Overview
 ========
@@ -40,9 +40,9 @@ looks like this:
    >>> results = Skybot.cone_search(field, 5*u.arcmin, epoch)
    >>> results["Number", "Name", "RA", "DEC", "Type"]
    <QTable length=5>
-   Number    Name             RA                   DEC             Type  
-                             deg                   deg                   
-   int64    str32          float64               float64          str24  
+   Number    Name             RA                   DEC             Type
+                             deg                   deg
+   int64    str32          float64               float64          str24
    ------ ---------- -------------------- --------------------- ---------
        --  2012 BO42 0.019139999999999997              -0.01297 MB>Middle
    516566  2007 DH36 0.005300833333333333   0.02301111111111111  MB>Inner

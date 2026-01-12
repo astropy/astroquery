@@ -199,19 +199,25 @@ class TestMast:
 
         # Table as input
         responses = MastMissions.get_product_list_async(datasets[:3])
-        assert isinstance(responses, Response)
+        assert isinstance(responses, list)
 
         # Row as input
         responses = MastMissions.get_product_list_async(datasets[0])
-        assert isinstance(responses, Response)
+        assert isinstance(responses, list)
 
         # String as input
         responses = MastMissions.get_product_list_async(datasets[0]['sci_data_set_name'])
-        assert isinstance(responses, Response)
+        assert isinstance(responses, list)
 
         # Column as input
         responses = MastMissions.get_product_list_async(datasets[:3]['sci_data_set_name'])
-        assert isinstance(responses, Response)
+        assert isinstance(responses, list)
+
+        # Batching
+        responses = MastMissions.get_product_list_async(datasets[:4], batch_size=2)
+        assert isinstance(responses, list)
+        assert len(responses) == 2
+        assert isinstance(responses[0], Response)
 
         # Unsupported data type for datasets
         with pytest.raises(TypeError) as err_type:
@@ -248,14 +254,13 @@ class TestMast:
         assert isinstance(result, Table)
         assert (result['dataset'] == 'IBKH03020').all()
 
-        # Test batching by creating a list of 1001 different strings
-        # This won't return any results, but will test the batching
-        dataset_list = [f'{i}' for i in range(1001)]
-        result = MastMissions.get_product_list(dataset_list)
+        # Test batching
+        result_batch = MastMissions.get_product_list(datasets[:2], batch_size=1)
         out, _ = capsys.readouterr()
-        assert isinstance(result, Table)
-        assert len(result) == 0
-        assert 'Fetching products for 1001 unique datasets in 2 batches' in out
+        assert isinstance(result_batch, Table)
+        assert len(result_batch) == len(result_table)
+        assert set(result_batch['filename']) == set(result_table['filename'])
+        assert 'Fetching products for 2 unique datasets in 2 batches' in out
 
     def test_missions_get_unique_product_list(self, caplog):
         # Check that no rows are filtered out when all products are unique
@@ -417,16 +422,29 @@ class TestMast:
         assert len(result) == 10
 
     def test_mast_query(self):
-        result = Mast.mast_query('Mast.Caom.Cone', ra=184.3, dec=54.5, radius=0.2)
-
-        # Is result in the right format
+        # Cone search (unfiltered)
+        result = Mast.mast_query('Mast.Caom.Cone', ra=184.3, dec=54.5, radius=0.005)
         assert isinstance(result, Table)
-
-        # Are the GALEX observations in the results table
         assert "GALEX" in result['obs_collection']
-
-        # Are the two GALEX observations with obs_id 6374399093149532160 in the results table
         assert len(result[np.where(result["obs_id"] == "6374399093149532160")]) == 2
+
+        # Filtered query
+        columns = ['target_name', 'obs_collection', 'calib_level', 'sequence_number', 't_min']
+        result = Mast.mast_query('Mast.Caom.Filtered',
+                                 target_name=375422201,
+                                 obs_collection={'TESS'},
+                                 calib_level=np.asarray(3),
+                                 sequence_number=[15, 16],
+                                 t_min={'min': 58710, 'max': 58720},
+                                 columns=columns)
+        assert isinstance(result, Table)
+        assert all(result['target_name'] == '375422201')
+        assert all(result['obs_collection'] == 'TESS')
+        assert all(result['calib_level'] == 3)
+        assert all((result['sequence_number'] == 15) | (result['sequence_number'] == 16))
+        assert (result['t_min'] >= 58710).all() and (result['t_min'] <= 58720).all()
+        assert all(c in list(result.columns.keys()) for c in columns)
+        assert len(result.columns) == 5
 
     def test_mast_session_info(self):
         sessionInfo = Mast.session_info(verbose=False)
@@ -580,7 +598,11 @@ class TestMast:
         responses = Observations.get_product_list_async(observations[0:4])
         assert isinstance(responses, list)
 
-    def test_observations_get_product_list(self):
+        # Batching
+        responses = Observations.get_product_list_async(observations[0:4], batch_size=2)
+        assert isinstance(responses, list)
+
+    def test_observations_get_product_list(self, capsys):
         observations = Observations.query_criteria(objectname='M8', obs_collection=['K2', 'IUE'])
         test_obs_id = str(observations[0]['obsid'])
         mult_obs_ids = str(observations[0]['obsid']) + ',' + str(observations[1]['obsid'])
@@ -612,6 +634,14 @@ class TestMast:
         assert isinstance(result, Table)
         assert len(obs_collection) == 1
         assert obs_collection[0] == 'IUE'
+
+        # Test batching
+        result_batch = Observations.get_product_list(observations[:2], batch_size=1)
+        out, _ = capsys.readouterr()
+        assert isinstance(result_batch, Table)
+        assert len(result_batch) == len(result1)
+        assert set(result_batch['productFilename']) == set(filenames1)
+        assert 'Fetching products for 2 unique observations in 2 batches' in out
 
     def test_observations_get_product_list_tess_tica(self, caplog):
         # Get observations and products with both TESS and TICA FFIs
@@ -1444,6 +1474,36 @@ class TestMast:
         with pytest.raises(ResolverError) as error_msg:
             Tesscut.get_cutouts(objectname=moving_target_name)
         assert error_nameresolve in str(error_msg.value)
+
+    def test_tesscut_get_cutouts_mt_no_sector(self):
+        """Test get_cutouts with moving target but no sector specified.
+
+        When sector is not specified for moving targets, the method should
+        automatically fetch available sectors and make individual requests per sector.
+        """
+        moving_target_name = "Eleonora"
+        # Moving target without specifying sector - should automatically fetch sectors
+        cutout_hdus_list = Tesscut.get_cutouts(objectname=moving_target_name, moving_target=True, size=1)
+        assert isinstance(cutout_hdus_list, list)
+        # Should return cutouts for all available sectors
+        assert len(cutout_hdus_list) >= 1
+        assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+    def test_tesscut_download_cutouts_mt_no_sector(self, tmpdir):
+        """Test download_cutouts with moving target but no sector specified.
+
+        When sector is not specified for moving targets, the method should
+        automatically fetch available sectors and make individual requests per sector.
+        """
+        moving_target_name = "Eleonora"
+        # Moving target without specifying sector - should automatically fetch sectors
+        manifest = Tesscut.download_cutouts(objectname=moving_target_name, moving_target=True, size=1, path=str(tmpdir))
+        assert isinstance(manifest, Table)
+        # Should return files for all available sectors
+        assert len(manifest) >= 1
+        assert manifest["Local Path"][0][-4:] == "fits"
+        for row in manifest:
+            assert os.path.isfile(row["Local Path"])
 
     ###################
     # ZcutClass tests #

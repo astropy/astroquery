@@ -1,8 +1,8 @@
 .. _astroquery.jplhorizons:
 
-***********************************************************************************
-JPL Horizons Queries (`astroquery.jplhorizons`/astroquery.solarsystem.jpl.horizons)
-***********************************************************************************
+**************************************************************************************
+JPL Horizons Queries (`astroquery.jplhorizons` or astroquery.solarsystem.jpl.horizons)
+**************************************************************************************
 
 .. Warning::
 
@@ -27,7 +27,7 @@ the Jet Propulation Laboratory`_.
 
 Because of its relevance to Solar System science, this service can
 also be accessed from the topical submodule
-`astroquery.solarsystem.jpl`. The functionality of that service is
+``astroquery.solarsystem.jpl``. The functionality of that service is
 identical to the one presented here.
 
 In order to query information for a specific Solar System body, a

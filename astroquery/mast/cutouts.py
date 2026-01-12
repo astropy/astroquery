@@ -156,6 +156,32 @@ class TesscutClass(MastQueryWithLogin):
         if product.upper() != "SPOC":
             raise InvalidQueryError("Input product must be SPOC.")
 
+    def _get_moving_target_sectors(self, objectname, mt_type=None):
+        """
+        Helper method to fetch unique sectors for a moving target
+
+        Parameters
+        ----------
+        objectname : str
+            The name or ID of the moving target.
+        mt_type : str, optional
+            The moving target type (majorbody or smallbody).
+
+        Returns
+        -------
+        sectors : list or None
+            Sorted list of unique sector numbers, or None if no sectors are available.
+        """
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=NoResultsWarning)
+            sector_table = self.get_sectors(objectname=objectname, moving_target=True, mt_type=mt_type)
+
+        if len(sector_table) == 0:
+            warnings.warn("Coordinates are not in any TESS sector.", NoResultsWarning)
+            return None
+
+        return sorted(set(sector_table["sector"]))
+
     @deprecated_renamed_argument('product', None, since='0.4.11', message='Tesscut no longer supports operations on '
                                  'TESS Image Calibrator (TICA) products. '
                                  'The `product` argument is deprecated and will be removed in a future version.')
@@ -272,6 +298,9 @@ class TesscutClass(MastQueryWithLogin):
             Optional.
             The TESS sector to return the cutout from.  If not supplied, cutouts
             from all available sectors on which the coordinate appears will be returned.
+
+            NOTE: For moving targets, if sector is not specified, the method will automatically
+            fetch all available sectors and make individual requests per sector.
         product : str
             Deprecated. Default is 'SPOC'.
             The product that the cutouts will be made out of. The only valid value for this parameter is 'SPOC', for the
@@ -314,6 +343,34 @@ class TesscutClass(MastQueryWithLogin):
         """
         self._validate_product(product)
         self._validate_target_input(coordinates, objectname, moving_target)
+
+        # For moving targets without a sector specified, fetch sectors first and make
+        # individual requests per sector to reduce memory pressure on the service
+        if moving_target and sector is None:
+            localpath_table = Table(names=["Local Path"], dtype=[str])
+            unique_sectors = self._get_moving_target_sectors(objectname, mt_type)
+
+            if unique_sectors is None:
+                return localpath_table
+
+            # Make individual requests per sector and combine results
+            all_paths = []
+            for sect in unique_sectors:
+                manifest = self.download_cutouts(
+                    size=size,
+                    sector=sect,
+                    path=path,
+                    inflate=inflate,
+                    objectname=objectname,
+                    moving_target=True,
+                    mt_type=mt_type,
+                    verbose=verbose,
+                )
+                all_paths.extend(manifest["Local Path"])
+
+            localpath_table["Local Path"] = all_paths
+            return localpath_table
+
         params = _parse_cutout_size(size)
 
         if sector:
@@ -395,6 +452,9 @@ class TesscutClass(MastQueryWithLogin):
             Optional.
             The TESS sector to return the cutout from.  If not supplied, cutouts
             from all available sectors on which the coordinate appears will be returned.
+
+            NOTE: For moving targets, if sector is not specified, the method will automatically
+            fetch all available sectors and make individual requests per sector.
         objectname : str, optional
             The target around which to search, by name (objectname="M104")
             or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID
@@ -424,6 +484,23 @@ class TesscutClass(MastQueryWithLogin):
         """
         self._validate_product(product)
         self._validate_target_input(coordinates, objectname, moving_target)
+
+        # For moving targets without a sector specified, fetch sectors first and make
+        # individual requests per sector to reduce memory pressure on the service
+        if moving_target and sector is None:
+            unique_sectors = self._get_moving_target_sectors(objectname, mt_type)
+
+            if unique_sectors is None:
+                return []
+
+            # Make individual requests per sector and combine results
+            all_cutouts = []
+            for sect in unique_sectors:
+                cutouts = self.get_cutouts(
+                    size=size, sector=sect, objectname=objectname, moving_target=True, mt_type=mt_type
+                )
+                all_cutouts.extend(cutouts)
+            return all_cutouts
 
         params = _parse_cutout_size(size)
         if sector:

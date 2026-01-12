@@ -9,10 +9,31 @@ New Tools and Services
 API changes
 -----------
 
+esa.euclid
+^^^^^^^^^^
+
+- Method ``get_datalinks`` has a new argument, ``extra_options``, to customize the results to be got
+  from the server. Specifically, passing ``'METADATA'`` to this argument will retrieve the extra fields
+  ``datalabs_path``, ``file_name`` and ``hdu_index``. [#3438]
+
+vizier
+^^^^^^
+- Methods ``get_catalog``, ``get_catalog_async`` and ``query_*`` now always return UCD1+ instead of UCD1. [#3458]
 
 
 Service fixes and enhancements
 ------------------------------
+
+heasarc
+^^^^^^^
+- Add ``query_constraints`` to allow querying of different catalog columns. [#3403]
+- Add support for uploading tables when using TAP directly through ``query_tap``. [#3403]
+- Add automatic guessing for the data host in ``download_data``. [#3403]
+
+gaia
+^^^^
+
+- New datalink DR4 retrieval type RESIDUAL_IMAGE. [#3489]
 
 esa.hubble
 ^^^^^^^^^^
@@ -29,6 +50,47 @@ mast
   and ``Observations.filter_products``. [#3427]
 
 - Switch to use HTTP continuation for partial downloads. [#3448]
+
+- Expand the supported data types for filter values in ``Mast.mast_query``. Previously, users had to input
+  filter values enclosed in lists, even when specifying a single value or dictionary. [#3422]
+
+- Raise informative error if ``MastMissions`` query radius is too large. [#3447]
+
+- Add ``batch_size`` parameter to ``MastMissions.get_product_list``, ``Observations.get_product_list``,
+  and ``utils.resolve_object`` to allow controlling the number of items sent in each batch request to the server.
+  This can help avoid timeouts or connection errors for large requests. [#3454]
+
+- Separate requests for moving target cutouts in ``Tesscut`` to one per sector. [#3467]
+
+- Improved robustness of PanSTARRS column metadata parsing. This prevents metadata-related query errors. [#3485]
+
+jplspec
+^^^^^^^
+
+- Refactored to use linelists.core.  Added new ``get_molecule`` method [#3456]
+- Moved to linelists/.  astroquery.jplspec is now deprecated in favor of astroquery.linelists.jplspec [#3455]
+
+
+linelists.jplspec
+^^^^^^^^^^^^^^^^^
+
+- New location for jplspec.  astroquery.jplspec is now deprecated in favor of astroquery.linelists.jplspec [#3455]
+
+mpc
+^^^
+
+- Fix bug in queries for interstellar objects with ``MPC.get_observations`` and enable queries for "dead" comets [#3474]
+
+linelists
+^^^^^^^^^
+
+- General tools for both CDMS/JPL moved to linelists.core [#3456]
+- Added jplspec, moved from its previous location (astroquery.jplspec to astroquery.linelists.jplspec) [#3455]
+
+xmatch
+^^^^^^
+
+- change url of xmatch to use the new CDS domain name [#3465]
 
 
 Infrastructure, Utility and Other Changes and Additions
@@ -52,6 +114,11 @@ esa.hubble
 
 - Removal of the deprecated ``query_hst_tap`` method, use ``query_tap`` instead.
   [#3367]
+
+eso
+^^^
+
+- Deprecated ``open_form`` and ``cache`` in query functions [#3339]
 
 gaia
 ^^^^
@@ -90,6 +157,15 @@ esa.hubble
 ^^^^^^^^^^
 
 - Internal refactor of the module to use to PyVO. [#3367]
+
+eso
+^^^
+
+- Switch querying interface from WDB to TAP in querying functions. [#3339]
+- Allow plain ADQL queries via ``query_tap`` (with authentication as well). [#3339]
+- Cone search using ``cone_ra`, ``cone_dec`, ``cone_radius`` arguments. [#3339]
+- Retrieve record count before querying the archive, via ``count_only`` argument. [#3339]
+- Ask query functions to print the underlying ADQL queries without issuing them. [#3339]
 
 gaia
 ^^^^
@@ -153,6 +229,7 @@ linelists.cdms
 
 - Add a keyword to control writing of new species cache files.
   This is needed to prevent tests from overwriting those files. [#3297]
+- Add more complete support for CDMS quantum number and other value parsing. [#3302]
 
 mast
 ^^^^
