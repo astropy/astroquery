@@ -81,7 +81,7 @@ class NOIRLabClass(BaseQuery):
         core = 'aux' if aux else 'core'
         return f'{self.NAT_URL}/api/adv_search/{core}_{file}_fields'
 
-    def _response_to_table(self, response_json):
+    def _response_to_table(self, response_json, rectype='file'):
         """Convert a JSON response to a :class:`~astropy.table.Table`.
 
         Parameters
@@ -89,6 +89,9 @@ class NOIRLabClass(BaseQuery):
         response_json : :class:`list`
             A query response formatted as a list of objects. The query
             metadata is the first item in the list.
+        rectype : :class:`str`, optional
+            Expect response keys to be prepended with this string,
+            default 'file'.
 
         Returns
         -------
@@ -96,8 +99,10 @@ class NOIRLabClass(BaseQuery):
             The converted response. The column ordering will match the
             ordering of the `HEADER` metadata.
         """
-        names = list(response_json[0]['HEADER'].keys())
-        rows = [[row[n] for n in names] for row in response_json[1:]]
+        raw_names = [k for k in response_json[0]['HEADER'].keys()
+                     if k.startswith(f"{rectype}:")]
+        rows = [[row[n] for n in raw_names] for row in response_json[1:]]
+        names = [n.split(':')[1] for n in raw_names]
         return astropy.table.Table(names=names, rows=rows)
 
     def service_metadata(self, hdu=False, cache=True):
@@ -151,7 +156,8 @@ class NOIRLabClass(BaseQuery):
         """
         response = self.query_region_async(coordinate, radius=radius, hdu=hdu, cache=cache)
         response.raise_for_status()
-        return self._response_to_table(response.json())
+        rectype = 'hdu' if hdu else 'file'
+        return self._response_to_table(response.json(), rectype=rectype)
 
     def query_region_async(self, coordinate, *, radius=0.1, hdu=False, cache=True):
         """Query for NOIRLab observations by region of the sky.
@@ -290,8 +296,8 @@ class NOIRLabClass(BaseQuery):
             A Table containing the results.
         """
         self._validate_version()
-        file = 'hdu' if hdu else 'file'
-        url = f'{self.NAT_URL}/api/adv_search/find/?rectype={file}&limit={limit}'
+        rectype = 'hdu' if hdu else 'file'
+        url = f'{self.NAT_URL}/api/adv_search/find/?rectype={rectype}&limit={limit}'
         if sort:
             # TODO: write a test for this, which may involve refactoring async versus sync.
             url += f'&sort={sort}'
@@ -304,7 +310,7 @@ class NOIRLabClass(BaseQuery):
         response = self._request('POST', url, json=jdata,
                                  timeout=self.TIMEOUT, cache=cache)
         response.raise_for_status()
-        return self._response_to_table(response.json())
+        return self._response_to_table(response.json(), rectype=rectype)
 
     def get_file(self, fileid):
         """Simply fetch a file by MD5 ID.
