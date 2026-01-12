@@ -30,6 +30,10 @@ heasarc
 - Add support for uploading tables when using TAP directly through ``query_tap``. [#3403]
 - Add automatic guessing for the data host in ``download_data``. [#3403]
 
+gaia
+^^^^
+
+- New datalink DR4 retrieval type RESIDUAL_IMAGE. [#3489]
 
 esa.hubble
 ^^^^^^^^^^
@@ -52,10 +56,20 @@ mast
 
 - Raise informative error if ``MastMissions`` query radius is too large. [#3447]
 
+- Add ``batch_size`` parameter to ``MastMissions.get_product_list``, ``Observations.get_product_list``,
+  and ``utils.resolve_object`` to allow controlling the number of items sent in each batch request to the server.
+  This can help avoid timeouts or connection errors for large requests. [#3454]
+
+- Separate requests for moving target cutouts in ``Tesscut`` to one per sector. [#3467]
+
+- Improved robustness of PanSTARRS column metadata parsing. This prevents metadata-related query errors. [#3485]
+
 jplspec
 ^^^^^^^
 
+- Refactored to use linelists.core.  Added new ``get_molecule`` method [#3456]
 - Moved to linelists/.  astroquery.jplspec is now deprecated in favor of astroquery.linelists.jplspec [#3455]
+
 
 linelists.jplspec
 ^^^^^^^^^^^^^^^^^
@@ -65,7 +79,13 @@ linelists.jplspec
 mpc
 ^^^
 
-- Fix bug in queries for interstellar objects with `MPC.get_observations` and enable queries for "dead" comets [#3474]
+- Fix bug in queries for interstellar objects with ``MPC.get_observations`` and enable queries for "dead" comets [#3474]
+
+linelists
+^^^^^^^^^
+
+- General tools for both CDMS/JPL moved to linelists.core [#3456]
+- Added jplspec, moved from its previous location (astroquery.jplspec to astroquery.linelists.jplspec) [#3455]
 
 noirlab
 ^^^^^^^

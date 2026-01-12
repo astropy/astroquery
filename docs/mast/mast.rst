@@ -7,32 +7,32 @@ MAST Queries (`astroquery.mast`)
 Introduction
 ============
 
-The Mikulski Archive for Space Telescopes (MAST) is a NASA funded project made to
-collect and archive a variety of scientific data to support the astronomical community.
-The data housed in MAST includes science and engineering data, with a primary focus on
-data sets in the optical, ultraviolet, and near-infrared parts of the spectrum, from over
-20 space-based missions. MAST offers single mission-based queries as well as cross-mission
-queries. Astroquery's astroquery.mast module is one tool used to query and access the data
-in this Archive.
+The `Barbara A. Mikulski Archive for Space Telescopes (MAST) <https://archive.stsci.edu/>`__ is an astronomical data archive 
+that hosts data for over `20 different missions <https://archive.stsci.edu/missions-and-data>`__, including NASA's 
+flagship space telescopes. MAST includes both science and engineering data, with a primary focus on datasets in optical, 
+ultraviolet, and near-infrared wavelengths. 
 
-astroquery.mast offers 3 main services: `~astroquery.mast.MastClass`,
-`~astroquery.mast.CatalogsClass`, and Cutouts. MastClass allows direct programatic access
-to the MAST Portal. Along with `~astroquery.mast.ObservationsClass`, it is used to query
-MAST observational data. The Catalogs class is used to query MAST catalog data. The
-available catalogs include the Pan-STARRS and Hubble Source catalogs along with a few others
-listed under the Catalog Queries section of this page. Lastly, Cutouts, a newer addition to
-astroquery.mast, provides access to full-frame image cutouts of Transiting Exoplanet Survey
-Satellite (TESS), MAST Hubble Advanced Product (HAP),and deep-field images, through
-`~astroquery.mast.TesscutClass`, `~astroquery.mast.HapcutClass`, and
-`~astroquery.mast.ZcutClass` respectively. For a full description of MAST query options,
-please read the `MAST API Documentation <https://mast.stsci.edu/api/v0/>`__.
+The `astroquery.mast` module provides a programmatic interface to query and access data from MAST. The MAST
+module offers five main services to aid users in searching and downloading data from the archive.
+
+- **Observation Queries**: Query MAST observational data using our `Portal API <https://mast.stsci.edu/api/v0/>`__. 
+  Use this class to search for observations across missions, filter results, and retrieve data products.
+- **Mission-Specific Queries**: Query mission-specific metadata for select MAST missions
+  like Hubble and James Webb using our `MAST Search API <https://mast.stsci.edu/search/docs/?urls.primaryName=>`__. Use this 
+  class to search for mission-specific datasets, filter results, and retrieve data products.
+- **Catalogs Queries**: Query MAST catalog data. Use this class to search for sources in MAST-hosted catalogs
+  like Pan-STARRS and the Hubble Source Catalog.
+- **Image Cutouts**: Access image cutouts of data from TESS and Hubble. Use these classes to create and download cutouts 
+  of specific regions of interest.
+- **Advanced MAST Queries**: Provides low-level, direct access to the our `Portal API <https://mast.stsci.edu/api/v0/>`__. 
+  This interface is useful for advanced queries, custom services, and functionality not yet wrapped by higher-level classes.
+
 
 Getting Started
 ===============
 
-This module can be used to query the Barbara A. Mikulski Archive for Space
-Telescopes (MAST). Below are examples of the types of queries that can be used,
-and how to access data products.
+The sections below describe the core `astroquery.mast` interfaces and common usage patterns.
+Use the table of contents to jump directly to the class or workflow most relevant to your science goals.
 
 .. toctree::
    :maxdepth: 2
@@ -47,14 +47,14 @@ and how to access data products.
 Accessing Proprietary Data
 ==========================
 
-To access data that is not publicly available users may log into their
+To access exclusive data that is not publicly available, users may log into their
 `MyST Account <https://archive.stsci.edu/registration/index.html>`_.
-This can be done by using the `~astroquery.mast.MastClass.login` function,
-or by initializing a class instance with credentials.
+Each of the MAST query clases has a `~astroquery.mast.MastClass.login` function that allows users to authenticate
+using a token. If a token is not supplied, the user will be prompted to enter one. Alternatively,
+a query class may be initialized with the ``mast_token`` parameter set to a valid token string.
 
-If a token is not supplied, the user will be prompted to enter one.
-
-To view tokens accessible through your account, visit https://auth.mast.stsci.edu/info
+To view the authentication tokens associated with your account, visit the
+`MAST authentication information page <https://auth.mast.stsci.edu/info>`__.
 
 .. doctest-skip::
 
@@ -68,16 +68,19 @@ To view tokens accessible through your account, visit https://auth.mast.stsci.ed
    ezid: uname
    ...
 
-\* For security tokens should not be typed into a terminal or Jupyter notebook
-but instead input using a more secure method such as `~getpass.getpass`.
+For security reasons, authentication tokens should not be hard-coded into scripts or Jupyter
+notebooks. Instead, users should enter tokens using a secure input method such as
+`~getpass.getpass`, which prevents the token from being displayed or logged.
 
+MAST authentication tokens expire after **10 days of inactivity**. Each time a token is used
+within that window, its expiration is reset to 10 days from the most recent use. Tokens have
+a **maximum lifetime of 60 days**, after which a new token must be generated regardless of
+activity.
 
-MAST tokens expire after 10 days of inactivity, at which point the user must generate a new token.  If
-the key is used within that time, the token's expiration pushed back to 10 days.  A token's max
-age is 60 days, afterward the user must generate a token.
-The ``store_token`` argument can be used to store the token securely in the user's keyring.
-This token can be overwritten using the ``reenter_token`` argument.
-To logout before a session expires, the `~astroquery.mast.MastClass.logout` method may be used.
+The ``store_token`` argument on the `~astroquery.mast.MastClass.login` method can be used to securely 
+store a token in the user’s system keyring for reuse in future sessions. A stored token may be replaced 
+by setting the ``reenter_token`` argument to **True**. To manually end an authenticated session, 
+use the `~astroquery.mast.MastClass.logout` method.
 
 
 Resolving Object Names
@@ -158,7 +161,8 @@ across multiple requests, with results combined into the final return object.
 Additional Resources
 ====================
 
-The Space Telescope Science Institute `Notebooks Repository <https://github.com/spacetelescope/notebooks>`_ includes many examples that use Astroquery.
+The `MAST Notebooks Repository <https://github.com/spacetelescope/mast_notebooks>`__ includes a collection of
+Jupyter notebook tutorials, many of which utilize `astroquery.mast` to access MAST data programmatically.
 
 
 Reference/API

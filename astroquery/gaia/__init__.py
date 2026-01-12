@@ -49,7 +49,8 @@ class Conf(_config.ConfigNamespace):
                                       'EPOCH_FLAGS_NSS',
                                       'EPOCH_PARAMETERS_RVS_SINGLE',
                                       'EPOCH_PARAMETERS_RVS_DOUBLE',
-                                      'EPOCH_FLAGS_VARI']
+                                      'EPOCH_FLAGS_VARI',
+                                      'RESIDUAL_IMAGE']
 
     VALID_LINKING_PARAMETERS = {'SOURCE_ID', 'TRANSIT_ID', 'IMAGE_ID'}
 

@@ -93,10 +93,18 @@ class CatalogsClass(MastQueryWithLogin):
 
                 # Parse JSON and extract necessary info
                 results = resp.json()
-                rows = [
-                    (result['column_name'], result['db_type'], result['description'])
-                    for result in results
-                ]
+
+                # Prepare data for Table creation
+                rows = []
+                for result in results:
+                    colname = result.get('column_name') or result.get('name')
+                    dtype = result.get('db_type')
+                    desc = result.get('description', '')
+
+                    if colname is None or dtype is None:
+                        continue  # Skip invalid entries
+
+                    rows.append((colname, dtype, desc))
 
                 # Create Table with parsed data
                 col_table = Table(rows=rows, names=('name', 'data_type', 'description'))
@@ -108,9 +116,6 @@ class CatalogsClass(MastQueryWithLogin):
             except RequestException as ex:
                 raise ConnectionError(f'Failed to connect to the server while attempting to get column list'
                                       f' for {catalog} catalog {table}, {release}: {ex}')
-            except KeyError as ex:
-                raise KeyError(f'Expected key not found in response data while attempting to get column list'
-                               f' for {catalog} catalog {table}, {release}: {ex}')
             except Exception as ex:
                 raise RuntimeError(f'An unexpected error occurred while attempting to get column list'
                                    f' for {catalog} catalog {table}, {release}: {ex}')

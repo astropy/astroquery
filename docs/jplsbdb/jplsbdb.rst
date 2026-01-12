@@ -1,8 +1,8 @@
 .. _astroquery.jplsbdb:
 
-*************************************************************************
-JPL SBDB Queries (`astroquery.jplsbdb`/astroquery.solarsystem.jpl.sbdb)
-*************************************************************************
+**************************************************************************
+JPL SBDB Queries (`astroquery.jplsbdb` or astroquery.solarsystem.jpl.sbdb)
+**************************************************************************
 
 Overview
 ========
@@ -29,7 +29,7 @@ follows the definitions in that document with some simplifications.
 
 Because of its relevance to Solar System science, this service can
 also be accessed from the topical submodule
-`astroquery.solarsystem.jpl`. The functionality of that service is
+``astroquery.solarsystem.jpl``. The functionality of that service is
 identical to the one presented here.
 
 Example

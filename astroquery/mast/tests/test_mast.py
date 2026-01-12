@@ -305,21 +305,21 @@ def test_missions_query_criteria(patch_post):
 def test_missions_get_product_list_async(patch_post):
     # String input
     result = mast.MastMissions.get_product_list_async('Z14Z0104T')
-    assert isinstance(result, MockResponse)
+    assert isinstance(result, list)
 
     # List input
     in_datasets = ['Z14Z0104T', 'Z14Z0102T']
     result = mast.MastMissions.get_product_list_async(in_datasets)
-    assert isinstance(result, MockResponse)
+    assert isinstance(result, list)
 
     # Row input
     datasets = mast.MastMissions.query_object("M101", radius=".002 deg")
     result = mast.MastMissions.get_product_list_async(datasets[:3])
-    assert isinstance(result, MockResponse)
+    assert isinstance(result, list)
 
     # Table input
     result = mast.MastMissions.get_product_list_async(datasets[0])
-    assert isinstance(result, MockResponse)
+    assert isinstance(result, list)
 
     # Unsupported data type for datasets
     with pytest.raises(TypeError) as err_type:
@@ -330,6 +330,11 @@ def test_missions_get_product_list_async(patch_post):
     with pytest.raises(InvalidQueryError) as err_empty:
         mast.MastMissions.get_product_list_async([' '])
     assert 'Dataset list is empty' in str(err_empty.value)
+
+    # No dataset keyword
+    with pytest.raises(InvalidQueryError, match='Dataset keyword not found for mission "invalid"'):
+        missions = mast.MastMissions(mission='invalid')
+        missions.get_product_list_async(Table({'a': [1, 2, 3]}))
 
 
 def test_missions_get_product_list(patch_post):
@@ -825,6 +830,10 @@ def test_observations_get_product_list(patch_post):
     result = mast.Observations.get_product_list(in_obsids)
     assert isinstance(result, Table)
 
+    # Error if no valid obsids are found
+    with pytest.raises(InvalidQueryError, match='Observation list is empty'):
+        mast.Observations.get_product_list([' '])
+
 
 def test_observations_filter_products(patch_post):
     products = mast.Observations.get_product_list('2003738726')
@@ -1319,6 +1328,69 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
         with pytest.warns(AstropyDeprecationWarning, match="Tesscut no longer supports"):
             mast.Tesscut.get_cutouts(objectname="M101", product="spooc")
     assert "Input product must be SPOC." in str(invalid_query.value)
+
+
+def test_tesscut_get_cutouts_mt_no_sector(patch_post):
+    """Test get_cutouts with moving target but no sector specified.
+
+    When sector is not specified for moving targets, the method should
+    automatically fetch available sectors and make individual requests per sector.
+    """
+    # Moving target without specifying sector - should automatically fetch sectors
+    cutout_hdus_list = mast.Tesscut.get_cutouts(objectname="Eleonora", moving_target=True, mt_type="small_body", size=5)
+    assert isinstance(cutout_hdus_list, list)
+    # Mock returns 1 sector, so we expect 1 cutout
+    assert len(cutout_hdus_list) == 1
+    assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+
+def test_tesscut_download_cutouts_mt_no_sector(patch_post, tmpdir):
+    """Test download_cutouts with moving target but no sector specified.
+
+    When sector is not specified for moving targets, the method should
+    automatically fetch available sectors and make individual requests per sector.
+    """
+    # Moving target without specifying sector - should automatically fetch sectors
+    manifest = mast.Tesscut.download_cutouts(
+        objectname="Eleonora", moving_target=True, mt_type="small_body", size=5, path=str(tmpdir)
+    )
+    assert isinstance(manifest, Table)
+    # Mock returns 1 sector, so we expect 1 file
+    assert len(manifest) == 1
+    assert manifest["Local Path"][0][-4:] == "fits"
+    assert os.path.isfile(manifest[0]["Local Path"])
+
+
+def test_tesscut_get_cutouts_mt_no_sector_empty_results(patch_post, monkeypatch):
+    """Test get_cutouts with moving target when no sectors are available.
+
+    When get_sectors returns an empty table, the method should warn and return an empty list.
+    """
+    # Mock get_sectors to return an empty Table
+    empty_sector_table = Table(names=["sectorName", "sector", "camera", "ccd"], dtype=[str, int, int, int])
+    monkeypatch.setattr(mast.Tesscut, "get_sectors", lambda *args, **kwargs: empty_sector_table)
+
+    with pytest.warns(NoResultsWarning, match="Coordinates are not in any TESS sector"):
+        cutout_hdus_list = mast.Tesscut.get_cutouts(objectname="NonExistentObject", moving_target=True, size=5)
+    assert isinstance(cutout_hdus_list, list)
+    assert len(cutout_hdus_list) == 0
+
+
+def test_tesscut_download_cutouts_mt_no_sector_empty_results(patch_post, tmpdir, monkeypatch):
+    """Test download_cutouts with moving target when no sectors are available.
+
+    When get_sectors returns an empty table, the method should warn and return an empty Table.
+    """
+    # Mock get_sectors to return an empty Table
+    empty_sector_table = Table(names=["sectorName", "sector", "camera", "ccd"], dtype=[str, int, int, int])
+    monkeypatch.setattr(mast.Tesscut, "get_sectors", lambda *args, **kwargs: empty_sector_table)
+
+    with pytest.warns(NoResultsWarning, match="Coordinates are not in any TESS sector"):
+        manifest = mast.Tesscut.download_cutouts(
+            objectname="NonExistentObject", moving_target=True, size=5, path=str(tmpdir)
+        )
+    assert isinstance(manifest, Table)
+    assert len(manifest) == 0
 
 
 ######################

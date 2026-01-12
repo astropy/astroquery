@@ -1,7 +1,7 @@
 
-****************
-Mission Searches
-****************
+************************
+Mission-Specific Queries
+************************
 
 The `~astroquery.mast.MastMissionsClass` class allows for search queries based on mission-specific 
 metadata for a given data collection. This metadata includes header keywords, proposal information, and observational parameters.
@@ -10,6 +10,8 @@ The following missions/products are currently available for search:
 - `Hubble Space Telescope <https://www.stsci.edu/hst>`_ (``'hst'``)
 
 - `James Webb Space Telescope <https://www.stsci.edu/jwst>`_ (``'jwst'``)
+
+- `International Ultraviolet Explorer <https://archive.stsci.edu/iue/>`_ (``'iue'``)
 
 - `High Level Science Products <https://outerspace.stsci.edu/display/MASTDOCS/About+HLSPs>`_
 
@@ -193,8 +195,8 @@ Here are some tips and tricks for writing more advanced queries:
         N4A702010 GAL-CLUS-0026+1653-ARCC         F110W        IMAGE
         N4A705010 GAL-CLUS-0026+1653-ARCC         F110W        IMAGE
 
-Downloding Data
-===============
+Retrieving Data Products
+========================
 
 Getting Product Lists
 ----------------------
@@ -203,11 +205,16 @@ Each observation returned from a MAST query can have one or more associated data
 one or more datasets or dataset IDs, the `~astroquery.mast.MastMissionsClass.get_product_list` function 
 will return a `~astropy.table.Table` containing the associated data products.
 
+`~astroquery.mast.MastMissionsClass.get_product_list` also includes an optional ``batch_size`` parameter, 
+which controls how many datasets are sent to the MAST service per request. This can be useful for managing 
+memory usage or avoiding timeouts when requesting product lists for large numbers of datasets.
+If not provided, batch_size defaults to 1000.
+
 .. doctest-remote-data::
    >>> datasets = missions.query_criteria(sci_pep_id=12451,
    ...                                    sci_instrume='ACS',
    ...                                    sci_hlsp='>1')
-   >>> products = missions.get_product_list(datasets[:2])
+   >>> products = missions.get_product_list(datasets[:2], batch_size=1000)
    >>> print(products[:5])  # doctest: +IGNORE_OUTPUT
            product_key          access  dataset  ...  category     size     type 
    ---------------------------- ------ --------- ... ---------- --------- -------
@@ -272,6 +279,10 @@ The filter below returns FITS products that are "science" type **and** less than
    ---------------------------- ------ --------- ... -------------- ----- -------
    JBTAA0010_jbtaa0010_asn.fits PUBLIC JBTAA0010 ...            AUX 11520 science
    JBTAA0020_jbtaa0020_asn.fits PUBLIC JBTAA0020 ...            AUX 11520 science
+
+
+Downloding Data
+===============
 
 Downloading Data Products
 -------------------------
