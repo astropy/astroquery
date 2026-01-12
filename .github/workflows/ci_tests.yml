@@ -26,6 +26,8 @@ jobs:
   tests:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
+    # To enable this cron job on forks, comment out the following line
+    if: github.repository == 'astropy/astroquery' || github.event_name != 'schedule'
     strategy:
       fail-fast: false
       matrix:
@@ -83,6 +85,8 @@ jobs:
   egg_info:
     name: egg_info with Python 3.9
     runs-on: ubuntu-latest
+    # To enable this cron job on forks, comment out the following line
+    if: github.repository == 'astropy/astroquery' || github.event_name != 'schedule'
     steps:
     - name: Checkout code
       uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
