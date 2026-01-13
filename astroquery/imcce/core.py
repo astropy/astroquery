@@ -144,19 +144,18 @@ class MiriadeClass(BaseQuery):
         +---------------------+-----------------------------------------------+
         | Column Name         | Definition                                    |
         +=====================+===============================================+
-        | ``target``          | Target name (str, 1, 2, 3, 4, 5, 6 )          |
+        | ``target``          | Target name (str, 1, 2, 3, 4, 5)              |
         +---------------------+-----------------------------------------------+
-        | ``epoch``           | Ephemerides epoch (JD, float, 1, 2, 3, 4, 5,  |
-        |                     | 6)                                            |
+        | ``epoch``           | Ephemerides epoch (JD, float, 1, 2, 3, 4, 5)  |
         +---------------------+-----------------------------------------------+
         | ``RA``              | Target RA at ``ephtype`` (deg, float, 1)      |
         +---------------------+-----------------------------------------------+
         | ``DEC``             | Target declination at ``ephtype`` (deg,       |
         |                     | float, 1, 4, 5)                               |
         +---------------------+-----------------------------------------------+
-        | ``RAJ2000``         | Target RA at J2000 (deg, float, 5, 6)         |
+        | ``RAJ2000``         | Target RA at J2000 (deg, float, 5)            |
         +---------------------+-----------------------------------------------+
-        | ``DECJ2000``        | Target declination at J2000 (deg, float, 5, 6)|
+        | ``DECJ2000``        | Target declination at J2000 (deg, float, 5)   |
         +---------------------+-----------------------------------------------+
         | ``LONG``            | Target Ecliptic longitude at ``refplane``     |
         |                     | (deg, float, "ecliptic")                      |
@@ -169,29 +168,29 @@ class MiriadeClass(BaseQuery):
         | ``EL``              | Target elevation (deg, float, 3, 5)           |
         +---------------------+-----------------------------------------------+
         | ``delta``           | Distance from observer (au, float, 1, 2, 3,   |
-        |                     | 4, 5, 6)                                      |
+        |                     | 4, 5)                                         |
         +---------------------+-----------------------------------------------+
         | ``delta_rate``      | Rate in observer distance (km/s, float,       |
-        |                     | 1, 5, 6)                                      |
+        |                     | 1, 5)                                         |
         +---------------------+-----------------------------------------------+
         | ``V``               | Apparent visual magnitude (mag, float, 1, 2,  |
-        |                     | 3, 4, 5, 6)                                   |
+        |                     | 3, 4, 5)                                      |
         +---------------------+-----------------------------------------------+
-        | ``alpha``           | Solar phase angle (deg, 1, 2, 3, 4, 5, 6)     |
+        | ``alpha``           | Solar phase angle (deg, 1, 2, 3, 4, 5)        |
         +---------------------+-----------------------------------------------+
-        | ``elong``           | Solar elongation angle (deg, 1, 2, 3, 4, 5, 6)|
+        | ``elong``           | Solar elongation angle (deg, 1, 2, 3, 4, 5)   |
         +---------------------+-----------------------------------------------+
         | ``RAcosD_rate``     | Rate of motion in RA * cos(DEC) (arcsec/min,  |
-        |                     | float, 1, 5, 6)                               |
+        |                     | float, 1, 5)                                  |
         +---------------------+-----------------------------------------------+
         | ``DEC_rate``        | Rate of motion in DEC (arcsec/min, float, 1,  |
-        |                     | 5, 6)                                         |
+        |                     | 5)                                            |
         +---------------------+-----------------------------------------------+
         | ``LONGcosLAT_rate`` | Rate of motion in LONG * cos(LAT) (arcsec/min,|
-        |                     | float, 1, 5, 6)                               |
+        |                     | float, 1, 5)                                  |
         +---------------------+-----------------------------------------------+
-        | ``DEC_rate``        | Rate of motion in LAT (arcsec/min, float, 1,  |
-        |                     | 5, 6)                                         |
+        | ``LAT_rate``        | Rate of motion in LAT (arcsec/min, float, 1,  |
+        |                     | 5)                                            |
         +---------------------+-----------------------------------------------+
         | ``x``               | X position state vector (au, float, 2)        |
         +---------------------+-----------------------------------------------+
@@ -224,13 +223,11 @@ class MiriadeClass(BaseQuery):
         +---------------------+-----------------------------------------------+
         | ``hourangle``       | Target hour angle (deg, float, 4, 5)          |
         +---------------------+-----------------------------------------------+
-        | ``siderealtime``    | Local sidereal time (hr, float, 5, 6)         |
+        | ``siderealtime``    | Local sidereal time (hr, float, 5)            |
         +---------------------+-----------------------------------------------+
-        | ``refraction``      | Atmospheric refraction (arcsec, float, 5, 6)  |
+        | ``refraction``      | Atmospheric refraction (arcsec, float, 5)     |
         +---------------------+-----------------------------------------------+
-        | ``airmass``         | Target airmass (float, 5, 6)                  |
-        +---------------------+-----------------------------------------------+
-        | ``posunc``          | Positional uncertainty (arcsec, float, 5, 6)  |
+        | ``airmass``         | Target airmass (float, 5)                     |
         +---------------------+-----------------------------------------------+
 
 
@@ -241,12 +238,13 @@ class MiriadeClass(BaseQuery):
         >>> from astropy.time import Time
         >>> epoch = Time('2019-01-01', format='iso')
         >>> Miriade.get_ephemerides('3552', epoch=epoch)  # doctest: +SKIP
-        <Table masked=True length=1>
-           target          epoch                 RA         ...  DEC_rate   delta_rate
-                             d                  deg         ... arcs / min    km / s
-          bytes20         float64             float64       ...  float64     float64
-        ----------- -------------------- ------------------ ... ---------- ------------
-        Don Quixote            2458484.5 16.105294999999998 ...   -0.25244   31.4752734
+        <Table length=1>
+          epoch           RA                DEC        ... RAcosD_rate    DEC_rate   delta_rate
+            d            deg                deg        ... arcsec / min arcsec / min   km / s  
+         float64       float64            float64      ...   float64      float64     float64  
+        --------- ------------------ ----------------- ... ------------ ------------ ----------
+        2458484.5 16.105201666666666 45.50291433333334 ...       0.3221      -0.2524   31.47530
+
         """
 
         URL = conf.ephemcc_server
@@ -363,6 +361,9 @@ class MiriadeClass(BaseQuery):
         if 'dobs' in data.columns:
             data.rename_column('dobs', 'delta')
 
+        if 'distance' in data.columns:
+            data.rename_column('distance', 'delta')
+
         if 'dobs' in data.columns:
             data.rename_column('dobs', 'delta')
 
@@ -389,14 +390,20 @@ class MiriadeClass(BaseQuery):
         if 'dDEC' in data.columns:
             data.rename_column('dDEC', 'DEC_rate')
 
+        if 'dRAcosDEC' in data.columns:
+            data.rename_column('dRAcosDEC', 'RAcosD_rate')
+
         if 'dLONGcosLAT' in data.columns:
             data.rename_column('dLONGcosLAT', 'LONGcosLAT_rate')
+
+        if 'dDEC' in data.columns:
+            data.rename_column('dDEC', 'DEC_rate')
 
         if 'dLAT' in data.columns:
             data.rename_column('dLAT', 'LAT_rate')
 
-        if 'dist_dot' in data.columns:
-            data.rename_column('dist_dot', 'delta_rate')
+        if 'rv' in data.columns:
+            data.rename_column('rv', 'delta_rate')
 
         if 'lst' in data.columns:
             data.rename_column('lst', 'siderealtime')
