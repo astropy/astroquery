@@ -18,7 +18,7 @@ from .. import log
 from ..query import BaseQuery
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
-from ..exceptions import InvalidQueryError, TimeoutError, NoResultsWarning
+from ..exceptions import BlankResponseWarning, InvalidQueryError, TimeoutError, NoResultsWarning
 
 from . import conf
 
@@ -97,13 +97,43 @@ def _json_to_table(json_obj, data_key='data'):
         # no consistent way to make the mask because np.equal fails on ''
         # and array == value fails with None
         if col_type == 'str':
-            col_mask = (col_data == ignore_value)
+            ignore_mask = (col_data == ignore_value)
         else:
-            col_mask = np.equal(col_data, ignore_value)
+            ignore_mask = np.equal(col_data, ignore_value)
 
         # add the column if it does not exist already
         if col_name not in data_table.colnames:
-            data_table.add_column(MaskedColumn(col_data.astype(col_type), name=col_name, mask=col_mask))
+            try:
+                # Try to coerce entire column at once
+                coerced = col_data.astype(col_type)
+                data_table.add_column(
+                    MaskedColumn(coerced, name=col_name, mask=ignore_mask)
+                )
+            except Exception:
+                # Fallback to coercing values one by one
+                out = np.empty(len(col_data), dtype=col_type)
+                fail_mask = np.zeros(len(col_data), dtype=bool)
+                for i, val in enumerate(col_data):
+                    if val == ignore_value:
+                        # Ignored values are already masked by ignore_mask
+                        continue
+
+                    try:
+                        out[i] = col_type(val)
+                    except Exception:
+                        # Could not coerce value, mask it
+                        fail_mask[i] = True
+
+                # Combined mask of ignored values + failed coercions
+                combined_mask = ignore_mask | fail_mask
+                if np.any(fail_mask):
+                    warnings.warn(
+                        f"Column '{col_name}': {np.sum(fail_mask)} values could not be coerced to {col_type} "
+                        "and were masked.", BlankResponseWarning
+                    )
+                data_table.add_column(
+                    MaskedColumn(out, name=col_name, mask=combined_mask)
+                )
 
     return data_table
 
