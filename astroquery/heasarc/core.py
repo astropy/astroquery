@@ -690,7 +690,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         """
         if ra is not None:
             constraint_small = HeasarcClass._fast_geometry_constraint(ra, dec, large=False)
-            constraint_big = HeasarcClass._fast_geometry_constraint(ra, dec, arge=True)
+            constraint_big = HeasarcClass._fast_geometry_constraint(ra, dec, large=True)
         if start_time is not None:
             constraint_time = HeasarcClass._time_constraint(start_time, end_time)
 
@@ -763,6 +763,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         get_query_payload : bool, optional
             If `True` then returns the generated ADQL query as str and does not send the query.
             Defaults to `False`.
+        add_offset : bool, optional
+            If set, adds 
         verbose : bool, optional
             If True, prints additional information about the query. Default is False.
         maxrec : int, optional
@@ -1180,5 +1182,3 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
 
 Heasarc = HeasarcClass()
-
- 

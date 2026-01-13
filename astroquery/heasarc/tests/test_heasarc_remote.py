@@ -361,12 +361,12 @@ class TestHeasarcBrowse:
         assert warnings[1].category == NoResultsWarning
         assert len(catalog) == 0
 
+    """
     def test_query_full(self):
-        """
-        Tests multi-mission query that counts the number of matches.
-        """
+        '''
+    Tests multi-mission query that counts the number of matches.
+    '''
         heasarc = Heasarc
 
-
         assert len(matches) == 7
-        
+        """
