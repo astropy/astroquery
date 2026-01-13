@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 
-import numpy.testing as npt
 import pytest
+import astropy.units as u
 
 from .. import core
 
@@ -16,9 +16,11 @@ class TestMiriadeClass:
         res = core.Miriade.get_ephemerides('Ceres', location='500',
                                            epoch=2451544.5)
 
-        assert res['target'] == "Ceres"
+        assert u.allclose(res["epoch"].quantity, [2451544.5] * u.d)
 
-        npt.assert_allclose(
-            [2451544.5, 188.70280, 9.09829],
-            [res['epoch'][0], res['RA'][0], res['DEC'][0]],
-            rtol=1e-5)
+        # the orbit solution change with time, but anything within 10" is enough
+        # for this test
+        assert u.allclose((res['RA'].quantity, res['DEC'].quantity),
+                         ([188.7032992], [9.0980213]) * u.deg,
+                         atol=10 * u.arcsec)
+    
