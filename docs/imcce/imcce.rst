@@ -154,11 +154,11 @@ query looks like this:
    >>> from astroquery.imcce import Miriade
    >>> Miriade.get_ephemerides('Ceres')  # doctest: +IGNORE_OUTPUT
    <Table length=1>
-   target        epoch                 RA         ...   DEC_rate    delta_rate
-                   d                  deg         ... arcsec / min    km / s
-   str20        float64             float64       ...   float64      float64
-   ------ -------------------- ------------------ ... ------------ ------------
-    Ceres   2459914.7406457304 178.71843708333333 ...     -0.18976  -21.5458636
+       epoch           RA             DEC         ...   DEC_rate       rv    
+         d            deg             deg         ... arcsec / min   km / s  
+      float64       float64         float64       ...   float64     float64  
+   -------------- ------------ ------------------ ... ------------ ----------
+   2461053.384583 11.912435375 -3.715397138888889 ...       0.3874   22.45706
 
 This query will return ephemerides for asteroid Ceres, for the current
 epoch, and for a geocentric location. The query output is formatted as
@@ -194,21 +194,21 @@ Pallas over an entire year with a time step of 1 day:
    >>> Miriade.get_ephemerides('Pallas', epoch='2019-01-01',
    ...                         epoch_step='1d', epoch_nsteps=365)  # doctest: +IGNORE_OUTPUT
    <Table length=365>
-   target        epoch                 RA         ...   DEC_rate    delta_rate
-                   d                  deg         ... arcsec / min    km / s
-   str20        float64             float64       ...   float64      float64
-   ------ -------------------- ------------------ ... ------------ ------------
-   Pallas            2458484.5 200.58653041666665 ...      0.15854  -19.3678426
-   Pallas            2458485.5 200.92696041666662 ...      0.16727  -19.4137911
-   Pallas            2458486.5  201.2641308333333 ...      0.17613  -19.4552654
-   Pallas            2458487.5 201.59797541666663 ...      0.18511  -19.4921119
-   Pallas            2458488.5 201.92842624999997 ...      0.19421  -19.5241979
-      ...                  ...                ... ...          ...          ...
-   Pallas            2458844.5  261.5083995833333 ...     0.029542   -2.5107101
-   Pallas            2458845.5  261.8853333333333 ...     0.034077   -2.7290984
-   Pallas            2458846.5       262.26158625 ...     0.038612   -2.9467484
-   Pallas            2458847.5 262.63713083333334 ...     0.043144   -3.1635878
-   Pallas            2458848.5       263.01193875 ...     0.047672   -3.3795661
+     epoch           RA                 DEC         ...   DEC_rate       rv    
+       d            deg                 deg         ... arcsec / min   km / s  
+   float64       float64             float64       ...   float64     float64  
+   --------- ------------------ ------------------- ... ------------ ----------
+   2458484.5 200.58658462499997  -5.998279138888889 ...       0.1585  -19.36784
+   2458485.5 200.92701474999998  -5.933115777777778 ...       0.1673  -19.41378
+   2458486.5 201.26418570833332  -5.864435027777778 ...       0.1761  -19.45526
+   2458487.5       201.59803025 -5.7921869444444445 ...       0.1851  -19.49211
+   2458488.5 201.92848124999998  -5.716322083333334 ...       0.1942  -19.52419
+         ...                ...                 ... ...          ...        ...
+   2458844.5  261.5084273333333   3.596639722222222 ...       0.0295   -2.51070
+   2458845.5      261.885360875  3.6093634722222223 ...       0.0341   -2.72909
+   2458846.5         262.261614  3.6239013055555556 ...       0.0386   -2.94674
+   2458847.5 262.63715837499996           3.6402525 ...       0.0431   -3.16358
+   2458848.5  263.0119662916667   3.658415888888889 ...       0.0477   -3.37956
 
 
 The observer location is defined through the ``location`` keyword,
@@ -243,8 +243,6 @@ to be provided to the keyword ``coordtype`` to use these sets) :
   +------------------+-----------------------------------------------+
   | Column Name      | Definition                                    |
   +==================+===============================================+
-  | ``target``       | Target name (str)                             |
-  +------------------+-----------------------------------------------+
   | ``epoch``        | Ephemerides epoch (JD, float)                 |
   +------------------+-----------------------------------------------+
   | ``RA``           | Target RA at ``ephtype`` (deg, float)         |
@@ -252,8 +250,6 @@ to be provided to the keyword ``coordtype`` to use these sets) :
   | ``DEC``          | Target declination at ``ephtype`` (deg, float)|
   +------------------+-----------------------------------------------+
   | ``delta``        | Distance from observer (au, float)            |
-  +------------------+-----------------------------------------------+
-  | ``delta_rate``   | Rate in observer distance (km/s, float)       |
   +------------------+-----------------------------------------------+
   | ``V``            | Apparent visual magnitude (mag, float)        |
   +------------------+-----------------------------------------------+
@@ -272,45 +268,29 @@ to be provided to the keyword ``coordtype`` to use these sets) :
   +------------------+-----------------------------------------------+
   | Column Name      | Definition                                    |
   +==================+===============================================+
-  | ``target``       | Target name (str)                             |
-  +------------------+-----------------------------------------------+
   | ``epoch``        | Ephemerides epoch (JD, float)                 |
+  +------------------+-----------------------------------------------+
+  | ``px``           | X position state vector (au, float)           |
+  +------------------+-----------------------------------------------+
+  | ``py``           | Y position state vector (au, float)           |
+  +------------------+-----------------------------------------------+
+  | ``pz``           | Z position state vector (au, float)           |
   +------------------+-----------------------------------------------+
   | ``delta``        | Distance from observer (au, float)            |
   +------------------+-----------------------------------------------+
-  | ``V``            | Apparent visual magnitude (mag, float)        |
+  | ``heldist``      | Target heliocentric distance (au, float)      |
   +------------------+-----------------------------------------------+
   | ``alpha``        | Solar phase angle (deg)                       |
   +------------------+-----------------------------------------------+
   | ``elong``        | Solar elongation angle (deg)                  |
   +------------------+-----------------------------------------------+
-  | ``x``            | X position state vector (au, float)           |
-  +------------------+-----------------------------------------------+
-  | ``y``            | Y position state vector (au, float)           |
-  +------------------+-----------------------------------------------+
-  | ``z``            | Z position state vector (au, float)           |
+  | ``V``            | Apparent visual magnitude (mag, float)        |
   +------------------+-----------------------------------------------+
   | ``vx``           | X velocity state vector (au/d, float)         |
   +------------------+-----------------------------------------------+
   | ``vy``           | Y velocity state vector (au/d, float)         |
   +------------------+-----------------------------------------------+
   | ``vz``           | Z velocity state vector (au/d, float)         |
-  +------------------+-----------------------------------------------+
-  | ``rv``           | Radial velocity (km/s, float)                 |
-  +------------------+-----------------------------------------------+
-  | ``heldist``      | Target heliocentric distance (au, float)      |
-  +------------------+-----------------------------------------------+
-  | ``x_h``          | X heliocentric position vector (au, float)    |
-  +------------------+-----------------------------------------------+
-  | ``y_h``          | Y heliocentric position vector (au, float)    |
-  +------------------+-----------------------------------------------+
-  | ``z_h``          | Z heliocentric position vector (au, float)    |
-  +------------------+-----------------------------------------------+
-  | ``vx_h``         | X heliocentric vel. vector (au/d, float)      |
-  +------------------+-----------------------------------------------+
-  | ``vy_h``         | Y heliocentric vel. vector (au/d, float)      |
-  +------------------+-----------------------------------------------+
-  | ``vz_h``         | Z heliocentric vel. vector (au/d, float)      |
   +------------------+-----------------------------------------------+
 
 
@@ -319,9 +299,9 @@ to be provided to the keyword ``coordtype`` to use these sets) :
   +------------------+-----------------------------------------------+
   | Column Name      | Definition                                    |
   +==================+===============================================+
-  | ``target``       | Target name (str)                             |
-  +------------------+-----------------------------------------------+
   | ``epoch``        | Ephemerides epoch (JD, float)                 |
+  +------------------+-----------------------------------------------+
+  | ``siderealtime`` | Local sidereal time (h min s, float)          |
   +------------------+-----------------------------------------------+
   | ``AZ``           | Target azimuth (deg, float)                   |
   +------------------+-----------------------------------------------+
@@ -334,6 +314,8 @@ to be provided to the keyword ``coordtype`` to use these sets) :
   | ``alpha``        | Solar phase angle (deg)                       |
   +------------------+-----------------------------------------------+
   | ``elong``        | Solar elongation angle (deg)                  |
+  +------------------+-----------------------------------------------+
+  | ``refrac``       | Refraction (arcsec)                           |
   +------------------+-----------------------------------------------+
 
 4. Hour angle coordinates:
@@ -341,11 +323,13 @@ to be provided to the keyword ``coordtype`` to use these sets) :
   +------------------+-----------------------------------------------+
   | Column Name      | Definition                                    |
   +==================+===============================================+
-  | ``target``       | Target name (str)                             |
-  +------------------+-----------------------------------------------+
   | ``epoch``        | Ephemerides epoch (JD, float)                 |
   +------------------+-----------------------------------------------+
-  | ``DEC``          | Target declination at ``ephtype`` (deg)       |
+  | ``siderealtime`` | Local sidereal time (h min s, float)          |
+  +------------------+-----------------------------------------------+
+  | ``hourangle``    | Target hour angle (deg, float)                |
+  +------------------+-----------------------------------------------+
+  | ``dec``          | Target declination at ``ephtype`` (deg)       |
   +------------------+-----------------------------------------------+
   | ``delta``        | Distance from observer (au, float)            |
   +------------------+-----------------------------------------------+
@@ -355,23 +339,23 @@ to be provided to the keyword ``coordtype`` to use these sets) :
   +------------------+-----------------------------------------------+
   | ``elong``        | Solar elongation angle (deg)                  |
   +------------------+-----------------------------------------------+
-  | ``hourangle``    | Target hour angle (deg, float)                |
+  | ``airmass``      | Target airmass (float)                        |
   +------------------+-----------------------------------------------+
 
-5. dedicated to observations:
+5. Dedicated to observations:
 
   +------------------+-----------------------------------------------+
   | Column Name      | Definition                                    |
   +==================+===============================================+
-  | ``target``       | Target name (str)                             |
-  +------------------+-----------------------------------------------+
   | ``epoch``        | Ephemerides epoch (JD, float)                 |
   +------------------+-----------------------------------------------+
-  | ``DEC``          | Target declination at ``ephtype`` (deg)       |
+  | ``siderealtime`` | Local sidereal time (h min s, float)          |
   +------------------+-----------------------------------------------+
-  | ``RAJ2000``      | Target RA at J2000 (deg, float)               |
+  | ``RA``           | Target RA at ``ephtype`` (deg, float)         |
   +------------------+-----------------------------------------------+
-  | ``DECJ2000``     | Target declination at J2000 (deg, float)      |
+  | ``DEC``          | Target declination at ``ephtype`` (deg, float)|
+  +------------------+-----------------------------------------------+
+  | ``hourangle``    | Target hour angle (deg, float)                |
   +------------------+-----------------------------------------------+
   | ``AZ``           | Target azimuth (deg, float)                   |
   +------------------+-----------------------------------------------+
@@ -379,30 +363,18 @@ to be provided to the keyword ``coordtype`` to use these sets) :
   +------------------+-----------------------------------------------+
   | ``delta``        | Distance from observer (au, float)            |
   +------------------+-----------------------------------------------+
-  | ``delta_rate``   | Rate in observer distance (km/s, float)       |
-  +------------------+-----------------------------------------------+
   | ``V``            | Apparent visual magnitude (mag, float)        |
   +------------------+-----------------------------------------------+
   | ``alpha``        | Solar phase angle (deg)                       |
   +------------------+-----------------------------------------------+
   | ``elong``        | Solar elongation angle (deg)                  |
   +------------------+-----------------------------------------------+
+  | ``airmass``      | Target airmass (float)                        |
+  +------------------+-----------------------------------------------+
   | ``RAcosD_rate``  | Rate of motion in RA * cos(DEC) (arcsec/min,  |
   |                  | float)                                        |
   +------------------+-----------------------------------------------+
   | ``DEC_rate``     | Rate of motion in DEC (arcsec/min, float)     |
-  +------------------+-----------------------------------------------+
-  | ``heldist``      | Target heliocentric distance (au, float)      |
-  +------------------+-----------------------------------------------+
-  | ``hourangle``    | Target hour angle (deg, float)                |
-  +------------------+-----------------------------------------------+
-  | ``siderealtime`` | Local sidereal time (hr, float)               |
-  +------------------+-----------------------------------------------+
-  | ``refraction``   | Atmospheric refraction (arcsec, float)        |
-  +------------------+-----------------------------------------------+
-  | ``airmass``      | Target airmass (float)                        |
-  +------------------+-----------------------------------------------+
-  | ``posunc``       | Positional uncertainty (arcsec, float)        |
   +------------------+-----------------------------------------------+
 
 
@@ -423,6 +395,8 @@ results:
 * ``radial_velocity``: provides additional information on target's radial
   velocity
 
+See the `Miridae documentation
+<https://ssp.imcce.fr/webservices/miriade/api/ephemcc/>`_ for details.
 
 
 Acknowledgements
@@ -446,7 +420,7 @@ Please consider the following notes from IMCCE:
   acknowledgment would be appreciated: "*This research has made use of
   IMCCE's Miriade VO tool*"
 
-The development of this submodule is funded through NASA PDART Grant
+The development of this submodule was funded through NASA PDART Grant
 No. 80NSSC18K0987 to the `sbpy project <https://sbpy.org>`_.
 
 
