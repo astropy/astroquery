@@ -21,7 +21,7 @@ from requests import HTTPError, RequestException
 from astroquery import log
 from astroquery.utils import commons, async_to_sync
 from astroquery.utils.class_or_instance import class_or_instance
-from astroquery.exceptions import InvalidQueryError, MaxResultsWarning, NoResultsWarning
+from astroquery.exceptions import InputWarning, InvalidQueryError, MaxResultsWarning, NoResultsWarning
 
 from astroquery.mast import utils
 from astroquery.mast.core import MastQueryWithLogin
@@ -43,7 +43,7 @@ class MastMissionsClass(MastQueryWithLogin):
     _list_products = 'post_list_products'
 
     # Workaround so that observation_id is returned in ULLYSES queries that do not specify columns
-    _default_ullyses_cols = ['target_name_ulysses', 'target_classification', 'targ_ra', 'targ_dec', 'host_galaxy_name',
+    _default_ullyses_cols = ['target_name_ullyses', 'target_classification', 'targ_ra', 'targ_dec', 'host_galaxy_name',
                              'spectral_type', 'bmv0_mag', 'u_mag', 'b_mag', 'v_mag', 'gaia_g_mean_mag', 'star_mass',
                              'instrument', 'grating', 'filter', 'observation_id']
 
@@ -197,6 +197,50 @@ class MastMissionsClass(MastQueryWithLogin):
                     value = [value]
                 params[prop] = value
 
+    def _parse_select_cols(self, select_cols):
+        """
+        Parse the select_cols parameter to ensure it is in the correct format.
+
+        Parameters
+        ----------
+        select_cols : list or str
+            The select_cols parameter to parse.
+
+        Returns
+        -------
+        list
+            A list of column names to select.
+        """
+        if select_cols is None:
+            if self.mission == 'ullyses':
+                select_cols = self._default_ullyses_cols
+            return select_cols
+
+        all_columns = self.get_column_list()['name'].value.tolist()
+        if isinstance(select_cols, str) and (select_cols.lower() == 'all' or select_cols == '*'):
+            return all_columns
+
+        if isinstance(select_cols, str):
+            select_cols = select_cols.split(',')
+        elif not isinstance(select_cols, list):
+            raise InvalidQueryError("`select_cols` must be a list of column names, a comma-separated string, "
+                                    "'all', or '*'.")
+
+        # Validate the column names
+        valid_select_cols = []
+        for col in select_cols:
+            col = col.strip()
+            if col not in all_columns:
+                closest_match = difflib.get_close_matches(col, all_columns, n=1)
+                suggestion = f' Did you mean "{closest_match[0]}"?' if closest_match else ''
+                warnings.warn(f"Column '{col}' not found.{suggestion}", InputWarning)
+            else:
+                valid_select_cols.append(col)
+
+        # Dataset ID column should always be returned
+        valid_select_cols.append(self.dataset_kwds.get(self.mission, None))
+        return valid_select_cols
+
     @class_or_instance
     def query_region_async(self, coordinates, *, radius=3*u.arcmin, limit=5000, offset=0,
                            select_cols=None, **criteria):
@@ -217,9 +261,11 @@ class MastMissionsClass(MastQueryWithLogin):
             Default is 5000. The maximum number of dataset IDs in the results.
         offset : int
             Default is 0. The number of records you wish to skip before selecting records.
-        select_cols: list, optional
+        select_cols: list or str, optional
             Default is None. Names of columns that will be included in the result table.
             If None, a default set of columns will be returned.
+            Can either be a list of column names, a comma-separated string of column names,
+            or 'all'/'*' to return all available columns.
         **criteria
             Other mission-specific criteria arguments.
             All valid filters can be found using `~astroquery.mast.missions.MastMissionsClass.get_column_list`
@@ -255,19 +301,13 @@ class MastMissionsClass(MastQueryWithLogin):
                 f"Query radius too large. Must be ≤{self._max_query_radius}, got {radius}."
             )
 
-        # Dataset ID column should always be returned
-        if select_cols:
-            select_cols.append(self.dataset_kwds.get(self.mission, None))
-        elif self.mission == 'ullyses':
-            select_cols = self._default_ullyses_cols
-
         # Basic params
         params = {'target': [f"{coordinates.ra.deg} {coordinates.dec.deg}"],
                   'radius': radius.arcsec,
                   'radius_units': 'arcseconds',
                   'limit': limit,
                   'offset': offset,
-                  'select_cols': select_cols}
+                  'select_cols': self._parse_select_cols(select_cols)}
 
         self._build_params_from_criteria(params, **criteria)
 
@@ -295,9 +335,11 @@ class MastMissionsClass(MastQueryWithLogin):
             Default is 5000. The maximum number of dataset IDs in the results.
         offset : int
             Default is 0. The number of records you wish to skip before selecting records.
-        select_cols: list, optional
+        select_cols: list or str, optional
             Default is None. Names of columns that will be included in the result table.
             If None, a default set of columns will be returned.
+            Can either be a list of column names, a comma-separated string of column names,
+            or 'all'/'*' to return all available columns.
         resolver : str, optional
             Default is None. The resolver to use when resolving a named target into coordinates. Valid options are
             "SIMBAD" and "NED". If not specified, the default resolver order will be used. Please see the
@@ -344,14 +386,8 @@ class MastMissionsClass(MastQueryWithLogin):
                 f"Query radius too large. Must be ≤{self._max_query_radius}, got {radius}."
             )
 
-        # Dataset ID column should always be returned
-        if select_cols:
-            select_cols.append(self.dataset_kwds.get(self.mission, None))
-        elif self.mission == 'ullyses':
-            select_cols = self._default_ullyses_cols
-
         # build query
-        params = {"limit": self.limit, "offset": offset, 'select_cols': select_cols}
+        params = {"limit": self.limit, "offset": offset, 'select_cols': self._parse_select_cols(select_cols)}
         if coordinates:
             params["target"] = [f"{coordinates.ra.deg} {coordinates.dec.deg}"]
             params["radius"] = radius.arcsec
@@ -382,9 +418,11 @@ class MastMissionsClass(MastQueryWithLogin):
             Default is 5000. The maximum number of dataset IDs in the results.
         offset : int
             Default is 0. The number of records you wish to skip before selecting records.
-        select_cols: list, optional
+        select_cols: list or str, optional
             Default is None. Names of columns that will be included in the result table.
             If None, a default set of columns will be returned.
+            Can either be a list of column names, a comma-separated string of column names,
+            or 'all'/'*' to return all available columns.
         resolver : str, optional
             Default is None. The resolver to use when resolving a named target into coordinates. Valid options are
             "SIMBAD" and "NED". If not specified, the default resolver order will be used. Please see the
