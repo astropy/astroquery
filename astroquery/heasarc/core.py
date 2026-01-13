@@ -8,7 +8,6 @@ from astropy.table import Table, Row
 from astropy import coordinates
 from astropy import units as u
 from astropy.utils.decorators import deprecated, deprecated_renamed_argument
-from typing import Tuple
 from astropy.time import Time
 import pyvo
 import re
@@ -614,18 +613,17 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         return self.query_region(pos, catalog=mission, spatial='cone',
                                  get_query_payload=get_query_payload)
 
-
     def _get_vec(ra=None, dec=None):
         """
         If the input is a string name of a column like "a.ra", then this routine
         constructs the unit vector column names that can be added to the SQL query
         to represent the unit vector. If the input is a number, then it will actually
         calculate the unit vector and return the values as strings to be added to the
-        SQL query.  
-        
-        The former is used to fetch pre-computed unit vectors columns associated with 
-        the table being queried. The latter is used to compute the input position unit 
-        vector only once and put the numeric value in the query constraint.  
+        SQL query.
+
+        The former is used to fetch pre-computed unit vectors columns associated with
+        the table being queried. The latter is used to compute the input position unit
+        vector only once and put the numeric value in the query constraint.
         """
         try:
             r, d = np.radians([float(ra), float(dec)])
@@ -637,68 +635,66 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         except ValueError:
             prefix = ra.split('.')[0]  # e.g., 'a' from 'a.ra'
             return (f"{prefix}.__x_ra_dec", f"{prefix}.__y_ra_dec", f"{prefix}.__z_ra_dec")
-        except:
-            raise
+        except Exception as e:
+            raise e
 
-
-    def _fast_geometry_constraint(ra, dec,large=False):
+    def _fast_geometry_constraint(ra, dec, large=False):
         """
         Construct the spatial constraint to be added to the WHERE clause.  It compares
         the input position with the catalog's pre-computed unit vector columns
         with the computation optimized for speed.  The optimization was done by Tom McGlynn
-        for the Xamin GUI and the algorithm copied here.  
-        
+        for the Xamin GUI and the algorithm copied here.
+
         The master position tables are split into those where the default sensible search
-        radius is larger or smaller than 1 degree.  
+        radius is larger or smaller than 1 degree.
         """
         vec0 = HeasarcClass._get_vec("a.ra", "a.dec")
         vec1 = HeasarcClass._get_vec(ra, dec)
         dot_product = " + ".join([f"{vec0[i]}*{vec1[i]}" for i in range(3)])
         # Assuming 'a.dsr' is the default search radius column.  This value is
         # defined by HEASARC curators for each table.
-        radius_condition = f"{dot_product} > (cos(radians((a.dsr*60/60))))"  
+        radius_condition = f"{dot_product} > (cos(radians((a.dsr*60/60))))"
         dec_condition = f"a.dec between {dec} - a.dsr*60/60 and {dec} + a.dsr*60/60"
         if large:
             return f"""
-            ( ({radius_condition}) 
+            ( ({radius_condition})
             and ({dec_condition}) )
             """
         else:
-            # Additional constraints on tables with search radii less than 1 deg,  
-            #  which speeds up the whole thing.  
+            # Additional constraints on tables with search radii less than 1 deg,
+            #  which speeds up the whole thing.
             radius_condition_1deg = f"{dot_product} > {np.cos(np.radians(1.0))}"
             dec_condition_1deg = f"a.dec between {float(dec) - 1} and {float(dec)+1}"
             return f"""
-            ( ({radius_condition}) 
+            ( ({radius_condition})
             and ({dec_condition})
             and ({radius_condition_1deg})
             and ({dec_condition_1deg})
             )
             """
 
-    def _time_constraint(start_time=None,end_time=None):
+    def _time_constraint(start_time=None, end_time=None):
         """"
-        Converts input string like "2025-01-02T01:00:00..2025-01-05T23:59:59" 
-        into a decimal MJD constraint.  
+        Converts input string like "2025-01-02T01:00:00..2025-01-05T23:59:59"
+        into a decimal MJD constraint.
         """
         start_mjd = Time(start_time, format='isot').mjd
         end_mjd = Time(end_time, format='isot').mjd
         return f"end_time > {start_mjd:.6f} AND start_time < {end_mjd:.6f}"
 
-
-    def _query_matches(ra=None, dec=None, start_time=None, end_time=None): 
+    def _query_matches(ra=None, dec=None, start_time=None, end_time=None):
         """
-        Constructs the full SQL query including the spatial and time constraints.  
-        Note that this queries multiple tables, as the HEASARC database has split 
+        Constructs the full SQL query including the spatial and time constraints.
+        Note that this queries multiple tables, as the HEASARC database has split
         the master tables for efficiency.
         """
         if ra is not None:
-            constraint_small = HeasarcClass._fast_geometry_constraint(ra, dec,large=False)
-            constraint_big = HeasarcClass._fast_geometry_constraint(ra, dec,large=True)
+            constraint_small = HeasarcClass._fast_geometry_constraint(ra, dec, large=False)
+            constraint_big = HeasarcClass._fast_geometry_constraint(ra, dec, arge=True)
         if start_time is not None:
-            constraint_time = HeasarcClass._time_constraint(start_time,end_time)
-        
-        tname1, tname2 = None, None 
+            constraint_time = HeasarcClass._time_constraint(start_time, end_time)
+
+        tname1, tname2 = None, None
         if ra is not None and start_time is None:
             tname1 = 'pos_small'
             tname2 = "pos_big"
@@ -718,7 +714,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                 "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
                 as "obj_type"
                 from master_table.{tname1} as a,master_table.indexview as b
-                where  (  (  a.table_name  =  b.name  )  ) and  
+                where  (  (  a.table_name  =  b.name  )  ) and
                 {constraint_small}
                 group by  b.name , b.description , b.regime , b.mission , b.type
 
@@ -728,7 +724,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                 "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
                 as "obj_type"
                 from master_table.{tname2} as a,master_table.indexview as b
-                where  (  (  a.table_name  =  b.name  )  ) and  
+                where  (  (  a.table_name  =  b.name  )  ) and
                 {constraint_big}
                 group by  b.name , b.description , b.regime , b.mission , b.type
                 order by count desc
@@ -739,24 +735,24 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
             as "obj_type"
             from master_table.{tname1} as a,master_table.indexview as b
-            where  (  (  a.table_name  =  b.name  )  ) and  
+            where  (  (  a.table_name  =  b.name  )  ) and
             {constraint_time}
             group by  b.name , b.description , b.regime , b.mission , b.type
             order by count desc
             """
         # remove all extraneous white space and line breaks
-        return re.sub(r'\s+', ' ', full_query.replace('\n','')).strip()
-        #return full_query
+        return re.sub(r'\s+', ' ', full_query.replace('\n', '')).strip()
+        return full_query
 
-    def query_all(self, position=None, get_query_payload=False, start_time=None, 
-                 end_time=None, verbose=False, maxrec=None, **kwargs):
+    def query_all(self, position=None, get_query_payload=False, start_time=None,
+                  end_time=None, verbose=False, maxrec=None, **kwargs):
         """
         Query the HEASARC database to count matches at a given position for all available catalogs.
 
         Parameters
         ----------
-        position : str, `astropy.coordinates` object 
-            The position around which to search. Must be a SkyCoord object or a string 
+        position : str, `astropy.coordinates` object
+            The position around which to search. Must be a SkyCoord object or a string
             that Astropy can convert.
         start_time : str, `astropy.time` object
             Beginning of time range of interest as a string in ISOT format
@@ -790,7 +786,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         This method queries all HEASARC catalogs for sources near the specified position.
         The results include the table name, number of matches, table description, regime,
         mission, and object type for each catalog.
-        
+
         The user can select the table name(s) of interest and then use the query_object(), query_region(), etc.
 
         The query uses the HEASARC TAP service to search position-only master tables efficiently.
@@ -802,30 +798,30 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         >>> position = SkyCoord(ra=10.68458, dec=41.26917, unit=(u.degree, u.degree), frame='icrs')
         >>> result = Heasarc.query_all(position)
         >>> print(result)
-        
+
         Returns
         -------
         table : A `~astropy.table.Table` object.
-        
+
         """
         if position is not None:
             coords_icrs = parse_coordinates(position).icrs
             ra, dec = coords_icrs.ra.deg, coords_icrs.dec.deg
         if position is None and start_time is not None:
-            ra=None
-            dec=None
-        if (  (position is None and start_time is None) ):
+            ra = None
+            dec = None
+        if ((position is None and start_time is None)):
             raise ValueError("A valid position and/or a time range must be provided.")
 
-        full_query = HeasarcClass._query_matches(ra=ra,dec=dec,
+        full_query = HeasarcClass._query_matches(ra=ra, dec=dec,
                                                  start_time=start_time,
                                                  end_time=end_time)
 
         if get_query_payload:
             return full_query
 
-        response = self.query_tap(query=full_query, maxrec=maxrec)  
-        
+        response = self.query_tap(query=full_query, maxrec=maxrec)
+
         # save the response in case we want to use it later
         self._last_result = response
 
@@ -835,7 +831,6 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                 NoResultsWarning("No matching rows were found in the query.")
             )
         return table
-    
 
     def locate_data(self, query_result=None, catalog_name=None):
         """Get links to data products
@@ -1186,4 +1181,4 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
 Heasarc = HeasarcClass()
 
-
+ 
