@@ -362,13 +362,11 @@ class TestHeasarcBrowse:
         assert len(catalog) == 0
 
 
+@pytest.mark.remote_data
 def test__query_all():
-    full_with_strpos = Heasarc.query_all("217.0 -31.7", get_query_payload=True)
-    assert "( (a.__x_ra_dec*-0.5121892283646801 + a.__y_ra_dec*-0.6790813682341418 +"
-    "a.__z_ra_dec*-0.5258428374185955 > (cos(radians((a.dsr*60/60)))))" \
-        in full_with_strpos
-    full_with_strtimes = Heasarc.query_all("217.0 -31.7",
-                                           start_time="2017-01-01",
-                                           end_time="2020-01-02", get_query_payload=True)
-    assert "end_time > 57754.0" in full_with_strtimes and \
-        "start_time < 58850.0" in full_with_strtimes
+    result = Heasarc.query_all("217.0 -31.70",
+                               start_time="2017-01-01",
+                               end_time="2020-01-02")
+    assert len(result) == 7
+    assert result[0]['table_name'] == 'intscw'
+    assert result[1]['count'] == 556
