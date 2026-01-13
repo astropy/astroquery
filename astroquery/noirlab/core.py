@@ -81,7 +81,7 @@ class NOIRLabClass(BaseQuery):
         core = 'aux' if aux else 'core'
         return f'{self.NAT_URL}/api/adv_search/{core}_{file}_fields'
 
-    def _response_to_table(self, response_json, rectype='file'):
+    def _response_to_table(self, response_json, rectype=None):
         """Convert a JSON response to a :class:`~astropy.table.Table`.
 
         Parameters
@@ -91,18 +91,27 @@ class NOIRLabClass(BaseQuery):
             metadata is the first item in the list.
         rectype : :class:`str`, optional
             Expect response keys to be prepended with this string,
-            default 'file'.
+            *e.g.* ``file:`` or ``hdu:``. The default is no qualifier.
 
         Returns
         -------
         :class:`~astropy.table.Table`
             The converted response. The column ordering will match the
             ordering of the `HEADER` metadata.
+
+        Notes
+        -----
+        * Metadata queries return columns that are qualified with ``file:`` or ``hdu:``,
+          however SIA queries to not.
         """
-        raw_names = [k for k in response_json[0]['HEADER'].keys()
-                     if k.startswith(f"{rectype}:")]
+        if rectype is None:
+            raw_names = [k for k in response_json[0]['HEADER'].keys()]
+            names = raw_names
+        else:
+            raw_names = [k for k in response_json[0]['HEADER'].keys()
+                         if k.startswith(f"{rectype}:")]
+            names = [n.split(':')[1] for n in raw_names]
         rows = [[row[n] for n in raw_names] for row in response_json[1:]]
-        names = [n.split(':')[1] for n in raw_names]
         return astropy.table.Table(names=names, rows=rows)
 
     def service_metadata(self, hdu=False, cache=True):
@@ -157,7 +166,7 @@ class NOIRLabClass(BaseQuery):
         response = self.query_region_async(coordinate, radius=radius, hdu=hdu, cache=cache)
         response.raise_for_status()
         rectype = 'hdu' if hdu else 'file'
-        return self._response_to_table(response.json(), rectype=rectype)
+        return self._response_to_table(response.json())
 
     def query_region_async(self, coordinate, *, radius=0.1, hdu=False, cache=True):
         """Query for NOIRLab observations by region of the sky.
