@@ -26,8 +26,7 @@ from astroquery.utils import commons
 
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
-from ..exceptions import (InvalidQueryError, RemoteServiceError,
-                          NoResultsWarning, InputWarning)
+from ..exceptions import (InvalidQueryError, RemoteServiceError, NoResultsWarning, InputWarning)
 
 from . import utils
 from .core import MastQueryWithLogin
@@ -683,11 +682,22 @@ class ObservationsClass(MastQueryWithLogin):
             if self._cloud_connection is not None and not force_on_prem:
                 try:
                     self._cloud_connection.download_file_from_cloud(uri, local_path, cache, verbose)
+                except RemoteServiceError:
+                    # Product not found in cloud
+                    if cloud_only:
+                        warnings.warn(f'The product {uri} was not found in the cloud. Skipping download.',
+                                      NoResultsWarning)
+                        return 'SKIPPED', None, None
+
+                    warnings.warn(f'The product {uri} was not found in the cloud. '
+                                  'Falling back to MAST download.', InputWarning)
+                    self._download_file(escaped_url, local_path, cache=cache, head_safe=True, verbose=verbose)
                 except Exception as ex:
+                    # Should be in cloud, but download failed
                     if cloud_only:
                         warnings.warn(f'Could not download {uri} from cloud: {ex}. Skipping download.',
                                       NoResultsWarning)
-                        return "SKIPPED", None, None
+                        return 'SKIPPED', None, None
 
                     warnings.warn(f'Could not download {uri} from cloud: {ex}. Falling back to MAST download.',
                                   InputWarning)
@@ -701,12 +711,12 @@ class ObservationsClass(MastQueryWithLogin):
             # check if file exists also this is where would perform md5,
             # and also check the filesize if the database reliably reported file sizes
             if not local_path.is_file():
-                return "ERROR", "File was not downloaded", data_url
+                return 'ERROR', 'File was not downloaded', data_url
 
-            return "COMPLETE", None, None
+            return 'COMPLETE', None, None
 
         except HTTPError as err:
-            return "ERROR", f"HTTPError: {err}", data_url
+            return 'ERROR', f'HTTPError: {err}', data_url
 
     def _download_files(self, products, base_dir, *, flat=False, cache=True, cloud_only=False, verbose=True):
         """
@@ -764,6 +774,7 @@ class ObservationsClass(MastQueryWithLogin):
                         self._cloud_connection.download_file_from_cloud(cloud_uri, local_path, cache, verbose)
                         status = 'COMPLETE'
                     except Exception as ex:
+                        # Should be in cloud, but download failed
                         if cloud_only:
                             warnings.warn(f'Could not download {cloud_uri} from cloud: {ex}. Skipping download.',
                                           NoResultsWarning)
@@ -776,7 +787,7 @@ class ObservationsClass(MastQueryWithLogin):
                                                                   force_on_prem=True, verbose=verbose)
                 else:
                     if cloud_uri_map is not None:
-                        # Cloud is enabled, but product was not found
+                        # Cloud is enabled, but product was not found in cloud
                         if cloud_only:
                             warnings.warn(f'The product {mast_uri} was not found in the cloud. Skipping download.',
                                           NoResultsWarning)

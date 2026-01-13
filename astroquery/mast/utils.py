@@ -399,9 +399,9 @@ def get_cloud_paths(mast_uri, *, verbose=True):
     """
     uri_list = [mast_uri] if isinstance(mast_uri, str) else list(mast_uri)
 
-    # Split the list into chunks of 50 URIs; this is necessary
+    # Split the list into chunks of 40 URIs; this is necessary
     # to avoid "414 Client Error: Request-URI Too Large".
-    uri_list_chunks = list(split_list_into_chunks(uri_list, chunk_size=50))
+    uri_list_chunks = list(split_list_into_chunks(uri_list, chunk_size=40))
 
     cloud_paths = []
     for chunk in uri_list_chunks:
