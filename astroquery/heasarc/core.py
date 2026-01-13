@@ -763,8 +763,6 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         get_query_payload : bool, optional
             If `True` then returns the generated ADQL query as str and does not send the query.
             Defaults to `False`.
-        add_offset : bool, optional
-            If set, adds 
         verbose : bool, optional
             If True, prints additional information about the query. Default is False.
         maxrec : int, optional
