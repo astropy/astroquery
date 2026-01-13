@@ -109,7 +109,7 @@ def test_query_hdu_metadata():
                            "proc_type",
                            "EXPTIME",
                            "AIRMASS",
-                           "hdu:EQUINOX"],
+                           "DATE-OBS"],
              "search": [["caldat", "2017-08-14", "2017-08-16"],
                         ["instrument", "decam"],
                         ["proc_type", "raw"]]}
