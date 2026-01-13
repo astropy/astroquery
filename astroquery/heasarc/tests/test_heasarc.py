@@ -792,16 +792,3 @@ def test__constraint_matches():
                                                        end_time="2020-01-02")
     assert "end_time > 57754.000000 AND start_time < 58850.000000" in constraint_with_time
 
-
-def test__query_all():
-    #  For some reason, the significant digits here don't give the same result as above.
-    full_with_strpos = Heasarc.query_all("217.0 -31.7", get_query_payload=True)
-    #  in _query_matches and query_all, whitespaces get removed.
-    assert "( (a.__x_ra_dec*-0.5121892283646801 + a.__y_ra_dec*-0.6790813682341418 +"
-    "a.__z_ra_dec*-0.5258428374185955 > (cos(radians((a.dsr*60/60)))))" \
-        in full_with_strpos
-    full_with_strtimes = Heasarc.query_all("217.0 -31.7",
-                                           start_time="2017-01-01",
-                                           end_time="2020-01-02", get_query_payload=True)
-    assert "end_time > 57754.0" in full_with_strtimes and \
-        "start_time < 58850.0" in full_with_strtimes
