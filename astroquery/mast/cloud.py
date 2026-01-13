@@ -14,7 +14,7 @@ from astroquery import log
 from astropy.utils.console import ProgressBarOrSpinner
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
-from ..exceptions import NoResultsWarning
+from ..exceptions import RemoteServiceError, NoResultsWarning
 
 from . import utils
 
@@ -223,14 +223,14 @@ class CloudAccess:  # pragma:no-cover
         """
         # TODO: Function that checks if a particular product, by dataURI, can be found in the cloud
         # Normalize to an S3 key (no bucket)
-        if data_product.strip().startswith("s3://"):
+        if data_product.strip().startswith('s3://'):
             s3_key = data_product.replace(f's3://{self.pubdata_bucket}/', '', 1)
         else:
             s3_key = self.get_cloud_uri_list([data_product], include_bucket=False, verbose=False)[0]
 
         # If s3_key is None, the product was not found in the cloud
         if s3_key is None:
-            raise ValueError(f"Data product {data_product} not found in S3 cloud storage.")
+            raise RemoteServiceError(f'The product {data_product} was not found in the cloud.')
 
         # Query S3 for expected file size
         head = self.s3_client.head_object(Bucket=self.pubdata_bucket, Key=s3_key)

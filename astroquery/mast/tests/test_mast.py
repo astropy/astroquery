@@ -1112,12 +1112,12 @@ def test_observations_download_file_cloud(mock_is_file, mock_client, mock_resour
 
     # Skip file if cloud_only is True but file is not in cloud
     nonexistent_uri = 'mast:HST/product/does_not_exist.fits'
-    with pytest.warns(NoResultsWarning, match=f'Could not download {nonexistent_uri} from cloud'):
+    with pytest.warns(NoResultsWarning, match=f'The product {nonexistent_uri} was not found in the cloud'):
         result = Observations.download_file(nonexistent_uri, cloud_only=True)
         assert result == ('SKIPPED', None, None)
 
     # Use on-prem download if cloud_only is False and file is not in cloud
-    with pytest.warns(InputWarning, match=f'Could not download {nonexistent_uri} from cloud'):
+    with pytest.warns(InputWarning, match=f'The product {nonexistent_uri} was not found in the cloud'):
         result = Observations.download_file(nonexistent_uri, cloud_only=False)
         assert result == ('COMPLETE', None, None)
 
@@ -1844,7 +1844,7 @@ def test_download_file_from_cloud_not_found(mock_client, mock_resource, patch_po
     # Force get_cloud_uri_list to return [None]
     cloud.get_cloud_uri_list = lambda *a, **k: [None]
 
-    with pytest.raises(ValueError, match="not found in S3 cloud storage"):
+    with pytest.raises(RemoteServiceError, match='was not found in the cloud'):
         cloud.download_file_from_cloud(
             "mast:HST/product/missing.fits",
             "local.fits",
