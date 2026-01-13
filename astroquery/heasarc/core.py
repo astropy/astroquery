@@ -652,8 +652,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         vec1 = HeasarcClass._get_vec(ra, dec)
         dot_product = " + ".join([f"{vec0[i]}*{vec1[i]}" for i in range(3)])
         if radius is not None:
-            radius_condition = f"{dot_product} > (cos(radians(({radius.deg}))))"
-            dec_condition = f"a.dec between {dec} - a{radius.deg} and {dec} + a.dsr*60/60"
+            radius_condition = f"{dot_product} > (cos(radians(({radius.to(u.deg)}))))"
+            dec_condition = f"a.dec between {dec} - {radius.to(u.deg)} and {dec} + {radius.to(u.deg)}*60/60"
         else:
             # Assuming 'a.dsr' is the default search radius column in degrees.  This value is
             # defined by HEASARC curators for each table.
@@ -693,8 +693,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         the master tables for efficiency.
         """
         if ra is not None:
-            constraint_small = HeasarcClass._fast_geometry_constraint(ra, dec, large=False)
-            constraint_big = HeasarcClass._fast_geometry_constraint(ra, dec, large=True)
+            constraint_small = HeasarcClass._fast_geometry_constraint(ra, dec, large=False, radius=radius)
+            constraint_big = HeasarcClass._fast_geometry_constraint(ra, dec, large=True, radius=radius)
         if start_time is not None:
             constraint_time = HeasarcClass._time_constraint(start_time, end_time)
 
