@@ -20,6 +20,12 @@ vizier
 ^^^^^^
 - Methods ``get_catalog``, ``get_catalog_async`` and ``query_*`` now always return UCD1+ instead of UCD1. [#3458]
 
+mast
+^^^^
+- ``utils.mast_relative_path`` is now deprecated in favor of ``utils.get_cloud_paths``. [#3488]
+- When cloud access is enabled, ``Observations.download_file`` and ``Observations.download_products`` 
+  now check all requested products against cloud storage. As a result, setting ``cloud_only=True`` will skip 
+  any products that are not available in the cloud, rather than falling back to on-prem downloads.
 
 Service fixes and enhancements
 ------------------------------
@@ -63,6 +69,9 @@ mast
 - Separate requests for moving target cutouts in ``Tesscut`` to one per sector. [#3467]
 
 - Improved robustness of PanSTARRS column metadata parsing. This prevents metadata-related query errors. [#3485]
+
+- Add a new ``Observations.list_cloud_datasets()`` method for querying cloud-supported MAST datasets, alongside 
+  improvements to cloud download handling. [#3488]
 
 jplspec
 ^^^^^^^
