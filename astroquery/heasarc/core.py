@@ -638,7 +638,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         except Exception as e:
             raise e
 
-    def _fast_geometry_constraint(ra, dec, large=False):
+    def _fast_geometry_constraint(ra, dec, large=False, radius=None):
         """
         Construct the spatial constraint to be added to the WHERE clause.  It compares
         the input position with the catalog's pre-computed unit vector columns
@@ -651,10 +651,14 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         vec0 = HeasarcClass._get_vec("a.ra", "a.dec")
         vec1 = HeasarcClass._get_vec(ra, dec)
         dot_product = " + ".join([f"{vec0[i]}*{vec1[i]}" for i in range(3)])
-        # Assuming 'a.dsr' is the default search radius column.  This value is
-        # defined by HEASARC curators for each table.
-        radius_condition = f"{dot_product} > (cos(radians((a.dsr*60/60))))"
-        dec_condition = f"a.dec between {dec} - a.dsr*60/60 and {dec} + a.dsr*60/60"
+        if radius is not None:
+            radius_condition = f"{dot_product} > (cos(radians(({radius.deg}))))"
+            dec_condition = f"a.dec between {dec} - a{radius.deg} and {dec} + a.dsr*60/60"
+        else:
+            # Assuming 'a.dsr' is the default search radius column in degrees.  This value is
+            # defined by HEASARC curators for each table.
+            radius_condition = f"{dot_product} > (cos(radians((a.dsr*60/60))))"
+            dec_condition = f"a.dec between {dec} - a.dsr*60/60 and {dec} + a.dsr*60/60"
         if large:
             return f"""
             ( ({radius_condition})
@@ -682,7 +686,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         end_mjd = Time(end_time, format='isot').mjd
         return f"end_time > {start_mjd:.6f} AND start_time < {end_mjd:.6f}"
 
-    def _query_matches(ra=None, dec=None, start_time=None, end_time=None):
+    def _query_matches(ra=None, dec=None, start_time=None, end_time=None, radius=None):
         """
         Constructs the full SQL query including the spatial and time constraints.
         Note that this queries multiple tables, as the HEASARC database has split
@@ -745,7 +749,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         return full_query
 
     def query_all(self, position=None, get_query_payload=False, start_time=None,
-                  end_time=None, verbose=False, maxrec=None, **kwargs):
+                  end_time=None, verbose=False, maxrec=None, radius=None, **kwargs):
         """
         Query the HEASARC database to count matches at a given position for all available catalogs.
 
@@ -763,6 +767,13 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         get_query_payload : bool, optional
             If `True` then returns the generated ADQL query as str and does not send the query.
             Defaults to `False`.
+        radius : str or `~astropy.units.Quantity` object
+            If this radius is None, the specified coordinate is compared to each mission
+            catalog entry using that catalog's default radius. This is based on the
+            approximate PSF.If you specify a radius in degrees, it uses that instead.
+            For missions with large PSFs, when you look for a source in a very small
+            region, you may not find catalog entries that are within the PSF and
+            therefore might be of interest  
         verbose : bool, optional
             If True, prints additional information about the query. Default is False.
         maxrec : int, optional
@@ -815,7 +826,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         full_query = HeasarcClass._query_matches(ra=ra, dec=dec,
                                                  start_time=start_time,
-                                                 end_time=end_time)
+                                                 end_time=end_time, radius=radius)
 
         if get_query_payload:
             return full_query
