@@ -88,6 +88,7 @@ def mock_meta():
         ))
         yield meta
 
+
 @pytest.mark.parametrize("coordinates", OBJ_LIST)
 @pytest.mark.parametrize("radius", SIZE_LIST)
 @pytest.mark.parametrize("offset", [True, False])
@@ -720,47 +721,52 @@ def test_s3_mock_directory(s3_mock):
         assert os.path.exists(f"{tmpdir}/location/sub/file2.txt")
         assert os.path.exists(f"{tmpdir}/location/sub/sub2/file3.txt")
 
+
 def test__get_vec():
     # Test column name input
     assert HeasarcClass._get_vec("a.ra", "a.dec") == \
         ("a.__x_ra_dec", "a.__y_ra_dec", "a.__z_ra_dec")
     # Test numeric input
-    actual = HeasarcClass._get_vec("217.0","-31.7")
+    actual = HeasarcClass._get_vec("217.0", "-31.7")
     desired = (-0.5120309075160554, -0.6794879643287802, -0.5254716510722678)
     # Convert to float for comparison
     assert all(abs(d - a) < 0.5 * (10 ** (-6)) for d, a in zip(desired, actual))
 
+
 def test__constraint_matches():
     import re
     #  Testing all together because it's easier to read this way.
-    constraint_small = HeasarcClass._fast_geometry_constraint("217.0","-31.7",large=False) 
-    desired_small =  """
-            ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 + a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr*60/60))))) 
+    constraint_small = HeasarcClass._fast_geometry_constraint("217.0", "-31.7", large=False)
+    desired_small = """
+            ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 +
+            a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr*60/60)))))
             and (a.dec between -31.7 - a.dsr*60/60 and -31.7 + a.dsr*60/60)
-            and (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 + a.__z_ra_dec*-0.5254716510722678 > 0.9998476951563913)
+            and (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 +
+            a.__z_ra_dec*-0.5254716510722678 > 0.9998476951563913)
             and (a.dec between -32.7 and -30.7)
             )
             """
-    assert constraint_small == desired_small 
-    
-    constraint_large = HeasarcClass._fast_geometry_constraint("217.0","-31.7",large=True) 
+    assert constraint_small == desired_small
+
+    constraint_large = HeasarcClass._fast_geometry_constraint("217.0", "-31.7", large=True)
     desired_large = """
-            ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 + a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr*60/60))))) 
+            ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 +
+            a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr*60/60)))))
             and (a.dec between -31.7 - a.dsr*60/60 and -31.7 + a.dsr*60/60) )
             """
     assert constraint_large == desired_large
-    
-    constraint_time = HeasarcClass._time_constraint(start_time=Time("2017-01-01"),end_time=Time("2017-01-02"))
+
+    constraint_time = HeasarcClass._time_constraint(start_time=Time("2017-01-01"), end_time=Time("2017-01-02"))
     desired_time = "end_time > 57754.000000 AND start_time < 57755.000000"
     assert constraint_time == desired_time
-    
-    constraint_full = HeasarcClass._query_matches("217.0","-31.7")
+
+    constraint_full = HeasarcClass._query_matches("217.0", "-31.7")
     desired_full = f"""
             select  b.name  as "table_name",  count(*)  as "count",  b.description  as
             "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
             as "obj_type"
             from master_table.pos_small as a,master_table.indexview as b
-            where  (  (  a.table_name  =  b.name  )  ) and  
+            where  (  (  a.table_name  =  b.name  )  ) and
             {desired_small}
             group by  b.name , b.description , b.regime , b.mission , b.type
 
@@ -770,26 +776,29 @@ def test__constraint_matches():
             "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
             as "obj_type"
             from master_table.pos_big as a,master_table.indexview as b
-            where  (  (  a.table_name  =  b.name  )  ) and  
+            where  (  (  a.table_name  =  b.name  )  ) and
             {desired_large}
             group by  b.name , b.description , b.regime , b.mission , b.type
             order by count desc
             """
-    assert re.sub(r'\s+', ' ', constraint_full.replace('\n','')).strip() == re.sub(r'\s+', ' ', desired_full.replace('\n','')).strip()
+    assert re.sub(r'\s+', ' ', constraint_full.replace('\n', '')
+                  ).strip() == re.sub(r'\s+', ' ', desired_full.replace('\n', '')).strip()
 #    assert constraint_full == desired_full
-    
-    constraint_with_time = HeasarcClass._query_matches("217.0","-31.7",
+
+    constraint_with_time = HeasarcClass._query_matches("217.0", "-31.7",
                                                        start_time="2017-01-01",
                                                        end_time="2020-01-02")
     assert "end_time > 57754.000000 AND start_time < 58850.000000" in constraint_with_time
 
+
 def test__query_all():
     #  For some reason, the significant digits here don't give the same result as above.
-    full_with_strpos = Heasarc.query_all("217.0 -31.7",get_query_payload=True)
-    #  in _query_matches and query_all, whitespaces get removed.  
-    assert "( (a.__x_ra_dec*-0.5121892283646801 + a.__y_ra_dec*-0.6790813682341418 + a.__z_ra_dec*-0.5258428374185955 > (cos(radians((a.dsr*60/60)))))" \
+    full_with_strpos = Heasarc.query_all("217.0 -31.7", get_query_payload=True)
+    #  in _query_matches and query_all, whitespaces get removed.
+    assert "( (a.__x_ra_dec*-0.5121892283646801 + a.__y_ra_dec*-0.6790813682341418 +"
+    "a.__z_ra_dec*-0.5258428374185955 > (cos(radians((a.dsr*60/60)))))" \
         in full_with_strpos
     full_with_strtimes = Heasarc.query_all("217.0 -31.7",
                                            start_time="2017-01-01",
-                                           end_time="2020-01-02",get_query_payload=True)
+                                           end_time="2020-01-02", get_query_payload=True)
     assert "end_time > 57754.000000 AND start_time < 58849.000000" in full_with_strtimes
