@@ -43,7 +43,7 @@ def patch_request(request):
 def test_spherical_coordinates(patch_request):
     eph = Miriade.get_ephemerides('3552', coordtype=1)
     cols = ('epoch', 'RA', 'DEC', 'delta', 'V', 'alpha', 'elong', 'RAcosD_rate',
-            'DEC_rate', 'rv', 'rvc', 'berv', 'rvs')
+            'DEC_rate', 'delta_rate', 'rvc', 'berv', 'rvs')
     units = (u.d, u.deg, u.deg, u.au, u.mag, u.deg, u.deg,
              u.arcsec / u.minute, u.arcsec / u.minute, u.km / u.s,
              u.km / u.s, u.km / u.s, u.km / u.s)
@@ -55,7 +55,7 @@ def test_spherical_coordinates(patch_request):
 def test_rectangular_coordinates(patch_request):
     eph = Miriade.get_ephemerides('3552', coordtype=2)
     cols = ('epoch', 'px', 'py', 'pz', 'delta', 'heldist', 'alpha', 'elong', 'V',
-            'vx', 'vy', 'vz', 'rv', 'rvc', 'berv', 'rvs')
+            'vx', 'vy', 'vz', 'delta_rate', 'rvc', 'berv', 'rvs')
     units = (u.d, u.au, u.au, u.au, u.au, u.au, u.deg, u.deg, u.mag,
              u.au / u.day, u.au / u.day, u.au / u.day,
              u.km / u.s, u.km / u.s, u.km / u.s, u.km / u.s)
@@ -67,7 +67,7 @@ def test_rectangular_coordinates(patch_request):
 def test_local_coordinates(patch_request):
     eph = Miriade.get_ephemerides('3552', coordtype=3)
     cols = ('epoch', 'siderealtime', 'AZ', 'EL', 'delta', 'V',
-            'alpha', 'elong', 'refrac', 'rv', 'rvc', 'berv', 'rvs')
+            'alpha', 'elong', 'refrac', 'delta_rate', 'rvc', 'berv', 'rvs')
     units = (u.d, 'h min s', u.deg, u.deg, u.au, u.mag,
              u.deg, u.deg, u.arcsec, u.km / u.s, u.km / u.s,
              u.km / u.s, u.km / u.s)
@@ -79,7 +79,7 @@ def test_local_coordinates(patch_request):
 def test_hourangle_coordinates(patch_request):
     eph = Miriade.get_ephemerides('3552', coordtype=4)
     cols = ['epoch', 'siderealtime', 'hourangle', 'dec', 'delta', 'V',
-            'alpha', 'elong', 'airmass', 'rv', 'rvc', 'berv', 'rvs']
+            'alpha', 'elong', 'airmass', 'delta_rate', 'rvc', 'berv', 'rvs']
     units = (u.d, 'h min s', u.deg, u.deg, u.au, u.mag,
              u.deg, u.deg, None, u.km / u.s, u.km / u.s,
              u.km / u.s, u.km / u.s)
@@ -92,7 +92,7 @@ def test_observation_coordinates(patch_request):
     eph = Miriade.get_ephemerides('3552', coordtype=5)
     cols = ['epoch', 'siderealtime', 'RA', 'DEC', 'hourangle', 'AZ', 'EL',
             'delta', 'heldist', 'V', 'alpha', 'elong', 'airmass',
-            'RAcosD_rate', 'DEC_rate', 'rv', 'rvc', 'berv', 'rvs']
+            'RAcosD_rate', 'DEC_rate', 'delta_rate', 'rvc', 'berv', 'rvs']
     units = (u.d, "h min s", u.deg, u.deg, u.deg, u.deg, u.deg,
              u.au, u.au, u.mag, u.deg, u.deg, None,
              u.arcsec / u.min, u.arcsec / u.min, u.km / u.s, u.km / u.s,
