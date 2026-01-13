@@ -651,9 +651,13 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         vec0 = HeasarcClass._get_vec("a.ra", "a.dec")
         vec1 = HeasarcClass._get_vec(ra, dec)
         dot_product = " + ".join([f"{vec0[i]}*{vec1[i]}" for i in range(3)])
+        print(f"DEBUG:  radius is {radius}")
         if radius is not None:
-            radius_condition = f"{dot_product} > (cos(radians(({radius.to(u.deg)}))))"
-            dec_condition = f"a.dec between {dec} - {radius.to(u.deg)} and {dec} + {radius.to(u.deg)}*60/60"
+            if not isinstance(radius,(int, float)):  
+                radius = radius.value
+            print(f"DEBUG:  radius is {radius} of type {type(radius)}")
+            radius_condition = f"{dot_product} > (cos(radians(({radius}))))"
+            dec_condition = f"a.dec between {dec} - {radius} and {dec} + {radius}"
         else:
             # Assuming 'a.dsr' is the default search radius column in degrees.  This value is
             # defined by HEASARC curators for each table.
