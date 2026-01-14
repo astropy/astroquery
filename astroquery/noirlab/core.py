@@ -185,7 +185,7 @@ class NOIRLabClass(BaseQuery):
         Parameters
         ----------
         aux : :class:`bool`, optional
-            If ``True``, return aux fields. `instrument` and `proctype` must also be specified.
+            If ``True``, return aux fields. ``instrument`` and ``proctype`` must also be specified.
         instrument : :class:`str`, optional
             The specific instrument, *e.g.* '90prime' or 'decam'.
         proctype : :class:`str`, optional
@@ -207,7 +207,7 @@ class NOIRLabClass(BaseQuery):
         Raises
         ------
         ValueError
-            If ``aux=True`` and `instrument` or `proctype` are not specified.
+            If ``aux=True`` and ``instrument`` or ``proctype`` are not specified.
 
         Notes
         -----
