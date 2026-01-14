@@ -777,7 +777,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             approximate PSF. If you specify a radius in degrees, it uses that instead.
             Be aware that for missions with large PSFs, when you search within a very small
             radius, you may not find catalog entries that are within the PSF and
-            therefore might be of interest  
+            therefore might be of interest.
         verbose : bool, optional
             If True, prints additional information about the query. Default is False.
         maxrec : int, optional

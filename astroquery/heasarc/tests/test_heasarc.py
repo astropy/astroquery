@@ -741,7 +741,6 @@ def adql_str_comp(testing=str, reference=str):
 
 
 def test__constraint_matches():
-    import re
     #  Testing all together because it's easier to read this way.
     constraint_small = HeasarcClass._fast_geometry_constraint("217.0", "-31.7", large=False)
     desired_small = """
@@ -759,8 +758,8 @@ def test__constraint_matches():
             and (a.dec between -31.7 - a.dsr*60/60 and -31.7 + a.dsr*60/60) )
             """
     assert adql_str_comp(constraint_large, desired_large)
-    constraint_large_rad = HeasarcClass._fast_geometry_constraint("217.0", "-31.7", \
-                                                                  radius=0.5*u.deg,large=True)
+    constraint_large_rad = HeasarcClass._fast_geometry_constraint("217.0", "-31.7",
+                                                                  radius=0.5*u.deg, large=True)
     assert "(a.dec between -31.7 - 0.5 and -31.7 + 0.5)" in constraint_large_rad
 
     constraint_time = HeasarcClass._time_constraint(start_time=Time("2017-01-01"), end_time=Time("2017-01-02"))
