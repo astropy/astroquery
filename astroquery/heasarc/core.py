@@ -653,7 +653,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         dot_product = " + ".join([f"{vec0[i]}*{vec1[i]}" for i in range(3)])
         print(f"DEBUG:  radius is {radius}")
         if radius is not None:
-            if not isinstance(radius,(int, float)):  
+            if not isinstance(radius, (int, float)):
                 radius = radius.value
             print(f"DEBUG:  radius is {radius} of type {type(radius)}")
             radius_condition = f"{dot_product} > (cos(radians(({radius}))))"
