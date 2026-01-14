@@ -150,7 +150,7 @@ parameters, sometimes called the *JSON search spec*.
     True
 
 Understanding Core versus Aux, File versus HDU, and Categoricals
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Fields that are associated with all entries in the Archive are called "Core" fields.
 These fields are optimized for fast searches. However, note that Core HDU files are different from Core File fields.
@@ -172,6 +172,19 @@ Aux File fields            ``NOIRLab.list_fields(aux=True, instrument="decam", p
 Aux HDU fields             ``NOIRLab.list_fields(aux=True, instrument="decam", proctype="raw", hdu=True)``
 Categorical fields         ``NOIRLab.list_fields(categorical=True)``
 ========================== =============================================================================== ========
+
+Once you have identified fields of interest, it is necessary to prepend HDU-specific
+fields with ``hdu:`` *and* set ``hdu=True`` in the query.
+Here is an example query that illustrates this.
+
+.. doctest-remote-data::
+
+    >>> qspec = {"outfields": ["md5sum", "archive_filename", "hdu:CD1_1", "hdu:CD1_2"],
+    ...          "search": [["caldat", "2017-08-14", "2017-08-16"], ["instrument", "decam"], ["proc_type", "raw"]]}
+    >>> results = NOIRLab.query_metadata(qspec, sort='md5sum', limit=3, hdu=True)
+    >>> 'CD1_1' in results.colnames
+    True
+
 
 .. _JSON: https://www.json.org/json-en.html
 

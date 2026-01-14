@@ -35,8 +35,8 @@ def mock_content(method, url, **kwargs):
         content = json.dumps(exp.core_hdu_fields)
     elif '/aux_hdu_fields' in url:
         content = json.dumps(exp.aux_hdu_fields)
-    elif '/find?rectype=hdu' in url:
-        content = json.dumps(exp.query_hdu_metadata)
+    # elif '/find?rectype=hdu' in url:
+    #     content = json.dumps(exp.query_hdu_metadata)
     elif '/cat_lists/' in url:
         content = json.dumps(exp.categoricals)
     elif '/version/' in url:
@@ -110,7 +110,7 @@ def test_query_file_metadata(patch_request):
                            "proc_type"],
              "search": [['original_filename', 'c4d_', 'contains']]}
     actual = NOIRLab.query_metadata(qspec, limit=3)
-    assert actual.pformat(max_width=-1) == exp.query_file_metadata
+    assert actual.pformat(max_width=-1) == NOIRLab._response_to_table(exp.query_file_meta_raw).pformat(max_width=-1)
 
 
 def test_query_file_metadata_minimal_input(patch_request):
@@ -136,7 +136,7 @@ def test_query_hdu_metadata(patch_request):
                         ["instrument", "decam"],
                         ["proc_type", "raw"]]}
     actual = NOIRLab.query_metadata(qspec, sort='md5sum', limit=3, hdu=True)
-    assert actual.pformat(max_width=-1) == exp.query_hdu_metadata
+    assert actual.pformat(max_width=-1) == NOIRLab._response_to_table(exp.query_hdu_metadata_raw).pformat(max_width=-1)
 
 
 def test_categoricals(patch_request):
