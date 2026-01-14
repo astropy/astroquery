@@ -774,9 +774,9 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         radius : str or `~astropy.units.Quantity` object
             If this radius is None, the specified coordinate is compared to each mission
             catalog entry using that catalog's default radius. This is based on the
-            approximate PSF.If you specify a radius in degrees, it uses that instead.
-            For missions with large PSFs, when you look for a source in a very small
-            region, you may not find catalog entries that are within the PSF and
+            approximate PSF. If you specify a radius in degrees, it uses that instead.
+            Be aware that for missions with large PSFs, when you search within a very small
+            radius, you may not find catalog entries that are within the PSF and
             therefore might be of interest  
         verbose : bool, optional
             If True, prints additional information about the query. Default is False.
