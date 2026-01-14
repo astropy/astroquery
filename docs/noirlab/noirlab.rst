@@ -130,39 +130,48 @@ This is an example of searching by HDU.
 Advanced Search
 ===============
 
-This set of methods supports *arbitrary searches of any fields*
-stored in the FITS headers of the Archive.  Common fields ("core"
-fields) are optimized for search speed. Less common fields ("aux"
-fields) will be slower to search. You can search by File or HDU. The
-primary method for doing the search is
-:meth:`~astroquery.noirlab.NOIRLabClass.query_metadata`. That query
-requires a JSON_ structure to define the query.  We often call this
-the *JSON search spec*. Additional methods in this module
-provide information needed to construct the JSON_ structure.
-Summaries of the mechanisms available in the JSON search spec for
-`File search <https://astroarchive.noirlab.edu/api/adv_search/fadoc/>`_
-and for `HDU search
-<https://astroarchive.noirlab.edu/api/adv_search/hadoc/>`_
-are on the NSF NOIRLab Data Archive website.
+The :meth:`~astroquery.noirlab.NOIRLabClass.query_metadata`
+method supports *arbitrary searches of any fields*
+stored in the FITS headers of the Archive.
+There are a lot of these, so in addition to the documentation below,
+there is helper method, :meth:`~astroquery.noirlab.NOIRLabClass.list_fields`,
+to fetch information about archive fields in a programmatic way.
 
-These methods provide information needed to fill in a JSON_ query structure:
+The input to :meth:`~astroquery.noirlab.NOIRLabClass.query_metadata` is a
+JSON_ structure containing a list of fields to query and a list of search
+parameters, sometimes called the *JSON search spec*.
 
-#. :meth:`~astroquery.noirlab.NOIRLabClass.aux_fields`
-#. :meth:`~astroquery.noirlab.NOIRLabClass.core_fields`
-#. :meth:`~astroquery.noirlab.NOIRLabClass.categoricals`
+.. doctest-remote-data::
 
-See the Reference/API below for details. The
-:meth:`~astroquery.noirlab.NOIRLabClass.categoricals` method
-returns a list of all the "category strings" such as names of
-Instruments and Telescopes.  The :meth:`~astroquery.noirlab.NOIRLabClass.aux_fields`
-and :meth:`~astroquery.noirlab.NOIRLabClass.core_fields` methods
-tell you what fields are available to search. The core fields are
-available for all instruments; searching on these fields is optimized
-for speed. The aux fields require you to specify instrument and proctype.
-The set of aux fields available is highly dependent on those two fields. The
-instrument determines aux fields in raw files. Proctype determines
-what kind of pipeline processing was done.  Pipeline processing often
-adds important additional aux fields.
+    >>> qspec = {"outfields": ["md5sum", "archive_filename", "original_filename", "instrument", "proc_type"],
+    ...          "search": [['original_filename', 'c4d_', 'contains']]}
+    >>> results = NOIRLab.query_metadata(qspec, limit=3)
+    >>> 'md5sum' in results.colnames
+    True
+
+Understanding Core versus Aux, File versus HDU, and Categoricals
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Fields that are associated with all entries in the Archive are called "Core" fields.
+These fields are optimized for fast searches. However, note that Core HDU files are different from Core File fields.
+
+Aux File fields and Aux HDU fields depend on the "instrument" and "proctype". These
+may slow down queries. Users should especially consider applying query limits in
+this case.
+
+"Instrument" and "proctype" are examples of categorical fields.
+Categorical fields can only take on a special set of values. For example "instrument"
+can have the values "decam" or "mosaic"; "proctype" can have the values "raw" or "stacked".
+
+========================== =============================================================================== ========
+If you need the list of... Run this query                                                                  See also
+========================== =============================================================================== ========
+Core File fields           ``NOIRLab.list_fields()``                                                       `File search <https://astroarchive.noirlab.edu/api/adv_search/fadoc/>`_
+Core HDU fields            ``NOIRLab.list_fields(hdu=True)``                                               `HDU search <https://astroarchive.noirlab.edu/api/adv_search/hadoc/>`_
+Aux File fields            ``NOIRLab.list_fields(aux=True, instrument="decam", proctype="raw")``
+Aux HDU fields             ``NOIRLab.list_fields(aux=True, instrument="decam", proctype="raw", hdu=True)``
+Categorical fields         ``NOIRLab.list_fields(categorical=True)``
+========================== =============================================================================== ========
 
 .. _JSON: https://www.json.org/json-en.html
 

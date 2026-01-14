@@ -81,7 +81,7 @@ class NOIRLabClass(BaseQuery):
         core = 'aux' if aux else 'core'
         return f'{self.NAT_URL}/api/adv_search/{core}_{file}_fields'
 
-    def _response_to_table(self, response_json, rectype=None):
+    def _response_to_table(self, response_json, sia=False):
         """Convert a JSON response to a :class:`~astropy.table.Table`.
 
         Parameters
@@ -89,9 +89,8 @@ class NOIRLabClass(BaseQuery):
         response_json : :class:`list`
             A query response formatted as a list of objects. The query
             metadata is the first item in the list.
-        rectype : :class:`str`, optional
-            Expect response keys to be prepended with this string,
-            *e.g.* ``file:`` or ``hdu:``. The default is no qualifier.
+        sia : :class:`bool`, optional
+            If ``True``, `response_json` came from a SIA query.
 
         Returns
         -------
@@ -103,18 +102,20 @@ class NOIRLabClass(BaseQuery):
         -----
         * Metadata queries return columns that are qualified with ``file:`` or ``hdu:``,
           however SIA queries to not.
+        * HDU queries will label HDU-specific fields with ``hdu:`` but other
+          fields will be qualified with ``file:``.
         """
-        if rectype is None:
+        if sia:
             raw_names = [k for k in response_json[0]['HEADER'].keys()]
             names = raw_names
         else:
             raw_names = [k for k in response_json[0]['HEADER'].keys()
-                         if k.startswith(f"{rectype}:")]
+                         if k.startswith('file:') or k.startswith('hdu:')]
             names = [n.split(':')[1] for n in raw_names]
         rows = [[row[n] for n in raw_names] for row in response_json[1:]]
         return astropy.table.Table(names=names, rows=rows)
 
-    def service_metadata(self, hdu=False, cache=True):
+    def _service_metadata(self, hdu=False, cache=True):
         """A SIA metadata query: no images are requested; only metadata
         should be returned.
 
@@ -137,7 +138,7 @@ class NOIRLabClass(BaseQuery):
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
         return response.json()
 
-    def query_region(self, coordinate, *, radius=0.1, hdu=False, cache=True):
+    def query_region(self, coordinate, *, radius=0.1, hdu=False, cache=True, async_=False):
         """Query for NOIRLab observations by region of the sky.
 
         Given a sky coordinate and radius, returns a `~astropy.table.Table`
@@ -154,126 +155,76 @@ class NOIRLabClass(BaseQuery):
             appropriate `~astropy.units.Quantity` object from
             `~astropy.units` may also be used.
         hdu : :class:`bool`, optional
-            If ``True`` return the URL for HDU-based queries.
+            If ``True``, perform the query on HDUs.
         cache : :class:`bool`, optional
-            If ``True`` cache the result locally.
+            If ``True``, cache the result locally.
+        async : :class:`bool`, optional
+            If ``True``, return the raw query response instead of a Table.
 
         Returns
         -------
         :class:`~astropy.table.Table`
             A table containing the results.
         """
-        response = self.query_region_async(coordinate, radius=radius, hdu=hdu, cache=cache)
-        response.raise_for_status()
-        rectype = 'hdu' if hdu else 'file'
-        return self._response_to_table(response.json())
-
-    def query_region_async(self, coordinate, *, radius=0.1, hdu=False, cache=True):
-        """Query for NOIRLab observations by region of the sky.
-
-        Given a sky coordinate and radius, returns a `~astropy.table.Table`
-        of NOIRLab observations.
-
-        Parameters
-        ----------
-        coordinate : :class:`str` or `~astropy.coordinates` object
-            The target region which to search. It may be specified as a
-            string or as the appropriate `~astropy.coordinates` object.
-        radius : :class:`str` or `~astropy.units.Quantity` object, optional
-            Default 0.1 degrees.
-            The string must be parsable by `~astropy.coordinates.Angle`. The
-            appropriate `~astropy.units.Quantity` object from
-            `~astropy.units` may also be used.
-        hdu : :class:`bool`, optional
-            If ``True`` return the URL for HDU-based queries.
-        cache : :class:`bool`, optional
-            If ``True`` cache the result locally.
-
-        Returns
-        -------
-        :class:`~requests.Response`
-            Response object.
-        """
         self._validate_version()
         ra, dec = coordinate.to_string('decimal').split()
         url = f'{self._sia_url(hdu=hdu)}?POS={ra},{dec}&SIZE={radius}&VERB=3&format=json'
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
-        # response.raise_for_status()
-        return response
-
-    def core_fields(self, hdu=False, cache=True):
-        """List the available CORE fields for file or HDU searches.
-
-        CORE fields are faster to search than AUX fields.
-
-        Parameters
-        ----------
-        hdu : :class:`bool`, optional
-            If ``True`` return the fields for HDU-based queries.
-        cache : :class:`bool`, optional
-            If ``True`` cache the result locally.
-
-        Returns
-        -------
-        :class:`list`
-            A list of field descriptions, each a :class:`dict`.
-        """
-        url = self._fields_url(hdu=hdu, aux=False)
-        response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
+        if async_:
+            return response
         response.raise_for_status()
-        return response.json()
+        return self._response_to_table(response.json(), sia=True)
 
-    def aux_fields(self, instrument, proctype, hdu=False, cache=True):
-        """List the available AUX fields.
+    def list_fields(self, *, aux=False, instrument=None, proctype=None, hdu=False,
+                    categorical=False, cache=True):
+        """List the available fields for searches using
+        :meth:`~astroquery.noirlab.NOIRLabClass.query_metadata`.
 
-        AUX fields are any fields in the Archive FITS files that are not
-        CORE DB fields.  These are generally common to a single instrument,
-        proctype combination. AUX fields are slower to search than CORE fields.
-        Acceptable values for ``instrument`` and ``proctype`` are listed in the
-        results of the :meth:`astroquery.noirlab.core.NOIRLabClass.categoricals`
-        method.
+        The default is to return core fields for file-based queries.
 
         Parameters
         ----------
-        instrument : :class:`str`
+        aux : :class:`bool`, optional
+            If ``True``, return aux fields. `instrument` and `proctype` must also be specified.
+        instrument : :class:`str`, optional
             The specific instrument, *e.g.* '90prime' or 'decam'.
-        proctype : :class:`str`
+        proctype : :class:`str`, optional
             A description of the type of image, *e.g.* 'raw' or 'instcal'.
         hdu : :class:`bool`, optional
             If ``True`` return the fields for HDU-based queries.
+        categorical : :class:`bool`, optional
+            If ``True`` return the categorical fields and their allowed values.
         cache : :class:`bool`, optional
             If ``True`` cache the result locally.
 
         Returns
         -------
-        :class:`list`
+        :class:`list` or :class:`dict`
             A list of field descriptions, each a :class:`dict`.
+            If ``categorical=True`` return a :class:`dict` describing the
+            allowed values of each categorical field.
+
+        Raises
+        ------
+        ValueError
+            If ``aux=True`` and `instrument` or `proctype` are not specified.
+
+        Notes
+        -----
+        * Core fields are faster to search than Aux fields.
+        * The available fields depend on whether a File or a HDU query is requested.
+        * Categorical fields can only take on one of a set of values.
         """
-        url = f'{self._fields_url(hdu=hdu, aux=True)}/{instrument}/{proctype}/'
-        response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
-        response.raise_for_status()
-        return response.json()
-
-    def categoricals(self, cache=True):
-        """List the currently acceptable values for each 'categorical field'
-        associated with Archive files.
-
-        A 'categorical field' is one in which the values are restricted to a
-        specific set.  The specific set may grow over time, but not often.
-        The categorical fields are: ``instrument``, ``obsmode``, ``obstype``,
-        ``proctype``, ``prodtype``, ``site``, ``survey``, ``telescope``.
-
-        Parameters
-        ----------
-        cache : :class:`bool`, optional
-            If ``True`` cache the result locally.
-
-        Returns
-        -------
-        :class:`dict`
-            A dictionary containing the category metadata.
-        """
-        url = f'{self.NAT_URL}/api/adv_search/cat_lists/?format=json'
+        if categorical:
+            url = f'{self.NAT_URL}/api/adv_search/cat_lists/?format=json'
+        else:
+            url = self._fields_url(hdu=hdu, aux=aux)
+            if aux:
+                if instrument is None:
+                    raise ValueError("instrument must be specified if aux=True.")
+                if proctype is None:
+                    raise ValueError("instrument must be specified if aux=True.")
+                url = f'{url}/{instrument}/{proctype}/'
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
         response.raise_for_status()
         return response.json()
@@ -319,7 +270,7 @@ class NOIRLabClass(BaseQuery):
         response = self._request('POST', url, json=jdata,
                                  timeout=self.TIMEOUT, cache=cache)
         response.raise_for_status()
-        return self._response_to_table(response.json(), rectype=rectype)
+        return self._response_to_table(response.json())
 
     def get_file(self, fileid):
         """Simply fetch a file by MD5 ID.

@@ -56,7 +56,7 @@ def patch_request(monkeypatch):
 def test_service_metadata(patch_request, hdu):
     """Test compliance with 6.1 of SIA spec v1.0.
     """
-    actual = NOIRLab.service_metadata(hdu=hdu)
+    actual = NOIRLab._service_metadata(hdu=hdu)
     assert actual[0] == exp.service_metadata[0]
 
 
@@ -81,7 +81,7 @@ def test_query_region(patch_request, hdu, radius):
 def test_core_fields(patch_request, hdu):
     """List the available CORE fields.
     """
-    actual = NOIRLab.core_fields(hdu=hdu)
+    actual = NOIRLab.list_fields(hdu=hdu)
     if hdu:
         assert actual == exp.core_hdu_fields
     else:
@@ -92,7 +92,8 @@ def test_core_fields(patch_request, hdu):
 def test_aux_fields(patch_request, hdu):
     """List the available AUX fields.
     """
-    actual = NOIRLab.aux_fields('decam', 'instcal', hdu=hdu)
+    actual = NOIRLab.list_fields(aux=True, instrument='decam',
+                                 proctype='instcal', hdu=hdu)
     if hdu:
         assert actual == exp.aux_hdu_fields
     else:
@@ -129,7 +130,8 @@ def test_query_hdu_metadata(patch_request):
                            "proc_type",
                            "EXPTIME",
                            "AIRMASS",
-                           "EQUINOX"],
+                           "hdu:CD1_1",
+                           "hdu:CD1_2"],
              "search": [["caldat", "2017-08-14", "2017-08-16"],
                         ["instrument", "decam"],
                         ["proc_type", "raw"]]}
@@ -140,7 +142,7 @@ def test_query_hdu_metadata(patch_request):
 def test_categoricals(patch_request):
     """List categories.
     """
-    actual = NOIRLab.categoricals()
+    actual = NOIRLab.list_fields(categorical=True)
     assert actual == exp.categoricals
 
 
