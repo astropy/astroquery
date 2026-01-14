@@ -18,7 +18,7 @@ from . import expected as exp
 def test_service_metadata(hdu):
     """Test compliance with 6.1 of SIA spec v1.0.
     """
-    actual = NOIRLab().service_metadata(hdu=hdu)
+    actual = NOIRLab()._service_metadata(hdu=hdu)
     assert actual[0] == exp.service_metadata[0]
 
 
@@ -46,7 +46,7 @@ def test_query_region(hdu, radius):
 def test_core_fields(hdu):
     """List the available CORE fields.
     """
-    actual = NOIRLab().core_fields(hdu=hdu)
+    actual = NOIRLab().list_fields(hdu=hdu)
     if hdu:
         assert actual == exp.core_hdu_fields
     else:
@@ -58,7 +58,8 @@ def test_core_fields(hdu):
 def test_aux_fields(hdu):
     """List the available AUX fields.
     """
-    actual = NOIRLab().aux_fields('decam', 'instcal', hdu=hdu)
+    actual = NOIRLab().list_fields(aux=True, instrument='decam',
+                                   proctype='instcal', hdu=hdu)
     if hdu:
         assert actual[:10] == exp.aux_hdu_fields
     else:
@@ -69,7 +70,7 @@ def test_aux_fields(hdu):
 def test_categoricals():
     """List categories.
     """
-    actual = NOIRLab().categoricals()
+    actual = NOIRLab().list_fields(categorical=True)
     assert actual == exp.categoricals
 
 
@@ -109,7 +110,8 @@ def test_query_hdu_metadata():
                            "proc_type",
                            "EXPTIME",
                            "AIRMASS",
-                           "DATE-OBS"],
+                           "hdu:CD1_1",
+                           "hdu:CD1_2"],
              "search": [["caldat", "2017-08-14", "2017-08-16"],
                         ["instrument", "decam"],
                         ["proc_type", "raw"]]}
