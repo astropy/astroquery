@@ -202,9 +202,11 @@ following for instance will find master catalogs that have keywords 'nicer' or '
     swiftmastr Swift Master Catalog
 
 Query All Available Catalogs
------------------------
+----------------------------
 If you need to know which catalogs are worth querying for your source, you can 
-use this function that takes advantage of a fast but limited HEASARC (https://heasarc.gsfc.nasa.gov/docs/xamin-api.html#special-tables)[trick].  
+use this function that takes advantage of a fast but limited HEASARC 
+`trick <https://heasarc.gsfc.nasa.gov/docs/xamin-api.html#special-tables/>`__
+
     >>> from astroquery.heasarc import Heasarc
     >>> from astropy.coordinates import SkyCoord
     >>> from astropy import units as u
@@ -218,7 +220,11 @@ use this function that takes advantage of a fast but limited HEASARC (https://he
     intscwpub   2039                      INTEGRAL Public Pointed Science Window Data Gamma-ray, X-ray integral                 
     icecubepsc    90 IceCube All-Sky Point-Source Neutrino Events Catalog (2008-2018)                   icecube                 
     comptel       52                             CGRO/COMPTEL Low-Level Data and Maps        Gamma-ray     cgro               
-    
+
+    Then as above, you query the table(s) that look likely:
+
+    >>> tab = Heasarc.query_region(pos, catalog='intscw')
+
 Adding Column Constraints
 ----------------------------------------
 In addition to region search in `~astroquery.heasarc.HeasarcClass.query_region`,
