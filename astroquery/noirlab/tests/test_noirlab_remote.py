@@ -86,7 +86,7 @@ def test_query_file_metadata():
                            "proc_type"],
              "search": [['original_filename', 'c4d_', 'contains']]}
     actual = NOIRLab().query_metadata(qspec, sort='md5sum', limit=3)
-    assert actual.pformat(max_width=-1) == exp.query_file_metadata
+    assert actual.pformat(max_width=-1) == NOIRLab._response_to_table(exp.query_file_meta_raw).pformat(max_width=-1)
 
 
 @pytest.mark.remote_data
@@ -116,7 +116,7 @@ def test_query_hdu_metadata():
                         ["instrument", "decam"],
                         ["proc_type", "raw"]]}
     actual = NOIRLab().query_metadata(qspec, sort='md5sum', limit=3, hdu=True)
-    assert actual.pformat(max_width=-1) == exp.query_hdu_metadata
+    assert actual.pformat(max_width=-1) == NOIRLab._response_to_table(exp.query_hdu_metadata_raw).pformat(max_width=-1)
 
 
 @pytest.mark.remote_data

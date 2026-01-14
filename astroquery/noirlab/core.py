@@ -237,6 +237,8 @@ class NOIRLabClass(BaseQuery):
 
             qspec = {"outfields": ["md5sum", ], "search": []}
 
+        There are more details in the :ref:`NOIRLab overview document <astroquery.noirlab>`.
+
         Parameters
         ----------
         qspec : :class:`dict`, optional
