@@ -30,7 +30,7 @@ For more info about our holdings see the
 `NSF NOIRLab Astro Data Archive <https://astroarchive.noirlab.edu/about/>`_.
 
 Acknowledgment
-~~~~~~~~~~~~~~
+--------------
 
 Please use the following acknowledgement in your publications when you use NOIRLab data:
 
@@ -150,7 +150,7 @@ parameters, sometimes called the *JSON search spec*.
     True
 
 Understanding Core versus Aux, File versus HDU, and Categoricals
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------------------------------------
 
 Fields that are associated with all entries in the Archive are called "Core" fields.
 These fields are optimized for fast searches. However, note that Core HDU files are different from Core File fields.
