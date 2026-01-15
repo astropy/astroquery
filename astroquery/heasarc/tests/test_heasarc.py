@@ -736,17 +736,19 @@ def test__get_vec():
 def adql_str_comp(testing=str, reference=str):
     "just makes sure whitespace changes don't matter"
     import re
-    return re.sub(r'\s+', ' ', testing.replace('\n', '')).strip()\
-        == re.sub(r'\s+', ' ', reference.replace('\n', '')).strip()
+    return re.sub(r'\s+', ' ', testing.replace('\n', ' ')).strip()\
+        == re.sub(r'\s+', ' ', reference.replace('\n', ' ')).strip()
 
 
 def test__constraint_matches():
     #  Testing all together because it's easier to read this way.
     constraint_small = HeasarcClass._fast_geometry_constraint("217.0", "-31.7", large=False)
     desired_small = """
-            ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 + a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr*60/60)))))
+            ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 
+            + a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr*60/60)))))
             and (a.dec between -31.7 - a.dsr*60/60 and -31.7 + a.dsr*60/60)
-            and (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 + a.__z_ra_dec*-0.5254716510722678 > 0.9998476951563913)
+            and (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 
+            + a.__z_ra_dec*-0.5254716510722678 > 0.9998476951563913)
             and (a.dec between -32.7 and -30.7)
             )
             """
@@ -754,7 +756,8 @@ def test__constraint_matches():
 
     constraint_large = HeasarcClass._fast_geometry_constraint("217.0", "-31.7", large=True)
     desired_large = """
-            ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 + a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr*60/60)))))
+            ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 
+            + a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr*60/60)))))
             and (a.dec between -31.7 - a.dsr*60/60 and -31.7 + a.dsr*60/60) )
             """
     assert adql_str_comp(constraint_large, desired_large)
@@ -762,7 +765,8 @@ def test__constraint_matches():
                                                                   radius=0.5*u.deg, large=True)
     assert "(a.dec between -31.7 - 0.5 and -31.7 + 0.5)" in constraint_large_rad
 
-    constraint_time = HeasarcClass._time_constraint(start_time=Time("2017-01-01"), end_time=Time("2017-01-02"))
+    constraint_time = HeasarcClass._time_constraint(start_time=Time("2017-01-01"),
+                                                    end_time=Time("2017-01-02"))
     desired_time = "end_time > 57754.000000 AND start_time < 57755.000000"
     assert adql_str_comp(constraint_time, desired_time)
 
