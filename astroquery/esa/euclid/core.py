@@ -143,9 +143,11 @@ class EuclidClass(TapPlus):
         table_a_column_dec :  str, mandatory
             the ‘dec’ column in the table table_a_full_qualified_name
         table_b_full_qualified_name : str, optional, default the main_table associated to the selected environment
-            a full qualified table name (i.e. schema name and table name)
+            a full qualified table name (i.e. schema name and table name). `table_name` and `table_b_column_ra` and
+            `table_b_column_dec` are independent.
         table_b_column_ra : str, optional, default the main_table_ra_column associated to the selected environment
-            the ‘ra’ column in the table table_b_full_qualified_name
+            the ‘ra’ column in the table table_b_full_qualified_name. `table_b_column_ra` and `table_b_column_dec` are
+            not independent.
         table_b_column_dec :  str, default the main_table_dec_column associated to the selected environment
             the ‘dec’ column in the table table_b_full_qualified_name
         results_name : str, optional, default None
@@ -175,13 +177,16 @@ class EuclidClass(TapPlus):
         if not schema_a:
             raise ValueError(f"Schema name is empty in full qualified table: '{table_a_full_qualified_name}'")
 
-        if table_b_full_qualified_name is None:
+        if table_b_full_qualified_name is None or not table_b_full_qualified_name:
             table_b_full_qualified_name = self.main_table
+
+        if (table_b_column_ra is None or not table_b_column_ra) and (table_b_column_dec is None or not table_b_column_dec):
             table_b_column_ra = self.main_table_ra
             table_b_column_dec = self.main_table_dec
-        else:
-            if table_b_column_ra is None or table_b_column_dec is None:
-                raise ValueError(f"Invalid ra or dec column names: '{table_b_column_ra}' and '{table_b_column_dec}'")
+
+        if ((table_b_column_ra is None or not table_b_column_ra) and table_b_column_dec is not None) or (
+                table_b_column_ra is not None and (table_b_column_dec is None or not table_b_column_dec)):
+            raise ValueError(f"Invalid ra or dec column names: '{table_b_column_ra}' and '{table_b_column_dec}'")
 
         schema_b = self.__get_schema_name(table_b_full_qualified_name)
         if not schema_b:
@@ -427,9 +432,10 @@ class EuclidClass(TapPlus):
             coordinates center point
         radius : astropy.units, mandatory
             radius
-        table_name : str, optional, default main table name doing the cone search against
+        table_name : str, optional, default main table name doing the cone search against. `table_name` and
+            `ra_column_name` and `dec_column_name` are independent.
         ra_column_name : str, optional, default ra column in main table
-            ra column doing the cone search against
+            ra column doing the cone search against. `ra_column_name` and `dec_column_name` are not independent.
         dec_column_name : str, optional, default dec column in main table
             dec column doing the cone search against
         async_job : bool, optional, default 'False'
@@ -447,8 +453,14 @@ class EuclidClass(TapPlus):
 
         if table_name is None:
             table_name = self.main_table
+
+        if ra_column_name is None and dec_column_name is None:
             ra_column_name = self.main_table_ra
             dec_column_name = self.main_table_dec
+
+        if (ra_column_name is not None and dec_column_name is None) or (
+                ra_column_name is None and dec_column_name is not None):
+            raise ValueError(f"Invalid ra or dec column names: ra, {ra_column_name}, dec, {dec_column_name}")
 
         radius_deg = None
         coord = commons.parse_coordinates(coordinate)
@@ -513,9 +525,9 @@ class EuclidClass(TapPlus):
         radius : astropy.units, mandatory
             radius
         table_name : str, optional, default the table defined for the selected environment
-            Table to search
+            Table to search. `table_name` and `ra_column_name` and `dec_column_name` are independent.
         ra_column_name : str, optional, default the column name defined for the selected environment
-            Name of the RA column in the table
+            Name of the RA column in the table. `ra_column_name` and `dec_column_name` are not independent.
         dec_column_name : str, optional, default the column name defined for the selected environment
             Name of the DEC column in the table
         async_job : bool, optional, default 'False'
@@ -540,6 +552,7 @@ class EuclidClass(TapPlus):
         -------
         A Job object
         """
+
         radius_deg = None
         coord = commons.parse_coordinates(coordinate)
         ra_hours, dec = commons.coord_to_radec(coord)
@@ -547,10 +560,17 @@ class EuclidClass(TapPlus):
         if radius is not None:
             radius_deg = Angle(self.__get_quantity_input(radius, "radius")).to_value(u.deg)
 
-        if table_name is None:
+        if table_name is None or not table_name:
             table_name = self.main_table
+
+        if (ra_column_name is None or not ra_column_name) and (dec_column_name is None or not dec_column_name):
             ra_column_name = self.main_table_ra
             dec_column_name = self.main_table_dec
+
+
+        if (ra_column_name is not None and (dec_column_name is None or not dec_column_name)) or (
+                (ra_column_name is None or not ra_column_name) and dec_column_name is not None):
+            raise ValueError(f"Invalid ra or dec column names: '{ra_column_name}' and '{dec_column_name}'")
 
         if columns:
             columns = ','.join(map(str, columns))
