@@ -186,50 +186,15 @@ class CatalogsClass(MastQueryWithLogin):
         return collection_obj.get_catalog_metadata(catalog).supports_spatial_queries
 
     @class_or_instance
-    @deprecated_renamed_argument(
-        "version",
-        None,
-        since="0.4.12",
-        message="The `version` argument is deprecated and "
-        "will be removed in a future release. Please use `collection` and `catalog` instead.",
-    )
-    @deprecated_renamed_argument(
-        "pagesize",
-        None,
-        since="0.4.12",
-        message="The `pagesize` argument is deprecated "
-        "and will be removed in a future release. Please use `limit` instead.",
-    )
-    @deprecated_renamed_argument(
-        "page",
-        None,
-        since="0.4.12",
-        message="The `page` argument is deprecated "
-        "and will be removed in a future release. Please use `offset` instead.",
-    )
-    @deprecated_renamed_argument("objectname", "object_name", since="0.4.12")
-    def query_criteria(
-        self,
-        collection=None,
-        *,
-        catalog=None,
-        coordinates=None,
-        region=None,
-        object_name=None,
-        radius=0.2 * u.deg,
-        resolver=None,
-        limit=5000,
-        offset=0,
-        count_only=False,
-        select_cols=None,
-        sort_by=None,
-        sort_desc=False,
-        filters=None,
-        version=None,
-        pagesize=None,
-        page=None,
-        **criteria,
-    ):
+    @deprecated_renamed_argument('version', None, since='0.4.12', message='The `version` argument is deprecated and '
+                                 'will be removed in a future release. Please use `collection` and `catalog` instead.')
+    @deprecated_renamed_argument('pagesize', None, since='0.4.12', message='The `pagesize` argument is deprecated '
+                                 'and will be removed in a future release. Please use `limit` instead.')
+    @deprecated_renamed_argument('page', None, since='0.4.12', message='The `page` argument is deprecated '
+                                 'and will be removed in a future release. Please use `offset` instead.')
+    def query_criteria(self, collection=None, *, catalog=None, coordinates=None, region=None, objectname=None,
+                       radius=0.2*u.deg, resolver=None, limit=5000, offset=0, count_only=False, select_cols=None,
+                       sort_by=None, sort_desc=False, filters={}, version=None, pagesize=None, page=None, **criteria):
         """
         Query a MAST catalog from a given collection using criteria filters. To return columns for a given
         collection and catalog, use `~astroquery.mast.collections.get_catalog_metadata`.
@@ -421,47 +386,15 @@ class CatalogsClass(MastQueryWithLogin):
         return result_table
 
     @class_or_instance
-    @deprecated_renamed_argument(
-        "version",
-        None,
-        since="0.4.12",
-        message="The `version` argument is deprecated and "
-        "will be removed in a future release. Please use `collection` and `catalog` instead.",
-    )
-    @deprecated_renamed_argument(
-        "pagesize",
-        None,
-        since="0.4.12",
-        message="The `pagesize` argument is deprecated "
-        "and will be removed in a future release. Please use `limit` instead.",
-    )
-    @deprecated_renamed_argument(
-        "page",
-        None,
-        since="0.4.12",
-        message="The `page` argument is deprecated "
-        "and will be removed in a future release. Please use `offset` instead.",
-    )
-    def query_region(
-        self,
-        coordinates=None,
-        *,
-        radius=0.2 * u.deg,
-        region=None,
-        collection=None,
-        catalog=None,
-        limit=5000,
-        offset=0,
-        count_only=False,
-        select_cols=None,
-        sort_by=None,
-        sort_desc=False,
-        filters=None,
-        version=None,
-        pagesize=None,
-        page=None,
-        **criteria,
-    ):
+    @deprecated_renamed_argument('version', None, since='0.4.12', message='The `version` argument is deprecated and '
+                                 'will be removed in a future release. Please use `collection` and `catalog` instead.')
+    @deprecated_renamed_argument('pagesize', None, since='0.4.12', message='The `pagesize` argument is deprecated '
+                                 'and will be removed in a future release. Please use `limit` instead.')
+    @deprecated_renamed_argument('page', None, since='0.4.12', message='The `page` argument is deprecated '
+                                 'and will be removed in a future release. Please use `offset` instead.')
+    def query_region(self, coordinates=None, *, radius=0.2*u.deg, region=None, collection=None,
+                     catalog=None, limit=5000, offset=0, count_only=False, select_cols=None,
+                     sort_by=None, sort_desc=False, filters={}, version=None, pagesize=None, page=None, **criteria):
         """
         Query for MAST catalog entries within a specified region using criteria filters. To return columns for a given
         collection and catalog, use `~astroquery.mast.collections.get_catalog_metadata`.
@@ -536,65 +469,30 @@ class CatalogsClass(MastQueryWithLogin):
         # Parse pagination params
         limit, offset = self._parse_legacy_pagination(limit, offset, pagesize, page)
 
-        return self.query_criteria(
-            collection=collection,
-            catalog=catalog,
-            coordinates=coordinates,
-            region=region,
-            radius=radius,
-            limit=limit,
-            offset=offset,
-            count_only=count_only,
-            select_cols=select_cols,
-            sort_by=sort_by,
-            sort_desc=sort_desc,
-            filters=filters,
-            **criteria,
-        )
+        return self.query_criteria(collection=collection,
+                                   catalog=catalog,
+                                   coordinates=coordinates,
+                                   region=region,
+                                   radius=radius,
+                                   limit=limit,
+                                   offset=offset,
+                                   count_only=count_only,
+                                   select_cols=select_cols,
+                                   sort_by=sort_by,
+                                   sort_desc=sort_desc,
+                                   filters=filters,
+                                   **criteria)
 
     @class_or_instance
-    @deprecated_renamed_argument(
-        "version",
-        None,
-        since="0.4.12",
-        message="The `version` argument is deprecated and "
-        "will be removed in a future release. Please use `collection` and `catalog` instead.",
-    )
-    @deprecated_renamed_argument(
-        "pagesize",
-        None,
-        since="0.4.12",
-        message="The `pagesize` argument is deprecated "
-        "and will be removed in a future release. Please use `limit` instead.",
-    )
-    @deprecated_renamed_argument(
-        "page",
-        None,
-        since="0.4.12",
-        message="The `page` argument is deprecated "
-        "and will be removed in a future release. Please use `offset` instead.",
-    )
-    @deprecated_renamed_argument("objectname", "object_name", since="0.4.12")
-    def query_object(
-        self,
-        object_name,
-        *,
-        radius=0.2 * u.deg,
-        collection=None,
-        catalog=None,
-        resolver=None,
-        limit=5000,
-        offset=0,
-        count_only=False,
-        select_cols=None,
-        sort_by=None,
-        sort_desc=False,
-        filters=None,
-        version=None,
-        pagesize=None,
-        page=None,
-        **criteria,
-    ):
+    @deprecated_renamed_argument('version', None, since='0.4.12', message='The `version` argument is deprecated and '
+                                 'will be removed in a future release. Please use `collection` and `catalog` instead.')
+    @deprecated_renamed_argument('pagesize', None, since='0.4.12', message='The `pagesize` argument is deprecated '
+                                 'and will be removed in a future release. Please use `limit` instead.')
+    @deprecated_renamed_argument('page', None, since='0.4.12', message='The `page` argument is deprecated '
+                                 'and will be removed in a future release. Please use `offset` instead.')
+    def query_object(self, objectname, *, radius=0.2*u.deg, collection=None, catalog=None, resolver=None,
+                     limit=5000, offset=0, count_only=False, select_cols=None, sort_by=None, sort_desc=False,
+                     filters={}, version=None, pagesize=None, page=None, **criteria):
         """
         Query for MAST catalog entries around a specified object name using criteria filters. To return columns
         for a given collection and catalog, use `~astroquery.mast.collections.get_catalog_metadata`.
@@ -656,24 +554,19 @@ class CatalogsClass(MastQueryWithLogin):
         response : `~astropy.table.Table`
             A table containing the query results.
         """
-        # Parse pagination params
-        limit, offset = self._parse_legacy_pagination(limit, offset, pagesize, page)
-
-        return self.query_criteria(
-            collection=collection,
-            catalog=catalog,
-            object_name=object_name,
-            radius=radius,
-            resolver=resolver,
-            limit=limit,
-            offset=offset,
-            count_only=count_only,
-            select_cols=select_cols,
-            sort_by=sort_by,
-            sort_desc=sort_desc,
-            filters=filters,
-            **criteria,
-        )
+        return self.query_criteria(collection=collection,
+                                   catalog=catalog,
+                                   objectname=objectname,
+                                   radius=radius,
+                                   resolver=resolver,
+                                   limit=limit,
+                                   offset=offset,
+                                   count_only=count_only,
+                                   select_cols=select_cols,
+                                   sort_by=sort_by,
+                                   sort_desc=sort_desc,
+                                   filters=filters,
+                                   **criteria)
 
     @class_or_instance
     @deprecated(since="v0.4.12", message=("This function is deprecated and will be removed in a future release."))
