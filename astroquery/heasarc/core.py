@@ -816,10 +816,6 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         >>> result = Heasarc.query_all(position)
         >>> print(result)
 
-        Returns
-        -------
-        table : A `~astropy.table.Table` object.
-
         """
         if position is not None:
             coords_icrs = parse_coordinates(position).icrs
