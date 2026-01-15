@@ -123,7 +123,17 @@ class CatalogCollection:
             func in self.supported_adql_functions
             for func in ('POINT', 'CIRCLE', 'CONTAINS')
         )
+
+        # Try an inexpensive spatial query if RA/Dec columns are known
         supports_spatial_queries = (supports_adql_geometry and ra_col is not None and dec_col is not None)
+        if supports_spatial_queries:
+            # If an ra and dec column exist, test spatial query support
+            spatial_query = (f'SELECT TOP 0 * FROM {catalog} WHERE CONTAINS(POINT(\'ICRS\', {ra_col}, {dec_col}), '
+                             'CIRCLE(\'ICRS\', 0, 0, 0.001)) = 1')
+            try:
+                self.tap_service.search(spatial_query)
+            except DALQueryError:
+                supports_spatial_queries = False
 
         meta = CatalogMetadata(
             column_metadata=metadata,
