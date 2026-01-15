@@ -753,7 +753,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         return full_query
 
     def query_all(self, position=None, get_query_payload=False, start_time=None,
-                  end_time=None, verbose=False, maxrec=None, radius=None, **kwargs):
+                  end_time=None, verbose=False, maxrec=None, radius=None):
         """
         Query the HEASARC database to count matches at a given position for all available catalogs.
 
@@ -788,8 +788,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         Returns
         -------
         result : `~astropy.table.Table`
-            A table containing the results of the query. If no results are found,
-            an empty table is returned and a warning is issued.
+            A table containing the results of the query, i.e. a list of catalogs
+            that have entries near the specified position, how many, and quick catalog
+            information. If no results are found, an empty table is returned and
+            a warning is issued.
 
         Raises
         ------
