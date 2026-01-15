@@ -222,10 +222,7 @@ use this function that takes advantage of a fast but limited HEASARC
     icecubepsc    90 IceCube All-Sky Point-Source Neutrino Events Catalog (2008-2018)                   icecube                 
     comptel       52                             CGRO/COMPTEL Low-Level Data and Maps        Gamma-ray     cgro               
 
-    Then as above, you query the table(s) that look likely:
-
-.. doctest-remote-data::
-    >>> tab = Heasarc.query_region(pos, catalog='intscw')
+    Then as above, you query the table(s) that look likely individually.  
 
 Adding Column Constraints
 ----------------------------------------
