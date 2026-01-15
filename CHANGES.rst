@@ -87,6 +87,12 @@ linelists
 - General tools for both CDMS/JPL moved to linelists.core [#3456]
 - Added jplspec, moved from its previous location (astroquery.jplspec to astroquery.linelists.jplspec) [#3455]
 
+noirlab
+^^^^^^^
+
+- Restore access to the `NSF NOIRLab <https://noirlab.edu>`_
+  `Astro Data Archive <https://astroarchive.noirlab.edu>`_ [#3359].
+
 xmatch
 ^^^^^^
 
