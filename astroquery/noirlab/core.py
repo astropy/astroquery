@@ -47,7 +47,7 @@ class NOIRLabClass(BaseQuery):
                    f'{self.api_version} from the API.')
             raise RemoteServiceError(msg)
 
-    def _sia_url(self, hdu=False):
+    def sia_url(self, hdu=False):
         """Return the URL for SIA queries.
 
         Parameters
@@ -59,6 +59,12 @@ class NOIRLabClass(BaseQuery):
         -------
         :class:`str`
             The query URL.
+
+        Notes
+        -----
+        In other modules this is an attribute or property. However, NOIRLab has
+        two separate SIA URLs for File-based and HDU-based queries, thus a
+        method is needed here.
         """
         return f'{self.NAT_URL}/api/sia/vohdu' if hdu else f'{self.NAT_URL}/api/sia/voimg'
 
@@ -134,7 +140,7 @@ class NOIRLabClass(BaseQuery):
         :class:`dict`
             A dictionary containing SIA metadata.
         """
-        url = f'{self._sia_url(hdu=hdu)}?FORMAT=METADATA&format=json'
+        url = f'{self.sia_url(hdu=hdu)}?FORMAT=METADATA&format=json'
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
         return response.json()
 
@@ -168,7 +174,7 @@ class NOIRLabClass(BaseQuery):
         """
         self._validate_version()
         ra, dec = coordinate.to_string('decimal').split()
-        url = f'{self._sia_url(hdu=hdu)}?POS={ra},{dec}&SIZE={radius}&VERB=3&format=json'
+        url = f'{self.sia_url(hdu=hdu)}?POS={ra},{dec}&SIZE={radius}&VERB=3&format=json'
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
         if async_:
             return response
