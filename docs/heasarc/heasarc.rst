@@ -207,6 +207,7 @@ If you need to know which catalogs are worth querying for your source, you can
 use this function that takes advantage of a fast but limited HEASARC 
 `trick <https://heasarc.gsfc.nasa.gov/docs/xamin-api.html#special-tables/>`__
 
+.. doctest-remote-data::
     >>> from astroquery.heasarc import Heasarc
     >>> from astropy.coordinates import SkyCoord
     >>> from astropy import units as u
@@ -223,6 +224,7 @@ use this function that takes advantage of a fast but limited HEASARC
 
     Then as above, you query the table(s) that look likely:
 
+.. doctest-remote-data::
     >>> tab = Heasarc.query_region(pos, catalog='intscw')
 
 Adding Column Constraints
