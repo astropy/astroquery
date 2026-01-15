@@ -4,14 +4,6 @@
 TAP plus
 =============
 
-@author: Juan Carlos Segovia
-@contact: juan.carlos.segovia@sciops.esa.int
-
-European Space Astronomy Centre (ESAC)
-European Space Agency (ESA)
-
-Created on 30 jun. 2016
-Modified on 1 jun. 2021 by mhsarmiento
 """
 import getpass
 import os
@@ -72,7 +64,7 @@ class Tap:
         upload_context : str, optional, default None
             upload context
         table_edit_context : str, mandatory, default None
-            context for all actions to be performed over a existing table
+            context for all actions to be performed over an existing table
         data_context : str, optional, default None
             data context
         datalink_context : str, optional, default None
@@ -438,7 +430,7 @@ class Tap:
                                         name=name,
                                         autorun=autorun,
                                         maxrec=maxrec)
-        isError = self.__connHandler.check_launch_response_status(response, verbose, 303, raise_exception=False)
+        is_error = self.__connHandler.check_launch_response_status(response, verbose, 303, raise_exception=False)
         job = Job(async_job=True, query=query, connhandler=self.__connHandler,
                   use_names_over_ids=self.use_names_over_ids)
         headers = response.getheaders()
@@ -446,14 +438,14 @@ class Tap:
                                                                True,
                                                                output_file_updated,
                                                                headers,
-                                                               isError,
+                                                               is_error,
                                                                output_format)
         job.outputFile = suitableOutputFile
         job.outputFileUser = output_file
         job.set_response_status(response.status, response.reason)
         job.parameters['format'] = output_format
         job.set_phase('PENDING')
-        if isError:
+        if is_error:
             job.failed = True
             job.set_phase('ERROR')
             if dump_to_file:
@@ -507,9 +499,11 @@ class Tap:
                 log.info(f"No job found for name '{name}'")
                 return None
             jobid = jobs[0].jobid
+
         if jobid is None:
             log.info("No job identifier found")
             return None
+
         sub_context = f"async/{jobid}"
         response = self.__connHandler.execute_tapget(sub_context, verbose=verbose)
         if verbose:
@@ -794,7 +788,7 @@ class TapPlus(Tap):
         upload_context : str, optional, default None
             upload context
         table_edit_context : str, optional, default None
-            context for all actions to be performed over a existing table
+            context for all actions to be performed over an existing table
         data_context : str, optional, default None
             data context
         datalink_context : str, optional, default None
@@ -1156,7 +1150,7 @@ class TapPlus(Tap):
             if str(u.id) == user_id:
                 user_found_in_group = True
                 break
-        if user_found_in_group is True:
+        if user_found_in_group:
             raise ValueError(f"User id '{user_id}' found in group '{group_name}'")
         if self.is_valid_user(user_id=user_id, verbose=verbose) is False:
             raise ValueError(f"User id '{user_id}' not found.")
@@ -1197,7 +1191,7 @@ class TapPlus(Tap):
             if str(u.id) == user_id:
                 user_found_in_group = True
                 break
-        if user_found_in_group is False:
+        if not user_found_in_group:
             raise ValueError(f"User id '{user_id}' not found in group '{group_name}'")
         users = ""
         for u in group.users:
@@ -1683,7 +1677,7 @@ class TapPlus(Tap):
                         if c.name == value:
                             found = True
                             break
-                    if found is False:
+                    if not found:
                         raise ValueError(f"Column name introduced {value} was not found in the table")
                 index = index + 1
 
@@ -1721,7 +1715,7 @@ class TapPlus(Tap):
         for column in columns:
             found_in_changes = False
             for change in list_of_changes:
-                if (str(change[0]) == str(column.name)):
+                if str(change[0]) == str(column.name):
                     found_in_changes = True
                     break
 
