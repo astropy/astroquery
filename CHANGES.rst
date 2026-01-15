@@ -18,8 +18,8 @@ esa.euclid
 
 vizier
 ^^^^^^
-- Methods ``get_catalog``, ``get_catalog_async`` and ``query_*`` now always return UCD1+ instead of UCD1. [#3458]
 
+- Methods ``get_catalog``, ``get_catalog_async`` and ``query_*`` now always return UCD1+ instead of UCD1. [#3458]
 
 Service fixes and enhancements
 ------------------------------
@@ -107,6 +107,7 @@ utils.tap
 
 - ``TapPlus.delete_user_table`` includes the schema name to be compatible with TAP+ version >= 10.x. [#3439]
 
+- Fix the methods ``save_results`` and ``get_results`` in the class ``utils.tap.model.job``. [#3497]
 
 
 0.4.11 (2025-09-19)
