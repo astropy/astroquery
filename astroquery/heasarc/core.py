@@ -613,7 +613,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         return self.query_region(pos, catalog=mission, spatial='cone',
                                  get_query_payload=get_query_payload)
 
-    def _get_vec(ra=None, dec=None):
+    def _get_vector(ra=None, dec=None):
         """
         If the input is a string name of a column like "a.ra", then this routine
         constructs the unit vector column names that can be added to the SQL query
@@ -625,6 +625,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         the table being queried. The latter is used to compute the input position unit
         vector only once and put the numeric value in the query constraint.
         """
+        #  Note that Astropy flips x and y compared to this, which is used internally
+        #  despite the fact that our RA, DEC values are in ICRS.
         try:
             r, d = np.radians([float(ra), float(dec)])
             return (
@@ -648,14 +650,12 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         The master position tables are split into those where the default sensible search
         radius is larger or smaller than 1 degree.
         """
-        vec0 = HeasarcClass._get_vec("a.ra", "a.dec")
-        vec1 = HeasarcClass._get_vec(ra, dec)
+        vec0 = HeasarcClass._get_vector("a.ra", "a.dec")
+        vec1 = HeasarcClass._get_vector(ra, dec)
         dot_product = " + ".join([f"{vec0[i]}*{vec1[i]}" for i in range(3)])
-        print(f"DEBUG:  radius is {radius}")
         if radius is not None:
             if not isinstance(radius, (int, float)):
                 radius = radius.value
-            print(f"DEBUG:  radius is {radius} of type {type(radius)}")
             radius_condition = f"{dot_product} > (cos(radians(({radius}))))"
             dec_condition = f"a.dec between {dec} - {radius} and {dec} + {radius}"
         else:
