@@ -58,7 +58,7 @@ class TestESAHubble:
                                   product_type="DUMMY")
         assert "This product_type is not allowed" in err.value.args[0]
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.utils.utils.check_rename_to_gz')
     def test_download_product_by_calibration(self, rename_mock, download_mock, tmp_path):
@@ -78,7 +78,7 @@ class TestESAHubble:
         assert download_mock.call_count == 1
         assert result == path
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.utils.utils.check_rename_to_gz')
     def test_download_product_by_product_type(self, rename_mock, download_mock, tmp_path):
@@ -122,7 +122,7 @@ class TestESAHubble:
         assert download_mock.call_count == 3
         assert result == path
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.download_file')
     def test_get_postcard(self, download_mock, tmp_path):
         path = Path(tmp_path, "X0MC5101T.vot")
@@ -146,7 +146,7 @@ class TestESAHubble:
         assert download_mock.call_count == 2
         assert result == path.__str__()
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(ESAHubbleClass, 'cone_search')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     def test_query_target(self, mock_servlet_request, mock_cone_search):
@@ -156,7 +156,7 @@ class TestESAHubble:
         table = ehst.query_target(name="test")
         assert table == "test"
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     def test_cone_search(self):
         coords = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s",
                                       frame='icrs')
@@ -196,7 +196,7 @@ class TestESAHubble:
 
                 assert len(unique_list) == len(result)
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService')
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService')
     def test_cone_search_coords(self, mock_tap):
         coords = "00h42m44.51s +41d16m08.45s"
 
@@ -219,8 +219,8 @@ class TestESAHubble:
         assert "Coordinates must be either a string or " \
                "astropy.coordinates" in err.value.args[0]
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.search')
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.search')
     def test_query_tap(self, mock_search):
         parameters = {'query': "select top 10 * from hsc_v2.hubble_sc2",
                       'async_job': False,
@@ -241,13 +241,13 @@ class TestESAHubble:
         table_set = PropertyMock()
         table_set.keys.return_value = ['caom2.harveststate', 'caom2.publications']
         table_set.values.return_value = ['caom2.harveststate', 'caom2.publications']
-        with patch('astroquery.esa.integral.core.pyvo.dal.TAPService', autospec=True) as hubble_mock:
+        with patch('astroquery.esa.utils.utils.pyvo.dal.TAPService', autospec=True) as hubble_mock:
             hubble_mock.return_value.tables = table_set
             ehst = ESAHubbleClass(show_messages=False)
             tables = ehst.get_tables()
             assert len(tables) == 2
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.utils.utils.check_rename_to_gz')
     def test_get_artifact(self, rename_mock, download_mock, tmp_path):
@@ -257,7 +257,7 @@ class TestESAHubble:
         rename_mock.return_value = path
         assert ehst.get_artifact(artifact_id=path) == path
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.utils.utils.check_rename_to_gz')
     def test_download_file(self, rename_mock, download_mock, tmp_path):
@@ -309,7 +309,7 @@ class TestESAHubble:
             f.write(b'')
         assert esautils.check_rename_to_gz(target_file) in f"{target_file}.fits.gz"
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(ESAHubbleClass, 'get_tables')
     def test_get_columns(self, get_tables_mock):
         # Create a mock VOSITable object
@@ -332,7 +332,7 @@ class TestESAHubble:
         assert result[0] == "column1"
         assert result[1] == "column2"
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     def test_query_criteria_proposal(self):
         parameters1 = {'proposal': 12345,
                        'async_job': False,
@@ -349,7 +349,7 @@ class TestESAHubble:
                                          get_query=parameters1['get_query'])
         assert test_query == "select * from ehst.archive where(proposal_id = '12345')"
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(ESAHubbleClass, 'query_tap')
     def test_retrieve_observations_from_proposal(self, mock_query_tap):
         program = 12345
@@ -735,7 +735,7 @@ class TestESAHubble:
             ehst = ESAHubbleClass(show_messages=False)
             ehst.cone_search_criteria(coordinates="00h42m44.51s +41d16m08.45s", target="m11", radius=1)
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     def test_show_messages(self, mock_execute_servlet_request):
         ESAHubbleClass(show_messages=True)
@@ -757,7 +757,7 @@ class TestESAHubble:
         assert len(messages) == 3
         assert messages == ["msg1", "msg2", "msgn"]
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(ESAHubbleClass, 'query_tap')
     @patch.object(ESAHubbleClass, '_get_decoded_string')
     def test_get_datalabs_path(self, mock_get_decoded_string, mock_query_tap):
