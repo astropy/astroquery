@@ -3,7 +3,7 @@
 
 New Tools and Services
 ----------------------
-Adding method heasarc.query_all().  See PR 3499.
+- Adding method heasarc.query_all().  See PR 3499.
 
 
 API changes
