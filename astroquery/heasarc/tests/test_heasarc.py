@@ -722,7 +722,7 @@ def test_s3_mock_directory(s3_mock):
         assert os.path.exists(f"{tmpdir}/location/sub/sub2/file3.txt")
 
 
-def test__get_vec():
+def test__get_vector():
     # Test column name input
     assert HeasarcClass._get_vec("a.ra", "a.dec") == \
         ("a.__x_ra_dec", "a.__y_ra_dec", "a.__z_ra_dec")
