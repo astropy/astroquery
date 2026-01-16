@@ -496,3 +496,123 @@ class TestEsaUtils:
         # Validate first row
         assert meta[0]["Column"] == "ra"
         assert meta[0]["Description"] == "Right Ascension"
+
+    def test_missing_mandatory_attributes_for_esa_tap(self):
+        with pytest.raises(ValueError) as error_info:
+
+            class InvalidEsaModule(esautils.EsaTap):
+                ESA_ARCHIVE_NAME = "TEST"
+                TAP_URL = None
+                LOGIN_URL = "login"
+                LOGOUT_URL = "logout"
+            InvalidEsaModule()
+        assert "mandatory" in str(error_info.value)
+        assert "TAP_URL" in str(error_info.value)
+
+    def test_docstring_placeholder_is_replaced_with_mission_name(self):
+        class ValidArchive(esautils.EsaTap):
+            ESA_ARCHIVE_NAME = "MY_ARCHIVE"
+            TAP_URL = "tap"
+            LOGIN_URL = "login"
+            LOGOUT_URL = "logout"
+
+            def query(self):
+                """Query the {ESA_ARCHIVE_NAME} archive"""
+                pass
+
+        assert ValidArchive.query.__doc__ == "Query the MY_ARCHIVE archive"
+
+    @patch('astroquery.esa.utils.utils.EsaTap.query_tap')
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    def test_string_criteria_wildcard_match(self, query_tap_mock):
+        esa_tap = DummyTapClass()
+        esa_tap.query_table(table_name='table1', columns=['column1', 'column2'], custom_filters=None,
+                            get_metadata=False, table_filter='value1%')
+
+        query_tap_mock.assert_called_with(query="SELECT column1, column2 FROM table1  WHERE "
+                                                "table_filter ILIKE 'value1%'",
+                                          async_job=False,
+                                          output_file=None,
+                                          output_format='votable',
+                                          verbose=True)
+
+        esa_tap.query_table(table_name='table1', columns=['column1', 'column2'], custom_filters=None,
+                            get_metadata=False, table_filter='*value1*')
+
+        query_tap_mock.assert_called_with(query="SELECT column1, column2 FROM table1  WHERE "
+                                                "table_filter ILIKE '%value1%'",
+                                          async_job=False,
+                                          output_file=None,
+                                          output_format='votable',
+                                          verbose=True)
+
+    @patch('astroquery.esa.utils.utils.EsaTap.query_tap')
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    def test_string_criteria_multiple_values(self, query_tap_mock):
+        esa_tap = DummyTapClass()
+        esa_tap.query_table(table_name='table1', columns=['column1', 'column2'], custom_filters=None,
+                            get_metadata=False, table_filter=['value1', 'value2'])
+
+        query_tap_mock.assert_called_with(query="SELECT column1, column2 FROM table1  WHERE "
+                                                "(table_filter = 'value1' OR table_filter = 'value2')",
+                                          async_job=False,
+                                          output_file=None,
+                                          output_format='votable',
+                                          verbose=True)
+
+    @patch('astroquery.esa.utils.utils.EsaTap.query_tap')
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    def test_boolean_criteria(self, query_tap_mock):
+        esa_tap = DummyTapClass()
+        esa_tap.query_table(table_name='table1', columns=['column1', 'column2'], custom_filters=None,
+                            get_metadata=False, table_filter=True)
+
+        query_tap_mock.assert_called_with(query="SELECT column1, column2 FROM table1  WHERE "
+                                                "table_filter = 'True'",
+                                          async_job=False,
+                                          output_file=None,
+                                          output_format='votable',
+                                          verbose=True)
+
+        esa_tap.query_table(table_name='table1', columns=['column1', 'column2'], custom_filters=None,
+                            get_metadata=False, table_filter=False)
+
+        query_tap_mock.assert_called_with(query="SELECT column1, column2 FROM table1  WHERE "
+                                                "table_filter = 'False'",
+                                          async_job=False,
+                                          output_file=None,
+                                          output_format='votable',
+                                          verbose=True)
+
+    @patch('astroquery.esa.utils.utils.EsaTap.query_tap')
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    def test_number_criteria_wildcard_match(self, query_tap_mock):
+        esa_tap = DummyTapClass()
+        esa_tap.query_table(table_name='table1', columns=['column1', 'column2'], custom_filters=None,
+                            get_metadata=False, table_filter=2)
+
+        query_tap_mock.assert_called_with(query="SELECT column1, column2 FROM table1  WHERE "
+                                                "table_filter = 2",
+                                          async_job=False,
+                                          output_file=None,
+                                          output_format='votable',
+                                          verbose=True)
+
+        esa_tap.query_table(table_name='table1', columns=['column1', 'column2'], custom_filters=None,
+                            get_metadata=False, table_filter=(2, 3))
+
+        query_tap_mock.assert_called_with(query="SELECT column1, column2 FROM table1  WHERE "
+                                                "table_filter >= 2 AND table_filter <= 3",
+                                          async_job=False,
+                                          output_file=None,
+                                          output_format='votable',
+                                          verbose=True)
+        esa_tap.query_table(table_name='table1', columns=['column1', 'column2'], custom_filters=None,
+                            get_metadata=False, table_filter=('>', 3))
+
+        query_tap_mock.assert_called_with(query="SELECT column1, column2 FROM table1  WHERE "
+                                                "table_filter > 3",
+                                          async_job=False,
+                                          output_file=None,
+                                          output_format='votable',
+                                          verbose=True)

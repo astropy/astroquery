@@ -13,6 +13,7 @@ import shutil
 import tempfile
 
 from astropy.coordinates import SkyCoord
+from astropy.table import Table
 from astroquery.esa.integral import IntegralClass
 from astroquery.esa.integral import conf
 from unittest.mock import PropertyMock, patch, Mock
@@ -674,3 +675,21 @@ class TestIntegralTap:
 
         args, kwargs = servlet_mock.call_args
         assert kwargs['query_params']['REQUEST'] == 'sources'
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
+    def test_parse_instrument_band_map(self, query_tap_mock):
+        instrument_band_table = Table()
+        instrument_band_table['band_oid'] = ['boid1', 'boid2']
+        instrument_band_table['band'] = ['b1', 'b2']
+        instrument_band_table['instrument_oid'] = ['ioid1', 'ioid2']
+        instrument_band_table['instrument'] = ['i1', 'i2']
+
+        query_tap_mock.return_value = instrument_band_table
+
+        isla = IntegralClass()
+        instrument_band_map = isla.get_instrument_band_map()
+
+        assert len(instrument_band_map) == 4
+        assert instrument_band_map['b1']['instrument'] == 'i1'
+        assert instrument_band_map['i2']['band'] == 'b2'
