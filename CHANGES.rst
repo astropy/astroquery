@@ -9,6 +9,11 @@ New Tools and Services
 API changes
 -----------
 
+esa.utils
+^^^^^^^^^^
+
+- Class EsaTap created as abstract class to extend all ESA modules based on PyVO. [#3501]
+
 esa.euclid
 ^^^^^^^^^^
 
