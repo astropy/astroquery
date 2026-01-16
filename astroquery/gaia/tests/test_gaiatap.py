@@ -942,11 +942,14 @@ def test_datalink_querier_load_data_ecsv(mock_datalink_querier_ecsv):
 
     assert len(result_dict) == 3
 
-    files = list(result_dict.keys())
-    files.sort()
-    assert files[0] == 'MCMC_MSC-Gaia DR3 5937083312263887616.ecsv'
-    assert files[1] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.ecsv'
-    assert files[2] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.ecsv'
+    files = list(sorted(result_dict.items()))
+    assert files[0][0] == 'MCMC_MSC-Gaia DR3 5937083312263887616.ecsv'
+    assert files[1][0] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.ecsv'
+    assert files[2][0] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.ecsv'
+
+    assert isinstance(files[0][1][0], Table)
+    assert isinstance(files[1][1][0], Table)
+    assert isinstance(files[2][1][0], Table)
 
     os.remove(os.path.join(os.getcwd(), datalink_output))
 
@@ -980,18 +983,21 @@ def test_datalink_querier_load_data_csv(mock_datalink_querier_csv):
 
     assert len(result_dict) == 3
 
-    files = list(result_dict.keys())
-    files.sort()
-    assert files[0] == 'MCMC_MSC-Gaia DR3 5937083312263887616.csv'
-    assert files[1] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.csv'
-    assert files[2] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.csv'
+    files = list(sorted(result_dict.items()))
+    assert files[0][0] == 'MCMC_MSC-Gaia DR3 5937083312263887616.csv'
+    assert files[1][0] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.csv'
+    assert files[2][0] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.csv'
+
+    assert isinstance(files[0][1][0], Table)
+    assert isinstance(files[1][1][0], Table)
+    assert isinstance(files[2][1][0], Table)
 
     os.remove(os.path.join(os.getcwd(), datalink_output))
 
     assert not os.path.exists(datalink_output)
 
 
-@pytest.mark.skip(reason="Thes fits files generate an error relatate to the unit 'log(cm.s**-2)")
+@pytest.mark.filterwarnings("ignore:")
 def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
     result_dict = mock_datalink_querier_fits.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
                                                        data_structure='INDIVIDUAL',
@@ -1019,11 +1025,14 @@ def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
 
     assert len(result_dict) == 3
 
-    files = list(result_dict.keys())
-    files.sort()
-    assert files[0] == 'MCMC_MSC-Gaia DR3 5937083312263887616.fits'
-    assert files[1] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.fits'
-    assert files[2] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.fits'
+    files = list(sorted(result_dict.items()))
+    assert files[0][0] == 'MCMC_MSC-Gaia DR3 5937083312263887616.fits'
+    assert files[1][0] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.fits'
+    assert files[2][0] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.fits'
+
+    assert isinstance(files[0][1][0], Table)
+    assert isinstance(files[1][1][0], Table)
+    assert isinstance(files[2][1][0], Table)
 
     os.remove(os.path.join(os.getcwd(), datalink_output))
 
@@ -1072,10 +1081,12 @@ def test_load_data_vot(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_n
     path.unlink()
 
 
-@pytest.mark.skip(reason="Thes fits files generate an error relatate to the unit 'log(cm.s**-2)")
-def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory):
+@pytest.mark.filterwarnings("ignore:")
+def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_now):
+    assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
+
     now = datetime.datetime.now(datetime.timezone.utc)
-    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S.%f") + '.zip'
 
     path = Path(os.getcwd(), output_file)
 
@@ -1092,7 +1103,7 @@ def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory):
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "USE_ZIP_ALWAYS": "true"}
-        assert output_file == Path(os.getcwd(), 'datalink_output.zip')
+        assert str(path) == output_file
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)

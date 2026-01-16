@@ -20,6 +20,7 @@ from astropy import units as u
 from astropy.coordinates import Angle
 from astropy.io import fits
 from astropy.io import votable
+from astropy.io.fits import TableHDU, BinTableHDU
 from astropy.table import Table
 from astropy.units import Quantity
 from astropy.utils.decorators import deprecated_renamed_argument
@@ -194,9 +195,9 @@ class GaiaClass(TapPlus):
             'EPOCH_PHOTOMETRY_CROWDED_FIELD', 'EPOCH_IMAGE', 'EPOCH_PHOTOMETRY_CCD', 'EPOCH_SPECTRUM_XP_SSO',
             'EPOCH_SPECTRUM_XP_CROWDING', 'MEAN_SPECTRUM_XP', 'EPOCH_SPECTRUM_XP', 'CROWDED_FIELD_IMAGE',
             'EPOCH_ASTROMETRY_BRIGHT', 'MEAN_SPECTRUM_XP_GRAVLENS', 'EPOCH_FLAGS_NSS', 'EPOCH_PARAMETERS_RVS_SINGLE',
-            'EPOCH_PARAMETERS_RVS_DOUBLE', 'EPOCH_FLAGS_VARI']. Note that for 'CROWDED_FIELD_IMAGE', only the format
-            'fits' can be used, and its image, in the principal header, will not be available in the returned
-            dictionary. Set 'output_file' to retrieve all data: image + tables. Note that for 'RESIDUAL_IMAGE',
+            'EPOCH_PARAMETERS_RVS_DOUBLE', 'EPOCH_FLAGS_VARI', 'RESIDUAL_IMAGE']. Note that for 'CROWDED_FIELD_IMAGE',
+            only the format 'fits' can be used, and its image, in the principal header, will not be available in the
+            returned dictionary. Set 'output_file' to retrieve all data: image + tables. Note that for 'RESIDUAL_IMAGE',
             only the format 'fits' can be used. Since the fits files only contain images, the returned table will be
             empty. Therefore, set 'output_file' to save the files to get access to their content.
         linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID, TRANSIT_ID, IMAGE_ID
@@ -308,7 +309,9 @@ class GaiaClass(TapPlus):
                 shutil.rmtree(path)
             else:
                 for file in files.keys():
-                    os.remove(os.path.join(os.getcwd(), path, file))
+                    final_file = os.path.join(os.getcwd(), path, file)
+                    if os.path.isfile(final_file):
+                        os.remove(final_file)
 
         if verbose:
             if output_file_specified:
@@ -340,13 +343,13 @@ class GaiaClass(TapPlus):
 
             if key.endswith('.fits'):
                 tables = []
-                with fits.open(value) as hduList:
-                    num_hdus = len(hduList)
-                    for i in range(1, num_hdus):
-                        table = Table.read(hduList[i], format='fits')
-                        Gaia.correct_table_units(table)
-                        tables.append(table)
-                    files[key] = tables
+                with fits.open(value, memmap=False) as hduList:
+                    for hdu in hduList:
+                        if isinstance(hdu, (TableHDU, BinTableHDU)):
+                            table = Table.read(hdu, format='fits')
+                            Gaia.correct_table_units(table)
+                            tables.append(table)
+                files[key] = tables
 
             elif key.endswith('.xml'):
                 tables = []
@@ -357,6 +360,12 @@ class GaiaClass(TapPlus):
             elif key.endswith('.csv'):
                 tables = []
                 table = Table.read(value, format='ascii.csv', fast_reader=False)
+                tables.append(table)
+                files[key] = tables
+
+            elif key.endswith('.ecsv'):
+                tables = []
+                table = Table.read(value, format='ascii.ecsv', fast_reader=False)
                 tables.append(table)
                 files[key] = tables
 
