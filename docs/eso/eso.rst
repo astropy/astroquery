@@ -17,7 +17,7 @@ ESO Queries (`astroquery.eso`)
 
     In TAP, ``column_filters`` accepts ADQL expressions. For example:
 
-    .. doctest-skip::
+    .. code-block:: python
 
         column_filters = {
             'some_int_column': "< 5",
@@ -234,7 +234,6 @@ as certain columns with datatype ``char`` actually define timestamps or regions 
 
     Number of records present in the table ist.midi:
     421764
-     [astroquery.eso.core]
 
 **Note:** for a deeper description of each column, the following query can be issued
 on the ESO **Programmatic Access** website (https://archive.eso.org/programmatic/#TAP):
@@ -249,6 +248,7 @@ target ``NGC 4151`` between ``2008-01-01`` and ``2009-05-12`` are searched, and 
 return two columns: the date of observation and the name of the object.
 
 .. doctest-remote-data::
+
     >>> table = eso.query_instrument(
     ...             'midi',
     ...             column_filters={
@@ -477,7 +477,7 @@ Two concrete and relevant examples of fields present in WDB but not present in T
 are ``stime`` and ``etime``. The following snippet shows how to adapt the filters to
 the TAP / ADQL syntax:
 
-.. doctest-skip::
+.. code-block:: python
 
     # The following filters won't work:
     column_filters = {
