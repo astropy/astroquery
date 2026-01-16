@@ -96,6 +96,11 @@ xmatch
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
 
+- Versions of Python <3.10 are no longer supported. [#3504]
+
+- Versions of numpy <1.22 are no longer supported. [#3504]
+
+
 utils.tap
 ^^^^^^^^^
 
