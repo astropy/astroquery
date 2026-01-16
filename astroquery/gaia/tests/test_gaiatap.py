@@ -1081,7 +1081,7 @@ def test_load_data_vot(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_n
     path.unlink()
 
 
-@pytest.mark.filterwarnings("ignore: ")
+@pytest.mark.filterwarnings("ignore:")
 def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_now):
     assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
 
@@ -1090,7 +1090,7 @@ def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_
 
     path = Path(os.getcwd(), output_file)
 
-    with open(DL_PRODUCTS_CSV, 'rb') as file:
+    with open(DL_PRODUCTS_FITS, 'rb') as file:
         zip_bytes = file.read()
 
     path.write_bytes(zip_bytes)

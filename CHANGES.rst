@@ -34,6 +34,7 @@ gaia
 ^^^^
 
 - New datalink DR4 retrieval type RESIDUAL_IMAGE. [#3489]
+- The method ``load_data`` parses ecsv files [#3500].
 
 esa.hubble
 ^^^^^^^^^^

@@ -20,6 +20,7 @@ from astropy import units as u
 from astropy.coordinates import Angle
 from astropy.io import fits
 from astropy.io import votable
+from astropy.io.fits import TableHDU, BinTableHDU
 from astropy.table import Table
 from astropy.units import Quantity
 from astropy.utils.decorators import deprecated_renamed_argument
@@ -308,7 +309,9 @@ class GaiaClass(TapPlus):
                 shutil.rmtree(path)
             else:
                 for file in files.keys():
-                    os.remove(os.path.join(os.getcwd(), path, file))
+                    final_file = os.path.join(os.getcwd(), path, file)
+                    if os.path.isfile(final_file):
+                        os.remove(final_file)
 
         if verbose:
             if output_file_specified:
@@ -340,13 +343,13 @@ class GaiaClass(TapPlus):
 
             if key.endswith('.fits'):
                 tables = []
-                with fits.open(value) as hduList:
-                    num_hdus = len(hduList)
-                    for i in range(1, num_hdus):
-                        table = Table.read(hduList[i], format='fits')
-                        Gaia.correct_table_units(table)
-                        tables.append(table)
-                    files[key] = tables
+                with fits.open(value, memmap=False) as hduList:
+                    for hdu in hduList:
+                        if isinstance(hdu, (TableHDU, BinTableHDU)):
+                            table = Table.read(hdu, format='fits')
+                            Gaia.correct_table_units(table)
+                            tables.append(table)
+                files[key] = tables
 
             elif key.endswith('.xml'):
                 tables = []
