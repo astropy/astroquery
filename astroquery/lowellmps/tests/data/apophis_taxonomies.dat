@@ -1,0 +1,34 @@
+{
+  "identifier": "Apophis",
+  "taxonomies": [
+    {
+      "citation_bibcode": "2009Icar..200..480B",
+      "citation_url": "https://ui.adsabs.harvard.edu/abs/2009Icar..200..480B",
+      "measurement_techniques": [
+        "Near IR spectroscopy"
+      ],
+      "modifier": "",
+      "survey_name": "Binzel et al. (2009)",
+      "taxonomy": "Sq",
+      "taxonomy_system": "Bus-DeMeo"
+    },
+    {
+      "citation_bibcode": "2019Icar..324...41B",
+      "citation_url": "http://smass.mit.edu/minus.html",
+      "measurement_techniques": null,
+      "modifier": "",
+      "survey_name": "MITHNEOS",
+      "taxonomy": "S_comp",
+      "taxonomy_system": "Bus-DeMeo"
+    },
+    {
+      "citation_bibcode": "2019Icar..324...41B",
+      "citation_url": "http://smass.mit.edu/minus.html",
+      "measurement_techniques": null,
+      "modifier": "",
+      "survey_name": "MITHNEOS",
+      "taxonomy": "Sq",
+      "taxonomy_system": "Bus-DeMeo"
+    }
+  ]
+}

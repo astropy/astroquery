@@ -1,0 +1,25 @@
+{
+  "identifier": "1",
+  "lightcurves": [
+    {
+      "ambiguous_period": false,
+      "amp_flag": "",
+      "amp_max": 0.06,
+      "amp_min": 0.03,
+      "citation_bibcode": "2009Icar..202..134W",
+      "citation_url": "http://www.minorplanet.info/datazips/LCLIST_PUB_2018JUN.zip",
+      "measurement_techniques": [
+        "Literature compilation"
+      ],
+      "non_principal_axis_rotator": false,
+      "notes": "",
+      "period": null,
+      "period_desc": "",
+      "period_flag": "S",
+      "quality_code": "3",
+      "sparse_data": false,
+      "survey_name": "Asteroid Lightcurve Database (LCDB)",
+      "wide_field": false
+    }
+  ]
+}
