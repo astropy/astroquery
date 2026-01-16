@@ -724,10 +724,10 @@ def test_s3_mock_directory(s3_mock):
 
 def test__get_vector():
     # Test column name input
-    assert HeasarcClass._get_vec("a.ra", "a.dec") == \
+    assert HeasarcClass._get_vector("a.ra", "a.dec") == \
         ("a.__x_ra_dec", "a.__y_ra_dec", "a.__z_ra_dec")
     # Test numeric input
-    actual = HeasarcClass._get_vec("217.0", "-31.7")
+    actual = HeasarcClass._get_vector("217.0", "-31.7")
     desired = (-0.5120309075160554, -0.6794879643287802, -0.5254716510722678)
     # Convert to float for comparison
     assert all(abs(d - a) < 0.5 * (10 ** (-6)) for d, a in zip(desired, actual))
@@ -744,10 +744,10 @@ def test__constraint_matches():
     #  Testing all together because it's easier to read this way.
     constraint_small = HeasarcClass._fast_geometry_constraint("217.0", "-31.7", large=False)
     desired_small = """
-            ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 
+            ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802
             + a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr*60/60)))))
             and (a.dec between -31.7 - a.dsr*60/60 and -31.7 + a.dsr*60/60)
-            and (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 
+            and (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802
             + a.__z_ra_dec*-0.5254716510722678 > 0.9998476951563913)
             and (a.dec between -32.7 and -30.7)
             )
@@ -756,7 +756,7 @@ def test__constraint_matches():
 
     constraint_large = HeasarcClass._fast_geometry_constraint("217.0", "-31.7", large=True)
     desired_large = """
-            ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 
+            ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802
             + a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr*60/60)))))
             and (a.dec between -31.7 - a.dsr*60/60 and -31.7 + a.dsr*60/60) )
             """
