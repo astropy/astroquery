@@ -11,7 +11,7 @@ European Space Agency (ESA)
 import os.path
 import shutil
 import tempfile
-from unittest.mock import patch, Mock, PropertyMock, MagicMock
+from unittest.mock import patch, Mock, PropertyMock
 
 import astroquery.esa.utils.utils as esautils
 from astropy.io.registry import IORegistryError
@@ -494,9 +494,9 @@ class TestEsaUtils:
         esa_tap = DummyTapClass()
         esa_tap.query_table(table_name='table1')
         query_tap_mock.assert_called_with(query='SELECT * FROM table1 ',
-                                          async_job= False,
-                                          output_file= None,
-                                          output_format= 'votable',
+                                          async_job=False,
+                                          output_file=None,
+                                          output_format='votable',
                                           verbose=True)
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])

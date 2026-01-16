@@ -19,9 +19,7 @@ from astropy.coordinates import SkyCoord
 from astropy.coordinates import Angle
 from numpy.ma import MaskedArray
 
-from astroquery.query import BaseQuery, BaseVOQuery
 import warnings
-import pyvo
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from . import conf

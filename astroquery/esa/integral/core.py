@@ -9,14 +9,11 @@ European Space Agency (ESA)
 
 """
 from astropy.table import Table
-from astroquery.query import BaseQuery, BaseVOQuery
 from astroquery import log
 from astroquery.utils import commons
-import pyvo
 from requests import HTTPError
 
 from . import conf
-import time
 import astroquery.esa.utils.utils as esautils
 from datetime import datetime
 
