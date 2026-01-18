@@ -15,6 +15,9 @@ esa.euclid
 - Method ``get_datalinks`` has a new argument, ``extra_options``, to customize the results to be got
   from the server. Specifically, passing ``'METADATA'`` to this argument will retrieve the extra fields
   ``datalabs_path``, ``file_name`` and ``hdu_index``. [#3438]
+- The default value of the parameter ``output_format`` in the the methods ``launch_job``, ``launch_job_async`` and
+  ``cone_search`` is changed to "votable_gzip". [#3497]
+
 
 vizier
 ^^^^^^

@@ -1,0 +1,83 @@
+# %ECSV 1.0
+# ---
+# delimiter: ','
+# datatype:
+# -
+#   name: solution_id
+#   datatype: int64
+#   description: 
+#   |
+#    All Gaia data processed by the Data Processing and Analysis Consortium
+#    comes tagged with a solution identifier. This is a numeric field
+#    attached to each table row that can be used to unequivocally identify
+#    the version of all the subsystems that where used in the generation of
+#    the data as well as the input data used. It is mainly for internal DPAC
+#    use but is included in the published data releases to enable end users
+#    to examine the provenance of processed data products. To decode a given
+#    solution ID visit
+#   meta:
+#     ucd: meta.version
+# -
+#   name: source_id
+#   datatype: int64
+#   description: 
+#   |
+#    A unique single numerical identifier of the source.
+#    
+#    For the contents of Gaia DR1, which does not include Solar System
+#    objects, the source ID consists consists of a 64-bit integer, least
+#    significant bit = 1 and most significant bit = 64, comprising:
+#    
+#    -   a HEALPix index number (sky pixel) in bits 36 - 63; by definition
+#        the smallest HEALPix index number is zero.
+#    
+#    -   a 2-bit Data Processing Centre code in bits 34 - 35; for example
+#        MOD(sourceId / 4294967296, 8) can be used to distinguish between
+#        sources initialised via the Initial Gaia Source List by the Torino
+#        DPC (code = 0) and sources otherwise detected and assigned by Gaia
+#        observations (code?>0)
+#    
+#    -   a 25-bit plus 7 bit sequence number within the HEALPix pixel in bits
+#        1 - 32 split into:
+#    
+#        -   a 25 bit running number in bits 8 ? 32; the running numbers are
+#            defined to be positive, i.e.?never zero (except in the case of
+#            forced empty windows)
+#    
+#        -   a 7-bit component number in bits 1 ? 7
+#    
+#    -   one spare bit in bit 33
+#    
+#    This means that the HEALpix index level 12 of a given source is
+#    contained in the most significant bits. HEALpix index of 12 and lower
+#    levels can thus be retrieved as follows:
+#    
+#    -   HEALpix level 12 = source_id / 34359738368
+#    
+#    -   HEALpix level 11 = source_id / 137438953472
+#    
+#    -   HEALpix level 10 = source_id / 549755813888
+#    
+#    -   HEALpix level n = source_id / 2 ^ 35 * 4 ^ (12 - level).
+#    
+#    Additional details can be found in the Gaia DPAC public document Source
+#    Identifiers ? Assignment and Usage throughout DPAC (document code
+#    GAIA?C3?TN?ARI?BAS?020) available from
+#   meta:
+#     ucd: meta.id;meta.main
+# meta:
+#   name: votable
+#   JOBID: b2242729-f44b-11f0-a3b5-bc97e148b76b-O
+#   QUERY_STATUS: OK
+#   QUERY: 'SELECT TOP 1 solution_id, source_id FROM gaiadr1.gaia_source '
+#   CITATION: https://www.cosmos.esa.int/web/gaia-users/credits
+#   RELEASE: Gaia DR1
+#   HELP: https://www.cosmos.esa.int/web/gaia-users/archive
+#   ISSUES: https://www.cosmos.esa.int/web/gaia-users/known-issues
+#   DATA: https://www.cosmos.esa.int/web/gaia/data-access
+#   TERMS: https://www.cosmos.esa.int/web/esdc/terms-and-conditions
+#   HOME: https://www.cosmos.esa.int/web/gaia
+#   PUBLISHER: ESA/Gaia/DPAC
+#   CREATOR: Gaia Collaboration
+solution_id,source_id
+1635378410781933568,4651515861503587200

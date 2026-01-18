@@ -75,7 +75,8 @@ def test_load_tables():
     __check_column(col, 'Table2 Column3 desc', '', 'INTEGER', None)
 
 
-def test_load_tables_parameters():
+@pytest.mark.parametrize("verbose", [True, False])
+def test_load_tables_parameters(verbose):
     conn_handler = DummyConnHandler()
     tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     responseLoadTable = DummyResponse(200)
@@ -84,7 +85,7 @@ def test_load_tables_parameters():
     conn_handler.set_response(tableRequest, responseLoadTable)
 
     # empty request
-    tap.load_tables()
+    tap.load_tables(verbose=verbose)
     assert conn_handler.request == tableRequest
 
     # flag only_names=false & share_accessible=false: equals to
@@ -95,19 +96,19 @@ def test_load_tables_parameters():
     # flag only_names
     tableRequest = "tables?only_tables=true"
     conn_handler.set_response(tableRequest, responseLoadTable)
-    tap.load_tables(only_names=True)
+    tap.load_tables(only_names=True, verbose=verbose)
     assert conn_handler.request == tableRequest
 
     # flag share_accessible=true
     tableRequest = "tables?share_accessible=true"
     conn_handler.set_response(tableRequest, responseLoadTable)
-    tap.load_tables(include_shared_tables=True)
+    tap.load_tables(include_shared_tables=True, verbose=verbose)
     assert conn_handler.request == tableRequest
 
     # flag only_names=true & share_accessible=true
     tableRequest = "tables?only_tables=true&share_accessible=true"
     conn_handler.set_response(tableRequest, responseLoadTable)
-    tap.load_tables(only_names=True, include_shared_tables=True)
+    tap.load_tables(only_names=True, include_shared_tables=True, verbose=verbose)
     assert conn_handler.request == tableRequest
 
 
@@ -515,7 +516,8 @@ def test_abort_job():
         job.abort()
 
 
-def test_job_parameters():
+@pytest.mark.parametrize("verbose", [True, False])
+def test_job_parameters(verbose):
     conn_handler = DummyConnHandler()
     tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     jobid = '12345'
@@ -565,13 +567,29 @@ def test_job_parameters():
     conn_handler.set_response(req, responsePhase)
 
     # send parameter OK
-    job.send_parameter(name="param1", value="value1")
+    job.send_parameter(name="param1", value="value1", verbose=verbose)
     # start job
-    job.start()
+    job.start(verbose=verbose)
     assert job.get_phase() == 'QUEUED'
     # try to send a parameter after execution
     with pytest.raises(Exception):
-        job.send_parameter(name="param2", value="value2")
+        job.send_parameter(name="param2", value="value2", verbose=verbose)
+
+    # Increase coverage
+    responsePhase = DummyResponse(404)
+    responsePhase.set_data(method='POST', body="ERROR")
+    req = f"async/{jobid}/phase?PHASE=RUN"
+    conn_handler.set_response(req, responsePhase)
+    job._phase = 'PENDING'
+    # start job
+    error_message = 'Error 404:\nERROR'
+    with pytest.raises(HTTPError, match=error_message):
+        job.start(verbose=verbose)
+
+    assert job.get_phase() == 'PENDING'
+    # try to send a parameter after execution
+    with pytest.raises(Exception):
+        job.send_parameter(name="param2", value="value2", verbose=verbose)
 
 
 def test_list_async_jobs():

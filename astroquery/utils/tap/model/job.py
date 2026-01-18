@@ -4,13 +4,12 @@
 TAP plus
 =============
 """
-import gzip
 import os
 import time
 from urllib.parse import urlencode
 
 import requests
-from astropy.io import votable
+from astropy.io.votable.tree import VOTableFile
 from astropy.logger import log
 
 from astroquery.utils.tap import taputils
@@ -269,15 +268,11 @@ class Job:
             if verbose:
                 print(f"Saving results to: {self.outputFile}")
 
-            if type(self.results) is votable:
+            if type(self.results) is VOTableFile:
                 self.results.to_xml(self.outputFile)
             else:
                 filename, file_extension = os.path.splitext(self.outputFile)
-                if file_extension == '.gz':
-                    filename, file_extension = os.path.splitext(filename)
-                    self.write_results(file_extension, gzip.decompress(self.outputFile))
-                else:
-                    self.write_results(file_extension, self.outputFile)
+                self.__write_results(file_extension, self.outputFile)
 
         else:
             if not self.async_:
@@ -291,10 +286,7 @@ class Job:
                 if verbose:
                     print(response.status, response.reason)
                     print(response.getheaders())
-                is_error = self.connHandler. \
-                    check_launch_response_status(response,
-                                                 verbose,
-                                                 200)
+                is_error = self.connHandler.check_launch_response_status(response, verbose, 200)
                 if is_error:
                     print(response.reason)
                     raise Exception(response.reason)
@@ -311,7 +303,7 @@ class Job:
                     print(f"Saving results to: {output}")
                 self.connHandler.dump_to_file(output, response)
 
-    def write_results(self, file_extension, output_file):
+    def __write_results(self, file_extension, output_file):
         if file_extension == '.vot' or file_extension == '.xml':
             self.results.write(output_file, format='votable', overwrite=True)
         elif file_extension == '.ecsv':
@@ -366,12 +358,8 @@ class Job:
             print(resultsResponse.status, resultsResponse.reason)
             print(resultsResponse.getheaders())
 
-        resultsResponse = self.__handle_redirect_if_required(resultsResponse,
-                                                             verbose=debug)
-        is_error = self.connHandler. \
-            check_launch_response_status(resultsResponse,
-                                         debug,
-                                         200)
+        resultsResponse = self.__handle_redirect_if_required(resultsResponse, verbose=debug)
+        is_error = self.connHandler.check_launch_response_status(resultsResponse, debug, 200)
         self._phase = phase
         if phase == 'ERROR':
             err_msg = self.get_error(verbose=debug)
@@ -386,14 +374,14 @@ class Job:
                 if 'responseformat' in self.parameters:
                     output_format = self.parameters['responseformat']
 
-                results = utils.read_http_response(resultsResponse,
-                                                   output_format, use_names_over_ids=self.use_names_over_ids)
+                results = utils.read_http_response(resultsResponse, output_format,
+                                                   use_names_over_ids=self.use_names_over_ids)
                 self.set_results(results)
 
     def __handle_redirect_if_required(self, resultsResponse, *, verbose=False):
         # Thanks @emeraldTree24
         numberOfRedirects = 0
-        while ((resultsResponse.status == 303 or resultsResponse.status == 302) and numberOfRedirects < 20):
+        while (resultsResponse.status == 303 or resultsResponse.status == 302) and numberOfRedirects < 20:
             joblocation = self.connHandler. \
                 find_header(resultsResponse.getheaders(), "location")
             if verbose:
@@ -423,7 +411,7 @@ class Job:
         if verbose:
             print(resultsResponse.status, resultsResponse.reason)
             print(resultsResponse.getheaders())
-        if (resultsResponse.status != 200 and resultsResponse.status != 303 and resultsResponse.status != 302):
+        if resultsResponse.status != 200 and resultsResponse.status != 303 and resultsResponse.status != 302:
             err_msg = taputils.get_http_response_error(resultsResponse)
             print(resultsResponse.status, err_msg)
             raise requests.exceptions.HTTPError(err_msg)

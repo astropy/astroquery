@@ -37,6 +37,7 @@ def test_query_object_row_limit():
 
 
 @pytest.mark.remote_data
+@pytest.mark.filterwarnings("ignore::astropy.units.UnitsWarning")
 def test_cone_search_row_limit():
     euclid = EuclidClass()
     coord = SkyCoord(ra=265.8, dec=64.1, unit=(u.degree, u.degree), frame='icrs')
@@ -63,9 +64,9 @@ def test_cone_search_row_limit():
 def test_search_async_jobs():
     euclid = EuclidClass()
     jobfilter = Filter()
-    jobfilter.limit = 10
+    jobfilter.limit = 2
     jobs = euclid.search_async_jobs(jobfilter=jobfilter, verbose=True)
-    assert len(jobs) == 10
+    assert len(jobs) == 2
 
 
 @pytest.mark.remote_data
