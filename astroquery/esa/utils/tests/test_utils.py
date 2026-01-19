@@ -106,7 +106,7 @@ class TestEsaUtils:
         esa_session._request('GET', 'https://dummy.com/service')
 
         mock_get.assert_called_once_with('GET', 'https://dummy.com/service',
-                                         params={'TAPCLIENT': 'ASTROQUERY', 'format': 'votable_plain'})
+                                         params={'TAPCLIENT': 'ASTROQUERY'})
 
     @patch('pyvo.auth.authsession.AuthSession.post')
     def test_login_success(self, mock_post):

@@ -136,8 +136,7 @@ class ESAAuthSession(pyvo.auth.authsession.AuthSession):
         """
 
         # Add the custom query parameter to the URL
-        additional_params = {'TAPCLIENT': 'ASTROQUERY',
-                             'format': 'votable_plain'}
+        additional_params = {'TAPCLIENT': 'ASTROQUERY'}
         # Merge the default parameters with the additional request parameters
         additional_params = additional_params | self.request_parameters
         if kwargs is not None and 'params' in kwargs:

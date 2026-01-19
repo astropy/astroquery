@@ -260,6 +260,8 @@ The following modules have been completed using a common API:
   esa/euclid/euclid.rst
   esa/hsa/hsa.rst
   esa/hubble/hubble.rst
+  esa/emds/emds.rst
+  esa/emds/einsteinprobe/einsteinprobe.rst
   esa/integral/integral.rst
   esa/iso/iso.rst
   esa/jwst/jwst.rst
