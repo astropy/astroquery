@@ -30,7 +30,7 @@ class Conf(_config.ConfigNamespace):
     DEFAULT_SCHEMA = _config.ConfigItem("ivoa",
                                 "Default TAP schema for EMDS")
     OBSCORE_TABLE = _config.ConfigItem("ivoa.ObsCore",
-                                       "Fully-qualified ObsCore view/table")
+                                       "Fully qualified ObsCore table or view name (including schema)")
 
     TIMEOUT = 60
 

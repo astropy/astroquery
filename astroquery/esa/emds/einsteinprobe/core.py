@@ -12,8 +12,6 @@ import os
 import astroquery.esa.utils.utils as esautils
 
 from . import conf
-from urllib.parse import quote
-from astroquery.utils import commons
 from ..core import EmdsClass
 
 
@@ -65,6 +63,7 @@ class EinsteinProbeClass(EmdsClass):
         -------
         astropy.table.Table
         """
+
         table = getattr(self.conf, "OBSCORE_TABLE", None)
         if not table:
             raise ValueError("OBSCORE_TABLE is not configured for EinsteinProbe.")
@@ -85,12 +84,14 @@ class EinsteinProbeClass(EmdsClass):
         obs_filter = None
         if obs_id:
             obs_filter = "obs_id = '{0}'".format(obs_id)
+
         # Combine obs_id filter with any custom_filters
         if obs_filter:
             if custom_filters:
                 custom_filters = "({0}) AND ({1})".format(custom_filters, obs_filter)
             else:
                 custom_filters = obs_filter
+
         return self.query_table(
             table_name=table,
             columns=columns,
@@ -129,9 +130,10 @@ class EinsteinProbeClass(EmdsClass):
         str
             Local file path returned by `esautils.download_file`.
         """
-        data_url = getattr(self.conf, "EMDS_DATA_SERVER", None) or getattr(self.conf, "X_DATA_SERVER", None)
+
+        data_url = getattr(self.conf, "EMDS_DATA_SERVER", None)
         if not data_url:
-            raise ValueError("Data server URL is not configured (EMDS_DATA_SERVER / X_DATA_SERVER).")
+            raise ValueError("Data server URL is not configured (EMDS_DATA_SERVER).")
 
         if table is None:
             table = getattr(self.conf, "OBSCORE_TABLE", None)
