@@ -38,7 +38,7 @@ jobs:
 
           - name: Python 3.13
             os: ubuntu-latest
-            python: '3.13-dev'
+            python: '3.13'
             toxenv: py313-test
             toxargs: -v
 

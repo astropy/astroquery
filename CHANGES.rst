@@ -33,6 +33,7 @@ gaia
 ^^^^
 
 - New datalink DR4 retrieval type RESIDUAL_IMAGE. [#3489]
+- The method ``load_data`` parses ecsv files [#3500].
 
 esa.hubble
 ^^^^^^^^^^
@@ -94,6 +95,11 @@ xmatch
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
+
+- Versions of Python <3.10 are no longer supported. [#3504]
+
+- Versions of numpy <1.22 are no longer supported. [#3504]
+
 
 utils.tap
 ^^^^^^^^^
