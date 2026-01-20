@@ -32,6 +32,7 @@ def close_files(file_list):
 def create_temp_folder():
     return tempfile.TemporaryDirectory()
 
+
 @pytest.mark.remote_data
 class TestEmdsRemote:
 
@@ -43,7 +44,6 @@ class TestEmdsRemote:
         assert len(names) > 0
         assert all(isinstance(n, str) for n in names)
         assert "einsteinprobe.obscore_extended" in [n.lower() for n in names]
-
 
     def test_get_table(self):
         epsa = EinsteinProbeClass()

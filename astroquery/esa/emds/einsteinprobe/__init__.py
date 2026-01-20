@@ -11,6 +11,7 @@ European Space Agency (ESA)
 from astropy import config as _config
 from astroquery.esa.emds import Conf as EmdsConf
 
+
 class Conf(EmdsConf):
     """
     Configuration parameters for EinsteinProbe.
@@ -19,10 +20,11 @@ class Conf(EmdsConf):
     """
 
     DEFAULT_SCHEMAS = _config.ConfigItem("einsteinprobe",
-                                          "Default TAP schema(s) for this mission (comma-separated), "
-                                                    "e.g. \"schema1, schema2, schema3\".")
+                                         "Default TAP schema(s) for this mission (comma-separated) "
+                                         "e.g. \"schema1, schema2, schema3\".")
     OBSCORE_TABLE = _config.ConfigItem("einsteinprobe.obscore_extended",
                                        "Fully-qualified ObsCore table or view name (including schema)")
+
 
 conf = Conf()
 

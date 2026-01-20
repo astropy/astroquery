@@ -19,6 +19,7 @@ from astroquery.esa.emds import conf
 from requests import HTTPError
 from astropy.coordinates import SkyCoord
 
+
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
@@ -54,7 +55,7 @@ class TestEmdsTap:
         mock_job.job_id = '101'
         emds_job_mock.job_id.return_value = '101'
         mock_tap.get_job.return_value = mock_job
-        emds =EmdsClass()
+        emds = EmdsClass()
 
         job = emds.get_job(jobid=jobid)
         assert job.job_id == '101'
