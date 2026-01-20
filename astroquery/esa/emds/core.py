@@ -41,6 +41,7 @@ class EmdsClass(esautils.EsaTap):
         Return the fully-qualified ObsCore table/view used by this client.
         Sub-clients override this by providing `conf.OBSCORE_TABLE`.
         """
+
         table = getattr(self.conf, "OBSCORE_TABLE", None)
         if not (isinstance(table, str) and table.strip()):
             raise ValueError(
@@ -80,6 +81,7 @@ class EmdsClass(esautils.EsaTap):
         Set ``only_names=True`` to return table names instead of table objects.
 
         """
+
         tables = super().get_tables(only_names=only_names)
 
         schema = getattr(self.conf, "DEFAULT_SCHEMA", None)
@@ -189,6 +191,7 @@ class EmdsClass(esautils.EsaTap):
         -------
         astropy.table that contains the distinct mission identifiers present in ObsCore.
         """
+
         query = "SELECT DISTINCT obs_collection FROM ivoa.ObsCore WHERE obs_collection IS NOT NULL"
         return self.query_tap(query=query)
 

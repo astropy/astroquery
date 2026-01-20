@@ -20,7 +20,7 @@ class Conf(EmdsConf):
     DEFAULT_SCHEMA = _config.ConfigItem("einsteinprobe",
                             "Default TAP schema for Einstein Probe")
     OBSCORE_TABLE = _config.ConfigItem("einsteinprobe.obscore_extended",
-                                       "Fully-qualified ObsCore view/table")
+                                       "Fully-qualified ObsCore table or view name (including schema)")
 
 conf = Conf()
 
