@@ -214,14 +214,13 @@ use this function that takes advantage of a fast but limited HEASARC
     >>> pos = SkyCoord('217.0 -31.7', unit=u.deg)
     >>> matches = Heasarc.query_all(pos)
     >>> matches[0:5].pprint()
-    table_name count                           description                                 regime      mission      obj_type
-    ---------- ----- ---------------------------------------------------------------- ---------------- -------- ----------------
-    hete2tl     6971                                                  HETE-2 Timeline Gamma-ray, X-ray   hete-2
-    intscw      4088                                     INTEGRAL Science Window Data Gamma-ray, X-ray integral
-    intscwpub   2039                      INTEGRAL Public Pointed Science Window Data Gamma-ray, X-ray integral
-    icecubepsc    90 IceCube All-Sky Point-Source Neutrino Events Catalog (2008-2018)                   icecube
-    comptel       52                             CGRO/COMPTEL Low-Level Data and Maps        Gamma-ray     cgro
-
+table_name count                           description                                 regime      mission  obj_type   max_offset_deg
+---------- ----- ---------------------------------------------------------------- ---------------- -------- -------- ------------------
+   hete2tl  6971                                                  HETE-2 Timeline Gamma-ray, X-ray   hete-2           39.99700793332599
+    intscw  4088                                     INTEGRAL Science Window Data Gamma-ray, X-ray integral           9.999106184550586
+ intscwpub  2039                      INTEGRAL Public Pointed Science Window Data Gamma-ray, X-ray integral           9.999106184550586
+icecubepsc    90 IceCube All-Sky Point-Source Neutrino Events Catalog (2008-2018)                   icecube           0.997001295956274
+   comptel    52                             CGRO/COMPTEL Low-Level Data and Maps        Gamma-ray     cgro          39.325681970373786
     Then as above, you query the table(s) that look likely individually.  
 
 Adding Column Constraints

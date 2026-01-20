@@ -696,9 +696,14 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         Note that this queries multiple tables, as the HEASARC database has split
         the master tables for efficiency.
         """
+
+        offset_def = ''
         if ra is not None:
             constraint_small = HeasarcClass._fast_geometry_constraint(ra, dec, large=False, radius=radius)
             constraint_big = HeasarcClass._fast_geometry_constraint(ra, dec, large=True, radius=radius)
+            offset_def = f""",
+            MAX(DISTANCE(POINT('ICRS', a.ra, a.dec),POINT('ICRS',{ra},{dec}))) as max_offset_deg
+            """
         if start_time is not None:
             constraint_time = HeasarcClass._time_constraint(start_time, end_time)
 
@@ -716,41 +721,43 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         else:
             raise ValueError("You must specify either a position or time range or both")
 
-        if ra is not None:
-            full_query = f"""
-                select  b.name  as "table_name",  count(*)  as "count",  b.description  as
+        #  Note that these operations result in incorrect escaping of the quotes around
+        # 'ICRS' in the SQL string. These will be removed later.
+        select_block = f'''
+                select b.name  as "table_name",  count(*)  as "count",  b.description  as
                 "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
-                as "obj_type"
+                as "obj_type"{offset_def}
+            '''
+        groupby_block = " b.name , b.description , b.regime , b.mission , b.type"
+
+        if ra is not None:
+            full_query = f'''
+                {select_block}
                 from master_table.{tname1} as a,master_table.indexview as b
                 where  (  (  a.table_name  =  b.name  )  ) and
                 {constraint_small}
-                group by  b.name , b.description , b.regime , b.mission , b.type
+                group by {groupby_block}
 
                 union all
 
-                select  b.name  as "table_name",  count(*)  as "count",  b.description  as
-                "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
-                as "obj_type"
+                {select_block}
                 from master_table.{tname2} as a,master_table.indexview as b
                 where  (  (  a.table_name  =  b.name  )  ) and
                 {constraint_big}
-                group by  b.name , b.description , b.regime , b.mission , b.type
+                group by {groupby_block}
                 order by count desc
-            """
+            '''
         else:
-            full_query = f"""
-            select  b.name  as "table_name",  count(*)  as "count",  b.description  as
-            "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
-            as "obj_type"
+            full_query = f'''
+            {select_block}
             from master_table.{tname1} as a,master_table.indexview as b
             where  (  (  a.table_name  =  b.name  )  ) and
             {constraint_time}
             group by  b.name , b.description , b.regime , b.mission , b.type
             order by count desc
-            """
+            '''
         # remove all extraneous white space and line breaks
-        return re.sub(r'\s+', ' ', full_query.replace('\n', '')).strip()
-        return full_query
+        return re.sub(r'\s+', ' ', full_query.replace('\n', '')).strip().replace("\'", "'")
 
     def query_all(self, position=None, get_query_payload=False, start_time=None,
                   end_time=None, verbose=False, maxrec=None, radius=None):
@@ -762,22 +769,23 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         position : str, `astropy.coordinates` object
             The position around which to search. Must be a SkyCoord object or a string
             that Astropy can convert.
-        start_time : str, `astropy.time` object
+        start_time : str, `astropy.time` object, optional
             Beginning of time range of interest as a string in ISOT format
             or Time object.
-        end_time : str, `astropy.time` object
+        end_time : str, `astropy.time` object, optional
             End of time range of interest as a string in ISOT format
             or Time object.
-        get_query_payload : bool, optional
+        get_query_payload : bool, optional, optional
             If `True` then returns the generated ADQL query as str and does not send the query.
             Defaults to `False`.
-        radius : str or `~astropy.units.Quantity` object
+        radius : str or `~astropy.units.Quantity` object, optional
             If this radius is None, the specified coordinate is compared to each mission
             catalog entry using that catalog's default radius. This is based on the
-            approximate PSF. If you specify a radius in degrees, it uses that instead.
-            Be aware that for missions with large PSFs, when you search within a very small
-            radius, you may not find catalog entries that are within the PSF and
-            therefore might be of interest.
+            approximate location uncertainty for each mission. If you specify a radius
+            in degrees, it uses that instead. Be aware that for missions with large
+            uncertainties, when you search within a very small radius, you may not find
+            some relevant catalog entries that therefore might be of interest.  (E.g., a query
+            for Geminga without a radius specified will show the entry in the HEAO2.
         verbose : bool, optional
             If True, prints additional information about the query. Default is False.
         maxrec : int, optional
@@ -790,8 +798,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         result : `~astropy.table.Table`
             A table containing the results of the query, i.e. a list of catalogs
             that have entries near the specified position, how many, and quick catalog
-            information. If no results are found, an empty table is returned and
-            a warning is issued.
+            information included the computed offset between the two positions in degrees.
+            If no results are found, an empty table is returned and a warning is issued.
 
         Raises
         ------
@@ -810,20 +818,21 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         Examples
         --------
+        >>> from astroquery.heasarc import Heasarc
         >>> from astropy.coordinates import SkyCoord
         >>> from astropy import units as u
-        >>> position = SkyCoord(ra=10.68458, dec=41.26917, unit=(u.degree, u.degree), frame='icrs')
-        >>> result = Heasarc.query_all(position)
-        >>> print(result)
+        >>> pos = SkyCoord('217.0 -31.7', unit=u.deg)
+        >>> matches = Heasarc.query_all(pos)
+        >>> matches[0:5].pprint()
 
         """
         if position is not None:
             coords_icrs = parse_coordinates(position).icrs
             ra, dec = coords_icrs.ra.deg, coords_icrs.dec.deg
-        if position is None and start_time is not None:
+        elif position is None and start_time is not None:
             ra = None
             dec = None
-        if ((position is None and start_time is None)):
+        elif ((position is None and start_time is None)):
             raise ValueError("A valid position and/or a time range must be provided.")
 
         full_query = HeasarcClass._query_matches(ra=ra, dec=dec,

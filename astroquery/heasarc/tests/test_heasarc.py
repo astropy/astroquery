@@ -774,7 +774,8 @@ def test__constraint_matches():
     desired_full = f"""
             select  b.name  as "table_name",  count(*)  as "count",  b.description  as
             "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
-            as "obj_type"
+            as "obj_type",
+            MAX(DISTANCE(POINT('ICRS', a.ra, a.dec),POINT('ICRS',217.0,-31.7))) as max_offset_deg
             from master_table.pos_small as a,master_table.indexview as b
             where  (  (  a.table_name  =  b.name  )  ) and
             {desired_small}
@@ -784,7 +785,8 @@ def test__constraint_matches():
 
             select  b.name  as "table_name",  count(*)  as "count",  b.description  as
             "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
-            as "obj_type"
+            as "obj_type",
+            MAX(DISTANCE(POINT('ICRS', a.ra, a.dec),POINT('ICRS',217.0,-31.7))) as max_offset_deg
             from master_table.pos_big as a,master_table.indexview as b
             where  (  (  a.table_name  =  b.name  )  ) and
             {desired_large}
@@ -805,7 +807,7 @@ def test__query_all():
     #  in _query_matches and query_all, whitespaces get removed.
     assert "( (a.__x_ra_dec*-0.5121892283646801 + a.__y_ra_dec*-0.6790813682341418 +"
     "a.__z_ra_dec*-0.5258428374185955 > (cos(radians((a.dsr*60/60)))))" \
-        in full_with_strpos
+        and "DISTANCE" in full_with_strpos
     full_with_strtimes = Heasarc.query_all("217.0 -31.7",
                                            start_time="2017-01-01",
                                            end_time="2020-01-02", get_query_payload=True)
