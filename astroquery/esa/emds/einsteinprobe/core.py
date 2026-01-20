@@ -164,15 +164,15 @@ class EinsteinProbeClass(EmdsClass):
         """
         Escape single quotes for ADQL/SQL string literals.
 
-            Parameters
-            ----------
-            value : str
-                Input string to be escaped for safe use in ADQL/SQL queries.
+        Parameters
+        ----------
+        value : str
+            Input string to be escaped for safe use in ADQL/SQL queries.
 
-            Returns
-            -------
-            str
-                Escaped string with single quotes doubled.
+        Returns
+        -------
+        str
+            Escaped string with single quotes doubled.
         """
 
         return value.replace("'", "''")
@@ -192,8 +192,8 @@ class EinsteinProbeClass(EmdsClass):
 
         Returns
         -------
-            str
-                ADQL query string used to retrieve the product location.
+        str
+            ADQL query string used to retrieve the product location.
         """
 
         safe = self._escape_adql_string(filename)
