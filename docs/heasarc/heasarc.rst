@@ -203,9 +203,9 @@ following for instance will find master catalogs that have keywords 'nicer' or '
 
 Query All Available Catalogs
 ----------------------------
-If you need to know which catalogs are worth querying for your source, you can 
-use this function that takes advantage of a fast but limited HEASARC 
-`trick <https://heasarc.gsfc.nasa.gov/docs/xamin-api.html#special-tables/>`__
+If you need to know which catalogs are worth querying for your source, you can
+use this function that takes advantage of a fast but limited HEASARC
+`trick <https://heasarc.gsfc.nasa.gov/docs/xamin-api.html#special-tables>`.
 
 .. doctest-remote-data::
     >>> from astroquery.heasarc import Heasarc
@@ -214,13 +214,13 @@ use this function that takes advantage of a fast but limited HEASARC
     >>> pos = SkyCoord('217.0 -31.7', unit=u.deg)
     >>> matches = Heasarc.query_all(pos)
     >>> matches[0:5].pprint()
-    table_name count                           description                                 regime      mission      obj_type    
+    table_name count                           description                                 regime      mission      obj_type
     ---------- ----- ---------------------------------------------------------------- ---------------- -------- ----------------
-    hete2tl     6971                                                  HETE-2 Timeline Gamma-ray, X-ray   hete-2                 
-    intscw      4088                                     INTEGRAL Science Window Data Gamma-ray, X-ray integral                 
-    intscwpub   2039                      INTEGRAL Public Pointed Science Window Data Gamma-ray, X-ray integral                 
-    icecubepsc    90 IceCube All-Sky Point-Source Neutrino Events Catalog (2008-2018)                   icecube                 
-    comptel       52                             CGRO/COMPTEL Low-Level Data and Maps        Gamma-ray     cgro               
+    hete2tl     6971                                                  HETE-2 Timeline Gamma-ray, X-ray   hete-2
+    intscw      4088                                     INTEGRAL Science Window Data Gamma-ray, X-ray integral
+    intscwpub   2039                      INTEGRAL Public Pointed Science Window Data Gamma-ray, X-ray integral
+    icecubepsc    90 IceCube All-Sky Point-Source Neutrino Events Catalog (2008-2018)                   icecube
+    comptel       52                             CGRO/COMPTEL Low-Level Data and Maps        Gamma-ray     cgro
 
     Then as above, you query the table(s) that look likely individually.  
 
@@ -243,9 +243,7 @@ Note that when column filters are given and no position is specified,
 the search defaults to an all-sky search.
 
 .. doctest-remote-data::
-  
-
-
+    >>> from astroquery.heasarc import Heasarc
     >>> tab = Heasarc.query_region(
     ...     catalog='chanmaster', column_filters={'exposure': ('>', '190000')}
     ... )
