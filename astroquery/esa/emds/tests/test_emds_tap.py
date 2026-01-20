@@ -158,9 +158,9 @@ class TestEmdsTap:
 
     @patch("astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities", [])
     @patch("astroquery.esa.emds.core.EmdsClass.query_tap")
-    def test_get_emds_missions_calls_query_tap(self, query_tap_mock):
+    def test_get_missions_calls_query_tap(self, query_tap_mock):
         emds = EmdsClass()
-        emds.get_emds_missions()
+        emds.get_missions()
 
         query_tap_mock.assert_called_once()
         args, kwargs = query_tap_mock.call_args

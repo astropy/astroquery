@@ -163,7 +163,18 @@ class EinsteinProbeClass(EmdsClass):
     def _escape_adql_string(self, value: str) -> str:
         """
         Escape single quotes for ADQL/SQL string literals.
+
+            Parameters
+            ----------
+            value : str
+                Input string to be escaped for safe use in ADQL/SQL queries.
+
+            Returns
+            -------
+            str
+                Escaped string with single quotes doubled.
         """
+
         return value.replace("'", "''")
 
     def _build_retrieval_query(self, *, table: str, filename: str) -> str:
@@ -171,14 +182,42 @@ class EinsteinProbeClass(EmdsClass):
         Build the retrieval QUERY used by the EMDS /data service to locate a product.
 
         The service expects a query that returns at least (filepath, filename).
+
+        Parameters
+        ----------
+        table : str
+            Name of the table to query.
+        filename : str
+            Name of the file to be retrieved.
+
+        Returns
+        -------
+            str
+                ADQL query string used to retrieve the product location.
         """
+
         safe = self._escape_adql_string(filename)
         return "SELECT filepath, filename FROM {0} WHERE filename = '{1}'".format(table, safe)
 
     def _build_data_params(self, *, retrieval_type: str, query: str, size: str = None) -> dict:
         """
         Build query parameters for the EMDS /data endpoint.
+
+        Parameters
+        ----------
+        retrieval_type : str
+            Type of retrieval to be performed by the EMDS service.
+        query : str
+            ADQL query string used to locate the requested product(s).
+        size : str, optional
+            Maximum size of the response, if supported by the service.
+
+        Returns
+        -------
+        dict
+            Dictionary of query parameters to be sent to the EMDS /data endpoint.
         """
+
         params = {
             "retrieval_type": retrieval_type,
             "QUERY": query,

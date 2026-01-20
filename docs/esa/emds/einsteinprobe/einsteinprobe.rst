@@ -57,8 +57,19 @@ tables and their columns. This is useful for understanding what data is accessib
   >>> epsa.get_tables()
   [<VODataServiceTable name="einsteinprobe.fxt_product">... 24 columns ...</VODataServiceTable>, <VODataServiceTable name="einsteinprobe.obscore">... 30 columns ...</VODataServiceTable>, <VODataServiceTable name="einsteinprobe.obscore_extended">... 34 columns ...</VODataServiceTable>, <VODataServiceTable name="einsteinprobe.preview_products">... 2 columns ...</VODataServiceTable>, <VODataServiceTable name="einsteinprobe.wxt_product">... 22 columns ...</VODataServiceTable>]
 
+By default, ``get_tables()`` returns table objects with metadata. If ``only_names=True`` is provided, the method returns
+only the table names as strings. This is useful when you only need to inspect or display the available tables without
+accessing their full metadata.
+
+.. doctest-remote-data::
+
   >>> epsa.get_tables(only_names=True)
   ['einsteinprobe.fxt_product', 'einsteinprobe.obscore', 'einsteinprobe.obscore_extended', 'einsteinprobe.preview_products', 'einsteinprobe.wxt_product']
+
+Once a specific table is selected using ``get_table()``, the returned object provides access to the table metadata,
+including its columns.
+
+.. doctest-remote-data::
 
   >>> obscore_table = epsa.get_table('einsteinprobe.obscore_extended')
   >>> obscore_table.columns

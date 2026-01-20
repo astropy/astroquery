@@ -60,9 +60,9 @@ class TestEmdsRemote:
         for expected in {"obs_id", "s_ra", "s_dec", "obs_collection"}:
             assert expected in colnames
 
-    def test_get_emds_missions(self):
+    def test_get_missions(self):
         emds = EmdsClass()
-        missions = emds.get_emds_missions()
+        missions = emds.get_missions()
 
         assert missions is not None
         assert len(missions) > 0
