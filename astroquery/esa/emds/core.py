@@ -50,136 +50,54 @@ class EmdsClass(esautils.EsaTap):
             )
         return table
 
-    def _qualify_table_name(self, table_name: str) -> str:
-        """
-        Return a schema-qualified table name when needed.
-
-        If the input table name does not include a schema, the default mission schema
-        is applied when available. Fully-qualified table names are returned unchanged.
-
-        Parameters
-        ----------
-        table_name : str
-            Table name, either fully-qualified ('schema.table') or unqualified ('table').
-        """
-
-        if "." in table_name:
-            return table_name
-
-        default_schema = getattr(self.conf, "DEFAULT_SCHEMA", None)
-        if isinstance(default_schema, str) and default_schema.strip():
-            return f"{default_schema}.{table_name}"
-
-        # Independent missions: do not modify.
-        return table_name
-
-    def get_tables(self, *, only_names=False):
+    def get_tables(self, *, only_names: bool = False):
         """
         Return the tables available for this mission.
 
-        By default, only tables belonging to the mission-specific schema are returned.
+        By default, only tables belonging to the mission-specific schema(s) are returned.
         Set ``only_names=True`` to return table names instead of table objects.
+
+        Parameters
+        ----------
+        only_names : bool, optional
+            If True, return table names as strings. If False, return table objects.
+
+        Returns
+        -------
+        list
+            Table names (str) if ``only_names=True``, otherwise table objects.
 
         """
 
         tables = super().get_tables(only_names=only_names)
 
-        schema = getattr(self.conf, "DEFAULT_SCHEMA", None)
-        if not schema:
+        schemas = getattr(self.conf, "DEFAULT_SCHEMAS", "")
+        if not isinstance(schemas, str) or not schemas.strip():
+            # No schema filtering configured: return all tables
             return tables
 
-        schema_prefix = schema.lower() + "."
+        # Split and normalize schema names
+        schemas_list = [s.strip() for s in schemas.split(",") if s.strip()]
+
+        # Build lowercase schema prefixes
+        schema_prefixes = tuple(s.lower() + "." for s in schemas_list)
+
+        # Check whether a table belongs to one of the schemas
+        def belongs(name: str) -> bool:
+            n = (name or "").lower()
+            return n.startswith(schema_prefixes)
 
         if only_names:
-            return [t for t in tables if t.lower().startswith(schema_prefix)]
+            # Filter table names (strings)
+            return [t for t in tables if belongs(t)]
         else:
+            # Filter table objects using their 'name' attribute
             return [
                 t for t in tables
-                if getattr(t, "name", "").lower().startswith(schema_prefix)
+                if belongs(getattr(t, "name", ""))
             ]
 
-    def get_table(self, table):
-        """
-        Retrieve a table from the TAP service.
-
-        Parameters
-        ----------
-        table : str
-            Table name. It can be fully qualified (``schema.table``) or unqualified
-            (``table``). Unqualified names are automatically prefixed with the default
-            mission schema when available.
-
-        """
-
-        qualified = self._qualify_table_name(table)
-        return super().get_table(qualified)
-
-    def get_metadata(self, table):
-        """
-        Retrieve metadata for a table.
-
-        The table name can be provided with or without a schema. If no schema is given,
-        the default mission schema is applied when available.
-
-        Parameters
-        ----------
-        table : str
-            Table name. It can be fully qualified (``schema.table``) or unqualified
-            (``table``). Unqualified names are automatically prefixed with the default
-            mission schema when available.
-
-        """
-
-        qualified = self._qualify_table_name(table)
-        return super().get_metadata(qualified)
-
-    def query_table(self, table_name, *, columns=None, custom_filters=None, get_metadata=False,
-                    async_job=False, output_file=None, output_format='votable', **filters):
-        """
-        Query a table in the TAP service.
-
-        The table name can be provided with or without a schema. If no schema is given,
-        the default mission schema is applied when available.
-
-        Parameters
-        ----------
-        table_name : str
-            Table name (either 'schema.table' or 'table').
-        columns : str or list of str, optional
-            Columns to retrieve.
-        custom_filters : str, optional
-            Additional ADQL conditions (e.g. cone search predicate).
-        get_metadata : bool, optional
-            If True, return column metadata for the table.
-        async_job : bool, optional
-            Run query asynchronously.
-        output_file : str, optional
-            Output filename.
-        output_format : str, optional
-            Output format (e.g. 'votable').
-        **filters
-            Column-based filters passed to the underlying implementation.
-
-        """
-
-        qualified = self._qualify_table_name(table_name)
-
-        # Ensure the metadata path uses the qualified table name.
-        if get_metadata:
-            return self.get_metadata(qualified)
-
-        return super().query_table(
-            qualified,
-            columns=columns,
-            custom_filters=custom_filters,
-            get_metadata=False,
-            async_job=async_job,
-            output_file=output_file,
-            output_format=output_format,
-            **filters
-        )
-
-    def get_emds_missions(self):
+    def get_missions(self):
         """
         Retrieve the list of missions available in the EMDS ObsCore view.
 

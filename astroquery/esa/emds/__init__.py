@@ -27,8 +27,11 @@ class Conf(_config.ConfigNamespace):
     EMDS_TARGET_RESOLVER = _config.ConfigItem(EMDS_DOMAIN + "servlet/target-resolver?TARGET_NAME={}"
                                                             "&RESOLVER_TYPE={}&FORMAT=json",
                                               "EMDS Target Resolver Request")
-    DEFAULT_SCHEMA = _config.ConfigItem("ivoa",
-                                "Default TAP schema for EMDS")
+    DEFAULT_SCHEMAS = _config.ConfigItem("",
+                                         "Default TAP schema(s) used to filter available tables. "
+                                                    "If empty, no schema-based filtering is applied and all tables are returned. "
+                                                    "Use a comma-separated list if multiple schemas are required."
+                                                    "e.g. \"schema1, schema2, schema3\".")
     OBSCORE_TABLE = _config.ConfigItem("ivoa.ObsCore",
                                        "Fully qualified ObsCore table or view name (including schema)")
 
