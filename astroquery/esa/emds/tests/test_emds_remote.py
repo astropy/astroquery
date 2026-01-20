@@ -16,6 +16,7 @@ from pyvo import DALQueryError
 
 from astroquery.esa.emds import EmdsClass
 
+
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
@@ -45,7 +46,6 @@ class TestEmdsRemote:
         assert len(names) > 0
         assert all(isinstance(n, str) for n in names)
         assert "ivoa.obscore" in [n.lower() for n in names]
-
 
     def test_get_table(self):
         emds = EmdsClass()

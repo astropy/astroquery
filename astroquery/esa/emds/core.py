@@ -15,6 +15,7 @@ import astroquery.esa.utils.utils as esautils
 
 __all__ = ['Emds', 'EmdsClass']
 
+
 class EmdsClass(esautils.EsaTap):
 
     """
@@ -114,7 +115,7 @@ class EmdsClass(esautils.EsaTap):
         return self.query_tap(query=query)
 
     def get_observations(self, *, target_name=None, coordinates=None, radius=1.0, columns=None, get_metadata=False,
-                          output_file=None, **filters):
+                         output_file=None, **filters):
         """
         Query the observation catalogue for this mission.
 
@@ -180,5 +181,6 @@ class EmdsClass(esautils.EsaTap):
         obscore_table = self._get_obscore_table()
         return self.query_table(table_name=obscore_table, columns=columns, custom_filters=cone_search_filter,
                                 get_metadata=get_metadata, async_job=True, output_file=output_file, **filters)
+
 
 Emds = EmdsClass()
