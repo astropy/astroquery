@@ -18,7 +18,7 @@ class Conf(EmdsConf):
     Inherits all EMDS configuration items and adds/overrides only the EinsteinProbe ones.
     """
 
-    DEFAULT_SCHEMAS = _config.ConfigItem("einsteinprobe, lisapathfinder, lisapathfinder_must_extension",
+    DEFAULT_SCHEMAS = _config.ConfigItem("einsteinprobe",
                                           "Default TAP schema(s) for this mission (comma-separated), "
                                                     "e.g. \"schema1, schema2, schema3\".")
     OBSCORE_TABLE = _config.ConfigItem("einsteinprobe.obscore_extended",
