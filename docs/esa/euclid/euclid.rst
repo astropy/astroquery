@@ -306,6 +306,52 @@ and their sky coverage (in its "fov" field) is queried using ADQL_. Please note:
    :scale: 100%
 
 
+The Euclid archive provides the VO Simple Image Access Protocol (SIAP) v2.0 to access the Euclid Observation Images. This service returns public images from:
+
+1. calibrated and Stacked NISP and VIS images;
+2. MER Mosaics from VIS and NISP.
+
+This service returns the votable that contains all the necessary information to be used by the cutout function: the path to the fits files (file_name), the instrument, and id (obs_id). Note that the votable can also saved for a latter usage.
+
+.. Skipping authentication requiring examples
+.. doctest-skip::
+
+  >>> from astroquery.esa.euclid import Euclid
+  >>> from astropy.coordinates import SkyCoord
+  >>> import astropy.units as u
+  >>> coords = SkyCoord(267.78, 65.53, frame='icrs', unit="deg") # NGC 6505
+  >>> radius = u.Quantity(0.01, u.deg)
+  >>> print(table.info)
+  <Table length=1>
+          name        dtype
+  ------------------- ------
+    cutout_access_url object
+        facility_name object
+            file_name object
+      instrument_name object
+               filter object
+             s_region object
+                 s_ra object
+                s_dec object
+               obs_id object
+       obs_collection object
+     dataproduct_type object
+  dataproduct_subtype object
+          calib_level object
+  >>> print(table)
+                                                                                                 cutout_access_url                                                                                                ...
+  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ...
+          https://eas.esac.esa.int/sas-cutout/cutout?filepath=/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/VIS/EUC_MER_BGSUB-MOSAIC-VIS_TILE102158889-F95D3B_20241025T024806.508980Z_00.00.fits&collection=VIS&obsid=65602&POS=CIRCLE,267.78,65.53,0.01 ...
+
+
+The path of the fits file can be obtained by a simple regular expression.
+
+  >>> import re
+  >>> p = re.compile(r"filepath=(.*?)&")
+  >>> for i in [(p.search(t["cutout_access_url"]).group(1), t["obs_id"], t["instrument_name"]) for t in table]:
+  >>>   print(i)
+  ('/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/VIS/EUC_MER_BGSUB-MOSAIC-VIS_TILE102158889-F95D3B_20241025T024806.508980Z_00.00.fits', '65602', 'VIS')
+
 1.7. MER Cutouts
 ^^^^^^^^^^^^^^^^
 
