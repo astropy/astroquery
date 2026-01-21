@@ -822,15 +822,6 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         The query uses the HEASARC TAP service to search position-only master tables efficiently.
 
-        Examples
-        --------
-        >>> from astroquery.heasarc import Heasarc
-        >>> from astropy.coordinates import SkyCoord
-        >>> from astropy import units as u
-        >>> pos = SkyCoord('217.0 -31.7', unit=u.deg)
-        >>> matches = Heasarc.query_all(pos)
-        >>> matches[0:5].pprint()
-
         """
         if position is not None:
             coords_icrs = parse_coordinates(position).icrs
