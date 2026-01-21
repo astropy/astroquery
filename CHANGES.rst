@@ -58,6 +58,11 @@ gaia
 - New datalink DR4 retrieval type RESIDUAL_IMAGE. [#3489]
 - The method ``load_data`` parses ecsv files [#3500].
 
+esa.euclid
+^^^^^^^^^^
+
+- New method get_sia to access the Simple Image Access Protocol (SIAP) v2.0 [#3506]
+
 esa.hubble
 ^^^^^^^^^^
 
