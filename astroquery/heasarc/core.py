@@ -780,12 +780,9 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             Defaults to `False`.
         radius : str or `~astropy.units.Quantity` object, optional
             If this radius is None, the specified coordinate is compared to each mission
-            catalog entry using that catalog's default radius. This is based on the
-            approximate location uncertainty for each mission. If you specify a radius
-            in degrees, it uses that instead. Be aware that for missions with large
-            uncertainties, when you search within a very small radius, you may not find
-            some relevant catalog entries that therefore might be of interest.  (E.g., a query
-            for Geminga without a radius specified will show the entry in the HEAO2.
+            catalog entry using that catalog's default radius. (See get_default_radius().)
+            This is based on the approximate location uncertainty for each mission. If you
+            specify a radius in degrees, it uses that instead.
         verbose : bool, optional
             If True, prints additional information about the query. Default is False.
         maxrec : int, optional
@@ -812,7 +809,16 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         The results include the table name, number of matches, table description, regime,
         mission, and object type for each catalog.
 
-        The user can select the table name(s) of interest and then use the query_object(), query_region(), etc.
+        By default, the search radius foreach table is adjusted according to the positional
+        accuracy in that table.  This gives you results most likely to be relevant to your
+        search.  But if you specify a radius, that will be used in all catalogs.
+        Be aware that for missions with large uncertainties, e.g., 40 degrees for hete2,
+        when you search within a very small radius, you may not find some relevant catalog
+        entries that might be of interest.  And conversely, if you specify a larger
+        radius than the default, you will get more results further from the position specified.
+
+        The user can then select the table name(s) of interest and use the query_object(),
+        query_region(), etc.
 
         The query uses the HEASARC TAP service to search position-only master tables efficiently.
 

@@ -800,6 +800,10 @@ def test__constraint_matches():
                                                        end_time="2020-01-02")
     assert "end_time > 57754.000000 AND start_time < 58850.000000" in constraint_with_time
 
+    constraint_with_radius = HeasarcClass._query_matches("217.0", "-31.7", radius=1.0)
+    assert "-31.7 - 1.0 and -31.7 + 1.0" in constraint_with_radius
+    assert "cos(radians((1.0)))" in constraint_with_radius
+
 
 def test__query_all():
     #  For some reason, the significant digits here don't give the same result as above.
