@@ -39,12 +39,19 @@ through the ``login()`` and ``logout()`` methods provided by the EMDS Astroquery
 EMDS Astroquery module allows users to explore the data structure of the TAP by listing available
 tables and their columns. This is useful for understanding what data is accessible before running ADQL queries.
 
+
 .. doctest-remote-data::
 
   >>> from astroquery.esa.emds import EmdsClass
   >>> emds = EmdsClass()
   >>> emds.get_tables()
-  [<VODataServiceTable name="einsteinprobe.fxt_product">... 24 columns ...</VODataServiceTable>, <VODataServiceTable name="einsteinprobe.obscore">... 30 columns ...</VODataServiceTable>, <VODataServiceTable name="einsteinprobe.obscore_extended">... 34 columns ...</VODataServiceTable>, <VODataServiceTable name="einsteinprobe.preview_products">... 2 columns ...</VODataServiceTable>, <VODataServiceTable name="einsteinprobe.wxt_product">... 22 columns ...</VODataServiceTable>, <VODataServiceTable name="ivoa.ObsCore">... 30 columns ...</VODataServiceTable>, <VODataServiceTable name="public.dual">... 1 columns ...</VODataServiceTable>, <VODataServiceTable name="smile.cdf_item">... 11 columns ...</VODataServiceTable>, <VODataServiceTable name="smile.cdf_modification">... 5 columns ...</VODataServiceTable>, <VODataServiceTable name="smile.cdf_parameter">... 6 columns ...</VODataServiceTable>, <VODataServiceTable name="smile.cdf_parent">... 2 columns ...</VODataServiceTable>, <VODataServiceTable name="smile.cdf_variable">... 47 columns ...</VODataServiceTable>, <VODataServiceTable name="smile.dataset">... 21 columns ...</VODataServiceTable>, <VODataServiceTable name="smile.descriptor">... 1 columns ...</VODataServiceTable>, <VODataServiceTable name="smile.instrument">... 5 columns ...</VODataServiceTable>, <VODataServiceTable name="smile.leap_second">... 3 columns ...</VODataServiceTable>, <VODataServiceTable name="smile.mission">... 2 columns ...</VODataServiceTable>, <VODataServiceTable name="smile.processing_level">... 3 columns ...</VODataServiceTable>, <VODataServiceTable name="smile.proprietary_period_configuration">... 3 columns ...</VODataServiceTable>, <VODataServiceTable name="smile.v_data_file">... 18 columns ...</VODataServiceTable>, <VODataServiceTable name="smile.v_data_file_latest">... 18 columns ...</VODataServiceTable>, <VODataServiceTable name="smile.v_data_item">... 12 columns ...</VODataServiceTable>, <VODataServiceTable name="smile.v_ql_data_file">... 15 columns ...</VODataServiceTable>, <VODataServiceTable name="smile.v_ql_data_file_latest">... 15 columns ...</VODataServiceTable>, <VODataServiceTable name="smile.v_ql_data_item">... 8 columns ...</VODataServiceTable>, <VODataServiceTable name="tap_config.coord_sys">... 5 columns ...</VODataServiceTable>, <VODataServiceTable name="tap_config.properties">... 2 columns ...</VODataServiceTable>, <VODataServiceTable name="tap_schema.columns">... 16 columns ...</VODataServiceTable>, <VODataServiceTable name="tap_schema.key_columns">... 3 columns ...</VODataServiceTable>, <VODataServiceTable name="tap_schema.keys">... 5 columns ...</VODataServiceTable>, <VODataServiceTable name="tap_schema.schemas">... 5 columns ...</VODataServiceTable>, <VODataServiceTable name="tap_schema.tables">... 9 columns ...</VODataServiceTable>]
+  [<VODataServiceTable name="einsteinprobe.fxt_product">... 24 columns
+  ...</VODataServiceTable>,
+  <VODataServiceTable name="einsteinprobe.obscore">... 30 columns
+  ...</VODataServiceTable>,
+  <VODataServiceTable name="ivoa.ObsCore">... 30 columns
+  ...]
+
 
 By default, ``get_tables()`` returns table objects with metadata. If ``only_names=True`` is provided, the method returns
 only the table names as strings. This is useful when you only need to inspect or display the available tables without
@@ -53,7 +60,12 @@ accessing their full metadata.
 .. doctest-remote-data::
 
   >>> emds.get_tables(only_names=True)
-  ['einsteinprobe.fxt_product', 'einsteinprobe.obscore', 'einsteinprobe.obscore_extended', 'einsteinprobe.preview_products', 'einsteinprobe.wxt_product', 'ivoa.ObsCore', 'public.dual', 'smile.cdf_item', 'smile.cdf_modification', 'smile.cdf_parameter', 'smile.cdf_parent', 'smile.cdf_variable', 'smile.dataset', 'smile.descriptor', 'smile.instrument', 'smile.leap_second', 'smile.mission', 'smile.processing_level', 'smile.proprietary_period_configuration', 'smile.v_data_file', 'smile.v_data_file_latest', 'smile.v_data_item', 'smile.v_ql_data_file', 'smile.v_ql_data_file_latest', 'smile.v_ql_data_item', 'tap_config.coord_sys', 'tap_config.properties', 'tap_schema.columns', 'tap_schema.key_columns', 'tap_schema.keys', 'tap_schema.schemas', 'tap_schema.tables']
+  ['einsteinprobe.fxt_product', 'einsteinprobe.obscore',
+  'einsteinprobe.obscore_extended', 'einsteinprobe.preview_products',
+  'einsteinprobe.wxt_product', 'ivoa.ObsCore', 'smile.cdf_item',
+  'smile.cdf_modification', 'smile.cdf_parameter', 'smile.cdf_parent',
+  'smile.cdf_variable', 'smile.dataset', 'smile.descriptor',
+  ...]
 
 Once a specific table is selected using ``get_table()``, the returned object provides access to the table metadata,
 including its columns.
@@ -62,7 +74,14 @@ including its columns.
 
   >>> ivoa_obscore_table = emds.get_table(table='ivoa.ObsCore')
   >>> ivoa_obscore_table.columns
-  [<BaseParam name="access_estsize"/>, <BaseParam name="access_format"/>, <BaseParam name="access_url"/>, <BaseParam name="calib_level"/>, <BaseParam name="dataproduct_type"/>, <BaseParam name="em_max"/>, <BaseParam name="em_min"/>, <BaseParam name="em_res_power"/>, <BaseParam name="em_xel"/>, <BaseParam name="facility_name"/>, <BaseParam name="instrument_name"/>, <BaseParam name="o_ucd"/>, <BaseParam name="obs_collection"/>, <BaseParam name="obs_id"/>, <BaseParam name="obs_publisher_did"/>, <BaseParam name="pol_states"/>, <BaseParam name="pol_xel"/>, <BaseParam name="s_dec"/>, <BaseParam name="s_fov"/>, <BaseParam name="s_ra"/>, <BaseParam name="s_region"/>, <BaseParam name="s_resolution"/>, <BaseParam name="s_xel1"/>, <BaseParam name="s_xel2"/>, <BaseParam name="t_exptime"/>, <BaseParam name="t_max"/>, <BaseParam name="t_min"/>, <BaseParam name="t_resolution"/>, <BaseParam name="t_xel"/>, <BaseParam name="target_name"/>]
+  [<BaseParam name="access_estsize"/>, <BaseParam name="access_format"/>,
+  <BaseParam name="access_url"/>, <BaseParam name="calib_level"/>,
+  <BaseParam name="dataproduct_type"/>, <BaseParam name="em_max"/>,
+  ...]
+
+.. note::
+
+   Only a subset of the available tables and columns is shown in the examples above.
 
 -------------------------
 3. Get available missions
@@ -93,26 +112,22 @@ Results can be exported to a specified file in the chosen format, and queries ma
   >>> from astroquery.esa.emds import EmdsClass
   >>> emds = EmdsClass()
   >>> emds.query_tap(
-  ...     query=(
-  ...         "SELECT dataproduct_type, obs_collection, target_name, obs_id, s_ra, s_dec "
-  ...         "FROM ivoa.ObsCore "
-  ...         "ORDER BY target_name DESC"
-  ...     )
-  ... )  # doctest: +IGNORE_OUTPUT
-    <Table length=12298>
-    dataproduct_type obs_collection target_name    obs_id          s_ra             s_dec
-                                                                   deg               deg
-         object          object        object      object        float64           float64
-    ---------------- -------------- ----------- ----------- ----------------- ------------------
-                 arf           EPSA             10202076929                --                 --
-                 png           EPSA             11900006256                --                 --
-                 png           EPSA             11900006200                --                 --
-                 rmf           EPSA             11900012239                --                 --
-                 ...            ...         ...         ...               ...                ...
-                 img           EPSA   * 111 Tau 11900008319 81.12383618253855  17.41749240154885
-               event           EPSA   * 111 Tau 11900008319 81.12383618253855  17.41749240154885
-                  lc           EPSA   * 111 Tau 11900008319 81.12383618253855  17.41749240154885
-                 pha           EPSA   * 111 Tau 11900008319 81.12383621375398 17.417492453817907
+  ...        query=(
+  ...            "SELECT dataproduct_type, obs_collection, obs_id, s_ra, s_dec "
+  ...            "FROM ivoa.ObsCore "
+  ...            "ORDER BY target_name DESC"
+  ...        )
+  ...    )  # doctest: +IGNORE_OUTPUT
+  <Table length=12298>
+  dataproduct_type obs_collection    obs_id           s_ra             s_dec
+                                                      deg               deg
+       object          object        object         float64           float64
+  ---------------- -------------- ------------ ----------------- ------------------
+               arf           EPSA  10202076929                --                 --
+               png           EPSA  11900006256                --                 --
+               ...            ...          ...               ...                ...
+                lc           EPSA  11900008319 81.12383618253855  17.41749240154885
+               pha           EPSA  11900008319 81.12383621375398 17.417492453817907
 
 -------------------------------------
 5. Filtering the Obs Core Catalogue
@@ -134,19 +149,20 @@ To check the columns available in this catalogue, the following method can be ex
 
   >>> from astroquery.esa.emds import EmdsClass
   >>> emds = EmdsClass()
-  >>> emds.get_observations(get_metadata=True)  # doctest: +IGNORE_OUTPUT
-    <Table masked=True length=30>
-        Column                   Description                Unit  Data Type           UCD                                   UType
-        str17                       object                 object    str6            object                                 object
-    -------------- --------------------------------------- ------ --------- ----------------------- ------------------------------------------------------
-    access_estsize Estimated size of dataset: in kilobytes  kbyte      long     phys.size;meta.file                                    obscore:Access.size
-     access_format           Content format of the dataset   None      char          meta.code.mime                                  obscore:Access.format
-        access_url              URL used to access dataset   None      char            meta.ref.url                               obscore:Access.reference
-               ...                                     ...    ...       ...                     ...                                                    ...
-             t_min                       Start time in MJD      d    double time.start;obs.exposure obscore:Char.TimeAxis.Coverage.Bounds.Limits.StartTime
-      t_resolution                Temporal resolution FWHM      s    double         time.resolution          obscore:Char.TimeAxis.Resolution.Refval.value
-             t_xel  Number of elements along the time axis   None      long             meta.number                          obscore:Char.TimeAxis.numBins
-       target_name                      Object of interest   None      char             meta.id;src                                    obscore:Target.name
+  >>> obs_metadata = emds.get_observations(get_metadata=True)
+  >>> obs_metadata["Description"].format = "%.10s"
+  >>> obs_metadata["UType"].format = "%.20s"
+  >>> obs_metadata
+  <Table masked=True length=30>
+      Column     Description  Unit  Data Type         UCD                UType
+      str17         object   object    str6          object              object
+  -------------- ----------- ------ --------- ------------------- --------------------
+  access_estsize  Estimated   kbyte      long phys.size;meta.file  obscore:Access.size
+   access_format  Content fo   None      char      meta.code.mime obscore:Access.forma
+             ...         ...    ...       ...                 ...                  ...
+    t_resolution  Temporal r      s    double     time.resolution obscore:Char.TimeAxi
+           t_xel  Number of    None      long         meta.number obscore:Char.TimeAxi
+     target_name  Object of    None      char         meta.id;src  obscore:Target.name
 
 Once the columns of interest have been extracted, it is possible to execute the same function with the following
 options, that can be combined to extract the required data:
@@ -158,7 +174,9 @@ options, that can be combined to extract the required data:
   >>> from astroquery.esa.emds import EmdsClass
   >>> emds = EmdsClass()
   >>> emds.get_observations(target_name='V1589 Cyg')  # doctest: +IGNORE_OUTPUT
-    Executed query:SELECT * FROM ivoa.ObsCore WHERE 1=CONTAINS(POINT('ICRS', s_ra, s_dec),CIRCLE('ICRS', 310.7048109, 41.3833259, 1.0))
+    Executed query:SELECT * FROM ivoa.ObsCore
+        WHERE 1=CONTAINS(POINT('ICRS', s_ra, s_dec),
+        CIRCLE('ICRS', 310.7048109, 41.3833259, 1.0))
     <Table length=12>
     access_estsize        access_format        ... t_xel target_name
         kbyte                                  ...
@@ -180,8 +198,13 @@ options, that can be combined to extract the required data:
 
   >>> from astroquery.esa.emds import EmdsClass
   >>> emds = EmdsClass()
-  >>> emds.get_observations(target_name='V1589 Cyg', columns=['s_ra', 's_dec', 'obs_id', 's_xel1'])  # doctest: +IGNORE_OUTPUT
-    Executed query:SELECT s_ra, s_dec, obs_id, s_xel1 FROM ivoa.ObsCore WHERE 1=CONTAINS(POINT('ICRS', s_ra, s_dec),CIRCLE('ICRS', 310.7048109, 41.3833259, 1.0))
+  >>> emds.get_observations(
+  ...         target_name="V1589 Cyg", columns=["s_ra", "s_dec", "obs_id", "s_xel1"]
+  ...     )  # doctest: +IGNORE_OUTPUT
+    Executed query:SELECT s_ra, s_dec, obs_id, s_xel1
+        FROM ivoa.ObsCore
+        WHERE 1=CONTAINS(POINT('ICRS', s_ra, s_dec),
+        CIRCLE('ICRS', 310.7048109, 41.3833259, 1.0))
     <Table length=12>
            s_ra             s_dec           obs_id   s_xel1
            deg               deg
@@ -203,8 +226,14 @@ options, that can be combined to extract the required data:
 
   >>> from astroquery.esa.emds import EmdsClass
   >>> emds = EmdsClass()
-  >>> emds.get_observations(target_name='V1589 Cyg', columns=['s_ra', 's_dec', 'obs_id', 's_xel1'], s_xel1=('>', 100))  # doctest: +IGNORE_OUTPUT
-    Executed query:SELECT s_ra, s_dec, obs_id, s_xel1 FROM ivoa.ObsCore  WHERE s_xel1 > 100 AND 1=CONTAINS(POINT('ICRS', s_ra, s_dec),CIRCLE('ICRS', 310.7048109, 41.3833259, 1.0))
+  >>> emds.get_observations(
+  ...     target_name="V1589 Cyg", columns=["s_ra", "s_dec", "obs_id", "s_xel1"], s_xel1=(">", 100)
+  ... )  # doctest: +IGNORE_OUTPUT
+    Executed query:SELECT s_ra, s_dec, obs_id, s_xel1
+        FROM ivoa.ObsCore
+        WHERE s_xel1 > 100
+        AND 1=CONTAINS(POINT('ICRS', s_ra, s_dec),
+            CIRCLE('ICRS', 310.7048109, 41.3833259, 1.0))
     <Table length=8>
            s_ra             s_dec           obs_id   s_xel1
            deg               deg

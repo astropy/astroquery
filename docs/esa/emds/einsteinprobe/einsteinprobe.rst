@@ -6,27 +6,32 @@ EinsteinProbe Space Archive (EPSA) (`astroquery.esa.emds.einsteinprobe`)
 
 Einstein Probe is an X-ray astronomy mission led by the Chinese Academy of Sciences (CAS),
 with international collaboration from the European Space Agency (ESA) and the Max Planck
-Institute for Extraterrestrial Physics (MPE). The Einstein Probe data are distributed
-through the EMDS archive, which provides access to multiple missions via a single service.
+Institute for Extraterrestrial Physics (MPE). Einstein Probe data are distributed through
+the ESA Multi-Mission Data Services (EMDS) archive, which provides unified access to
+multiple space missions through a single service.
 
 The mission is designed to monitor the X-ray sky and discover transient and variable
-phenomena across the Universe. It carries two main scientific instruments: the Wide-field
-X-ray Telescope (WXT), which provides a very large field of view for sky monitoring, and
-the Follow-up X-ray Telescope (FXT), which enables more detailed observations of selected
-sources.
+phenomena across the Universe. It carries two primary scientific instruments: the
+wide-field X-ray Telescope (WXT), which provides a very large field of view for sky
+monitoring, and the Follow-up X-ray Telescope (FXT), which enables more detailed
+observations of selected sources.
 
-Using its wide field of view, the mission performs a systematic survey of the X-ray sky and
-can monitor a large fraction of the Universe simultaneously. This allows the detection of
-X-ray emission from a wide range of astrophysical sources, including accreting compact
-objects such as black holes and neutron stars, gamma-ray bursts, supernovae, stellar
-flares, and transient events within the Solar System, such as X-ray emission from comets.
+Using its wide-field capability, the mission performs a systematic survey of the X-ray
+sky and can monitor a large fraction of the sky simultaneously. This facilitates the
+detection of X-ray emission from a wide range of astrophysical sources, including
+accreting compact objects such as black holes and neutron stars, gamma-ray bursts,
+supernovae, stellar flares, and transient events within the Solar System, such as X-ray
+emission from comets.
 
-The mission also searches for tidal disruption events, in which stars are torn apart by the
-strong gravitational field of supermassive black holes that are otherwise dormant and
-difficult to detect. In addition, it plays an important role in multi-messenger astronomy
-by detecting X-ray counterparts of gravitational-wave events, such as mergers of neutron
-stars or neutron stars and black holes, helping to localize these events and study their
-physical properties.
+The mission also searches for tidal disruption events, in which stars are torn apart by
+the strong gravitational field of otherwise dormant supermassive black holes that are
+difficult to detect. In addition, Einstein Probe plays an important role in
+multi-messenger astronomy by detecting X-ray counterparts of gravitational-wave events,
+such as mergers of neutron stars or neutron stars and black holes. These observations
+help to localize such events and study their physical properties.
+
+For additional information about the Einstein Probe mission, see the official mission
+website `https://ep.bao.ac.cn/ep/ <https://ep.bao.ac.cn/ep/>`_.
 
 ========
 Examples
@@ -35,8 +40,12 @@ Examples
 ---------------
 1. Login/Logout
 ---------------
-Some tables and data require authentication to access proprietary or advanced data. Authentication is managed
-through the ``login()`` and ``logout()`` methods provided by the EMDS Astroquery module.
+Some EMDS missions may require authentication to access proprietary or advanced data products.
+The Astroquery EMDS interface provides :meth:`~astroquery.esa.emds.EMDSClass.login` and
+:meth:`~astroquery.esa.emds.EMDSClass.logout` for this purpose.
+
+Einstein Probe data accessed through this module are public and do not require authentication, but the methods are
+available for consistency and are inherited from the base EMDS interface.
 
 .. doctest-remote-data::
 
@@ -45,6 +54,12 @@ through the ``login()`` and ``logout()`` methods provided by the EMDS Astroquery
   >>> epsa.login() # doctest: +IGNORE_OUTPUT
   >>> epsa.logout() # doctest: +IGNORE_OUTPUT
 
+.. note::
+
+   The :meth:`login` and :meth:`logout` methods are inherited from the base EMDS interface.
+   They are not required for Einstein Probe, but are provided for consistency across EMDS mission
+   modules.
+
 -----------------------------------
 2. Get available tables and columns
 -----------------------------------
@@ -52,10 +67,18 @@ through the ``login()`` and ``logout()`` methods provided by the EMDS Astroquery
 Einstein Probe Astroquery module allows users to explore the data structure of the TAP by listing available
 tables and their columns. This is useful for understanding what data is accessible before running ADQL queries.
 
+.. doctest-remote-data::
+
   >>> from astroquery.esa.emds.einsteinprobe import EinsteinProbeClass
   >>> epsa = EinsteinProbeClass()
   >>> epsa.get_tables()
-  [<VODataServiceTable name="einsteinprobe.fxt_product">... 24 columns ...</VODataServiceTable>, <VODataServiceTable name="einsteinprobe.obscore">... 30 columns ...</VODataServiceTable>, <VODataServiceTable name="einsteinprobe.obscore_extended">... 34 columns ...</VODataServiceTable>, <VODataServiceTable name="einsteinprobe.preview_products">... 2 columns ...</VODataServiceTable>, <VODataServiceTable name="einsteinprobe.wxt_product">... 22 columns ...</VODataServiceTable>]
+  [<VODataServiceTable name="einsteinprobe.fxt_product">... 24 columns
+  ...</VODataServiceTable>,
+  <VODataServiceTable name="einsteinprobe.obscore">... 30 columns
+  ...</VODataServiceTable>,
+  <VODataServiceTable name="einsteinprobe.obscore_extended">... 34 columns
+  ...]
+
 
 By default, ``get_tables()`` returns table objects with metadata. If ``only_names=True`` is provided, the method returns
 only the table names as strings. This is useful when you only need to inspect or display the available tables without
@@ -64,7 +87,9 @@ accessing their full metadata.
 .. doctest-remote-data::
 
   >>> epsa.get_tables(only_names=True)
-  ['einsteinprobe.fxt_product', 'einsteinprobe.obscore', 'einsteinprobe.obscore_extended', 'einsteinprobe.preview_products', 'einsteinprobe.wxt_product']
+  ['einsteinprobe.fxt_product', 'einsteinprobe.obscore',
+  'einsteinprobe.obscore_extended','einsteinprobe.preview_products',
+  'einsteinprobe.wxt_product']
 
 Once a specific table is selected using ``get_table()``, the returned object provides access to the table metadata,
 including its columns.
@@ -73,7 +98,14 @@ including its columns.
 
   >>> obscore_table = epsa.get_table('einsteinprobe.obscore_extended')
   >>> obscore_table.columns
-  [<BaseParam name="access_estsize"/>, <BaseParam name="access_format"/>, <BaseParam name="access_url"/>, <BaseParam name="calib_level"/>, <BaseParam name="dataproduct_type"/>, <BaseParam name="em_max"/>, <BaseParam name="em_min"/>, <BaseParam name="em_res_power"/>, <BaseParam name="em_xel"/>, <BaseParam name="facility_name"/>, <BaseParam name="filename"/>, <BaseParam name="filepath"/>, <BaseParam name="has_preview"/>, <BaseParam name="instrument_name"/>, <BaseParam name="o_ucd"/>, <BaseParam name="obs_collection"/>, <BaseParam name="obs_id"/>, <BaseParam name="obs_publisher_did"/>, <BaseParam name="pol_states"/>, <BaseParam name="pol_xel"/>, <BaseParam name="preview"/>, <BaseParam name="s_dec"/>, <BaseParam name="s_fov"/>, <BaseParam name="s_ra"/>, <BaseParam name="s_region"/>, <BaseParam name="s_resolution"/>, <BaseParam name="s_xel1"/>, <BaseParam name="s_xel2"/>, <BaseParam name="t_exptime"/>, <BaseParam name="t_max"/>, <BaseParam name="t_min"/>, <BaseParam name="t_resolution"/>, <BaseParam name="t_xel"/>, <BaseParam name="target_name"/>]
+  [<BaseParam name="access_estsize"/>, <BaseParam name="access_format"/>,
+  <BaseParam name="access_url"/>, <BaseParam name="calib_level"/>,
+  <BaseParam name="dataproduct_type"/>, <BaseParam name="em_max"/>,
+  ...]
+
+.. note::
+
+   Only a subset of the available tables and columns is shown in the examples above.
 
 ----------------------------
 3. ADQL Queries to EMDS TAP
@@ -92,21 +124,34 @@ and can be queried directly using fully-qualified table names.
   >>> from astroquery.esa.emds.einsteinprobe import EinsteinProbeClass
   >>> epsa = EinsteinProbeClass()
   >>> epsa.query_tap(
-  ...     query=(
-  ...         "SELECT dataproduct_type, obs_collection, target_name, obs_id, s_ra, s_dec "
-  ...         "FROM einsteinprobe.obscore_extended "
-  ...         "ORDER BY target_name DESC"
-  ...     )
-  ... )  # doctest: +IGNORE_OUTPUT
-    <Table length=12298>
-    dataproduct_type obs_collection target_name    obs_id           s_ra             s_dec
-         object          object        object      object         float64           float64
-    ---------------- -------------- ----------- ------------ ----------------- ------------------
-                 arf           EPSA              10202076929                --                 --
-                 png           EPSA              11900006256                --                 --
-                 ...            ...         ...          ...               ...                ...
-                  lc           EPSA   * 111 Tau  11900008319 81.12383618253855  17.41749240154885
-                 pha           EPSA   * 111 Tau  11900008319 81.12383621375398 17.417492453817907
+  ...       query=(
+  ...           "SELECT dataproduct_type, obs_collection, obs_id, s_ra, s_dec "
+  ...           "FROM einsteinprobe.obscore_extended"
+  ...           "ORDER BY target_name DESC"
+  ...       )
+  ...   )  # doctest: +IGNORE_OUTPUT
+  <Table length=12298>
+  dataproduct_type obs_collection    obs_id           s_ra              s_dec
+       object          object        object         float64            float64
+  ---------------- -------------- ------------ ------------------ ------------------
+               arf           EPSA  10202076929                 --                 --
+               png           EPSA  11900006256                 --                 --
+               png           EPSA  11900006200                 --                 --
+               rmf           EPSA  11900012239                 --                 --
+               pds           EPSA  11900006204                 --                 --
+               arf           EPSA  11900012239                 --                 --
+               rmf           EPSA  11900012239                 --                 --
+               pds           EPSA  11900006231                 --                 --
+               ...            ...          ...                ...                ...
+                lc           EPSA  11900010908 344.33858806609254 20.740901740634797
+               img           EPSA  11900008319  81.12383621375398 17.417492453817907
+                lc           EPSA  11900008319  81.12383621375398 17.417492453817907
+               pha           EPSA  11900008319  81.12383618253855  17.41749240154885
+             event           EPSA  11900008319  81.12383621375398 17.417492453817907
+               img           EPSA  11900008319  81.12383618253855  17.41749240154885
+             event           EPSA  11900008319  81.12383618253855  17.41749240154885
+                lc           EPSA  11900008319  81.12383618253855  17.41749240154885
+               pha           EPSA  11900008319  81.12383621375398 17.417492453817907
 
 
 -------------------------------------
@@ -156,7 +201,8 @@ options, that can be combined to extract the required data:
   >>> from astroquery.esa.emds.einsteinprobe import EinsteinProbeClass
   >>> epsa = EinsteinProbeClass()
   >>> epsa.get_observations(target_name='V1589 Cyg')  # doctest: +IGNORE_OUTPUT
-    Executed query:SELECT * FROM ivoa.ObsCore WHERE 1=CONTAINS(POINT('ICRS', s_ra, s_dec),CIRCLE('ICRS', 310.7048109, 41.3833259, 1.0))
+    Executed query:SELECT * FROM ivoa.ObsCore WHERE 1=CONTAINS(POINT('ICRS', s_ra, s_dec),
+                    CIRCLE('ICRS', 310.7048109, 41.3833259, 1.0))
     <Table length=12>
     access_estsize        access_format        ... t_xel target_name
         kbyte                                  ...
@@ -178,8 +224,12 @@ options, that can be combined to extract the required data:
 
   >>> from astroquery.esa.emds.einsteinprobe import EinsteinProbeClass
   >>> epsa = EinsteinProbeClass()
-  >>> epsa.get_observations(target_name='V1589 Cyg', columns=['s_ra', 's_dec', 'obs_id', 's_xel1'])  # doctest: +IGNORE_OUTPUT
-    Executed query:SELECT s_ra, s_dec, obs_id, s_xel1 FROM ivoa.ObsCore WHERE 1=CONTAINS(POINT('ICRS', s_ra, s_dec),CIRCLE('ICRS', 310.7048109, 41.3833259, 1.0))
+  >>> epsa.get_observations(
+   ...     target_name="V1589 Cyg", columns=["s_ra", "s_dec", "obs_id", "s_xel1"]
+   ... )  # doctest: +IGNORE_OUTPUT
+    Executed query:SELECT s_ra, s_dec, obs_id, s_xel1 FROM ivoa.ObsCore WHERE
+                    1=CONTAINS(POINT('ICRS', s_ra, s_dec),
+                    CIRCLE('ICRS', 310.7048109, 41.3833259, 1.0))
     <Table length=12>
            s_ra             s_dec           obs_id   s_xel1
            deg               deg
@@ -201,8 +251,13 @@ options, that can be combined to extract the required data:
 
   >>> from astroquery.esa.emds.einsteinprobe import EinsteinProbeClass
   >>> epsa = EinsteinProbeClass()
-  >>> epsa.get_observations(target_name='V1589 Cyg', columns=['s_ra', 's_dec', 'obs_id', 's_xel1'], s_xel1=('>', 100))  # doctest: +IGNORE_OUTPUT
-    Executed query:SELECT s_ra, s_dec, obs_id, s_xel1 FROM ivoa.ObsCore  WHERE s_xel1 > 100 AND 1=CONTAINS(POINT('ICRS', s_ra, s_dec),CIRCLE('ICRS', 310.7048109, 41.3833259, 1.0))
+  >>> epsa.get_observations(
+   ...     target_name="V1589 Cyg", columns=["s_ra", "s_dec", "obs_id", "s_xel1"],
+   ...     s_xel1=(">", 100))  # doctest: +IGNORE_OUTPUT
+    Executed query:SELECT s_ra, s_dec, obs_id, s_xel1 FROM ivoa.ObsCore
+        WHERE s_xel1 > 100 AND
+        1=CONTAINS(POINT('ICRS', s_ra, s_dec),
+        CIRCLE('ICRS', 310.7048109, 41.3833259, 1.0))
     <Table length=8>
            s_ra             s_dec           obs_id   s_xel1
            deg               deg
@@ -217,9 +272,10 @@ options, that can be combined to extract the required data:
     310.6756375374491 41.351278441170614 11900012239    600
     310.6757640621578 41.351414087733275 11900012239    600
 
-As it can be observed in the previous examples, additional constraints can be provided using the ``**filters`` syntax,
-where the keyword corresponds to an ObsCore column name and the value defines the filter to be applied. The method
-translates these filters into the corresponding ADQL constraints executed by the TAP service.
+As it can be observed in the previous examples, additional constraints can be provided
+using the ``**filters`` syntax, where the keyword corresponds to an ObsCore column name
+and the value defines the filter to be applied. The method translates these filters
+into the corresponding ADQL constraints executed by the TAP service.
 
 Some examples and their corresponding ADQL transformations are provided below:
 
@@ -244,7 +300,8 @@ Some examples and their corresponding ADQL transformations are provided below:
   ...     instrument_name="FXT",
   ... )  # doctest: +IGNORE_OUTPUT
 
-+ Wildcards (string): ``target_name="AT 2023%"`` → ``target_name ILIKE 'AT 2023%'``
++ Wildcards (string):
+    - ``target_name="AT 2023%"`` → ``target_name ILIKE 'AT 2023%'``
 
 Depending on the configuration, ``*`` may also be accepted as an alias for ``%``.
 
@@ -273,7 +330,9 @@ Depending on the configuration, ``*`` may also be accepted as an alias for ``%``
   ...     columns=["obs_id", "s_ra", "s_dec", "target_name"],
   ... )  # doctest: +IGNORE_OUTPUT
 
-+ String list: ``dataproduct_type=["img", "pha"]`` → ``dataproduct_type = 'img' OR dataproduct_type = 'pha'``
++ String list:
+    - ``dataproduct_type=["img", "pha"]``
+                    → ``dataproduct_type = 'img' OR dataproduct_type = 'pha'``
 
 .. doctest-remote-data::
 
@@ -282,7 +341,8 @@ Depending on the configuration, ``*`` may also be accepted as an alias for ``%``
   ...     dataproduct_type=["img", "pha"],
   ... )  # doctest: +IGNORE_OUTPUT
 
-+ Numeric comparison: ``t_min=(">", 60000)`` -> ``t_min > 60000``
++ Numeric comparison:
+    - ``t_min=(">", 60000)`` -> ``t_min > 60000``
 
 .. doctest-remote-data::
 
@@ -291,7 +351,8 @@ Depending on the configuration, ``*`` may also be accepted as an alias for ``%``
   ...     t_min=(">", 60000),
   ... )  # doctest: +IGNORE_OUTPUT
 
-+ Filter by numeric interval: ``s_ra=(80, 82)`` -> ``s_ra >= 80 AND s_ra <= 82``
++ Filter by numeric interval:
+    - ``s_ra=(80, 82)`` -> ``s_ra >= 80 AND s_ra <= 82``
 
 .. doctest-remote-data::
 
@@ -303,7 +364,8 @@ Depending on the configuration, ``*`` may also be accepted as an alias for ``%``
 
 + Combined filters: Multiple keyword filters are combined with ``AND``.
 
-    - ``obs_collection="EPSA", instrument_name="FXT"`` → ``obs_collection = 'EPSA' AND instrument_name = 'FXT'``
+    - ``obs_collection="EPSA", instrument_name="FXT"``
+        → ``obs_collection = 'EPSA' AND instrument_name = 'FXT'``
 
 .. doctest-remote-data::
 
@@ -321,14 +383,15 @@ Depending on the configuration, ``*`` may also be accepted as an alias for ``%``
 5. Download file product
 -------------------------
 
-Observations in the Einstein Probe catalogue are associated with one or more data products,
-such as science files or preview images. These products are stored as files on the EMDS
-data service and can be accessed once the corresponding observation or product identifiers
-are known.
+Observations in the Einstein Probe catalogue are associated with one or more data
+products, such as science files or preview images. These products are stored as
+files on the EMDS data service and can be accessed once the corresponding
+observation or product identifiers are known.
 
-Typically, users first query the observation catalogue to identify the observations of
-interest and inspect the available metadata (for example product type, filename, or file
-path). Based on this information, individual products can then be downloaded.
+Typically, users first query the observation catalogue to identify the
+observations of interest and inspect the available metadata (for example product
+type, filename, or file path). Based on this information, individual products can
+then be downloaded.
 
 This module provides helper methods to retrieve product information and to download
 individual files directly from the EMDS data service.
@@ -337,18 +400,37 @@ individual files directly from the EMDS data service.
 
   >>> from astroquery.esa.emds.einsteinprobe import EinsteinProbeClass
   >>> epsa = EinsteinProbeClass()
-  >>> epsa.get_products(obs_id=' 11900008319') # doctest: +IGNORE_OUTPUT
-    Executed query:SELECT obs_id, filename, filepath FROM einsteinprobe.obscore_extended WHERE obs_id = ' 11900008319'
-    <Table length=20>
-       obs_id                    filename                              filepath
-       object                     object                                object
-    ------------ --------------------------------------- -----------------------------------
-     11900008319  fxt_b_11900008319_ff_01_po_cl_3ac.fits /epsa/repo/11900008319/fxt/products
-     11900008319      fxt_b_11900008319_ff_01_po_3ac.pha /epsa/repo/11900008319/fxt/products
-             ...                                     ...                                 ...
-     11900008319 fxt_a_11900008319_ff_01_po_gti_3bb.fits /epsa/repo/11900008319/fxt/products
-     11900008319      fxt_b_11900008319_ff_01_po_3bb.arf /epsa/repo/11900008319/fxt/products
-     11900008319      fxt_b_11900008319_ff_01_po_3bb.rmf /epsa/repo/11900008319/fxt/products
+  >>> t = epsa.get_products(obs_id=" 11900008319")
+  Executed query:SELECT obs_id, filename, filepath
+        FROM einsteinprobe.obscore_extended WHERE obs_id = ' 11900008319'
+  >>> t["filepath"].format = "%.20s"
+  >>> t  # doctest: +ELLIPSIS
+  <Table length=20>
+     obs_id                        filename                           filepath
+     object                         object                             object
+  ------------ ------------------------------------------------ --------------------
+   11900008319           fxt_b_11900008319_ff_01_po_cl_3ac.fits /epsa/repo/119000083
+   11900008319               fxt_b_11900008319_ff_01_po_3ac.pha /epsa/repo/119000083
+   11900008319              fxt_b_11900008319_ff_01_po_3ac.expo /epsa/repo/119000083
+   11900008319          fxt_b_11900008319_ff_01_po_gti_3bb.fits /epsa/repo/119000083
+   11900008319 fxt_a_11900008319_ff_01_po_3ac-without_vign.expo /epsa/repo/119000083
+   11900008319               fxt_b_11900008319_ff_01_po_3ac.pds /epsa/repo/119000083
+   11900008319 fxt_b_11900008319_ff_01_po_3ac-without_vign.expo /epsa/repo/119000083
+   11900008319                fxt_b_11900008319_ff_01_po_3ac.lc /epsa/repo/119000083
+           ...                                              ...                  ...
+   11900008319               fxt_b_11900008319_ff_01_po_3ac.img /epsa/repo/119000083
+   11900008319               fxt_a_11900008319_ff_01_po_3ac.pha /epsa/repo/119000083
+   11900008319                fxt_a_11900008319_ff_01_po_3ac.lc /epsa/repo/119000083
+   11900008319           fxt_a_11900008319_ff_01_po_cl_3ac.fits /epsa/repo/119000083
+   11900008319               fxt_a_11900008319_ff_01_po_3bb.arf /epsa/repo/119000083
+   11900008319               fxt_a_11900008319_ff_01_po_3bb.rmf /epsa/repo/119000083
+   11900008319          fxt_a_11900008319_ff_01_po_gti_3bb.fits /epsa/repo/119000083
+   11900008319               fxt_b_11900008319_ff_01_po_3bb.arf /epsa/repo/119000083
+   11900008319               fxt_b_11900008319_ff_01_po_3bb.rmf /epsa/repo/119000083
+
+.. note::
+
+   The output is truncated for brevity.
 
 The following example shows how to download a single data product using its filename.
 By default, the file is downloaded to the current working directory.

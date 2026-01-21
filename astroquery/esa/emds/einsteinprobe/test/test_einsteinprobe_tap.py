@@ -319,7 +319,6 @@ class TestEmdsTap:
 
     def test_get_products_adds_required_columns(self):
         epsa = EinsteinProbeClass()
-        # epsa.epsaconf.OBSCORE_TABLE = "einsteinprobe.obscore_extended"
 
         with patch.object(EinsteinProbeClass, "query_table", autospec=True) as qmock:
             epsa.get_products(
@@ -342,7 +341,6 @@ class TestEmdsTap:
 
     def test_get_products_default_columns_include_download_fields(self):
         epsa = EinsteinProbeClass()
-        # epsa.conf.OBSCORE_TABLE = "einsteinprobe.obscore_extended"
 
         with patch.object(EinsteinProbeClass, "query_table", autospec=True) as qmock:
             epsa.get_products(obs_id="OBS123")
