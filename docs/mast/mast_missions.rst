@@ -70,7 +70,9 @@ Keyword arguments can also be used to refine results further. The following para
 - ``sort_desc``: A boolean or list of booleans (one for each field specified in ``sort_by``),
   describing if each field should be sorted in descending order (``True``) or ascending order (``False``).
 
-- ``select_cols``: A list of columns to be returned in the response.
+- ``select_cols``: Columns to include in the result table. If not specified, a default set of columns
+  is returned. This parameter may be given as an iterable of column names, a comma-separated string, or the special
+  values ``'all'`` or ``'*'`` to return all available columns.
 
 
 Mission Positional Queries

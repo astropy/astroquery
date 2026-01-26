@@ -153,9 +153,10 @@ class TestMast:
         result = MastMissions.query_criteria(objectname='NGC6121',
                                              radius=0.1,
                                              sci_start_time='<2012',
-                                             sci_actual_duration='0..200'
-                                             )
+                                             sci_actual_duration='0..200',
+                                             select_cols='*')
         assert len(result) == 3
+        assert result.colnames == MastMissions.get_column_list()['name'].value.tolist()
         assert (result['ang_sep'].data.data.astype('float') < 0.1).all()
         assert (result['sci_start_time'] < '2012').all()
         assert ((result['sci_actual_duration'] >= 0) & (result['sci_actual_duration'] <= 200)).all()
