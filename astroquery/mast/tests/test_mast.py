@@ -321,9 +321,23 @@ def test_missions_parse_select_cols(patch_post):
     for col in ['sci_pep_id', 'sci_instrume', 'sci_data_set_name']:
         assert col in list_cols
 
+    # Tuple of columns
+    tuple_cols = mast.MastMissions._parse_select_cols(('sci_pep_id', 'sci_instrume'))
+    for col in ['sci_pep_id', 'sci_instrume', 'sci_data_set_name']:
+        assert col in tuple_cols
+
+    # Generator of columns
+    gen_cols = mast.MastMissions._parse_select_cols(col for col in ['sci_pep_id', 'sci_instrume'])
+    for col in ['sci_pep_id', 'sci_instrume', 'sci_data_set_name']:
+        assert col in gen_cols
+
     # Error if invalid type
-    with pytest.raises(InvalidQueryError, match="`select_cols` must be a list of column names"):
+    with pytest.raises(InvalidQueryError, match="`select_cols` must be an iterable of column names"):
         mast.MastMissions._parse_select_cols(123)
+
+    # Error if an individual column is not a string
+    with pytest.raises(InvalidQueryError, match="`select_cols` must contain only strings"):
+        mast.MastMissions._parse_select_cols(['sci_pep_id', 123])
 
     # Warning for invalid column names
     with pytest.warns(InputWarning, match="Column 'invalid_column' not found."):

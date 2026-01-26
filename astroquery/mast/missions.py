@@ -8,6 +8,7 @@ This module contains methods for searching MAST missions.
 
 import difflib
 import warnings
+from collections.abc import Iterable
 from json import JSONDecodeError
 from pathlib import Path
 from urllib.parse import quote
@@ -203,32 +204,51 @@ class MastMissionsClass(MastQueryWithLogin):
 
         Parameters
         ----------
-        select_cols : list or str
+        select_cols : iterable or str or None
             The select_cols parameter to parse.
 
         Returns
         -------
         list
             A list of column names to select.
+
+        Raises
+        ------
+        InvalidQueryError
+            If select_cols is not an iterable of strings, a comma-separated string, 'all', or '*'.
+            If any individual column name is not a string.
         """
         if select_cols is None:
             if self.mission == 'ullyses':
                 select_cols = self._default_ullyses_cols
             return select_cols
 
+        # Handle special string cases first
         all_columns = self.get_column_list()['name'].value.tolist()
-        if isinstance(select_cols, str) and (select_cols.lower() == 'all' or select_cols == '*'):
-            return all_columns
-
         if isinstance(select_cols, str):
+            if (select_cols.lower() == 'all' or select_cols == '*'):
+                return all_columns
+            # Comma-separated string
             select_cols = select_cols.split(',')
-        elif not isinstance(select_cols, list):
-            raise InvalidQueryError("`select_cols` must be a list of column names, a comma-separated string, "
-                                    "'all', or '*'.")
+
+        # Handle an iterable
+        elif isinstance(select_cols, Iterable):
+            # Convert to list so we can iterate multiple times safely
+            select_cols = list(select_cols)
+
+        else:
+            raise InvalidQueryError(
+                "`select_cols` must be an iterable of column names, a comma-separated string, "
+                "'all', or '*'."
+            )
 
         # Validate the column names
         valid_select_cols = []
         for col in select_cols:
+            if not isinstance(col, str):
+                raise InvalidQueryError(
+                    "`select_cols` must contain only strings (column names)."
+                )
             col = col.strip()
             if col not in all_columns:
                 closest_match = difflib.get_close_matches(col, all_columns, n=1)
@@ -238,7 +258,9 @@ class MastMissionsClass(MastQueryWithLogin):
                 valid_select_cols.append(col)
 
         # Dataset ID column should always be returned
-        valid_select_cols.append(self.dataset_kwds.get(self.mission, None))
+        dataset_col = self.dataset_kwds.get(self.mission, None)
+        if dataset_col and dataset_col not in valid_select_cols:
+            valid_select_cols.append(dataset_col)
         return valid_select_cols
 
     @class_or_instance
@@ -261,10 +283,10 @@ class MastMissionsClass(MastQueryWithLogin):
             Default is 5000. The maximum number of dataset IDs in the results.
         offset : int
             Default is 0. The number of records you wish to skip before selecting records.
-        select_cols: list or str, optional
+        select_cols: iterable or str or None, optional
             Default is None. Names of columns that will be included in the result table.
             If None, a default set of columns will be returned.
-            Can either be a list of column names, a comma-separated string of column names,
+            Can either be an iterable of column names, a comma-separated string of column names,
             or 'all'/'*' to return all available columns.
         **criteria
             Other mission-specific criteria arguments.
@@ -335,10 +357,10 @@ class MastMissionsClass(MastQueryWithLogin):
             Default is 5000. The maximum number of dataset IDs in the results.
         offset : int
             Default is 0. The number of records you wish to skip before selecting records.
-        select_cols: list or str, optional
+        select_cols: iterable or str or None, optional
             Default is None. Names of columns that will be included in the result table.
             If None, a default set of columns will be returned.
-            Can either be a list of column names, a comma-separated string of column names,
+            Can either be an iterable of column names, a comma-separated string of column names,
             or 'all'/'*' to return all available columns.
         resolver : str, optional
             Default is None. The resolver to use when resolving a named target into coordinates. Valid options are
@@ -418,10 +440,10 @@ class MastMissionsClass(MastQueryWithLogin):
             Default is 5000. The maximum number of dataset IDs in the results.
         offset : int
             Default is 0. The number of records you wish to skip before selecting records.
-        select_cols: list or str, optional
+        select_cols: iterable or str or None, optional
             Default is None. Names of columns that will be included in the result table.
             If None, a default set of columns will be returned.
-            Can either be a list of column names, a comma-separated string of column names,
+            Can either be an iterable of column names, a comma-separated string of column names,
             or 'all'/'*' to return all available columns.
         resolver : str, optional
             Default is None. The resolver to use when resolving a named target into coordinates. Valid options are

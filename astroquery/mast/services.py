@@ -109,7 +109,7 @@ def _json_to_table(json_obj, data_key='data'):
                 data_table.add_column(
                     MaskedColumn(coerced, name=col_name, mask=ignore_mask)
                 )
-            except Exception:
+            except (ValueError, TypeError):
                 # Fallback to coercing values one by one
                 out = np.empty(len(col_data), dtype=col_type)
                 fail_mask = np.zeros(len(col_data), dtype=bool)
@@ -120,7 +120,7 @@ def _json_to_table(json_obj, data_key='data'):
 
                     try:
                         out[i] = col_type(val)
-                    except Exception:
+                    except (ValueError, TypeError, OverflowError):
                         # Could not coerce value, mask it
                         fail_mask[i] = True
 

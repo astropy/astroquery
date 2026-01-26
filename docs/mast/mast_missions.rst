@@ -71,7 +71,7 @@ Keyword arguments can also be used to refine results further. The following para
   describing if each field should be sorted in descending order (``True``) or ascending order (``False``).
 
 - ``select_cols``: Columns to include in the result table. If not specified, a default set of columns
-  is returned. This parameter may be given as a list of column names, a comma-separated string, or the special
+  is returned. This parameter may be given as an iterable of column names, a comma-separated string, or the special
   values ``'all'`` or ``'*'`` to return all available columns.
 
 

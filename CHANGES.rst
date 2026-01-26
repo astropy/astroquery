@@ -68,8 +68,8 @@ mast
 
 - Improved robustness of PanSTARRS column metadata parsing. This prevents metadata-related query errors. [#3485]
 
-- The ``select_cols`` parameter in ``MastMissions`` query functions now accepts a comma-delimited string of column names,
-  or the special values 'all' or '*' to return all available columns. [#3492]
+- The ``select_cols`` parameter in ``MastMissions`` query functions now accepts an iterable of column names, a comma-delimited 
+  string of column names, or the special values 'all' or '*' to return all available columns. [#3492]
 
 jplspec
 ^^^^^^^
