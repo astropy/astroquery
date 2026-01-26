@@ -273,7 +273,8 @@ class EuclidClass(TapPlus):
             raise ValueError(f"Not found schema name in full qualified table: '{full_qualified_table_name}'")
         return schema
 
-    def launch_job(self, query, *, name=None, dump_to_file=False, output_file=None, output_format="csv", verbose=False,
+    def launch_job(self, query, *, name=None, dump_to_file=False, output_file=None, output_format="votable_gzip",
+                   verbose=False,
                    upload_resource=None, upload_table_name=None):
         """
         Launches a synchronous job
@@ -289,8 +290,9 @@ class EuclidClass(TapPlus):
         output_file : str, optional, default None
             File name where the results are saved if dump_to_file is True.
             If this parameter is not provided, the job id is used instead
-        output_format : str, optional, default 'csv'
-            output format for the output file
+        output_format : str, optional, default 'votable_gzip'
+            output format for the output file. Available formats are: 'votable', 'votable_plain', 'fits', 'csv',
+            'ecsv' and 'json', default is a compressed 'votable'
         verbose : bool, optional, default 'False'
             flag to display information about the process
         upload_resource: str, optional, default None
@@ -317,7 +319,7 @@ class EuclidClass(TapPlus):
         except Exception as exx:
             log.error(f'Query failed: {query}, {str(exx)}')
 
-    def launch_job_async(self, query, *, name=None, dump_to_file=False, output_file=None, output_format="csv",
+    def launch_job_async(self, query, *, name=None, dump_to_file=False, output_file=None, output_format="votable_gzip",
                          verbose=False, background=False, upload_resource=None, upload_table_name=None, autorun=True):
         """
         Launches an asynchronous job
@@ -333,8 +335,9 @@ class EuclidClass(TapPlus):
         output_file : str, optional, default None
             file name where the results are saved if dump_to_file is True.
             if this parameter is not provided, the jobid is used instead
-        output_format : str, optional, default 'csv'
-            format of the results for the output file
+        output_format : str, optional, default 'votable_gzip'
+            format of the results for the output file. Available formats are: 'votable', 'votable_plain', fits',
+            'csv', 'ecsv' and 'json', default is a compressed 'votable'
         verbose : bool, optional, default 'False'
             flag to display information about the process
         background : bool, optional, default 'False'
@@ -513,7 +516,7 @@ class EuclidClass(TapPlus):
                     background=False,
                     dump_to_file=False,
                     output_file=None,
-                    output_format="csv",
+                    output_format="votable_gzip",
                     verbose=False,
                     columns=None):
         """
@@ -542,8 +545,9 @@ class EuclidClass(TapPlus):
         output_file : str, optional, default None
             file name where the results are saved if dump_to_file is True.
             If this parameter is not provided, the job id is used instead
-        output_format : str, optional, default 'csv'
-            Output format for the output file
+        output_format : str, optional, default 'votable_gzip'
+            Output format for the output file. Available formats are: 'votable', 'votable_plain', 'fits', 'csv',
+            'ecsv' and 'json', default is a compressed 'votable'.
         columns: list, optional, default None
             if empty, all columns will be selected
         verbose : bool, optional, default 'False'
@@ -877,10 +881,10 @@ class EuclidClass(TapPlus):
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
             log.error(f"Cannot retrieve products for observation {id}. HTTP error: {err}")
-            return
+            return None
         except Exception as exx:
             log.error(f'Cannot retrieve products for observation {id}: {str(exx)}')
-            return
+            return None
 
         files = []
         self.__extract_file(output_file_full_path=output_file_full_path, output_dir=output_dir, files=files)
@@ -1240,10 +1244,10 @@ class EuclidClass(TapPlus):
         except HTTPError as err:
             log.error(
                 f"Cannot retrieve products for file_name {file_name} or product_id {product_id}. HTTP error: {err}")
-            return
+            return None
         except Exception as exx:
             log.error(f"Cannot retrieve products for file_name {file_name} or product_id {product_id}: {str(exx)}")
-            return
+            return None
 
         files = []
         self.__extract_file(output_file_full_path=output_file_full_path, output_dir=output_dir, files=files)
@@ -1304,12 +1308,12 @@ class EuclidClass(TapPlus):
             log.error(
                 f"Cannot retrieve the product for file_path {file_path}, obsId {id}, and collection {instrument}. "
                 f"HTTP error: {err}")
-            return
+            return None
         except Exception as exx:
             log.error(
                 f"Cannot retrieve the product for file_path {file_path}, obsId {id}, and collection {instrument}: "
                 f"{str(exx)}")
-            return
+            return None
 
         files = []
         self.__extract_file(output_file_full_path=output_file_full_path, output_dir=output_dir, files=files)
@@ -1392,10 +1396,10 @@ class EuclidClass(TapPlus):
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
             log.error(f'Cannot retrieve spectrum for source_id {source_id}, schema {schema}. HTTP error: {err}')
-            return
+            return None
         except Exception as exx:
             log.error(f'Cannot retrieve spectrum for source_id {source_id}, schema {schema}: {str(exx)}')
-            return
+            return None
 
         files = []
         self.__extract_file(output_file_full_path=output_file_full_path, output_dir=output_dir, files=files)

@@ -3,23 +3,13 @@
 =============
 TAP plus
 =============
-
-@author: Juan Carlos Segovia
-@contact: juan.carlos.segovia@sciops.esa.int
-
-European Space Astronomy Centre (ESAC)
-European Space Agency (ESA)
-
-Created on 30 jun. 2016
-
-
 """
 
 
 class DummyResponse:
-    '''
+    """
     classdocs
-    '''
+    """
 
     STATUS_MESSAGES = {200: "OK", 303: "OK", 500: "ERROR"}
 
@@ -59,22 +49,26 @@ class DummyResponse:
             return None
         else:
 
-            if v.endswith('zip'):
+            if isinstance(v, str) and (v.endswith('zip') or v.endswith('gz')):
                 if self.zip_bytes is None:
                     with open(v, 'rb') as file:
                         self.zip_bytes = file.read()
 
             if size is None or size < 0:
 
-                if v.endswith('zip'):
+                if isinstance(v, str) and (v.endswith('zip') or v.endswith('gz')):
                     return self.zip_bytes
 
                 # read all
-                return v.encode(encoding='utf_8', errors='strict')
+                if isinstance(v, str):
+                    return v.encode(encoding='utf_8', errors='strict')
+                else:
+                    return v
+
             else:
                 is_zip = False
 
-                if v.endswith('zip'):
+                if isinstance(v, str) and (v.endswith('zip') or v.endswith('gz')):
                     is_zip = True
                     bodyLength = len(self.zip_bytes)
                     v = self.zip_bytes
