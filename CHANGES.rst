@@ -13,11 +13,17 @@ esa.euclid
 - Method ``get_datalinks`` has a new argument, ``extra_options``, to customize the results to be got
   from the server. Specifically, passing ``'METADATA'`` to this argument will retrieve the extra fields
   ``datalabs_path``, ``file_name`` and ``hdu_index``. [#3438]
+- The default value of the parameter ``output_format`` in the the methods ``launch_job``, ``launch_job_async`` and
+  ``cone_search`` is changed to "votable_gzip". [#3497]
+
+
+- Methods ``cone_search`` and ``cross_match_basic`` now define the  parameters ``table_name`` and ``ra_column_name`` and
+  ``dec_column_name`` independently [#3496]
 
 vizier
 ^^^^^^
-- Methods ``get_catalog``, ``get_catalog_async`` and ``query_*`` now always return UCD1+ instead of UCD1. [#3458]
 
+- Methods ``get_catalog``, ``get_catalog_async`` and ``query_*`` now always return UCD1+ instead of UCD1. [#3458]
 
 Service fixes and enhancements
 ------------------------------
@@ -64,6 +70,9 @@ mast
 
 - Improved robustness of PanSTARRS column metadata parsing. This prevents metadata-related query errors. [#3485]
 
+- The ``select_cols`` parameter in ``MastMissions`` query functions now accepts an iterable of column names, a comma-delimited 
+  string of column names, or the special values 'all' or '*' to return all available columns. [#3492]
+
 jplspec
 ^^^^^^^
 
@@ -106,6 +115,7 @@ utils.tap
 
 - ``TapPlus.delete_user_table`` includes the schema name to be compatible with TAP+ version >= 10.x. [#3439]
 
+- Fix the methods ``save_results`` and ``get_results`` in the class ``utils.tap.model.job``. [#3497]
 
 
 0.4.11 (2025-09-19)

@@ -529,6 +529,39 @@ def test_cone_search_sync():
     __check_results_column(results, 'source_id', 'source_id', None, object)
     __check_results_column(results, 'table1_oid', 'table1_oid', None, np.int32)
 
+    job = tap.cone_search(SKYCOORD, radius=RADIUS, output_format='votable',
+                          columns=('alpha', 'delta', 'source_id', 'table1_oid'))
+    assert job is not None, "Expected a valid job"
+    results = job.get_results()
+    assert len(results) == 3, "Wrong job results (num rows). Expected: %d, found %d" % (3, len(results))
+
+
+def test_cone_search_errors():
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+    # Launch response: we use default response because the query contains decimals
+    responseLaunchJob = DummyResponse(200)
+    responseLaunchJob.set_data(method='POST', context=None, body=JOB_DATA, headers=None)
+
+    conn_handler.set_default_response(responseLaunchJob)
+
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+
+    with pytest.raises(ValueError, match="Invalid ra or dec column names: 'None' and 'dec'"):
+        tap.cone_search(SKYCOORD, radius=RADIUS, table_name="", ra_column_name=None, dec_column_name="dec",
+                        output_format='votable')
+    with pytest.raises(ValueError, match="Invalid ra or dec column names: '' and 'dec'"):
+        tap.cone_search(SKYCOORD, radius=RADIUS, table_name="", ra_column_name="", dec_column_name="dec",
+                        output_format='votable')
+
+    with pytest.raises(ValueError, match="Invalid ra or dec column names: 'ra' and 'None'"):
+        tap.cone_search(SKYCOORD, radius=RADIUS, table_name="", ra_column_name="ra", dec_column_name=None,
+                        output_format='votable')
+
+    with pytest.raises(ValueError, match="Invalid ra or dec column names: 'ra' and ''"):
+        tap.cone_search(SKYCOORD, radius=RADIUS, table_name="", ra_column_name="ra", dec_column_name="",
+                        output_format='votable')
+
 
 def test_cone_search_async():
     conn_handler = DummyConnHandler()
@@ -1351,6 +1384,30 @@ def test_cross_match_basic_wrong_column(monkeypatch, background, mock_querier_as
                                              table_a_column_ra="ra", table_a_column_dec="Wrong_dec",
                                              background=background)
 
+    error_message = "Invalid ra or dec column names: 'None' and 'dec'"
+    with pytest.raises(ValueError, match=error_message):
+        mock_querier_async.cross_match_basic(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
+                                             table_a_column_dec="dec", table_b_column_ra=None, table_b_column_dec="dec",
+                                             background=background)
+
+    error_message = "Invalid ra or dec column names: '' and 'dec'"
+    with pytest.raises(ValueError, match=error_message):
+        mock_querier_async.cross_match_basic(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
+                                             table_a_column_dec="dec", table_b_column_ra="", table_b_column_dec="dec",
+                                             background=background)
+
+    error_message = "Invalid ra or dec column names: 'ra' and 'None'"
+    with pytest.raises(ValueError, match=error_message):
+        mock_querier_async.cross_match_basic(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
+                                             table_a_column_dec="dec", table_b_column_ra="ra", table_b_column_dec=None,
+                                             background=background)
+
+    error_message = "Invalid ra or dec column names: 'ra' and ''"
+    with pytest.raises(ValueError, match=error_message):
+        mock_querier_async.cross_match_basic(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
+                                             table_a_column_dec="dec", table_b_column_ra="ra", table_b_column_dec="",
+                                             background=background)
+
 
 def test_cross_match_basic_exceptions(monkeypatch):
     def load_table_monkeypatched(self, table, verbose):
@@ -1384,11 +1441,6 @@ def test_cross_match_basic_exceptions(monkeypatch):
         euclid.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
                                  table_a_column_dec="dec", table_b_full_qualified_name="hola", table_b_column_ra="ra",
                                  table_b_column_dec="dec")
-
-    error_message = "Invalid ra or dec column names: 'None' and 'None'"
-    with pytest.raises(ValueError, match=error_message):
-        euclid.cross_match_basic(table_a_full_qualified_name="schema.table_name", table_a_column_ra="ra",
-                                 table_a_column_dec="dec", table_b_full_qualified_name="hola")
 
     error_message = "Schema name is empty in full qualified table: '.table_name'"
     with pytest.raises(ValueError, match=error_message):

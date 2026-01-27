@@ -20,8 +20,8 @@ from requests import HTTPError, Response
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from astroquery.mast.services import _json_to_table
 from astroquery.utils.mocks import MockResponse
-from astroquery.exceptions import (InvalidQueryError, InputWarning, MaxResultsWarning, NoResultsWarning,
-                                   RemoteServiceError, ResolverError)
+from astroquery.exceptions import (BlankResponseWarning, InvalidQueryError, InputWarning, MaxResultsWarning,
+                                   NoResultsWarning, RemoteServiceError, ResolverError)
 
 from astroquery import mast
 
@@ -300,6 +300,56 @@ def test_missions_query_criteria(patch_post):
             sci_aec='S',
             limit=1
         )
+
+
+def test_missions_parse_select_cols(patch_post):
+    # Default columns
+    cols = mast.MastMissions._parse_select_cols(None)  # Default columns for HST
+    assert cols is None
+
+    # All columns
+    all_cols = mast.MastMissions._parse_select_cols('all')
+    assert all_cols == mast.MastMissions.get_column_list()['name'].value.tolist()
+
+    # Comma-separated string
+    string_cols = mast.MastMissions._parse_select_cols('sci_pep_id, sci_instrume')
+    for col in ['sci_pep_id', 'sci_instrume', 'sci_data_set_name']:
+        assert col in string_cols
+
+    # List of columns
+    list_cols = mast.MastMissions._parse_select_cols(['sci_pep_id', 'sci_instrume'])
+    for col in ['sci_pep_id', 'sci_instrume', 'sci_data_set_name']:
+        assert col in list_cols
+
+    # Tuple of columns
+    tuple_cols = mast.MastMissions._parse_select_cols(('sci_pep_id', 'sci_instrume'))
+    for col in ['sci_pep_id', 'sci_instrume', 'sci_data_set_name']:
+        assert col in tuple_cols
+
+    # Generator of columns
+    gen_cols = mast.MastMissions._parse_select_cols(col for col in ['sci_pep_id', 'sci_instrume'])
+    for col in ['sci_pep_id', 'sci_instrume', 'sci_data_set_name']:
+        assert col in gen_cols
+
+    # Error if invalid type
+    with pytest.raises(InvalidQueryError, match="`select_cols` must be an iterable of column names"):
+        mast.MastMissions._parse_select_cols(123)
+
+    # Error if an individual column is not a string
+    with pytest.raises(InvalidQueryError, match="`select_cols` must contain only strings"):
+        mast.MastMissions._parse_select_cols(['sci_pep_id', 123])
+
+    # Warning for invalid column names
+    with pytest.warns(InputWarning, match="Column 'invalid_column' not found."):
+        valid_cols = mast.MastMissions._parse_select_cols(['sci_pep_id', 'invalid_column'])
+    assert 'sci_pep_id' in valid_cols
+    assert 'invalid_column' not in valid_cols
+
+    # Workaround for Ullyses mission default columns
+    ullyses_mission = mast.MastMissions(mission='ullyses')
+    ullyses_cols = ullyses_mission._parse_select_cols(None)
+    for col in mast.MastMissions._default_ullyses_cols:
+        assert col in ullyses_cols
 
 
 def test_missions_get_product_list_async(patch_post):
@@ -1485,3 +1535,25 @@ def test_parse_input_location(patch_post):
     with pytest.warns(InputWarning, match="Resolver is only used when resolving object names"):
         loc = mast.utils.parse_input_location(coordinates=coord, resolver="SIMBAD")
         assert isinstance(loc, SkyCoord)
+
+
+def test_json_to_table_fallback_type_coercion(patch_post):
+    json_obj = {'info': [{'name': 'test_int', 'type': 'int'}],
+                'data': [['1'], ['2'], ['not_an_int'], ['3'], [-999]]}
+
+    with pytest.warns(BlankResponseWarning):
+        table = _json_to_table(json_obj)
+
+    # Column exists
+    assert 'test_int' in table.colnames
+    col = table['test_int']
+    assert col.dtype == np.int64
+
+    # Good values survived
+    assert col[0] == 1
+    assert col[1] == 2
+    assert col[3] == 3
+
+    # Bad + ignored values are masked
+    assert col.mask[2]  # 'not_an_int'
+    assert col.mask[4]  # ignore_value
