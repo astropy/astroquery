@@ -227,7 +227,7 @@ options, that can be combined to extract the required data:
   >>> from astroquery.esa.emds import EmdsClass
   >>> emds = EmdsClass()
   >>> emds.get_observations(
-  ...     target_name="V1589 Cyg", columns=["s_ra", "s_dec", "obs_id", "s_xel1"], s_xel1=(">", 100)
+  ... target_name="V1589 Cyg", columns=["s_ra", "s_dec", "obs_id", "s_xel1"], s_xel1=(">", 100)
   ... )  # doctest: +IGNORE_OUTPUT
     Executed query:SELECT s_ra, s_dec, obs_id, s_xel1
         FROM ivoa.ObsCore
@@ -346,6 +346,66 @@ Depending on the configuration, ``*`` may also be accepted as an alias for ``%``
   ...     instrument_name="FXT",
   ... )  # doctest: +IGNORE_OUTPUT
 
+----------------------------
+6. Downloading data products
+----------------------------
+
+Observations in the EMDS catalogue are associated with one or more data products,
+such as science files or preview images. These products are stored as files on the
+EMDS data service and can be accessed once the corresponding observation or product
+identifiers are known.
+
+Typically, users first query the product catalogue to identify products of interest
+and inspect the available metadata. This module provides helper methods to retrieve
+product information based on a target name or specific selection criteria, such as
+observation ID, data product type, or other filters.
+
+From the selected products, the module exposes the ObsCore metadata required to
+download the associated files: ``obs_id``, ``obs_publisher_did``, and
+``access_url``.
+
+In this example, a set of products associated with a given ``target_name`` is
+retrieved.
+
+.. doctest-remote-data::
+
+  >>> from astroquery.esa.emds import EmdsClass
+  >>> emds = EmdsClass()
+  >>> products=emds.get_products(target_name='RXCJ0120.9-1351') # doctest: +IGNORE_OUTPUT
+   Executed query:SELECT obs_id, obs_publisher_did, access_url FROM ivoa.ObsCore
+    WHERE 1=CONTAINS(POINT('ICRS', s_ra, s_dec),CIRCLE('ICRS', 20.24491667, -13.85194444, 1.0))
+  >>> products
+    <Table length=10>
+       obs_id                 obs_publisher_did                        access_url
+       object                      object                                object
+    ----------- --------------------------------------------- ------------------------------
+    11900004579 ivo://esavo/EPSA?11900.../fxt_a_11900...img  https://emds.esac.esa.int/...'
+    11900004579 ivo://esavo/EPSA?11900.../fxt_b_11900...expo https://emds.esac.esa.int/...'
+            ...                                           ...                            ...
+    11900004579 ivo://esavo/EPSA?11900.../fxt_b_11900...lc   https://emds.esac.esa.int/...'
+    11900004579 ivo://esavo/EPSA?11900.../fxt_a_11900...expo https://emds.esac.esa.int/...'
+    11900004579 ivo://esavo/EPSA?11900.../fxt_a_11900...fits https://emds.esac.esa.int/...'
+
+.. note::
+
+   The output is truncated for brevity.
+
+The following example shows how to download a list of files associated with a set of
+products selected using specific criteria (such as ``target_name`` and other ``filters``).
+
+.. doctest-remote-data::
+
+  >>> emds.download_products(products) # doctest: +IGNORE_OUTPUT
+   ['fxt_a_11900004579_ff_01_po_3ac.img',
+   'fxt_b_11900004579_ff_01_po_3ac-without_vign.expo',
+   'fxt_b_11900004579_ff_01_po_3ac.expo', 'fxt_a_11900004579_ff_01_po_3ac.expo',
+   'fxt_a_11900004579_ff_01_po_3ac.lc', 'fxt_b_11900004579_ff_01_po_cl_3ac.fits',
+   'fxt_b_11900004579_ff_01_po_3ac.img', 'fxt_b_11900004579_ff_01_po_3ac.lc',
+   'fxt_a_11900004579_ff_01_po_3ac-without_vign.expo',
+   'fxt_a_11900004579_ff_01_po_cl_3ac.fits']
+
+Products download method returns the stored files in the archive, and
+provides a list of these downloaded files.
 
 
 Reference/API
@@ -353,3 +413,11 @@ Reference/API
 
 .. automodapi:: astroquery.esa.emds
     :no-inheritance-diagram:
+
+EMDS submodules
+===============
+
+.. toctree::
+   :maxdepth: 1
+
+   einsteinprobe/einsteinprobe

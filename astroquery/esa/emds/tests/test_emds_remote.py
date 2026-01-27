@@ -194,3 +194,31 @@ class TestEmdsRemote:
         assert {"obs_id", "s_ra", "s_dec"}.issubset(set(results.colnames))
 
         temp_folder.cleanup()
+
+    def test_get_products(self):
+        emds = EmdsClass()
+
+        table = emds.get_products()
+
+        assert table is not None
+        assert len(table) > 0
+
+        # Mandatory columns for download
+        assert "access_url" in table.colnames
+        assert "obs_publisher_did" in table.colnames
+
+    def test_download_product(self, tmp_path):
+        emds = EmdsClass()
+
+        products = emds.get_products(target_name="RXCJ0120.9-1351")
+        if len(products) == 0:
+            pytest.skip("No products returned for target_name; remote dataset may have changed.")
+
+        products = products[:1]
+        local_path = emds.download_products(products, path=tmp_path)
+        paths = local_path if isinstance(local_path, (list, tuple)) else [local_path]
+
+        assert len(paths) > 0
+        for p in paths:
+            assert os.path.exists(p)
+            assert os.path.getsize(p) > 0

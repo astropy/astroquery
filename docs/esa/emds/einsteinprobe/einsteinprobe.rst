@@ -400,7 +400,7 @@ individual files directly from the EMDS data service.
 
   >>> from astroquery.esa.emds.einsteinprobe import EinsteinProbeClass
   >>> epsa = EinsteinProbeClass()
-  >>> t = epsa.get_products(obs_id=" 11900008319")
+  >>> t = epsa.get_products(obs_id="11900008319")
   Executed query:SELECT obs_id, filename, filepath
         FROM einsteinprobe.obscore_extended WHERE obs_id = ' 11900008319'
   >>> t["filepath"].format = "%.20s"
@@ -438,6 +438,7 @@ By default, the file is downloaded to the current working directory.
 .. doctest-remote-data::
 
     >>> from astroquery.esa.emds.einsteinprobe import EinsteinProbeClass
+    >>> epsa = EinsteinProbeClass()
     >>> epsa.download_product(filename='fxt_b_11900008319_ff_01_po_3bb.rmf') # doctest: +IGNORE_OUTPUT
     'fxt_b_11900008319_ff_01_po_3bb.rmf'
 
