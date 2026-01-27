@@ -332,3 +332,30 @@ class TestEmdsTap:
         assert "s_dec" in cone
         assert "12.0" in cone
         assert "13.0" in cone
+
+    def test_get_products(self):
+        emds = EmdsClass()
+
+        with patch.object(EmdsClass, "query_table", autospec=True) as qmock:
+            emds.get_products(target_name="RXCJ0120.9-1351")
+
+            assert qmock.called
+            _, kwargs = qmock.call_args
+
+            assert kwargs["table_name"] == "ivoa.ObsCore"
+
+            # Required download columns appended
+            cols = kwargs["columns"]
+            assert "access_url" in cols
+            assert "obs_publisher_did" in cols
+
+    def test_get_products_download_fiels(self):
+        emds = EmdsClass()
+
+        with patch.object(EmdsClass, "query_table", autospec=True) as qmock:
+            emds.get_products(target_name="RXCJ0120.9-1351")
+
+            _, kwargs = qmock.call_args
+            cols = kwargs["columns"]
+            assert "access_url" in cols
+            assert "obs_publisher_did" in cols
