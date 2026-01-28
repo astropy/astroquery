@@ -224,9 +224,7 @@ options, that can be combined to extract the required data:
 
   >>> from astroquery.esa.emds.einsteinprobe import EinsteinProbeClass
   >>> epsa = EinsteinProbeClass()
-  >>> epsa.get_observations(
-   ...     target_name="V1589 Cyg", columns=["s_ra", "s_dec", "obs_id", "s_xel1"]
-   ... )  # doctest: +IGNORE_OUTPUT
+  >>> epsa.get_observations(target_name="V1589 Cyg", columns=["s_ra", "s_dec", "obs_id", "s_xel1"])  # doctest: +IGNORE_OUTPUT
     Executed query:SELECT s_ra, s_dec, obs_id, s_xel1 FROM ivoa.ObsCore WHERE
                     1=CONTAINS(POINT('ICRS', s_ra, s_dec),
                     CIRCLE('ICRS', 310.7048109, 41.3833259, 1.0))
@@ -251,9 +249,7 @@ options, that can be combined to extract the required data:
 
   >>> from astroquery.esa.emds.einsteinprobe import EinsteinProbeClass
   >>> epsa = EinsteinProbeClass()
-  >>> epsa.get_observations(
-   ...     target_name="V1589 Cyg", columns=["s_ra", "s_dec", "obs_id", "s_xel1"],
-   ...     s_xel1=(">", 100))  # doctest: +IGNORE_OUTPUT
+  >>> epsa.get_observations(target_name="V1589 Cyg", columns=["s_ra", "s_dec", "obs_id", "s_xel1"], s_xel1=(">", 100))  # doctest: +IGNORE_OUTPUT
     Executed query:SELECT s_ra, s_dec, obs_id, s_xel1 FROM ivoa.ObsCore
         WHERE s_xel1 > 100 AND
         1=CONTAINS(POINT('ICRS', s_ra, s_dec),
@@ -283,10 +279,7 @@ Some examples and their corresponding ADQL transformations are provided below:
 
 .. doctest-remote-data::
 
-  >>> emds.get_observations(
-  ...     columns=["dataproduct_type", "obs_collection", "target_name", "obs_id",
-  ...              "s_ra", "s_dec", "instrument_name"]
-  ... )  # doctest: +IGNORE_OUTPUT
+  >>> emds.get_observations(columns=["dataproduct_type", "obs_collection", "target_name", "obs_id", "s_ra", "s_dec", "instrument_name"])  # doctest: +IGNORE_OUTPUT
 
 + Exact match (string):
     - ``obs_collection="EPSA"`` → ``obs_collection = 'EPSA'``
@@ -294,11 +287,7 @@ Some examples and their corresponding ADQL transformations are provided below:
 
 .. doctest-remote-data::
 
-  >>> emds.get_observations(
-  ...     columns=["obs_id", "obs_collection", "instrument_name", "dataproduct_type"],
-  ...     obs_collection="EPSA",
-  ...     instrument_name="FXT",
-  ... )  # doctest: +IGNORE_OUTPUT
+  >>> emds.get_observations(columns=["obs_id", "obs_collection", "instrument_name", "dataproduct_type"], obs_collection="EPSA",instrument_name="FXT")  # doctest: +IGNORE_OUTPUT
 
 + Wildcards (string):
     - ``target_name="AT 2023%"`` → ``target_name ILIKE 'AT 2023%'``
@@ -307,28 +296,17 @@ Depending on the configuration, ``*`` may also be accepted as an alias for ``%``
 
 .. doctest-remote-data::
 
-  >>> emds.get_observations(
-  ...     columns=["obs_id", "target_name"],
-  ...     target_name="V1589 Cyg",
-  ... )  # doctest: +IGNORE_OUTPUT
+  >>> emds.get_observations(columns=["obs_id", "target_name"],target_name="V1589 Cyg")  # doctest: +IGNORE_OUTPUT
 
 + Wildcards (string): ``coordinates`` and ``radius``
 
 .. doctest-remote-data::
 
-  >>> emds.get_observations(
-  ...     coordinates="81.1238 17.4175",
-  ...     radius=0.1,
-  ...     columns=["obs_id", "s_ra", "s_dec", "instrument_name"],
-  ... )  # doctest: +IGNORE_OUTPUT
+  >>> emds.get_observations(coordinates="81.1238 17.4175", radius=0.1, columns=["obs_id", "s_ra", "s_dec", "instrument_name"], )  # doctest: +IGNORE_OUTPUT
 
 .. doctest-remote-data::
 
-  >>> emds.get_observations(
-  ...     target_name="V1589 Cyg",
-  ...     radius=0.1,
-  ...     columns=["obs_id", "s_ra", "s_dec", "target_name"],
-  ... )  # doctest: +IGNORE_OUTPUT
+  >>> emds.get_observations( target_name="V1589 Cyg", radius=0.1, columns=["obs_id", "s_ra", "s_dec", "target_name"], )  # doctest: +IGNORE_OUTPUT
 
 + String list:
     - ``dataproduct_type=["img", "pha"]``
@@ -336,31 +314,21 @@ Depending on the configuration, ``*`` may also be accepted as an alias for ``%``
 
 .. doctest-remote-data::
 
-  >>> emds.get_observations(
-  ...     columns=["obs_id", "dataproduct_type"],
-  ...     dataproduct_type=["img", "pha"],
-  ... )  # doctest: +IGNORE_OUTPUT
+  >>> emds.get_observations(columns=["obs_id", "dataproduct_type"], dataproduct_type=["img", "pha"])  # doctest: +IGNORE_OUTPUT
 
 + Numeric comparison:
     - ``t_min=(">", 60000)`` -> ``t_min > 60000``
 
 .. doctest-remote-data::
 
-  >>> emds.get_observations(
-  ...     columns=["obs_id", "t_min", "t_max"],
-  ...     t_min=(">", 60000),
-  ... )  # doctest: +IGNORE_OUTPUT
+  >>> emds.get_observations(columns=["obs_id", "t_min", "t_max"], t_min=(">", 60000))  # doctest: +IGNORE_OUTPUT
 
 + Filter by numeric interval:
     - ``s_ra=(80, 82)`` -> ``s_ra >= 80 AND s_ra <= 82``
 
 .. doctest-remote-data::
 
-  >>> emds.get_observations(
-  ...     columns=["obs_id", "s_ra", "s_dec"],
-  ...     s_ra=(80, 82),
-  ...     s_dec=(16, 18),
-  ... )  # doctest: +IGNORE_OUTPUT
+  >>> emds.get_observations(columns=["obs_id", "s_ra", "s_dec"], s_ra=(80, 82), s_dec=(16, 18))  # doctest: +IGNORE_OUTPUT
 
 + Combined filters: Multiple keyword filters are combined with ``AND``.
 
@@ -369,13 +337,7 @@ Depending on the configuration, ``*`` may also be accepted as an alias for ``%``
 
 .. doctest-remote-data::
 
-  >>> emds.get_observations(
-  ...     columns=["dataproduct_type", "obs_collection", "target_name", "obs_id",
-  ...              "s_ra", "s_dec", "instrument_name"],
-  ...     obs_collection="EPSA",
-  ...     dataproduct_type=["img", "pha"],
-  ...     instrument_name="FXT",
-  ... )  # doctest: +IGNORE_OUTPUT
+  >>> emds.get_observations(columns=["dataproduct_type", "obs_collection", "target_name", "obs_id", "s_ra", "s_dec", "instrument_name"], obs_collection="EPSA", dataproduct_type=["img", "pha"], instrument_name="FXT")  # doctest: +IGNORE_OUTPUT
 
 
 
