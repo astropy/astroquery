@@ -59,7 +59,7 @@ class TestIntegralTap:
         table_set = PropertyMock()
         table_set.keys.return_value = ['ila.epoch', 'ila.cons_pub_obs']
         table_set.values.return_value = ['ila.epoch', 'ila.cons_pub_obs']
-        with patch('astroquery.esa.integral.core.pyvo.dal.TAPService', autospec=True) as isla_mock:
+        with patch('astroquery.esa.utils.utils.pyvo.dal.TAPService', autospec=True) as isla_mock:
             isla_mock.return_value.tables = table_set
             isla = IntegralClass()
             assert len(isla.get_tables(only_names=True)) == 2
@@ -73,15 +73,15 @@ class TestIntegralTap:
         tables_result[1].name = 'ila.cons_pub_obs'
         table_set.values.return_value = tables_result
 
-        with patch('astroquery.esa.integral.core.pyvo.dal.TAPService', autospec=True) as isla_mock:
+        with patch('astroquery.esa.utils.utils.pyvo.dal.TAPService', autospec=True) as isla_mock:
             isla_mock.return_value.tables = table_set
             isla = IntegralClass()
             assert isla.get_table('ila.cons_pub_obs').name == 'ila.cons_pub_obs'
             assert isla.get_table('test') is None
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.tap')
-    @patch('astroquery.esa.integral.core.pyvo.dal.AsyncTAPJob')
+    @patch('astroquery.esa.utils.utils.pyvo.dal.AsyncTAPJob')
     def test_load_job(self, isla_job_mock, mock_tap):
         jobid = '101'
         mock_job = Mock()
@@ -93,7 +93,7 @@ class TestIntegralTap:
         job = isla.get_job(jobid=jobid)
         assert job.job_id == '101'
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.tap')
     def test_get_job_list(self, mock_get_job_list):
         mock_job = Mock()
@@ -104,7 +104,7 @@ class TestIntegralTap:
         jobs = isla.get_job_list()
         assert len(jobs) == 1
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     @patch('astroquery.esa.utils.utils.ESAAuthSession.post')
     def test_login_success(self, mock_post, instrument_band_mock):
@@ -124,7 +124,7 @@ class TestIntegralTap:
                                           headers={'Content-type': 'application/x-www-form-urlencoded',
                                                    'Accept': 'text/plain'})
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     @patch('astroquery.esa.utils.utils.ESAAuthSession.post')
     def test_login_error(self, mock_post, instrument_band_mock):
@@ -139,7 +139,7 @@ class TestIntegralTap:
             isla.login(user='dummyUser', password='dummyPassword')
         assert error_message in err.value.args[0]
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     @patch('astroquery.esa.utils.utils.ESAAuthSession.post')
     def test_logout_success(self, mock_post, instrument_band_mock):
@@ -158,7 +158,7 @@ class TestIntegralTap:
                                           headers={'Content-type': 'application/x-www-form-urlencoded',
                                                    'Accept': 'text/plain'})
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     @patch('astroquery.esa.utils.utils.ESAAuthSession.post')
     def test_logout_error(self, mock_post, instrument_band_mock):
@@ -174,10 +174,10 @@ class TestIntegralTap:
             isla.logout()
         assert error_message in err.value.args[0]
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astropy.table.Table.write')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.search')
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.search')
     def test_query_tap_sync(self, search_mock, instrument_band_mock, table_mock):
         instrument_band_mock.return_value = mocks.get_instrument_bands()
         search_mock.return_value = mocks.get_dal_table()
@@ -198,7 +198,7 @@ class TestIntegralTap:
         isla.query_tap(query=query, async_job=True)
         async_job_mock.assert_called_with(query)
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_sources_success_catalogue(self, instrument_band_mock, query_tap_mock):
@@ -212,7 +212,7 @@ class TestIntegralTap:
                                                 "ila.v_cat_source src where src.name ilike '%Crab%' order by "
                                                 "src.name asc", async_job=False, output_file=None, output_format=None)
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.resolve_target')
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
@@ -227,7 +227,7 @@ class TestIntegralTap:
 
         query_tap_mock.assert_called_with(query=query, async_job=False, output_file=None, output_format=None)
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.resolve_target')
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
@@ -241,7 +241,7 @@ class TestIntegralTap:
             isla.get_sources(target_name='test')
         assert 'Target test cannot be resolved for ISLA' in err.value.args[0]
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_observations_error(self, instrument_band_mock, query_tap_mock):
@@ -253,7 +253,7 @@ class TestIntegralTap:
             isla.get_observations(target_name='test', coordinates='test')
         assert 'Please use only target or coordinates as parameter.' in err.value.args[0]
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_sources')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
@@ -273,7 +273,7 @@ class TestIntegralTap:
                                           output_file=None,
                                           output_format=None)
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_sources')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
@@ -295,7 +295,7 @@ class TestIntegralTap:
                                           output_file=None,
                                           output_format=None)
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_sources')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
@@ -314,7 +314,7 @@ class TestIntegralTap:
                          "endtime >= '2024-12-13 00:00:00' AND starttime <= "
                          "'2024-12-14 00:00:00' order by obsid")
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_download_science_windows_error(self, instrument_band_mock, download_mock):
@@ -330,7 +330,7 @@ class TestIntegralTap:
             isla.download_science_windows(science_windows='sc', observation_id='obs')
         assert 'Only one parameter can be provided at a time.' in err.value.args[0]
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_download_science_windows(self, instrument_band_mock, download_mock):
@@ -358,7 +358,7 @@ class TestIntegralTap:
         close_files(sc)
         temp_path.cleanup()
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_timeline(self, instrument_band_mock, servlet_mock):
@@ -371,7 +371,7 @@ class TestIntegralTap:
 
         assert len(timeline['timeline']['scwRevs']) > 0
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_epochs_error(self, instrument_band_mock):
         instrument_band_mock.return_value = mocks.get_instrument_bands()
@@ -381,7 +381,7 @@ class TestIntegralTap:
             isla.get_epochs(target_name='J011705.1-732636', instrument='i2')
         assert 'This is not a valid value for instrument or band.' in err.value.args[0]
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.query_tap')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_epochs(self, instrument_band_mock, query_tap_mock):
@@ -395,7 +395,7 @@ class TestIntegralTap:
                                           "source_id = 'J011705.1-732636' and "
                                           "(instrument_oid = id1 or band_oid = id2)")
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.integral.core.log')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
@@ -410,7 +410,7 @@ class TestIntegralTap:
         isla.get_long_term_timeseries(target_name='J174537.0-290107', band='b1')
         log_mock.error.assert_called_with('No long term timeseries have been found with these inputs. ' + error_message)
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.integral.core.log')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
@@ -425,7 +425,7 @@ class TestIntegralTap:
         isla.get_long_term_timeseries(target_name='J174537.0-290107', band='b1')
         log_mock.error.assert_called_with('Problem when retrieving long term timeseries. ' + error_message)
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_long_term_timeseries(self, instrument_band_mock, download_mock):
@@ -447,7 +447,7 @@ class TestIntegralTap:
         close_files(lt_timeseries_list_extracted)
         temp_path.cleanup()
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.log')
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
@@ -465,7 +465,7 @@ class TestIntegralTap:
         log_mock.error.assert_called_with(
             'No short term timeseries have been found with these inputs. {0}'.format(error_message))
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.log')
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
@@ -482,7 +482,7 @@ class TestIntegralTap:
                                        band='b1', epoch='time')
         log_mock.error.assert_called_with('Problem when retrieving short term timeseries. ' + error_message)
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_short_term_timeseries_epoch_error(self, instrument_band_mock, epoch_mock):
@@ -497,7 +497,7 @@ class TestIntegralTap:
                                            band='b1', epoch='time')
         assert 'Epoch time is not available for this target and instrument/band.' in err.value.args[0]
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
@@ -523,7 +523,7 @@ class TestIntegralTap:
         close_files(st_timeseries_list_extracted)
         temp_path.cleanup()
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.log')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
@@ -541,7 +541,7 @@ class TestIntegralTap:
         log_mock.error.assert_called_with('Problem when retrieving spectra. '
                                           'Error')
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.log')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
@@ -558,7 +558,7 @@ class TestIntegralTap:
         log_mock.error.assert_called_with('Spectra are not available with these inputs. '
                                           'Please try with different input parameters.')
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
     @patch('astroquery.esa.integral.core.log')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
@@ -576,7 +576,7 @@ class TestIntegralTap:
         log_mock.error.assert_called_with("Problem when retrieving spectra. "
                                           "object of type 'Mock' has no len()")
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
@@ -603,7 +603,7 @@ class TestIntegralTap:
         close_files(spectra_list_extracted)
         temp_path.cleanup()
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.log')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
@@ -619,7 +619,7 @@ class TestIntegralTap:
         log_mock.error.assert_called_with('Mosaics are not available for these inputs. '
                                           'Please try with different input parameters.')
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
     @patch('astroquery.esa.integral.core.log')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
@@ -636,7 +636,7 @@ class TestIntegralTap:
         log_mock.error.assert_called_with("Problem when retrieving mosaics. "
                                           "Error")
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.download_file')
     @patch('astroquery.esa.integral.core.IntegralClass.get_epochs')
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
@@ -661,7 +661,7 @@ class TestIntegralTap:
         close_files(mosaics_extracted)
         temp_path.cleanup()
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     @patch('astroquery.esa.integral.core.IntegralClass.get_instrument_band_map')
     def test_get_source_metadata(self, instrument_band_mock, servlet_mock):
