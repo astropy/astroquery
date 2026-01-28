@@ -25,7 +25,6 @@ esa.emds.einsteinprobe
 - New module to access the ESA Einstein Probe Science Archive. [#3511]
 
 
-
 API changes
 -----------
 
