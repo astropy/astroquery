@@ -91,8 +91,10 @@ The EMDS TAP service is a *multi-mission* archive: multiple missions and data co
 TAP endpoint. Each mission typically appears as a distinct value in the ``obs_collection`` field of the EMDS global
 ObsCore view.
 
+.. doctest-remote-data::
+
    >>> from astroquery.esa.emds import EmdsClass
-   >>> emds = EmdsClass() # doctest: +IGNORE_OUTPUT
+   >>> emds = EmdsClass()
    >>> emds.get_missions() # doctest: +IGNORE_OUTPUT
     <Table length=1>
     obs_collection
@@ -413,6 +415,8 @@ Reference/API
 
 .. automodapi:: astroquery.esa.emds
     :no-inheritance-diagram:
+    :inherited-members:
+    :show-inheritance:
 
 EMDS submodules
 ===============

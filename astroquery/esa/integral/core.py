@@ -15,12 +15,13 @@ from requests import HTTPError
 
 from . import conf
 import astroquery.esa.utils.utils as esautils
+from astroquery.esa.utils import EsaTap
 from datetime import datetime
 
 __all__ = ['Integral', 'IntegralClass']
 
 
-class IntegralClass(esautils.EsaTap):
+class IntegralClass(EsaTap):
 
     """
     This module connects with ESA Integral TAP

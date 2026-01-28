@@ -14,6 +14,7 @@ import tempfile
 from unittest.mock import patch, Mock, PropertyMock
 
 import astroquery.esa.utils.utils as esautils
+from astroquery.esa.utils import EsaTap
 from astropy.io.registry import IORegistryError
 from astropy.table import Table
 from requests import HTTPError
@@ -89,7 +90,7 @@ class DummyDatatype:
         self.content = content
 
 
-class DummyTapClass(esautils.EsaTap):
+class DummyTapClass(EsaTap):
     ESA_ARCHIVE_NAME = "DummyClass"
     TAP_URL = "dummyUrl"
     LOGIN_URL = "dummyLogin"
@@ -320,7 +321,7 @@ class TestEsaUtils:
             assert esa_tap.get_table('test') is None
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
-    @patch('astroquery.esa.utils.utils.EsaTap.tap')
+    @patch('astroquery.esa.utils.EsaTap.tap')
     @patch('astroquery.esa.utils.utils.pyvo.dal.AsyncTAPJob')
     def test_load_job(self, esa_tap_job_mock, mock_tap):
         jobid = '101'
@@ -334,7 +335,7 @@ class TestEsaUtils:
         assert job.job_id == '101'
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
-    @patch('astroquery.esa.utils.utils.EsaTap.tap')
+    @patch('astroquery.esa.utils.EsaTap.tap')
     def test_get_job_list(self, mock_get_job_list):
         mock_job = Mock()
         mock_job.job_id = '101'
@@ -437,7 +438,7 @@ class TestEsaUtils:
         async_job_mock.assert_called_with(query)
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
-    @patch('astroquery.esa.utils.utils.EsaTap.query_tap')
+    @patch('astroquery.esa.utils.EsaTap.query_tap')
     def test_query_table_basic(self, query_tap_mock):
         query_tap_mock.return_value = mocks.get_dal_table()
 
@@ -450,7 +451,7 @@ class TestEsaUtils:
                                           verbose=True)
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
-    @patch('astroquery.esa.utils.utils.EsaTap.query_tap')
+    @patch('astroquery.esa.utils.EsaTap.query_tap')
     def test_query_table_custom_filter(self, query_tap_mock):
         query_tap_mock.return_value = mocks.get_dal_table()
 
@@ -464,7 +465,7 @@ class TestEsaUtils:
                                           verbose=True)
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
-    @patch('astroquery.esa.utils.utils.EsaTap.query_tap')
+    @patch('astroquery.esa.utils.EsaTap.query_tap')
     def test_query_table_filtered(self, query_tap_mock):
         query_tap_mock.return_value = mocks.get_dal_table()
 
@@ -478,7 +479,7 @@ class TestEsaUtils:
                                           verbose=True)
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
-    @patch('astroquery.esa.utils.utils.EsaTap.get_table')
+    @patch('astroquery.esa.utils.EsaTap.get_table')
     def test_get_metadata(self, table_mock):
         # Prepare mock TAP columns
         columns = [DummyColumn('ra', 'Right Ascension',
