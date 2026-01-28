@@ -606,12 +606,12 @@ class EsaTap(BaseVOQuery, BaseQuery):
         # For numeric values, a tuple shall be provided
         if isinstance(value, tuple):
             if len(value) != 2:
-                raise ValueError(f"For numeric values, a tuple (comparator, value) shall be provided")
+                raise ValueError('For numeric values, a tuple (comparator, value) shall be provided')
             # First value can be a comparator or a minimum value
             # Second value should always be a number
             first_value, second_value = value
             if not isinstance(second_value, numbers.Number):
-                raise ValueError(f"Comparator can only be applied to numeric values.")
+                raise ValueError('Comparator can only be applied to numeric values.')
             # If first value is also a number, the filter is between two numbers
             if isinstance(first_value, numbers.Number):
                 min_value_filter = self.__create_number_criteria(column, first_value, ">=")
