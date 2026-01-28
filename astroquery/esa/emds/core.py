@@ -14,11 +14,12 @@ from astroquery.utils import commons
 from html import unescape
 import os
 import astroquery.esa.utils.utils as esautils
+from astroquery.esa.utils import EsaTap, download_file
 
 __all__ = ['Emds', 'EmdsClass']
 
 
-class EmdsClass(esautils.EsaTap):
+class EmdsClass(EsaTap):
 
     """
     EMDS TAP client (multi-mission / multi-schema).
@@ -274,7 +275,7 @@ class EmdsClass(esautils.EsaTap):
             url = unescape(row["access_url"])
             session = self.tap._session
 
-            file_path = esautils.download_file(
+            file_path = download_file(
                 url,
                 session,
                 params=params,

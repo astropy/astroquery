@@ -41,8 +41,8 @@ Examples
 1. Login/Logout
 ---------------
 Some EMDS missions may require authentication to access proprietary or advanced data products.
-The Astroquery EMDS interface provides :meth:`~astroquery.esa.emds.EMDSClass.login` and
-:meth:`~astroquery.esa.emds.EMDSClass.logout` for this purpose.
+The Astroquery EMDS interface provides :meth:`~astroquery.esa.utils.EsaTap.login` and
+:meth:`~astroquery.esa.utils.EsaTap.logout` for this purpose.
 
 Einstein Probe data accessed through this module are public and do not require authentication, but the methods are
 available for consistency and are inherited from the base EMDS interface.
@@ -56,7 +56,7 @@ available for consistency and are inherited from the base EMDS interface.
 
 .. note::
 
-   The :meth:`login` and :meth:`logout` methods are inherited from the base EMDS interface.
+   The :meth:`~astroquery.esa.utils.EsaTap.login` and :meth:`~astroquery.esa.utils.EsaTap.logout` methods are inherited from the base EMDS interface.
    They are not required for Einstein Probe, but are provided for consistency across EMDS mission
    modules.
 
@@ -413,3 +413,5 @@ Reference/API
 
 .. automodapi:: astroquery.esa.emds.einsteinprobe
     :no-inheritance-diagram:
+    :inherited-members:
+    :show-inheritance:

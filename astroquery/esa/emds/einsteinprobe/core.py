@@ -9,16 +9,15 @@ European Space Agency (ESA)
 
 """
 import os
-import astroquery.esa.utils.utils as esautils
+from astroquery.esa.utils import download_file
 
 from . import conf
-import astroquery.esa.emds as emds
-
+from astroquery.esa.emds import EmdsClass
 
 __all__ = ['EinsteinProbe', 'EinsteinProbeClass']
 
 
-class EinsteinProbeClass(emds.EmdsClass):
+class EinsteinProbeClass(EmdsClass):
 
     """
     Einstein Probe TAP client.
@@ -48,7 +47,7 @@ class EinsteinProbeClass(emds.EmdsClass):
         obs_id : str, optional
             Observation identifier to restrict the query (e.g. a specific observation).
         columns : str or list of str, optional
-            Columns to retrieve. If provided as a list, `filename` and `filepath`
+            Columns to retrieve. If provided as a list, filename and filepath
             will be appended if missing. If not provided, a minimal useful set is used.
         custom_filters : str, optional
             Additional ADQL conditions appended to the WHERE clause.
@@ -57,7 +56,7 @@ class EinsteinProbeClass(emds.EmdsClass):
         output_file : str, optional
             If provided, save results to this file.
         **filters
-            Column-based filters passed through to `query_table`.
+            Column-based filters passed through to query_table method.
 
         Returns
         -------
@@ -115,9 +114,9 @@ class EinsteinProbeClass(emds.EmdsClass):
             Product filename stored in the mission tables (unique identifier).
         table : str, optional
             Table to query for (filepath, filename). If not provided, defaults to
-            `self.conf.OBSCORE_TABLE`.
+            the obscore table for Einstein Probe.
         output_filename : str, optional
-            Local filename for the downloaded file. Defaults to `filename`.
+            Local filename for the downloaded file. Defaults to None.
         path : str, optional
             Local directory where the file will be saved. Default is current working directory.
         cache : bool, optional
@@ -128,7 +127,7 @@ class EinsteinProbeClass(emds.EmdsClass):
         Returns
         -------
         str
-            Local file path returned by `esautils.download_file`.
+            Local file path returned by esautils.download_file.
         """
 
         data_url = getattr(self.conf, "EMDS_DATA_SERVER", None)
@@ -150,7 +149,7 @@ class EinsteinProbeClass(emds.EmdsClass):
         params = self._build_data_params(retrieval_type="PRODUCT", query=query)
 
         session = self.tap._session
-        return esautils.download_file(
+        return download_file(
             url=data_url,
             session=session,
             params=params,

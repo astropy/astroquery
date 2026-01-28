@@ -13,6 +13,7 @@ European Space Agency (ESA)
 import os
 
 import astroquery.esa.utils.utils as esautils
+from astroquery.esa.utils import EsaTap
 
 from astropy import units
 from astropy.coordinates import SkyCoord
@@ -28,7 +29,7 @@ from astroquery import log
 __all__ = ['ESAHubble', 'ESAHubbleClass']
 
 
-class ESAHubbleClass(esautils.EsaTap):
+class ESAHubbleClass(EsaTap):
     """
     Class to init ESA Hubble Module and communicate with eHST TAP
     """
