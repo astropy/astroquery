@@ -12,13 +12,13 @@ import os
 import astroquery.esa.utils.utils as esautils
 
 from . import conf
-from ..core import EmdsClass
+import astroquery.esa.emds as emds
 
 
 __all__ = ['EinsteinProbe', 'EinsteinProbeClass']
 
 
-class EinsteinProbeClass(EmdsClass):
+class EinsteinProbeClass(emds.EmdsClass):
 
     """
     Einstein Probe TAP client.

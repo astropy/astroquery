@@ -333,11 +333,14 @@ class TestEmdsTap:
         assert "12.0" in cone
         assert "13.0" in cone
 
-    def test_get_products(self):
+    @patch('astroquery.esa.utils.utils.resolve_target')
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    def test_get_products(self, resolve_target_mock):
+        resolve_target_mock.return_value = SkyCoord(ra=12, dec=13, unit="deg")
         emds = EmdsClass()
 
         with patch.object(EmdsClass, "query_table", autospec=True) as qmock:
-            emds.get_products(target_name="RXCJ0120.9-1351")
+            emds.get_products(target_name="target")
 
             assert qmock.called
             _, kwargs = qmock.call_args
@@ -349,7 +352,10 @@ class TestEmdsTap:
             assert "access_url" in cols
             assert "obs_publisher_did" in cols
 
-    def test_get_products_download_fiels(self):
+    @patch('astroquery.esa.utils.utils.resolve_target')
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    def test_get_products_download_files(self, resolve_target_mock):
+        resolve_target_mock.return_value = SkyCoord(ra=12, dec=13, unit="deg")
         emds = EmdsClass()
 
         with patch.object(EmdsClass, "query_table", autospec=True) as qmock:
