@@ -416,7 +416,6 @@ Reference/API
 .. automodapi:: astroquery.esa.emds
     :no-inheritance-diagram:
     :inherited-members:
-    :show-inheritance:
 
 EMDS submodules
 ===============

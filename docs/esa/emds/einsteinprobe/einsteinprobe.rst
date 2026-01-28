@@ -414,4 +414,3 @@ Reference/API
 .. automodapi:: astroquery.esa.emds.einsteinprobe
     :no-inheritance-diagram:
     :inherited-members:
-    :show-inheritance:
