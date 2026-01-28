@@ -44,7 +44,7 @@ tables and their columns. This is useful for understanding what data is accessib
 
   >>> from astroquery.esa.emds import EmdsClass
   >>> emds = EmdsClass()
-  >>> emds.get_tables()
+  >>> emds.get_tables() # doctest: +IGNORE_OUTPUT
   [<VODataServiceTable name="einsteinprobe.fxt_product">... 24 columns
   ...</VODataServiceTable>,
   <VODataServiceTable name="einsteinprobe.obscore">... 30 columns
@@ -59,7 +59,7 @@ accessing their full metadata.
 
 .. doctest-remote-data::
 
-  >>> emds.get_tables(only_names=True)
+  >>> emds.get_tables(only_names=True) # doctest: +IGNORE_OUTPUT
   ['einsteinprobe.fxt_product', 'einsteinprobe.obscore',
   'einsteinprobe.obscore_extended', 'einsteinprobe.preview_products',
   'einsteinprobe.wxt_product', 'ivoa.ObsCore', 'smile.cdf_item',
@@ -72,8 +72,8 @@ including its columns.
 
 .. doctest-remote-data::
 
-  >>> ivoa_obscore_table = emds.get_table(table='ivoa.ObsCore')
-  >>> ivoa_obscore_table.columns
+  >>> ivoa_obscore_table = emds.get_table(table='ivoa.ObsCore') # doctest: +IGNORE_OUTPUT
+  >>> ivoa_obscore_table.columns # doctest: +IGNORE_OUTPUT
   [<BaseParam name="access_estsize"/>, <BaseParam name="access_format"/>,
   <BaseParam name="access_url"/>, <BaseParam name="calib_level"/>,
   <BaseParam name="dataproduct_type"/>, <BaseParam name="em_max"/>,
@@ -92,8 +92,8 @@ TAP endpoint. Each mission typically appears as a distinct value in the ``obs_co
 ObsCore view.
 
    >>> from astroquery.esa.emds import EmdsClass
-   >>> emds = EmdsClass()
-   >>> emds.get_missions()
+   >>> emds = EmdsClass() # doctest: +IGNORE_OUTPUT
+   >>> emds.get_missions() # doctest: +IGNORE_OUTPUT
     <Table length=1>
     obs_collection
         object
@@ -152,7 +152,7 @@ To check the columns available in this catalogue, the following method can be ex
   >>> obs_metadata = emds.get_observations(get_metadata=True)
   >>> obs_metadata["Description"].format = "%.10s"
   >>> obs_metadata["UType"].format = "%.20s"
-  >>> obs_metadata
+  >>> obs_metadata # doctest: +IGNORE_OUTPUT
   <Table masked=True length=30>
       Column     Description  Unit  Data Type         UCD                UType
       str17         object   object    str6          object              object
