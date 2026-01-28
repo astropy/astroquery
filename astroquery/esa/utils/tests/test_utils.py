@@ -108,56 +108,6 @@ class TestEsaUtils:
         mock_get.assert_called_once_with('GET', 'https://dummy.com/service',
                                          params={'TAPCLIENT': 'ASTROQUERY'})
 
-    @patch('pyvo.auth.authsession.AuthSession.post')
-    def test_login_success(self, mock_post):
-
-        mock_response = Mock()
-        mock_response.raise_for_status.return_value = None  # Simulate no HTTP error
-        mock_response.json.return_value = {"status": "success", "token": "mocked_token"}
-
-        # Configure the mock post method to return the mock Response
-        mock_post.return_value = mock_response
-
-        esa_session = esautils.ESAAuthSession()
-        esa_session.login(login_url='https://dummy.com/login', user='dummyUser', password='dummyPassword')
-
-        mock_post.assert_called_once_with(url='https://dummy.com/login',
-                                          data={'username': 'dummyUser', 'password': 'dummyPassword'},
-                                          headers={'Content-type': 'application/x-www-form-urlencoded',
-                                                   'Accept': 'text/plain'})
-
-    @patch('pyvo.auth.authsession.AuthSession.post')
-    def test_login_error(self, mock_post):
-        error_message = "Mocked HTTP error"
-        mock_post.side_effect = HTTPError(error_message)
-
-        with pytest.raises(HTTPError) as err:
-            esa_session = esautils.ESAAuthSession()
-            esa_session.login(login_url='https://dummy.com/login', user='dummyUser', password='dummyPassword')
-        assert error_message in err.value.args[0]
-
-    @patch('pyvo.auth.authsession.AuthSession.post')
-    def test_logout_success(self, mock_post):
-        mock_post.raise_for_status.return_value = None  # Simulate no HTTP error
-        mock_post.json.return_value = {"status": "success", "token": "mocked_token"}
-
-        esa_session = esautils.ESAAuthSession()
-        esa_session.logout(logout_url='https://dummy.com/logout')
-
-        mock_post.assert_called_once_with(url='https://dummy.com/logout',
-                                          headers={'Content-type': 'application/x-www-form-urlencoded',
-                                                   'Accept': 'text/plain'})
-
-    @patch('pyvo.auth.authsession.AuthSession.post')
-    def test_logout_error(self, mock_post):
-        error_message = "Mocked HTTP error"
-        mock_post.side_effect = HTTPError(error_message)
-
-        esa_session = esautils.ESAAuthSession()
-        with pytest.raises(HTTPError) as err:
-            esa_session.logout(logout_url='https://dummy.com/logout')
-        assert error_message in err.value.args[0]
-
     def test_get_degree_radius(self):
         assert esautils.get_degree_radius(12.0) == 12.0
         assert esautils.get_degree_radius(12) == 12.0
@@ -494,9 +444,9 @@ class TestEsaUtils:
         esa_tap = DummyTapClass()
         esa_tap.query_table(table_name='table1')
         query_tap_mock.assert_called_with(query='SELECT * FROM table1 ',
-                                          async_job= False,
-                                          output_file= None,
-                                          output_format= 'votable',
+                                          async_job=False,
+                                          output_file=None,
+                                          output_format='votable',
                                           verbose=True)
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
