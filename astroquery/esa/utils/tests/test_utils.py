@@ -11,7 +11,7 @@ European Space Agency (ESA)
 import os.path
 import shutil
 import tempfile
-from unittest.mock import patch, Mock, PropertyMock, MagicMock
+from unittest.mock import patch, Mock, PropertyMock
 
 import astroquery.esa.utils.utils as esautils
 from astropy.io.registry import IORegistryError

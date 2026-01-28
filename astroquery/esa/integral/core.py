@@ -14,7 +14,6 @@ from astroquery.utils import commons
 from requests import HTTPError
 
 from . import conf
-import time
 import astroquery.esa.utils.utils as esautils
 from datetime import datetime
 
