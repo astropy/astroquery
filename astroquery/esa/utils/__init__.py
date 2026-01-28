@@ -9,6 +9,6 @@ European Space Agency (ESA)
 
 """
 
-from .utils import EsaTap, download_file, download_table
+from .utils import EsaTap, download_file
 
 __all__ = ['EsaTap', 'download_file']
