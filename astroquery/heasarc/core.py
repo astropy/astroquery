@@ -10,7 +10,6 @@ from astropy import units as u
 from astropy.utils.decorators import deprecated, deprecated_renamed_argument
 from astropy.time import Time
 import pyvo
-import re
 
 from astroquery import log
 from ..query import BaseQuery, BaseVOQuery
@@ -661,8 +660,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         else:
             # Assuming 'a.dsr' is the default search radius column in degrees.  This value is
             # defined by HEASARC curators for each table.
-            radius_condition = f"{dot_product} > (cos(radians((a.dsr*60/60))))"
-            dec_condition = f"a.dec between {dec} - a.dsr*60/60 and {dec} + a.dsr*60/60"
+            radius_condition = f"{dot_product} > (cos(radians((a.dsr))))"
+            dec_condition = f"a.dec between {dec} - a.dsr and {dec} + a.dsr"
         if large:
             return f"""
             ( ({radius_condition})
@@ -696,24 +695,24 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         Note that this queries multiple tables, as the HEASARC database has split
         the master tables for efficiency.
         """
-
         offset_def = ''
         if ra is not None:
             constraint_small = HeasarcClass._fast_geometry_constraint(ra, dec, large=False, radius=radius)
             constraint_big = HeasarcClass._fast_geometry_constraint(ra, dec, large=True, radius=radius)
-            offset_def = f""",
-            MAX(DISTANCE(POINT('ICRS', a.ra, a.dec),POINT('ICRS',{ra},{dec}))) as max_offset_deg
-            """
+            #  Note that at least in HEASARC implementation, using DISTANCE in a column
+            #  definition is fine, but it's very slow in a WHERE clause.
+            offset_def = f''', MAX(DISTANCE(POINT('ICRS', a.ra, a.dec),
+            POINT('ICRS', {ra}, {dec}))) as max_offset_deg
+                '''
+
         if start_time is not None:
             constraint_time = HeasarcClass._time_constraint(start_time, end_time)
 
         tname1, tname2 = None, None
         if ra is not None and start_time is None:
-            tname1 = 'pos_small'
-            tname2 = "pos_big"
+            tname1, tname2 = 'pos_small', 'pos_big'
         elif ra is not None and start_time is not None:
-            tname1 = 'pos_time_small'
-            tname2 = 'pos_time_big'
+            tname1, tname2 = 'pos_time_small', 'pos_time_big'
             constraint_small += f" AND {constraint_time}"
             constraint_big += f" AND {constraint_time}"
         elif ra is None and start_time is not None:
@@ -721,43 +720,65 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         else:
             raise ValueError("You must specify either a position or time range or both")
 
-        #  Note that these operations result in incorrect escaping of the quotes around
-        # 'ICRS' in the SQL string. These will be removed later.
+        #  These columns are only in b, so can remove the b.column
         select_block = f'''
-                select b.name  as "table_name",  count(*)  as "count",  b.description  as
-                "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
-                as "obj_type"{offset_def}
+            SELECT table_name, count(*) AS count, b.description,
+            b.regime, b.mission, b.type AS obj_type{offset_def}
             '''
-        groupby_block = " b.name , b.description , b.regime , b.mission , b.type"
+
+        groupby_block = "GROUP BY table_name, b.description, b.regime, b.mission, b.type"
 
         if ra is not None:
             full_query = f'''
                 {select_block}
-                from master_table.{tname1} as a,master_table.indexview as b
-                where  (  (  a.table_name  =  b.name  )  ) and
-                {constraint_small}
-                group by {groupby_block}
-
-                union all
-
+                FROM master_table.{tname1} AS a,
+                master_table.indexview AS b
+                WHERE a.table_name = b.name AND {constraint_small}
+                {groupby_block}
+                UNION ALL
                 {select_block}
-                from master_table.{tname2} as a,master_table.indexview as b
-                where  (  (  a.table_name  =  b.name  )  ) and
-                {constraint_big}
-                group by {groupby_block}
-                order by count desc
+                FROM master_table.{tname2} AS a,
+                master_table.indexview AS b
+                WHERE a.table_name = b.name AND {constraint_big}
+                {groupby_block}
+                ORDER BY count DESC
             '''
         else:
             full_query = f'''
-            {select_block}
-            from master_table.{tname1} as a,master_table.indexview as b
-            where  (  (  a.table_name  =  b.name  )  ) and
-            {constraint_time}
-            group by  b.name , b.description , b.regime , b.mission , b.type
-            order by count desc
+                {select_block}
+                FROM master_table.{tname1} AS a, master_table.indexview AS b
+                WHERE a.table_name = b.name AND {constraint_time}
+                {groupby_block}
+                ORDER BY count DESC
             '''
-        # remove all extraneous white space and line breaks
-        return re.sub(r'\s+', ' ', full_query.replace('\n', '')).strip().replace("\'", "'")
+
+        #  rename for readability
+        full_query = f"""
+        select r.table_name as table_name, r.count as count, r.description as description,
+        r.regime as regime, r.mission as mission, r.obj_type as obj_type,
+        r.max_offset_deg as max_offset_deg from ({full_query}) as r"""
+
+        # Join all parts of the query, ensuring simple spacing
+        return HeasarcClass._fix_sql_whitespace(full_query)
+
+    def _fix_sql_whitespace(insql):
+        import re
+        return re.sub(r'\s+', ' ', insql).replace("\n", " ").strip()
+
+    def _set_print_formats(table):
+        """
+        Set the Astropy format (e.g., '.5f' or '.3e') so that
+        the columns look sensible.
+        """
+        for colname in table.columns:
+            col = table[colname]
+            if col.dtype.kind not in 'f':
+                continue
+            if (abs(col.min()) < 1e-10 and abs(col.min()) > 0.0) or abs(col.max() > 1e10):
+                col.format = "%10e"
+            else:
+                col.format = "%10f"
+        return (table)
 
     def query_all(self, position=None, get_query_payload=False, start_time=None,
                   end_time=None, verbose=False, maxrec=None, radius=None):
@@ -849,7 +870,11 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             warnings.warn(
                 NoResultsWarning("No matching rows were found in the query.")
             )
-        return table
+            return table
+
+        #  Because astropy Tables don't keep all the VOTable metadata,
+        #   this prints in more sensible formats and avoids confusion.
+        return HeasarcClass._set_print_formats(table)
 
     def locate_data(self, query_result=None, catalog_name=None):
         """Get links to data products

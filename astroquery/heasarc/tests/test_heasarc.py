@@ -734,33 +734,32 @@ def test__get_vector():
 
 
 def adql_str_comp(testing=str, reference=str):
-    "just makes sure whitespace changes don't matter"
-    import re
-    return re.sub(r'\s+', ' ', testing.replace('\n', ' ')).strip()\
-        == re.sub(r'\s+', ' ', reference.replace('\n', ' ')).strip()
+    return HeasarcClass._fix_sql_whitespace(testing) == HeasarcClass._fix_sql_whitespace(reference)
 
 
 def test__constraint_matches():
     #  Testing all together because it's easier to read this way.
     constraint_small = HeasarcClass._fast_geometry_constraint("217.0", "-31.7", large=False)
     desired_small = """
-            ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802
-            + a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr*60/60)))))
-            and (a.dec between -31.7 - a.dsr*60/60 and -31.7 + a.dsr*60/60)
-            and (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802
-            + a.__z_ra_dec*-0.5254716510722678 > 0.9998476951563913)
-            and (a.dec between -32.7 and -30.7)
-            )
-            """
-    assert adql_str_comp(constraint_small, desired_small)
+    ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 +
+    a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr))))) and
+    (a.dec between -31.7 - a.dsr and -31.7 + a.dsr) and
+    (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 +
+    a.__z_ra_dec*-0.5254716510722678 > 0.9998476951563913)
+    and (a.dec between -32.7 and -30.7) )
+    """
+
+    assert HeasarcClass._fix_sql_whitespace(constraint_small) == \
+        HeasarcClass._fix_sql_whitespace(desired_small)
 
     constraint_large = HeasarcClass._fast_geometry_constraint("217.0", "-31.7", large=True)
     desired_large = """
             ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802
-            + a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr*60/60)))))
-            and (a.dec between -31.7 - a.dsr*60/60 and -31.7 + a.dsr*60/60) )
+            + a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr)))))
+            and (a.dec between -31.7 - a.dsr and -31.7 + a.dsr) )
             """
     assert adql_str_comp(constraint_large, desired_large)
+
     constraint_large_rad = HeasarcClass._fast_geometry_constraint("217.0", "-31.7",
                                                                   radius=0.5*u.deg, large=True)
     assert "(a.dec between -31.7 - 0.5 and -31.7 + 0.5)" in constraint_large_rad
@@ -770,32 +769,38 @@ def test__constraint_matches():
     desired_time = "end_time > 57754.000000 AND start_time < 57755.000000"
     assert adql_str_comp(constraint_time, desired_time)
 
-    constraint_full = HeasarcClass._query_matches("217.0", "-31.7")
-    desired_full = f"""
-            select  b.name  as "table_name",  count(*)  as "count",  b.description  as
-            "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
-            as "obj_type",
-            MAX(DISTANCE(POINT('ICRS', a.ra, a.dec),POINT('ICRS',217.0,-31.7))) as max_offset_deg
-            from master_table.pos_small as a,master_table.indexview as b
-            where  (  (  a.table_name  =  b.name  )  ) and
-            {desired_small}
-            group by  b.name , b.description , b.regime , b.mission , b.type
+    constraint_full = HeasarcClass._query_matches("217.025", "-31.725")
+    desired_full = """
+                    select r.table_name as table_name, r.count as count,
+                    r.description as description, r.regime as regime,
+                    r.mission as mission, r.obj_type as obj_type, r.max_offset_deg
+                    as max_offset_deg from ( SELECT table_name, count(*)
+                    AS count, b.description, b.regime, b.mission, b.type
+                    AS obj_type, MAX(DISTANCE(POINT('ICRS', a.ra, a.dec),
+                    POINT('ICRS', 217.025, -31.725))) as max_offset_deg
+                    FROM master_table.pos_small AS a, master_table.indexview
+                    AS b WHERE a.table_name = b.name AND
+                    ( (a.__x_ra_dec*-0.5121892283646801 + a.__y_ra_dec*-0.6790813682341418
+                    + a.__z_ra_dec*-0.5258428374185955 > (cos(radians((a.dsr)))))
+                    and (a.dec between -31.725 - a.dsr and -31.725 + a.dsr) and
+                    (a.__x_ra_dec*-0.5121892283646801 + a.__y_ra_dec*-0.6790813682341418 +
+                    a.__z_ra_dec*-0.5258428374185955 > 0.9998476951563913) and
+                    (a.dec between -32.725 and -30.725) ) GROUP BY table_name,
+                    b.description, b.regime, b.mission, b.type UNION ALL
+                    SELECT table_name, count(*) AS count, b.description, b.regime,
+                    b.mission, b.type AS obj_type, MAX(DISTANCE(POINT('ICRS',
+                    a.ra, a.dec), POINT('ICRS', 217.025, -31.725))) as max_offset_deg
+                    FROM master_table.pos_big AS a, master_table.indexview AS b
+                    WHERE a.table_name = b.name AND ( (a.__x_ra_dec*-0.5121892283646801 +
+                    a.__y_ra_dec*-0.6790813682341418 + a.__z_ra_dec*-0.5258428374185955 >
+                    (cos(radians((a.dsr))))) and (a.dec between -31.725 - a.dsr and -31.725 + a.dsr)
+                    ) GROUP BY table_name, b.description, b.regime, b.mission, b.type
+                    ORDER BY count DESC ) as r
+                """
 
-            union all
+    assert HeasarcClass._fix_sql_whitespace(constraint_full) == HeasarcClass._fix_sql_whitespace(desired_full)
 
-            select  b.name  as "table_name",  count(*)  as "count",  b.description  as
-            "description",  b.regime  as "regime",  b.mission  as "mission",  b.type
-            as "obj_type",
-            MAX(DISTANCE(POINT('ICRS', a.ra, a.dec),POINT('ICRS',217.0,-31.7))) as max_offset_deg
-            from master_table.pos_big as a,master_table.indexview as b
-            where  (  (  a.table_name  =  b.name  )  ) and
-            {desired_large}
-            group by  b.name , b.description , b.regime , b.mission , b.type
-            order by count desc
-            """
-    assert adql_str_comp(constraint_full, desired_full)
-
-    constraint_with_time = HeasarcClass._query_matches("217.0", "-31.7",
+    constraint_with_time = HeasarcClass._query_matches("217.025", "-31.725",
                                                        start_time="2017-01-01",
                                                        end_time="2020-01-02")
     assert "end_time > 57754.000000 AND start_time < 58850.000000" in constraint_with_time
@@ -809,9 +814,12 @@ def test__query_all():
     #  For some reason, the significant digits here don't give the same result as above.
     full_with_strpos = Heasarc.query_all("217.0 -31.7", get_query_payload=True)
     #  in _query_matches and query_all, whitespaces get removed.
-    assert "( (a.__x_ra_dec*-0.5121892283646801 + a.__y_ra_dec*-0.6790813682341418 +"
-    "a.__z_ra_dec*-0.5258428374185955 > (cos(radians((a.dsr*60/60)))))" \
-        and "DISTANCE" in full_with_strpos
+    assert HeasarcClass._fix_sql_whitespace("""( (a.__x_ra_dec*-0.5120309075160554 +
+                                            a.__y_ra_dec*-0.6794879643287802 +
+                                            a.__z_ra_dec*-0.5254716510722678 >
+                                            (cos(radians((a.dsr)))))
+                                            """) in HeasarcClass._fix_sql_whitespace(full_with_strpos)
+
     full_with_strtimes = Heasarc.query_all("217.0 -31.7",
                                            start_time="2017-01-01",
                                            end_time="2020-01-02", get_query_payload=True)
