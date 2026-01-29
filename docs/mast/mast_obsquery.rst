@@ -566,6 +566,7 @@ Once the URIs are obtained, they can be used directly in cloud-based workflows o
 use the `~astropy.io.fits.open` function with the S3 URI and appropriate ``fsspec`` keyword arguments.
 
 .. doctest-remote-data::
+.. doctest-requires:: fsspec,s3fs
 
    >>> from astropy.io import fits
    ...
