@@ -10,7 +10,7 @@ Institute for Extraterrestrial Physics (MPE). Einstein Probe data (level 2 and l
 public products) are distributed through the ESA Multi-Mission Data Services (EMDS), which
 provides unified access to data from multiple space missions via a single service.
 
-Einstein Probe is is designed to monitor the X-ray sky and discover transient and variable
+Einstein Probe is designed to monitor the X-ray sky and discover transient and variable
 phenomena across the Universe. It carries two primary scientific instruments: the
 Wide-field X-ray Telescope (WXT), which provides a very large field of view for sky
 monitoring, and the Follow-up X-ray Telescope (FXT), which enables more detailed
