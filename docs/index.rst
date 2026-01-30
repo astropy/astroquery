@@ -95,11 +95,11 @@ building the documentation, in editable mode:
 Requirements
 ------------
 
-Astroquery works with Python 3.9 or later.
+Astroquery works with Python 3.10 or later.
 
 The following packages are required for astroquery installation & use:
 
-* `numpy <https://numpy.org>`_ >= 1.20
+* `numpy <https://numpy.org>`_ >= 1.22
 * `astropy <https://www.astropy.org>`__ (>=5.0)
 * `pyVO`_ (>=1.5)
 * `requests <https://requests.readthedocs.io/en/latest/>`_
@@ -116,9 +116,9 @@ and for running the tests:
 The following packages are optional dependencies and are required for the
 full functionality of the `~astroquery.mocserver`, `~astroquery.alma`, and `~astroquery.xmatch` modules:
 
-* `astropy-healpix <https://astropy-healpix.readthedocs.io/en/latest/>`_
-* `regions <https://astropy-regions.readthedocs.io/en/latest/>`_
-* `mocpy <https://cds-astro.github.io/mocpy/>`_ >= 0.9
+* `astropy-healpix <https://astropy-healpix.readthedocs.io/en/latest/>`_ >= 0.7
+* `regions <https://astropy-regions.readthedocs.io/en/latest/>`_ >= 0.5
+* `mocpy <https://cds-astro.github.io/mocpy/>`_ >= 0.12
 
 For the `~astroquery.vamdc` module:
 
@@ -126,9 +126,10 @@ For the `~astroquery.vamdc` module:
   personal fork: ``python -m pip install git+https://github.com/keflavich/vamdclib-1.git``
 
 The following packages are optional dependencies and are required for the
-full functionality of the `~astroquery.mast` module:
+full functionality of the `~astroquery.mast` and `~astroquery.heasarc` modules:
 
 * `boto3 <https://boto3.amazonaws.com/v1/documentation/api/latest/index.html>`_
+* ``botocore``
 
 Using astroquery
 ----------------
@@ -276,7 +277,7 @@ The following modules have been completed using a common API:
   ipac/irsa/irsa_dust/irsa_dust.rst
   ipac/irsa/ibe/ibe.rst
   ipac/irsa/irsa.rst
-  jplspec/jplspec.rst
+  linelists/jplspec/jplspec.rst
   magpis/magpis.rst
   mast/mast.rst
   mocserver/mocserver.rst
@@ -412,7 +413,7 @@ well as  cross section and collision rates.  Those services are:
   atomic/atomic.rst
   linelists/cdms/cdms.rst
   hitran/hitran.rst
-  jplspec/jplspec.rst
+  linelists/jplspec/jplspec.rst
   lamda/lamda.rst
   nist/nist.rst
   splatalogue/splatalogue.rst

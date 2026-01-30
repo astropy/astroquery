@@ -209,42 +209,7 @@ The following example uses the string definition of the calibration level ('PROD
   Length = 12965 rows
 
 
-As has been mentioned, these parameters are optional and it is not necessary to define all of them to execute this function, as the search will be adapted to the ones that are available.
-
-.. doctest-remote-data::
-
-  >>> from astroquery.esa.hubble import ESAHubble
-  >>> esahubble = ESAHubble()
-  >>> result1 = esahubble.query_criteria(calibration_level = 'PRODUCT',
-  ...                                    async_job = False,
-  ...                                    output_file = 'output3.vot.gz')
-  >>> result2 = esahubble.query_criteria(data_product_type = 'image',
-  ...                                    intent='SCIENCE',
-  ...                                    async_job = False,
-  ...                                    output_file = 'output4.vot.gz')
-  >>> result3 = esahubble.query_criteria(data_product_type = 'timeseries',
-  ...                                    async_job = False,
-  ...                                    output_file = 'output5.vot.gz')
-
-If no criteria are specified to limit the selection, this function will retrieve all the observations.
-
-.. doctest-remote-data::
-
-  >>> from astroquery.esa.hubble import ESAHubble
-  >>> esahubble = ESAHubble()
-  >>> result = esahubble.query_criteria(async_job = False, verbose = True)    # doctest: +IGNORE_OUTPUT
-  INFO: select o.*, p.calibration_level, p.data_product_type, pos.ra, pos.dec from ehst.observation AS o JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid JOIN ehst.position as pos on p.plane_id = pos.plane_id [astroquery.esa.hubble.core]
-  Launched query: 'select  TOP 2000 o.*, p.calibration_level, p.data_product_type, pos.ra, pos.dec from ehst.observation AS o JOIN ehst.plane as p on o.observation_uuid=p.observation_uuid JOIN ehst.position as pos on p.plane_id = pos.plane_id'
-  ------>http
-  host = hst.esac.esa.int:80
-  context = /tap-server/tap//sync
-  Content-type = application/x-www-form-urlencoded
-  200 200
-  [('Date', 'Mon, 25 Jul 2022 16:21:18 GMT'), ('Server', 'Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips PHP/5.4.16 mod_jk/1.2.48'), ('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate'), ('Pragma', 'no-cache'), ('Expires', '0'), ('X-XSS-Protection', '1; mode=block'), ('X-Frame-Options', 'SAMEORIGIN'), ('X-Content-Type-Options', 'nosniff'), ('Content-Encoding', 'gzip'), ('Content-Disposition', 'attachment;filename="1658766078997O-result.vot"'), ('Content-Type', 'application/x-votable+xml'), ('Set-Cookie', 'JSESSIONID=7098EC515E7A2240E6F3129D23564139; Path=/; HttpOnly'), ('Connection', 'close'), ('Transfer-Encoding', 'chunked')]
-  Retrieving sync. results...
-  Query finished.
-
-This last example will provide the ADQL query based on the criteria defined by the user.
+As it  has been mentioned, these parameters are optional and it is not necessary to define all of them to execute this function, as the search will be adapted to the ones that are available.
 
 .. doctest-remote-data::
 
@@ -434,7 +399,7 @@ The first step is to query eHST Server to retrieve them. For instance, for obser
   >>> from astroquery.esa.hubble import ESAHubble
   >>> esahubble = ESAHubble()
   >>> table = esahubble.get_associated_files(observation_id='w0ji0v01t')
-  >>> print(result)    # doctest: +IGNORE_OUTPUT
+  >>> print(table)    # doctest: +IGNORE_OUTPUT
          filename      calibration_level    type   size_uncompressed
           object             object        object        object
     ------------------ ----------------- --------- -----------------

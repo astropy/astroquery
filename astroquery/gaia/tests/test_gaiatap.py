@@ -467,6 +467,10 @@ def cross_match_basic_2_kwargs():
             "table_b_column_dec": "dec"}
 
 
+def test_number_retrieval_types():
+    assert len(conf.VALID_DATALINK_RETRIEVAL_TYPES) == 26
+
+
 def test_show_message():
     print(JOB_DATA_FILE_NAME)
     connHandler = DummyConnHandler()
@@ -938,11 +942,14 @@ def test_datalink_querier_load_data_ecsv(mock_datalink_querier_ecsv):
 
     assert len(result_dict) == 3
 
-    files = list(result_dict.keys())
-    files.sort()
-    assert files[0] == 'MCMC_MSC-Gaia DR3 5937083312263887616.ecsv'
-    assert files[1] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.ecsv'
-    assert files[2] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.ecsv'
+    files = list(sorted(result_dict.items()))
+    assert files[0][0] == 'MCMC_MSC-Gaia DR3 5937083312263887616.ecsv'
+    assert files[1][0] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.ecsv'
+    assert files[2][0] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.ecsv'
+
+    assert isinstance(files[0][1][0], Table)
+    assert isinstance(files[1][1][0], Table)
+    assert isinstance(files[2][1][0], Table)
 
     os.remove(os.path.join(os.getcwd(), datalink_output))
 
@@ -976,18 +983,21 @@ def test_datalink_querier_load_data_csv(mock_datalink_querier_csv):
 
     assert len(result_dict) == 3
 
-    files = list(result_dict.keys())
-    files.sort()
-    assert files[0] == 'MCMC_MSC-Gaia DR3 5937083312263887616.csv'
-    assert files[1] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.csv'
-    assert files[2] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.csv'
+    files = list(sorted(result_dict.items()))
+    assert files[0][0] == 'MCMC_MSC-Gaia DR3 5937083312263887616.csv'
+    assert files[1][0] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.csv'
+    assert files[2][0] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.csv'
+
+    assert isinstance(files[0][1][0], Table)
+    assert isinstance(files[1][1][0], Table)
+    assert isinstance(files[2][1][0], Table)
 
     os.remove(os.path.join(os.getcwd(), datalink_output))
 
     assert not os.path.exists(datalink_output)
 
 
-@pytest.mark.skip(reason="Thes fits files generate an error relatate to the unit 'log(cm.s**-2)")
+@pytest.mark.filterwarnings("ignore:")
 def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
     result_dict = mock_datalink_querier_fits.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
                                                        data_structure='INDIVIDUAL',
@@ -1015,11 +1025,14 @@ def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
 
     assert len(result_dict) == 3
 
-    files = list(result_dict.keys())
-    files.sort()
-    assert files[0] == 'MCMC_MSC-Gaia DR3 5937083312263887616.fits'
-    assert files[1] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.fits'
-    assert files[2] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.fits'
+    files = list(sorted(result_dict.items()))
+    assert files[0][0] == 'MCMC_MSC-Gaia DR3 5937083312263887616.fits'
+    assert files[1][0] == 'XP_CONTINUOUS-Gaia DR3 5937083312263887616.fits'
+    assert files[2][0] == 'XP_SAMPLED-Gaia DR3 5937083312263887616.fits'
+
+    assert isinstance(files[0][1][0], Table)
+    assert isinstance(files[1][1][0], Table)
+    assert isinstance(files[2][1][0], Table)
 
     os.remove(os.path.join(os.getcwd(), datalink_output))
 
@@ -1068,10 +1081,12 @@ def test_load_data_vot(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_n
     path.unlink()
 
 
-@pytest.mark.skip(reason="Thes fits files generate an error relatate to the unit 'log(cm.s**-2)")
-def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory):
+@pytest.mark.filterwarnings("ignore:")
+def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_now):
+    assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
+
     now = datetime.datetime.now(datetime.timezone.utc)
-    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S") + '.zip'
+    output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S.%f") + '.zip'
 
     path = Path(os.getcwd(), output_file)
 
@@ -1088,7 +1103,7 @@ def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory):
             "RETRIEVAL_TYPE": "epoch_photometry",
             "DATA_STRUCTURE": "INDIVIDUAL",
             "USE_ZIP_ALWAYS": "true"}
-        assert output_file == Path(os.getcwd(), 'datalink_output.zip')
+        assert str(path) == output_file
         assert verbose is True
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
@@ -1458,7 +1473,7 @@ def test_cross_match_basic_3(monkeypatch, background, mock_querier_async):
     assert job.get_phase() == "EXECUTING" if background else "COMPLETED"
     assert job.failed is False
 
-    radius_quantity = Quantity(value=1.0/3600.0, unit=u.deg)
+    radius_quantity = Quantity(value=1.0 / 3600.0, unit=u.deg)
     job = mock_querier_async.cross_match_basic(table_a_full_qualified_name="user_hola.tableA", table_a_column_ra="ra",
                                                table_a_column_dec="dec", radius=radius_quantity, background=background)
     assert job.async_ is True

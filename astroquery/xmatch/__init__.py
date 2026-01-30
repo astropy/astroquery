@@ -7,7 +7,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.xmatch`.
     """
     url = _config.ConfigItem(
-        'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync',
+        'https://cdsxmatch.cds.unistra.fr/xmatch/api/v1/sync',
         'xMatch URL')
 
     timeout = _config.ConfigItem(

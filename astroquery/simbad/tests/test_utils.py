@@ -1,4 +1,3 @@
-
 import pytest
 
 from astroquery.simbad.utils import (CriteriaTranslator, _parse_coordinate_and_convert_to_icrs,
@@ -82,9 +81,6 @@ def test_tokenizer():
 
 
 @pytest.mark.parametrize("test, result", [
-    ("region(GAL,180 0,2d) & otype = 'G' & (nbref >= 10|bibyear >= 2000)",
-     ("CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', 86.40498828654475, 28.93617776179148, 2.0)) = 1"
-      " AND otypes.otype = 'G' AND (nbref >= 10 OR bibyear >= 2000)")),
     ("author ∼ 'egret*'", "regexp(author, '^egret.*$') = 1"),
     ("cat in ('hd','hip','ppm')", "cat IN ('hd','hip','ppm')"),
     ("author !~ 'test'", "regexp(author, '^test$') = 0"),
@@ -101,6 +97,17 @@ def test_transpiler(test, result):
     # and run this test file again.
     translated = CriteriaTranslator.parse(test)
     assert translated == result
+
+
+def test_transpiler_with_floats():
+    # This test is not part of the previous one as the floats in the string have
+    # some version dependent variations. Expected translation:
+    # ("CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', 86.40498828654475, 28.93617776179148, 2.0)) = 1"
+    #  " AND otypes.otype = 'G' AND (nbref >= 10 OR bibyear >= 2000)")
+    translation = CriteriaTranslator.parse("region(GAL,180 0,2d) & otype = 'G' & (nbref >= 10|bibyear >= 2000)")
+
+    assert "CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', 86.404988286" == translation[:60]
+    assert ", 2.0)) = 1 AND otypes.otype = 'G' AND (nbref >= 10 OR bibyear >= 2000)" == translation[-71:]
 
 
 def test_transpiler_errors(capsys):

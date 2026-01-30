@@ -159,6 +159,26 @@ class TestIntegralTap:
 
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.integral.core.pyvo.dal.TAPService')
+    def test_execute_servlet_request_with_parser_method(self, mock_tap):
+        mock_parser_method = Mock()
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_tap._session.get.return_value = mock_response
+        query_params = {'test': 'dummy'}
+        esautils.execute_servlet_request(
+            url='https://dummyurl.com/service',
+            tap=mock_tap,
+            query_params=query_params,
+            parser_method=mock_parser_method
+        )
+
+        mock_tap._session.get.assert_called_once_with(url='https://dummyurl.com/service',
+                                                      params={'test': 'dummy', 'TAPCLIENT': 'ASTROQUERY'})
+
+        mock_parser_method.assert_called_once()
+
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService')
     def test_execute_servlet_request_error(self, mock_tap):
         error_message = "Mocked HTTP error"
         mock_tap._session.get.side_effect = HTTPError(error_message)

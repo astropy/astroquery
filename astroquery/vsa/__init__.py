@@ -21,7 +21,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.vsa`.
     """
     server = _config.ConfigItem(
-        ['http://horus.roe.ac.uk:8080/vdfs/'],
+        ['http://vsa.roe.ac.uk:8080/vdfs/'],
         'Name of the VSA mirror to use')
 
     timeout = _config.ConfigItem(

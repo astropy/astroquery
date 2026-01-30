@@ -1,8 +1,8 @@
 .. _astroquery.ipac.irsa.most:
 
-**********************************************************
-IRSA Moving Object Search Tool (astroquery.ipac.irsa.most)
-**********************************************************
+**************************************************************
+IRSA Moving Object Search Tool (``astroquery.ipac.irsa.most``)
+**************************************************************
 
 Moving Object Search Tool (MOST) can determine the orbit for a given solar system
 object then find images that covered the object's predicted positions in select
@@ -317,10 +317,10 @@ mode are ignored.
 |                   |                  |       | type, i.e ``TestAsteroid``   |
 |                   |                  |       | or ``TestComet``             |
 +-------------------+------------------+-------+------------------------------+
-| epoch             | manual_input     | str   | Epoch of coordinates in MJD. |
-|                   |                  | float |                              |
+| epoch             | manual_input     | float | Epoch of coordinates in MJD  |
+|                   |                  | str   | or ``YY-MM-DD hh:mm:ss``.    |
 +-------------------+------------------+-------+------------------------------+
-| eccentricity      | manual_input     | float | Object's eccentricity (0-1). |
+| eccentricity      | manual_input     | float | Orbit's eccentricity (>=0).  |
 +-------------------+------------------+-------+------------------------------+
 | inclination       | manual_input     | float | Inclination (0-180 deg).     |
 +-------------------+------------------+-------+------------------------------+
@@ -335,9 +335,8 @@ mode are ignored.
 |                   |                  |       | Comets. In AU.               |
 +-------------------+------------------+-------+------------------------------+
 | mean_anomaly      | manual_input     | float | Mean anomaly for Asteroids   |
-| perih_time        |                  | str   | (deg) or perihelion time for |
-|                   |                  |       | Comets                       |
-|                   |                  |       | (``YYYY+MM+DD+HH:MM:SS``)    |
+| perih_time        |                  |       | (deg) or perihelion time for |
+|                   |                  |       | Comets (JD)                  |
 +-------------------+------------------+-------+------------------------------+
 
 Examples

@@ -2,16 +2,11 @@
 import pytest
 import requests
 import logging
-from pathlib import Path
 from requests.models import Response
 from requests.structures import CaseInsensitiveDict
 from astroquery.query import BaseQuery, BaseVOQuery
 from astroquery.utils.mocks import MockResponse
 from itertools import product
-
-# Test data directory
-DATA_DIR = Path(__file__).parent / 'data'
-DATA_DIR.mkdir(exist_ok=True)
 
 # Test data files
 TEST_FILE_CONTENT = b'This is a test file with some content.'

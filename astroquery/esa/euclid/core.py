@@ -146,12 +146,14 @@ class EuclidClass(TapPlus):
             the ‘ra’ column in the table table_a_full_qualified_name
         table_a_column_dec :  str, mandatory
             the ‘dec’ column in the table table_a_full_qualified_name
-        table_b_full_qualified_name : str, optional, default the main_table associated to the selected environment
-            a full qualified table name (i.e. schema name and table name)
-        table_b_column_ra : str, optional, default the main_table_ra_column associated to the selected environment
-            the ‘ra’ column in the table table_b_full_qualified_name
-        table_b_column_dec :  str, default the main_table_dec_column associated to the selected environment
-            the ‘dec’ column in the table table_b_full_qualified_name
+        table_b_full_qualified_name : str, optional, default the main_table associated to the selected environment a
+            full qualified table name (i.e. schema name and table name). 'table_name' and 'table_b_column_ra' and
+            'table_b_column_dec' are independent.
+        table_b_column_ra : str, optional, default the main_table_ra_column associated to the selected environment the
+            ‘ra’ column in the table table_b_full_qualified_name. 'table_b_column_ra' and 'table_b_column_dec' are not
+            independent.
+        table_b_column_dec :  str, default the main_table_dec_column associated to the selected environment the ‘dec’
+            column in the table table_b_full_qualified_name
         results_name : str, optional, default None
             custom name defined by the user for the job that is going to be created
         radius : float (arc. seconds), str or astropy.coordinate, optional, default 1.0
@@ -179,13 +181,17 @@ class EuclidClass(TapPlus):
         if not schema_a:
             raise ValueError(f"Schema name is empty in full qualified table: '{table_a_full_qualified_name}'")
 
-        if table_b_full_qualified_name is None:
+        if table_b_full_qualified_name is None or not table_b_full_qualified_name:
             table_b_full_qualified_name = self.main_table
+
+        if (table_b_column_ra is None or not table_b_column_ra) and (
+                table_b_column_dec is None or not table_b_column_dec):
             table_b_column_ra = self.main_table_ra
             table_b_column_dec = self.main_table_dec
-        else:
-            if table_b_column_ra is None or table_b_column_dec is None:
-                raise ValueError(f"Invalid ra or dec column names: '{table_b_column_ra}' and '{table_b_column_dec}'")
+
+        if ((table_b_column_ra is None or not table_b_column_ra) and table_b_column_dec is not None) or (
+                table_b_column_ra is not None and (table_b_column_dec is None or not table_b_column_dec)):
+            raise ValueError(f"Invalid ra or dec column names: '{table_b_column_ra}' and '{table_b_column_dec}'")
 
         schema_b = self.__get_schema_name(table_b_full_qualified_name)
         if not schema_b:
@@ -270,11 +276,10 @@ class EuclidClass(TapPlus):
             raise ValueError(f"Not found schema name in full qualified table: '{full_qualified_table_name}'")
         return schema
 
-    def launch_job(self, query, *, name=None, dump_to_file=False, output_file=None, output_format="csv", verbose=False,
+    def launch_job(self, query, *, name=None, dump_to_file=False, output_file=None, output_format="votable_gzip",
+                   verbose=False,
                    upload_resource=None, upload_table_name=None):
         """
-        Description
-        -----------
         Launches a synchronous job
 
         Parameters
@@ -288,8 +293,9 @@ class EuclidClass(TapPlus):
         output_file : str, optional, default None
             File name where the results are saved if dump_to_file is True.
             If this parameter is not provided, the job id is used instead
-        output_format : str, optional, default 'csv'
-            output format for the output file
+        output_format : str, optional, default 'votable_gzip'
+            output format for the output file. Available formats are: 'votable', 'votable_plain', 'fits', 'csv',
+            'ecsv' and 'json', default is a compressed 'votable'
         verbose : bool, optional, default 'False'
             flag to display information about the process
         upload_resource: str, optional, default None
@@ -316,11 +322,9 @@ class EuclidClass(TapPlus):
         except Exception as exx:
             log.error(f'Query failed: {query}, {str(exx)}')
 
-    def launch_job_async(self, query, *, name=None, dump_to_file=False, output_file=None, output_format="csv",
+    def launch_job_async(self, query, *, name=None, dump_to_file=False, output_file=None, output_format="votable_gzip",
                          verbose=False, background=False, upload_resource=None, upload_table_name=None, autorun=True):
         """
-        Description
-        -----------
         Launches an asynchronous job
 
         Parameters
@@ -334,8 +338,9 @@ class EuclidClass(TapPlus):
         output_file : str, optional, default None
             file name where the results are saved if dump_to_file is True.
             if this parameter is not provided, the jobid is used instead
-        output_format : str, optional, default 'csv'
-            format of the results for the output file
+        output_format : str, optional, default 'votable_gzip'
+            format of the results for the output file. Available formats are: 'votable', 'votable_plain', fits',
+            'csv', 'ecsv' and 'json', default is a compressed 'votable'
         verbose : bool, optional, default 'False'
             flag to display information about the process
         background : bool, optional, default 'False'
@@ -374,8 +379,6 @@ class EuclidClass(TapPlus):
     def query_object(self, coordinate, *, radius=None, width=None, height=None,
                      async_job=False, verbose=False, columns=None):
         """
-        Description
-        -----------
         Searches for objects around a given position with the default catalog sascat_pvpr01.mer_final_cat_pvpr01
 
         Parameters
@@ -437,9 +440,10 @@ class EuclidClass(TapPlus):
             coordinates center point
         radius : astropy.units, mandatory
             radius
-        table_name : str, optional, default main table name doing the cone search against
+        table_name : str, optional, default main table name doing the cone search against. `table_name` and
+            `ra_column_name` and `dec_column_name` are independent.
         ra_column_name : str, optional, default ra column in main table
-            ra column doing the cone search against
+            ra column doing the cone search against. `ra_column_name` and `dec_column_name` are not independent.
         dec_column_name : str, optional, default dec column in main table
             dec column doing the cone search against
         async_job : bool, optional, default 'False'
@@ -447,7 +451,6 @@ class EuclidClass(TapPlus):
             synchronous)
         verbose : bool, optional, default 'False'
             flag to display information about the process
-
         columns: list, optional, default None
             if empty, all columns will be selected
         Returns
@@ -457,8 +460,14 @@ class EuclidClass(TapPlus):
 
         if table_name is None:
             table_name = self.main_table
+
+        if ra_column_name is None and dec_column_name is None:
             ra_column_name = self.main_table_ra
             dec_column_name = self.main_table_dec
+
+        if (ra_column_name is not None and dec_column_name is None) or (
+                ra_column_name is None and dec_column_name is not None):
+            raise ValueError(f"Invalid ra or dec column names: ra, {ra_column_name}, dec, {dec_column_name}")
 
         radius_deg = None
         coord = commons.parse_coordinates(coordinate)
@@ -510,12 +519,10 @@ class EuclidClass(TapPlus):
                     background=False,
                     dump_to_file=False,
                     output_file=None,
-                    output_format="csv",
+                    output_format="votable_gzip",
                     verbose=False,
                     columns=None):
         """
-        Description
-        -----------
         Cone search for a given catalog and sky position, results sorted by distance
 
         Parameters
@@ -525,9 +532,9 @@ class EuclidClass(TapPlus):
         radius : astropy.units, mandatory
             radius
         table_name : str, optional, default the table defined for the selected environment
-            Table to search
+            Table to search. 'table_name' and 'ra_column_name' and 'dec_column_name`'are independent.
         ra_column_name : str, optional, default the column name defined for the selected environment
-            Name of the RA column in the table
+            Name of the RA column in the table. 'ra_column_name' and 'dec_column_name' are not independent.
         dec_column_name : str, optional, default the column name defined for the selected environment
             Name of the DEC column in the table
         async_job : bool, optional, default 'False'
@@ -541,8 +548,9 @@ class EuclidClass(TapPlus):
         output_file : str, optional, default None
             file name where the results are saved if dump_to_file is True.
             If this parameter is not provided, the job id is used instead
-        output_format : str, optional, default 'csv'
-            Output format for the output file
+        output_format : str, optional, default 'votable_gzip'
+            Output format for the output file. Available formats are: 'votable', 'votable_plain', 'fits', 'csv',
+            'ecsv' and 'json', default is a compressed 'votable'.
         columns: list, optional, default None
             if empty, all columns will be selected
         verbose : bool, optional, default 'False'
@@ -616,8 +624,6 @@ class EuclidClass(TapPlus):
 
     def login(self, *, user=None, password=None, credentials_file=None, verbose=False):
         """
-        Description
-        -----------
         Performs a login
 
         User and password can be used or a file that contains username and password
@@ -625,12 +631,12 @@ class EuclidClass(TapPlus):
 
         Parameters
         ----------
-        user : str, mandatory if 'file' is not provided, default None
+        user : str, mandatory if 'credentials_file' is not provided, default None
             login name
-        password : str, mandatory if 'file' is not provided, default None
+        password : str, mandatory if 'credentials_file' is not provided, default None
             user password
         credentials_file : str, mandatory if no 'user' & 'password' are provided
-            file containing user and password in two lines
+            the file containing user and password in two lines
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -660,8 +666,6 @@ class EuclidClass(TapPlus):
 
     def login_gui(self, verbose=False):
         """
-        Description
-        -----------
         Performs a login using a GUI dialog
 
         Parameters
@@ -701,8 +705,6 @@ class EuclidClass(TapPlus):
 
     def logout(self, verbose=False):
         """
-        Description
-        -----------
         Performs a logout
 
         Parameters
@@ -754,8 +756,6 @@ class EuclidClass(TapPlus):
 
     def get_status_messages(self, verbose=False):
         """
-        Description
-        -----------
         Retrieve the messages to inform users about
         the status of Euclid TAP
 
@@ -834,8 +834,6 @@ class EuclidClass(TapPlus):
                                  filter="VIS", dsr_part1=None, dsr_part2=None, dsr_part3=None, output_file=None,
                                  verbose=False):
         """
-        Description
-        -----------
         Downloads the products for a given EUCLID observation_id (observations) or tile_index (mosaics)
         For big files the download may require a long time
 
@@ -905,10 +903,10 @@ class EuclidClass(TapPlus):
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
             log.error(f"Cannot retrieve products for observation {id}. HTTP error: {err}")
-            return
+            return None
         except Exception as exx:
             log.error(f'Cannot retrieve products for observation {id}: {str(exx)}')
-            return
+            return None
 
         files = []
         self.__extract_file(output_file_full_path=output_file_full_path, output_dir=output_dir, files=files)
@@ -922,9 +920,7 @@ class EuclidClass(TapPlus):
 
     def __get_tile_catalogue_list(self, *, tile_index, product_type, verbose=False):
         """
-         Description
-         -----------
-         Get the list of products of a given EUCLID tile_index (mosaics)
+        Get the list of products of a given EUCLID tile_index (mosaics)
 
         Parameters
         ----------
@@ -1031,8 +1027,6 @@ class EuclidClass(TapPlus):
     def get_product_list(self, *, observation_id=None, tile_index=None, product_type, dsr_part1=None, dsr_part2=None,
                          dsr_part3=None, verbose=False):
         """
-        Description
-        -----------
         Get the list of products of a given EUCLID id searching by observation_id or tile_index.
 
         Parameters
@@ -1317,8 +1311,6 @@ class EuclidClass(TapPlus):
     def get_product(self, *, file_name=None, product_id=None, release='sedm', output_file=None, dsr_part1=None,
                     dsr_part2=None, dsr_part3=None, verbose=False):
         """
-        Description
-        -----------
         Downloads a product given its file name or product id
 
         Parameters
@@ -1377,10 +1369,10 @@ class EuclidClass(TapPlus):
         except HTTPError as err:
             log.error(
                 f"Cannot retrieve products for file_name {file_name} or product_id {product_id}. HTTP error: {err}")
-            return
+            return None
         except Exception as exx:
             log.error(f"Cannot retrieve products for file_name {file_name} or product_id {product_id}: {str(exx)}")
-            return
+            return None
 
         files = []
         self.__extract_file(output_file_full_path=output_file_full_path, output_dir=output_dir, files=files)
@@ -1395,8 +1387,6 @@ class EuclidClass(TapPlus):
     def get_cutout(self, *, file_path=None, instrument=None, id=None, coordinate, radius, output_file=None,
                    verbose=False):
         """
-        Description
-        -----------
         Downloads a cutout given its file path, instrument and obs_id, and the cutout region
 
         Parameters
@@ -1443,12 +1433,12 @@ class EuclidClass(TapPlus):
             log.error(
                 f"Cannot retrieve the product for file_path {file_path}, obsId {id}, and collection {instrument}. "
                 f"HTTP error: {err}")
-            return
+            return None
         except Exception as exx:
             log.error(
                 f"Cannot retrieve the product for file_path {file_path}, obsId {id}, and collection {instrument}: "
                 f"{str(exx)}")
-            return
+            return None
 
         files = []
         self.__extract_file(output_file_full_path=output_file_full_path, output_dir=output_dir, files=files)
@@ -1462,8 +1452,6 @@ class EuclidClass(TapPlus):
 
     def get_spectrum(self, *, source_id, schema='sedm', retrieval_type="ALL", output_file=None, verbose=False):
         """
-        Description
-        -----------
         Downloads a spectrum with datalink.
 
         The spectrum associated with the source_id is downloaded as a compressed fits file, and the files it contains
@@ -1574,8 +1562,10 @@ class EuclidClass(TapPlus):
 
         """
 
-        return self.__eucliddata.get_datalinks(ids=ids, linking_parameter=linking_parameter,
-                                               extra_options=extra_options, verbose=verbose)
+        return self.__eucliddata.get_datalinks(ids=ids,
+                                               linking_parameter=linking_parameter,
+                                               extra_options=extra_options,
+                                               verbose=verbose)
 
     def get_scientific_product_list(self, *, observation_id=None, tile_index=None, category=None, group=None,
                                     product_type=None, dataset_release='REGREPROC1_R2', dsr_part1=None, dsr_part2=None,

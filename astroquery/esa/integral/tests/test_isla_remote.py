@@ -85,7 +85,7 @@ class TestIntegralRemote:
 
         assert len(metadata) >= 1
         assert metadata[0]['name'] == 'Integral'
-        assert metadata[0]['metadata'][0]['value'] == 'Crab'
+        assert metadata[0]['metadata']['rows'][0]['value'] == 'Crab'
 
         # Query a target that does not exist
         with pytest.raises(ValueError) as err:

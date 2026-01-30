@@ -103,6 +103,9 @@ class TestMPC:
         a = mpc.MPC.get_observations('2P')
         assert a['number'][0] == 2
         assert a['comettype'][0] == 'P'
+        a = mpc.MPC.get_observations('85D')
+        assert a['number'][0] == 85
+        assert a['comettype'][0] == 'D'
         a = mpc.MPC.get_observations('258P')
         assert a['number'][0] == 258
         assert a['comettype'][0] == 'P'
@@ -116,6 +119,11 @@ class TestMPC:
         assert a['desig'][0] == "2013 K1"
         a = mpc.MPC.get_observations("P/2019 A4")
         assert a['desig'][0] == "2019 A4"
+
+        # interstellar objects
+        a = mpc.MPC.get_observations('2I')
+        assert a['number'][0] == 2
+        assert a['comettype'][0] == 'I'
 
         with pytest.raises(TypeError):
             a = mpc.MPC.get_observations()

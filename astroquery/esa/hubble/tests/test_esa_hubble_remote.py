@@ -18,7 +18,7 @@ import pytest
 from astroquery.esa.hubble import ESAHubble
 from astropy import coordinates
 
-esa_hubble = ESAHubble()
+esa_hubble = ESAHubble(show_messages=False)
 
 
 def data_path(filename):
@@ -31,9 +31,9 @@ def create_temp_folder():
 
 
 def remove_last_job():
-    jobs = esa_hubble._tap.list_async_jobs()
+    jobs = esa_hubble.tap.get_job_list()
     if len(jobs) > 0:
-        esa_hubble._tap.remove_jobs(jobs[-1].jobid)
+        jobs[-1].delete()
 
 
 @pytest.mark.remote_data
@@ -51,7 +51,7 @@ class TestEsaHubbleRemoteData:
     temp_folder = create_temp_folder()
     temp_folder_for_fits = create_temp_folder()
 
-    def test_query_tap_async(self):
+    def test_query_tap_async(self, recwarn):
         result = esa_hubble.query_tap(query=self.top_obs_query, async_job=True)
         assert len(result) > 10
         assert "observation_id" in result.keys()
@@ -79,7 +79,7 @@ class TestEsaHubbleRemoteData:
                            os.path.exists(temp_file + 'fits.gz')]
         assert any([os.path.exists(f) for f in possible_values])
 
-    def test_cone_search(self):
+    def test_cone_search(self, recwarn):
         c = coordinates.SkyCoord("00h42m44.51s +41d16m08.45s", frame='icrs')
         compressed_temp_file = os.path.join(self.temp_folder.name, "cone_search_m31_5.vot.gz")
         # open & extracting the file
@@ -132,10 +132,14 @@ class TestEsaHubbleRemoteData:
                                                folder=str(self.temp_folder_for_fits.name))
         assert len(os.listdir(self.temp_folder_for_fits.name)) > 0
 
-    def test_get_datalabs_path_image(self):
+    def test_get_datalabs_path_image(self, recwarn):
         result = esa_hubble.get_datalabs_path(filename='ib4x04ivq_flt.jpg', default_volume=None)
-        assert result == '/data/user/hub_hstdata_i/i/b4x/04/ib4x04ivq_flt.jpg'
+        assert len(recwarn) == 1
+        assert "ib4x04ivq_flt.jpg" in str(recwarn[0].message)
+        assert result == '/data/hub_hstdata_i/i/b4x/04/ib4x04ivq_flt.jpg'
 
-    def test_get_datalabs_path_fits(self):
+    def test_get_datalabs_path_fits(self, recwarn):
         result = esa_hubble.get_datalabs_path(filename='ib4x04ivq_flt.fits', default_volume=None)
-        assert result == '/data/user/hub_hstdata_i/i/b4x/04/ib4x04ivq_flt.fits.gz'
+        assert len(recwarn) == 1
+        assert "ib4x04ivq_flt.fits" in str(recwarn[0].message)
+        assert result == '/data/hub_hstdata_i/i/b4x/04/ib4x04ivq_flt.fits.gz'

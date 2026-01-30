@@ -6,11 +6,10 @@ import tempfile
 import astropy.units as u
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
-from packaging.version import Version
 
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from astroquery.exceptions import NoResultsWarning
-import pyvo
+
 from pyvo.dal.exceptions import DALOverflowWarning
 
 from astroquery.heasarc import Heasarc
@@ -157,10 +156,6 @@ class TestHeasarc:
         assert "rosmaster" in catalogs
         assert "rassmaster" in catalogs
 
-    @pytest.mark.skipif(
-        Version(pyvo.__version__) < Version('1.4'),
-        reason="DALOverflowWarning is available only in pyvo>=1.4"
-    )
     def test_tap__maxrec(self):
         query = "SELECT TOP 10 ra,dec FROM xray"
         with pytest.warns(expected_warning=DALOverflowWarning, match=overflow_message):
@@ -193,7 +188,7 @@ class TestHeasarc:
         filename = "00README"
         tab = Table({
             "access_url": [
-                ("https://heasarc.gsfc.nasa.gov/FTP/rxte/"
+                ("https://heasarc.gsfc.nasa.gov/FTP/xte/"
                  f"data/archive/{filename}")
             ]
         })
@@ -204,7 +199,7 @@ class TestHeasarc:
     def test_download_data__heasarc_folder(self):
         tab = Table({
             "access_url": [
-                ("https://heasarc.gsfc.nasa.gov/FTP/rxte/data/archive/"
+                ("https://heasarc.gsfc.nasa.gov/FTP/xte/data/archive/"
                  "AO10/P91129/91129-01-68-00A/stdprod")
             ]
         })
@@ -218,7 +213,7 @@ class TestHeasarc:
     def test_download_data__s3_file(self):
         filename = "00README"
         tab = Table(
-            {"aws": [f"s3://nasa-heasarc/rxte/data/archive/{filename}"]}
+            {"aws": [f"s3://nasa-heasarc/xte/data/archive/{filename}"]}
         )
         with tempfile.TemporaryDirectory() as tmpdir:
             Heasarc.enable_cloud(provider='aws', profile=None)
@@ -230,7 +225,7 @@ class TestHeasarc:
         tab = Table(
             {
                 "aws": [
-                    (f"s3://nasa-heasarc/rxte/data/archive/AO10/"
+                    (f"s3://nasa-heasarc/xte/data/archive/AO10/"
                      f"P91129/91129-01-68-00A/stdprod{slash}")
                 ]
             }

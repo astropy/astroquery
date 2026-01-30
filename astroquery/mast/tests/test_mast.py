@@ -3,10 +3,12 @@
 import json
 import os
 import re
+import warnings
 from shutil import copyfile
 from unittest.mock import patch
 
 import pytest
+import numpy as np
 
 from astropy.table import Table, unique
 from astropy.coordinates import SkyCoord
@@ -18,8 +20,8 @@ from requests import HTTPError, Response
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from astroquery.mast.services import _json_to_table
 from astroquery.utils.mocks import MockResponse
-from astroquery.exceptions import (InvalidQueryError, InputWarning, MaxResultsWarning, NoResultsWarning,
-                                   RemoteServiceError, ResolverError)
+from astroquery.exceptions import (BlankResponseWarning, InvalidQueryError, InputWarning, MaxResultsWarning,
+                                   NoResultsWarning, RemoteServiceError, ResolverError)
 
 from astroquery import mast
 
@@ -300,24 +302,74 @@ def test_missions_query_criteria(patch_post):
         )
 
 
+def test_missions_parse_select_cols(patch_post):
+    # Default columns
+    cols = mast.MastMissions._parse_select_cols(None)  # Default columns for HST
+    assert cols is None
+
+    # All columns
+    all_cols = mast.MastMissions._parse_select_cols('all')
+    assert all_cols == mast.MastMissions.get_column_list()['name'].value.tolist()
+
+    # Comma-separated string
+    string_cols = mast.MastMissions._parse_select_cols('sci_pep_id, sci_instrume')
+    for col in ['sci_pep_id', 'sci_instrume', 'sci_data_set_name']:
+        assert col in string_cols
+
+    # List of columns
+    list_cols = mast.MastMissions._parse_select_cols(['sci_pep_id', 'sci_instrume'])
+    for col in ['sci_pep_id', 'sci_instrume', 'sci_data_set_name']:
+        assert col in list_cols
+
+    # Tuple of columns
+    tuple_cols = mast.MastMissions._parse_select_cols(('sci_pep_id', 'sci_instrume'))
+    for col in ['sci_pep_id', 'sci_instrume', 'sci_data_set_name']:
+        assert col in tuple_cols
+
+    # Generator of columns
+    gen_cols = mast.MastMissions._parse_select_cols(col for col in ['sci_pep_id', 'sci_instrume'])
+    for col in ['sci_pep_id', 'sci_instrume', 'sci_data_set_name']:
+        assert col in gen_cols
+
+    # Error if invalid type
+    with pytest.raises(InvalidQueryError, match="`select_cols` must be an iterable of column names"):
+        mast.MastMissions._parse_select_cols(123)
+
+    # Error if an individual column is not a string
+    with pytest.raises(InvalidQueryError, match="`select_cols` must contain only strings"):
+        mast.MastMissions._parse_select_cols(['sci_pep_id', 123])
+
+    # Warning for invalid column names
+    with pytest.warns(InputWarning, match="Column 'invalid_column' not found."):
+        valid_cols = mast.MastMissions._parse_select_cols(['sci_pep_id', 'invalid_column'])
+    assert 'sci_pep_id' in valid_cols
+    assert 'invalid_column' not in valid_cols
+
+    # Workaround for Ullyses mission default columns
+    ullyses_mission = mast.MastMissions(mission='ullyses')
+    ullyses_cols = ullyses_mission._parse_select_cols(None)
+    for col in mast.MastMissions._default_ullyses_cols:
+        assert col in ullyses_cols
+
+
 def test_missions_get_product_list_async(patch_post):
     # String input
     result = mast.MastMissions.get_product_list_async('Z14Z0104T')
-    assert isinstance(result, MockResponse)
+    assert isinstance(result, list)
 
     # List input
     in_datasets = ['Z14Z0104T', 'Z14Z0102T']
     result = mast.MastMissions.get_product_list_async(in_datasets)
-    assert isinstance(result, MockResponse)
+    assert isinstance(result, list)
 
     # Row input
     datasets = mast.MastMissions.query_object("M101", radius=".002 deg")
     result = mast.MastMissions.get_product_list_async(datasets[:3])
-    assert isinstance(result, MockResponse)
+    assert isinstance(result, list)
 
     # Table input
     result = mast.MastMissions.get_product_list_async(datasets[0])
-    assert isinstance(result, MockResponse)
+    assert isinstance(result, list)
 
     # Unsupported data type for datasets
     with pytest.raises(TypeError) as err_type:
@@ -328,6 +380,11 @@ def test_missions_get_product_list_async(patch_post):
     with pytest.raises(InvalidQueryError) as err_empty:
         mast.MastMissions.get_product_list_async([' '])
     assert 'Dataset list is empty' in str(err_empty.value)
+
+    # No dataset keyword
+    with pytest.raises(InvalidQueryError, match='Dataset keyword not found for mission "invalid"'):
+        missions = mast.MastMissions(mission='invalid')
+        missions.get_product_list_async(Table({'a': [1, 2, 3]}))
 
 
 def test_missions_get_product_list(patch_post):
@@ -375,7 +432,7 @@ def test_missions_filter_products(patch_post):
     filtered = mast.MastMissions.filter_products(products, extension='fits')
     assert len(filtered) > 0
 
-    # Numeric filtering
+    # -------- Numeric filtering tests --------
     # Single integer value
     filtered = mast.MastMissions.filter_products(products, size=11520)
     assert all(filtered['size'] == 11520)
@@ -404,6 +461,40 @@ def test_missions_filter_products(patch_post):
     # List of expressions
     filtered = mast.MastMissions.filter_products(products, size=[14400, '>20000'])
     assert all((filtered['size'] == 14400) | (filtered['size'] > 20000))
+
+    # -------- Negative operator tests --------
+    # Negate a single numeric value
+    filtered = mast.MastMissions.filter_products(products, size='!11520')
+    assert all(filtered['size'] != 11520)
+
+    # Negate a comparison
+    filtered = mast.MastMissions.filter_products(products, size='!<15000')
+    assert all(filtered['size'] >= 15000)
+
+    # Negate one element in a list with one other condition
+    filtered = mast.MastMissions.filter_products(products, size=['!14400', '>20000'])
+    assert all((filtered['size'] != 14400) & (filtered['size'] > 20000))
+
+    # Negate one element in a list with two other conditions
+    filtered = mast.MastMissions.filter_products(products, size=['!14400', '<20000', '>30000'])
+    assert all((filtered['size'] != 14400) & (filtered['size'] < 20000) | (filtered['size'] > 30000))
+
+    # Negate a range
+    filtered = mast.MastMissions.filter_products(products, size='!14400..17280')
+    assert all(~((filtered['size'] >= 14400) & (filtered['size'] <= 17280)))
+
+    # Negate a string match
+    filtered = mast.MastMissions.filter_products(products, category='!calibrated')
+    assert all(filtered['category'] != 'CALIBRATED')
+
+    # Negate one string in a list
+    filtered = mast.MastMissions.filter_products(products, category=['!CALIBRATED', 'UNCALIBRATED'])
+    assert all((filtered['category'] != 'CALIBRATED') & (filtered['category'] == 'UNCALIBRATED'))
+
+    # Negate two strings in a list
+    filtered = mast.MastMissions.filter_products(products, category=['!CALIBRATED', '!UNCALIBRATED'])
+    assert all((filtered['category'] != 'CALIBRATED') & (filtered['category'] != 'UNCALIBRATED'))
+    # ------------------------------------------
 
     with pytest.raises(InvalidQueryError, match="Could not parse numeric filter 'invalid' for column 'size'"):
         # Invalid filter value
@@ -475,6 +566,22 @@ def test_missions_get_dataset_kwd(patch_post, caplog):
     with caplog.at_level('WARNING', logger='astroquery'):
         assert 'The mission "unknown" does not have a known dataset ID keyword' in caplog.text
 
+
+@pytest.mark.parametrize(
+    'method, kwargs,',
+    [['query_region', dict()],
+     ['query_criteria', dict(ang_sep=0.6)]]
+)
+def test_missions_radius_too_large(method, kwargs, patch_post):
+    m = mast.MastMissions(mission='jwst')
+    coordinates = SkyCoord(0, 0, unit=u.deg)
+    radius = m._max_query_radius + 0.1 * u.deg
+    with pytest.raises(
+        InvalidQueryError, match='Query radius too large. Must be*'
+    ):
+        getattr(m, method)(coordinates=coordinates, radius=radius, **kwargs)
+
+
 ###################
 # MastClass tests #
 ###################
@@ -516,9 +623,11 @@ def test_mast_query(patch_post):
 
     # filtered search
     result = mast.Mast.mast_query('Mast.Caom.Filtered',
-                                  dataproduct_type=['image'],
-                                  proposal_pi=['Osten, Rachel A.'],
-                                  s_dec=[{'min': 43.5, 'max': 45.5}])
+                                  dataproduct_type=['image', 'spectrum'],
+                                  proposal_pi={'Osten, Rachel A.'},
+                                  calib_level=np.asarray(3),
+                                  s_dec={'min': 43.5, 'max': 45.5},
+                                  columns=['proposal_pi', 's_dec', 'obs_id'])
     pp_list = result['proposal_pi']
     sd_list = result['s_dec']
     assert isinstance(result, Table)
@@ -526,40 +635,107 @@ def test_mast_query(patch_post):
     assert max(sd_list) < 45.5
     assert min(sd_list) > 43.5
 
-    # error handling
-    with pytest.raises(InvalidQueryError) as invalid_query:
+    # warn if columns provided for non-filtered query
+    with pytest.warns(InputWarning, match="'columns' parameter is ignored"):
+        mast.Mast.mast_query('Mast.Caom.Cone', ra=23.34086, dec=60.658, radius=0.2, columns=['obs_id', 's_ra'])
+
+    # error if no filters provided for filtered query
+    with pytest.raises(InvalidQueryError, match="Please provide at least one filter."):
         mast.Mast.mast_query('Mast.Caom.Filtered')
-    assert "Please provide at least one filter." in str(invalid_query.value)
+
+    # error if a full range if not provided for range filter
+    with pytest.raises(InvalidQueryError,
+                       match='Range filter for "s_ra" must be a dictionary with "min" and "max" keys.'):
+        mast.Mast.mast_query('Mast.Caom.Filtered', s_ra={'min': 10.0})
 
 
-def test_resolve_object(patch_post):
+def test_resolve_object_single(patch_post):
     obj = "TIC 307210830"
     tic_coord = SkyCoord(124.531756290083, -68.3129998725044, unit="deg")
     simbad_coord = SkyCoord(124.5317560026638, -68.3130014904408, unit="deg")
+
+    # Resolve without a specific resolver
     obj_loc = mast.Mast.resolve_object(obj)
+    assert isinstance(obj_loc, SkyCoord)
     assert round(obj_loc.separation(tic_coord).value, 10) == 0
 
-    # resolve using a specific resolver and an object that belongs to a MAST catalog
+    # Resolve using a specific resolver and an object that belongs to a MAST catalog
     obj_loc_simbad = mast.Mast.resolve_object(obj, resolver="SIMBAD")
     assert round(obj_loc_simbad.separation(simbad_coord).value, 10) == 0
 
-    # resolve using a specific resolver and an object that does not belong to a MAST catalog
-    obj_loc_simbad = mast.Mast.resolve_object("M101", resolver="SIMBAD")
-    assert round(obj_loc_simbad.separation(simbad_coord).value, 10) == 0
+    # Resolve using a specific resolver and an object that does not belong to a MAST catalog
+    m1_coord = SkyCoord(83.6324, 22.0174, unit="deg")
+    obj_loc_simbad = mast.Mast.resolve_object("M1", resolver="SIMBAD")
+    assert isinstance(obj_loc_simbad, SkyCoord)
+    assert round(obj_loc_simbad.separation(m1_coord).value, 10) == 0
 
-    # resolve using all resolvers
+    # Resolve using all resolvers
     obj_loc_dict = mast.Mast.resolve_object(obj, resolve_all=True)
     assert isinstance(obj_loc_dict, dict)
     assert round(obj_loc_dict["SIMBAD"].separation(simbad_coord).value, 10) == 0
+    assert round(obj_loc_dict["TIC"].separation(tic_coord).value, 10) == 0
 
-    # error with invalid resolver
+    # Error with invalid resolver
     with pytest.raises(ResolverError, match="Invalid resolver"):
         mast.Mast.resolve_object(obj, resolver="invalid")
 
-    # warn if specifying both resolver and resolve_all
+    # Error if single object cannot be resolved
+    with pytest.raises(ResolverError, match='Could not resolve "nonexisting" to a sky position.'):
+        mast.Mast.resolve_object("nonexisting")
+
+    # Error if object is not a string
+    with pytest.raises(InvalidQueryError, match='All object names must be strings.'):
+        mast.Mast.resolve_object(1)
+
+    # Error if single object cannot be resolved with given resolver
+    with pytest.raises(ResolverError, match='Could not resolve "Barnard\'s Star" to a sky position using '
+                       'resolver "NED".'):
+        mast.Mast.resolve_object("Barnard's Star", resolver="NED")
+
+    # Warn if specifying both resolver and resolve_all
     with pytest.warns(InputWarning, match="The resolver parameter is ignored when resolve_all is True"):
         loc = mast.Mast.resolve_object(obj, resolver="NED", resolve_all=True)
         assert isinstance(loc, dict)
+
+
+def test_resolve_object_multi(patch_post):
+    objects = ["TIC 307210830", "M1", "Barnard's Star"]
+
+    # No resolver specified
+    coord_dict = mast.Mast.resolve_object(objects)
+    assert isinstance(coord_dict, dict)
+    for obj in objects:
+        assert obj in coord_dict
+        assert isinstance(coord_dict[obj], SkyCoord)
+
+    # Resolver specified
+    coord_dict = mast.Mast.resolve_object(objects, resolver="SIMBAD")
+    assert isinstance(coord_dict, dict)
+    for obj in objects:
+        assert obj in coord_dict
+        assert isinstance(coord_dict[obj], SkyCoord)
+
+    # Resolve all
+    coord_dict = mast.Mast.resolve_object(objects, resolve_all=True)
+    assert isinstance(coord_dict, dict)
+    for obj in objects:
+        assert obj in coord_dict
+        obj_dict = coord_dict[obj]
+        assert isinstance(obj_dict, dict)
+        assert isinstance(obj_dict["SIMBAD"], SkyCoord)
+
+    # Warn if one of the objects cannot be resolved
+    with pytest.warns(InputWarning, match='Could not resolve "nonexisting" to a sky position.'):
+        coord_dict = mast.Mast.resolve_object(["M1", "nonexisting"])
+
+    # Warn if one of the objects can't be resolved with given resolver
+    with pytest.warns(InputWarning, match='Could not resolve "TIC 307210830" to a sky position using resolver "NED"'):
+        mast.Mast.resolve_object(objects[:2], resolver="NED")
+
+    # Error if none of the objects can be resolved
+    warnings.simplefilter("ignore", category=InputWarning)  # ignore warnings
+    with pytest.raises(ResolverError, match='Could not resolve any of the given object names to sky positions.'):
+        mast.Mast.resolve_object(["nonexisting1", "nonexisting2"])
 
 
 def test_login_logout(patch_post):
@@ -704,11 +880,15 @@ def test_observations_get_product_list(patch_post):
     result = mast.Observations.get_product_list(in_obsids)
     assert isinstance(result, Table)
 
+    # Error if no valid obsids are found
+    with pytest.raises(InvalidQueryError, match='Observation list is empty'):
+        mast.Observations.get_product_list([' '])
+
 
 def test_observations_filter_products(patch_post):
     products = mast.Observations.get_product_list('2003738726')
     filtered = mast.Observations.filter_products(products,
-                                                 productType=["SCIENCE"],
+                                                 productType=["sCiEnCE"],
                                                  mrp_only=False)
     assert isinstance(filtered, Table)
     assert len(filtered) == 7
@@ -718,8 +898,10 @@ def test_observations_filter_products(patch_post):
     assert all(filtered['productGroupDescription'] == 'Minimum Recommended Products')
 
     # Filter by extension
-    filtered = mast.Observations.filter_products(products, extension='fits')
+    filtered = mast.Observations.filter_products(products, extension='FITS')
     assert len(filtered) > 0
+    filtered = mast.Observations.filter_products(products, extension=['png'])
+    assert len(filtered) == 0
 
     # Numeric filtering
     filtered = mast.Observations.filter_products(products, size='<50000')
@@ -1198,6 +1380,69 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
     assert "Input product must be SPOC." in str(invalid_query.value)
 
 
+def test_tesscut_get_cutouts_mt_no_sector(patch_post):
+    """Test get_cutouts with moving target but no sector specified.
+
+    When sector is not specified for moving targets, the method should
+    automatically fetch available sectors and make individual requests per sector.
+    """
+    # Moving target without specifying sector - should automatically fetch sectors
+    cutout_hdus_list = mast.Tesscut.get_cutouts(objectname="Eleonora", moving_target=True, mt_type="small_body", size=5)
+    assert isinstance(cutout_hdus_list, list)
+    # Mock returns 1 sector, so we expect 1 cutout
+    assert len(cutout_hdus_list) == 1
+    assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+
+def test_tesscut_download_cutouts_mt_no_sector(patch_post, tmpdir):
+    """Test download_cutouts with moving target but no sector specified.
+
+    When sector is not specified for moving targets, the method should
+    automatically fetch available sectors and make individual requests per sector.
+    """
+    # Moving target without specifying sector - should automatically fetch sectors
+    manifest = mast.Tesscut.download_cutouts(
+        objectname="Eleonora", moving_target=True, mt_type="small_body", size=5, path=str(tmpdir)
+    )
+    assert isinstance(manifest, Table)
+    # Mock returns 1 sector, so we expect 1 file
+    assert len(manifest) == 1
+    assert manifest["Local Path"][0][-4:] == "fits"
+    assert os.path.isfile(manifest[0]["Local Path"])
+
+
+def test_tesscut_get_cutouts_mt_no_sector_empty_results(patch_post, monkeypatch):
+    """Test get_cutouts with moving target when no sectors are available.
+
+    When get_sectors returns an empty table, the method should warn and return an empty list.
+    """
+    # Mock get_sectors to return an empty Table
+    empty_sector_table = Table(names=["sectorName", "sector", "camera", "ccd"], dtype=[str, int, int, int])
+    monkeypatch.setattr(mast.Tesscut, "get_sectors", lambda *args, **kwargs: empty_sector_table)
+
+    with pytest.warns(NoResultsWarning, match="Coordinates are not in any TESS sector"):
+        cutout_hdus_list = mast.Tesscut.get_cutouts(objectname="NonExistentObject", moving_target=True, size=5)
+    assert isinstance(cutout_hdus_list, list)
+    assert len(cutout_hdus_list) == 0
+
+
+def test_tesscut_download_cutouts_mt_no_sector_empty_results(patch_post, tmpdir, monkeypatch):
+    """Test download_cutouts with moving target when no sectors are available.
+
+    When get_sectors returns an empty table, the method should warn and return an empty Table.
+    """
+    # Mock get_sectors to return an empty Table
+    empty_sector_table = Table(names=["sectorName", "sector", "camera", "ccd"], dtype=[str, int, int, int])
+    monkeypatch.setattr(mast.Tesscut, "get_sectors", lambda *args, **kwargs: empty_sector_table)
+
+    with pytest.warns(NoResultsWarning, match="Coordinates are not in any TESS sector"):
+        manifest = mast.Tesscut.download_cutouts(
+            objectname="NonExistentObject", moving_target=True, size=5, path=str(tmpdir)
+        )
+    assert isinstance(manifest, Table)
+    assert len(manifest) == 0
+
+
 ######################
 # ZcutClass tests #
 ######################
@@ -1290,3 +1535,25 @@ def test_parse_input_location(patch_post):
     with pytest.warns(InputWarning, match="Resolver is only used when resolving object names"):
         loc = mast.utils.parse_input_location(coordinates=coord, resolver="SIMBAD")
         assert isinstance(loc, SkyCoord)
+
+
+def test_json_to_table_fallback_type_coercion(patch_post):
+    json_obj = {'info': [{'name': 'test_int', 'type': 'int'}],
+                'data': [['1'], ['2'], ['not_an_int'], ['3'], [-999]]}
+
+    with pytest.warns(BlankResponseWarning):
+        table = _json_to_table(json_obj)
+
+    # Column exists
+    assert 'test_int' in table.colnames
+    col = table['test_int']
+    assert col.dtype == np.int64
+
+    # Good values survived
+    assert col[0] == 1
+    assert col[1] == 2
+    assert col[3] == 3
+
+    # Bad + ignored values are masked
+    assert col.mask[2]  # 'not_an_int'
+    assert col.mask[4]  # ignore_value

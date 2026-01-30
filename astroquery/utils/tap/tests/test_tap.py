@@ -75,7 +75,8 @@ def test_load_tables():
     __check_column(col, 'Table2 Column3 desc', '', 'INTEGER', None)
 
 
-def test_load_tables_parameters():
+@pytest.mark.parametrize("verbose", [True, False])
+def test_load_tables_parameters(verbose):
     conn_handler = DummyConnHandler()
     tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     responseLoadTable = DummyResponse(200)
@@ -84,7 +85,7 @@ def test_load_tables_parameters():
     conn_handler.set_response(tableRequest, responseLoadTable)
 
     # empty request
-    tap.load_tables()
+    tap.load_tables(verbose=verbose)
     assert conn_handler.request == tableRequest
 
     # flag only_names=false & share_accessible=false: equals to
@@ -95,19 +96,19 @@ def test_load_tables_parameters():
     # flag only_names
     tableRequest = "tables?only_tables=true"
     conn_handler.set_response(tableRequest, responseLoadTable)
-    tap.load_tables(only_names=True)
+    tap.load_tables(only_names=True, verbose=verbose)
     assert conn_handler.request == tableRequest
 
     # flag share_accessible=true
     tableRequest = "tables?share_accessible=true"
     conn_handler.set_response(tableRequest, responseLoadTable)
-    tap.load_tables(include_shared_tables=True)
+    tap.load_tables(include_shared_tables=True, verbose=verbose)
     assert conn_handler.request == tableRequest
 
     # flag only_names=true & share_accessible=true
     tableRequest = "tables?only_tables=true&share_accessible=true"
     conn_handler.set_response(tableRequest, responseLoadTable)
-    tap.load_tables(only_names=True, include_shared_tables=True)
+    tap.load_tables(only_names=True, include_shared_tables=True, verbose=verbose)
     assert conn_handler.request == tableRequest
 
 
@@ -515,7 +516,8 @@ def test_abort_job():
         job.abort()
 
 
-def test_job_parameters():
+@pytest.mark.parametrize("verbose", [True, False])
+def test_job_parameters(verbose):
     conn_handler = DummyConnHandler()
     tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     jobid = '12345'
@@ -565,13 +567,29 @@ def test_job_parameters():
     conn_handler.set_response(req, responsePhase)
 
     # send parameter OK
-    job.send_parameter(name="param1", value="value1")
+    job.send_parameter(name="param1", value="value1", verbose=verbose)
     # start job
-    job.start()
+    job.start(verbose=verbose)
     assert job.get_phase() == 'QUEUED'
     # try to send a parameter after execution
     with pytest.raises(Exception):
-        job.send_parameter(name="param2", value="value2")
+        job.send_parameter(name="param2", value="value2", verbose=verbose)
+
+    # Increase coverage
+    responsePhase = DummyResponse(404)
+    responsePhase.set_data(method='POST', body="ERROR")
+    req = f"async/{jobid}/phase?PHASE=RUN"
+    conn_handler.set_response(req, responsePhase)
+    job._phase = 'PENDING'
+    # start job
+    error_message = 'Error 404:\nERROR'
+    with pytest.raises(HTTPError, match=error_message):
+        job.start(verbose=verbose)
+
+    assert job.get_phase() == 'PENDING'
+    # try to send a parameter after execution
+    with pytest.raises(Exception):
+        job.send_parameter(name="param2", value="value2", verbose=verbose)
 
 
 def test_list_async_jobs():
@@ -635,6 +653,8 @@ def test_datalink():
     responseResultsJob.set_data(method='GET', body=TEST_DATA["job_1.vot"])
     req = "links?ID=1,2"
     conn_handler.set_response(req, responseResultsJob)
+    req = "links?ID=1&OPTIONS=METADATA"
+    conn_handler.set_response(req, responseResultsJob)
 
     # error
     responseResultsJob.set_status_code(500)
@@ -650,6 +670,8 @@ def test_datalink():
     results = tap.get_datalinks([1, 2])
     assert len(results) == 3
     results = tap.get_datalinks(['1', '2'])
+    assert len(results) == 3
+    results = tap.get_datalinks(1, extra_options='METADATA', verbose=True)
     assert len(results) == 3
 
 
@@ -880,6 +902,65 @@ def test_rename_table():
     }
     conn_handler.set_response(f"TableTool?{urlencode(dictArgs)}", responseRenameTable)
     tap.rename_table(table_name=tableName, new_table_name=newTableName, new_column_names_dict=newColumnNames)
+
+
+def test_delete_user_table():
+    tableName = 'user_test.table_test_rename'
+    conn_handler = DummyConnHandler()
+    dummyResponse = DummyResponse(200)
+
+    url_encode = urlencode({'DELETE': 'TRUE', 'FORCE_REMOVAL': 'FALSE', 'TABLE_NAME': 'user_test.table_test_rename'})
+    conn_handler.set_default_response(dummyResponse)
+    conn_handler.execute_upload(data=url_encode)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+    tap.delete_user_table(table_name=tableName, force_removal=False, verbose=False)
+
+
+def test_delete_user_table_2():
+    conn_handler = DummyConnHandler()
+    dummyResponse = DummyResponse(200)
+
+    headers = [('Date', 'Sat, 12 Apr 2025 05:10:47 GMT'),
+               ('Server', 'Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips mod_jk/1.2.43'),
+               ('Set-Cookie', 'JSESSIONID=E677B51BA5C4837347D1E17D4E36647E; Path=/data-server; Secure; HttpOnly'),
+               ('X-Content-Type-Options', 'nosniff'), ('X-XSS-Protection', '0'),
+               ('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate'), ('Pragma', 'no-cache'),
+               ('Expires', '0'), ('X-Frame-Options', 'SAMEORIGIN'),
+               ('Set-Cookie', 'SESSION=ZjQ3MjIzMDAtNjNiYy00Mj; Path=/data-server; Secure; HttpOnly; SameSite=Lax'),
+               ('Transfer-Encoding', 'chunked'), ('Content-Type', 'text/plain; charset=UTF-8')]
+
+    dummyResponse.set_data(method='POST', headers=headers)
+
+    url_encode = urlencode({'DELETE': 'TRUE', 'FORCE_REMOVAL': 'FALSE', 'TABLE_NAME': 'user_test.table_test_rename'})
+    conn_handler.set_default_response(dummyResponse)
+    conn_handler.execute_upload(data=url_encode)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+    tap.login(user="user", password="password")
+
+    tableName = 'table_test_rename'
+
+    tap.delete_user_table(table_name=tableName, force_removal=False, verbose=False)
+
+
+def test_delete_user_table_exception():
+    tableName = 'test.table_test_rename'
+    conn_handler = DummyConnHandler()
+    dummyResponse = DummyResponse(200)
+
+    url_encode = urlencode({'DELETE': 'TRUE', 'FORCE_REMOVAL': 'FALSE', 'TABLE_NAME': 'user_test.table_test_rename'})
+    conn_handler.set_default_response(dummyResponse)
+    conn_handler.execute_upload(data=url_encode)
+    tap = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+
+    with pytest.raises(ValueError,
+                       match="Invalid table name test.table_test_rename: expected format user_<user_name>.<table_name"):
+        tap.delete_user_table(table_name=tableName, force_removal=False, verbose=False)
+
+    #
+
+    tableName = 'table_test_rename'
+    with pytest.raises(ValueError, match="You must login to delete the table"):
+        tap.delete_user_table(table_name=tableName, force_removal=False, verbose=False)
 
 
 def __find_table(schemaName, tableName, tables):

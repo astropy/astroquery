@@ -15,8 +15,7 @@ from . import conf
 try:
     from regions import CircleSkyRegion
 except ImportError:
-    print('Could not import regions, which is required for some of the '
-          'functionalities of this module.')
+    pass
 
 
 @async_to_sync

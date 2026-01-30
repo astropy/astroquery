@@ -2,9 +2,9 @@
 
 .. _astroquery.solarsystem.mpc:
 
-***********************************************************
-Minor Planet Center Services (`astroquery.solarsystem.mpc`)
-***********************************************************
+****************************
+Minor Planet Center Services
+****************************
 
 This submodule is a collection of Solar System-related services
 provided by the `Minor Planet Center
@@ -17,10 +17,3 @@ directly from their top-level modules.
   :maxdepth: 1
 
   ../../mpc/mpc.rst
-
-  
-Reference/API
-=============
-
-.. automodapi:: astroquery.solarsystem.mpc
-    :no-inheritance-diagram:
