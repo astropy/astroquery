@@ -4,7 +4,7 @@
 ESDC Multi-Mission Data Services (EMDS) (`astroquery.esa.emds`)
 **********************************************************************
 
-The ESAC Science Data Center (ESDC) develops and operates science archives for ESA missions, providing the community
+The ESAC Science Data Centre (ESDC) develops and operates science archives for ESA missions, providing the community
 with access to Planetary, Heliophysics, and Astronomy data collections. As many mission archives transition into a
 legacy phase, operating multiple independent archives becomes increasingly resource-intensive and can lead to software
 obsolescence, limited standardization, reduced interoperability, and fragmented long-term evolution.
@@ -36,7 +36,7 @@ through the ``login()`` and ``logout()`` methods provided by the EMDS Astroquery
 2. Get available tables and columns
 -----------------------------------
 
-EMDS Astroquery module allows users to explore the data structure of the TAP by listing available
+The EMDS Astroquery module allows users to explore the data structure of the TAP by listing available
 tables and their columns. This is useful for understanding what data is accessible before running ADQL queries.
 
 

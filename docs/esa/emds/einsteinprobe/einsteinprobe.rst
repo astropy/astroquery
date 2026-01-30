@@ -6,13 +6,13 @@ EinsteinProbe Space Archive (EPSA) (`astroquery.esa.emds.einsteinprobe`)
 
 Einstein Probe is an X-ray astronomy mission led by the Chinese Academy of Sciences (CAS),
 with international collaboration from the European Space Agency (ESA) and the Max Planck
-Institute for Extraterrestrial Physics (MPE). Einstein Probe data are distributed through
-the ESA Multi-Mission Data Services (EMDS) archive, which provides unified access to
-multiple space missions through a single service.
+Institute for Extraterrestrial Physics (MPE). Einstein Probe data (level 2 and level 3
+public products) are distributed through the ESA Multi-Mission Data Services (EMDS), which
+provides unified access to data from multiple space missions via a single service.
 
-The mission is designed to monitor the X-ray sky and discover transient and variable
+Einstein Probe is is designed to monitor the X-ray sky and discover transient and variable
 phenomena across the Universe. It carries two primary scientific instruments: the
-wide-field X-ray Telescope (WXT), which provides a very large field of view for sky
+Wide-field X-ray Telescope (WXT), which provides a very large field of view for sky
 monitoring, and the Follow-up X-ray Telescope (FXT), which enables more detailed
 observations of selected sources.
 
@@ -64,7 +64,7 @@ available for consistency and are inherited from the base EMDS interface.
 2. Get available tables and columns
 -----------------------------------
 
-Einstein Probe Astroquery module allows users to explore the data structure of the TAP by listing available
+The Einstein Probe Astroquery module allows users to explore the data structure of the TAP by listing available
 tables and their columns. This is useful for understanding what data is accessible before running ADQL queries.
 
 .. doctest-remote-data::
