@@ -552,6 +552,7 @@ class EuclidClass(TapPlus):
         -------
         A Job object
         """
+
         radius_deg = None
         coord = commons.parse_coordinates(coordinate)
         ra_hours, dec = commons.coord_to_radec(coord)
@@ -559,10 +560,16 @@ class EuclidClass(TapPlus):
         if radius is not None:
             radius_deg = Angle(self.__get_quantity_input(radius, "radius")).to_value(u.deg)
 
-        if table_name is None:
+        if table_name is None or not table_name:
             table_name = self.main_table
+
+        if (ra_column_name is None or not ra_column_name) and (dec_column_name is None or not dec_column_name):
             ra_column_name = self.main_table_ra
             dec_column_name = self.main_table_dec
+
+        if (ra_column_name is not None and (dec_column_name is None or not dec_column_name)) or (
+                (ra_column_name is None or not ra_column_name) and dec_column_name is not None):
+            raise ValueError(f"Invalid ra or dec column names: '{ra_column_name}' and '{dec_column_name}'")
 
         if columns:
             columns = ','.join(map(str, columns))
@@ -1528,10 +1535,10 @@ class EuclidClass(TapPlus):
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
             log.error(f'Cannot retrieve spectrum for source_id {source_id}, schema {schema}. HTTP error: {err}')
-            return files
+            return None
         except Exception as exx:
             log.error(f'Cannot retrieve spectrum for source_id {source_id}, schema {schema}: {str(exx)}')
-            return files
+            return None
 
         self.__extract_file(output_file_full_path=output_file_full_path, output_dir=output_dir, files=files)
 
@@ -1545,7 +1552,7 @@ class EuclidClass(TapPlus):
 
         return files
 
-    def get_datalinks(self, ids, *, linking_parameter='SOURCE_ID', verbose=False):
+    def get_datalinks(self, ids, *, linking_parameter='SOURCE_ID', extra_options=None, verbose=False):
         """
         Gets datalinks associated to the provided identifiers (TAP+ only).
 
@@ -1555,6 +1562,9 @@ class EuclidClass(TapPlus):
             list of identifiers
         linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID
             By default, all the identifiers are considered as source_id
+        extra_options : str, optional, default None, valid values: METADATA
+            To let customize the server behaviour, if present.
+            If provided with value METADATA, the extra fields datalabs_path, file_name & hdu_index will be retrieved.
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1564,7 +1574,8 @@ class EuclidClass(TapPlus):
 
         """
 
-        return self.__eucliddata.get_datalinks(ids=ids, linking_parameter=linking_parameter, verbose=verbose)
+        return self.__eucliddata.get_datalinks(ids=ids, linking_parameter=linking_parameter,
+                                               extra_options=extra_options, verbose=verbose)
 
     def get_scientific_product_list(self, *, observation_id=None, tile_index=None, category=None, group=None,
                                     product_type=None, dataset_release='REGREPROC1_R2', dsr_part1=None, dsr_part2=None,
