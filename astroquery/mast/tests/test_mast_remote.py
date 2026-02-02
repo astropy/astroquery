@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import os
 import pytest
+import json
 
 from requests.models import Response
 
@@ -319,6 +320,20 @@ class TestMast:
         datasets = MastMissions.query_object("M4", radius=0.1)
         prods = MastMissions.get_product_list(datasets[0])[0]
         result = MastMissions.download_products(prods,
+                                                download_dir=tmp_path)
+        check_filepath(result['Local Path'][0])
+
+        # JSON data input
+        json_data = [{'fileset': 'Z14Z0104T',
+                      'filename': 'z14z0104t_pdq.fits'}]
+        result = MastMissions.download_products(json_data,
+                                                download_dir=tmp_path)
+        check_filepath(result['Local Path'][0])
+
+        # JSON file input
+        json_file = tmp_path / 'products.json'
+        json_file.write_text(json.dumps(json_data))
+        result = MastMissions.download_products(json_file,
                                                 download_dir=tmp_path)
         check_filepath(result['Local Path'][0])
 
@@ -1039,7 +1054,8 @@ class TestMast:
 
         result = Catalogs.query_region("322.49324 12.16683",
                                        radius=0.01*u.deg, catalog="panstarrs",
-                                       table="mean")
+                                       table="mean",
+                                       columns=['objName', 'objID', 'yFlags', 'distance'])
         row = np.where((result['objName'] == 'PSO J322.4622+12.1920') & (result['yFlags'] == 16777496))
         assert isinstance(result, Table)
         np.testing.assert_allclose(result[row]['distance'], 0.039381703406789904)
@@ -1117,7 +1133,8 @@ class TestMast:
         result = Catalogs.query_object("M10",
                                        radius=.001,
                                        catalog="panstarrs",
-                                       table="mean")
+                                       table="mean",
+                                       columns=['objName', 'objID'])
         check_result(result, {'objName': 'PSO J254.2873-04.1006'})
 
         result = Catalogs.query_object("M10",
@@ -1240,7 +1257,8 @@ class TestMast:
                                          objectname="M10",
                                          radius=.01,
                                          qualityFlag=32,
-                                         zoneID=10306)
+                                         zoneID=10306,
+                                         columns=['objName', 'objID'])
         check_result(result, {'objName': 'PSO J254.2861-04.1091'})
 
         result = Catalogs.query_criteria(coordinates="158.47924 -7.30962",

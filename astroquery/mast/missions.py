@@ -7,6 +7,7 @@ This module contains methods for searching MAST missions.
 """
 
 import difflib
+import json
 import warnings
 from collections.abc import Iterable
 from json import JSONDecodeError
@@ -616,7 +617,7 @@ class MastMissionsClass(MastQueryWithLogin):
         Parameters
         ----------
         uri : str
-            The product dataURI
+            The product filename or URI to be downloaded.
         local_path : str
             Directory or filename to which the file will be downloaded.  Defaults to current working directory.
         cache : bool
@@ -643,6 +644,10 @@ class MastMissionsClass(MastQueryWithLogin):
             # HLSPs use MAST download URL
             base_url = self._service_api_connection.MAST_DOWNLOAD_URL
             keyword = 'uri'
+            # These files require a MAST URI and not just a filename
+            if not uri.startswith('mast:'):
+                raise InvalidQueryError(f'For mission "{self.mission}", a full MAST URI is required for downloading. '
+                                        f'Got "{uri}".')
         data_url = base_url + f'?{keyword}=' + uri
         escaped_url = base_url + f'?{keyword}=' + quote(uri, safe='')
 
@@ -715,12 +720,19 @@ class MastMissionsClass(MastQueryWithLogin):
 
         for data_product in products:
             # Determine local path for each file
-            local_path = base_dir / data_product['dataset'] if not flat else base_dir
+            filename = data_product['filename']
+            uri = data_product.get('uri', filename)
+            dataset = data_product.get('dataset') or data_product.get('fileset')
+            if not dataset and not flat:
+                raise InvalidQueryError('Data product is missing "dataset" or "fileset" field required for '
+                                        'constructing local download path. Specify `flat=True` to avoid this '
+                                        'requirement.')
+            local_path = base_dir / dataset if not flat else base_dir
             local_path.mkdir(parents=True, exist_ok=True)
-            local_file_path = local_path / Path(data_product['filename']).name
+            local_file_path = local_path / Path(filename).name
 
             # Download files and record status
-            status, msg, url = self.download_file(data_product['uri'],
+            status, msg, url = self.download_file(uri,
                                                   local_path=local_file_path,
                                                   cache=cache,
                                                   verbose=verbose)
@@ -737,9 +749,10 @@ class MastMissionsClass(MastQueryWithLogin):
 
         Parameters
         ----------
-        products : str, list, `~astropy.table.Table`
+        products : str, list of str, `~astropy.table.Table`, or list of dict
             Either a single or list of dataset IDs (e.g., as input for `get_product_list`),
-            or a Table of products (e.g., as output from `get_product_list`)
+            a Table of products (e.g., as output from `get_product_list`), or a JSON file or data from
+            the MAST subscription service.
         download_dir : str or Path, optional
             Directory for file downloads.  Defaults to current directory.
         flat : bool, optional
@@ -764,11 +777,30 @@ class MastMissionsClass(MastQueryWithLogin):
         manifest : `~astropy.table.Table`
             A table manifest showing downloaded file locations and statuses.
         """
+        if not products:
+            raise InvalidQueryError('No products specified for download.')
+
         # Ensure `products` is a Table, collecting products if necessary
-        if isinstance(products, (str, list)):
+        if (isinstance(products, str) and products.endswith('.json')) or isinstance(products, Path):
+            # Products coming from local JSON filepath from subscription service
+            try:
+                with open(products, 'r') as f:
+                    json_data = json.load(f)
+            except JSONDecodeError as ex:
+                raise InvalidQueryError(f'Failed to decode JSON file at {products}: {ex}')
+
+            if not isinstance(json_data, (list, tuple)):
+                raise InvalidQueryError(f'Expected a list of product rows in JSON file at {products}.')
+            products = Table(rows=json_data)
+        elif isinstance(products, (list)) and all(isinstance(prod, dict) for prod in products):
+            # Products coming from JSON data from subscription service
+            products = Table(rows=products)
+        elif isinstance(products, (str, list)):
+            # Products given as dataset ID(s)
             products = [products] if isinstance(products, str) else products
             products = vstack([self.get_product_list(oid) for oid in products])
         elif isinstance(products, Row):
+            # Single row of products
             products = Table(products, masked=True)
 
         # Apply filters
@@ -778,7 +810,7 @@ class MastMissionsClass(MastQueryWithLogin):
         products = utils.remove_duplicate_products(products, 'filename')
 
         if not len(products):
-            warnings.warn("No products to download.", NoResultsWarning)
+            warnings.warn("No products to download after applying filters.", NoResultsWarning)
             return
 
         # Set up base directory for downloads
