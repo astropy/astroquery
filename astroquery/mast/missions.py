@@ -60,7 +60,8 @@ class MastMissionsClass(MastQueryWithLogin):
             'jwst': 'fileSetName',
             'roman': 'fileSetName',
             'classy': 'Target',
-            'ullyses': 'observation_id'
+            'ullyses': 'observation_id',
+            'iue': 'iue_data_id'
         }
 
         # Service attributes
@@ -636,7 +637,7 @@ class MastMissionsClass(MastQueryWithLogin):
         """
 
         # Construct the full data URL based on mission
-        if self.mission in ['hst', 'jwst', 'roman']:
+        if self.mission in ['hst', 'jwst', 'roman', 'roman_spectra', 'roman_cgi']:
             # HST, JWST, and RST have a dedicated endpoint for retrieving products
             base_url = self._service_api_connection.MISSIONS_DOWNLOAD_URL + self.mission + '/api/v0.1/retrieve_product'
             keyword = 'product_name'
@@ -752,7 +753,7 @@ class MastMissionsClass(MastQueryWithLogin):
         products : str, list of str, `~astropy.table.Table`, or list of dict
             Either a single or list of dataset IDs (e.g., as input for `get_product_list`),
             a Table of products (e.g., as output from `get_product_list`), or a JSON file or data from
-            the MAST subscription service.
+            the MAST subscription service containing product information.
         download_dir : str or Path, optional
             Directory for file downloads.  Defaults to current directory.
         flat : bool, optional

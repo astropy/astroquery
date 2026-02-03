@@ -290,11 +290,13 @@ Downloading Data Products
 -------------------------
 
 The `~astroquery.mast.MastMissionsClass.download_products` function accepts a table of products like the one above 
-and will download the products to your local machine.
+and will download the products to your local machine. Products may also be provided as dataset IDs with product filters, 
+or as JSON product metadata sent by the MAST subscription service (either as a local JSON file or as in-memory data).
 
-By default, products will be downloaded into the current working directory, in a subdirectory called "mastDownload".
-The full local filepaths will have the form "mastDownload/<mission>/<Dataset ID>/file." You can change the download 
-directory using the ``download_dir`` parameter.
+By default, products will be downloaded into the current working directory, in a subdirectory called ``mastDownload``.
+The full local filepaths will have the form ``mastDownload/<mission>/<Dataset ID>/file.`` You can change the download 
+directory using the ``download_dir`` parameter. If ``flat=True`` is specified, all files will be downloaded directly into the 
+``download_dir`` without any subdirectories.
 
 .. doctest-remote-data::
    >>> manifest = missions.download_products(filtered)  # doctest: +IGNORE_OUTPUT
@@ -326,8 +328,10 @@ Downloading a Single File
 -------------------------
 
 To download a single data product file, use the `~astroquery.mast.MastMissionsClass.download_file` function with
-a MAST URI as input. The default is to download the file to the current working directory, but
-you can specify the download directory or filepath with the ``local_path`` keyword argument.
+a MAST URI as input. Some missions (e.g., HST, JWST) accept direct filenames as input, but others require a fully-qualified ``mast:`` URI.
+
+The default is to download the file to the current working directory, but you can specify the download directory or filepath with 
+the ``local_path`` keyword argument.
 
 .. doctest-remote-data::
    >>> result = missions.download_file('JBTAA0010/jbtaa0010_asn.fits')
