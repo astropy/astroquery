@@ -720,10 +720,15 @@ class MastMissionsClass(MastQueryWithLogin):
         base_dir = Path(base_dir)
 
         for data_product in products:
+            col_names = data_product.colnames
             # Determine local path for each file
             filename = data_product['filename']
-            uri = data_product.get('uri', filename)
-            dataset = data_product.get('dataset') or data_product.get('fileset')
+            uri = data_product['uri'] if 'uri' in col_names else filename
+            dataset = None
+            if 'dataset' in col_names:
+                dataset = data_product['dataset']
+            elif 'fileset' in col_names:
+                dataset = data_product['fileset']
             if not dataset and not flat:
                 raise InvalidQueryError('Data product is missing "dataset" or "fileset" field required for '
                                         'constructing local download path. Specify `flat=True` to avoid this '
