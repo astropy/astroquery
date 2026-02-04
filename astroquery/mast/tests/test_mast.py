@@ -1001,15 +1001,15 @@ def test_observations_download_products(patch_post, tmpdir):
     # Warn if no products to download
     with pytest.warns(NoResultsWarning, match='No products to download'):
         result = Observations.download_products('2003738726',
-                                                     download_dir=str(tmpdir),
-                                                     productType=["INVALID_TYPE"])
+                                                download_dir=str(tmpdir),
+                                                productType=["INVALID_TYPE"])
         assert result is None
 
     # Warn if curl_flag and flags are both set
     with pytest.warns(InputWarning, match='flat=True has no effect on curl downloads.'):
         result = Observations.download_products('2003738726',
-                                                     curl_flag=True,
-                                                     flat=True)
+                                                curl_flag=True,
+                                                flat=True)
         assert isinstance(result, Table)
 
 
@@ -1028,7 +1028,7 @@ def test_observations_download_products_cloud(mock_is_file, mock_client, mock_re
     Observations.enable_cloud_dataset()
 
     result = Observations.download_products(obsid,
-                                                 dataURI=data_uri)
+                                            dataURI=data_uri)
     assert isinstance(result, Table)
     assert result[0]['Status'] == 'COMPLETE'
 
@@ -1037,29 +1037,28 @@ def test_observations_download_products_cloud(mock_is_file, mock_client, mock_re
     # Check that info message is logged
     with pytest.warns(InputWarning, match='Falling back to MAST download'):
         result = Observations.download_products(obsid,
-                                                     dataURI=data_uri)
+                                                dataURI=data_uri)
     assert result[0]['Status'] == 'COMPLETE'
 
     # Cloud download failure, do not fallback to on-prem
     with pytest.warns(NoResultsWarning, match='Skipping download.'):
         result = Observations.download_products(obsid,
-                                                     dataURI=data_uri,
-                                                     cloud_only=True)
+                                                dataURI=data_uri,
+                                                cloud_only=True)
     assert result[0]['Status'] == 'SKIPPED'
 
     # Products not found in cloud, skip download
     monkeypatch.setattr(Observations, 'get_cloud_uris', lambda *a, **k: {})
     with pytest.warns(NoResultsWarning, match='was not found in the cloud. Skipping download.'):
         result = Observations.download_products(obsid,
-                                                     dataURI=data_uri,
-                                                     cloud_only=True)
+                                                dataURI=data_uri,
+                                                cloud_only=True)
     assert result[0]['Status'] == 'SKIPPED'
     assert result[0]['Message'] == 'Product not found in cloud'
 
     # Products not found in cloud, fall back
     with pytest.warns(InputWarning, match='was not found in the cloud. Falling back to MAST download'):
-        result = Observations.download_products(obsid,
-                                                     dataURI=data_uri)
+        result = Observations.download_products(obsid, dataURI=data_uri)
     assert result[0]['Status'] == 'COMPLETE'
 
     Observations.disable_cloud_dataset()
@@ -1067,8 +1066,8 @@ def test_observations_download_products_cloud(mock_is_file, mock_client, mock_re
     # Cloud access not enabled, warn if cloud_only is True
     with pytest.warns(InputWarning, match='cloud data access is not enabled'):
         result = Observations.download_products('2003738726',
-                                                     dataURI='mast:HST/product/u9o40504m_c3m.fits',
-                                                     cloud_only=True)
+                                                dataURI='mast:HST/product/u9o40504m_c3m.fits',
+                                                cloud_only=True)
     assert result[0]['Status'] == 'COMPLETE'
 
 
