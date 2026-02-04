@@ -74,6 +74,11 @@ mast
 - The ``select_cols`` parameter in ``MastMissions`` query functions now accepts an iterable of column names, a comma-delimited 
   string of column names, or the special values 'all' or '*' to return all available columns. [#3492]
 
+- Improved robustness of product downloads for ``MastMissions``, including support for subscription-service JSON inputs and 
+  clearer validation of MAST URIs and product metadata. [#3517]
+
+- Added full support for the International Ultraviolet Explorer (IUE) mission in ``MastMissions``. [#3517]
+
 jplspec
 ^^^^^^^
 
