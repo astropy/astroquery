@@ -360,3 +360,20 @@ class TestHeasarcBrowse:
         assert warnings[0].category == AstropyDeprecationWarning
         assert warnings[1].category == NoResultsWarning
         assert len(catalog) == 0
+
+
+@pytest.mark.remote_data
+def test__query_all():
+    result = Heasarc.query_all("217.0 -31.70",
+                               start_time="2017-01-01",
+                               end_time="2020-01-01")
+    assert len(result) == 7
+    assert result[0]['table_name'] == 'intscw'
+    assert result[1]['count'] == 556
+
+    result = Heasarc.query_all("217.0 -31.70", radius=1,
+                               start_time="2017-01-01",
+                               end_time="2020-01-01")
+    assert len(result) == 6
+    assert result[0]['table_name'] == 'swiftbalog'
+    assert result[1]['count'] == 45

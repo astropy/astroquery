@@ -4,8 +4,6 @@
 New Tools and Services
 ----------------------
 
-
-
 API changes
 -----------
 
@@ -35,6 +33,7 @@ heasarc
 - Add ``query_constraints`` to allow querying of different catalog columns. [#3403]
 - Add support for uploading tables when using TAP directly through ``query_tap``. [#3403]
 - Add automatic guessing for the data host in ``download_data``. [#3403]
+- Adding method heasarc.query_all().  [#3499]
 
 gaia
 ^^^^
