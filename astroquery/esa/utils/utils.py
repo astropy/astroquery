@@ -439,7 +439,7 @@ def prepare_output_dir(file_path):
 
 def resolve_target(url, session, target_name, target_resolver):
     """
-    Download a file in streaming mode using a existing session
+    Download a file in streaming mode using an existing session
 
     Parameters
     ----------

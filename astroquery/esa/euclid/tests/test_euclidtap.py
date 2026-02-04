@@ -667,6 +667,28 @@ def test_get_product_list():
         results = tap.get_product_list(observation_id='13', product_type=product_type)
         assert results is not None, "Expected a valid table"
 
+    ##############
+
+    for product_type in conf.SIR_SCIENCE_FRAME_PRODUCTS:
+        results = tap.get_product_list(observation_id='13', product_type=product_type, dsr_part1='CALBLOCK',
+                                       verbose=True)
+        assert results is not None, "Expected a valid table"
+
+    for product_type in conf.SIR_SCIENCE_FRAME_PRODUCTS:
+        results = tap.get_product_list(observation_id='13', product_type=product_type, dsr_part1='CALBLOCK',
+                                       dsr_part2='PV-023', verbose=True)
+        assert results is not None, "Expected a valid table"
+
+    for product_type in conf.SIR_SCIENCE_FRAME_PRODUCTS:
+        results = tap.get_product_list(observation_id='13', product_type=product_type, dsr_part1='CALBLOCK',
+                                       dsr_part2='PV-023', dsr_part3=1, verbose=True)
+        assert results is not None, "Expected a valid table"
+
+    for product_type in conf.SIR_SCIENCE_FRAME_PRODUCTS:
+        results = tap.get_product_list(observation_id='13', product_type=product_type, dsr_part2='PV-023', dsr_part3=1,
+                                       verbose=True)
+        assert results is not None, "Expected a valid table"
+
 
 def test_get_product_list_by_tile_index():
     conn_handler = DummyConnHandler()
@@ -754,6 +776,39 @@ def test_get_product_by_product_id(tmp_path_factory):
     fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.fits')
 
     result = tap.get_product(product_id='123456789', output_file=fits_file)
+
+    assert result is not None
+
+
+def test_get_product_by_product_id_data_set_release(tmp_path_factory):
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+    # Launch response: we use default response because the query contains decimals
+    responseLaunchJob = DummyResponse(200)
+    responseLaunchJob.set_data(method='POST', context=None, body='', headers=None)
+
+    conn_handler.set_default_response(responseLaunchJob)
+
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+
+    result = tap.get_product(product_id='123456789', output_file=None, dsr_part1='CALBLOCK',
+                             dsr_part2='PV-023', dsr_part3=1)
+
+    assert result is not None
+
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    remove_temp_dir()
+
+    fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.fits')
+
+    result = tap.get_product(product_id='123456789', output_file=fits_file, dsr_part1='CALBLOCK',
+                             dsr_part2='PV-023', dsr_part3=1)
 
     assert result is not None
 
@@ -867,6 +922,44 @@ def test_get_observation_products(tmp_path_factory):
     fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.fits')
 
     result = tap.get_observation_products(id='13', product_type='mosaic', filter='VIS', output_file=fits_file)
+
+    assert result is not None
+
+
+def test_get_observation_products_data_set_release(tmp_path_factory):
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+    # Launch response: we use default response because the query contains decimals
+    responseLaunchJob = DummyResponse(200)
+    responseLaunchJob.set_data(method='POST', context=None, body='', headers=None)
+
+    conn_handler.set_default_response(responseLaunchJob)
+
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+
+    result = tap.get_observation_products(id='13', product_type='observation', filter='VIS', output_file=None,
+                                          dsr_part1='CALBLOCK', dsr_part2='PV-023', dsr_part3=1)
+
+    assert result is not None
+
+    result = tap.get_observation_products(id='13', product_type='mosaic', filter='VIS', output_file=None,
+                                          dsr_part1='CALBLOCK', dsr_part2='PV-023', dsr_part3=1)
+
+    assert result is not None
+
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    remove_temp_dir()
+
+    fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.fits')
+
+    result = tap.get_observation_products(id='13', product_type='mosaic', filter='VIS', output_file=fits_file,
+                                          dsr_part1='CALBLOCK', dsr_part2='PV-023', dsr_part3=1)
 
     assert result is not None
 
@@ -1129,46 +1222,58 @@ def test_get_scientific_data_product_list():
     euclid = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
     results = euclid.get_scientific_product_list(observation_id=11111)
-
     assert results is not None, "Expected a valid table"
 
     results = euclid.get_scientific_product_list(tile_index=11111)
-
     assert results is not None, "Expected a valid table"
 
     results = euclid.get_scientific_product_list(category='Clusters of Galaxies', group='GrpCatalog',
                                                  product_type='DpdLE3clAmicoAux')
-
     assert results is not None, "Expected a valid table"
 
     results = euclid.get_scientific_product_list(category='Weak Lensing Products', group='2PCF',
                                                  product_type='DpdCovarTwoPCFWLClPosPos2D')
-
     assert results is not None, "Expected a valid table"
 
     results = euclid.get_scientific_product_list(category='Weak Lensing Products')
-
     assert results is not None, "Expected a valid table"
 
     results = euclid.get_scientific_product_list(group='GrpCatalog')
-
     assert results is not None, "Expected a valid table"
 
     results = euclid.get_scientific_product_list(category='Weak Lensing Products', group='2PCF')
-
     assert results is not None, "Expected a valid table"
 
     results = euclid.get_scientific_product_list(group='2PCF', product_type='DpdCovarTwoPCFWLClPosPos2D')
-
     assert results is not None, "Expected a valid table"
 
     results = euclid.get_scientific_product_list(category='Weak Lensing Products',
                                                  product_type='DpdCovarTwoPCFWLClPosPos2D')
-
     assert results is not None, "Expected a valid table"
 
     results = euclid.get_scientific_product_list(product_type='DpdCovarTwoPCFWLClPosPos2D')
+    assert results is not None, "Expected a valid table"
 
+    ########
+
+    results = euclid.get_scientific_product_list(product_type='DpdCovarTwoPCFWLClPosPos2D', dsr_part1='CALBLOCK',
+                                                 verbose=True)
+    assert results is not None, "Expected a valid table"
+
+    results = euclid.get_scientific_product_list(product_type='DpdCovarTwoPCFWLClPosPos2D', dsr_part1='CALBLOCK',
+                                                 dsr_part2='PV-023', verbose=True)
+    assert results is not None, "Expected a valid table"
+
+    results = euclid.get_scientific_product_list(product_type='DpdCovarTwoPCFWLClPosPos2D', dsr_part1='CALBLOCK',
+                                                 dsr_part2='PV-023', dsr_part3=1, verbose=True)
+    assert results is not None, "Expected a valid table"
+
+    results = euclid.get_scientific_product_list(product_type='DpdCovarTwoPCFWLClPosPos2D', dsr_part1='CALBLOCK',
+                                                 dsr_part3=1, verbose=True)
+    assert results is not None, "Expected a valid table"
+
+    results = euclid.get_scientific_product_list(product_type='DpdCovarTwoPCFWLClPosPos2D',
+                                                 dsr_part2='PV-023', dsr_part3=1, verbose=True)
     assert results is not None, "Expected a valid table"
 
 
