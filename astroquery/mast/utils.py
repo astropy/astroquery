@@ -14,6 +14,7 @@ import requests
 import platform
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
+from astropy.utils import deprecated
 from astropy.utils.console import ProgressBarOrSpinner
 from astropy import units as u
 
@@ -370,36 +371,42 @@ def split_list_into_chunks(input_list, chunk_size):
         yield input_list[idx:idx + chunk_size]
 
 
+@deprecated(since='v0.4.12',
+            message=('This function is deprecated.'),
+            alternative='astroquery.mast.utils.get_cloud_paths')
 def mast_relative_path(mast_uri, *, verbose=True):
     """
-    Given one or more MAST dataURI(s), return the associated relative path(s).
+    Deprecated function. Use `astroquery.mast.utils.get_cloud_paths` instead.
+    """
+    return get_cloud_paths(mast_uri, verbose=verbose)
+
+
+def get_cloud_paths(mast_uri, *, verbose=True):
+    """
+    Given one or more MAST dataURI(s), return a list of associated cloud path(s).
 
     Parameters
     ----------
     mast_uri : str, list of str
         The MAST uri(s).
     verbose : bool, optional
-        Default True. Whether to issue warnings if the MAST relative path cannot be found for a product.
+        Default True. Whether to issue warnings if the cloud path cannot be found for a product.
 
     Returns
     -------
-    response : str, list of str
-        The associated relative path(s).
+    response : list of str
+        The associated cloud path(s).
     """
-    if isinstance(mast_uri, str):
-        uri_list = [mast_uri]
-    else:
-        uri_list = list(mast_uri)
+    uri_list = [mast_uri] if isinstance(mast_uri, str) else list(mast_uri)
 
-    # Split the list into chunks of 50 URIs; this is necessary
+    # Split the list into chunks of 40 URIs; this is necessary
     # to avoid "414 Client Error: Request-URI Too Large".
-    uri_list_chunks = list(split_list_into_chunks(uri_list, chunk_size=50))
+    uri_list_chunks = list(split_list_into_chunks(uri_list, chunk_size=40))
 
-    result = []
+    cloud_paths = []
     for chunk in uri_list_chunks:
         response = _simple_request("https://mast.stsci.edu/api/v0.1/path_lookup/",
-                                   {"uri": [mast_uri for mast_uri in chunk]})
-
+                                   {"uri": [mast_uri for mast_uri in chunk], "use_cloud_path": True})
         json_response = response.json()
 
         for uri in chunk:
@@ -409,22 +416,12 @@ def mast_relative_path(mast_uri, *, verbose=True):
             path = json_response.get(uri)["path"]
             if path is None:
                 if verbose:
-                    warnings.warn(f"Failed to retrieve MAST relative path for {uri}. Skipping...", NoResultsWarning)
-            elif 'galex' in path:
-                path = path.lstrip("/mast/")
-            elif '/ps1/' in path:
-                path = path.replace("/ps1/", "panstarrs/ps1/public/")
-            elif 'hlsp' in path:
-                path = path.replace("/hlsp_local/public/", "mast/")
+                    warnings.warn(f"Failed to retrieve cloud path for {uri}. Skipping...", NoResultsWarning)
             else:
                 path = path.lstrip("/")
-            result.append(path)
+            cloud_paths.append(path)
 
-    # If the input was a single URI string, we return a single string
-    if isinstance(mast_uri, str):
-        return result[0]
-    # Else, return a list of paths
-    return result
+    return cloud_paths
 
 
 def remove_duplicate_products(data_products, uri_key):
