@@ -4,10 +4,24 @@
 New Tools and Services
 ----------------------
 
+esa.emds
+^^^^^^^^
+
+- New module to access the ESA ESDC Multi-Mission Data Services (EMDS). [#3511]
+
+esa.emds.einsteinprobe
+^^^^^^^^^^^^^^^^^^^^^^
+
+- New module to access the ESA Einstein Probe Science Archive. [#3511]
 
 
 API changes
 -----------
+
+esa.utils
+^^^^^^^^^^
+
+- Class EsaTap created as abstract class to extend all ESA modules based on PyVO. [#3511]
 
 esa.euclid
 ^^^^^^^^^^
