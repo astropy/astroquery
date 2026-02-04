@@ -830,7 +830,7 @@ class EuclidClass(TapPlus):
             files.append(output_file_full_path)
             return files
 
-    def get_observation_products(self, *, id=None, release="sedm", product_type=None, product_subtype="STK",
+    def get_observation_products(self, *, id=None, schema="sedm", product_type=None, product_subtype="STK",
                                  filter="VIS", dsr_part1=None, dsr_part2=None, dsr_part3=None, output_file=None,
                                  verbose=False):
         """
@@ -841,7 +841,7 @@ class EuclidClass(TapPlus):
         ----------
         id : str, mandatory
             observation identifier (observation id for observations, mosaic id for mosaics)
-        release : str, optional
+        schema : str, optional
             release name. Default value is 'sedm'.
         product_type : str, mandatory, default None
             list only products of the given type.
@@ -878,7 +878,7 @@ class EuclidClass(TapPlus):
             raise ValueError(f"Invalid product type {product_type}. Valid values: {conf.PRODUCT_TYPES}")
 
         params_dict = {'TYPE': product_subtype, 'RETRIEVAL_ACCESS': 'DIRECT', 'TAPCLIENT': 'ASTROQUERY',
-                       'RELEASE': release}
+                       'RELEASE': schema}
 
         if product_type == 'observation':
             params_dict['FILTER'] = filter
@@ -1308,7 +1308,7 @@ class EuclidClass(TapPlus):
 
         return query
 
-    def get_product(self, *, file_name=None, product_id=None, release='sedm', output_file=None, dsr_part1=None,
+    def get_product(self, *, file_name=None, product_id=None, schema='sedm', output_file=None, dsr_part1=None,
                     dsr_part2=None, dsr_part3=None, verbose=False):
         """
         Downloads a product given its file name or product id
@@ -1320,7 +1320,7 @@ class EuclidClass(TapPlus):
             is mandatory
         product_id : str, optional, default None
             product id. More than one can be specified between comma. Either file_name or product_id is mandatory
-        release : str, optional, default 'sedm'
+        schema : str, optional, default 'sedm'
             the data release name in which the product should be searched
         output_file : str, optional
             output file, use zip extension when downloading multiple files
@@ -1345,7 +1345,7 @@ class EuclidClass(TapPlus):
         if file_name is None and product_id is None:
             raise ValueError("'file_name' and 'product_id' are both None")
 
-        params_dict = {'TAPCLIENT': 'ASTROQUERY', 'RELEASE': release}
+        params_dict = {'TAPCLIENT': 'ASTROQUERY', 'RELEASE': schema}
 
         if file_name is not None:
             params_dict['FILE_NAME'] = file_name
