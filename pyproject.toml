@@ -1,12 +1,151 @@
-# astroquery still uses astropy-helpers
-# but we include pyproject.toml here so that python -m build can
-# work out of the box. In setup.py, we manually ensure that
-# astropy_helpers can be imported as an additional build time
-# dependency.
+[project]
+name = "astroquery"
+dynamic = ["version"]
+description = "Functions and classes to access online astronomical data resources"
+authors = [
+  {name = "The Astroquery Developers"},
+]
+license = "BSD-3-Clause"
+classifiers = [
+  "Intended Audience :: Science/Research",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Topic :: Database",
+  "Topic :: Scientific/Engineering :: Astronomy",
+  "Topic :: Software Development :: Libraries",
+]
+requires-python = ">=3.10"
+dependencies = [
+   "numpy>=1.22",
+   "astropy>=5.0",
+   "requests>=2.26",
+   "beautifulsoup4>=4.10",
+   "html5lib>=0.999",
+   "keyring>=23.0",
+   "pyvo>=1.5",
+]
+
+[project.urls]
+
+Source = "https://github.com/astropy/astroquery"
+Documentation = "https://astroquery.readthedocs.io"
+
+[project.optional-dependencies]
+
+test = [
+   "pytest>=7.4",
+   "pytest-doctestplus>=1.4",
+   "pytest-timeout",
+   "pytest-astropy",
+   "matplotlib",
+   "pytest-dependency",
+   "pytest-rerunfailures",
+   "fsspec[http]",
+   "moto[s3]",
+   "s3fs",
+]
+docs = [
+   "sphinx",
+   # https://github.com/astropy/astroquery/issues/3102
+   "sphinx-automodapi",
+   "matplotlib",
+   "sphinx-astropy>=1.5",
+   "scipy",
+   "fsspec[http]",
+]
+all = [
+   "mocpy>=0.12",
+   "astropy-healpix",
+   "boto3",
+   "botocore",
+   "regions>=0.5",
+]
 
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ['setuptools>=70.1',
+            'setuptools_scm']
 build-backend = 'setuptools.build_meta'
+
+[tool.setuptools_scm]
+write_to = 'astroquery/version.py'
+
+[tool.setuptools.packages.find]
+include = ["astroquery"]
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.pytest.ini_options]
+minversion = "7.4"
+norecursedirs = [
+  "build",
+  "docs/_build",
+  "astroquery/irsa",
+  "astroquery/nasa_exoplanet_archive",
+  "astroquery/ned",
+  "astroquery/ibe",
+  "astroquery/irsa_dust",
+  "astroquery/cds",
+  "astroquery/sha",
+  "astroquery/dace"
+]
+testpaths = [
+  "astroquery",
+  "docs",
+]
+doctest_plus = "enabled"
+astropy_header = true
+text_file_format = "rst"
+xfail_strict = true
+remote_data_strict = true
+addopts = ["--color=yes", "--doctest-rst", "--doctest-continue-on-failure"]
+timeout = 300
+filterwarnings = [
+  "error",
+  "ignore:Use setlocale:DeprecationWarning",
+  "ignore: 'locale.getdefaultlocale' is deprecated and slated for removal:DeprecationWarning",
+  "ignore:Importing from 'astroquery.jplspec' is deprecated:DeprecationWarning",
+  "ignore:distutils Version classes are deprecated:DeprecationWarning",
+  "ignore:unclosed <socket.socket:ResourceWarning",
+  "ignore:unclosed <ssl.SSLSocket:ResourceWarning",
+  "ignore::astropy.io.votable.exceptions.W21",
+  "ignore::astropy.io.votable.exceptions.W42",
+  "ignore:FITS files must be read as binaries:astroquery.exceptions.InputWarning",
+  "ignore:Coordinate string is being interpreted as an ICRS coordinate:astroquery.exceptions.InputWarning",
+  "ignore:Coordinate string is being interpreted as an ICRS coordinate:UserWarning",
+  "ignore::astropy.io.votable.exceptions.E02",
+  "ignore:Experimental. ALFALFA:UserWarning",
+  "ignore:Experimental. Fermi-LAT:UserWarning", "ignore:Experimental. SHA:UserWarning",
+  "ignore:Experimental. OGLE:UserWarning:",
+  "ignore:vamdclib could not be imported; the vamdc astroquery module will not work:UserWarning",
+  "ignore:the vamdc astroquery module:astropy.utils.exceptions.AstropyDeprecationWarning",
+  "ignore:due to the retirement of its upstream website:astropy.utils.exceptions.AstropyDeprecationWarning",
+  "ignore:leap-second auto-update failed:astropy.utils.exceptions.AstropyWarning",
+  "ignore:getName|currentThread:DeprecationWarning:astropy",
+  "ignore:numpy.core:DeprecationWarning",
+  "ignore:The upstream SHA API has been changed:UserWarning",
+  "ignore: The 'strip_cdata' option of HTMLParser:DeprecationWarning",
+  "ignore:datetime.datetime.utcnow\\(\\) is deprecated:DeprecationWarning",
+  "ignore:Module astroquery was previously imported, but not measured:coverage.exceptions.CoverageWarning",
+  "ignore:The chararray class is deprecated and will be removed in a future release:DeprecationWarning"
+]
+markers = [
+  "bigdata: marks tests that are expected to trigger a large download (deselect with '-m \"not bigdata\"')",
+  "noautofixt: disabling fixture autouse"
+]
+
+[tool.coverage.run]
+omit = [
+  "astroquery/*_init*",
+  "astroquery/**/tests/*",
+  "astroquery/*setup*",
+  "astroquery/version*",
+  "*/astroquery/*_init*",
+  "*/astroquery/**/tests/*",
+  "*/astroquery/*setup*",
+  "*/astroquery/version*"
+]
 
 [tool.black]
 force-exclude = '''
