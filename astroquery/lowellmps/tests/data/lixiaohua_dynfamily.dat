@@ -1,0 +1,14 @@
+{
+  "dynamical-family": [
+    {
+      "citation_bibcode": "2015PDSS..234.....N",
+      "citation_url": "http://sbn.psi.edu/pds/asteroid/EAR_A_VARGBDET_5_NESVORNYFAM_V3_0.zip",
+      "family": "Lixiaohua",
+      "measurement_techniques": [
+        "Simulation"
+      ],
+      "survey_name": "Nesvorny et al. (2015)"
+    }
+  ],
+  "identifier": "3556"
+}
