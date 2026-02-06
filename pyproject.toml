@@ -147,6 +147,20 @@ omit = [
   "*/astroquery/version*"
 ]
 
+[tool.flake8]
+# E226 missing whitespace around operators
+# E402 module level import not at top of file
+# W503 line break before operator
+# Stricter settings for people who use flake8 in their editors
+max-line-length = "120"
+ignore = ["E226", "E402", "W503"]
+exclude = [
+  "_astropy_init.py",
+  "version.py",
+  "astroquery/template_module",
+  "astroquery/simbad/criteria_*.py",
+]
+
 [tool.black]
 force-exclude = '''
 (
