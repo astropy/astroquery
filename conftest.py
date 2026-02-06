@@ -39,7 +39,6 @@ def pytest_configure(config):
     version.version += '_testrun'
 
     TESTED_VERSIONS['astroquery'] = version.version
-    TESTED_VERSIONS['astropy_helpers'] = version.astropy_helpers_version
 
 
 def pytest_addoption(parser):
