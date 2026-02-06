@@ -70,11 +70,28 @@ build-backend = 'setuptools.build_meta'
 [tool.setuptools_scm]
 write_to = 'astroquery/version.py'
 
-[tool.setuptools.packages.find]
-include = ["astroquery"]
-
 [tool.setuptools]
 include-package-data = false
+
+[tool.setuptools.packages.find]
+include = ["astroquery*"]
+
+[tool.setuptools.package-data]
+"astroquery" = ["CITATION"]
+# Files that are actually needed
+"astroquery.alma" = ["data/cycle0_delivery_asdm_mapping.txt"]
+"astroquery.exoplanet_orbit_database" = ["data/exoplanet_orbit_database_units.json"]
+"astroquery.hitran" = ["data/readme.txt"]
+"astroquery.linelists.cdms" = ["data/catdir.cat", "data/partfunc.cat"]
+"astroquery.linelists.jplspec" = ["data/catdir.cat"]
+"astroquery.sdss" = ["data/PhotoObjAll_dr12.json", "data/SpecObjAll_dr12.json"]
+"astroquery.simbad" = ["data/query_criteria_fields.json"]
+"astroquery.splatalogue" = ["data/splat-species.json"]
+"astroquery.vizier" = ["data/inverse_dict.json", "data/keywords_dict.json"]
+"astroquery.vo_conesearch.validator" = ["data/conesearch_urls.txt"]
+# Test files
+"*" = ["tests/data/*"]
+"astroquery.utils.tap.tests" = ["data/test_upload_file/*"]
 
 [tool.pytest.ini_options]
 minversion = "7.4"
