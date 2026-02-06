@@ -94,22 +94,6 @@ The remote tests are much easier. The file must contain the following::
 This ensures that the test functions in remote test module are only executed if
 the ``--remote-data`` flag is used.
 
-``setup_package.py``
---------------------
-
-This file only needs the ``get_package_data()`` function, which will tell
-``setup.py`` to include the relevant files when installing.
-
-.. code-block:: python
-
-    import os
-
-    def get_package_data():
-        paths_test = [os.path.join('data', '*.xml')]
-
-        return {'astroquery.module.tests': paths_test}
-
-
 Doctesting
 ----------
 
@@ -132,4 +116,4 @@ actually work on:
 
 .. code-block:: bash
 
-    pytest -P <module_you_want_to_test> -m remote_data --remote-data=any --cov astroquery/<module_you_want_to_test> --cov-config=setup.cfg
+    pytest -P <module_you_want_to_test> -m remote_data --remote-data=any --cov astroquery/<module_you_want_to_test> --cov-config=pyproject.toml
