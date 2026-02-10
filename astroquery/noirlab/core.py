@@ -155,7 +155,7 @@ class NOIRLabClass(BaseQuery):
         coordinate : :class:`str` or `~astropy.coordinates` object
             The target region which to search. It may be specified as a
             string or as the appropriate `~astropy.coordinates` object.
-        radius : :class:`str` or `~astropy.units.Quantity` object, optional
+        radius : :class:`float` or :class:`str` or `~astropy.units.Quantity` object, optional
             Default 0.1 degrees.
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
@@ -164,7 +164,7 @@ class NOIRLabClass(BaseQuery):
             If ``True``, perform the query on HDUs.
         cache : :class:`bool`, optional
             If ``True``, cache the result locally.
-        async : :class:`bool`, optional
+        async_ : :class:`bool`, optional
             If ``True``, return the raw query response instead of a Table.
 
         Returns
