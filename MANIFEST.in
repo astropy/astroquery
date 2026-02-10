@@ -1,15 +1,4 @@
-include LICENSE.rst
-include README.rst
-include CHANGES.rst
-include CITATION
-include astroquery/CITATION
-
-include pyproject.toml
-include tox.ini
-
-recursive-include astroquery *.py
-recursive-include docs *
-recursive-include licenses *
+include astroquery/version.py
 
 prune build
 prune docs/_build
