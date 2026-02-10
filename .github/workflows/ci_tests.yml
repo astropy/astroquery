@@ -48,10 +48,10 @@ jobs:
             toxenv: py312-test-alldeps
             toxargs: -v
 
-          - name: Windows, py311, mandatory dependencies only
+          - name: Windows, py313, mandatory dependencies only
             os: windows-latest
-            python: "3.11"
-            toxenv: py311-test
+            python: "3.13"
+            toxenv: py313-test
             toxargs: -v
 
           - name: Linux ARM, py312, all optional dependencies

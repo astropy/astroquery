@@ -39,7 +39,14 @@ def pytest_configure(config):
     version.version += '_testrun'
 
     TESTED_VERSIONS['astroquery'] = version.version
-    TESTED_VERSIONS['astropy_helpers'] = version.astropy_helpers_version
+
+    # Workaround for https://github.com/RKrahl/pytest-dependency/issues/91
+    # We use pytest-dependency for some of the remote tests and it is not a critical dependency.
+    # We don't install it in CI for windows as use the following workaround to ensure the marker is always defined.
+    if sys.platform == 'win32':
+        config.addinivalue_line(
+            "markers", "dependency: this should be set by pytest-dependency, we do it here as a temp workaround"
+        )
 
 
 def pytest_addoption(parser):
