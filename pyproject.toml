@@ -7,6 +7,7 @@ authors = [
   {name = "The Astroquery Developers"},
 ]
 license = "BSD-3-Clause"
+license-files = ["LICENSE.rst"]
 classifiers = [
   "Intended Audience :: Science/Research",
   "Operating System :: OS Independent",
@@ -28,12 +29,10 @@ dependencies = [
 ]
 
 [project.urls]
-
 Source = "https://github.com/astropy/astroquery"
 Documentation = "https://astroquery.readthedocs.io"
 
 [project.optional-dependencies]
-
 test = [
    "pytest>=7.4",
    "pytest-doctestplus>=1.4",
