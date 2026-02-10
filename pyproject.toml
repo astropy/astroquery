@@ -39,7 +39,8 @@ test = [
    "pytest-timeout",
    "pytest-astropy",
    "matplotlib",
-   "pytest-dependency",
+   # Temp workaround for https://github.com/RKrahl/pytest-dependency/issues/91
+   "pytest-dependency; platform_system != 'Windows'",
    "pytest-rerunfailures",
    "fsspec[http]",
    "moto[s3]",
@@ -149,7 +150,7 @@ filterwarnings = [
 ]
 markers = [
   "bigdata: marks tests that are expected to trigger a large download (deselect with '-m \"not bigdata\"')",
-  "noautofixt: disabling fixture autouse"
+  "noautofixt: disabling fixture autouse",
 ]
 
 [tool.coverage.run]
