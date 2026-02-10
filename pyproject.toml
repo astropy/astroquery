@@ -2,7 +2,7 @@
 name = "astroquery"
 dynamic = ["version"]
 description = "Functions and classes to access online astronomical data resources"
-readme = "README.rst"
+readme = { file = "README.rst", content-type = "text/x-rst" }
 authors = [
   {name = "The Astroquery Developers"},
 ]
