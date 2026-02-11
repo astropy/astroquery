@@ -119,6 +119,9 @@ Infrastructure, Utility and Other Changes and Additions
 
 - Versions of numpy <1.22 are no longer supported. [#3504]
 
+- ``BaseVOQuery`` now accepts a ``extra_user_agents`` parameter to allow the addition
+  of user agents on top of astroquery's ones [#3526]
+
 
 utils.tap
 ^^^^^^^^^

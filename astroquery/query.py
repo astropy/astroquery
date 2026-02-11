@@ -183,7 +183,14 @@ class BaseVOQuery:
     Use in modules that rely on PyVO, either on its own or in combination with ``BaseQuery`` (be mindful
     about resolution order of base classes!).
     """
-    def __init__(self):
+    def __init__(self, *, extra_user_agents=None):
+        """Create an instance of BaseVOQuery.
+
+        Parameters
+        ----------
+        extra_user_agents : str | list(str)
+            Extra user agents to be added to the ones already provided by astroquery.
+        """
         super().__init__()
         if not hasattr(self, '_session'):
             # We don't want to override another, e.g. already authenticated session from another baseclass
@@ -198,6 +205,12 @@ class BaseVOQuery:
         else:
             user_agents = [f"astroquery/{version.version} pyVO/{pyvo.__version__} "
                            f"Python/{platform.python_version()} ({platform.system()})"] + user_agents
+
+        if extra_user_agents:
+            if isinstance(extra_user_agents, str):
+                user_agents += [extra_user_agents]
+            else:
+                user_agents += extra_user_agents
 
         self._session.headers['User-Agent'] = " ".join(user_agents)
 
