@@ -22,16 +22,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: py3.12 pre-release all deps
+          - name: py3.13 pre-release all deps
             os: ubuntu-latest
-            python: '3.12'
-            toxenv: py312-test-alldeps-predeps
+            python: '3.13'
+            toxenv: py313-test-alldeps-predeps
             toxargs: -v
             toxposargs: -v
 
           - name: Documentation build with linkcheck
             os: ubuntu-latest
-            python: '3.10'
+            python: '3.12'
             toxenv: linkcheck
 
     steps:
