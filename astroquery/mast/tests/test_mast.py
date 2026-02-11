@@ -146,6 +146,12 @@ def reset_cloud_state():
     Observations._cloud_enabled_explicitly = None
 
 
+@pytest.fixture
+def reset_catalogs_cache():
+    Catalogs._collections_cache.clear()
+    yield
+
+
 def post_mockreturn(self, method="POST", url=None, data=None, timeout=10, **kwargs):
     if "columnsconfig" in url:
         if "Mast.Catalogs.Tess.Cone" in data:
@@ -271,7 +277,6 @@ def zcut_download_mockreturn(url, file_path):
 
 def vo_tap_mock():
     def run_sync_mock(query, **kwargs):
-        print(query)
         if 'invalid' in query:
             # Use this when wanting to simulate a DALQueryError
             # Where it occurs will depend on where you pass it (collection, catalog, parameter, etc.)
