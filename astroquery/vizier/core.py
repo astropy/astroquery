@@ -359,6 +359,9 @@ class VizierClass(BaseQuery):
         Serves the same purpose as `query_object` but only
         returns the HTTP response rather than the parsed result.
 
+        This resolves the object name into coordinates and searches around these in a
+        small radius.
+
         Parameters
         ----------
         object_name : str
@@ -367,7 +370,7 @@ class VizierClass(BaseQuery):
             The catalog(s) which must be searched for this identifier.
             If not specified, all matching catalogs will be searched.
         radius : `~astropy.units.Quantity` or None
-            A degree-equivalent radius (optional).
+            A degree-equivalent radius (optional). It defaults to 2 arcmins.
         coordinate_system : str or None
             If the object name is given as a coordinate, you *should* use
             `~astroquery.vizier.VizierClass.query_region`, but you can
