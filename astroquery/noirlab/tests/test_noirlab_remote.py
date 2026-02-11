@@ -6,11 +6,15 @@ Enable with *e.g.*::
 
     tox -e py310-test-online -- -P noirlab
 """
+import re
 import pytest
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 from .. import NOIRLab, conf
 from . import expected as exp
+
+
+md5sum_string = re.compile(r'[0-9a-f]+')
 
 
 @pytest.mark.remote_data
@@ -77,6 +81,9 @@ def test_categoricals():
 @pytest.mark.remote_data
 def test_query_file_metadata():
     """Search FILE metadata.
+
+    Both the column ordering and the actual returned results may vary,
+    so just check that the response "looks like" the expected data.
     """
     conf.timeout = 300
     qspec = {"outfields": ["md5sum",
@@ -86,21 +93,33 @@ def test_query_file_metadata():
                            "proc_type"],
              "search": [['original_filename', 'c4d_', 'contains']]}
     actual = NOIRLab().query_metadata(qspec, sort='md5sum', limit=3)
-    assert actual.pformat(max_width=-1) == NOIRLab._response_to_table(exp.query_file_meta_raw).pformat(max_width=-1)
+    actual_formatted = actual.pformat(max_width=-1)
+    for f in qspec['outfields']:
+        assert f in actual_formatted[0]
+    assert md5sum_string.match(actual['md5sum'][2]) is not None
+    assert actual['instrument'][0] == 'decam'
 
 
 @pytest.mark.remote_data
 def test_query_file_metadata_minimal_input():
     """Search FILE metadata with minimum input parameters.
+
+    Actual returned results may vary, so just check that the response
+    "looks like" the expected data.
     """
     conf.timeout = 300
     actual = NOIRLab().query_metadata(qspec=None, sort='md5sum', limit=5)
-    assert actual.pformat(max_width=-1) == exp.query_file_metadata_minimal
+    actual_formatted = actual.pformat(max_width=-1)
+    assert actual_formatted[0] == exp.query_file_metadata_minimal[0]
+    assert md5sum_string.match(actual_formatted[6]) is not None
 
 
 @pytest.mark.remote_data
 def test_query_hdu_metadata():
     """Search HDU metadata.
+
+    Both the column ordering and the actual returned results may vary,
+    so just check that the response "looks like" the expected data.
     """
     conf.timeout = 300
     qspec = {"outfields": ["md5sum",
@@ -116,7 +135,14 @@ def test_query_hdu_metadata():
                         ["instrument", "decam"],
                         ["proc_type", "raw"]]}
     actual = NOIRLab().query_metadata(qspec, sort='md5sum', limit=3, hdu=True)
-    assert actual.pformat(max_width=-1) == NOIRLab._response_to_table(exp.query_hdu_metadata_raw).pformat(max_width=-1)
+    actual_formatted = actual.pformat(max_width=-1)
+    for f in qspec['outfields']:
+        if 'hdu:' in f:
+            assert f.split(':')[1] in actual_formatted[0]
+        else:
+            assert f in actual_formatted[0]
+    assert md5sum_string.match(actual['md5sum'][2]) is not None
+    assert actual['caldat'][0] == '2017-08-15'
 
 
 @pytest.mark.remote_data
