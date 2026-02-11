@@ -13,8 +13,9 @@ import threading
 from astroquery import log
 from astropy.utils.console import ProgressBarOrSpinner
 from astropy.utils.exceptions import AstropyDeprecationWarning
+from botocore.exceptions import ClientError, BotoCoreError
 
-from ..exceptions import NoResultsWarning
+from ..exceptions import RemoteServiceError, NoResultsWarning
 
 from . import utils
 
@@ -52,39 +53,75 @@ class CloudAccess:  # pragma:no-cover
         import boto3
         import botocore
 
-        self.supported_missions = ["mast:hst/product", "mast:tess/product", "mast:kepler", "mast:galex", "mast:ps1",
-                                   "mast:jwst/product"]
-
         self.boto3 = boto3
         self.botocore = botocore
         self.config = botocore.client.Config(signature_version=botocore.UNSIGNED)
-
         self.pubdata_bucket = "stpubdata"
+        self.s3_client = self.boto3.client('s3', config=self.config)
+
+        # Cached list of datasets available in the cloud
+        self._supported_datasets = self._fetch_supported_datasets()
 
         if verbose:
             log.info("Using the S3 STScI public dataset")
 
-    def is_supported(self, data_product):
+    def _fetch_supported_datasets(self):
         """
-        Given a data product, determines if it is in a mission available in the cloud.
-
-        Parameters
-        ----------
-        data_product : `~astropy.table.Row`
-            Product to be validated.
+        Returns the list of datasets that have data available in the cloud.
 
         Returns
         -------
-        response : bool
-              Is the product from a supported mission.
+        response : list
+              List of supported datasets.
         """
-        return any(data_product['dataURI'].lower().startswith(mission) for mission in self.supported_missions)
+        try:
+            datasets = []
+
+            # Top-level prefixes in the bucket
+            response = self.s3_client.list_objects_v2(
+                Bucket=self.pubdata_bucket,
+                Delimiter='/'  # Use a delimiter to treat the S3 structure like folders
+            )
+
+            for prefix_info in response.get('CommonPrefixes', []):
+                prefix = prefix_info['Prefix'].rstrip('/')
+
+                if prefix == 'mast':
+                    # 'mast/' contains sub-prefixes for different high-level science products
+                    mast_response = self.s3_client.list_objects_v2(
+                        Bucket=self.pubdata_bucket,
+                        Prefix='mast/hlsp/',
+                        Delimiter='/',
+                    )
+                    datasets.extend(
+                        cp['Prefix'].rstrip('/')
+                        for cp in mast_response.get('CommonPrefixes', [])
+                    )
+                else:
+                    datasets.append(prefix)
+
+            return datasets
+
+        except (ClientError, BotoCoreError) as e:
+            log.error('Failed to retrieve supported datasets from S3 bucket %s: %s', self.pubdata_bucket, e)
+            return []
+
+    def get_supported_datasets(self):
+        """
+        Returns the list of datasets that have data available in the cloud.
+
+        Returns
+        -------
+        response : list
+              List of supported datasets.
+        """
+        return list(self._supported_datasets)
 
     def get_cloud_uri(self, data_product, include_bucket=True, full_url=False):
         """
         For a given data product, returns the associated cloud URI.
-        If the product is from a mission that does not support cloud access an
-        exception is raised. If the mission is supported but the product
+        If the product is from a dataset that does not support cloud access an
+        exception is raised. If the dataset is supported but the product
         cannot be found in the cloud, the returned path is None.
 
         Parameters
@@ -112,7 +149,7 @@ class CloudAccess:  # pragma:no-cover
 
         # Making sure we got at least 1 URI from the query above.
         if not uri_list or uri_list[0] is None:
-            warnings.warn("Unable to locate file {}.".format(data_product), NoResultsWarning)
+            return
         else:
             # Output from ``get_cloud_uri_list`` is always a list even when it's only 1 URI
             return uri_list[0]
@@ -141,11 +178,8 @@ class CloudAccess:  # pragma:no-cover
             List of URIs generated from the data products, list way contain entries that are None
             if data_products includes products not found in the cloud.
         """
-        s3_client = self.boto3.client('s3', config=self.config)
         data_uris = data_products if isinstance(data_products, list) else data_products['dataURI']
-        paths = utils.mast_relative_path(data_uris, verbose=verbose)
-        if isinstance(paths, str):  # Handle the case where only one product was requested
-            paths = [paths]
+        paths = utils.get_cloud_paths(data_uris, verbose=verbose)
 
         uri_list = []
         for path in paths:
@@ -154,7 +188,7 @@ class CloudAccess:  # pragma:no-cover
             else:
                 try:
                     # Use `head_object` to verify that the product is available on S3 (not all products are)
-                    s3_client.head_object(Bucket=self.pubdata_bucket, Key=path)
+                    self.s3_client.head_object(Bucket=self.pubdata_bucket, Key=path)
                     if include_bucket:
                         s3_path = "s3://{}/{}".format(self.pubdata_bucket, path)
                         uri_list.append(s3_path)
@@ -167,76 +201,78 @@ class CloudAccess:  # pragma:no-cover
                     if e.response['Error']['Code'] != "404":
                         raise
                     if verbose:
-                        warnings.warn("Unable to locate file {}.".format(path), NoResultsWarning)
+                        warnings.warn(f"Failed to retrieve cloud path for {path}", NoResultsWarning)
                     uri_list.append(None)
 
         return uri_list
 
-    def download_file(self, data_product, local_path, cache=True, verbose=True):
+    def download_file_from_cloud(self, data_product, local_path, cache=True, verbose=True):
         """
-        Takes a data product in the form of an  `~astropy.table.Row` and downloads it from the cloud into
-        the given directory.
+        Download a data product from MAST cloud storage (S3) to a local file.
 
         Parameters
         ----------
-        data_product :  `~astropy.table.Row`
-            Product to download.
+        data_product :  str
+            MAST product URI (e.g. ``mast:JWST/product.fits``) or S3 URI (e.g. ``s3://<bucket>/path/to/product.fits``).
         local_path : str
-            The local filename to which toe downloaded file will be saved.
-        cache : bool
-            Default is True. If file is found on disc it will not be downloaded again.
+            Local filename where the downloaded file will be saved.
+        cache : bool, optional
+            Default is True. If True, and the file already exists locally with the expected size,
+            the download is skipped.
         verbose : bool, optional
             Default is True. Whether to show download progress in the console.
         """
-
-        s3 = self.boto3.resource('s3', config=self.config)
-        s3_client = self.boto3.client('s3', config=self.config)
-        bkt = s3.Bucket(self.pubdata_bucket)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            bucket_path = self.get_cloud_uri(data_product, False)
-        if not bucket_path:
-            raise Exception("Unable to locate file {}.".format(data_product['dataURI']))
-
-        # Ask the webserver (in this case S3) what the expected content length is and use that.
-        info_lookup = s3_client.head_object(Bucket=self.pubdata_bucket, Key=bucket_path)
-        length = info_lookup["ContentLength"]
-
-        if cache and os.path.exists(local_path):
-            if length is not None:
-                statinfo = os.stat(local_path)
-                if statinfo.st_size != length:
-                    log.warning("Found cached file {0} with size {1} that is "
-                                "different from expected size {2}"
-                                .format(local_path,
-                                        statinfo.st_size,
-                                        length))
-                else:
-                    log.info("Found cached file {0} with expected size {1}."
-                             .format(local_path, statinfo.st_size))
-                    return
-
-        if verbose:
-            with ProgressBarOrSpinner(length, ('Downloading URL s3://{0}/{1} to {2} ...'.format(
-                    self.pubdata_bucket, bucket_path, local_path))) as pb:
-
-                # Bytes read tracks how much data has been received so far
-                # This variable will be updated in multiple threads below
-                global bytes_read
-                bytes_read = 0
-
-                progress_lock = threading.Lock()
-
-                def progress_callback(numbytes):
-                    # Boto3 calls this from multiple threads pulling the data from S3
-                    global bytes_read
-
-                    # This callback can be called in multiple threads
-                    # Access to updating the console needs to be locked
-                    with progress_lock:
-                        bytes_read += numbytes
-                        pb.update(bytes_read)
-
-                bkt.download_file(bucket_path, local_path, Callback=progress_callback)
+        # TODO: Function that checks if a particular product, by dataURI, can be found in the cloud
+        # Normalize to an S3 key (no bucket)
+        if data_product.strip().startswith('s3://'):
+            s3_key = data_product.replace(f's3://{self.pubdata_bucket}/', '', 1)
         else:
-            bkt.download_file(bucket_path, local_path)
+            s3_key = self.get_cloud_uri_list([data_product], include_bucket=False, verbose=False)[0]
+
+        # If s3_key is None, the product was not found in the cloud
+        if s3_key is None:
+            raise RemoteServiceError(f'The product {data_product} was not found in the cloud.')
+
+        # Query S3 for expected file size
+        head = self.s3_client.head_object(Bucket=self.pubdata_bucket, Key=s3_key)
+        expected_size = head.get('ContentLength')
+
+        # Cache check
+        if cache and os.path.exists(local_path) and expected_size is not None:
+            local_size = os.path.getsize(local_path)
+            if local_size == expected_size:
+                log.info("Using cached file {0} with expected size {1}."
+                         .format(local_path, local_size))
+                return
+            else:
+                log.warning("Found cached file {0} with size {1} that is "
+                            "different from expected size {2}"
+                            .format(local_path,
+                                    local_size,
+                                    expected_size))
+
+        # Proceed with download
+        bucket = self.boto3.resource('s3', config=self.config).Bucket(self.pubdata_bucket)
+        if not verbose:
+            bucket.download_file(s3_key, local_path)
+            return
+
+        # Progress-aware download
+        bytes_read = 0
+        progress_lock = threading.Lock()
+
+        def progress_callback(numbytes):
+            # Boto3 calls this from multiple threads pulling the data from S3
+            nonlocal bytes_read
+
+            # This callback can be called in multiple threads
+            # Access to updating the console needs to be locked
+            with progress_lock:
+                bytes_read += numbytes
+                pb.update(bytes_read)
+
+        with ProgressBarOrSpinner(
+            expected_size,
+            f'Downloading s3://{self.pubdata_bucket}/{s3_key} to {local_path} ...'
+        ) as pb:
+            bucket.download_file(s3_key, local_path, Callback=progress_callback)

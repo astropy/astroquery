@@ -509,6 +509,15 @@ cloud storage becomes the **preferred source** for data access when available.
    >>> Observations.enable_cloud_dataset(provider='AWS')
    INFO: Using the S3 STScI public dataset [astroquery.mast.cloud]
 
+To get a list of cloud-hosted MAST datasets, use the `~astroquery.mast.ObservationsClass.list_cloud_datasets` method. You 
+should see both mission names (e.g., "hst", "kepler") and High-Level Science Product (`HLSP <https://mast.stsci.edu/hlsp/#/>`__) 
+collections (e.g., "mast/hlsp/jades").
+
+.. doctest-remote-data::
+
+   >>> print(Observations.list_cloud_datasets())  # doctest: +IGNORE_OUTPUT
+   ['gaia', 'galex', 'hst', 'jwst', 'k2', 'kepler', 'mast/hlsp/jades', 'mast/hlsp/maestro', 'mast/hlsp/mast', 'mast/hlsp/qlp', 'mast/hlsp/tess-spoc', 'mast/hlsp/tglc', 'panstarrs', 'roman', 'tess']
+
 To revert to traditional, on-premise MAST data access, use the
 `~astroquery.mast.ObservationsClass.disable_cloud_dataset` method.
 

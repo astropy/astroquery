@@ -18,6 +18,7 @@ from requests import HTTPError
 
 import astropy.units as u
 import astropy.coordinates as coord
+from botocore.exceptions import ClientError, BotoCoreError
 
 from astropy.table import Table, Row, vstack
 from astroquery import log
@@ -26,8 +27,7 @@ from astroquery.utils import commons
 
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
-from ..exceptions import (InvalidQueryError, RemoteServiceError,
-                          NoResultsWarning, InputWarning)
+from ..exceptions import (InvalidQueryError, RemoteServiceError, NoResultsWarning, InputWarning)
 
 from . import utils
 from .core import MastQueryWithLogin
@@ -622,14 +622,15 @@ class ObservationsClass(MastQueryWithLogin):
 
         return products[filter_mask]
 
-    def download_file(self, uri, *, local_path=None, base_url=None, cache=True, cloud_only=False, verbose=True):
+    def download_file(self, uri, *, local_path=None, base_url=None, cache=True, cloud_only=False,
+                      force_on_prem=False, verbose=True):
         """
         Downloads a single file based on the data URI
 
         Parameters
         ----------
         uri : str
-            The product dataURI, e.g. mast:JWST/product/jw00736-o039_t001_miri_ch1-long_x1d.fits
+            The MAST product dataURI, e.g. mast:JWST/product/jw00736-o039_t001_miri_ch1-long_x1d.fits.
         local_path : str
             Directory or filename to which the file will be downloaded.  Defaults to current working directory.
         base_url: str
@@ -639,7 +640,10 @@ class ObservationsClass(MastQueryWithLogin):
         cloud_only : bool, optional
             Default False. If set to True and cloud data access is enabled (see `enable_cloud_dataset`)
             files that are not found in the cloud will be skipped rather than downloaded from MAST
-            as is the default behavior. If cloud access is not enables this argument as no affect.
+            as is the default behavior. If cloud access is not enabled, this argument has no effect.
+        force_on_prem : bool, optional
+            Default False. If set to True, cloud data access will be bypassed and the
+            file will be downloaded from MAST on-prem servers even if cloud access is enabled.
         verbose : bool, optional
             Default True. Whether to show download progress in the console.
 
@@ -652,67 +656,75 @@ class ObservationsClass(MastQueryWithLogin):
         url : str
             The full url download path
         """
+        if not uri or not isinstance(uri, str):
+            raise InvalidQueryError("A valid data product URI must be provided.")
 
-        # create the full data URL
-        base_url = base_url if base_url else self._portal_api_connection.MAST_DOWNLOAD_URL
-        data_url = base_url + "?uri=" + uri
-        escaped_url = base_url + "?uri=" + quote(uri, safe=":/")
+        if cloud_only and force_on_prem:
+            raise InvalidQueryError(
+                "Invalid argument combination: `cloud_only=True` and `force_on_prem=True` "
+                "cannot both be set. `cloud_only` requires downloading from the cloud, "
+                "while `force_on_prem` explicitly disables cloud downloads. "
+                "Set one (or both) of these arguments to False."
+            )
 
-        # parse a local file path from local_path parameter.  Use current directory as default.
+        base_url = base_url or self._portal_api_connection.MAST_DOWNLOAD_URL
+        data_url = f"{base_url}?uri={uri}"
+        escaped_url = f"{base_url}?uri={quote(uri, safe=':/')}"
+
+        # Resolve local output path
         filename = os.path.basename(uri)
-        if not local_path:  # local file path is not defined
-            local_path = filename
+        if local_path is None:  # local file path is not defined
+            local_path = Path(filename)
         else:
-            path = Path(local_path)
-            if not path.suffix:  # local_path is a directory
-                local_path = path / filename  # append filename
-                if not path.exists():  # create directory if it doesn't exist
-                    path.mkdir(parents=True, exist_ok=True)
-
-        # recreate the data_product key for cloud connection check
-        data_product = {'dataURI': uri}
-
-        status = "COMPLETE"
-        msg = None
-        url = None
+            local_path = Path(local_path)
+            if not local_path.suffix:  # local_path is a directory
+                local_path.mkdir(parents=True, exist_ok=True)
+                local_path = local_path / filename
 
         try:
-            if self._cloud_connection is not None and self._cloud_connection.is_supported(data_product):
+            # Attempt cloud download first (if enabled)
+            if self._cloud_connection is not None and not force_on_prem:
                 try:
-                    self._cloud_connection.download_file(data_product, local_path, cache, verbose)
-                except Exception as ex:
-                    log.exception("Error pulling from S3 bucket: {}".format(ex))
+                    self._cloud_connection.download_file_from_cloud(uri, local_path, cache, verbose)
+                except RemoteServiceError:
+                    # Product not found in cloud
                     if cloud_only:
-                        log.warning("Skipping file...")
-                        local_path = ""
-                        status = "SKIPPED"
-                    else:
-                        log.warning("Falling back to mast download...")
-                        self._download_file(escaped_url, local_path,
-                                            cache=cache, head_safe=True,
-                                            verbose=verbose)
+                        warnings.warn(f'The product {uri} was not found in the cloud. Skipping download.',
+                                      NoResultsWarning)
+                        return 'SKIPPED', None, None
+
+                    warnings.warn(f'The product {uri} was not found in the cloud. '
+                                  'Falling back to MAST download.', InputWarning)
+                    self._download_file(escaped_url, local_path, cache=cache, head_safe=True, verbose=verbose)
+                except (ClientError, BotoCoreError) as ex:
+                    # Should be in cloud, but download failed
+                    if cloud_only:
+                        warnings.warn(f'Could not download {uri} from cloud: {ex}. Skipping download.',
+                                      NoResultsWarning)
+                        return 'SKIPPED', None, None
+
+                    warnings.warn(f'Could not download {uri} from cloud: {ex}. Falling back to MAST download.',
+                                  InputWarning)
+                    self._download_file(escaped_url, local_path, cache=cache, head_safe=True, verbose=verbose)
             else:
-                self._download_file(escaped_url, local_path,
-                                    cache=cache, head_safe=True,
-                                    verbose=verbose)
+                if cloud_only:
+                    warnings.warn("`cloud_only` is True but cloud data access is not enabled. "
+                                  "Falling back to MAST download.", InputWarning)
+                self._download_file(escaped_url, local_path, cache=cache, head_safe=True, verbose=verbose)
 
             # check if file exists also this is where would perform md5,
             # and also check the filesize if the database reliably reported file sizes
-            if (not os.path.isfile(local_path)) and (status != "SKIPPED"):
-                status = "ERROR"
-                msg = "File was not downloaded"
-                url = data_url
+            if not local_path.is_file():
+                return 'ERROR', 'File was not downloaded', data_url
+
+            return 'COMPLETE', None, None
 
         except HTTPError as err:
-            status = "ERROR"
-            msg = "HTTPError: {0}".format(err)
-            url = data_url
-
-        return status, msg, url
+            return 'ERROR', f'HTTPError: {err}', data_url
 
     def _download_files(self, products, base_dir, *, flat=False, cache=True, cloud_only=False, verbose=True):
         """
-        Takes an `~astropy.table.Table` of data products and downloads them into the directory given by base_dir.
+        Download a table of MAST data products to a specified directory.
 
         Parameters
         ----------
@@ -720,44 +732,86 @@ class ObservationsClass(MastQueryWithLogin):
             Table containing products to be downloaded.
         base_dir : str
             Directory in which files will be downloaded.
-        flat : bool
-            Default is False.  If set to True, no subdirectories will be made for the
-            downloaded files.
-        cache : bool
-            Default is True. If file is found on disk it will not be downloaded again.
+        flat : bool, optional
+            Default is False.  If True, all files are downloaded directly into ``base_dir``.
+        cache : bool, optional
+            Default is True. If True, files found on disk will not be downloaded again.
         cloud_only : bool, optional
-            Default False. If set to True and cloud data access is enabled (see `enable_cloud_dataset`)
+            Default is False. If set to True and cloud data access is enabled (see `enable_cloud_dataset`)
             files that are not found in the cloud will be skipped rather than downloaded from MAST
-            as is the default behavior. If cloud access is not enables this argument as no affect.
+            as is the default behavior. If cloud access is not enabled, this argument has no effect.
         verbose : bool, optional
-            Default True. Whether to show download progress in the console.
+            Default is True. Whether to show download progress in the console.
 
         Returns
         -------
-        response : `~astropy.table.Table`
+        manifest : `~astropy.table.Table`
+            Table summarizing the download results.
         """
+        base_dir = Path(base_dir)
+        manifest_rows = []
 
-        manifest_array = []
-        for data_product in products:
+        # Resolve cloud URIs once if cloud is enabled
+        cloud_uri_map = None
+        if self._cloud_connection is not None:
+            cloud_uri_map = self.get_cloud_uris(products, return_uri_map=True, verbose=False)
 
-            # create the local file download path
-            if not flat:
-                local_path = os.path.join(base_dir, data_product['obs_collection'], data_product['obs_id'])
-                if not os.path.exists(local_path):
-                    os.makedirs(local_path)
+        for product in products:
+            mast_uri = product['dataURI']
+            filename = os.path.basename(product['productFilename'])
+
+            # Construct local path
+            if flat:
+                local_dir = base_dir
             else:
-                local_path = base_dir
-            local_path = os.path.join(local_path, os.path.basename(data_product['productFilename']))
+                local_dir = base_dir / product['obs_collection'] / product['obs_id']
+                local_dir.mkdir(parents=True, exist_ok=True)
+            local_path = local_dir / filename
 
-            # download the files
-            status, msg, url = self.download_file(data_product["dataURI"], local_path=local_path,
-                                                  cache=cache, cloud_only=cloud_only, verbose=verbose)
+            status, msg, url = 'ERROR', None, None
 
-            manifest_array.append([local_path, status, msg, url])
+            cloud_uri = cloud_uri_map.get(mast_uri) if cloud_uri_map else None
 
-        manifest = Table(rows=manifest_array, names=('Local Path', 'Status', 'Message', "URL"))
+            if cloud_uri:
+                try:
+                    self._cloud_connection.download_file_from_cloud(cloud_uri, local_path, cache, verbose)
+                    status = 'COMPLETE'
+                except (ClientError, BotoCoreError) as ex:
+                    # Should be in cloud, but download failed
+                    if cloud_only:
+                        warnings.warn(f'Could not download {cloud_uri} from cloud: {ex}. Skipping download.',
+                                      NoResultsWarning)
+                        status = 'SKIPPED'
+                        msg = str(ex)
+                    else:
+                        warnings.warn(f'Could not download {cloud_uri} from cloud: {ex}. '
+                                      'Falling back to MAST download.', InputWarning)
+                        status, msg, url = self.download_file(mast_uri, local_path=local_path, cache=cache,
+                                                              force_on_prem=True, verbose=verbose)
+            else:
+                if cloud_uri_map is not None:
+                    # Cloud is enabled, but product was not found in cloud
+                    if cloud_only:
+                        warnings.warn(f'The product {mast_uri} was not found in the cloud. Skipping download.',
+                                      NoResultsWarning)
+                        status = 'SKIPPED'
+                        msg = 'Product not found in cloud'
+                    else:
+                        warnings.warn(f'The product {mast_uri} was not found in the cloud. '
+                                      'Falling back to MAST download.', InputWarning)
+                        status, msg, url = self.download_file(mast_uri, local_path=local_path, cache=cache,
+                                                              force_on_prem=True, verbose=verbose)
+                else:
+                    # Cloud is not enabled
+                    if cloud_only:
+                        warnings.warn("`cloud_only` is True but cloud data access is not enabled. "
+                                      "Falling back to MAST download.", InputWarning)
+                    status, msg, url = self.download_file(mast_uri, local_path=local_path, cache=cache,
+                                                          cloud_only=False, force_on_prem=True, verbose=verbose)
 
-        return manifest
+            manifest_rows.append([str(local_path), status, msg, url])
+
+        return Table(rows=manifest_rows, names=('Local Path', 'Status', 'Message', 'URL'))
 
     def _download_curl_script(self, products, out_dir, verbose=True):
         """
@@ -897,6 +951,23 @@ class ObservationsClass(MastQueryWithLogin):
 
         return manifest
 
+    def list_cloud_datasets(self):
+        """
+        Returns a list of datasets that support cloud data access. Datasets are the prefixes
+        present in the MAST public data bucket on AWS S3.
+
+        Returns
+        -------
+        response : list
+            List of dataset prefixes that support cloud data access.
+        """
+        if self._cloud_connection is None:
+            raise RemoteServiceError(
+                'Please enable anonymous cloud access by calling `enable_cloud_dataset` method. '
+                'Refer to `~astroquery.mast.ObservationsClass.enable_cloud_dataset` documentation for more info.')
+
+        return self._cloud_connection.get_supported_datasets()
+
     def get_cloud_uris(self, data_products=None, *, include_bucket=True, full_url=False, pagesize=None, page=None,
                        mrp_only=False, extension=None, filter_products={}, return_uri_map=False, verbose=True,
                        **criteria):
@@ -1017,8 +1088,8 @@ class ObservationsClass(MastQueryWithLogin):
     def get_cloud_uri(self, data_product, *, include_bucket=True, full_url=False):
         """
         For a given data product, returns the associated cloud URI.
-        If the product is from a mission that does not support cloud access an
-        exception is raised. If the mission is supported but the product
+        If the product is from a dataset that does not support cloud access an
+        exception is raised. If the dataset is supported but the product
         cannot be found in the cloud, the returned path is None.
 
         Parameters
