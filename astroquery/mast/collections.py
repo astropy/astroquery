@@ -554,6 +554,9 @@ class CatalogsClass(MastQueryWithLogin):
         response : `~astropy.table.Table`
             A table containing the query results.
         """
+        # Parse pagination params
+        limit, offset = self._parse_legacy_pagination(limit, offset, pagesize, page)
+
         return self.query_criteria(collection=collection,
                                    catalog=catalog,
                                    objectname=objectname,
