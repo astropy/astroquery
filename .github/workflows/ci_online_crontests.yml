@@ -22,17 +22,17 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: py3.12 all dev deps online
+          - name: py3.13 all dev deps online
             os: ubuntu-latest
-            python: '3.12'
-            toxenv: py312-test-alldeps-devdeps-online
+            python: '3.13'
+            toxenv: py313-test-alldeps-devdeps-online
             toxargs: -v
             toxposargs: -v --durations=50
 
-          - name: Windows py3.9 all deps online
+          - name: Windows py3.12 all deps online
             os: windows-latest
-            python: '3.9'
-            toxenv: py39-test-alldeps-online
+            python: '3.12'
+            toxenv: py312-test-alldeps-online
             toxargs: -v
             toxposargs: -v --durations=50
 
