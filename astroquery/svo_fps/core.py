@@ -108,6 +108,41 @@ class SvoFpsClass(BaseQuery):
                 "succeed. Try increasing the timeout limit if a large range is needed."
             )
 
+    def get_filter_params(self, filter_id, cache=True, timeout=None):
+        f"""Get metadata/parameters for the requested Filter ID from SVO
+
+        Parameters
+        ----------
+        filter_id : str
+            Filter ID in the format SVO specifies it: 'facilty/instrument.filter'.
+            This is returned by `get_filter_list` and `get_filter_index` as the
+            ``filterID`` column.
+        cache : bool
+            Defaults to True. If set overrides global caching behavior.
+            See :ref:`caching documentation <astroquery_cache>`.
+        timeout : int
+            Timeout in seconds. If not specified, defaults to {conf.timeout}.
+
+        Returns
+        -------
+        params : dict
+            Dictionary of VOTable PARAM names and values.
+        """
+        query = {'ID': filter_id, 'VERB': 0}
+        response = self._request("GET", self.SVO_MAIN_URL, params=query,
+                                 timeout=timeout or self.TIMEOUT,
+                                 cache=cache)
+        response.raise_for_status()
+        response_content = io.BytesIO(response.content)
+        votable = parse_single_table(response_content)
+        params = {}
+        for param in votable.iter_fields_and_params():
+            if param.unit is not None:
+                params[param.name] = param.value*param.unit
+            else:
+                params[param.name] = param.value
+        return params
+
     def get_transmission_data(self, filter_id, **kwargs):
         """Get transmission data for the requested Filter ID from SVO
 
