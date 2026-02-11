@@ -23,6 +23,16 @@ class TestSvoFpsClass:
         # Check if data is downloaded properly, with > 0 rows
         assert len(table) > 0
 
+    @pytest.mark.parametrize('test_filter_id',
+                             ['NewHorizons/MVIC.Blue', 'Palomar/ZTF.r'])
+    def test_get_filter_params(self, test_filter_id):
+        params = SvoFps.get_filter_params(test_filter_id)
+        # Check if expected keys are present
+        assert "WavelengthEff" in params
+        assert "ZeroPoint" in params
+        # Check existence and value of what should be a constant
+        assert params.get("FilterProfileService") == "ivo://svo/fps"
+
     @pytest.mark.parametrize('test_facility, test_instrument',
                              [('HST', 'WFPC2'), ('Keck', None)])
     def test_get_filter_list(self, test_facility, test_instrument):
