@@ -13,6 +13,7 @@ import threading
 from astroquery import log
 from astropy.utils.console import ProgressBarOrSpinner
 from astropy.utils.exceptions import AstropyDeprecationWarning
+from botocore.exceptions import ClientError, BotoCoreError
 
 from ..exceptions import RemoteServiceError, NoResultsWarning
 
@@ -101,7 +102,7 @@ class CloudAccess:  # pragma:no-cover
 
             return datasets
 
-        except Exception as e:
+        except (ClientError, BotoCoreError) as e:
             log.error('Failed to retrieve supported datasets from S3 bucket %s: %s', self.pubdata_bucket, e)
             return []
 

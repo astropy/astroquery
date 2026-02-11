@@ -1033,7 +1033,8 @@ def test_observations_download_products_cloud(mock_is_file, mock_client, mock_re
     assert result[0]['Status'] == 'COMPLETE'
 
     # Mock cloud download failure, fallback to on-prem
-    mock_resource.return_value.Bucket.return_value.download_file.side_effect = Exception('Not found in cloud')
+    client_err = ClientError({'Error': {'Code': '500', 'Message': 'Internal Server Error'}}, 'HeadObject')
+    mock_resource.return_value.Bucket.return_value.download_file.side_effect = client_err
     # Check that info message is logged
     with pytest.warns(InputWarning, match='Falling back to MAST download'):
         result = Observations.download_products(obsid,
@@ -1105,9 +1106,8 @@ def test_observations_download_file_cloud(mock_is_file, mock_client, mock_resour
     mast_uri = 'mast:HST/product/u9o40504m_c3m.fits'
 
     # Warn if both cloud_only and force_on_prem are True
-    with pytest.warns(InputWarning, match='Both `cloud_only` and `force_on_prem` are set to True'):
+    with pytest.raises(InvalidQueryError, match='Invalid argument combination'):
         result = Observations.download_file(mast_uri, cloud_only=True, force_on_prem=True)
-        assert result == ('COMPLETE', None, None)
 
     # Skip file if cloud_only is True but file is not in cloud
     nonexistent_uri = 'mast:HST/product/does_not_exist.fits'
@@ -1161,7 +1161,8 @@ def test_observations_list_cloud_missions_error(mock_client, patch_post, caplog)
         Observations.list_cloud_datasets()
 
     # Mock an error when listing objects
-    mock_client.return_value.list_objects_v2.side_effect = Exception('AWS error')
+    client_error = ClientError({'Error': {'Code': 'AWS error'}}, 'ListObjectsV2')
+    mock_client.return_value.list_objects_v2.side_effect = client_error
 
     Observations.enable_cloud_dataset()
     supported = Observations.list_cloud_datasets()

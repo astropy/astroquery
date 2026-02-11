@@ -18,6 +18,7 @@ from requests import HTTPError
 
 import astropy.units as u
 import astropy.coordinates as coord
+from botocore.exceptions import ClientError, BotoCoreError
 
 from astropy.table import Table, Row, vstack
 from astroquery import log
@@ -658,16 +659,19 @@ class ObservationsClass(MastQueryWithLogin):
         if not uri or not isinstance(uri, str):
             raise InvalidQueryError("A valid data product URI must be provided.")
 
+        if cloud_only and force_on_prem:
+            raise InvalidQueryError(
+                "Invalid argument combination: `cloud_only=True` and `force_on_prem=True` "
+                "cannot both be set. `cloud_only` requires downloading from the cloud, "
+                "while `force_on_prem` explicitly disables cloud downloads. "
+                "Set one (or both) of these arguments to False."
+            )
+
         base_url = base_url or self._portal_api_connection.MAST_DOWNLOAD_URL
         data_url = f"{base_url}?uri={uri}"
         escaped_url = f"{base_url}?uri={quote(uri, safe=':/')}"
 
-        if cloud_only and force_on_prem:
-            warnings.warn("Both `cloud_only` and `force_on_prem` are set to True. "
-                          "`force_on_prem` will be ignored and cloud download will be attempted first.", InputWarning)
-            force_on_prem = False
-
-        #  Resolve local output path
+        # Resolve local output path
         filename = os.path.basename(uri)
         if local_path is None:  # local file path is not defined
             local_path = Path(filename)
@@ -692,7 +696,7 @@ class ObservationsClass(MastQueryWithLogin):
                     warnings.warn(f'The product {uri} was not found in the cloud. '
                                   'Falling back to MAST download.', InputWarning)
                     self._download_file(escaped_url, local_path, cache=cache, head_safe=True, verbose=verbose)
-                except Exception as ex:
+                except (ClientError, BotoCoreError) as ex:
                     # Should be in cloud, but download failed
                     if cloud_only:
                         warnings.warn(f'Could not download {uri} from cloud: {ex}. Skipping download.',
@@ -766,50 +770,44 @@ class ObservationsClass(MastQueryWithLogin):
 
             status, msg, url = 'ERROR', None, None
 
-            try:
-                cloud_uri = cloud_uri_map.get(mast_uri) if cloud_uri_map else None
+            cloud_uri = cloud_uri_map.get(mast_uri) if cloud_uri_map else None
 
-                if cloud_uri:
-                    try:
-                        self._cloud_connection.download_file_from_cloud(cloud_uri, local_path, cache, verbose)
-                        status = 'COMPLETE'
-                    except Exception as ex:
-                        # Should be in cloud, but download failed
-                        if cloud_only:
-                            warnings.warn(f'Could not download {cloud_uri} from cloud: {ex}. Skipping download.',
-                                          NoResultsWarning)
-                            status = 'SKIPPED'
-                            msg = str(ex)
-                        else:
-                            warnings.warn(f'Could not download {cloud_uri} from cloud: {ex}. '
-                                          'Falling back to MAST download.', InputWarning)
-                            status, msg, url = self.download_file(mast_uri, local_path=local_path, cache=cache,
-                                                                  force_on_prem=True, verbose=verbose)
-                else:
-                    if cloud_uri_map is not None:
-                        # Cloud is enabled, but product was not found in cloud
-                        if cloud_only:
-                            warnings.warn(f'The product {mast_uri} was not found in the cloud. Skipping download.',
-                                          NoResultsWarning)
-                            status = 'SKIPPED'
-                            msg = 'Product not found in cloud'
-                        else:
-                            warnings.warn(f'The product {mast_uri} was not found in the cloud. '
-                                          'Falling back to MAST download.', InputWarning)
-                            status, msg, url = self.download_file(mast_uri, local_path=local_path, cache=cache,
-                                                                  force_on_prem=True, verbose=verbose)
+            if cloud_uri:
+                try:
+                    self._cloud_connection.download_file_from_cloud(cloud_uri, local_path, cache, verbose)
+                    status = 'COMPLETE'
+                except (ClientError, BotoCoreError) as ex:
+                    # Should be in cloud, but download failed
+                    if cloud_only:
+                        warnings.warn(f'Could not download {cloud_uri} from cloud: {ex}. Skipping download.',
+                                      NoResultsWarning)
+                        status = 'SKIPPED'
+                        msg = str(ex)
                     else:
-                        # Cloud is not enabled
-                        if cloud_only:
-                            warnings.warn("`cloud_only` is True but cloud data access is not enabled. "
-                                          "Falling back to MAST download.", InputWarning)
+                        warnings.warn(f'Could not download {cloud_uri} from cloud: {ex}. '
+                                      'Falling back to MAST download.', InputWarning)
                         status, msg, url = self.download_file(mast_uri, local_path=local_path, cache=cache,
-                                                              cloud_only=False, force_on_prem=True, verbose=verbose)
-
-            except Exception as ex:
-                log.exception('Download failed for %s: %s', mast_uri, ex)
-                status = 'ERROR'
-                msg = str(ex)
+                                                              force_on_prem=True, verbose=verbose)
+            else:
+                if cloud_uri_map is not None:
+                    # Cloud is enabled, but product was not found in cloud
+                    if cloud_only:
+                        warnings.warn(f'The product {mast_uri} was not found in the cloud. Skipping download.',
+                                      NoResultsWarning)
+                        status = 'SKIPPED'
+                        msg = 'Product not found in cloud'
+                    else:
+                        warnings.warn(f'The product {mast_uri} was not found in the cloud. '
+                                      'Falling back to MAST download.', InputWarning)
+                        status, msg, url = self.download_file(mast_uri, local_path=local_path, cache=cache,
+                                                              force_on_prem=True, verbose=verbose)
+                else:
+                    # Cloud is not enabled
+                    if cloud_only:
+                        warnings.warn("`cloud_only` is True but cloud data access is not enabled. "
+                                      "Falling back to MAST download.", InputWarning)
+                    status, msg, url = self.download_file(mast_uri, local_path=local_path, cache=cache,
+                                                          cloud_only=False, force_on_prem=True, verbose=verbose)
 
             manifest_rows.append([str(local_path), status, msg, url])
 
