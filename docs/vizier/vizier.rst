@@ -187,7 +187,7 @@ Query an object
 ---------------
 
 
-For instance to query Sirius across all catalogs:
+For instance to query around Sirius across all catalogs:
 
 .. doctest-remote-data::
 
@@ -200,6 +200,8 @@ For instance to query Sirius across all catalogs:
        '1:ReadMeObj' with 5 column(s) and 7 row(s) 
        '2:I/34/greenw2a' with 16 column(s) and 1 row(s) 
        ...
+
+The default radius is 2 arc minutes.
 
 All the results are returned as a `~astroquery.utils.TableList` object. This
 is a container for `~astropy.table.Table` objects. It is basically an
