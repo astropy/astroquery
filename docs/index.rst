@@ -469,6 +469,7 @@ user.
    api.rst
    template.rst
    testing.rst
+   team.rst
 
 The following Astroquery modules are mostly meant for internal use of
 services in Astroquery, you can use them for your scripts, but we don't guarantee API stability.
