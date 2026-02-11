@@ -34,6 +34,11 @@ vizier
 Service fixes and enhancements
 ------------------------------
 
+svo_fps
+^^^^^^^
+
+- Add ``get_filter_params`` to allow retrieval of filter metadata. [#3528]
+
 heasarc
 ^^^^^^^
 - Add ``query_constraints`` to allow querying of different catalog columns. [#3403]
