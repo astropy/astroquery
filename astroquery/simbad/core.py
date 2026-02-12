@@ -113,8 +113,8 @@ class SimbadClass(BaseVOQuery):
     """
     SIMBAD_URL = 'https://' + conf.server + '/simbad/sim-script'
 
-    def __init__(self, ROW_LIMIT=None, *, timeout=None):
-        super().__init__()
+    def __init__(self, ROW_LIMIT=None, *, timeout=None, extra_user_agents=None):
+        super().__init__(extra_user_agents=extra_user_agents)
         # to create the TAPService
         self._server = conf.server
         self._tap = None
@@ -898,7 +898,7 @@ class SimbadClass(BaseVOQuery):
         >>> simbad = Simbad()
         >>> simbad.ROW_LIMIT = 5
         >>> result = simbad.query_catalog("GSC", criteria="pmra > 50 and pmra < 100") # doctest: +REMOTE_DATA
-        >>> result
+        >>> result # doctest: +REMOTE_DATA
         <Table length=5>
             main_id            ra       ...     coo_bibcode        catalog_id
                               deg       ...
