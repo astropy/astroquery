@@ -127,6 +127,12 @@ ogle
 - Added ``get_query_payload`` kwarg to aid in debugging. [#3533]
 - Removed support for deprecated non-coordinate use in queries. [#3533]
 
+simbad
+~~~~~~
+
+- Add the possibility to declare more information in the HTTP User-Agent header
+  in ``SimbadClass`` [#3529]
+
 xmatch
 ^^^^^^
 
