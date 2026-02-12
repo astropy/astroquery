@@ -232,7 +232,7 @@ class TestSimbad:
         simbad_instance.columns_in_output = []
         # mixed columns bundles and tables
         simbad_instance.add_votable_fields("flux", "velocity", "update_date")
-        assert len(simbad_instance.columns_in_output) == 19
+        assert len(simbad_instance.columns_in_output) == 20
 
         # add fluxes by their filter names
         simbad_instance = Simbad()
