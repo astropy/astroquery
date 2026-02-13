@@ -26,19 +26,10 @@ def data_path(filename):
 
 DATA_FILES = {
     "ADQL": {
-        "SELECT table_name FROM TAP_SCHEMA.tables as ref "
-        "LEFT OUTER JOIN TAP_SCHEMA.keys AS k ON ref.table_name = k.from_table "
-        "LEFT OUTER JOIN TAP_SCHEMA.key_columns AS kc ON k.key_id = kc.key_id "
-        "WHERE schema_name='safcat'"
-        "AND cat_id IN ( "
-        "SELECT t1.cat_id "
-        "FROM TAP_SCHEMA.tables t1 "
-        "LEFT JOIN TAP_SCHEMA.tables t2 ON (t1.title = t2.title AND t1.version < t2.version) "
-        "WHERE t2.title IS NULL)": "query_list_catalogues_latest_versions.csv",
-        "SELECT table_name FROM TAP_SCHEMA.tables as ref "
-        "LEFT OUTER JOIN TAP_SCHEMA.keys AS k ON ref.table_name = k.from_table "
-        "LEFT OUTER JOIN TAP_SCHEMA.key_columns AS kc ON k.key_id = kc.key_id "
-        "WHERE schema_name='safcat'": "query_list_catalogues_all_versions.csv",
+        "SELECT table_name FROM TAP_SCHEMA.tables as ref LEFT OUTER JOIN TAP_SCHEMA.keys AS k ON ref.table_name = k.from_table LEFT OUTER JOIN TAP_SCHEMA.key_columns AS kc ON k.key_id = kc.key_id WHERE schema_name='safcat'AND cat_id IN ( SELECT t1.cat_id FROM TAP_SCHEMA.tables t1 LEFT JOIN TAP_SCHEMA.tables t2 ON (t1.title = t2.title AND t1.version < t2.version) WHERE t2.title IS NULL)": "query_list_catalogues_latest_versions.csv",
+        
+        "SELECT table_name FROM TAP_SCHEMA.tables as ref LEFT OUTER JOIN TAP_SCHEMA.keys AS k ON ref.table_name = k.from_table LEFT OUTER JOIN TAP_SCHEMA.key_columns AS kc ON k.key_id = kc.key_id WHERE schema_name='safcat'": "query_list_catalogues_all_versions.csv",
+        
         "SELECT * FROM safcat.KiDS_DR4_1_ugriZYJHKs_cat_fits": "kids_dr4_sample.csv",
     }
 }

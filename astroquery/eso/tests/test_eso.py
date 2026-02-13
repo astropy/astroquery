@@ -25,6 +25,7 @@ from ...exceptions import NoResultsWarning, MaxResultsWarning
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 EXPECTED_MAXREC = 1000
+EXPECTED_MAX_ROW_LIMIT = 15000000
 MONKEYPATCH_TABLE_LENGTH = 50
 
 
@@ -352,17 +353,17 @@ def test_maxrec():
     # change it to no-truncation
     eso_instance.ROW_LIMIT = None
     maxrec = eso_instance.ROW_LIMIT
-    assert maxrec == sys.maxsize
+    assert maxrec == EXPECTED_MAX_ROW_LIMIT
 
     # no truncation
     eso_instance.ROW_LIMIT = 0
     maxrec = eso_instance.ROW_LIMIT
-    assert maxrec == sys.maxsize
+    assert maxrec == EXPECTED_MAX_ROW_LIMIT
 
     # no truncation
     eso_instance.ROW_LIMIT = -1
     maxrec = eso_instance.ROW_LIMIT
-    assert maxrec == sys.maxsize
+    assert maxrec == EXPECTED_MAX_ROW_LIMIT
 
 
 def test_download_pyvo_table():
