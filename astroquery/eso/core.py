@@ -414,12 +414,12 @@ class EsoClass(QueryWithLogin):
     def _columns_table(self, table_name: str, *, which_tap: str = "tap_obs") -> Table:
         if which_tap == "tap_obs":
             help_query = ("select column_name, datatype, unit, xtype "
-                        f"from TAP_SCHEMA.columns where table_name = '{table_name}'")
+                          f"from TAP_SCHEMA.columns where table_name = '{table_name}'")
         else:
             schema = _EsoNames.catalogue_schema
             help_query = ("select column_name, datatype, unit, ucd "
-                        f"from TAP_SCHEMA.columns "
-                        f"where table_name = '{table_name.removeprefix(schema + '.')}'")
+                          f"from TAP_SCHEMA.columns "
+                          f"where table_name = '{table_name.removeprefix(schema + '.')}'")
         return self.query_tap(help_query, which_tap=which_tap)
 
     @unlimited_maxrec
