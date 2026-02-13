@@ -864,6 +864,18 @@ your cache:
 If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
+Make your requests identifiable
+===============================
+
+To declare who you are to the SIMBAD's servers, add an extra **user agent** to your
+SIMBAD instance:
+
+.. code-block:: python
+
+    >>> from astroquery.simbad import Simbad
+    >>> simbad = Simbad(extra_user_agents="you")
+
+
 Citation
 ========
 

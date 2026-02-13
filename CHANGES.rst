@@ -121,6 +121,11 @@ linelists
 - General tools for both CDMS/JPL moved to linelists.core [#3456]
 - Added jplspec, moved from its previous location (astroquery.jplspec to astroquery.linelists.jplspec) [#3455]
 
+simbad
+~~~~~~
+
+- Add the possibility to declare more user agents to ``SimbadClass`` [#3529]
+
 xmatch
 ^^^^^^
 
