@@ -13,6 +13,11 @@ noirlab
 API changes
 -----------
 
+eso
+^^^
+
+- Add functionality to list and query ESO catalogues. [#8]
+
 esa.euclid
 ^^^^^^^^^^
 

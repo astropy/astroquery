@@ -257,10 +257,27 @@ def test_calselector_multipart(monkeypatch, tmp_path):
     assert datasets[0] not in result and datasets[1] not in result
 
 
-def test_tap_url():
+def test_tap_obs_url():
     prod_url = "https://archive.eso.org/tap_obs"
     eso_instance = Eso()
     assert eso_instance._tap_url() == prod_url
+
+
+@pytest.mark.parametrize("tap_url, expected", [
+    ("https://archive.eso.org/tap_obs", "tap_obs"),
+    ("https://archive.eso.org/tap_obs/", "tap_obs"),
+    ("https://archive.eso.org/tap_cat", "tap_cat"),
+    ("https://archive.eso.org/tap_cat/", "tap_cat"),
+])
+def test_which_tap(tap_url, expected):
+    eso_instance = Eso()
+    assert eso_instance._which_tap(tap_url) == expected
+
+
+def test_which_tap_invalid_url():
+    eso_instance = Eso()
+    with pytest.raises(ValueError, match="tap_url must be one of"):
+        eso_instance._which_tap("https://archive.eso.org/not-a-tap")
 
 
 @pytest.mark.parametrize("input_val, expected", [
