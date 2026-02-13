@@ -29,6 +29,7 @@ class _UserParams:
     get_query_payload: bool = False
     print_help: bool = False
     authenticated: bool = False
+    which_tap: str = "tap_obs"
 
 
 def _split_str_as_list_of_str(column_str: str):

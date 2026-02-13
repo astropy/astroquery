@@ -38,6 +38,11 @@ esa.utils
 
 - Class EsaTap created as abstract class to extend all ESA modules based on PyVO. [#3511]
 
+eso
+^^^
+
+- Add functionality to list and query ESO catalogues. [#8]
+
 esa.euclid
 ^^^^^^^^^^
 
