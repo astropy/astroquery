@@ -136,7 +136,7 @@ class EsoClass(QueryWithLogin):
         # type check
         if not (value is None or isinstance(value, int)):
             raise TypeError(f"ROW_LIMIT attribute must be of type int or None; found {type(value)}")
-        elif value > conf.MAX_ROW_LIMIT:
+        elif value is not None and value > conf.MAX_ROW_LIMIT:
             raise ValueError(f"ROW_LIMIT cannot be higher than {conf.MAX_ROW_LIMIT}; found {value}")
 
         if value is None or value < 1:
@@ -473,7 +473,7 @@ class EsoClass(QueryWithLogin):
                           "LEFT JOIN TAP_SCHEMA.tables t2 ON (t1.title = t2.title AND t1.version < t2.version) "
                           "WHERE t2.title IS NULL)")
 
-        res = self.query_tap(query_str, which_tap="tap_cat")
+        res = self.query_tap(query_str.strip(), which_tap="tap_cat")
         return list(res["table_name"])
 
     def _query_on_allowed_values(
