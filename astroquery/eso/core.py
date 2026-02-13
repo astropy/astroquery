@@ -414,12 +414,12 @@ class EsoClass(QueryWithLogin):
     def _columns_table(self, table_name: str, *, which_tap: str = "tap_obs") -> Table:
         if which_tap == "tap_obs":
             help_query = ("select column_name, datatype, unit, xtype "
-                         f"from TAP_SCHEMA.columns where table_name = '{table_name}'")
+                        f"from TAP_SCHEMA.columns where table_name = '{table_name}'")
         else:
             schema = _EsoNames.catalogue_schema
             help_query = ("select column_name, datatype, unit, ucd "
-                         f"from TAP_SCHEMA.columns "
-                         f"where table_name = '{table_name.removeprefix(schema + '.')}'")
+                        f"from TAP_SCHEMA.columns "
+                        f"where table_name = '{table_name.removeprefix(schema + '.')}'")
         return self.query_tap(help_query, which_tap=which_tap)
 
     @unlimited_maxrec
@@ -483,7 +483,7 @@ class EsoClass(QueryWithLogin):
     ) -> Union[Table, int, str, None]:
         if user_params.print_help:
             self._list_column(user_params.table_name, which_tap=user_params.which_tap)
-            return 
+            return
 
         _raise_if_has_deprecated_keys(user_params.column_filters)
 
@@ -1155,7 +1155,7 @@ class EsoClass(QueryWithLogin):
                         open_form: bool = False,
                         cache: bool = False,
                         ROW_LIMIT: Optional[int] = None,
-                    ) -> Union[Table, int, str]:
+                        ) -> Union[Table, int, str]:
         """
         Query catalogue data contained in the ESO archive.
 
@@ -1239,5 +1239,6 @@ class EsoClass(QueryWithLogin):
             )
 
             return self._query_on_allowed_values(user_params, which_tap=which_tap)
+
 
 Eso = EsoClass()
