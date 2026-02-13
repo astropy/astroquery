@@ -25,8 +25,8 @@ class TestSvoFpsClass:
 
     @pytest.mark.parametrize('test_filter_id',
                              ['NewHorizons/MVIC.Blue', 'Palomar/ZTF.r'])
-    def test_get_filter_params(self, test_filter_id):
-        params = SvoFps.get_filter_params(test_filter_id)
+    def test_get_filter_metadata(self, test_filter_id):
+        params = SvoFps.get_filter_metadata(test_filter_id)
         # Check if expected keys are present
         assert "WavelengthEff" in params
         assert "ZeroPoint" in params

@@ -108,8 +108,8 @@ class SvoFpsClass(BaseQuery):
                 "succeed. Try increasing the timeout limit if a large range is needed."
             )
 
-    def get_filter_params(self, filter_id, cache=True, timeout=None):
-        f"""Get metadata/parameters for the requested Filter ID from SVO
+    def get_filter_metadata(self, filter_id, *, cache=True, timeout=None):
+        """Get metadata/parameters for the requested Filter ID from SVO
 
         Parameters
         ----------
@@ -121,7 +121,7 @@ class SvoFpsClass(BaseQuery):
             Defaults to True. If set overrides global caching behavior.
             See :ref:`caching documentation <astroquery_cache>`.
         timeout : int
-            Timeout in seconds. If not specified, defaults to {conf.timeout}.
+            Timeout in seconds. If not specified, defaults to ``conf.timeout``.
 
         Returns
         -------

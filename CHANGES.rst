@@ -37,7 +37,7 @@ Service fixes and enhancements
 svo_fps
 ^^^^^^^
 
-- Add ``get_filter_params`` to allow retrieval of filter metadata. [#3528]
+- Add ``get_filter_metadata`` to allow retrieval of filter metadata. [#3528]
 
 heasarc
 ^^^^^^^
