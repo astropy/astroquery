@@ -432,8 +432,10 @@ class EsoClass(QueryWithLogin):
         count_query = f"select count(*) from {table_name}"
         num_records = list(self.query_tap(count_query, which_tap=which_tap)[0].values())[0]
 
-        with (astropy.conf.set_temp("max_lines", len(available_cols) + 2),
-              astropy.conf.set_temp("max_width", sys.maxsize),):
+        with (astropy.conf.set_temp(
+                "max_lines", len(available_cols) + 2),
+                astropy.conf.set_temp(
+                "max_width", sys.maxsize)):
             log.info(f"\nColumns present in the table {table_name}:\n{available_cols}\n"
                      f"\nNumber of records present in the table {table_name}:\n{num_records}\n")
 
@@ -1137,5 +1139,108 @@ class EsoClass(QueryWithLogin):
                                   authenticated=authenticated)
         return self._query_on_allowed_values(user_params)
 
+    def query_catalogue(self,
+                        catalogue: str,
+                        *,
+                        cone_ra: float = None,
+                        cone_dec: float = None,
+                        cone_radius: float = None,
+                        columns: Union[List, str] = None,
+                        column_filters: Optional[dict] = None,
+                        top: int = None,
+                        count_only: bool = False,
+                        get_query_payload: bool = False,
+                        help: bool = False,
+                        authenticated: bool = False,
+                        open_form: bool = False,
+                        cache: bool = False,
+                        ROW_LIMIT: Optional[int] = None,
+                    ) -> Union[Table, int, str]:
+        """
+        Query catalogue data contained in the ESO archive.
+
+        Parameters
+        ----------
+        catalogue : str
+            Name of the catalogue to query. Should be ONLY ONE of the names
+            returned by :meth:`~astroquery.eso.EsoClass.list_catalogues`.
+        cone_ra : float, optional
+            Not yet implemented.
+            Cone Search Center - Right Ascension in degrees.
+        cone_dec : float, optional
+            Not yet implemented.
+            Cone Search Center - Declination in degrees.
+        cone_radius : float, optional
+            Not yet implemented.
+            Cone Search Radius in degrees.
+        columns : str or list of str, optional
+            Name of the columns the query should return. If specified as a string,
+            it should be a comma-separated list of column names.
+        top : int, optional
+            When set to ``N``, returns only the top ``N`` records.
+        count_only : bool, optional
+            If ``True``, returns only an ``int``: the count of the records
+            the query would return when set to ``False``. Default is ``False``.
+        get_query_payload : bool, optional
+            If ``True``, returns only a ``str``: the query string that
+            would be issued to the TAP service. Default is ``False``.
+        help : bool, optional
+            If ``True``, prints all the parameters accepted in ``column_filters``
+            and ``columns``. Default is ``False``.
+        authenticated : bool, optional
+            If ``True``, runs the query as an authenticated user.
+            Authentication must be done beforehand via
+            :meth:`~astroquery.eso.EsoClass.login`. Note that authenticated queries
+            are slower. Default is ``False``.
+        column_filters : dict or None, optional
+            Constraints applied to the query in ADQL syntax,
+            e.g., ``{"mag": "< 20"}``.
+            Default is ``None``.
+        open_form : bool, optional
+            **Deprecated** - unused.
+        cache : bool, optional
+            **Deprecated** - unused.
+        ROW_LIMIT : int, optional
+            Overrides the configured (eso.ROW_LIMIT) row limit for this query only.
+
+        Returns
+        -------
+        astropy.table.Table, str, int, or None
+            - By default, returns an :class:`~astropy.table.Table` containing records
+              based on the specified columns and constraints. Returns ``None`` if no results.
+            - When ``count_only`` is ``True``, returns an ``int`` representing the
+              record count for the specified filters.
+            - When ``get_query_payload`` is ``True``, returns the query string that
+              would be issued to the TAP service given the specified arguments.
+        """
+        _ = (
+            open_form,
+            cache,
+        )  # make explicit that we are aware these arguments are unused
+        column_filters = column_filters if column_filters else {}
+
+        schema = _EsoNames.catalogue_schema
+        table_name = f"{schema}.{catalogue}"
+
+        with self._temporary_row_limit(ROW_LIMIT):
+            which_tap = "tap_cat"
+            user_params = _UserParams(
+                table_name=table_name,
+                column_name=None,
+                allowed_values=None,
+                cone_ra=None,
+                cone_dec=None,
+                cone_radius=None,
+                columns=columns,
+                column_filters=column_filters,
+                top=top,
+                count_only=count_only,
+                get_query_payload=get_query_payload,
+                print_help=help,
+                authenticated=authenticated,
+                which_tap=which_tap,
+            )
+
+            return self._query_on_allowed_values(user_params, which_tap=which_tap)
 
 Eso = EsoClass()
