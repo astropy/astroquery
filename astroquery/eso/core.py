@@ -1213,10 +1213,7 @@ class EsoClass(QueryWithLogin):
             - When ``get_query_payload`` is ``True``, returns the query string that
               would be issued to the TAP service given the specified arguments.
         """
-        _ = (
-            open_form,
-            cache,
-        )  # make explicit that we are aware these arguments are unused
+        _ = (open_form, cache,)  # make explicit that we are aware these arguments are unused
         column_filters = column_filters if column_filters else {}
 
         schema = _EsoNames.catalogue_schema
