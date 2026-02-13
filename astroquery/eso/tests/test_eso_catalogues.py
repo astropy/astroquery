@@ -29,7 +29,7 @@ DATA_FILES = {
         "SELECT table_name FROM TAP_SCHEMA.tables as ref "
         "LEFT OUTER JOIN TAP_SCHEMA.keys AS k ON ref.table_name = k.from_table "
         "LEFT OUTER JOIN TAP_SCHEMA.key_columns AS kc ON k.key_id = kc.key_id "
-        "WHERE schema_name='safcat'"
+        "WHERE schema_name='safcat' "
         "AND cat_id IN ( "
         "SELECT t1.cat_id "
         "FROM TAP_SCHEMA.tables t1 "
