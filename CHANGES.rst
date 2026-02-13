@@ -16,7 +16,7 @@ API changes
 eso
 ^^^
 
-- Add functionality to list and query ESO catalogues. [#8]
+- Add functionality to list and query ESO catalogues. [#3531]
 
 esa.euclid
 ^^^^^^^^^^
