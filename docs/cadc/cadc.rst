@@ -221,7 +221,7 @@ specified by the `International Virtual Observatory Alliance (IVOA)
 <http://www.ivoa.net>`_.
 
 The TAP query language is `Astronomical Data Query Language (ADQL)
-<http://www.ivoa.net/documents/ADQL/2.0>`_, which is similar to
+<http://www.ivoa.net/documents/ADQL>`_, which is similar to
 Structured Query Language (SQL), widely used to query databases.
 
 TAP provides two operation modes:
