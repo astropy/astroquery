@@ -61,3 +61,53 @@ def test_ogle_list_values(patch_post):
     co_list = [[0, 0, 0], [3, 3, 3]]
     with pytest.warns(AstropyDeprecationWarning):
         ogle.core.Ogle.query_region(coord=co_list)
+
+
+def test_ogle_single_payload():
+    """
+    Test single pointing payload
+    """
+    co = SkyCoord(0*u.deg, 3*u.deg, frame='galactic')
+    payload = ogle.core.Ogle.query_region(coord=co, get_query_payload=True)
+    fk5 = co.transform_to('fk5')
+    ra = fk5.ra.hour
+    dec = fk5.dec.degree
+    assert len(payload) == 1
+    expected_payload = f'# RD NG GOOD\n{ra} {dec}'
+    assert payload['file1'] == expected_payload
+
+
+def test_ogle_multipointing_payload():
+    """
+    Test payload of multiple pointings using a list of astropy coordinates
+    """
+    co1 = SkyCoord(0*u.deg, 3*u.deg, frame='galactic')
+    co2 = SkyCoord(4*u.deg, 5*u.deg, frame='galactic')
+    pointings = [co1, co2]
+    payload = ogle.core.Ogle.query_region(
+        coord=pointings,
+        get_query_payload=True
+    )
+    conversions = []
+    for co in pointings:
+        fk5 = co.transform_to('fk5')
+        ra_str = f"{fk5.ra.hour}"
+        dec_str = f"{fk5.dec.degree}"
+        conversions.append(f"{ra_str} {dec_str}")
+    expected_payload = "# RD NG GOOD\n" + "\n".join(conversions)
+    assert payload['file1'] == expected_payload
+
+
+def test_ogle_nested_list_payload(patch_post):
+    """
+    Test the payload of multiple pointings using a nested-list of decimal
+    degree Galactic coordinates
+    """
+    co_list = [[0, 0, 0], [3, 3, 3]]
+    expected_payload = '# RD NG GOOD\n0 3\n0 3\n0 3'
+    with pytest.warns(AstropyDeprecationWarning):
+        payload = ogle.core.Ogle.query_region(
+            coord=co_list,
+            get_query_payload=True
+        )
+        assert payload['file1'] == expected_payload

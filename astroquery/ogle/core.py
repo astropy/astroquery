@@ -125,7 +125,7 @@ class OgleClass(BaseQuery):
         return files
 
     @prepend_docstr_nosections(_args_to_payload.__doc__)
-    def query_region_async(self, *args, **kwargs):
+    def query_region_async(self, *args, get_query_payload=False, **kwargs):
         """
         Returns
         -------
@@ -133,6 +133,8 @@ class OgleClass(BaseQuery):
             The HTTP response returned from the service.
         """
         files = self._args_to_payload(*args, **kwargs)
+        if get_query_payload:
+            return files
         # Make request
         params = {'dnfile': 'submit'}
         response = self._request("POST", url=self.DATA_URL, data=params,
