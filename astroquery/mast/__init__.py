@@ -32,7 +32,7 @@ class Conf(_config.ConfigNamespace):
     enable_cloud_dataset = _config.ConfigItem(
         True,
         'Enable access to cloud-hosted datasets (e.g. on AWS S3) by default. '
-        'Requires the `boto3` and `botocore` packages to be installed.')
+        'Requires the ``boto3`` and ``botocore`` packages to be installed.')
 
 
 conf = Conf()

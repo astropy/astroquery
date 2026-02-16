@@ -121,6 +121,10 @@ mast
 - ``MastMissions`` query functions now support single or multiple targets via ``coordinates`` and
   ``object_names`` (including combined use in ``query_criteria``). [#3540]
 
+- The cloud dataset in ``Observations`` is now enabled by default if the ``boto3`` and ``botocore`` packages are installed. This
+  default can be overridden by setting the ``enable_cloud_dataset`` configuration option to False. [#3534]
+
+
 jplspec
 ^^^^^^^
 
