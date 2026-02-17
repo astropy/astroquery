@@ -1179,23 +1179,21 @@ class GaiaClass(TapPlus):
         """Retrieve the messages to inform users about
         the status of Gaia TAP
         """
-        try:
-            sub_context = self.GAIA_MESSAGES
-            conn_handler = self._TapPlus__getconnhandler()
-            response = conn_handler.execute_tapget(sub_context, verbose=False)
-            if response.status == 200:
-                if isinstance(response, Iterable):
-                    for line in response:
+        sub_context = self.GAIA_MESSAGES
+        conn_handler = self._TapPlus__getconnhandler()
+        response = conn_handler.execute_tapget(sub_context, verbose=False)
+        if response.status == 200:
+            if isinstance(response, Iterable):
+                for line in response:
 
-                        try:
-                            print(line.decode("utf-8").split('=', 1)[1])
-                        except ValueError as e:
-                            print(e)
-                        except IndexError:
-                            print("Archive down for maintenance")
-
-        except OSError:
-            print("Status messages could not be retrieved")
+                    try:
+                        print(line.decode("utf-8").split('=', 1)[1])
+                    except ValueError as e:
+                        print(e)
+                    except IndexError:
+                        print("Archive down for maintenance")
+        else:
+            raise HTTPError(f"Failed to retrieve status messages. HTTP status code: {response.status}")
 
 
-Gaia = GaiaClass()
+Gaia = GaiaClass(show_server_messages=False)

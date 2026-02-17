@@ -922,15 +922,12 @@ class ESAHubbleClass(BaseVOQuery, BaseQuery):
         the status of eHST TAP
         """
 
-        try:
-            esautils.execute_servlet_request(
-                url=conf.EHST_TAP_SERVER + "/" + conf.EHST_MESSAGES,
-                tap=self.tap,
-                query_params={},
-                parser_method=self.parse_messages_response
-            )
-        except OSError:
-            print("Status messages could not be retrieved")
+        esautils.execute_servlet_request(
+            url=conf.EHST_TAP_SERVER + "/" + conf.EHST_MESSAGES,
+            tap=self.tap,
+            query_params={},
+            parser_method=self.parse_messages_response
+        )
 
     def parse_messages_response(self, response):
         string_messages = []
