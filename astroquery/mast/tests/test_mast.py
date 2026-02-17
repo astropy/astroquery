@@ -89,7 +89,7 @@ def patch_post(request):
 
 
 @pytest.fixture()
-def patch_boto3(monkeypatch):
+def patch_boto3(monkeypatch, reset_cloud_state):
     """Fixture to patch boto3 client and resource for cloud access tests."""
     pytest.importorskip('boto3')
     mock_client = MagicMock()
@@ -1001,7 +1001,7 @@ def test_observations_filter_products():
 
 
 @patch.object(Path, "is_file", return_value=True)
-def test_observations_download_products(mock_is_file, patch_boto3, monkeypatch, reset_cloud_state):
+def test_observations_download_products(mock_is_file, patch_boto3, monkeypatch):
     mock_resource = patch_boto3[1]
     obsid = '2003738726'
     data_uri = 'mast:HST/product/u9o40504m_c3m.fits'
@@ -1085,7 +1085,7 @@ def test_observations_download_products(mock_is_file, patch_boto3, monkeypatch, 
 
 
 @patch.object(Path, "is_file", return_value=True)
-def test_observations_download_file(mock_is_file, patch_boto3, reset_cloud_state, tmpdir):
+def test_observations_download_file(mock_is_file, patch_boto3, tmpdir):
     mock_client, mock_resource = patch_boto3
     mock_client.head_object.return_value = {'ContentLength': 12345}
     mock_resource.Bucket.return_value.download_file.return_value = None
@@ -1133,7 +1133,7 @@ def test_observations_download_file(mock_is_file, patch_boto3, reset_cloud_state
         assert result == ('COMPLETE', None, None)
 
 
-def test_observations_download_file_not_found(patch_boto3, reset_cloud_state):
+def test_observations_download_file_not_found(patch_boto3):
     mast_uri = 'mast:HST/product/u9o40504m_c3m.fits'
     result = Observations.download_file(mast_uri)
     assert result[0] == 'ERROR'
@@ -1145,7 +1145,7 @@ def test_observations_download_file_not_found(patch_boto3, reset_cloud_state):
     assert result[1] == 'File was not downloaded'
 
 
-def test_observations_list_cloud_missions(patch_boto3, reset_cloud_state):
+def test_observations_list_cloud_missions(patch_boto3):
     mock_client = patch_boto3[0]
     mock_client.list_objects_v2.return_value = {
         'CommonPrefixes': [{'Prefix': 'hst/'}, {'Prefix': 'jwst/'}, {'Prefix': 'mast/'}]
@@ -1158,7 +1158,7 @@ def test_observations_list_cloud_missions(patch_boto3, reset_cloud_state):
     assert 'mast' in supported
 
 
-def test_observations_list_cloud_missions_error(patch_boto3, reset_cloud_state):
+def test_observations_list_cloud_missions_error(patch_boto3):
     # Mock an error when listing objects
     mock_client = patch_boto3[0]
     client_error = ClientError({'Error': {'Code': 'AWS error'}}, 'ListObjectsV2')
@@ -1173,7 +1173,7 @@ def test_observations_list_cloud_missions_error(patch_boto3, reset_cloud_state):
         Observations.list_cloud_datasets()
 
 
-def test_observations_get_cloud_uri(patch_boto3, reset_cloud_state):
+def test_observations_get_cloud_uri(patch_boto3):
     mast_uri = 'mast:HST/product/u9o40504m_c3m.fits'
     expected = 's3://stpubdata/hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits'
 
@@ -1198,7 +1198,7 @@ def test_observations_get_cloud_uri(patch_boto3, reset_cloud_state):
         Observations.get_cloud_uri(mast_uri)
 
 
-def test_observations_get_cloud_uris(patch_boto3, reset_cloud_state):
+def test_observations_get_cloud_uris(patch_boto3):
     mast_uri = 'mast:HST/product/u9o40504m_c3m.fits'
     expected = 's3://stpubdata/hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits'
 
@@ -1243,7 +1243,7 @@ def test_observations_get_cloud_uris(patch_boto3, reset_cloud_state):
         Observations.get_cloud_uris([mast_uri])
 
 
-def test_observations_get_cloud_uris_error(patch_boto3, reset_cloud_state):
+def test_observations_get_cloud_uris_error(patch_boto3):
     mock_client = patch_boto3[0]
 
     # Mock head_object to raise an exception
@@ -1263,7 +1263,7 @@ def test_observations_get_cloud_uris_error(patch_boto3, reset_cloud_state):
     assert uris == []
 
 
-def test_observations_get_cloud_uris_query(patch_boto3, reset_cloud_state):
+def test_observations_get_cloud_uris_query(patch_boto3):
     # get uris with streamlined function
     uris = Observations.get_cloud_uris(target_name=234295610,
                                        filter_products={'productSubGroupDescription': 'C3M'})
@@ -1279,7 +1279,7 @@ def test_observations_get_cloud_uris_query(patch_boto3, reset_cloud_state):
                                     filter_products={'productSubGroupDescription': 'LC'})
 
 
-def test_observations_enable_cloud_dataset(patch_boto3, reset_cloud_state):
+def test_observations_enable_cloud_dataset(patch_boto3):
     # Enable cloud dataset
     Observations.enable_cloud_dataset()
     assert Observations._cloud_connection is not None
@@ -1295,7 +1295,7 @@ def test_observations_enable_cloud_dataset(patch_boto3, reset_cloud_state):
     cloud.HAS_BOTO3 = True
 
 
-def test_observations_disable_cloud_dataset(patch_boto3, reset_cloud_state):
+def test_observations_disable_cloud_dataset(patch_boto3):
     # Explicitly disable cloud dataset
     Observations.disable_cloud_dataset()
     assert Observations._cloud_connection is None
