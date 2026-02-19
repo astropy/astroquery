@@ -25,7 +25,7 @@ __all__ = ['Miriade', 'MiriadeClass', 'Skybot', 'SkybotClass']
 class MiriadeClass(BaseQuery):
     """
     A class for querying the
-    `IMCCE/Miriade <http://vo.imcce.fr/webservices/miriade/>`_ service.
+    `IMCCE/Miriade <https://ssp.imcce.fr/webservices/miriade>`_ service.
     """
 
     _query_uri = None  # uri used in query
@@ -51,8 +51,8 @@ class MiriadeClass(BaseQuery):
                               get_raw_response=False, cache=True):
         """
         Query the
-        `IMCCE Miriade <http://vo.imcce.fr/webservices/miriade/>`_
-        `ephemcc <http://vo.imcce.fr/webservices/miriade/?ephemcc>`_
+        `IMCCE Miriade <https://ssp.imcce.fr/webservices/miriade>`_
+        `ephemcc <https://ssp.imcce.fr/webservices/miriade/api/ephemcc/>`_
         service.
 
 
@@ -87,14 +87,14 @@ class MiriadeClass(BaseQuery):
         location : str, optional
             Location of the observer on Earth as a code or a set of
             coordinates. See the
-            `Miriade manual <http://vo.imcce.fr/webservices/miriade/?documentation#field_7>`_
+            `Miriade manual <https://ssp.imcce.fr/webservices/miriade/api/ephemcc/#http-request>`_
             for details. Default: geocentric location (``'500'``)
 
         coordtype : int, optional
             Type of coordinates to be calculated: ``1``: spherical, ``2``:
             rectangular, ``3``: local coordinates (azimuth and elevation),
-            ``4``: hour angle coordinates, ``5``: dedicated to observation,
-            ``6``: dedicated to AO observation. Default: ``1``
+            ``4``: hour angle coordinates, ``5``: dedicated to observation.
+            Default: ``1``
 
         timescale : str, optional
             The time scale used in the computation of the ephemerides:
@@ -141,85 +141,94 @@ class MiriadeClass(BaseQuery):
         parameters; number in parentheses denote which ``coordtype``
         settings include the parameters.
 
-        +------------------+-----------------------------------------------+
-        | Column Name      | Definition                                    |
-        +==================+===============================================+
-        | ``target``       | Target name (str, 1, 2, 3, 4, 5, 6 )          |
-        +------------------+-----------------------------------------------+
-        | ``epoch``        | Ephemerides epoch (JD, float, 1, 2, 3, 4, 5,  |
-        |                  | 6)                                            |
-        +------------------+-----------------------------------------------+
-        | ``RA``           | Target RA at ``ephtype`` (deg, float, 1)      |
-        +------------------+-----------------------------------------------+
-        | ``DEC``          | Target declination at ``ephtype`` (deg,       |
-        |                  | float, 1, 4, 5)                               |
-        +------------------+-----------------------------------------------+
-        | ``RAJ2000``      | Target RA at J2000 (deg, float, 5, 6)         |
-        +------------------+-----------------------------------------------+
-        | ``DECJ2000``     | Target declination at J2000 (deg, float, 5, 6)|
-        +------------------+-----------------------------------------------+
-        | ``AZ``           | Target azimuth (deg, float, 3, 5)             |
-        +------------------+-----------------------------------------------+
-        | ``EL``           | Target elevation (deg, float, 3, 5)           |
-        +------------------+-----------------------------------------------+
-        | ``delta``        | Distance from observer (au, float, 1, 2, 3,   |
-        |                  | 4, 5, 6)                                      |
-        +------------------+-----------------------------------------------+
-        | ``delta_rate``   | Rate in observer distance (km/s, float,       |
-        |                  | 1, 5, 6)                                      |
-        +------------------+-----------------------------------------------+
-        | ``V``            | Apparent visual magnitude (mag, float, 1, 2,  |
-        |                  | 3, 4, 5, 6)                                   |
-        +------------------+-----------------------------------------------+
-        | ``alpha``        | Solar phase angle (deg, 1, 2, 3, 4, 5, 6)     |
-        +------------------+-----------------------------------------------+
-        | ``elong``        | Solar elongation angle (deg, 1, 2, 3, 4, 5, 6)|
-        +------------------+-----------------------------------------------+
-        | ``RAcosD_rate``  | Rate of motion in RA * cos(DEC) (arcsec/min,  |
-        |                  | float, 1, 5, 6)                               |
-        +------------------+-----------------------------------------------+
-        | ``DEC_rate``     | Rate of motion in DEC (arcsec/min, float, 1,  |
-        |                  | 5, 6)                                         |
-        +------------------+-----------------------------------------------+
-        | ``x``            | X position state vector (au, float, 2)        |
-        +------------------+-----------------------------------------------+
-        | ``y``            | Y position state vector (au, float, 2)        |
-        +------------------+-----------------------------------------------+
-        | ``z``            | Z position state vector (au, float, 2)        |
-        +------------------+-----------------------------------------------+
-        | ``vx``           | X velocity state vector (au/d, float, 2)      |
-        +------------------+-----------------------------------------------+
-        | ``vy``           | Y velocity state vector (au/d, float, 2)      |
-        +------------------+-----------------------------------------------+
-        | ``vz``           | Z velocity state vector (au/d, float, 2)      |
-        +------------------+-----------------------------------------------+
-        | ``rv``           | Radial velocity (km/s, float, 2)              |
-        +------------------+-----------------------------------------------+
-        | ``heldist``      | Target heliocentric distance (au, float, 2,   |
-        |                  | 5, 6)                                         |
-        +------------------+-----------------------------------------------+
-        | ``x_h``          | X heliocentric position vector (au, float, 2) |
-        +------------------+-----------------------------------------------+
-        | ``y_h``          | Y heliocentric position vector (au, float, 2) |
-        +------------------+-----------------------------------------------+
-        | ``z_h``          | Z heliocentric position vector (au, float, 2) |
-        +------------------+-----------------------------------------------+
-        | ``vx_h``         | X heliocentric vel. vector (au/d, float, 2)   |
-        +------------------+-----------------------------------------------+
-        | ``vy_h``         | Y heliocentric vel. vector (au/d, float, 2)   |
-        +------------------+-----------------------------------------------+
-        | ``vz_h``         | Z heliocentric vel. vector (au/d, float, 2)   |
-        +------------------+-----------------------------------------------+
-        | ``hourangle``    | Target hour angle (deg, float, 4, 5)          |
-        +------------------+-----------------------------------------------+
-        | ``siderealtime`` | Local sidereal time (hr, float, 5, 6)         |
-        +------------------+-----------------------------------------------+
-        | ``refraction``   | Atmospheric refraction (arcsec, float, 5, 6)  |
-        +------------------+-----------------------------------------------+
-        | ``airmass``      | Target airmass (float, 5, 6)                  |
-        +------------------+-----------------------------------------------+
-        | ``posunc``       | Positional uncertainty (arcsec, float, 5, 6)  |
-        +------------------+-----------------------------------------------+
+        +---------------------+-----------------------------------------------+
+        | Column Name         | Definition                                    |
+        +=====================+===============================================+
+        | ``target``          | Target name (str, 1, 2, 3, 4, 5)              |
+        +---------------------+-----------------------------------------------+
+        | ``epoch``           | Ephemerides epoch (JD, float, 1, 2, 3, 4, 5)  |
+        +---------------------+-----------------------------------------------+
+        | ``RA``              | Target RA at ``ephtype`` (deg, float, 1)      |
+        +---------------------+-----------------------------------------------+
+        | ``DEC``             | Target declination at ``ephtype`` (deg,       |
+        |                     | float, 1, 4, 5)                               |
+        +---------------------+-----------------------------------------------+
+        | ``RAJ2000``         | Target RA at J2000 (deg, float, 5)            |
+        +---------------------+-----------------------------------------------+
+        | ``DECJ2000``        | Target declination at J2000 (deg, float, 5)   |
+        +---------------------+-----------------------------------------------+
+        | ``LONG``            | Target Ecliptic longitude at ``refplane``     |
+        |                     | (deg, float, "ecliptic")                      |
+        +---------------------+-----------------------------------------------+
+        | ``LAT``             | Target declination at ``refplane`` (deg,      |
+        |                     | float, "ecliptic")                            |
+        +---------------------+-----------------------------------------------+
+        | ``AZ``              | Target azimuth (deg, float, 3, 5)             |
+        +---------------------+-----------------------------------------------+
+        | ``EL``              | Target elevation (deg, float, 3, 5)           |
+        +---------------------+-----------------------------------------------+
+        | ``delta``           | Distance from observer (au, float, 1, 2, 3,   |
+        |                     | 4, 5)                                         |
+        +---------------------+-----------------------------------------------+
+        | ``delta_rate``      | Rate in observer distance (km/s, float,       |
+        |                     | 1, 5)                                         |
+        +---------------------+-----------------------------------------------+
+        | ``V``               | Apparent visual magnitude (mag, float, 1, 2,  |
+        |                     | 3, 4, 5)                                      |
+        +---------------------+-----------------------------------------------+
+        | ``alpha``           | Solar phase angle (deg, 1, 2, 3, 4, 5)        |
+        +---------------------+-----------------------------------------------+
+        | ``elong``           | Solar elongation angle (deg, 1, 2, 3, 4, 5)   |
+        +---------------------+-----------------------------------------------+
+        | ``RAcosD_rate``     | Rate of motion in RA * cos(DEC) (arcsec/min,  |
+        |                     | float, 1, 5)                                  |
+        +---------------------+-----------------------------------------------+
+        | ``DEC_rate``        | Rate of motion in DEC (arcsec/min, float, 1,  |
+        |                     | 5)                                            |
+        +---------------------+-----------------------------------------------+
+        | ``LONGcosLAT_rate`` | Rate of motion in LONG * cos(LAT) (arcsec/min,|
+        |                     | float, 1, 5)                                  |
+        +---------------------+-----------------------------------------------+
+        | ``LAT_rate``        | Rate of motion in LAT (arcsec/min, float, 1,  |
+        |                     | 5)                                            |
+        +---------------------+-----------------------------------------------+
+        | ``x``               | X position state vector (au, float, 2)        |
+        +---------------------+-----------------------------------------------+
+        | ``y``               | Y position state vector (au, float, 2)        |
+        +---------------------+-----------------------------------------------+
+        | ``z``               | Z position state vector (au, float, 2)        |
+        +---------------------+-----------------------------------------------+
+        | ``vx``              | X velocity state vector (au/d, float, 2)      |
+        +---------------------+-----------------------------------------------+
+        | ``vy``              | Y velocity state vector (au/d, float, 2)      |
+        +---------------------+-----------------------------------------------+
+        | ``vz``              | Z velocity state vector (au/d, float, 2)      |
+        +---------------------+-----------------------------------------------+
+        | ``rv``              | Radial velocity (km/s, float, 2)              |
+        +---------------------+-----------------------------------------------+
+        | ``heldist``         | Target heliocentric distance (au, float, 2,   |
+        |                     | 5, 6)                                         |
+        +---------------------+-----------------------------------------------+
+        | ``x_h``             | X heliocentric position vector (au, float, 2) |
+        +---------------------+-----------------------------------------------+
+        | ``y_h``             | Y heliocentric position vector (au, float, 2) |
+        +---------------------+-----------------------------------------------+
+        | ``z_h``             | Z heliocentric position vector (au, float, 2) |
+        +---------------------+-----------------------------------------------+
+        | ``vx_h``            | X heliocentric vel. vector (au/d, float, 2)   |
+        +---------------------+-----------------------------------------------+
+        | ``vy_h``            | Y heliocentric vel. vector (au/d, float, 2)   |
+        +---------------------+-----------------------------------------------+
+        | ``vz_h``            | Z heliocentric vel. vector (au/d, float, 2)   |
+        +---------------------+-----------------------------------------------+
+        | ``hourangle``       | Target hour angle (deg, float, 4, 5)          |
+        +---------------------+-----------------------------------------------+
+        | ``siderealtime``    | Local sidereal time (hr, float, 5)            |
+        +---------------------+-----------------------------------------------+
+        | ``refraction``      | Atmospheric refraction (arcsec, float, 5)     |
+        +---------------------+-----------------------------------------------+
+        | ``airmass``         | Target airmass (float, 5)                     |
+        +---------------------+-----------------------------------------------+
 
 
         Examples
@@ -229,12 +238,13 @@ class MiriadeClass(BaseQuery):
         >>> from astropy.time import Time
         >>> epoch = Time('2019-01-01', format='iso')
         >>> Miriade.get_ephemerides('3552', epoch=epoch)  # doctest: +SKIP
-        <Table masked=True length=1>
-           target          epoch                 RA         ...  DEC_rate   delta_rate
-                             d                  deg         ... arcs / min    km / s
-          bytes20         float64             float64       ...  float64     float64
-        ----------- -------------------- ------------------ ... ---------- ------------
-        Don Quixote            2458484.5 16.105294999999998 ...   -0.25244   31.4752734
+        <Table length=1>
+          epoch           RA                DEC        ... RAcosD_rate    DEC_rate   delta_rate
+            d            deg                deg        ... arcsec / min arcsec / min   km / s  
+         float64       float64            float64      ...   float64      float64     float64  
+        --------- ------------------ ----------------- ... ------------ ------------ ----------
+        2458484.5 16.105201666666666 45.50291433333334 ...       0.3221      -0.2524   31.47530
+
         """
 
         URL = conf.ephemcc_server
@@ -254,7 +264,7 @@ class MiriadeClass(BaseQuery):
             ('-step', epoch_step),
             ('-nbd', epoch_nsteps),
             ('-observer', location),
-            ('-output', '--jul'),
+            ('-output', '--jd'),
             ('-tscale', timescale),
             ('-theory', planetary_theory),
             ('-teph', ephtype),
@@ -273,7 +283,6 @@ class MiriadeClass(BaseQuery):
         response = self._request('GET', URL, params=request_payload,
                                  timeout=TIMEOUT, cache=cache)
         self._query_uri = response.url
-
         self._get_raw_response = get_raw_response
 
         return response
@@ -302,15 +311,20 @@ class MiriadeClass(BaseQuery):
         data = votable.get_first_table().to_table()
 
         # modify table columns
+        data.rename_column('date', 'epoch')
         data['epoch'].unit = u.d
 
-        if 'ra' in data.columns:
-            data['ra'] = Angle(data['ra'], unit=u.hourangle).deg*u.deg
-            data.rename_column('ra', 'RA')
+        if 'RA' in data.columns:
+            data['RA'] = Angle(data['RA'], unit=u.hourangle).deg*u.deg
 
-        if 'dec' in data.columns:
-            data['dec'] = Angle(data['dec'], unit=u.deg).deg*u.deg
-            data.rename_column('dec', 'DEC')
+        if 'DEC' in data.columns:
+            data['DEC'] = Angle(data['DEC'], unit=u.deg).deg*u.deg
+
+        if 'LONG' in data.columns:
+            data['LONG'] = Angle(data['LONG'], unit=u.deg).deg*u.deg
+
+        if 'LAT' in data.columns:
+            data['LAT'] = Angle(data['LAT'], unit=u.deg).deg*u.deg
 
         if 'raJ2000' in data.columns and 'decJ2000' in data.columns:
             data['raJ2000'] = Angle(
@@ -344,47 +358,62 @@ class MiriadeClass(BaseQuery):
                 data['vy_h'].unit = u.au/u.day
                 data['vz_h'].unit = u.au/u.day
 
+        if 'dobs' in data.columns:
+            data.rename_column('dobs', 'delta')
+
         if 'distance' in data.columns:
             data.rename_column('distance', 'delta')
 
-        if 'obsdistance' in data.columns:
-            data.rename_column('obsdistance', 'delta')
+        if 'dobs' in data.columns:
+            data.rename_column('dobs', 'delta')
 
-        if 'heliodistance' in data.columns:
-            data.rename_column('heliodistance', 'heldist')
+        if 'dhelio' in data.columns:
+            data.rename_column('dhelio', 'heldist')
 
-        if 'azimut' in data.columns and 'elevation' in data.columns:
-            data['azimut'] = Angle(data['azimut'], unit=u.deg).deg * u.deg
-            data['elevation'] = Angle(
-                data['elevation'], unit=u.deg).deg * u.deg
-            data.rename_column('azimut', 'AZ')
-            data.rename_column('elevation', 'EL')
+        if 'az' in data.columns and 'elev' in data.columns:
+            data['az'] = Angle(data['az'], unit=u.deg).deg * u.deg
+            data['elev'] = Angle(
+                data['elev'], unit=u.deg).deg * u.deg
+            data.rename_column('az', 'AZ')
+            data.rename_column('elev', 'EL')
 
-        if 'mv' in data.columns:
-            data.rename_column('mv', 'V')
+        if 'vmag' in data.columns:
+            data.rename_column('vmag', 'V')
             data['V'].unit = u.mag
 
         if 'phase' in data.columns:
             data.rename_column('phase', 'alpha')
 
-        if 'elongation' in data.columns:
-            data.rename_column('elongation', 'elong')
+        if 'dRAcosDEC' in data.columns:
+            data.rename_column('dRAcosDEC', 'RAcosD_rate')
 
-        if 'dracosdec' in data.columns:
-            data.rename_column('dracosdec', 'RAcosD_rate')
+        if 'dDEC' in data.columns:
+            data.rename_column('dDEC', 'DEC_rate')
 
-        if 'ddec' in data.columns:
-            data.rename_column('ddec', 'DEC_rate')
+        if 'dRAcosDEC' in data.columns:
+            data.rename_column('dRAcosDEC', 'RAcosD_rate')
 
-        if 'dist_dot' in data.columns:
-            data.rename_column('dist_dot', 'delta_rate')
+        if 'dLONGcosLAT' in data.columns:
+            data.rename_column('dLONGcosLAT', 'LONGcosLAT_rate')
+
+        if 'dDEC' in data.columns:
+            data.rename_column('dDEC', 'DEC_rate')
+
+        if 'dLAT' in data.columns:
+            data.rename_column('dLAT', 'LAT_rate')
+
+        if 'rv' in data.columns:
+            data.rename_column('rv', 'delta_rate')
 
         if 'lst' in data.columns:
             data.rename_column('lst', 'siderealtime')
 
-        if 'hourangle' in data.columns:
+        if 'ha' in data.columns:
+            data.rename_column('ha', 'hourangle')
             data['hourangle'] = Angle(data['hourangle'],
                                       unit=u.hourangle).deg * u.deg
+        if 'am' in data.columns:
+            data.rename_column('am', 'airmass')
 
         if 'aeu' in data.columns:
             data.rename_column('aeu', 'posunc')
@@ -398,7 +427,7 @@ Miriade = MiriadeClass()
 @async_to_sync
 class SkybotClass(BaseQuery):
     """A class for querying the `IMCCE SkyBoT
-    <https://vo.imcce.fr/webservices/skybot/>`_ service.
+    <https://ssp.imcce.fr/webservices/skybot/>`_ service.
     """
     _uri = None  # query uri
     _get_raw_response = False
