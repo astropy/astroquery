@@ -15,15 +15,16 @@ from pathlib import Path
 from urllib.parse import quote
 
 import astropy.units as u
-import astropy.coordinates as coord
+from astropy.coordinates import SkyCoord, BaseCoordinateFrame, Angle
 import numpy as np
 from astropy.table import Table, Row, Column, vstack
+from astropy.utils.decorators import deprecated_renamed_argument
 from requests import HTTPError, RequestException
 
 from astroquery import log
 from astroquery.utils import commons, async_to_sync
 from astroquery.utils.class_or_instance import class_or_instance
-from astroquery.exceptions import InputWarning, InvalidQueryError, MaxResultsWarning, NoResultsWarning
+from astroquery.exceptions import InputWarning, InvalidQueryError, MaxResultsWarning, NoResultsWarning, ResolverError
 
 from astroquery.mast import utils
 from astroquery.mast.core import MastQueryWithLogin
@@ -49,8 +50,11 @@ class MastMissionsClass(MastQueryWithLogin):
                              'spectral_type', 'bmv0_mag', 'u_mag', 'b_mag', 'v_mag', 'gaia_g_mean_mag', 'star_mass',
                              'instrument', 'grating', 'filter', 'observation_id']
 
-    # maximum supported query radius
+    # Maximum supported query radius
     _max_query_radius = 30 * u.arcmin
+
+    # Maximum number of input targets accepted in a single query
+    _max_input_targets = 100
 
     def __init__(self, *, mission='hst', mast_token=None):
         super().__init__(mast_token=mast_token)
@@ -265,17 +269,208 @@ class MastMissionsClass(MastQueryWithLogin):
             valid_select_cols.append(dataset_col)
         return valid_select_cols
 
+    def _parse_multiple_locations(self, locations, *, resolver=None):
+        """
+        Parse multiple locations (either objectnames or coordinates) into a list of target strings.
+
+        Parameters
+        ----------
+        locations : str, iterable of str, or `~astropy.coordinates` object
+            Multiple locations can be specified as:
+            - A comma-separated string (e.g., "M31, M51, NGC 1234")
+            - An iterable of strings (e.g., ["M31", "M51", "NGC 1234"])
+            - An iterable of coordinate objects or coordinate strings
+            - A single string or coordinate object (will be converted to a single-item list)
+        resolver : str, optional
+            The resolver to use when resolving named targets into coordinates.
+
+        Returns
+        -------
+        list of str
+            A list of target strings in "ra dec" format for the API.
+        """
+        # Convert input to a list of location items
+        if isinstance(locations, str):
+            location_items = [loc.strip() for loc in locations.split(',') if loc.strip()]
+        elif isinstance(locations, Iterable) and not isinstance(locations, (SkyCoord, BaseCoordinateFrame)):
+            location_items = list(locations)
+        else:
+            # Single coordinate object
+            location_items = [locations]
+
+        if not location_items:
+            raise InvalidQueryError("No targets were provided.")
+
+        if len(location_items) > self._max_input_targets:
+            raise InvalidQueryError(
+                f'Too many input targets provided. Maximum supported is {self._max_input_targets}, '
+                f'got {len(location_items)}.'
+            )
+
+        target_strings = [None] * len(location_items)
+        unresolved_map = {}  # name -> list of indices
+
+        # First pass -> attempt parsing coordinates
+        for idx, item in enumerate(location_items):
+            try:
+                # Try to parse as coordinates
+                coords = commons.parse_coordinates(item, return_frame='icrs', resolve_names=False)
+                target_strings[idx] = f"{coords.ra.deg} {coords.dec.deg}"
+            except (ValueError, TypeError, u.UnitsError):
+                # Not coordinates; must be a string to resolve as object name
+                if not isinstance(item, str):
+                    raise InvalidQueryError(
+                        f"Target {item} is not a valid coordinate or object name string"
+                    )
+                unresolved_map.setdefault(item.strip(), []).append(idx)
+
+        # Second pass -> resolve object names in batch requests
+        resolved_map = {}
+        if unresolved_map:
+            try:
+                unresolved_names = list(unresolved_map.keys())
+                resolved = utils.resolve_object(unresolved_names, resolver=resolver)
+                if isinstance(resolved, SkyCoord):
+                    resolved_map = {unresolved_names[0]: resolved}
+                else:
+                    resolved_map = resolved
+            except (ResolverError) as e:
+                if target_strings.count(None) == len(target_strings):
+                    # If no coordinates were successfully parsed or resolved, raise the error.
+                    # Otherwise, just warn and continue with the successfully parsed/resolved targets.
+                    raise
+                else:
+                    warnings.warn(f"Object name targets could not be resolved and will be skipped: {e}", InputWarning)
+
+        # Fill resolved names back into all matching positions (including duplicates)
+        for name, indices in unresolved_map.items():
+            coords = resolved_map.get(name)
+            if coords is None:
+                continue
+            coord_str = f"{coords.ra.deg} {coords.dec.deg}"
+            for idx in indices:
+                target_strings[idx] = coord_str
+
+        successful = [target for target in target_strings if target is not None]
+
+        return successful
+
+    @class_or_instance
+    @deprecated_renamed_argument('coordinates', 'target', since='0.4.11')
+    @deprecated_renamed_argument('objectname', 'target', since='0.4.11')
+    def query_criteria_async(self, *, target=None, coordinates=None, objectname=None, radius=3*u.arcmin,
+                             limit=5000, offset=0, select_cols=None, resolver=None, **criteria):
+        """
+        Given a set of search criteria, returns a list of mission metadata.
+
+        Parameters
+        ----------
+        target : str, list of str, or None, optional
+            Target(s) to search. Can be a specified as:
+            - A single string or `~astropy.coordinates.SkyCoord` object representing either
+            an object name or coordinates (e.g., "M31" or "10.0 20.0")
+            - A comma-separated string of object names or coordinates (e.g., "M31, 10.0 20.0, NGC 1234")
+            - An iterable of strings or `~astropy.coordinates.SkyCoord` objects (e.g., ["M31", "10.0 20.0", "NGC 1234"])
+            This is the preferred way to search for targets and allows for a mix of object names and coordinates.
+            If provided, this takes precedence over the `coordinates` and `objectname` parameters.
+        coordinates : str or `~astropy.coordinates` object, deprecated
+            Deprecated. Use `target` instead. The target around which to search. It may be specified
+            as a string or as the appropriate `~astropy.coordinates` object. To search around multiple
+            coordinates, use the `target` parameter instead.
+        objectname : str, deprecated
+            Deprecated. Use `target` instead. The name of the target around which to search. To search
+            around multiple object names, use the `target` parameter instead.
+        radius : str or `~astropy.units.Quantity` object
+            Default is 3 arcminutes. The radius around the coordinates to search within.
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from `~astropy.units` may also be used.
+            The maximum supported query radius is 30 arcminutes.
+        limit : int
+            Default is 5000. The maximum number of dataset IDs in the results.
+        offset : int
+            Default is 0. The number of records you wish to skip before selecting records.
+        select_cols: iterable or str or None, optional
+            Default is None. Names of columns that will be included in the result table.
+            If None, a default set of columns will be returned.
+            Can either be an iterable of column names, a comma-separated string of column names,
+            or 'all'/'*' to return all available columns.
+        resolver : str, optional
+            Default is None. The resolver to use when resolving a named target into coordinates. Valid options are
+            "SIMBAD" and "NED". If not specified, the default resolver order will be used. Please see the
+            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
+            for more information. Default is None.
+        **criteria
+            Criteria to apply. Valid criteria include coordinates, objectname, radius (as in
+            `~astroquery.mast.missions.MastMissionsClass.query_region` and
+            `~astroquery.mast.missions.MastMissionsClass.query_object` functions),
+            and all fields listed in the column documentation for the mission being queried.
+            List of all valid fields that can be used to match results on criteria can be retrieved by calling
+            `~astroquery.mast.missions.MastMissionsClass.get_column_list` function.
+            To filter by multiple values for a single column, pass in a list of values or
+            a comma-separated string of values.
+
+        Returns
+        -------
+        response : list of `~requests.Response`
+
+        Raises
+        ------
+        InvalidQueryError
+            If the query radius is larger than the limit (30 arcminutes).
+        """
+
+        self.limit = limit
+        self.service = self._search
+
+        # Check that criteria arguments are valid
+        self._validate_criteria(**criteria)
+
+        target_strings = None
+        if target is not None:
+            # Use the new target parameter - parse as multiple locations
+            target_strings = self._parse_multiple_locations(target, resolver=resolver)
+        elif objectname is not None or coordinates is not None:
+            # Legacy behavior: use objectname or coordinates
+            coordinates = utils.parse_input_location(coordinates=coordinates,
+                                                     objectname=objectname,
+                                                     resolver=resolver)
+
+        # if radius is just a number we assume degrees
+        radius = Angle(radius, u.arcmin)
+
+        if radius > self._max_query_radius:
+            raise InvalidQueryError(
+                f"Query radius too large. Must be ≤{self._max_query_radius}, got {radius}."
+            )
+
+        # build query
+        params = {"limit": self.limit, "offset": offset, 'select_cols': self._parse_select_cols(select_cols)}
+        if coordinates is not None:
+            params["target"] = [f"{coordinates.ra.deg} {coordinates.dec.deg}"]
+            params["radius"] = radius.arcsec
+            params["radius_units"] = 'arcseconds'
+        if target_strings:
+            params["target"] = target_strings
+            params["radius"] = radius.arcsec
+            params["radius_units"] = 'arcseconds'
+
+        self._build_params_from_criteria(params, **criteria)
+
+        return self._service_api_connection.missions_request_async(self.service, params)
+
     @class_or_instance
     def query_region_async(self, coordinates, *, radius=3*u.arcmin, limit=5000, offset=0,
                            select_cols=None, **criteria):
         """
-        Given a sky position and radius, returns a list of matching dataset IDs.
+        Given a sky position (or positions) and radius, returns a list of matching dataset IDs.
 
         Parameters
         ----------
-        coordinates : str or `~astropy.coordinates` object
-            The target around which to search. It may be specified as a
-            string or as the appropriate `~astropy.coordinates` object.
+        coordinates : str, iterable of str, or `~astropy.coordinates` object
+            The target(s) around which to search. Can be specified as:
+            - A single coordinate string or `~astropy.coordinates` object
+            - A comma-separated string of coordinates (e.g., "10.0 20.0, 15.0 25.0")
+            - An iterable of coordinate strings or `~astropy.coordinates` objects
         radius : str or `~astropy.units.Quantity` object
             Default is 3 arcminutes. The radius around the coordinates to search within.
             The string must be parsable by `~astropy.coordinates.Angle`. The
@@ -307,133 +502,26 @@ class MastMissionsClass(MastQueryWithLogin):
         InvalidQueryError
             If the query radius is larger than the limit (30 arcminutes).
         """
-
-        self.limit = limit
-        self.service = self._search
-
-        # Check that criteria arguments are valid
-        self._validate_criteria(**criteria)
-
-        # Put coordinates and radius into consistent format
-        coordinates = commons.parse_coordinates(coordinates, return_frame='icrs')
-
-        # If radius is just a number, assume arcminutes
-        radius = coord.Angle(radius, u.arcmin)
-
-        if radius > self._max_query_radius:
-            raise InvalidQueryError(
-                f"Query radius too large. Must be ≤{self._max_query_radius}, got {radius}."
-            )
-
-        # Basic params
-        params = {'target': [f"{coordinates.ra.deg} {coordinates.dec.deg}"],
-                  'radius': radius.arcsec,
-                  'radius_units': 'arcseconds',
-                  'limit': limit,
-                  'offset': offset,
-                  'select_cols': self._parse_select_cols(select_cols)}
-
-        self._build_params_from_criteria(params, **criteria)
-
-        return self._service_api_connection.missions_request_async(self.service, params)
-
-    @class_or_instance
-    def query_criteria_async(self, *, coordinates=None, objectname=None, radius=3*u.arcmin,
-                             limit=5000, offset=0, select_cols=None, resolver=None, **criteria):
-        """
-        Given a set of search criteria, returns a list of mission metadata.
-
-        Parameters
-        ----------
-        coordinates : str or `~astropy.coordinates` object
-            The target around which to search. It may be specified as a
-            string or as the appropriate `~astropy.coordinates` object.
-        objectname : str
-            The name of the target around which to search.
-        radius : str or `~astropy.units.Quantity` object
-            Default is 3 arcminutes. The radius around the coordinates to search within.
-            The string must be parsable by `~astropy.coordinates.Angle`. The
-            appropriate `~astropy.units.Quantity` object from `~astropy.units` may also be used.
-            The maximum supported query radius is 30 arcminutes.
-        limit : int
-            Default is 5000. The maximum number of dataset IDs in the results.
-        offset : int
-            Default is 0. The number of records you wish to skip before selecting records.
-        select_cols: iterable or str or None, optional
-            Default is None. Names of columns that will be included in the result table.
-            If None, a default set of columns will be returned.
-            Can either be an iterable of column names, a comma-separated string of column names,
-            or 'all'/'*' to return all available columns.
-        resolver : str, optional
-            Default is None. The resolver to use when resolving a named target into coordinates. Valid options are
-            "SIMBAD" and "NED". If not specified, the default resolver order will be used. Please see the
-            `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
-            for more information. Default is None.
-        **criteria
-            Criteria to apply. At least one non-positional criterion must be supplied.
-            Valid criteria are coordinates, objectname, radius (as in
-            `~astroquery.mast.missions.MastMissionsClass.query_region` and
-            `~astroquery.mast.missions.MastMissionsClass.query_object` functions),
-            and all fields listed in the column documentation for the mission being queried.
-            List of all valid fields that can be used to match results on criteria can be retrieved by calling
-            `~astroquery.mast.missions.MastMissionsClass.get_column_list` function.
-            To filter by multiple values for a single column, pass in a list of values or
-            a comma-separated string of values.
-
-        Returns
-        -------
-        response : list of `~requests.Response`
-
-        Raises
-        ------
-        InvalidQueryError
-            If the query radius is larger than the limit (30 arcminutes).
-        """
-
-        self.limit = limit
-        self.service = self._search
-
-        # Check that criteria arguments are valid
-        self._validate_criteria(**criteria)
-
-        # Parse user input location
-        if objectname or coordinates:
-            coordinates = utils.parse_input_location(coordinates=coordinates,
-                                                     objectname=objectname,
-                                                     resolver=resolver)
-
-        # if radius is just a number we assume degrees
-        radius = coord.Angle(radius, u.arcmin)
-
-        if radius > self._max_query_radius:
-            raise InvalidQueryError(
-                f"Query radius too large. Must be ≤{self._max_query_radius}, got {radius}."
-            )
-
-        # build query
-        params = {"limit": self.limit, "offset": offset, 'select_cols': self._parse_select_cols(select_cols)}
-        if coordinates:
-            params["target"] = [f"{coordinates.ra.deg} {coordinates.dec.deg}"]
-            params["radius"] = radius.arcsec
-            params["radius_units"] = 'arcseconds'
-
-        if not self._service_api_connection.check_catalogs_criteria_params(criteria):
-            raise InvalidQueryError("At least one non-positional criterion must be supplied.")
-
-        self._build_params_from_criteria(params, **criteria)
-
-        return self._service_api_connection.missions_request_async(self.service, params)
+        return self.query_criteria_async(target=coordinates,
+                                         radius=radius,
+                                         limit=limit,
+                                         offset=offset,
+                                         select_cols=select_cols,
+                                         **criteria)
 
     @class_or_instance
     def query_object_async(self, objectname, *, radius=3*u.arcmin, limit=5000, offset=0,
                            select_cols=None, resolver=None, **criteria):
         """
-        Given an object name, returns a list of matching rows.
+        Given an object name (or names), returns a list of matching rows.
 
         Parameters
         ----------
-        objectname : str
-            The name of the target around which to search.
+        objectname : str or iterable of str
+            The name(s) of the target(s) around which to search. Can be specified as:
+            - A single object name string
+            - A comma-separated string of object names (e.g., "M31, M51, NGC 1234")
+            - An iterable of object name strings
         radius : str or `~astropy.units.Quantity` object, optional
             Default is 3 arcminutes. The radius around the coordinates to search within.
             The string must be parsable by `~astropy.coordinates.Angle`. The
@@ -464,11 +552,13 @@ class MastMissionsClass(MastQueryWithLogin):
         -------
         response : list of `~requests.Response`
         """
-
-        coordinates = utils.resolve_object(objectname, resolver=resolver)
-
-        return self.query_region_async(coordinates, radius=radius, limit=limit, offset=offset,
-                                       select_cols=select_cols, **criteria)
+        return self.query_criteria_async(target=objectname,
+                                         radius=radius,
+                                         limit=limit,
+                                         offset=offset,
+                                         select_cols=select_cols,
+                                         resolver=resolver,
+                                         **criteria)
 
     @class_or_instance
     def get_product_list_async(self, datasets, *, batch_size=1000):

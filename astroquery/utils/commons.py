@@ -40,7 +40,7 @@ ASTROPY_LT_6_0 = not minversion('astropy', '6.0')
 ASTROPY_LT_7_1_1 = not minversion('astropy', '7.1.1')
 
 
-def parse_coordinates(coordinates, *, return_frame=None):
+def parse_coordinates(coordinates, *, return_frame=None, resolve_names=True):
     """
     Takes a string or astropy.coordinates object. Checks if the
     string is parsable as an `astropy.coordinates`
@@ -55,6 +55,9 @@ def parse_coordinates(coordinates, *, return_frame=None):
         The frame to return the coordinates in. If None and ``coordinates`` is
         a string, the frame will be ICRS. If ``coordinates`` is an `astropy.coordinates` object, the
         frame will be the same as the input object.
+    resolve_names : bool
+        If `coordinates` is a string, whether to attempt to resolve it as an astronomical object name if
+        it cannot be parsed as a coordinate string. Default is `True`.
 
     Returns
     -------
@@ -85,8 +88,14 @@ def parse_coordinates(coordinates, *, return_frame=None):
                                   "ICRS coordinate provided in degrees.", InputWarning)
 
                 except ValueError:
+                    if not resolve_names:
+                        raise ValueError(f"Could not parse coordinate string '{coordinates}' "
+                                         "and name resolution is disabled.")
                     c = SkyCoord.from_name(coordinates, frame="icrs")
             else:
+                if not resolve_names:
+                    raise ValueError(f"Could not parse coordinate string '{coordinates}' "
+                                     "and name resolution is disabled.")
                 c = SkyCoord.from_name(coordinates, frame="icrs")
 
     elif isinstance(coordinates, CoordClasses):
