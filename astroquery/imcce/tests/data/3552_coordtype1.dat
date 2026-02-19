@@ -1,68 +1,136 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<vot:VOTABLE version='1.3' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:vot='http://www.ivoa.net/xml/VOTable/v1.3' xsi:schemaLocation='http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/VOTable-1.3.xsd' xmlns:stc='http://www.ivoa.net/xml/STC/v1.30'>
-<vot:COOSYS ID='J2000RefFrame' system='eq_FK5' equinox='J2000'/>
-<vot:COOSYS ID='EphRefFrame' system='eq_FK5' equinox='J2000'/>
-<vot:INFO ID='supplier' name='supplier' value='Provided by IMCCE/CNRS/OBSPM' />
-<vot:RESOURCE name='Miriade.ephemcc'>
-<vot:DESCRIPTION>Miriade - Positional ephemeris</vot:DESCRIPTION>
-<vot:TABLE name='Miriade.ephemcc.results' nrows='1'>
-<vot:DESCRIPTION>Positional ephemeris</vot:DESCRIPTION>
-<vot:PARAM ID='targettype' name='targetType' datatype='char' ucd='src.class' arraysize='*' value='Asteroid' />
-<vot:PARAM ID='targetnum' name='targetNumber' datatype='int' ucd='meta.id.part'  value="3552" />
-<vot:PARAM ID='targetname' name='targetName' datatype='char' ucd='meta.id' arraysize='*' value="Don Quixote" />
-<vot:PARAM ID='diameter' name='Diameter' datatype='float' ucd='phys.size.diameter' width='10' unit='km' value='0.00' />
-<vot:PARAM ID='ceu' name='CEU' datatype='float' ucd='stat.error;pos' width='16' unit='arcsec' value='0.26000000E-01' />
-<vot:PARAM ID='ceurate' name='CEU rate' datatype='float' ucd='stat.error;arith.rate;pos' width='16' unit='arcsec/d' value='-0.99000000E-04' />
-<vot:PARAM ID='orbital_period' name='Orbital period' datatype='float' ucd='time.period' width='15' unit='d' value='3.20980559E+03' />
-<vot:PARAM ID='system_mass' name='System mass' datatype='float' ucd='phys.mass' width='10' unit='kg' value='0.0000E+00' />
-<vot:PARAM ID='dynamical_class' name='Dynamical class' datatype='char' ucd='meta.code.class' arraysize='*' value='NEA&gt;Apollo' />
-<vot:PARAM ID='taxonomic_class' name='Taxonomic class' datatype='char' ucd='meta.code.class' arraysize='*' value='D' />
-<vot:PARAM ID='taxonomic_param' name='Taxonomic parameter' datatype='char' ucd='meta.code.class' arraysize='*' value='4' />
-<vot:PARAM ID='taxonomic_source' name='Taxonomic source' datatype='char' ucd='meta.ref' arraysize='*' value='Tholen (1984, 1989)' />
-<vot:PARAM ID='time_scale' name='Time_Scale' datatype='char' ucd='meta.note' arraysize='*' value='UTC' />
-<vot:PARAM ID='planetary_theory' name='Planetary_Theory' datatype='char' ucd='meta.note' arraysize='8' value='INPOP13C' />
-<vot:PARAM ID='coordinates' name='Coordinates' datatype='char' ucd='meta.note' arraysize='*' value='Equatorial' />
-<vot:PARAM ID='frametype' name='frameType' datatype='char' ucd='pos.frame' arraysize='*' value='Astrometric J2000' />
-<vot:PARAM ID='framecentre' name='frameCentre' datatype='char' ucd='meta.note' arraysize='*' value='Geocenter' />
-<vot:FIELD ID='target' name='Target' ucd='meta.id' datatype='char' arraysize='20'>
-<vot:DESCRIPTION>Name or designation of the target</vot:DESCRIPTION>
-</vot:FIELD>
-<vot:FIELD ID='epoch' name='Date' ucd='time.epoch' datatype='double' width='20'>
-<vot:DESCRIPTION>Julian day (UTC)</vot:DESCRIPTION>
-</vot:FIELD>
-<vot:FIELD ID='ra' name='RA' ucd='pos.eq.ra' ref='EphRefFrame' datatype='char' arraysize='13' unit='"h:m:s"'>
-<vot:DESCRIPTION>Right ascension of target centre</vot:DESCRIPTION>
-</vot:FIELD>
-<vot:FIELD ID='dec' name='DEC' ucd='pos.eq.dec' ref='EphRefFrame' datatype='char' arraysize='13' unit='"d:m:s"'>
-<vot:DESCRIPTION>Declination of target centre</vot:DESCRIPTION>
-</vot:FIELD>
-<vot:FIELD ID='distance' name='Distance' ucd='phys.distance' ref='EphRefFrame' datatype='double' width='14' unit='au'>
-<vot:DESCRIPTION>Distance from observer</vot:DESCRIPTION>
-</vot:FIELD>
-<vot:FIELD ID='mv' name='Mv' ucd='em.opt.V' datatype='float' width='7' precision='3'>
-<vot:DESCRIPTION>Apparent visual magnitude</vot:DESCRIPTION>
-</vot:FIELD>
-<vot:FIELD ID='phase' name='Phase' ucd='pos.phaseAng' datatype='double' width='6' unit='deg'>
-<vot:DESCRIPTION>Phase angle</vot:DESCRIPTION>
-</vot:FIELD>
-<vot:FIELD ID='elongation' name='Elongation' ucd='pos.angDistance' datatype='double' width='6' unit='deg'>
-<vot:DESCRIPTION>Solar elongation</vot:DESCRIPTION>
-</vot:FIELD>
-<vot:FIELD ID='dracosdec' name='dRAcosDEC' ucd='pos.eq.ra;arith.rate' datatype='double' width='10' unit='arcsec/min'>
-<vot:DESCRIPTION>Rate of change of target center RA (multiplied by the cosine of the declination)</vot:DESCRIPTION>
-</vot:FIELD>
-<vot:FIELD ID='ddec' name='dDEC' ucd='pos.eq.dec;arith.rate' datatype='double' width='10' unit='arcsec/min'>
-<vot:DESCRIPTION>Rate of change of target center DE</vot:DESCRIPTION>
-</vot:FIELD>
-<vot:FIELD ID='dist_dot' name='dist_dot' ucd='phys.distance;arith.rate' datatype='double' width='12' unit='km/s'>
-<vot:DESCRIPTION>Rate of change of target distance from observer</vot:DESCRIPTION>
-</vot:FIELD>
-<vot:DATA>
-<vot:TABLEDATA>
-<vot:TR><vot:TD>Don Quixote</vot:TD><vot:TD> 2458516.42957271542</vot:TD><vot:TD>01 37  2.87184</vot:TD><vot:TD>+43 35 17.4235</vot:TD><vot:TD>   3.008900447</vot:TD><vot:TD> 18.72</vot:TD><vot:TD> 18.36</vot:TD><vot:TD> 87.55</vot:TD><vot:TD> 0.56253E+00</vot:TD><vot:TD>-0.58523E-01</vot:TD><vot:TD>  34.0401852</vot:TD></vot:TR>
-</vot:TABLEDATA>
-</vot:DATA>
-</vot:TABLE>
-</vot:RESOURCE>
+<?xml version="1.0" encoding="UTF-8"?>
+<vot:VOTABLE version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:vot="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:stc="http://www.ivoa.net/xml/STC">
+  <vot:COOSYS ID="ICRS" system="ICRS" equinox="J2000"/>
+  <vot:INFO ID="status" name="QUERY_STATUS" value="OK"/>
+  <vot:INFO ID="supplier" name="Supplier" value="Provided by IMCCE/OBSPM/CNRS"/>
+  <vot:GROUP ID="ICRS-INPOP" utype="stc:AstroCoordSystem">
+    <vot:GROUP utype="stc:AstroCoordSystem.TimeFrame">
+      <vot:PARAM name="TimeScale" datatype="char" arraysize="*" utype="stc:AstroCoordSystem.TimeFrame.TimeScale" value="UTC"/>
+      <vot:PARAM name="RefPosition" datatype="char" arraysize="*" utype="stc:AstroCoordSystem.TimeFrame.ReferencePosition" value="GEOCENTER"/>
+    </vot:GROUP>
+    <vot:GROUP utype="stc:AstroCoordSystem.SpaceFrame">
+      <vot:PARAM name="CooFrame" datatype="char" arraysize="*" utype="stc:AstroCoordSystem.SpaceFrame.CoordRefFrame" value="ICRS"/>
+      <vot:PARAM name="CooFrameOrigin" datatype="char" arraysize="*" utype="stc:AstroCoordSystem.SpaceFrame.ReferencePosition" value="GEOCENTER"/>
+      <vot:PARAM name="Ephemeris" datatype="char" arraysize="*" utype="stc:AstroCoordSystem.SpaceFrame.ReferencePosition.PlanetaryEphem" value="INPOP">
+        <vot:DESCRIPTION>Planetary theory used to compute the ephemeris</vot:DESCRIPTION>
+      </vot:PARAM>
+      <vot:PARAM name="CooType" datatype="char" arraysize="*" utype="stc:AstroCoordSystem.SpaceFrame.CoordFlavor" value="SPHERICAL"/>
+      <vot:PARAM name="Naxes" datatype="char" arraysize="*" utype="stc:AstroCoordSystem.SpaceFrame.coord_naxes" value="3"/>
+    </vot:GROUP>
+  </vot:GROUP>
+  <vot:GROUP ID="Curation" utype="Curation">
+    <vot:PARAM name="Collection" datatype="char" arraysize="*" utype="DataID.Collection" value="Miriade.ephemcc"/>
+    <vot:PARAM name="Contact" datatype="char" arraysize="*" ucd="meta.human;meta.curation" utype="Curation.Contact.Name" value="J. Berthier"/>
+    <vot:PARAM name="CreationType" datatype="char" arraysize="*" utype="sed:Segment.DataID.CreationType" value="Calculation"/>
+    <vot:PARAM name="Creator" datatype="char" arraysize="*" utype="DataID.Creator" value="J. Berthier, F. Vachier, B. Carry"/>
+    <vot:PARAM name="Email" datatype="char" arraysize="*" utype="Curation.ContactEmail" value="vo.imcce@obspm.fr"/>
+    <vot:PARAM name="PubID" datatype="char" arraysize="*" ucd="meta.curation.pubid" utype="Curation.PubID" value="ivo://vopdc.obspm/imcce"/>
+    <vot:PARAM name="Publisher" datatype="char" arraysize="*" ucd="meta.organization;meta.curation" utype="Curation.Publisher" value="Service des ephemerides, IMCCE/OBSPM/CNRS"/>
+    <vot:PARAM name="Reference" datatype="char" arraysize="*" ucd="meta.bib.bibcode" utype="spec:Curation.Reference" value="2009epsc.conf..676B">
+      <vot:DESCRIPTION>Berthier et al., 2009, EPSC, 676</vot:DESCRIPTION>
+    </vot:PARAM>
+  </vot:GROUP>
+  <vot:RESOURCE name="Miriade.ephemcc">
+    <vot:DESCRIPTION>Positional ephemerides of solar system objects</vot:DESCRIPTION>
+    <vot:TABLE ID="Miriade.ephemcc.ephemeris" name="Miriade.ephemcc.ephemeris" nrows="1">
+      <vot:GROUP ID="Ephemeris" utype="stc:AstroCoords" ref="Ephemeris">
+        <vot:PARAM name="Ephemerides" datatype="char" arraysize="*" utype="stc:AstroCoords.coord_system_id" value="UTC-ICRS-GEO"/>
+        <vot:FIELDref ref="ra"/>
+        <vot:FIELDref ref="dec"/>
+        <vot:FIELDref ref="dobs"/>
+      </vot:GROUP>
+      <vot:PARAM ID="planetary_theory" name="Planetary theory" datatype="char" arraysize="*" ucd="meta.note" value="INPOP19A">
+        <vot:DESCRIPTION>Planetary theory</vot:DESCRIPTION>
+      </vot:PARAM>
+      <vot:PARAM ID="frame_type" name="Frame type" datatype="char" arraysize="*" ucd="pos.frame" value="J2000 astrometric">
+        <vot:DESCRIPTION>Frame type</vot:DESCRIPTION>
+      </vot:PARAM>
+      <vot:PARAM ID="coord_type" name="Coordinate type" datatype="char" arraysize="*" ucd="meta.note" value="Equatorial">
+        <vot:DESCRIPTION>Coordinate type</vot:DESCRIPTION>
+      </vot:PARAM>
+      <vot:PARAM ID="frame_center" name="Frame center" datatype="char" arraysize="*" ucd="meta.note" value="Geocenter">
+        <vot:DESCRIPTION>Frame center</vot:DESCRIPTION>
+      </vot:PARAM>
+      <vot:PARAM ID="precnut_model" name="Precession-Nutation model" datatype="char" arraysize="*" ucd="meta.note" value="IAU2000">
+        <vot:DESCRIPTION>Precession/nutation model</vot:DESCRIPTION>
+      </vot:PARAM>
+      <vot:PARAM ID="relativistic_correction" name="Relativistic correction" datatype="char" arraysize="*" ucd="meta.note" value="yes">
+        <vot:DESCRIPTION>Relativistic perturbations</vot:DESCRIPTION>
+      </vot:PARAM>
+      <vot:PARAM ID="relativistic_parameters" name="Relativistic parameters" datatype="char" arraysize="*" ucd="meta.note" value="beta=gamma=1,alpha=0">
+        <vot:DESCRIPTION>PPN coordinate system</vot:DESCRIPTION>
+      </vot:PARAM>
+      <vot:PARAM ID="target_type" name="Target type" datatype="char" arraysize="*" ucd="src.class" value="Asteroid"/>
+      <vot:PARAM ID="target_name" name="Target name" datatype="char" arraysize="*" ucd="meta.id" value="Don Quixote"/>
+      <vot:PARAM ID="target_num" name="Target number" datatype="int" ucd="meta.id.part" value="3552"/>
+      <vot:PARAM ID="target_source" name="Target source" datatype="char" arraysize="*" ucd="meta.id.part" value="ASTORB"/>
+      <vot:PARAM ID="author_name" name="Author name" datatype="char" arraysize="*" ucd="meta.note" value="L.H. Wasserman"/>
+      <vot:PARAM ID="number_obs" name="Number of observations" datatype="int" ucd="meta.note" value="1433"/>
+      <vot:PARAM ID="orbit_arc" name="Orbital arc" datatype="int" ucd="meta.note" unit="d" value="15148"/>
+      <vot:PARAM ID="ceu" name="CEU" datatype="double" unit="arcsec" ucd="stat.error;pos" value="0.200E-01"/>
+      <vot:PARAM ID="ceu_rate" name="CEU rate" unit="arcsec/d" datatype="double" ucd="stat.error;arith.rate;pos" value="-.510E-04"/>
+      <vot:PARAM ID="diameter" name="Diameter" unit="km" datatype="double" ucd="phys.size.diameter" value="0.0000000000000000"/>
+      <vot:PARAM ID="absolute_magnitude" name="Absolute magnitude" unit="mag" datatype="double" ucd="meta.note" value="13.039999999999999"/>
+      <vot:PARAM ID="slope_parameter" name="Slope parameter" datatype="double" ucd="meta.note" value="0.14999999999999999"/>
+      <vot:PARAM ID="orbital_period" name="Orbital period" unit="d" datatype="double" ucd="meta.note" value="3221.0855157895639"/>
+      <vot:PARAM ID="system_mass" name="System mass" unit="kg" datatype="double" ucd="meta.note" value="0.0000000000000000"/>
+      <vot:PARAM ID="dynamical_class" name="Dynamical class" datatype="char" arraysize="*" ucd="meta.note" value="NEA&gt;Amor"/>
+      <vot:PARAM ID="taxonomical_class" name="Taxonomical class" datatype="char" arraysize="*" ucd="meta.note" value="D"/>
+      <vot:PARAM ID="taxonomical_param" name="Taxonomical parameter" datatype="char" arraysize="*" ucd="meta.note" value="4"/>
+      <vot:PARAM ID="taxonomical_source" name="Taxonomical source" datatype="char" arraysize="*" ucd="meta.note" value="Tholen (1984, 1989)"/>
+      <vot:PARAM ID="ref_epoch" name="Reference epoch" unit="d" datatype="double" ucd="meta.note" value="2460800.5000000000"/>
+      <vot:PARAM ID="semimajor_axis" name="Semi-major axis" unit="au" datatype="double" ucd="meta.note" value="4.2684403700000004"/>
+      <vot:PARAM ID="eccentricity" name="Eccentricity" datatype="double" ucd="meta.note" value="0.70723981000000002"/>
+      <vot:PARAM ID="inclination" name="Inclination" unit="deg" datatype="double" ucd="meta.note" value="31.054219000000000"/>
+      <vot:PARAM ID="node_longitude" name="Longitude of the node" unit="deg" datatype="double" ucd="meta.note" value="349.96635300000003"/>
+      <vot:PARAM ID="perihelion_argument" name="Perihelion argument" unit="deg" datatype="double" ucd="meta.note" value="316.50854800000002"/>
+      <vot:PARAM ID="mean_anomaly" name="Mean anomaly" unit="deg" datatype="double" ucd="meta.note" value="285.87752300000000"/>
+      <vot:FIELD ID="date" name="Date" datatype="char" arraysize="*" ucd="time.epoch" ref="Ephemeris" utype="stc:AstroCoords.Time.TimeInstant.ISOTime">
+        <vot:DESCRIPTION>Date</vot:DESCRIPTION>
+      </vot:FIELD>
+      <vot:FIELD ID="RA" name="RA" datatype="char" arraysize="*" ucd="pos.eq.ra;meta.main" unit="h min s" ref="Ephemeris" utype="stc:AstroCoords.Position3D.Value3.C1">
+        <vot:DESCRIPTION>Right ascension</vot:DESCRIPTION>
+      </vot:FIELD>
+      <vot:FIELD ID="DEC" name="DEC" datatype="char" arraysize="*" ucd="pos.eq.dec;meta.main" unit="deg arcmin arcsec" ref="Ephemeris" utype="stc:AstroCoords.Position3D.Value3.C2">
+        <vot:DESCRIPTION>Declination</vot:DESCRIPTION>
+      </vot:FIELD>
+      <vot:FIELD ID="dobs" name="Dobs" datatype="double" width="12" precision="9" ucd="phys.distance" unit="au" ref="Ephemeris" utype="stc:AstroCoords.Position3D.Value3.C3">
+        <vot:DESCRIPTION>Range of target center to observer</vot:DESCRIPTION>
+      </vot:FIELD>
+      <vot:FIELD ID="vmag" name="VMag" datatype="double" width="7" precision="2" ucd="phot.mag" unit="mag">
+        <vot:DESCRIPTION>Apparent magnitude</vot:DESCRIPTION>
+      </vot:FIELD>
+      <vot:FIELD ID="phase" name="Phase" datatype="double" width="7" precision="2" ucd="pos.phaseAng" unit="deg">
+        <vot:DESCRIPTION>Phase angle</vot:DESCRIPTION>
+      </vot:FIELD>
+      <vot:FIELD ID="elong" name="Elong." datatype="double" width="8" precision="2" ucd="pos.angDistance" unit="deg">
+        <vot:DESCRIPTION>Sun elongation</vot:DESCRIPTION>
+      </vot:FIELD>
+      <vot:FIELD ID="dRAcosDEC" name="dRAcosDEC" datatype="double" width="12" precision="4" ucd="pos.eq.ra;arith.rate" unit="arcsec/min" ref="Ephemeris" utype="stc:AstroCoords.Velocity3D.C1">
+        <vot:DESCRIPTION>Component of proper motion in right ascension corrected for the declination</vot:DESCRIPTION>
+      </vot:FIELD>
+      <vot:FIELD ID="dDEC" name="dDEC" datatype="double" width="12" precision="4" ucd="pos.eq.dec;arith.rate" unit="arcsec/min" ref="Ephemeris" utype="stc:AstroCoords.Velocity3D.C2">
+        <vot:DESCRIPTION>Component of proper motion in declination</vot:DESCRIPTION>
+      </vot:FIELD>
+      <vot:FIELD ID="rv" name="RV" datatype="double" width="10" precision="5" ucd="phys.distance;arith.rate" unit="km/s">
+        <vot:DESCRIPTION>Radial velocity of target wrt observer</vot:DESCRIPTION>
+      </vot:FIELD>
+      <vot:DATA>
+        <vot:TABLEDATA>
+          <vot:TR>
+            <vot:TD>2025-04-08T02:36:37.153</vot:TD>
+            <vot:TD>+10 22 30.22549</vot:TD>
+            <vot:TD>+18 39 43.4505</vot:TD>
+            <vot:TD>4.782045321</vot:TD>
+            <vot:TD>20.69</vot:TD>
+            <vot:TD>7.78</vot:TD>
+            <vot:TD>131.94</vot:TD>
+            <vot:TD>-0.2772E+00</vot:TD>
+            <vot:TD>-0.1617E-01</vot:TD>
+            <vot:TD>13.26617</vot:TD>
+          </vot:TR>
+        </vot:TABLEDATA>
+      </vot:DATA>
+    </vot:TABLE>
+  </vot:RESOURCE>
 </vot:VOTABLE>
-
