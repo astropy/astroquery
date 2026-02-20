@@ -2,7 +2,6 @@
 import pytest
 import astropy.units as u
 from astropy.coordinates import SkyCoord
-from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from .. import Ogle
 
@@ -21,4 +20,3 @@ def test_ogle_list():
     response = Ogle.query_region(coord=co_list)
     assert len(response) == 3
     assert response['RA[hr]'][0] == response['RA[hr]'][1] == response['RA[hr]'][2]
-

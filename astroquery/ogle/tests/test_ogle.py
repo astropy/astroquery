@@ -5,7 +5,6 @@ import os
 import pytest
 from astropy.coordinates import SkyCoord
 from astropy import units as u
-from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from astroquery.utils.mocks import MockResponse
 
@@ -86,4 +85,3 @@ def test_ogle_multipointing_payload():
         conversions.append(f"{ra_str} {dec_str}")
     expected_payload = "# RD NG GOOD\n" + "\n".join(conversions)
     assert payload['file1'] == expected_payload
-

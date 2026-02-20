@@ -1,13 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 
-import warnings
 import functools
 import numpy as np
 from astropy.table import Table
 
 from ..query import BaseQuery
-from ..utils import commons, async_to_sync, prepend_docstr_nosections
+from ..utils import commons, async_to_sync
 
 from . import conf
 
@@ -53,8 +52,8 @@ class OgleClass(BaseQuery):
     coord_systems = ['RD', 'LB']
 
     @_validate_params
-    def _args_to_payload(self, *, coord=None, algorithm='NG', quality='GOOD',
-                         coord_sys='RD'):
+    def query_region_async(self, *, coord=None, algorithm='NG', quality='GOOD',
+                           coord_sys='RD', get_query_payload=False):
         """
         Query the OGLE-III interstellar extinction calculator.
 
@@ -66,8 +65,6 @@ class OgleClass(BaseQuery):
 
                 * single astropy coordinate instance
                 * list-like object (1 x N) of astropy coordinate instances
-                * list-like object (2 x N) of RA/Decs or Glon/Glat as strings
-                or  floats. (May not be supported in future versions.)
 
         algorithm : string
             Algorithm to interpolate data for desired coordinate.
@@ -89,9 +86,14 @@ class OgleClass(BaseQuery):
                 * 'RD': equatorial coordinates
                 * 'LB': Galactic coordinates.
 
+        get_query_payload : bool, optional
+            If `True` then returns the generated query payload.
+            Defaults to `False`.
+
         Returns
         -------
-        table : `~astropy.table.Table`
+        response : `requests.Response`
+            The HTTP response returned from the service.
 
         Raises
         ------
@@ -121,17 +123,6 @@ class OgleClass(BaseQuery):
                              zip(lon, lat)])
         file_data = query_header + sources
         files = {'file1': file_data}
-        return files
-
-    @prepend_docstr_nosections(_args_to_payload.__doc__)
-    def query_region_async(self, *args, get_query_payload=False, **kwargs):
-        """
-        Returns
-        -------
-        response : `requests.Response`
-            The HTTP response returned from the service.
-        """
-        files = self._args_to_payload(*args, **kwargs)
         if get_query_payload:
             return files
         # Make request
