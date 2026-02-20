@@ -53,16 +53,6 @@ def test_ogle_list(patch_post):
     ogle.core.Ogle.query_region(coord=co_list)
 
 
-def test_ogle_list_values(patch_post):
-    """
-    Test multiple pointings using a nested-list of decimal degree Galactic
-    coordinates
-    """
-    co_list = [[0, 0, 0], [3, 3, 3]]
-    with pytest.warns(AstropyDeprecationWarning):
-        ogle.core.Ogle.query_region(coord=co_list)
-
-
 def test_ogle_single_payload():
     """
     Test single pointing payload
@@ -97,17 +87,3 @@ def test_ogle_multipointing_payload():
     expected_payload = "# RD NG GOOD\n" + "\n".join(conversions)
     assert payload['file1'] == expected_payload
 
-
-def test_ogle_nested_list_payload(patch_post):
-    """
-    Test the payload of multiple pointings using a nested-list of decimal
-    degree Galactic coordinates
-    """
-    co_list = [[0, 0, 0], [3, 3, 3]]
-    expected_payload = '# RD NG GOOD\n0 3\n0 3\n0 3'
-    with pytest.warns(AstropyDeprecationWarning):
-        payload = ogle.core.Ogle.query_region(
-            coord=co_list,
-            get_query_payload=True
-        )
-        assert payload['file1'] == expected_payload
