@@ -121,32 +121,50 @@ addopts = ["--color=yes", "--doctest-rst", "--doctest-continue-on-failure"]
 timeout = 300
 filterwarnings = [
   "error",
-  "ignore:Use setlocale:DeprecationWarning",
-  "ignore: 'locale.getdefaultlocale' is deprecated and slated for removal:DeprecationWarning",
+# Ignore astroquery's own module reorganization deprecation warnings during testing
   "ignore:Importing from 'astroquery.jplspec' is deprecated:DeprecationWarning",
+#   These are temporary measures, all of these should be fixed:
+#   -----------------------------------------------------------
   "ignore:distutils Version classes are deprecated:DeprecationWarning",
+# Upstream issues in many packages, not clear whether we can do anything about these in astroquery
   "ignore:unclosed <socket.socket:ResourceWarning",
   "ignore:unclosed <ssl.SSLSocket:ResourceWarning",
+# Various VO warnings from vo_conesearch
   "ignore::astropy.io.votable.exceptions.W21",
   "ignore::astropy.io.votable.exceptions.W42",
+# utils.commons.FileContainer needs a refactor
   "ignore:FITS files must be read as binaries:astroquery.exceptions.InputWarning",
+# utils.commons.parse_coordinates, we should remove its usage:
   "ignore:Coordinate string is being interpreted as an ICRS coordinate:astroquery.exceptions.InputWarning",
   "ignore:Coordinate string is being interpreted as an ICRS coordinate:UserWarning",
+# To be removed with a fix for https://github.com/astropy/astroquery/issues/2242
   "ignore::astropy.io.votable.exceptions.E02",
+# Warnings from yet to be refactored or to be removed modules
   "ignore:Experimental. ALFALFA:UserWarning",
   "ignore:Experimental. Fermi-LAT:UserWarning", "ignore:Experimental. SHA:UserWarning",
   "ignore:Experimental. OGLE:UserWarning:",
+# Warnings from deprecated or known-to-be-broken modules. They have to be listed to make test collection work,
+# Can be removed once the modules are removed.
   "ignore:vamdclib could not be imported; the vamdc astroquery module will not work:UserWarning",
   "ignore:the vamdc astroquery module:astropy.utils.exceptions.AstropyDeprecationWarning",
+  # exoplanet_orbit_database
   "ignore:due to the retirement of its upstream website:astropy.utils.exceptions.AstropyDeprecationWarning",
+# Leap second update related warning
   "ignore:leap-second auto-update failed:astropy.utils.exceptions.AstropyWarning",
+# Should ignore these for astropy<5.0
   "ignore:getName|currentThread:DeprecationWarning:astropy",
+# Numpy 2.0 deprecations triggered by upstream libraries.
+# Exact warning messages differ, thus using a super generic filter.
   "ignore:numpy.core:DeprecationWarning",
+# SHA module deprecation/defunct
   "ignore:The upstream SHA API has been changed:UserWarning",
+# CDMS triggers this, but we don't use it directly
   "ignore: The 'strip_cdata' option of HTMLParser:DeprecationWarning",
+# Triggered in mast, likely boto related
   "ignore:datetime.datetime.utcnow\\(\\) is deprecated:DeprecationWarning",
+# CoverageWarnings triggered by one of the other plugins(?). Either case, explicitely
+# ignore it here to have passing test for pytest 8.4.
   "ignore:Module astroquery was previously imported, but not measured:coverage.exceptions.CoverageWarning",
-  "ignore:The chararray class is deprecated and will be removed in a future release:DeprecationWarning"
 ]
 markers = [
   "bigdata: marks tests that are expected to trigger a large download (deselect with '-m \"not bigdata\"')",
