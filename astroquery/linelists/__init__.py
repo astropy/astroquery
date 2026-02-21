@@ -5,3 +5,4 @@ Linelists module
 This module contains sub-modules to support molecular and atomic line list
 modules and common utilities for parsing catalog files.
 """
+from .exomol import ExoMol  # noqa: F401

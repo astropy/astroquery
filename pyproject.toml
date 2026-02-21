@@ -36,7 +36,6 @@ Documentation = "https://astroquery.readthedocs.io"
 test = [
    "pytest>=7.4",
    "pytest-doctestplus>=1.4",
-   "pytest-timeout",
    "pytest-astropy",
    "matplotlib",
    # Temp workaround for https://github.com/RKrahl/pytest-dependency/issues/91
@@ -118,7 +117,6 @@ text_file_format = "rst"
 xfail_strict = true
 remote_data_strict = true
 addopts = ["--color=yes", "--doctest-rst", "--doctest-continue-on-failure"]
-timeout = 300
 filterwarnings = [
   "error",
 # Ignore astroquery's own module reorganization deprecation warnings during testing
