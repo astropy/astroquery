@@ -146,7 +146,6 @@ filterwarnings = [
   "ignore: The 'strip_cdata' option of HTMLParser:DeprecationWarning",
   "ignore:datetime.datetime.utcnow\\(\\) is deprecated:DeprecationWarning",
   "ignore:Module astroquery was previously imported, but not measured:coverage.exceptions.CoverageWarning",
-  "ignore:The chararray class is deprecated and will be removed in a future release:DeprecationWarning"
 ]
 markers = [
   "bigdata: marks tests that are expected to trigger a large download (deselect with '-m \"not bigdata\"')",
