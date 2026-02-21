@@ -14,7 +14,7 @@ from astropy.table import Table
 from astroquery.query import BaseQuery
 from astroquery import log
 
-__all__ = ['ExoMol', 'ExoMolClass']
+__all__ = ["ExoMol", "ExoMolClass"]
 
 EXOMOL_URL = "https://www.exomol.com"
 
@@ -55,12 +55,12 @@ class ExoMolClass(BaseQuery):
             Sorted list of molecule names available in ExoMol.
         """
         url = f"{self.URL}/db/exomol.all"
-        response = self._request('GET', url, cache=cache, timeout=self.TIMEOUT)
+        response = self._request("GET", url, cache=cache, timeout=self.TIMEOUT)
         response.raise_for_status()
         molecules = []
         for line in response.text.splitlines():
             line = line.strip()
-            if line and not line.startswith('#'):
+            if line and not line.startswith("#"):
                 parts = line.split()
                 if parts:
                     molecules.append(parts[0])
@@ -86,13 +86,22 @@ class ExoMolClass(BaseQuery):
         """
         from radis.api.exomolapi import get_exomol_database_list
         from radis.api.exomolapi import get_exomol_full_isotope_name
+
         iso_name = get_exomol_full_isotope_name(molecule, 1)
         dbs, _ = get_exomol_database_list(molecule, iso_name)
         return dbs
 
-    def query_lines(self, molecule, database=None, isotopologue='1',
-                    load_wavenum_min=None, load_wavenum_max=None,
-                    broadening_species=None, *, cache=True):
+    def query_lines(
+        self,
+        molecule,
+        database=None,
+        isotopologue="1",
+        load_wavenum_min=None,
+        load_wavenum_max=None,
+        broadening_species=None,
+        *,
+        cache=True,
+    ):
         """
         Fetch ExoMol line list for a given molecule.
 
@@ -143,8 +152,10 @@ class ExoMolClass(BaseQuery):
         """
         from radis.io.exomol import fetch_exomol
 
-        log.info(f"Querying ExoMol for {molecule} "
-                 f"[{load_wavenum_min}-{load_wavenum_max} cm-1]")
+        log.info(
+            f"Querying ExoMol for {molecule} "
+            f"[{load_wavenum_min}-{load_wavenum_max} cm-1]"
+        )
 
         df = fetch_exomol(
             molecule=molecule,
@@ -152,14 +163,17 @@ class ExoMolClass(BaseQuery):
             isotope=isotopologue,
             load_wavenum_min=load_wavenum_min,
             load_wavenum_max=load_wavenum_max,
-            broadening_species=broadening_species if broadening_species is not None else "air",
+            broadening_species=broadening_species
+            if broadening_species is not None
+            else "air",
             cache=cache,
             verbose=False,
         )
         return Table.from_pandas(df)
 
-    def get_partition_function(self, molecule, database=None,
-                               isotopologue='1', *, cache=True):
+    def get_partition_function(
+        self, molecule, database=None, isotopologue="1", *, cache=True
+    ):
         """
         Get partition function Q(T) for a molecule from ExoMol.
 
