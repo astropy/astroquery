@@ -9,7 +9,8 @@ Run remote tests:   pytest tests/test_exomol.py -v --remote-data
 
 import pytest
 import numpy as np
-import pandas as pd
+
+pd = pytest.importorskip("pandas")
 from astropy.table import Table
 from astroquery.linelists.exomol import ExoMol
 
