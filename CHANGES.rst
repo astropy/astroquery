@@ -121,6 +121,12 @@ linelists
 - General tools for both CDMS/JPL moved to linelists.core [#3456]
 - Added jplspec, moved from its previous location (astroquery.jplspec to astroquery.linelists.jplspec) [#3455]
 
+ogle
+^^^^
+
+- Added ``get_query_payload`` kwarg to aid in debugging. [#3533]
+- Removed support for deprecated non-coordinate use in queries. [#3533]
+
 xmatch
 ^^^^^^
 
