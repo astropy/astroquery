@@ -257,6 +257,7 @@ The following modules have been completed using a common API:
   cadc/cadc.rst
   casda/casda.rst
   linelists/cdms/cdms.rst
+   linelists/exomol/exomol.rst
   esa/euclid/euclid.rst
   esa/hsa/hsa.rst
   esa/hubble/hubble.rst
