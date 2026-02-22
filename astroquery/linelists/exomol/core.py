@@ -30,11 +30,13 @@ class ExoMolClass(BaseQuery):
 
     Examples
     --------
-    >>> from astroquery.linelists.exomol import ExoMol
-    >>> result = ExoMol.query_lines('CO',
-    ...                             load_wavenum_min=2000,
-    ...                             load_wavenum_max=2100)
-    >>> print(result)
+    Query CO lines between 2000-2100 cm^-1::
+
+        from astroquery.linelists.exomol import ExoMol
+        result = ExoMol.query_lines('CO',
+                                    load_wavenum_min=2000,
+                                    load_wavenum_max=2100)
+        print(result)
     """
 
     URL = EXOMOL_URL
