@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Tests for astroquery.linelists.exomol
-Implements RADIS issue #925 — astroquery ExoMol module
+Implements RADIS issue #925 - astroquery ExoMol module
 
 Run offline tests:  pytest tests/test_exomol.py -v
 Run remote tests:   pytest tests/test_exomol.py -v --remote-data
@@ -9,22 +9,19 @@ Run remote tests:   pytest tests/test_exomol.py -v --remote-data
 
 import pytest
 import numpy as np
-
-pd = pytest.importorskip("pandas")
 from astropy.table import Table
 from astroquery.linelists.exomol import ExoMol
 
-
-# ============================================================
+# ===========================================================
 # FIXTURES
-# ============================================================
+# ===========================================================
 
 
 @pytest.fixture
 def fake_linelist_df():
-    """Fake ExoMol line list DataFrame for mocking."""
+    """Fake ExoMol line list Table for mocking."""
     rng = np.random.default_rng(42)
-    return pd.DataFrame(
+    return Table(
         {
             "wav": np.linspace(2000, 2100, 50),
             "int": rng.random(50),
@@ -37,8 +34,8 @@ def fake_linelist_df():
 
 @pytest.fixture
 def fake_pf_df():
-    """Fake partition function DataFrame for mocking."""
-    return pd.DataFrame(
+    """Fake partition function Table for mocking."""
+    return Table(
         {
             "T": np.arange(100, 3100, 100, dtype=float),
             "Q": np.linspace(10.0, 5000.0, 30),
@@ -46,9 +43,9 @@ def fake_pf_df():
     )
 
 
-# ============================================================
-# MOCKED TESTS — always run in CI (no network needed)
-# ============================================================
+# ===========================================================
+# MOCKED TESTS - always run in CI (no network needed)
+# ===========================================================
 
 
 def test_query_lines_returns_table(monkeypatch, fake_linelist_df):
@@ -116,10 +113,10 @@ def test_get_partition_function_returns_table(monkeypatch, fake_pf_df):
     assert "Q" in result.colnames
 
 
-# ============================================================
-# REMOTE TESTS — actual ExoMol network calls
+# ===========================================================
+# REMOTE TESTS - actual ExoMol network calls
 # Run with: pytest --remote-data
-# ============================================================
+# ===========================================================
 
 
 @pytest.mark.remote_data

@@ -171,7 +171,7 @@ class ExoMolClass(BaseQuery):
             cache=cache,
             verbose=False,
         )
-        return Table.from_pandas(df)
+        return df if isinstance(df, Table) else Table.from_pandas(df)
 
     def get_partition_function(
         self, molecule, database=None, isotopologue="1", *, cache=True
@@ -206,7 +206,7 @@ class ExoMolClass(BaseQuery):
             cache=cache,
             verbose=False,
         )
-        return Table.from_pandas(df)
+        return df if isinstance(df, Table) else Table.from_pandas(df)
 
 
 ExoMol = ExoMolClass()
