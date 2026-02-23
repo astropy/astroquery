@@ -8,7 +8,6 @@ Run remote tests:   pytest tests/test_exomol.py -v --remote-data
 """
 
 import pytest
-import sys
 import numpy as np
 from astropy.table import Table
 from astroquery.linelists.exomol import ExoMol
