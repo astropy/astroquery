@@ -12,6 +12,8 @@ import numpy as np
 from astropy.table import Table
 from astroquery.linelists.exomol import ExoMol
 
+radis = pytest.importorskip("radis", reason="radis required for exomol tests")
+
 # ===========================================================
 # FIXTURES
 # ===========================================================
