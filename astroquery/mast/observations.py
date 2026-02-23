@@ -18,7 +18,6 @@ from requests import HTTPError
 
 import astropy.units as u
 import astropy.coordinates as coord
-from botocore.exceptions import ClientError, BotoCoreError
 
 from astropy.table import Table, Row, vstack
 from astroquery import log
@@ -27,13 +26,17 @@ from astroquery.utils import commons
 
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
-from ..exceptions import (InvalidQueryError, RemoteServiceError, NoResultsWarning, InputWarning)
+from ..exceptions import (InvalidQueryError, RemoteServiceError, NoResultsWarning, InputWarning, CloudAccessWarning)
 
-from . import utils
+from . import utils, conf
 from .core import MastQueryWithLogin
 
-__all__ = ['Observations', 'ObservationsClass',
-           'MastClass', 'Mast']
+try:
+    from botocore.exceptions import ClientError, BotoCoreError
+except ImportError:
+    ClientError = BotoCoreError = ()
+
+__all__ = ['Observations', 'ObservationsClass', 'MastClass', 'Mast']
 
 
 @async_to_sync
@@ -50,6 +53,24 @@ class ObservationsClass(MastQueryWithLogin):
     _caom_filtered_position = 'Mast.Caom.Filtered.Position'
     _caom_filtered = 'Mast.Caom.Filtered'
     _caom_products = 'Mast.Caom.Products'
+
+    def __init__(self, mast_token=None):
+        super().__init__(mast_token)
+        self._cloud_enabled_explicitly = None  # Track whether cloud access was explicitly enabled by the user
+
+    def _ensure_cloud_access(self):
+        """Ensure cloud access is initialized if appropriate."""
+        # User explicitly disabled
+        if self._cloud_enabled_explicitly is False:
+            return
+
+        # Already initialized
+        if self._cloud_connection is not None:
+            return
+
+        # Default behavior is to enable cloud access if the config option is set, so we check that here
+        if self._cloud_enabled_explicitly is None and conf.enable_cloud_dataset:
+            self.enable_cloud_dataset(_internal=True)
 
     def _parse_result(self, responses, *, verbose=False):  # Used by the async_to_sync decorator functionality
         """
@@ -180,7 +201,7 @@ class ObservationsClass(MastQueryWithLogin):
 
         return position, mashup_filters
 
-    def enable_cloud_dataset(self, provider="AWS", profile=None, verbose=True):
+    def enable_cloud_dataset(self, provider="AWS", profile=None, verbose=True, *, _internal=False):
         """
         Enable downloading public files from S3 instead of MAST.
         Requires the boto3 library to function.
@@ -196,13 +217,21 @@ class ObservationsClass(MastQueryWithLogin):
             Default True.
             Logger to display extra info and warning.
         """
-        self._cloud_connection = CloudAccess(provider, profile, verbose)
+        try:
+            self._cloud_connection = CloudAccess(provider, profile, verbose)
+            if not _internal:
+                self._cloud_enabled_explicitly = True
+        except ImportError as e:
+            # boto3 or botocore is not installed
+            self._cloud_connection = None
+            warnings.warn(e.msg, CloudAccessWarning)
 
     def disable_cloud_dataset(self):
         """
         Disables downloading public files from S3 instead of MAST.
         """
         self._cloud_connection = None
+        self._cloud_enabled_explicitly = False
 
     @class_or_instance
     def query_region_async(self, coordinates, *, radius=0.2*u.deg, pagesize=None, page=None):
@@ -656,6 +685,9 @@ class ObservationsClass(MastQueryWithLogin):
         url : str
             The full url download path
         """
+        # Ensure cloud access is enabled
+        self._ensure_cloud_access()
+
         if not uri or not isinstance(uri, str):
             raise InvalidQueryError("A valid data product URI must be provided.")
 
@@ -693,8 +725,9 @@ class ObservationsClass(MastQueryWithLogin):
                                       NoResultsWarning)
                         return 'SKIPPED', None, None
 
-                    warnings.warn(f'The product {uri} was not found in the cloud. '
-                                  'Falling back to MAST download.', InputWarning)
+                    if self._cloud_enabled_explicitly:
+                        warnings.warn(f'The product {uri} was not found in the cloud. '
+                                      'Falling back to MAST download.', InputWarning)
                     self._download_file(escaped_url, local_path, cache=cache, head_safe=True, verbose=verbose)
                 except (ClientError, BotoCoreError) as ex:
                     # Should be in cloud, but download failed
@@ -703,8 +736,9 @@ class ObservationsClass(MastQueryWithLogin):
                                       NoResultsWarning)
                         return 'SKIPPED', None, None
 
-                    warnings.warn(f'Could not download {uri} from cloud: {ex}. Falling back to MAST download.',
-                                  InputWarning)
+                    if self._cloud_enabled_explicitly:
+                        warnings.warn(f'Could not download {uri} from cloud: {ex}. Falling back to MAST download.',
+                                      InputWarning)
                     self._download_file(escaped_url, local_path, cache=cache, head_safe=True, verbose=verbose)
             else:
                 if cloud_only:
@@ -771,7 +805,6 @@ class ObservationsClass(MastQueryWithLogin):
             status, msg, url = 'ERROR', None, None
 
             cloud_uri = cloud_uri_map.get(mast_uri) if cloud_uri_map else None
-
             if cloud_uri:
                 try:
                     self._cloud_connection.download_file_from_cloud(cloud_uri, local_path, cache, verbose)
@@ -784,8 +817,9 @@ class ObservationsClass(MastQueryWithLogin):
                         status = 'SKIPPED'
                         msg = str(ex)
                     else:
-                        warnings.warn(f'Could not download {cloud_uri} from cloud: {ex}. '
-                                      'Falling back to MAST download.', InputWarning)
+                        if self._cloud_enabled_explicitly:
+                            warnings.warn(f'Could not download {cloud_uri} from cloud: {ex}. '
+                                          'Falling back to MAST download.', InputWarning)
                         status, msg, url = self.download_file(mast_uri, local_path=local_path, cache=cache,
                                                               force_on_prem=True, verbose=verbose)
             else:
@@ -797,8 +831,9 @@ class ObservationsClass(MastQueryWithLogin):
                         status = 'SKIPPED'
                         msg = 'Product not found in cloud'
                     else:
-                        warnings.warn(f'The product {mast_uri} was not found in the cloud. '
-                                      'Falling back to MAST download.', InputWarning)
+                        if self._cloud_enabled_explicitly:
+                            warnings.warn(f'The product {mast_uri} was not found in the cloud. '
+                                          'Falling back to MAST download.', InputWarning)
                         status, msg, url = self.download_file(mast_uri, local_path=local_path, cache=cache,
                                                               force_on_prem=True, verbose=verbose)
                 else:
@@ -899,6 +934,9 @@ class ObservationsClass(MastQueryWithLogin):
         response : `~astropy.table.Table`
             The manifest of files downloaded, or status of files on disk if curl option chosen.
         """
+        # Ensure cloud access is enabled
+        self._ensure_cloud_access()
+
         # If the products list is a row we need to cast it as a table
         if isinstance(products, Row):
             products = Table(products, masked=True)
@@ -961,6 +999,9 @@ class ObservationsClass(MastQueryWithLogin):
         response : list
             List of dataset prefixes that support cloud data access.
         """
+        # Ensure cloud access is enabled
+        self._ensure_cloud_access()
+
         if self._cloud_connection is None:
             raise RemoteServiceError(
                 'Please enable anonymous cloud access by calling `enable_cloud_dataset` method. '
@@ -1027,6 +1068,8 @@ class ObservationsClass(MastQueryWithLogin):
             List of URIs generated from the data products. May contain entries that are None
             if data_products includes products not found in the cloud.
         """
+        # Ensure cloud access is enabled
+        self._ensure_cloud_access()
 
         if self._cloud_connection is None:
             raise RemoteServiceError(
@@ -1110,6 +1153,8 @@ class ObservationsClass(MastQueryWithLogin):
             Cloud URI generated from the data product. If the product cannot be
             found in the cloud, None is returned.
         """
+        # Ensure cloud access is enabled
+        self._ensure_cloud_access()
 
         if self._cloud_connection is None:
             raise RemoteServiceError(

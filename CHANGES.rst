@@ -98,6 +98,9 @@ mast
 - Added a new ``Observations.list_cloud_datasets()`` method for querying cloud-supported MAST datasets, alongside 
   improvements to cloud download handling. [#3488]
 
+- The cloud dataset in ``Observations`` is now enabled by default if the ``boto3`` and ``botocore`` packages are installed. This
+  default can be overridden by setting the ``enable_cloud_dataset`` configuration option to False. [#3534]
+
 jplspec
 ^^^^^^^
 

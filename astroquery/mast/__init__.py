@@ -29,6 +29,10 @@ class Conf(_config.ConfigNamespace):
     pagesize = _config.ConfigItem(
         50000,
         'Number of results to request at once from the STScI server.')
+    enable_cloud_dataset = _config.ConfigItem(
+        True,
+        'Enable access to cloud-hosted datasets (e.g. on AWS S3) by default. '
+        'Requires the ``boto3`` and ``botocore`` packages to be installed.')
 
 
 conf = Conf()

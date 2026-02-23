@@ -13,12 +13,22 @@ import threading
 from astroquery import log
 from astropy.utils.console import ProgressBarOrSpinner
 from astropy.utils.exceptions import AstropyDeprecationWarning
-from botocore.exceptions import ClientError, BotoCoreError
 
 from ..exceptions import RemoteServiceError, NoResultsWarning
 
 from . import utils
 
+try:
+    import boto3
+    HAS_BOTO3 = True
+except ImportError:
+    HAS_BOTO3 = False
+try:
+    import botocore
+    from botocore.exceptions import ClientError, BotoCoreError
+    HAS_BOTOCORE = True
+except ImportError:
+    HAS_BOTOCORE = False
 
 __all__ = []
 
@@ -44,14 +54,13 @@ class CloudAccess:  # pragma:no-cover
         verbose : bool
             Default False. Display extra info and warnings if true.
         """
+        if not HAS_BOTO3 or not HAS_BOTOCORE:
+            raise ImportError("Please install the `boto3` and `botocore` packages to enable cloud dataset access.")
 
         # Dealing with deprecated argument
         if profile is not None:
             warnings.warn(("MAST Open Data on AWS is now free to access and does "
                            "not require an AWS account"), AstropyDeprecationWarning)
-
-        import boto3
-        import botocore
 
         self.boto3 = boto3
         self.botocore = botocore
