@@ -61,6 +61,7 @@ all = [
    "boto3",
    "botocore",
    "regions>=0.5",
+    "radis",
 ]
 
 [build-system]
