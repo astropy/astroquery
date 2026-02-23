@@ -113,8 +113,8 @@ class SimbadClass(BaseVOQuery):
     """
     SIMBAD_URL = 'https://' + conf.server + '/simbad/sim-script'
 
-    def __init__(self, ROW_LIMIT=None, *, timeout=None):
-        super().__init__()
+    def __init__(self, ROW_LIMIT=None, *, timeout=None, extra_user_agents=None):
+        super().__init__(extra_user_agents=extra_user_agents)
         # to create the TAPService
         self._server = conf.server
         self._tap = None
@@ -792,15 +792,13 @@ class SimbadClass(BaseVOQuery):
         ...                              criteria="otype = 'Galaxy..' AND galdim_majaxis>8.5") # doctest: +REMOTE_DATA
         >>> result.sort("galdim_majaxis", reverse=True) # doctest: +REMOTE_DATA
         >>> result["main_id", "otype", "galdim_majaxis"] # doctest: +REMOTE_DATA
-        <Table length=5>
+        <Table length=3>
           main_id    otype  galdim_majaxis
                                 arcmin
            object    object    float32
         ------------ ------ --------------
         LEDA   41362    GiC           11.0
-               M  86    GiG          10.47
-        LEDA   40917    AG?           10.3
-               M  87    AGN           9.12
+               M  86    GiG        9.33669
            NGC  4438    LIN           8.91
 
         Notes
@@ -899,17 +897,18 @@ class SimbadClass(BaseVOQuery):
         >>> from astroquery.simbad import Simbad
         >>> simbad = Simbad()
         >>> simbad.ROW_LIMIT = 5
-        >>> simbad.query_catalog("GSC", criteria="pmra > 50 and pmra < 100") # doctest: +REMOTE_DATA
+        >>> result = simbad.query_catalog("GSC", criteria="pmra > 50 and pmra < 100") # doctest: +REMOTE_DATA
+        >>> result # doctest: +REMOTE_DATA
         <Table length=5>
             main_id            ra       ...     coo_bibcode        catalog_id
                               deg       ...
              object         float64     ...        object            object
         --------------- --------------- ... ------------------- ---------------
-              HD  26053  61.84326890626 ... 2020yCat.1350....0G GSC 04725-00973
         TYC 8454-1081-1 345.11163189562 ... 2020yCat.1350....0G GSC 08454-01081
+              HD  26053  61.84326890626 ... 2020yCat.1350....0G GSC 04725-00973
               HD  10158  24.86286094434 ... 2020yCat.1350....0G GSC 00624-00340
-            CD-22  1862  73.17988827324 ... 2020yCat.1350....0G GSC 05911-00222
             BD+02  4434 327.90220788982 ... 2020yCat.1350....0G GSC 00548-00194
+            CD-22  1862  73.17988827324 ... 2020yCat.1350....0G GSC 05911-00222
 
         Notes
         -----
@@ -978,11 +977,11 @@ class SimbadClass(BaseVOQuery):
         ...                                 hierarchy="parents")  # doctest: +REMOTE_DATA
         >>> parent[["main_id", "ra", "dec"]] # doctest: +REMOTE_DATA
         <Table length=1>
-         main_id     ra     dec
-                    deg     deg
-          object  float64 float64
-        --------- ------- -------
-        NGC  6705 282.766  -6.272
+         main_id          ra               dec
+                         deg               deg
+          object       float64           float64
+        --------- ----------------- ------------------
+        NGC  6705 282.7654166666666 -6.271666666666667
         """
         top, columns, joins, instance_criteria = self._get_query_parameters()
 
