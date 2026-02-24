@@ -23,6 +23,7 @@ from unittest.mock import patch
 import astropy.units as u
 import numpy as np
 import pytest
+import re
 from astropy.coordinates.sky_coordinate import SkyCoord
 from astropy.table import Column, Table
 from astropy.units import Quantity
@@ -516,6 +517,110 @@ def test_query_object_async(column_attrs, mock_querier_async, kwargs):
     for colname, attrs in column_attrs.items():
         assert table[colname].attrs_equal(attrs)
 
+def test_query_object_precision_debug(monkeypatch, mock_querier):
+    captured_query = {}
+
+    # Intercept call to launch_job so we can capture the generated query
+    def fake_launch_job(self, query, verbose=False):
+        captured_query["query"] = query
+
+        class FakeJob:
+            async_ = False
+            failed = False
+            def get_phase(self):
+                return "COMPLETED"
+            def get_results(self):
+                return Table({"x": [1]})
+        return FakeJob()
+
+    monkeypatch.setattr(GaiaClass, "launch_job", fake_launch_job)
+
+    # Use coordinates that produce predictable float values
+    coord = SkyCoord(ra=19 * u.deg, dec=20 * u.deg)
+    width = 12 * u.deg
+    height = 10 * u.deg
+
+    # Execute the query
+    mock_querier.query_object(coord, width=width, height=height)
+
+    query = captured_query.get("query")
+    assert query is not None
+
+    # Regex to detect floats with exactly 14 decimal digits
+    float14 = r"[0-9]+\.[0-9]{14}"
+    matches = re.findall(float14, query)
+
+    # -----------------------------
+    # Debug: print out everything
+    # -----------------------------
+    print("\n==== DEBUG: Generated query ====")
+    print(query)
+    print("==== DEBUG: Detected 14-decimal floats ====")
+    for m in matches:
+        print(m)
+    print("================================\n")
+
+    # At least RA, DEC, width and height should be formatted with 14 decimals
+    assert len(matches) == 6, (
+        f"Expected 6 float values with 14 decimals, "
+        f"found {len(matches)}. Query:\n{query}"
+    )
+
+def test_cone_search_precision_debug(monkeypatch, mock_querier):
+    """
+    Test that cone_search() builds a query containing RA, DEC and radius
+    formatted with 14 decimal places. This test also prints the captured
+    numbers for debugging purposes.
+    """
+
+    captured_query = {}
+
+    # Intercept launch_job to capture the generated SQL query
+    def fake_launch_job(self, query, output_file=None, output_format="votable_gzip",
+                        verbose=False, dump_to_file=False):
+        captured_query["query"] = query
+
+        class FakeJob:
+            async_ = False
+            failed = False
+            def get_phase(self):
+                return "COMPLETED"
+            def get_results(self):
+                return Table({"x": [1]})
+        return FakeJob()
+
+    monkeypatch.setattr(GaiaClass, "launch_job", fake_launch_job)
+
+    # Coordinates chosen to generate predictable floats
+    coord = SkyCoord(ra=19 * u.deg, dec=20 * u.deg)
+    radius = 1 * u.deg
+
+    # Run the cone search
+    job = mock_querier.cone_search(coord, radius=radius)
+    job.get_results()
+
+    query = captured_query.get("query")
+    assert query is not None
+
+    # Regex to detect floats with exactly 14 decimal digits
+    float14 = r"[0-9]+\.[0-9]{14}"
+    matches = re.findall(float14, query)
+
+    # -----------------------------
+    # Debug: output for inspection
+    # -----------------------------
+    print("\n==== DEBUG: Generated cone-search query ====")
+    print(query)
+    print("==== DEBUG: Detected 14-decimal floats ====")
+    for m in matches:
+        print(m)
+    print("============================================\n")
+
+    # We expect at least RA, DEC and radius in .14f format
+    assert len(matches) == 5, (
+        f"Expected 5 float values with 14 decimals, "
+        f"but found {len(matches)}. Query:\n{query}"
+    )
 
 def test_cone_search_sync(column_attrs, mock_querier):
     assert mock_querier.USE_NAMES_OVER_IDS is True
@@ -1608,3 +1713,4 @@ def test_logout(mock_logout):
     mock_logout.side_effect = HTTPError("Login error")
     tap.logout()
     assert (mock_logout.call_count == 3)
+
