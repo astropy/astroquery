@@ -13,9 +13,10 @@ from astropy.table import Table
 from astroquery.linelists.exomol import ExoMol
 
 try:
-    import radis
+    import radis  # noqa: F401
 except ImportError as e:
-    pytest.skip(f"radis required for exomol tests: {e}")
+    pytest.skip(f"radis required for exomol tests: {e}",
+                allow_module_level=True)
 
 # ===========================================================
 # FIXTURES
