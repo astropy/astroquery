@@ -29,11 +29,13 @@ List available molecules::
 
     molecules = ExoMol.get_molecule_list()  # doctest: +SKIP
     print(molecules[:10])  # doctest: +SKIP
+    ["1H-35Cl", "AlCl", "AlF", "AlH", "AlO", "BeH", "C2", "CH", "CH+", "CN"]
 
 Get available databases for a molecule::
 
     databases = ExoMol.get_databases('H2O')  # doctest: +SKIP
     print(databases)  # doctest: +SKIP
+    ["POKAZATEL", "HotWat78", "HITRAN2020"]
 
 Query CO line list in a wavenumber range::
 
@@ -43,8 +45,18 @@ Query CO line list in a wavenumber range::
         load_wavenum_max=2100,
     )
     print(result)  # doctest: +SKIP
+    <Table length=...>
+      wav        int
+    float64   float64
+    --------  --------
+    2000.001  1.23e-25
 
 Get partition function Q(T)::
 
     pf = ExoMol.get_partition_function('CO')
     print(pf)  # doctest: +SKIP
+    <Table length=...>
+      T        Q
+    float64 float64
+    ------- -------
+      100.0   12.345
