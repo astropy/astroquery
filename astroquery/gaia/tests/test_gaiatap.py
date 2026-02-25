@@ -517,6 +517,7 @@ def test_query_object_async(column_attrs, mock_querier_async, kwargs):
     for colname, attrs in column_attrs.items():
         assert table[colname].attrs_equal(attrs)
 
+
 def test_query_object_precision_debug(monkeypatch, mock_querier):
     captured_query = {}
 
@@ -527,8 +528,10 @@ def test_query_object_precision_debug(monkeypatch, mock_querier):
         class FakeJob:
             async_ = False
             failed = False
+
             def get_phase(self):
                 return "COMPLETED"
+
             def get_results(self):
                 return Table({"x": [1]})
         return FakeJob()
@@ -566,6 +569,7 @@ def test_query_object_precision_debug(monkeypatch, mock_querier):
         f"found {len(matches)}. Query:\n{query}"
     )
 
+
 def test_cone_search_precision_debug(monkeypatch, mock_querier):
     """
     Test that cone_search() builds a query containing RA, DEC and radius
@@ -583,8 +587,10 @@ def test_cone_search_precision_debug(monkeypatch, mock_querier):
         class FakeJob:
             async_ = False
             failed = False
+
             def get_phase(self):
                 return "COMPLETED"
+
             def get_results(self):
                 return Table({"x": [1]})
         return FakeJob()
@@ -621,6 +627,7 @@ def test_cone_search_precision_debug(monkeypatch, mock_querier):
         f"Expected 5 float values with 14 decimals, "
         f"but found {len(matches)}. Query:\n{query}"
     )
+
 
 def test_cone_search_sync(column_attrs, mock_querier):
     assert mock_querier.USE_NAMES_OVER_IDS is True
@@ -1713,4 +1720,3 @@ def test_logout(mock_logout):
     mock_logout.side_effect = HTTPError("Login error")
     tap.logout()
     assert (mock_logout.call_count == 3)
-

@@ -57,6 +57,7 @@ gaia
 
 - New datalink DR4 retrieval type RESIDUAL_IMAGE. [#3489]
 - The method ``load_data`` parses ecsv files [#3500].
+- Fixed decimal precision for query_object and cone_search to use 14 decimal places [#3539].
 
 esa.hubble
 ^^^^^^^^^^
