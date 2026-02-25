@@ -389,4 +389,3 @@ class TestEmdsTap:
         with pytest.raises(ValueError) as err:
             epsa.download_product("dummy_file")
         assert 'OBSCORE_TABLE is not configured for EinsteinProbe.' in err.value.args[0]
-
