@@ -267,7 +267,6 @@ The following modules have been completed using a common API:
   esa/jwst/jwst.rst
   esa/xmm_newton/xmm_newton.rst
   esasky/esasky.rst
-  esa/utils/utils.rst
   eso/eso.rst
   image_cutouts/first/first.rst
   gaia/gaia.rst
@@ -444,6 +443,7 @@ above categories. Those services are here:
   jplsbdb/jplsbdb.rst
   nasa_ads/nasa_ads.rst
   solarsystem/neodys/neodys.rst
+  esa/utils/utils.rst
   utils/tap.rst
 
 

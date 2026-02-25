@@ -349,3 +349,44 @@ class TestEmdsTap:
             cols = kwargs["columns"]
             assert "filename" in cols
             assert "filepath" in cols
+
+    def test_download_file(self):
+        epsa = EinsteinProbeClass()
+
+        with patch.object(EinsteinProbeClass, "query_table", autospec=True) as qmock:
+            epsa.get_products(obs_id="OBS123")
+
+            _, kwargs = qmock.call_args
+            cols = kwargs["columns"]
+            assert "filename" in cols
+            assert "filepath" in cols
+
+    @patch("astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities", [])
+    @patch("astroquery.esa.utils.utils.pyvo.auth.authsession.AuthSession.get")
+    def test_download_method_from_utils(self, mock_get):
+        epsa = EinsteinProbeClass()
+        epsa.download_product("dummy_file")
+
+        mock_get.assert_called_once_with('https://emds.esac.esa.int/service/data?', stream=True,
+                                         params={'retrieval_type': 'PRODUCT',
+                                                 'QUERY': "SELECT filepath, filename FROM "
+                                                          "einsteinprobe.obscore_extended WHERE "
+                                                          "filename = 'dummy_file'",
+                                                 'TAPCLIENT': 'ASTROQUERY'})
+
+    @patch("astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities", [])
+    @patch("astroquery.esa.utils.utils.pyvo.auth.authsession.AuthSession.get", None)
+    def test_missing_parameters(self):
+        epsa = EinsteinProbeClass()
+        epsa.conf.EMDS_DATA_SERVER = None
+        epsa.conf.OBSCORE_TABLE = None
+
+        with pytest.raises(ValueError) as err:
+            epsa.download_product("dummy_file")
+        assert 'Data server URL is not configured (EMDS_DATA_SERVER).' in err.value.args[0]
+        epsa.conf.EMDS_DATA_SERVER = 'dummyURL'
+
+        with pytest.raises(ValueError) as err:
+            epsa.download_product("dummy_file")
+        assert 'OBSCORE_TABLE is not configured for EinsteinProbe.' in err.value.args[0]
+

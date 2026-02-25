@@ -30,4 +30,4 @@ Reference/API
 =============
 
 .. automodapi:: astroquery.esa.utils
-    :members:
+    :no-inheritance-diagram:
