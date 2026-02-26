@@ -471,14 +471,14 @@ class EsoClass(QueryWithLogin):
                           "SELECT t1.cat_id "
                           "FROM TAP_SCHEMA.tables t1 "
                           "LEFT JOIN TAP_SCHEMA.tables t2 ON (t1.title = t2.title AND t1.version < t2.version) "
-                          "WHERE t2.title IS NULL)")
+                          "WHERE t2.title IS NULL) ")
 
         query_str += "ORDER BY table_name"
 
         res = self.query_tap(query_str.strip(), which_tap="tap_cat")
-        # to be compatable with TAP1.0 and TAP1.1 
+        # to be compatable with TAP1.0 and TAP1.1
         res = [table_name.removeprefix(f"{schema}.") for table_name in res["table_name"]]
-        return res 
+        return res
 
     def _query_on_allowed_values(
         self,
@@ -1221,7 +1221,7 @@ class EsoClass(QueryWithLogin):
         column_filters = column_filters if column_filters else {}
 
         schema = _EsoNames.catalogue_schema
-        # to be compatable with TAP1.0 and TAP1.1 
+        # to be compatable with TAP1.0 and TAP1.1
         table_name = catalogue if catalogue.startswith(f"{schema}.") else f"{schema}.{catalogue}"
 
         with self._temporary_row_limit(ROW_LIMIT):
