@@ -333,7 +333,7 @@ class MastMissionsClass(MastQueryWithLogin):
 
     @class_or_instance
     @deprecated_renamed_argument('objectname', 'object_names', since='0.4.11')
-    def query_criteria_async(self, *, coordinates=None, object_names=None, objectname=None, radius=3*u.arcmin,
+    def query_criteria_async(self, *, coordinates=None, object_names=None, radius=3*u.arcmin,
                              limit=5000, offset=0, select_cols=None, resolver=None, **criteria):
         """
         Given a set of search criteria, returns a list of mission metadata.
@@ -350,9 +350,7 @@ class MastMissionsClass(MastQueryWithLogin):
             - A single object name string
             - A comma-separated string of object names (e.g., "M31, M51, NGC 1234")
             - An iterable of object name strings
-            If both `coordinates` and `object_names` are provided, they are combined.
-        objectname : str, deprecated
-            Deprecated alias for `object_names`.
+            If both ``coordinates`` and ``object_names`` are provided, they are combined.
         radius : str or `~astropy.units.Quantity` object
             Default is 3 arcminutes. The radius around the coordinates to search within.
             The string must be parsable by `~astropy.coordinates.Angle`. The
@@ -476,7 +474,7 @@ class MastMissionsClass(MastQueryWithLogin):
 
     @class_or_instance
     @deprecated_renamed_argument('objectname', 'object_names', since='0.4.11')
-    def query_object_async(self, object_names, *, objectname=None, radius=3*u.arcmin, limit=5000, offset=0,
+    def query_object_async(self, object_names, *, radius=3*u.arcmin, limit=5000, offset=0,
                            select_cols=None, resolver=None, **criteria):
         """
         Given an object name (or names), returns a list of matching rows.
@@ -488,9 +486,7 @@ class MastMissionsClass(MastQueryWithLogin):
             - A single object name string
             - A comma-separated string of object names (e.g., "M31, M51, NGC 1234")
             - An iterable of object name strings
-            If both `coordinates` and `object_names` are provided, they are combined.
-        objectname : str, deprecated
-            Deprecated alias for `object_names`.
+            If both ``coordinates`` and ``object_names`` are provided, they are combined.
         radius : str or `~astropy.units.Quantity` object, optional
             Default is 3 arcminutes. The radius around the coordinates to search within.
             The string must be parsable by `~astropy.coordinates.Angle`. The
