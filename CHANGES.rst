@@ -98,6 +98,10 @@ mast
 - Added a new ``Observations.list_cloud_datasets()`` method for querying cloud-supported MAST datasets, alongside 
   improvements to cloud download handling. [#3488]
 
+- ``MastMissions`` query functions now support single or multiple targets via ``coordinates`` and
+  ``object_names`` (including combined use in ``query_criteria``). The legacy ``objectname`` keyword
+  is deprecated in favor of ``object_names``. [#3540]
+
 jplspec
 ^^^^^^^
 

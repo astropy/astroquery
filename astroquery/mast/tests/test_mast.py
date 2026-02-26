@@ -277,13 +277,6 @@ def test_missions_query_criteria(patch_post):
     assert isinstance(result, Table)
     assert len(result) > 0
 
-    # Raise error if non-positional criteria is not supplied
-    with pytest.raises(InvalidQueryError):
-        MastMissions.query_criteria(
-            coordinates=regionCoords,
-            radius=3
-        )
-
     # Raise error if invalid criteria is supplied
     with pytest.raises(InvalidQueryError):
         MastMissions.query_criteria(
@@ -348,6 +341,55 @@ def test_missions_parse_select_cols(patch_post):
     ullyses_cols = ullyses_mission._parse_select_cols(None)
     for col in MastMissions._default_ullyses_cols:
         assert col in ullyses_cols
+
+
+def test_missions_parse_multiple_targets(patch_post):
+    # Single coordinate object
+    coord = SkyCoord(10.684, 41.269, unit='deg')
+    result = MastMissions._parse_multiple_targets(coordinates=coord)
+    assert result == ['10.684 41.269']
+
+    # Single coordinate string
+    result = MastMissions._parse_multiple_targets(coordinates="10.684 41.269")
+    assert result == ['10.684 41.269']
+
+    # List of coordinate objects
+    coords = [SkyCoord(10.684, 41.269, unit='deg'), SkyCoord(83.6331, 22.0145, unit='deg')]
+    result = MastMissions._parse_multiple_targets(coordinates=coords)
+    assert result == ['10.684 41.269', '83.6331 22.0145']
+
+    # String list of coordinates
+    coords_str = "10.684 41.269, 83.6331 22.0145"
+    result = MastMissions._parse_multiple_targets(coordinates=coords_str)
+    assert result == ['10.684 41.269', '83.6331 22.0145']
+
+    # Single object name
+    result = MastMissions._parse_multiple_targets(object_names="M101")
+    assert result == ['210.802429 54.34875']
+
+    # List of object names
+    result = MastMissions._parse_multiple_targets(object_names=["M101", "M1"])
+    assert result == ['210.802429 54.34875', '83.6324 22.0174']
+
+    # Both coordinates and object names provided
+    result = MastMissions._parse_multiple_targets(coordinates="10.684 41.269", object_names="M101")
+    assert result == ['10.684 41.269', '210.802429 54.34875']
+
+    # No targets provided
+    with pytest.raises(InvalidQueryError, match="No targets were provided."):
+        result = MastMissions._parse_multiple_targets()
+
+    # Number of targets exceeds maximum
+    with pytest.raises(InvalidQueryError, match="Too many input targets provided."):
+        MastMissions._parse_multiple_targets(coordinates=["10.684 41.269"] * 101)
+
+    # Invalid object name
+    with pytest.warns(InputWarning, match='Could not resolve "invalid_object".'):
+        MastMissions._parse_multiple_targets(object_names=["M1", "invalid_object"])
+
+    # Only invalid object names
+    with pytest.raises(ResolverError, match='Could not resolve "invalid_object"'):
+        MastMissions._parse_multiple_targets(object_names=["invalid_object"])
 
 
 def test_missions_get_product_list_async(patch_post):

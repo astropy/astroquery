@@ -151,7 +151,7 @@ class TestMast:
         assert (result['sci_aec'] == 'S').all()
 
         # Positional criteria search
-        result = MastMissions.query_criteria(objectname='NGC6121',
+        result = MastMissions.query_criteria(object_names='NGC6121',
                                              radius=0.1,
                                              sci_start_time='<2012',
                                              sci_actual_duration='0..200',
@@ -162,10 +162,12 @@ class TestMast:
         assert (result['sci_start_time'] < '2012').all()
         assert ((result['sci_actual_duration'] >= 0) & (result['sci_actual_duration'] <= 200)).all()
 
-        # Raise error if a non-positional criterion is not supplied
-        with pytest.raises(InvalidQueryError):
-            MastMissions.query_criteria(coordinates="245.89675 -26.52575",
-                                        radius=1)
+        # Search with multiple positional inputs
+        coord = SkyCoord(245.89675, -26.52575, unit='deg')
+        result = MastMissions.query_criteria(coordinates=[coord, "205.54842 28.37728"],
+                                             object_names=["M2", "M9"],
+                                             radius=0.1)
+        assert len(set(result['search_pos'])) == 4  # Should have four different search positions
 
         # Raise error if invalid input is given
         with pytest.raises(InvalidQueryError):
