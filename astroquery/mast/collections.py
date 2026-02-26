@@ -192,7 +192,8 @@ class CatalogsClass(MastQueryWithLogin):
                                  'and will be removed in a future release. Please use `limit` instead.')
     @deprecated_renamed_argument('page', None, since='0.4.12', message='The `page` argument is deprecated '
                                  'and will be removed in a future release. Please use `offset` instead.')
-    def query_criteria(self, collection=None, *, catalog=None, coordinates=None, region=None, objectname=None,
+    @deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
+    def query_criteria(self, collection=None, *, catalog=None, coordinates=None, region=None, object_name=None,
                        radius=0.2*u.deg, resolver=None, limit=5000, offset=0, count_only=False, select_cols=None,
                        sort_by=None, sort_desc=False, filters={}, version=None, pagesize=None, page=None, **criteria):
         """
@@ -320,9 +321,9 @@ class CatalogsClass(MastQueryWithLogin):
             if region:
                 adql_region = self._create_adql_region(region)
             if object_name or coordinates:  # Cone search
-                coordinates = utils.parse_input_location(
-                    coordinates=coordinates, object_name=object_name, resolver=resolver
-                )
+                coordinates = utils.parse_input_location(coordinates=coordinates,
+                                                         objectname=object_name,
+                                                         resolver=resolver)
                 radius = coord.Angle(radius, u.deg)  # If radius is just a number we assume degrees
                 adql_region = f"CIRCLE('ICRS', {coordinates.ra.deg}, {coordinates.dec.deg}, {radius.to(u.deg).value})"
 
@@ -490,7 +491,8 @@ class CatalogsClass(MastQueryWithLogin):
                                  'and will be removed in a future release. Please use `limit` instead.')
     @deprecated_renamed_argument('page', None, since='0.4.12', message='The `page` argument is deprecated '
                                  'and will be removed in a future release. Please use `offset` instead.')
-    def query_object(self, objectname, *, radius=0.2*u.deg, collection=None, catalog=None, resolver=None,
+    @deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
+    def query_object(self, object_name, *, radius=0.2*u.deg, collection=None, catalog=None, resolver=None,
                      limit=5000, offset=0, count_only=False, select_cols=None, sort_by=None, sort_desc=False,
                      filters={}, version=None, pagesize=None, page=None, **criteria):
         """
@@ -559,7 +561,7 @@ class CatalogsClass(MastQueryWithLogin):
 
         return self.query_criteria(collection=collection,
                                    catalog=catalog,
-                                   objectname=objectname,
+                                   object_name=object_name,
                                    radius=radius,
                                    resolver=resolver,
                                    limit=limit,
