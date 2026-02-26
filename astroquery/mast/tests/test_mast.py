@@ -13,6 +13,7 @@ import numpy as np
 import pytest
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
+from astropy.io.votable import parse
 from astropy.table import Table, unique
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from pyvo.dal import TAPResults
