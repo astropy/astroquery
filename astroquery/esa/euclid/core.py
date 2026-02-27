@@ -1316,8 +1316,8 @@ class EuclidClass(TapPlus):
         Parameters
         ----------
         file_name : str, optional, default None
-            file name for the product. Can be a single string, o or a single string with multiple file names separated
-            by commas, or a list of file name strings. Either file_name or product_id is mandatory
+            file name for the product. Can be a single string, including multiple file names separated
+            by commas, or a list of file name strings. Either file_name or product_id is mandatory.
         product_id : str, optional, default None
             product id. More than one can be specified between comma. Either file_name or product_id is mandatory
         schema : str, optional, default 'sedm'
