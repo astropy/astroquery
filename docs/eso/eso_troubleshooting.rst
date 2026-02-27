@@ -40,7 +40,7 @@ Filtering between two dates
     >>> column_filters = {
     ...    "stime": "2024-01-01 12:00:00",
     ...    "etime": "2024-01-03 12:00:00"
-    ...}
+    ...    }
 
 ✅ Correct (TAP-compliant syntax using 'exp_start')
 
