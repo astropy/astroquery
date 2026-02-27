@@ -21,10 +21,10 @@ esa.euclid
   ``datalabs_path``, ``file_name`` and ``hdu_index``. [#3438]
 - The default value of the parameter ``output_format`` in the the methods ``launch_job``, ``launch_job_async`` and
   ``cone_search`` is changed to "votable_gzip". [#3497]
-
-
 - Methods ``cone_search`` and ``cross_match_basic`` now define the  parameters ``table_name`` and ``ra_column_name`` and
   ``dec_column_name`` independently [#3496]
+- The method ``get_spectrum`` accepts the new parameter ``linking_parameter`` to retrieve the spectra by source_id and
+  sourcepatch_id [#3543]
 
 vizier
 ^^^^^^
