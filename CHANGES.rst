@@ -144,7 +144,7 @@ xmatch
 eso
 ^^^
 
-- Complete overhaul of the docs/eso/ [#11]
+- Complete overhaul of the docs/eso/ [#3542]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
