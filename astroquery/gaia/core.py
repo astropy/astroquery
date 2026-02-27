@@ -518,7 +518,7 @@ class GaiaClass(TapPlus):
                       {row_limit}
                       DISTANCE(
                         POINT('ICRS', {ra_column}, {dec_column}),
-                        POINT('ICRS', {ra}, {dec})
+                        POINT('ICRS', {ra:.14f}, {dec:.14f})
                       ) as dist,
                       {columns}
                     FROM
@@ -528,10 +528,10 @@ class GaiaClass(TapPlus):
                         POINT('ICRS', {ra_column}, {dec_column}),
                         BOX(
                           'ICRS',
-                          {ra},
-                          {dec},
-                          {width},
-                          {height}
+                          {ra:.14f},
+                          {dec:.14f},
+                          {width:.14f},
+                          {height:.14f}
                         )
                       )
                     ORDER BY
@@ -664,14 +664,14 @@ class GaiaClass(TapPlus):
                   {columns},
                   DISTANCE(
                     POINT('ICRS', {ra_column}, {dec_column}),
-                    POINT('ICRS', {ra}, {dec})
+                    POINT('ICRS', {ra:.14f}, {dec:.14f})
                   ) AS dist
                 FROM
                   {table_name}
                 WHERE
                   1 = CONTAINS(
                     POINT('ICRS', {ra_column}, {dec_column}),
-                    CIRCLE('ICRS', {ra}, {dec}, {radius})
+                    CIRCLE('ICRS', {ra:.14f}, {dec:.14f}, {radius:.14f})
                   )
                 ORDER BY
                   dist ASC
