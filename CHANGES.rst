@@ -141,6 +141,10 @@ xmatch
 
 - change url of xmatch to use the new CDS domain name [#3465]
 
+eso
+^^^
+
+- Complete overhaul of the docs/eso/ [#11]
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------
