@@ -839,6 +839,58 @@ def test_get_product():
     remove_temp_dir()
 
 
+@patch.object(TapPlus, 'load_data')
+def test_get_product_with_list_of_filenames(mock_load_data, tmp_path_factory):
+    """
+    Test that get_product accepts a list for file_name and converts it into
+    a comma-separated string, while ensuring a real output file exists so
+    __extract_file doesn't fail.
+    """
+
+    # Set up the enviornment
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+
+    responseLaunchJob = DummyResponse(200)
+    responseLaunchJob.set_data(method='POST', context=None, body='', headers=None)
+    conn_handler.set_default_response(responseLaunchJob)
+
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+
+    # Mock: create the file
+    def _fake_load_data(*args, **kwargs):
+        output_file = kwargs.get("output_file")
+        # Create a dummy fits and directory
+        of = Path(output_file)
+        of.parent.mkdir(parents=True, exist_ok=True)
+        of.write_bytes(b"SIMPLE  =                    T\nEND\n")
+        return None
+
+    mock_load_data.side_effect = _fake_load_data
+
+    # Input a as file names list
+    filenames = ["file1.fits", "file2.fits", "file3.fits", "file4.fits"]
+
+    # Force an output name with .fits so that the extractor treats it as 1 file
+    out_dir = tmp_path_factory.mktemp("euclid_tmp")
+    output_file = str(out_dir / "dummy.fits")
+
+    result = tap.get_product(file_name=filenames, output_file=output_file)
+
+    # Must return a list of files (at least the one we created)
+    assert result is not None
+    assert isinstance(result, list)
+    assert len(result) >= 1
+    assert result[0].endswith(".fits")
+
+    # Verify that FILE_NAME is correct
+    kwargs = mock_load_data.call_args.kwargs
+    params_dict = kwargs.get("params_dict")
+    assert params_dict["FILE_NAME"] == "file1.fits,file2.fits,file3.fits,file4.fits"
+    assert params_dict["RETRIEVAL_TYPE"] == "FILE"
+
+
 def test_get_product_exceptions():
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',

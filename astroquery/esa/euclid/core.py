@@ -1316,8 +1316,8 @@ class EuclidClass(TapPlus):
         Parameters
         ----------
         file_name : str, optional, default None
-            file name for the product. More than one can be specified between comma. Either file_name or product_id
-            is mandatory
+            file name for the product. Can be a single string, including multiple file names separated
+            by commas, or a list of file name strings. Either file_name or product_id is mandatory.
         product_id : str, optional, default None
             product id. More than one can be specified between comma. Either file_name or product_id is mandatory
         schema : str, optional, default 'sedm'
@@ -1344,6 +1344,9 @@ class EuclidClass(TapPlus):
 
         if file_name is None and product_id is None:
             raise ValueError("'file_name' and 'product_id' are both None")
+
+        if isinstance(file_name, (list, tuple)):
+            file_name = ",".join(file_name)
 
         params_dict = {'TAPCLIENT': 'ASTROQUERY', 'RELEASE': schema}
 

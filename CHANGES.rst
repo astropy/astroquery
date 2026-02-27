@@ -26,6 +26,9 @@ esa.euclid
 - Methods ``cone_search`` and ``cross_match_basic`` now define the  parameters ``table_name`` and ``ra_column_name`` and
   ``dec_column_name`` independently [#3496]
 
+- Method ``get_product`` now supports the input file_name as a Python list (e.g. ["file1.fits", "file2.fits"]) while 
+  still accepting the original comma separated string format. [#3541]
+
 vizier
 ^^^^^^
 
