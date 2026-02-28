@@ -59,7 +59,7 @@ def test_query_lines_returns_table(monkeypatch, fake_linelist_df):
     monkeypatch.setattr(
         "radis.io.exomol.fetch_exomol", lambda *a, **kw: fake_linelist_df
     )
-    result = ExoMol.query_lines("CO", load_wavenum_min=2000, load_wavenum_max=2100)
+    result = ExoMol.query_lines("CO", wavenum_min=2000, wavenum_max=2100)
     assert isinstance(result, Table)
     assert len(result) == 50
 
@@ -69,7 +69,7 @@ def test_query_lines_columns(monkeypatch, fake_linelist_df):
     monkeypatch.setattr(
         "radis.io.exomol.fetch_exomol", lambda *a, **kw: fake_linelist_df
     )
-    result = ExoMol.query_lines("CO", load_wavenum_min=2000, load_wavenum_max=2100)
+    result = ExoMol.query_lines("CO", wavenum_min=2000, wavenum_max=2100)
     for col in ["wav", "int", "A", "El", "Eu"]:
         assert col in result.colnames, f"Missing column: {col}"
 
@@ -84,7 +84,7 @@ def test_query_lines_broadening_str(monkeypatch, fake_linelist_df):
 
     monkeypatch.setattr("radis.io.exomol.fetch_exomol", mock_fetch)
     result = ExoMol.query_lines(
-        "CO", load_wavenum_min=2000, load_wavenum_max=2100, broadening_species="H2"
+        "CO", wavenum_min=2000, wavenum_max=2100, broadening_species="H2"
     )
     assert isinstance(result, Table)
     assert captured["broadening_species"] == "H2"
@@ -102,8 +102,8 @@ def test_query_lines_broadening_list(monkeypatch, fake_linelist_df):
     result = ExoMol.query_lines(
         "H2O",
         database="POKAZATEL",
-        load_wavenum_min=1000,
-        load_wavenum_max=1100,
+        wavenum_min=1000,
+        wavenum_max=1100,
         broadening_species=["H2", "He"],
     )
     assert isinstance(result, Table)
@@ -152,8 +152,8 @@ def test_query_lines_CO_remote():
         warnings.simplefilter("ignore")
         result = ExoMol.query_lines(
             molecule="CO",
-            load_wavenum_min=2000,
-            load_wavenum_max=2100,
+            wavenum_min=2000,
+            wavenum_max=2100,
         )
         gc.collect()
     assert isinstance(result, Table)
@@ -170,8 +170,8 @@ def test_query_lines_CO_with_H2_broadening_remote():
         warnings.simplefilter("ignore")
         result = ExoMol.query_lines(
             molecule="CO",
-            load_wavenum_min=2000,
-            load_wavenum_max=2050,
+            wavenum_min=2000,
+            wavenum_max=2050,
             broadening_species="H2",
         )
         gc.collect()

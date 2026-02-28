@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 ExoMol database query module for astroquery.
-Wraps RADIS ExoMol reader (radis.io.exomol) into astroquery BaseQuery pattern.
+Queries the ExoMol database directly via its API.
 
 References
 ----------
@@ -10,9 +10,10 @@ https://www.exomol.com
 RADIS: https://github.com/radis/radis (issue #925)
 """
 
+from astropy import units as u
 from astropy.table import Table
 from astroquery.query import BaseQuery
-from astroquery import log
+from astropy import log
 
 __all__ = ["ExoMol", "ExoMolClass"]
 
@@ -24,18 +25,30 @@ class ExoMolClass(BaseQuery):
     Queries the `ExoMol <https://www.exomol.com>`_ database for molecular
     line lists used in exoplanet atmosphere modelling.
 
-    This module wraps the RADIS ExoMol reader (``radis.io.exomol``) and
-    exposes it via the standard astroquery ``BaseQuery`` interface, returning
-    ``astropy.table.Table`` objects.
+    This module queries ExoMol directly and optionally uses RADIS
+    (``radis``) for line list fetching via :meth:`query_lines`.
+
+    .. note::
+
+       The :meth:`query_lines` and :meth:`get_partition_function` methods
+       require `RADIS <https://radis.readthedocs.io>`_ as an optional
+       dependency. Install it with::
+
+           pip install radis
+
+       All other methods (``get_molecule_list``, ``get_databases``)
+       work without RADIS.
 
     Examples
     --------
-    Query CO lines between 2000-2100 cm^-1::
+    Query CO lines between 2000-2100 cm\\ :sup:`-1`::
 
+        from astropy import units as u
         from astroquery.linelists.exomol import ExoMol
+
         result = ExoMol.query_lines('CO',
-                                    load_wavenum_min=2000,
-                                    load_wavenum_max=2100)
+                                    wavenum_min=2000*u.cm**-1,
+                                    wavenum_max=2100*u.cm**-1)
         print(result)
     """
 
@@ -98,8 +111,8 @@ class ExoMolClass(BaseQuery):
         molecule,
         database=None,
         isotopologue="1",
-        load_wavenum_min=None,
-        load_wavenum_max=None,
+        wavenum_min=None,
+        wavenum_max=None,
         broadening_species=None,
         *,
         cache=True,
@@ -116,10 +129,10 @@ class ExoMolClass(BaseQuery):
             If ``None``, uses the ExoMol-recommended database.
         isotopologue : str, optional
             Isotopologue number. Default ``'1'`` (most abundant).
-        load_wavenum_min : float, optional
-            Minimum wavenumber in cm^-1.
-        load_wavenum_max : float, optional
-            Maximum wavenumber in cm^-1.
+        wavenum_min : `~astropy.units.Quantity`, optional
+            Minimum wavenumber, e.g. ``2000*u.cm**-1``.
+        wavenum_max : `~astropy.units.Quantity`, optional
+            Maximum wavenumber, e.g. ``2100*u.cm**-1``.
         broadening_species : str or list of str, optional
             Pressure-broadening partner(s).
             Examples: ``'H2'``, ``['H2', 'He']``, ``'air'``.
@@ -139,32 +152,56 @@ class ExoMolClass(BaseQuery):
         --------
         Query CO lines::
 
+            from astropy import units as u
             from astroquery.linelists.exomol import ExoMol
+
             result = ExoMol.query_lines('CO',
-                                        load_wavenum_min=2000,
-                                        load_wavenum_max=2100)
+                                        wavenum_min=2000*u.cm**-1,
+                                        wavenum_max=2100*u.cm**-1)
 
         Query H2O with H2+He broadening::
 
             result = ExoMol.query_lines('H2O',
                                         database='POKAZATEL',
                                         broadening_species=['H2', 'He'],
-                                        load_wavenum_min=1000,
-                                        load_wavenum_max=1100)
+                                        wavenum_min=1000*u.cm**-1,
+                                        wavenum_max=1100*u.cm**-1)
         """
-        from radis.io.exomol import fetch_exomol
+        try:
+            from radis.io.exomol import fetch_exomol
+        except ImportError as e:
+            raise ImportError(
+                "The 'radis' package is required for query_lines(). "
+                "Install it with: pip install radis"
+            ) from e
+
+        # Convert Quantity to float (cm^-1) for RADIS
+        wavenum_min_value = None
+        wavenum_max_value = None
+
+        if wavenum_min is not None:
+            if hasattr(wavenum_min, "unit"):
+                wavenum_min_value = wavenum_min.to(u.cm**-1).value
+            else:
+                wavenum_min_value = float(wavenum_min)
+
+        if wavenum_max is not None:
+            if hasattr(wavenum_max, "unit"):
+                wavenum_max_value = wavenum_max.to(u.cm**-1).value
+            else:
+                wavenum_max_value = float(wavenum_max)
 
         log.info(
             f"Querying ExoMol for {molecule} "
-            f"[{load_wavenum_min}-{load_wavenum_max} cm-1]"
+            f"[{wavenum_min_value}-{wavenum_max_value} cm-1]"
         )
 
         df = fetch_exomol(
             molecule=molecule,
             database=database,
             isotope=isotopologue,
-            load_wavenum_min=load_wavenum_min,
-            load_wavenum_max=load_wavenum_max,
+            load_wavenum_min=wavenum_min_value,
+            load_wavenum_max=wavenum_max_value,
             broadening_species=broadening_species
             if broadening_species is not None
             else "air",
@@ -196,7 +233,13 @@ class ExoMolClass(BaseQuery):
             Table with columns for temperature T (K) and partition
             function Q(T).
         """
-        from radis.io.exomol import fetch_exomol
+        try:
+            from radis.io.exomol import fetch_exomol
+        except ImportError as e:
+            raise ImportError(
+                "The 'radis' package is required for get_partition_function(). "
+                "Install it with: pip install radis"
+            ) from e
 
         df = fetch_exomol(
             molecule=molecule,
