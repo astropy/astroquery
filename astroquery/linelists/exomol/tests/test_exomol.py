@@ -178,10 +178,7 @@ def test_query_lines_CO_with_H2_broadening_remote():
     assert isinstance(result, Table)
     assert len(result) > 0
 
-
 def test_get_databases_returns_list(monkeypatch):
-    """get_databases must return a list of database names."""
-    from bs4 import BeautifulSoup
 
     fake_html = """
     <html><body>
@@ -192,7 +189,8 @@ def test_get_databases_returns_list(monkeypatch):
 
     class FakeResponse:
         text = fake_html
-        def raise_for_status(self): pass
+        def raise_for_status(self):
+            pass
 
     from astroquery.linelists.exomol import ExoMol
     monkeypatch.setattr(
