@@ -179,7 +179,6 @@ def test_query_lines_CO_with_H2_broadening_remote():
     assert len(result) > 0
 
 
-
 def test_get_databases_returns_list(monkeypatch):
     """get_databases must return a list of database names."""
     fake_html = (
