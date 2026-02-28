@@ -37,6 +37,9 @@ the ESO proposal ID.
 
 .. doctest-remote-data::
 
+    >>> from astroquery.eso import Eso
+    >>> eso = Eso()
+
     >>> # query the ESO archive for the ALCOHOLS survey
     >>> table_reduced = eso.query_surveys("ALCOHOLS") 
 
@@ -72,7 +75,7 @@ As always, it is good practice to check the available columns to search in the i
 
 .. doctest-remote-data::
 
-    >>> eso.query_instrument("APEX", help=True) 
+    >>> eso.query_instrument("APEX", help=True) # doctest: +IGNORE_OUTPUT
     INFO: 
     Columns present in the table ist.APEX:
        column_name    datatype    xtype     unit
@@ -134,7 +137,7 @@ We can check the available columns to search in the query.
 
 .. doctest-remote-data::
 
-    >>> eso.query_apex_quicklooks(help=True)
+    >>> eso.query_apex_quicklooks(help=True) # doctest: +IGNORE_OUTPUT
     INFO: 
     Columns present in the table ist.apex_quicklooks:
       column_name   datatype   xtype    unit
@@ -162,7 +165,7 @@ for the APEX Quick Look products using the APEX project ID
 .. doctest-remote-data::
 
     >>> table_quicklooks = eso.query_apex_quicklooks(project_id) 
-    >>> table_quicklooks  
+    >>> table_quicklooks # doctest: +IGNORE_OUTPUT
     <Table length=15>
     access_estsize                               access_url                               instrument instrument_type partner ...                                    prog_title                                   prog_type     project_id             quicklook_id              release_date      
         kbyte                                                                                                                ...                                                                                                                                                                  
@@ -187,4 +190,4 @@ Finally, we can download the APEX Quick Look products using the :meth:`~astroque
 
 .. doctest-remote-data::
 
-    >>> eso.retrieve_data(table_quicklooks[0]["quicklook_id"])  
+    >>> eso.retrieve_data(table_quicklooks[0]["quicklook_id"]) # doctest: +SKIP

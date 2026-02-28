@@ -31,7 +31,10 @@ interpretation reflected in the ``xtype`` field.
 
 .. doctest-remote-data::
 
-    >>> eso.query_main(help=True)
+    >>> from astroquery.eso import Eso
+    >>> eso = Eso()
+
+    >>> eso.query_main(help=True) # doctest: +IGNORE_OUTPUT
     INFO: 
     Columns present in the table dbo.raw:
         column_name     datatype    xtype     unit 
@@ -56,7 +59,7 @@ with additional constraints in ``column_filters``. The example below retrieves
 all data products from any instrument within 30 arcsec of ``SN2013am``, with a
 time constraint specified down to the second.
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> from astropy.coordinates import SkyCoord
     >>> import astropy.units as u
@@ -75,7 +78,7 @@ time constraint specified down to the second.
     ...              },
     ...              columns=["object", "ra", "dec", "date_obs", "instrument", "prog_id"],
     ...              )
-    >>> table
+    >>> table # doctest: +IGNORE_OUTPUT
     <Table length=13>
     object      ra      dec            date_obs            prog_id    instrument
                 deg      deg                                                     
@@ -110,12 +113,12 @@ For example, to retrieve only ``MIDI`` data products within some time range:
     ...                     column_filters={
     ...                         "exp_start": "between '2008-01-01' and '2009-05-12'"}
     ...                     )
-    >>> print(len(table))
+    >>> print(len(table)) # doctest: +IGNORE_OUTPUT
     58810
-    >>> table.colnames
+    >>> table.colnames # doctest: +IGNORE_OUTPUT
     ['object', 'ra', 'dec', 'dp_id', 'date_obs', 'prog_id',
     'access_estsize', 'access_url', 'datalink_url', ... 'tpl_start']
-    >>> table[["object", "ra", "dec", "date_obs", "prog_id"]]
+    >>> table[["object", "ra", "dec", "date_obs", "prog_id"]] # doctest: +IGNORE_OUTPUT
     <Table length=58810>
         object           ra           dec              date_obs          prog_id   
                         deg           deg                                          
@@ -146,7 +149,7 @@ observation date, and program ID:
     ...                         "exp_start": "between '2008-01-01' and '2009-05-12'"},
     ...                     columns=["object", "ra", "dec", "date_obs", "prog_id"]
     ...                     )
-    >>> table
+    >>> table # doctest: +IGNORE_OUTPUT
     <Table length=58810>
             object               ra           dec              date_obs          prog_id   
                                 deg           deg                                          
@@ -187,9 +190,9 @@ from the interferometric instruments ``MIDI``, ``GRAVITY``, and ``PIONIER`` with
     ...              column_filters={
     ...              columns=["instrument", "object", "ra", "dec", "date_obs", "prog_id"]
     ...              )
-    >>> print(len(table))
+    >>> print(len(table)) # doctest: +IGNORE_OUTPUT
     622
-    >>> table[["object", "ra", "dec", "date_obs", "prog_id"]]
+    >>> table[["object", "ra", "dec", "date_obs", "prog_id"]] # doctest: +IGNORE_OUTPUT
     <Table length=622>
     object         ra         dec            date_obs            prog_id    instrument
                     deg         deg                                                     
@@ -231,12 +234,12 @@ Download Data
 To download the data returned by the query, you can use the :meth:`~astroquery.eso.EsoClass.retrieve_data` method. This method takes a list of data product IDs (``dp_id``) and downloads the corresponding files from the ESO archive.
 
 .. doctest-remote-data::
-    >>> eso.retrieve_data(table["dp_id"])
+    >>> eso.retrieve_data(table["dp_id"]) # doctest: +SKIP
 
 The ``data_files`` list points to the decompressed dataset filenames that have been locally downloaded. The default location of the decompressed datasets can be adjusted by providing a ``destination`` keyword in the call to :meth:`~astroquery.eso.EsoClass.retrieve_data`.
 
-.. doctest-skip::
-    >>> data_files = eso.retrieve_data(table["dp_id"], destination="./eso_data/")
+.. doctest-remote-data::
+    >>> data_files = eso.retrieve_data(table["dp_id"], destination="./eso_data/") # doctest: +SKIP
 
 For raw data, you can also retrieve associated calibration files by
 passing ``with_calib="raw"`` (or ``with_calib="processed"``). See

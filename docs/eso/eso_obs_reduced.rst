@@ -12,8 +12,11 @@ The list of available surveys can be obtained with :meth:`~astroquery.eso.EsoCla
 
 .. doctest-remote-data::
 
+    >>> from astroquery.eso import Eso
+    >>> eso = Eso()
+
     >>> surveys = eso.list_surveys()
-    >>> surveys
+    >>> surveys # doctest: +IGNORE_OUTPUT
     ['081.C-0827', '092.A-0472', '096.B-0054', '1100.A-0528', '1101.A-0127', '193.D-0232',
     '195.B-0283', '196.B-0578', '196.D-0214', '197.A-0384', '198.A-0708', '60.A-9284H',
     '60.A-9493', 'ADHOC', 'ALCOHOLS', 'ALLSMOG', 'ALMA', 'AMAZE', 'AMBRE', 'APEX-SciOps',
@@ -70,7 +73,7 @@ Let's assume that we work with the `HARPS survey <https://www.eso.org/rm/api/v1/
 .. doctest-remote-data::
 
     >>> table = eso.query_surveys(surveys="HARPS")
-    >>> table
+    >>> table # doctest: +IGNORE_OUTPUT
     <Table length=1000>
     target_name     s_ra     s_dec              dp_id             proposal_id  abmaglim access_estsize ...   snr    strehl t_exptime     t_max          t_min      t_resolution t_xel
                     deg       deg                                                mag        kbyte      ...                     s           d              d             s            
@@ -87,7 +90,7 @@ Suppose we want both `HARPS survey <https://www.eso.org/rm/api/v1/public/release
 .. doctest-remote-data::
 
     >>> table = eso.query_surveys(surveys=["HARPS", "NIRPS"])
-    >>> table
+    >>> table # doctest: +IGNORE_OUTPUT
     <Table length=1000>
     target_name     s_ra     s_dec              dp_id             proposal_id  abmaglim access_estsize ...   snr    strehl t_exptime     t_max          t_min      t_resolution t_xel
                     deg       deg                                                mag        kbyte      ...                     s           d              d             s            
@@ -106,7 +109,7 @@ Now we see that this query is limited to 1000 results, so we can increase the ro
     >>> eso.ROW_LIMIT = -1 # 0 or None to return all results without truncation
     >>> table = eso.query_surveys(surveys=["HARPS", "NIRPS"], 
     ...                          columns=["target_name", "s_ra", "s_dec", "dp_id", "proposal_id"])
-    >>> table
+    >>> table # doctest: +IGNORE_OUTPUT
     <Table length=376351>
     target_name      s_ra      s_dec              dp_id             proposal_id  
                     deg        deg                                              
@@ -129,7 +132,7 @@ More details about this method are in the following section.
     As an example, making use of the TAP free query command, :meth:`~astroquery.eso.EsoClass.query_tap`, 
     you can also retrieve the documentation URL for every available collection with a query like:
 
-    .. doctest-skip::
+    .. doctest-remote-data::
 
         >>> query = """
         ... SELECT DISTINCT obs_collection, release_description
@@ -138,7 +141,7 @@ More details about this method are in the following section.
         ... ORDER BY obs_collection, release_description
         ... """
         >>> table = eso.query_tap(query)
-        >>> print(table[:5])
+        >>> print(table[:5]) # doctest: +IGNORE_OUTPUT
         obs_collection                     release_description                    
         -------------- -----------------------------------------------------------
             081.C-0827 http://www.eso.org/rm/api/v1/public/releaseDescriptions/160
@@ -155,7 +158,7 @@ You can also query a specific instrument using the same method. For example, to 
 .. doctest-remote-data::
 
     >>> table = eso.query_surveys(column_filters={"instrument_name": "HARPS"})
-    >>> table
+    >>> table # doctest: +IGNORE_OUTPUT
     <Table length=1000>
     target_name     s_ra     s_dec              dp_id             proposal_id  abmaglim access_estsize ...   snr    strehl t_exptime     t_max          t_min      t_resolution t_xel
                     deg       deg                                                mag        kbyte      ...                     s           d              d             s            
@@ -179,9 +182,9 @@ Download Data
 To download the data returned by the query, you can use the :meth:`~astroquery.eso.EsoClass.retrieve_data` method. This method takes a list of data product IDs (``dp_id``) and downloads the corresponding files from the ESO archive.
 
 .. doctest-remote-data::
-    >>> eso.retrieve_data(table["dp_id"])
+    >>> eso.retrieve_data(table["dp_id"]) # doctest: +SKIP
 
 The ``data_files`` list points to the decompressed dataset filenames that have been locally downloaded. The default location of the decompressed datasets can be adjusted by providing a ``destination`` keyword in the call to :meth:`~astroquery.eso.EsoClass.retrieve_data`.
 
-.. doctest-skip::
-    >>> data_files = eso.retrieve_data(table["dp_id"], destination="./eso_data/")
+.. doctest-remote-data::
+    >>> data_files = eso.retrieve_data(table["dp_id"], destination="./eso_data/") # doctest: +SKIP

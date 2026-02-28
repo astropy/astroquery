@@ -13,12 +13,12 @@ You can list the available catalogues with :meth:`~astroquery.eso.EsoClass.list_
 the ``all_versions=False`` option returns only the latest version of each
 catalogue.
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
 
-    >>> eso.list_catalogues(all_versions=False)
+    >>> eso.list_catalogues(all_versions=False) # doctest: +IGNORE_OUTPUT
     ['AMBRE_V1',
      'ATLASGAL_V1',
      'COSMOS2015_Laigle_v1_1b_latestV7_fits_V1',
@@ -32,15 +32,15 @@ catalogue.
      'vmc_dr7_yjks_back_V1',
      'vmc_dr7_yjks_varCat_V3']
 
-    >>> print(len(eso.list_catalogues(all_versions=False)))
+    >>> print(len(eso.list_catalogues(all_versions=False))) # doctest: +IGNORE_OUTPUT
     86
 
 To include every available version of every catalogue, set
 ``all_versions=True``:
 
-.. doctest-skip::
+.. doctest-remote-data::
 
-    >>> eso.list_catalogues(all_versions=True)
+    >>> eso.list_catalogues(all_versions=True) # doctest: +IGNORE_OUTPUT
     ['AMBRE_V1',
      'atlas_er3_ugriz_catMetaData_fits_V2',
      'ATLASGAL_V1',
@@ -55,7 +55,7 @@ To include every available version of every catalogue, set
      'vmc_dr7_yjks_back_V1',
      'vmc_dr7_yjks_varCat_V3']
 
-    >>> print(len(eso.list_catalogues(all_versions=True)))
+    >>> print(len(eso.list_catalogues(all_versions=True))) # doctest: +IGNORE_OUTPUT
     129
 
 Available Query Constraints
@@ -67,9 +67,9 @@ the total number of records in that table -- in this case the ``'KiDS_DR4_1_ugri
 table. To see more infomation on this specific version of the Kilo-Degree Survey (KiDS) catalogue, see the 
 `release documentation <https://www.eso.org/rm/api/v1/public/releaseDescriptions/229>`_.*
 
-.. doctest-skip::
+.. doctest-remote-data::
 
-    >>> eso.query_catalogue(catalogue='KiDS_DR4_1_ugriZYJHKs_cat_fits', help=True)
+    >>> eso.query_catalogue(catalogue='KiDS_DR4_1_ugriZYJHKs_cat_fits', help=True) # doctest: +IGNORE_OUTPUT
     INFO:
     Columns present in the table safcat.KiDS_DR4_1_ugriZYJHKs_cat_fits:
         column_name     datatype       unit                        ucd
@@ -102,7 +102,7 @@ table. To see more infomation on this specific version of the Kilo-Degree Survey
     As an exmple, making use of the TAP free query command, :meth:`~astroquery.eso.EsoClass.query_tap`, 
     you can also retrieve the documentation URL for every available catalogue with a query like:
 
-    .. doctest-skip::
+    .. doctest-remote-data::
 
         >>> query = """
         ... SELECT table_name, cat_id, rel_descr_url
@@ -111,7 +111,7 @@ table. To see more infomation on this specific version of the Kilo-Degree Survey
         ... ORDER BY cat_id
         ... """
         >>> tbl = eso.query_tap(query, which_tap="tap_cat")
-        >>> print(tbl[:5])
+        >>> print(tbl[:5]) # doctest: +IGNORE_OUTPUT
         table_name       cat_id                  release_documentation_url                 
         ---------------- ------ -----------------------------------------------------------
         AMBRE_V1             13 https://www.eso.org/rm/api/v1/public/releaseDescriptions/7
@@ -128,10 +128,10 @@ Note, however, that catalogue tables can be very large, so it is often useful to
 small row limit, which can be set with e.g ``eso.ROW_LIMIT = 5`` or by passing
 e.g. ``ROW_LIMIT=5`` to the query method: 
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> table = eso.query_catalogue(catalogue='KiDS_DR4_1_ugriZYJHKs_cat_fits', ROW_LIMIT=5)
-    >>> table
+    >>> table # doctest: +IGNORE_OUTPUT
     WARNING: MaxResultsWarning: Results truncated to 5. To retrieve all the records set to None the ROW_LIMIT attribute [astroquery.eso.core]
     <Table length=5>
       Level    ALPHA_J2000      A_IMAGE         A_WORLD    ... Z_B_MAX      Z_B_MIN              Z_ML
@@ -152,14 +152,14 @@ You can also combine selected columns with ADQL filters in ``column_filters``.
 For example, to retrieve bright sources with r-band magnitude of ``MAG_AUTO < 10``, and only return a subset of
 the available columns, you can do:
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> table = eso.query_catalogue(
     ...     catalogue='KiDS_DR4_1_ugriZYJHKs_cat_fits',
     ...     columns=["ID", "RAJ2000", "DECJ2000", "KIDS_TILE", "MAG_AUTO", "MAGERR_AUTO"],
     ...     column_filters={"MAG_AUTO": "<10"}
     ... )
-    >>> table
+    >>> table # doctest: +IGNORE_OUTPUT
     <Table length=38>
                   ID                   RAJ2000             DECJ2000      ... MAG_AUTO MAGERR_AUTO
                                          deg                 deg         ...   mag        mag

@@ -35,7 +35,7 @@ Filtering between two dates
 
 ❌ Invalid (WDB-specific fields, not recognized by TAP)
 
-.. doctest-skip::
+.. doctest::
 
     >>> column_filters = {
     ...    "stime": "2024-01-01 12:00:00",
@@ -44,7 +44,7 @@ Filtering between two dates
 
 ✅ Correct (TAP-compliant syntax using 'exp_start')
 
-.. doctest-skip::
+.. doctest::
 
     >>> column_filters = {
     ...        "exp_start": "between '2024-01-01 12:00:00' and '2024-01-03 12:00:00'"
@@ -52,7 +52,7 @@ Filtering between two dates
 
 OR 
 
-.. doctest-skip::
+.. doctest::
 
     >>> column_filters = {
     ...        "exp_start": "between '2024-01-01T12:00:00' and '2024-01-03T12:00:00'"
@@ -63,15 +63,15 @@ Filtering with only a start date
 
 # ❌ Invalid
 
-.. doctest-skip::
-    
+.. doctest::
+
     >>> column_filters = {
     ...        "stime": "2024-01-01 12:00:00"
     ...    }
 
 # ✅ Correct
 
-.. doctest-skip::
+.. doctest::
 
     >>> column_filters = {
     ...        "exp_start": "> '2024-01-01 12:00:00'"
@@ -82,7 +82,7 @@ Filtering with only an end date
 
 # ❌ Invalid
 
-.. doctest-skip::
+.. doctest::
     
     >>> column_filters = {
     ...        "etime": "2024-12-31 12:00:00"
@@ -90,7 +90,7 @@ Filtering with only an end date
 
 # ✅ Correct
 
-.. doctest-skip::
+.. doctest::
 
     >>> column_filters = {
     ...        "exp_start": "< '2024-12-31 12:00:00'"

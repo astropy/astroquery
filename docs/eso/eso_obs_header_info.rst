@@ -9,6 +9,9 @@ There is, however, a way to get the full primary header of the FITS data product
 
 .. doctest-remote-data::
 
+    >>> from astroquery.eso import Eso
+    >>> eso = Eso()
+
     >>> table = eso.query_instrument("midi",
     ...                     column_filters={
     ...                         "date_obs": "between '2008-01-01' and '2008-01-02'"
@@ -24,7 +27,7 @@ archive using a dedicated helper method.
 
 .. doctest-remote-data::
     >>> table_headers = eso.get_headers(table["dp_id"][:5])
-    >>> table_headers
+    >>> table_headers # doctest: +IGNORE_OUTPUT
     <Table length=5>
             DP.ID             SIMPLE BITPIX ...   HIERARCH ESO OCS EXPO8 FNAME1     HIERARCH ESO OCS EXPO9 FNAME1  
             str28              bool  int64  ...               str33                             str33              

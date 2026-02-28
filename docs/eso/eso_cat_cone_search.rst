@@ -26,9 +26,12 @@ their UCD values:
 
 For example:
 
-.. doctest-skip::
+.. doctest-remote-data::
 
-    >>> eso.query_catalogue(catalogue='KiDS_DR4_1_ugriZYJHKs_cat_fits', help=True)
+    >>> from astroquery.eso import Eso
+    >>> eso = Eso()
+    
+    >>> eso.query_catalogue(catalogue='KiDS_DR4_1_ugriZYJHKs_cat_fits', help=True) # doctest: +IGNORE_OUTPUT
     ...
                 RAJ2000   DOUBLE              deg                   pos.eq.ra;meta.main
                DECJ2000   DOUBLE              deg                  pos.eq.dec;meta.main
@@ -79,12 +82,10 @@ Helper Function
 
 Define target of interest and search radius:
 
-.. doctest-skip::
+.. doctest-remote-data::
 
-    >>> from astroquery.eso import Eso
     >>> from astropy.coordinates import SkyCoord
     >>> import astropy.units as u
-    >>> eso = Eso()
 
     >>> table_name = "KiDS_DR4_1_ugriZYJHKs_cat_fits"
     >>> coords = SkyCoord.from_name("NGC1097")
@@ -93,7 +94,7 @@ Define target of interest and search radius:
 Helper functions to identify the main ``id``, ``ra``, and ``dec`` columns
 and construct the ADQL cone search predicate:
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> MAIN_UCD_TO_KEY = {
     ...     "meta.id;meta.main": "id",
@@ -178,7 +179,7 @@ and construct the ADQL cone search predicate:
 
 Example lookup of the main columns for a catalogue:
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> ird = main_cols(table_name)
     >>> print(ird["ra"], ird["dec"])
@@ -186,7 +187,7 @@ Example lookup of the main columns for a catalogue:
 
 Run search with cone filter:
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> column_filters = make_cone_filter(
     ...     ra=coords.ra,
@@ -199,7 +200,7 @@ Run search with cone filter:
     ...     catalogue=table_name,
     ...     column_filters=column_filters,
     ... )
-    >>> table
+    >>> table # doctest: +IGNORE_OUTPUT
     <Table length=55>
     Level    ALPHA_J2000      A_IMAGE         A_WORLD    ...      Z_B_MAX             Z_B_MIN               Z_ML       
     count        deg           pixel            deg      ...                                                           
@@ -222,7 +223,7 @@ The cone filter returns a standard ``column_filters`` dictionary.
 Additional constraints (e.g. magnitude limits) can be added using
 normal dictionary updates.
 
-.. doctest::
+.. doctest-remote-data::
 
     >>> # Add a magnitude constraint
     >>> column_filters.update({"MAG_AUTO": "<22"})
@@ -230,7 +231,7 @@ normal dictionary updates.
     >>> table = eso.query_catalogue(
     ...     catalogue="KiDS_DR4_1_ugriZYJHKs_cat_fits",
     ...     column_filters=column_filters,
-    ... )
+    ... ) # doctest: +IGNORE_OUTPUT
     <Table length=6>
     Level    ALPHA_J2000      A_IMAGE         A_WORLD     Agaper ...   Ypos     Z_B   Z_B_MAX       Z_B_MIN              Z_ML       
     count        deg           pixel            deg       arcsec ...  pixel                                                         

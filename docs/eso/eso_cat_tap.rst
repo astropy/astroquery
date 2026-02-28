@@ -15,6 +15,7 @@ Basic Usage
 
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
+    
     >>> query = "SELECT table_name FROM TAP_SCHEMA.tables"
     >>> table = eso.query_tap(query, which_tap="tap_cat")
 
@@ -32,7 +33,10 @@ published catalogue directly from ``TAP_SCHEMA.tables``. For example, for the ``
 catalogue, the corresponding release documentation can be found at:
 https://www.eso.org/rm/api/v1/public/releaseDescriptions/7
 
-.. doctest-skip::
+.. doctest-remote-data::
+
+    >>> from astroquery.eso import Eso
+    >>> eso = Eso()
 
     >>> query = """
     ... SELECT table_name, cat_id, rel_descr_url
@@ -40,8 +44,8 @@ https://www.eso.org/rm/api/v1/public/releaseDescriptions/7
     ... WHERE schema_name = 'safcat' AND cat_id IS NOT NULL
     ... ORDER BY cat_id
     ... """
-    >>> table = eso.query_tap(query, which_tap="tap_cat")
-    >>> print(table[:2])
+    >>> table = eso.query_tap(query, which_tap="tap_cat") 
+    >>> print(table[:2]) # doctest: +IGNORE_OUTPUT
     table_name       cat_id                  release_documentation_url
     ---------------- ------ -----------------------------------------------------------
     AMBRE_V1             13 https://www.eso.org/rm/api/v1/public/releaseDescriptions/7
@@ -54,7 +58,7 @@ Use this to list columns and data types for a specific catalogue table.
 ``TAP_SCHEMA.columns`` contains column names, units, UCDs, and additional
 metadata for all published ESO tables.
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> query = """
     ... SELECT column_name, datatype, unit, ucd
@@ -70,7 +74,7 @@ Use this to identify which columns carry the main sky coordinates in a table.
 Here, the UCD values mark the primary ``RA`` and ``Dec`` fields -- in this case 
 ``TRANSIENT_RAJ2000`` and ``TRANSIENT_DECJ2000``.
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> query = """
     ... SELECT column_name
@@ -86,7 +90,7 @@ List VMC Tables with Coordinate and Source-ID Columns
 Use this to list coordinate and source-ID columns for all tables in the ``VMC``
 collection, ordered by publication date.
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> query = """
     ... SELECT publication_date, T.table_name, column_name, ucd
@@ -112,7 +116,7 @@ List Coordinate and Source-ID Columns Across All Collections
 Use this to discover coordinate and source-ID columns across all published
 catalogues, ordered by publication date and collection.
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> query = """
     ... SELECT publication_date, collection, T.table_name, column_name, ucd
@@ -137,7 +141,7 @@ Search the PESSTO master catalogue for transients in a circle of ``0.04 deg``
 (``2.4 arcmin``) around galaxy ``ESO 154-10`` (ICRS position
 ``41.2863, -55.7406``).
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> query = """
     ... SELECT host_id, transient_id, transient_classification,
@@ -153,7 +157,7 @@ Search the PESSTO master catalogue for transients in a circle of ``0.04 deg``
 The target coordinates can also be resolved online using a name resolver and then included in 
 the query, as e.g.: 
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> import astropy.units as u
     >>> from astropy.coordinates import SkyCoord
@@ -197,7 +201,7 @@ The resulting table shows join pairs as:
 - ``from_table`` via ``from_column``
 - ``target_table`` via ``target_column``
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> query = """
     ... SELECT k.from_table, kc.from_column, k.target_table, kc.target_column
@@ -225,7 +229,7 @@ Get a VVV Source Light Curve and Variability Metrics
 
 Retrieve multi-epoch photometry and variability metrics for a known VVV source.
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> query = """
     ... SELECT TOP 10 VVV.IAUNAME, VVV.SOURCEID, VVV.RA2000, VVV.DEC2000,
@@ -252,7 +256,7 @@ Get PESSTO Light-Curve Magnitudes in a Sky Region
 Retrieve selected magnitudes from the PESSTO light-curve catalogue for
 transients within ``0.05 deg`` (``3 arcmin``) around ESO 154-10.
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> query = """
     ... SELECT host_id, transient_id, transient_classification,
@@ -276,7 +280,7 @@ magnitude columns instead of only ``B`` and ``R``, use ``lc.*`` in the
 
 This can also be done using a name resolver for the target coordinates, as previously shown above.
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> import astropy.units as u
     >>> from astropy.coordinates import SkyCoord
