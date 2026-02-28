@@ -178,6 +178,7 @@ def test_query_lines_CO_with_H2_broadening_remote():
     assert isinstance(result, Table)
     assert len(result) > 0
 
+
 def test_get_databases_returns_list(monkeypatch):
 
     fake_html = """
@@ -186,6 +187,7 @@ def test_get_databases_returns_list(monkeypatch):
     <a href="/data/molecules/H2O/BT2/">BT2</a>
     </body></html>
     """
+
 
     class FakeResponse:
         text = fake_html
