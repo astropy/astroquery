@@ -43,6 +43,8 @@ JOBS_ASYNC_DATA = Path(JOB_ASYNC_FILE_NAME).read_text()
 TABLE_FILE_NAME = get_pkg_data_filename(os.path.join("data", '1714556098855O-result.vot'), package=package)
 TABLE_DATA = Path(TABLE_FILE_NAME).read_text()
 
+TABLE_SIA_FILE_NAME = get_pkg_data_filename(os.path.join("data", 'sia_test.vot'), package=package)
+
 RADIUS = 1 * u.deg
 SKYCOORD = SkyCoord(ra=19 * u.deg, dec=20 * u.deg, frame="icrs")
 
@@ -111,6 +113,8 @@ def mock_querier_async():
     conn_handler = DummyConnHandler()
     tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     cutout_handler = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+    sia_handler = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+
     jobid = "12345"
 
     launch_response = DummyResponse(303)
@@ -139,7 +143,7 @@ def mock_querier_async():
     conn_handler.set_response("async/1479386030738O/results/result", results_response)
 
     return EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, cutout_handler=cutout_handler,
-                       show_server_messages=False)
+                       sia_handler=sia_handler, show_server_messages=False)
 
 
 @pytest.fixture(scope="module")
@@ -178,7 +182,7 @@ def test_load_environments():
 
     environment = 'WRONG'
     try:
-        tap = EuclidClass(environment='WRONG')
+        EuclidClass(environment='WRONG')
     except Exception as e:
         assert str(e).startswith(f"Invalid environment {environment}. Valid values: {list(conf.ENVIRONMENTS.keys())}")
 
@@ -1378,10 +1382,10 @@ def test_login(mock_login):
     tapplus = TapPlus(url="https://test:1111/tap", connhandler=conn_handler)
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
     tap.login(user="user", password="password")
-    assert (mock_login.call_count == 3)
+    assert (mock_login.call_count == 4)
     mock_login.side_effect = HTTPError("Login error")
     tap.login(user="user", password="password")
-    assert (mock_login.call_count == 4)
+    assert (mock_login.call_count == 5)
 
 
 @patch.object(TapPlus, 'login_gui')
@@ -1391,7 +1395,7 @@ def test_login_gui(mock_login_gui, mock_login):
     tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
     tap.login_gui()
-    assert (mock_login_gui.call_count == 2)
+    assert (mock_login_gui.call_count == 3)
     mock_login_gui.side_effect = HTTPError("Login error")
     tap.login(user="user", password="password")
     assert (mock_login.call_count == 1)
@@ -1403,10 +1407,10 @@ def test_logout(mock_logout):
     tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
     tap.logout()
-    assert (mock_logout.call_count == 3)
+    assert (mock_logout.call_count == 4)
     mock_logout.side_effect = HTTPError("Login error")
     tap.logout()
-    assert (mock_logout.call_count == 4)
+    assert (mock_logout.call_count == 5)
 
 
 def test_get_datalinks(monkeypatch):
@@ -1640,6 +1644,71 @@ def test_load_async_job(mock_querier_async):
     assert job is not None
 
     assert job.jobid == jobid
+
+
+@pytest.mark.parametrize("verbose", [False, True])
+def test_get_sia(monkeypatch, verbose):
+    def load_data_monkeypatch(self, params_dict, output_file, http_method, verbose):
+        return Table.read(TABLE_SIA_FILE_NAME, format='votable')
+
+    monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatch)
+    euclid = EuclidClass(show_server_messages=False)
+
+    table = euclid.get_sia(ra=89.0, dec=-66.0, radius=1.0, verbose=verbose)
+    assert isinstance(table, Table)
+    fn = 'file_name'
+    assert table[fn][0] == 'EUC_MER_BGSUB-MOSAIC-VIS_TILE101007315-D84386_20230826T000856.482420Z_00.00.fits.gz'
+
+    table = euclid.get_sia(ra=89.0, dec=-66.0, radius=1.0, dsr_part1='CALBLOCK', dsr_part2='PV-023', dsr_part3=1,
+                           verbose=verbose)
+    assert isinstance(table, Table)
+    assert table[fn][0] == 'EUC_MER_BGSUB-MOSAIC-VIS_TILE101007315-D84386_20230826T000856.482420Z_00.00.fits.gz'
+
+
+def test_get_sia_exceptions(monkeypatch):
+    def load_data_monkeypatch(self, params_dict, output_file, http_method, verbose):
+        return Table()
+
+    monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatch)
+    euclid = EuclidClass(show_server_messages=False)
+
+    error_message = "Invalid search tyype XX"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.get_sia(search_type='XX', ra=89.0, dec=-66.0, radius=1.0, verbose=True)
+
+    error_message = "Invalid instrument XX"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.get_sia(instrument='XX', ra=89.0, dec=-66.0, radius=1.0, verbose=True)
+
+    error_message = "For instrument ALL band must be None"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.get_sia(instrument='ALL', band='XX', ra=89.0, dec=-66.0, radius=1.0, verbose=True)
+
+    error_message = "Invalid band NIR_H for instrument VIS"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.get_sia(instrument='VIS', band='NIR_H', ra=89.0, dec=-66.0, radius=1.0, verbose=True)
+
+    error_message = "Invalid band VIS for instrument NISP"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.get_sia(instrument='NISP', band='VIS', ra=89.0, dec=-66.0, radius=1.0, verbose=True)
+
+    error_message = "Invalid calibration 5"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.get_sia(calibration=5, ra=89.0, dec=-66.0, radius=1.0, verbose=True)
+
+
+def test_coordinates_degrees():
+    euclid = EuclidClass(show_server_messages=False)
+
+    result = euclid.coordinates_degrees(125.0)
+
+    assert isinstance(result, Quantity)
+
+    q = Quantity(1.0, unit=u.arcmin)
+
+    result = euclid.coordinates_degrees(q)
+
+    assert isinstance(result, Quantity)
 
 
 def remove_temp_dir():
