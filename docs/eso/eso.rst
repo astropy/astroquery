@@ -27,15 +27,17 @@ and show how to download the corresponding data products.
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
 
-    >>> from astropy.coordinates import SkyCoord 
-    >>> import astropy.units as u 
-    >>> coords = SkyCoord.from_name("HD 37903") 
-    >>> ra = coords.ra.value
-    >>> dec = coords.dec.value
-    >>> r = (1*u.arcsec).to(u.deg).value
+.. doctest-remote-data::
 
-    >>> table_raw = eso.query_main("ESPRESSO", cone_ra=ra, cone_dec=dec, cone_radius=r)
-    >>> table_reduced = eso.query_surveys("ESPRESSO", cone_ra=ra, cone_dec=dec, cone_radius=r)
+    >>> from astropy.coordinates import SkyCoord   # doctest: +SKIP
+    >>> import astropy.units as u  
+    >>> coords = SkyCoord.from_name("HD 37903")  # doctest: +SKIP
+    >>> ra = coords.ra.value  # doctest: +SKIP
+    >>> dec = coords.dec.value  # doctest: +SKIP
+    >>> r = (1*u.arcsec).to(u.deg).value  # doctest: +SKIP
+
+    >>> table_raw = eso.query_main("ESPRESSO", cone_ra=ra, cone_dec=dec, cone_radius=r)  # doctest: +SKIP
+    >>> table_reduced = eso.query_surveys("ESPRESSO", cone_ra=ra, cone_dec=dec, cone_radius=r)  # doctest: +SKIP
     
     >>> eso.retrieve_data(table_raw["dp_id"])  # doctest: +SKIP
     >>> eso.retrieve_data(table_reduced["dp_id"])  # doctest: +SKIP
@@ -56,7 +58,7 @@ By default, queries are limited to returning a maximum of 1000 rows. This limit
 can be modified by setting the ``ROW_LIMIT`` attribute. To disable truncation
 and return all matching results (up to TAP limit of 15,000,000), set:
 
-.. doctest:: 
+.. doctest-remote-data::
 
     >>> eso.ROW_LIMIT = -1 # 0 or None to return all results without truncation 
 

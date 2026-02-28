@@ -20,6 +20,8 @@ The list of all supported instruments can be retrieved using the :meth:`~astroqu
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
     
+.. doctest-remote-data::
+
     >>> eso.list_instruments() # doctest: +IGNORE_OUTPUT
     ['alpaca', 'amber', 'apex', 'crires', 'efosc', 'eris',
     'espresso', 'fiat', 'fors1', 'fors2', 'giraffe', 'gravity',
@@ -128,8 +130,8 @@ The ``columns`` argument controls which fields are returned in the results table
         ...     "night_flag": "night",         # Nighttime observations only
         ...     "moon_illu": "< 0",            # No moon (below horizon)
         ...     "lst": "between 0 and 6"       # Local sidereal time early in the night
-        ... }
-        >>> table = eso.query_instrument("midi", column_filters=column_filters)
+        ... } # doctest: +SKIP
+        >>> table = eso.query_instrument("midi", column_filters=column_filters) # doctest: +SKIP
 
 
 Download Data

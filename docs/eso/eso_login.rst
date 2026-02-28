@@ -24,6 +24,8 @@ The following examples show typical login and data retrieval workflows:
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
 
+.. doctest-remote-data::
+
     >>> eso.login(username="TEST") # doctest: +SKIP
     WARNING: No password was found in the keychain for the provided username. [astroquery.query]
     TEST, enter your password:

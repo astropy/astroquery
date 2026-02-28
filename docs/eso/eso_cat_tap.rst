@@ -11,11 +11,13 @@ free ADQL, using :meth:`~astroquery.eso.EsoClass.query_tap`. By default,
 Basic Usage
 ===========
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
-    
+
+.. doctest-remote-data::
+
     >>> query = "SELECT table_name FROM TAP_SCHEMA.tables"
     >>> table = eso.query_tap(query, which_tap="tap_cat")
 
@@ -34,9 +36,6 @@ catalogue, the corresponding release documentation can be found at:
 https://www.eso.org/rm/api/v1/public/releaseDescriptions/7
 
 .. doctest-remote-data::
-
-    >>> from astroquery.eso import Eso
-    >>> eso = Eso()
 
     >>> query = """
     ... SELECT table_name, cat_id, rel_descr_url
@@ -161,11 +160,12 @@ the query, as e.g.:
 
     >>> import astropy.units as u
     >>> from astropy.coordinates import SkyCoord
-
     >>> target = SkyCoord.from_name("ESO 154-10")  
     >>> ra_deg = target.icrs.ra.to_value(u.deg)
     >>> dec_deg = target.icrs.dec.to_value(u.deg)
     >>> radius_deg = (2.4 * u.arcmin).to_value(u.deg)  
+
+.. doctest-remote-data::
 
     >>> query = f"""
     ... SELECT host_id, transient_id, transient_classification,
@@ -285,10 +285,12 @@ This can also be done using a name resolver for the target coordinates, as previ
     >>> import astropy.units as u
     >>> from astropy.coordinates import SkyCoord
 
-    >>> target = SkyCoord.from_name("ESO 154-10") 
-    >>> ra_deg = target.icrs.ra.to_value(u.deg)
-    >>> dec_deg = target.icrs.dec.to_value(u.deg)
-    >>> radius_deg = (3 * u.arcmin).to_value(u.deg)  
+    >>> target = SkyCoord.from_name("ESO 154-10") # doctest: +SKIP
+    >>> ra_deg = target.icrs.ra.to_value(u.deg) # doctest: +SKIP
+    >>> dec_deg = target.icrs.dec.to_value(u.deg) # doctest: +SKIP
+    >>> radius_deg = (3 * u.arcmin).to_value(u.deg)  # doctest: +SKIP
+
+.. doctest-remote-data::
 
     >>> query = f"""
     ... SELECT host_id, transient_id, transient_classification,
@@ -303,4 +305,4 @@ This can also be done using a name resolver for the target coordinates, as previ
     ... ) = 1
     ... ORDER BY transient_id
     ... """
-    >>> table = eso.query_tap(query, which_tap="tap_cat")
+    >>> table = eso.query_tap(query, which_tap="tap_cat") # doctest: +SKIP

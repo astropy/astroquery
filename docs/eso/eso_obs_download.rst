@@ -10,6 +10,8 @@ Assuming you have already performed a query (e.g., using :meth:`~astroquery.eso.
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
 
+.. doctest-remote-data::
+
     >>> data_files = eso.retrieve_data(table['dp_id'][:2]) # doctest: +SKIP
     INFO: Downloading datasets ... [astroquery.eso.core]
     INFO: Downloading 2 files ... [astroquery.eso.core]

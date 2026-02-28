@@ -15,6 +15,8 @@ The list of available surveys can be obtained with :meth:`~astroquery.eso.EsoCla
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
 
+.. doctest-remote-data::
+
     >>> surveys = eso.list_surveys()
     >>> surveys # doctest: +IGNORE_OUTPUT
     ['081.C-0827', '092.A-0472', '096.B-0054', '1100.A-0528', '1101.A-0127', '193.D-0232',
@@ -140,8 +142,8 @@ More details about this method are in the following section.
         ... WHERE release_description IS NOT NULL
         ... ORDER BY obs_collection, release_description
         ... """
-        >>> table = eso.query_tap(query)
-        >>> print(table[:5]) # doctest: +IGNORE_OUTPUT
+        >>> table = eso.query_tap(query) # doctest: +SKIP
+        >>> print(table[:5]) # doctest: +SKIP
         obs_collection                     release_description                    
         -------------- -----------------------------------------------------------
             081.C-0827 http://www.eso.org/rm/api/v1/public/releaseDescriptions/160
