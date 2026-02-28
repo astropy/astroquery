@@ -341,6 +341,7 @@ for each source)
   :maxdepth: 1
 
   alfalfa/alfalfa.rst
+  eso/eso.rst
   exoplanet_orbit_database/exoplanet_orbit_database.rst
   gama/gama.rst
   ipac/irsa/irsa_dust/irsa_dust.rst
