@@ -12,6 +12,8 @@ There is, however, a way to get the full primary header of the FITS data product
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
 
+.. doctest-remote-data::
+
     >>> table = eso.query_instrument("midi",
     ...                     column_filters={
     ...                         "date_obs": "between '2008-01-01' and '2008-01-02'"

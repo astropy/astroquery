@@ -39,6 +39,8 @@ The following example demonstrates how to query the ``dbo.raw`` table for raw da
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
 
+.. doctest-remote-data::
+
     >>> query = """
     ...         SELECT *
     ...         FROM dbo.raw

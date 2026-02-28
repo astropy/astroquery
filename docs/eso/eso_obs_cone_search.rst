@@ -20,7 +20,6 @@ This example demonstrates how to perform a basic cone search for publicly availa
 .. doctest-remote-data::
 
     >>> import astropy.units as u 
-
     >>> ra = 266.41683 *u.deg # degrees
     >>> dec = -29.00781 *u.deg # degrees
     >>> radius = 0.05 *u.deg # degrees
@@ -30,7 +29,6 @@ If coordinates are not known, you can use the :class:`~astropy.coordinates.SkyCo
 .. doctest-remote-data::
 
     >>> from astropy.coordinates import SkyCoord  
-
     >>> coords = SkyCoord.from_name("Sgr A*") 
     >>> ra = coords.ra
     >>> dec = coords.dec
@@ -42,6 +40,8 @@ With the defined coordinates and radius, we can now perform the cone search usin
 
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
+
+.. doctest-remote-data::
 
     >>> table = eso.query_surveys(
     ...             cone_ra=ra.value,

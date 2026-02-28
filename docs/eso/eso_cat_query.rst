@@ -18,6 +18,8 @@ catalogue.
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
 
+.. doctest-remote-data::
+
     >>> eso.list_catalogues(all_versions=False) # doctest: +IGNORE_OUTPUT
     ['AMBRE_V1',
      'ATLASGAL_V1',
@@ -31,7 +33,6 @@ catalogue.
      ...
      'vmc_dr7_yjks_back_V1',
      'vmc_dr7_yjks_varCat_V3']
-
     >>> print(len(eso.list_catalogues(all_versions=False))) # doctest: +IGNORE_OUTPUT
     86
 
@@ -54,7 +55,6 @@ To include every available version of every catalogue, set
      ...
      'vmc_dr7_yjks_back_V1',
      'vmc_dr7_yjks_varCat_V3']
-
     >>> print(len(eso.list_catalogues(all_versions=True))) # doctest: +IGNORE_OUTPUT
     129
 
@@ -110,8 +110,8 @@ table. To see more infomation on this specific version of the Kilo-Degree Survey
         ... WHERE schema_name = 'safcat' AND cat_id IS NOT NULL
         ... ORDER BY cat_id
         ... """
-        >>> tbl = eso.query_tap(query, which_tap="tap_cat")
-        >>> print(tbl[:5]) # doctest: +IGNORE_OUTPUT
+        >>> tbl = eso.query_tap(query, which_tap="tap_cat") # doctest: +SKIP
+        >>> print(tbl[:5]) # doctest: +SKIP
         table_name       cat_id                  release_documentation_url                 
         ---------------- ------ -----------------------------------------------------------
         AMBRE_V1             13 https://www.eso.org/rm/api/v1/public/releaseDescriptions/7

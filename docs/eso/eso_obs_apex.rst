@@ -40,25 +40,35 @@ the ESO proposal ID.
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
 
+.. doctest-remote-data::
+
     >>> # query the ESO archive for the ALCOHOLS survey
     >>> table_reduced = eso.query_surveys("ALCOHOLS") 
+
+.. doctest-remote-data::
 
     >>> # extract unique ESO run IDs from the query result
     >>> # (the survey table actually contains ESO run IDs)
     >>> run_ids = list(set(table_reduced["proposal_id"]))
-    
+
+.. doctest-remote-data::
+
     >>> # check if we have a single run ID or multiple
     >>> if len(run_ids) == 1:
     ...     run_id = run_ids[0]
     ... else:
     ...     print("Warning: Multiple proposal IDs found...")
     ...     run_id = run_ids[0]
-    
+ 
+.. doctest-remote-data::
+   
     >>> # Extract the proposal (aka programme) ID from the run ID
     >>> def proposal_remove_run(run_id):
     ...     proposal_id = ".".join(run_id.split(".", 2)[:2])
     ...     proposal_id = ".".join(proposal_id.split("(")[:1])
     ...     return proposal_id
+
+.. doctest-remote-data::
 
     >>> proposal_id = proposal_remove_run(run_id)
     >>> print(f"Proposal ID: {proposal_id}")
@@ -110,8 +120,12 @@ retrieved from the previous query.
     >>> # query the APEX instrument for data related to the ESO proposal ID
     >>> table_raw = eso.query_instrument("APEX", column_filters={"prog_id": f"like '{proposal_id}%'"})  
 
+.. doctest-remote-data::
+
     >>> # extract unique APEX project IDs from the raw data query
     >>> project_id = list(set(table_raw["project_id"])) 
+
+.. doctest-remote-data::
 
     >>> # assuming we only have one project ID 
     >>> project_id = project_id[0] 
