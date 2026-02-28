@@ -81,16 +81,16 @@ class ExoMolClass(BaseQuery):
                     molecules.append(parts[0])
         return sorted(list(set(molecules)))
 
-    def get_databases(self, molecule, isotopologue=None, *, cache=True):
+    def get_databases(self, molecule, *, cache=True):
         """
         Get available line list databases for a given molecule.
+
+        Scrapes the ExoMol website to find available databases.
 
         Parameters
         ----------
         molecule : str
             Molecule formula e.g. ``'H2O'``, ``'CO'``, ``'CH4'``.
-        isotopologue : str, optional
-            Isotopologue slug e.g. ``'1H2-16O'``. If ``None``, uses default.
         cache : bool, optional
             Cache results. Default ``True``.
 
@@ -98,13 +98,41 @@ class ExoMolClass(BaseQuery):
         -------
         list of str
             Available database names for this molecule.
-        """
-        from radis.api.exomolapi import get_exomol_database_list
-        from radis.api.exomolapi import get_exomol_full_isotope_name
 
-        iso_name = get_exomol_full_isotope_name(molecule, 1)
-        dbs, _ = get_exomol_database_list(molecule, iso_name)
-        return dbs
+        Examples
+        --------
+        .. code-block:: python
+
+            from astroquery.linelists.exomol import ExoMol
+            dbs = ExoMol.get_databases('H2O')
+            print(dbs)  # doctest: +SKIP
+
+        """
+        try:
+            from bs4 import BeautifulSoup
+        except ImportError as e:
+            raise ImportError(
+                "The 'beautifulsoup4' package is required for get_databases(). "
+                "Install it with: pip install beautifulsoup4"
+            ) from e
+
+        url = f"{self.URL}/data/molecules/{molecule}/"
+        response = self._request("GET", url, cache=cache, timeout=self.TIMEOUT)
+        response.raise_for_status()
+
+        soup = BeautifulSoup(response.text, "html.parser")
+        databases = []
+        for link in soup.find_all("a", href=True):
+            href = link["href"]
+            if (
+                href.startswith(f"/data/molecules/{molecule}/")
+                and href != f"/data/molecules/{molecule}/"
+            ):
+                db_name = href.rstrip("/").split("/")[-1]
+                if db_name and db_name != molecule:
+                    databases.append(db_name)
+
+        return sorted(list(set(databases)))
 
     def query_lines(
         self,
