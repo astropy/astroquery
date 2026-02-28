@@ -177,11 +177,6 @@ esa.hubble
 - Removal of the deprecated ``query_hst_tap`` method, use ``query_tap`` instead.
   [#3367]
 
-eso
-^^^
-
-- Deprecated ``open_form`` and ``cache`` in query functions [#3339]
-
 gaia
 ^^^^
 
