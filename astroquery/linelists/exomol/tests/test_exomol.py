@@ -179,22 +179,24 @@ def test_query_lines_CO_with_H2_broadening_remote():
     assert len(result) > 0
 
 
+
 def test_get_databases_returns_list(monkeypatch):
-
-    fake_html = """
-    <html><body>
-    <a href="/data/molecules/H2O/POKAZATEL/">POKAZATEL</a>
-    <a href="/data/molecules/H2O/BT2/">BT2</a>
-    </body></html>
-    """
-
+    """get_databases must return a list of database names."""
+    fake_html = (
+        "<html><body>"
+        '<a href="/data/molecules/H2O/POKAZATEL/">POKAZATEL</a>'
+        '<a href="/data/molecules/H2O/BT2/">BT2</a>'
+        "</body></html>"
+    )
 
     class FakeResponse:
         text = fake_html
+
         def raise_for_status(self):
             pass
 
     from astroquery.linelists.exomol import ExoMol
+
     monkeypatch.setattr(
         ExoMol.__class__, "_request", lambda self, *a, **kw: FakeResponse()
     )
