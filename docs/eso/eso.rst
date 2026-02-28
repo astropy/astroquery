@@ -22,7 +22,7 @@ Here, we perform a cone search for `ESPRESSO <https://www.eso.org/sci/facilities
 spectra towards the star `HD 37903 <https://simbad.u-strasbg.fr/simbad/sim-id?Ident=HD+37903>`_, 
 and show how to download the corresponding data products.
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
@@ -37,8 +37,8 @@ and show how to download the corresponding data products.
     >>> table_raw = eso.query_main("ESPRESSO", cone_ra=ra, cone_dec=dec, cone_radius=r)
     >>> table_reduced = eso.query_surveys("ESPRESSO", cone_ra=ra, cone_dec=dec, cone_radius=r)
     
-    >>> eso.retrieve_data(table_raw["dp_id"])
-    >>> eso.retrieve_data(table_reduced["dp_id"])
+    >>> eso.retrieve_data(table_raw["dp_id"])  # doctest: +SKIP
+    >>> eso.retrieve_data(table_reduced["dp_id"])  # doctest: +SKIP
 
 Catalogues
 ------------
@@ -48,7 +48,7 @@ results. For example,
 to query the `KiDS DR4 <https://www.eso.org/rm/api/v1/public/releaseDescriptions/229>`_ 
 catalogue and inspect a small subset of rows:
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> table_cat = eso.query_catalogue("KiDS_DR4_1_ugriZYJHKs_cat_fits", ROW_LIMIT=5)
 
@@ -56,7 +56,7 @@ By default, queries are limited to returning a maximum of 1000 rows. This limit
 can be modified by setting the ``ROW_LIMIT`` attribute. To disable truncation
 and return all matching results (up to TAP limit of 15,000,000), set:
 
-.. doctest-skip::
+.. doctest:: 
 
     >>> eso.ROW_LIMIT = -1 # 0 or None to return all results without truncation 
 
@@ -111,7 +111,7 @@ Help
 
     **⚠️ Backward Compatibility Notice ⚠️**
 
-    **The WDB (Web DataBase) API has been deprecated and replaced by TAP (Table Access Protocol)**,
+    **The WDB (Web DataBase) AI has been deprecated and replaced by TAP (Table Access Protocol)**,
     a standardized interface for querying astronomical datasets using ADQL (Astronomical Data Query Language).
     While the Python interface remains the same, the values accepted by the ``columns`` and ``column_filters``
     parameters must reflect TAP field names and ADQL syntax. This means that,
@@ -120,7 +120,7 @@ Help
 
     In TAP, ``column_filters`` accepts ADQL expressions. For example:
 
-    .. doctest-skip::
+    .. code-block:: python
     
         >>> column_filters = {
         ...        "some_int_column": "< 5",

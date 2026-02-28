@@ -36,6 +36,9 @@ The following example demonstrates how to query the ``dbo.raw`` table for raw da
 
 .. doctest-remote-data::
 
+    >>> from astroquery.eso import Eso
+    >>> eso = Eso()
+
     >>> query = """
     ...         SELECT *
     ...         FROM dbo.raw
@@ -94,7 +97,7 @@ each published data collection exposed through ``ivoa.ObsCore``.
     ... ORDER BY obs_collection, release_description
     ... """
     >>> table = eso.query_tap(query)
-    >>> print(table[:5])
+    >>> print(table[:5]) # doctest: +IGNORE_OUTPUT
     obs_collection                     release_description                    
     -------------- -----------------------------------------------------------
         081.C-0827 http://www.eso.org/rm/api/v1/public/releaseDescriptions/160
@@ -124,7 +127,7 @@ scales smaller than 0.2 arcsec:
     ...              AND s_pixel_scale < 0.2
     ...          """
     >>> table = eso.query_tap(query)
-    >>> table
+    >>> table # doctest: +IGNORE_OUTPUT
     <Table length=15>
     obs_collection calib_level multi_ob filter s_pixel_scale instrument_name
                                                 arcsec
@@ -205,7 +208,7 @@ Here we use ``CONTAINS`` and restrict the results to images and cubes.
     ...             ORDER BY t_min ASC
     ...         """
     >>> table = eso.query_tap(query=query)
-    >>> table
+    >>> table # doctest: +IGNORE_OUTPUT
     <Table length=32>
           t_min             abmaglim      ...     obs_release_date    
             d                 mag         ...                         
@@ -237,7 +240,7 @@ circle around NGC 253 and restrict to images and cubes.
     ...             ORDER BY t_min ASC
     ...         """
     >>> table = eso.query_tap(query=query)
-    >>> table
+    >>> table # doctest: +IGNORE_OUTPUT
     <Table length=7>
         t_min          s_fov      type             dp_id                obs_release_date    
           d             deg                                                                 
@@ -302,7 +305,7 @@ returns matching datasets ordered by ``t_min``.
     ...             ORDER BY t_min ASC
     ...      """
     >>> table = eso.query_tap(query=query)
-    >>> table
+    >>> table # doctest: +IGNORE_OUTPUT
     <Table length=1415>
         t_min        snr   abmaglim     type                dp_id           
           d                  mag                                            
@@ -349,7 +352,7 @@ join to find HAWKI source tables:
     ...             AND ESO_INTERSECTION(J.s_region, H.s_region) > 0.8 * AREA(J.s_region)
     ...         """
     >>> table = eso.query_tap(query=query)
-    >>> table
+    >>> table # doctest: +IGNORE_OUTPUT
     <Table length=4224>
     abmaglim access_estsize               access_format                ... t_resolution t_xel target_name
     float64      int64                        object                   ...   float64    int64    object  
@@ -391,7 +394,7 @@ This applies even when the underlying data are naturally described in frequency
     ...            WHERE target_name = 'a370'
     ...              AND em_res_power < 3000"""
     >>> table = eso.query_tap(query=query)
-    >>> table
+    >>> table # doctest: +IGNORE_OUTPUT
     <Table length=89>
     collection     type     subtype     min_wavel_nm    max_wavel_nm em_res_power
       object      object     object       float64         float64      float64   
@@ -416,7 +419,7 @@ currently exposed through the ESO TAP service.
 
     >>> query = "SELECT COUNT(*) FROM ivoa.ObsCore"
     >>> table = eso.query_tap(query)
-    >>> table
+    >>> table # doctest: +IGNORE_OUTPUT
     <Table length=1>
     COUNT_ALL
       int32  
@@ -440,7 +443,7 @@ volume.
     ...             ORDER BY 3 DESC 
     ...         """
     >>> table = eso.query_tap(query)
-    >>> table
+    >>> table # doctest: +IGNORE_OUTPUT
     <Table length=5>
     dataproduct_type numproducts      tb     
         object         int32      float64   

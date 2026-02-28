@@ -29,8 +29,7 @@ If coordinates are not known, you can use the :class:`~astropy.coordinates.SkyCo
 
 .. doctest-remote-data::
 
-    >>> from astropy.coordinates import SkyCoord 
-    >>> import astropy.units as u 
+    >>> from astropy.coordinates import SkyCoord  
 
     >>> coords = SkyCoord.from_name("Sgr A*") 
     >>> ra = coords.ra
@@ -40,6 +39,9 @@ If coordinates are not known, you can use the :class:`~astropy.coordinates.SkyCo
 With the defined coordinates and radius, we can now perform the cone search using :meth:`~astroquery.eso.EsoClass.query_surveys`. This method allows us to filter results based on specific columns, such as ``instrument_name``.
 
 .. doctest-remote-data::
+
+    >>> from astroquery.eso import Eso
+    >>> eso = Eso()
 
     >>> table = eso.query_surveys(
     ...             cone_ra=ra.value,
@@ -89,9 +91,9 @@ Download Data
 To download the data returned by the query, you can use the :meth:`~astroquery.eso.EsoClass.retrieve_data` method. This method takes a list of data product IDs (``dp_id``) and downloads the corresponding files from the ESO archive.
 
 .. doctest-remote-data::
-    >>> eso.retrieve_data(table["dp_id"])
+    >>> eso.retrieve_data(table["dp_id"]) # doctest: +SKIP
 
 The ``data_files`` list points to the decompressed dataset filenames that have been locally downloaded. The default location of the decompressed datasets can be adjusted by providing a ``destination`` keyword in the call to :meth:`~astroquery.eso.EsoClass.retrieve_data`.
 
-.. doctest-skip::
-    >>> data_files = eso.retrieve_data(table["dp_id"], destination="./eso_data/")
+.. doctest-remote-data::
+    >>> data_files = eso.retrieve_data(table["dp_id"], destination="./eso_data/") # doctest: +SKIP
