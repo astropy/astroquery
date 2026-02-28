@@ -379,7 +379,7 @@ Alternatively, the get_datalinks_ method can be used to find out if a given sour
 Download the spectra:
 
 >>> inp_source = str(res['source_id'][0])  # Note: the input of get_spectrum must be a string.
->>> dl_out     = Euclid.get_spectrum(source_id=inp_source, retrieval_type = "SPECTRA_RGS", verbose = True)
+>>> dl_out     = Euclid.get_spectrum(id=inp_source, retrieval_type = "SPECTRA_RGS", verbose = True)
 >>> print(f'Spectra downloaded and saved in: {dl_out}')
 
 Read the spectra and convert it to Astropy table:

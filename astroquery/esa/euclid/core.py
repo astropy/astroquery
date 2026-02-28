@@ -18,6 +18,7 @@ from astropy import units
 from astropy import units as u
 from astropy.coordinates import Angle
 from astropy.units import Quantity
+from astropy.utils import deprecated_renamed_argument
 from requests.exceptions import HTTPError
 
 from astroquery import log
@@ -34,6 +35,7 @@ class EuclidClass(TapPlus):
     __ERROR_MSG_REQUESTED_PRODUCT_TYPE = "Missing required argument: 'product_type'"
     __ERROR_MSG_REQUESTED_GENERIC = "Missing required argument"
     __ERROR_MSG_REQUESTED_RADIUS = "Radius cannot be greater than 30 arcminutes"
+
     EUCLID_MESSAGES = "notification?action=GetNotifications"
 
     """
@@ -42,6 +44,7 @@ class EuclidClass(TapPlus):
     ROW_LIMIT = conf.ROW_LIMIT
 
     __VALID_DATALINK_RETRIEVAL_TYPES = conf.VALID_DATALINK_RETRIEVAL_TYPES
+    __VALID_LINKING_PARAMETERS = conf.VALID_LINKING_PARAMETERS
 
     def __init__(self, *, environment='PDR', tap_plus_conn_handler=None, datalink_handler=None, cutout_handler=None,
                  verbose=False, show_server_messages=True):
@@ -1453,7 +1456,9 @@ class EuclidClass(TapPlus):
 
         return files
 
-    def get_spectrum(self, *, source_id, schema='sedm', retrieval_type="ALL", output_file=None, verbose=False):
+    @deprecated_renamed_argument('source_id', 'id', since='0.4.12')
+    def get_spectrum(self, *, id, schema='sedm', retrieval_type="ALL", linking_parameter='SOURCE_ID',
+                     output_file=None, verbose=False):
         """
         Downloads a spectrum with datalink.
 
@@ -1465,13 +1470,17 @@ class EuclidClass(TapPlus):
 
         Parameters
         ----------
-        source_id : str, mandatory, default None
-            source id for the spectrum
+        id : str or int, mandatory
+            identifier for the spectrum
         schema : str, mandatory, default 'sedm'
             the data release
         retrieval_type : str, optional, default 'ALL' to retrieve all data from the list of sources
             retrieval type identifier. Possible values are: 'SPECTRA_BGS' for the blue spectrum and 'SPECTRA_RGS' for
             the red one.
+        linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID or SOURCEPATCH_ID
+            By default, all the identifiers are considered as source_id
+            SOURCE_ID: the identifiers are considered as source_id
+            SOURCEPATCH_ID: the identifiers are considered as sourcepatch_id
         output_file : str, optional
             output file name. If no value is provided, a temporary one is created with the name
             "<working directory>/temp_<%Y%m%d_%H%M%S>/<source_id>.fits"
@@ -1486,7 +1495,7 @@ class EuclidClass(TapPlus):
 
         """
 
-        if source_id is None or schema is None:
+        if id is None or schema is None:
             raise ValueError(self.__ERROR_MSG_REQUESTED_GENERIC)
 
         rt = str(retrieval_type).upper()
@@ -1496,14 +1505,22 @@ class EuclidClass(TapPlus):
 
         params_dict = {}
 
-        id_value = """{schema} {source_id}""".format(**{'schema': schema, 'source_id': source_id})
+        id_value = """{schema} {source_id}""".format(**{'schema': schema, 'source_id': id})
         params_dict['ID'] = id_value
         params_dict['SCHEMA'] = schema
         params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
         params_dict['USE_ZIP_ALWAYS'] = 'true'
         params_dict['TAPCLIENT'] = 'ASTROQUERY'
 
-        fits_file = source_id + '.fits.zip'
+        if linking_parameter not in self.__VALID_LINKING_PARAMETERS:
+            raise ValueError(
+                f"Invalid linking_parameter value '{linking_parameter}' (Valid values: "
+                f"{', '.join(self.__VALID_LINKING_PARAMETERS)})")
+        else:
+            if linking_parameter != 'SOURCE_ID':
+                params_dict['LINKING_PARAMETER'] = linking_parameter
+
+        fits_file = id + '.fits.zip'
 
         if output_file is not None:
             if not output_file.endswith('.zip'):
@@ -1525,10 +1542,10 @@ class EuclidClass(TapPlus):
         try:
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
-            log.error(f'Cannot retrieve spectrum for source_id {source_id}, schema {schema}. HTTP error: {err}')
+            log.error(f'Cannot retrieve spectrum for source_id {id}, schema {schema}. HTTP error: {err}')
             return None
         except Exception as exx:
-            log.error(f'Cannot retrieve spectrum for source_id {source_id}, schema {schema}: {str(exx)}')
+            log.error(f'Cannot retrieve spectrum for source_id {id}, schema {schema}: {str(exx)}')
             return None
 
         self.__extract_file(output_file_full_path=output_file_full_path, output_dir=output_dir, files=files)
@@ -1551,8 +1568,10 @@ class EuclidClass(TapPlus):
         ----------
         ids : str, int, list of str or list of int, mandatory
             list of identifiers
-        linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID
+        linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID or SOURCEPATCH_ID
             By default, all the identifiers are considered as source_id
+            SOURCE_ID: the identifiers are considered as source_id
+            SOURCEPATCH_ID: the identifiers are considered as sourcepatch_id
         extra_options : str, optional, default None, valid values: METADATA
             To let customize the server behaviour, if present.
             If provided with value METADATA, the extra fields datalabs_path, file_name & hdu_index will be retrieved.
@@ -1565,10 +1584,17 @@ class EuclidClass(TapPlus):
 
         """
 
-        return self.__eucliddata.get_datalinks(ids=ids,
-                                               linking_parameter=linking_parameter,
-                                               extra_options=extra_options,
-                                               verbose=verbose)
+        if linking_parameter not in self.__VALID_LINKING_PARAMETERS:
+            raise ValueError(
+                f"Invalid linking_parameter value '{linking_parameter}' (Valid values: "
+                f"{', '.join(self.__VALID_LINKING_PARAMETERS)})")
+
+        final_linking_parameter = None
+        if linking_parameter != 'SOURCE_ID':
+            final_linking_parameter = linking_parameter
+
+        return self.__eucliddata.get_datalinks(ids=ids, linking_parameter=final_linking_parameter,
+                                               extra_options=extra_options, verbose=verbose)
 
     def get_scientific_product_list(self, *, observation_id=None, tile_index=None, category=None, group=None,
                                     product_type=None, dataset_release='REGREPROC1_R2', dsr_part1=None, dsr_part2=None,

@@ -291,11 +291,9 @@ class DummyTapHandler(object):
         self.__parameters['output_file'] = output_file
         return output_file
 
-    def get_spectrum(self, source_id=None,
-                     schema='sedm_pvpr01',
-                     output_file=None):
+    def get_spectrum(self, id=None, schema='sedm_pvpr01', output_file=None):
         self.__invokedMethod = 'get_spectrum'
-        self.__parameters['source_id'] = source_id
+        self.__parameters['id'] = id
         self.__parameters['schema'] = schema
         self.__parameters['output_file'] = output_file
         return output_file

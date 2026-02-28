@@ -137,6 +137,8 @@ class Conf(_config.ConfigNamespace):
 
     VALID_DATALINK_RETRIEVAL_TYPES = ['SPECTRA_BGS', 'SPECTRA_RGS']
 
+    VALID_LINKING_PARAMETERS = {'SOURCE_ID', 'SOURCEPATCH_ID'}
+
 
 conf = Conf()
 
