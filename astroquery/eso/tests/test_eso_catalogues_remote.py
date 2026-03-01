@@ -34,6 +34,7 @@ class TestEso:
             lt_all >= lt
         ), "Expected all_versions=True to return equal or more catalogues than all_versions=False"
 
+    @pytest.mark.filterwarnings("ignore::astroquery.exceptions.MaxResultsWarning")
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
     @pytest.mark.parametrize("catalogue", catalogue_list)
     def test_query_catalogue(self, catalogue):
