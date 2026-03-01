@@ -787,8 +787,8 @@ class EuclidClass(TapPlus):
     def __set_dirs(output_file, observation_id):
         if output_file is None:
             now = datetime.now()
-            output_dir = os.getcwd() + os.sep + "temp_" + now.strftime("%Y%m%d_%H%M%S")
-            output_file_full_path = output_dir + os.sep + str(observation_id)
+            output_dir = os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d_%H%M%S"))
+            output_file_full_path = os.path.join(output_dir, str(observation_id))
         else:
             output_file_full_path = output_file
             output_dir = os.path.dirname(output_file_full_path)
@@ -801,8 +801,7 @@ class EuclidClass(TapPlus):
         return output_file_full_path, output_dir
 
     @staticmethod
-    def __check_file_number(output_dir, output_file_name,
-                            output_file_full_path, files):
+    def __check_file_number(output_dir, output_file_name, output_file_full_path, files):
         num_files_in_dir = len(os.listdir(output_dir))
         if num_files_in_dir == 1:
             output_f = output_file_name
@@ -1366,7 +1365,15 @@ class EuclidClass(TapPlus):
             if dsr_part3 is not None:
                 params_dict['DSP3'] = dsr_part3
 
-        output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id='temp')
+        observation_id = product_id + '.fits'
+        if file_name is not None:
+            observation_id = file_name
+
+        output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id=observation_id)
+
+        if verbose:
+            print(f"Product output file: {output_file_full_path}")
+
         try:
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
@@ -1429,7 +1436,12 @@ class EuclidClass(TapPlus):
         params_dict = {'TAPCLIENT': 'ASTROQUERY', 'FILEPATH': file_path, 'COLLECTION': instrument, 'OBSID': id,
                        'POS': pos}
 
-        output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id='temp')
+        output_file_full_path, output_dir = self.__set_dirs(output_file=output_file,
+                                                            observation_id=os.path.basename(file_path).replace('.fits',
+                                                                                                               '_cutout.fits'))
+        if verbose:
+            print("Cutout output file: " + output_file_full_path)
+
         try:
             self.__euclidcutout.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
@@ -1513,9 +1525,12 @@ class EuclidClass(TapPlus):
                 output_file = os.path.join(os.getcwd(), output_file)
 
             if verbose:
-                print(f"output file: {output_file}")
+                print(f"Spectra output file: {output_file}")
 
         output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id=fits_file)
+
+        if verbose:
+            print("Spectra output file: " + output_file_full_path)
 
         if os.listdir(output_dir):
             raise IOError(f'The directory is not empty: {output_dir}')

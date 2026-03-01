@@ -749,7 +749,7 @@ def test_get_product_list_errors():
         tap.get_product_list(observation_id='13', product_type='DpdMerBksMosaic')
 
 
-def test_get_product_by_product_id(tmp_path_factory):
+def test_get_product_by_product_id(tmp_path_factory, capsys):
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
                        connhandler=conn_handler)
@@ -775,9 +775,32 @@ def test_get_product_by_product_id(tmp_path_factory):
 
     fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.fits')
 
-    result = tap.get_product(product_id='123456789', output_file=fits_file)
+    captured = capsys.readouterr()
+
+    result = tap.get_product(product_id='123456789', output_file=fits_file, verbose=True)
 
     assert result is not None
+
+    captured = capsys.readouterr()
+
+    file_path = captured.out.splitlines()[0].replace('Product output file: ', '')
+    assert os.path.exists(file_path)
+
+    remove_temp_dir()
+
+    result = tap.get_product(product_id='123456789', output_file=None, verbose=True)
+
+    assert result is not None
+
+    captured = capsys.readouterr()
+
+    file_path = captured.out.splitlines()[0].replace('Product output file: ', '')
+    assert os.path.exists(file_path)
+    assert '123456789' in file_path
+
+    remove_temp_dir()
+
+
 
 
 def test_get_product_by_product_id_data_set_release(tmp_path_factory):
@@ -813,7 +836,7 @@ def test_get_product_by_product_id_data_set_release(tmp_path_factory):
     assert result is not None
 
 
-def test_get_product():
+def test_get_product(capsys):
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
                        connhandler=conn_handler)
@@ -826,15 +849,21 @@ def test_get_product():
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
     result = tap.get_product(file_name='EUC_SIM_NISRGS180-8-1_20220722T094150.427Z_PV023_NISP-S_8_18_0.fits',
-                             output_file=None)
+                             output_file=None, verbose=True)
 
     assert result is not None
+
+    captured = capsys.readouterr()
 
     now = datetime.now()
     dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
 
     assert len(dirs) == 1
     assert dirs[0] is not None
+
+    file_path = captured.out.splitlines()[0].replace('Product output file: ', '')
+    assert os.path.exists(file_path)
+    assert 'EUC_SIM_NISRGS180-8-1_20220722T094150.427Z_PV023_NISP-S_8_18_0' in file_path
 
     remove_temp_dir()
 
@@ -1068,7 +1097,7 @@ def test_get_observation_products_exceptions_2(mock_load_data, caplog):
     remove_temp_dir()
 
 
-def test_get_cutout():
+def test_get_cutout(capsys):
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='cutout', client_id='ASTROQUERY',
                        connhandler=conn_handler)
@@ -1090,9 +1119,14 @@ def test_get_cutout():
 
     result = tap.get_cutout(
         file_path='/data/repository/NIR/19704/EUC_NIR_W-STACK_NIR-J-19704_20190718T001858.5Z_00.00.fits',
-        instrument='NISP', id='19704', coordinate=c, radius=r, output_file=None)
+        instrument='NISP', id='19704', coordinate=c, radius=r, output_file=None, verbose=True)
 
     assert result is not None
+
+    captured = capsys.readouterr()
+
+    file_path = captured.out.splitlines()[0].replace('Cutout output file: ', '')
+    assert os.path.exists(file_path)
 
     remove_temp_dir()
 
@@ -1175,7 +1209,7 @@ def test_get_cutout_exceptions_2(mock_load_data, caplog):
     assert caplog.records[1].msg == mssg
 
 
-def test_get_spectrum(tmp_path_factory):
+def test_get_spectrum(tmp_path_factory, capsys):
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
                        connhandler=conn_handler)
@@ -1202,8 +1236,22 @@ def test_get_spectrum(tmp_path_factory):
     fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.fits')
 
     result = tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=fits_file)
+    assert os.path.exists(fits_file + '.zip')
 
     assert result is not None
+
+    remove_temp_dir()
+
+    result = tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=None, verbose=True)
+
+    assert result is not None
+
+    captured = capsys.readouterr()
+
+    file_path = captured.out.splitlines()[0].replace('Spectra output file: ', '')
+    assert os.path.exists(file_path)
+
+    remove_temp_dir()
 
 
 @patch.object(TapPlus, 'load_data')
