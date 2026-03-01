@@ -36,7 +36,7 @@ Documentation = "https://astroquery.readthedocs.io"
 test = [
    "pytest>=7.4",
    "pytest-doctestplus>=1.4",
-   "pytest-timeout",
+    "pytest-timeout",
    "pytest-astropy",
    "matplotlib",
    # Temp workaround for https://github.com/RKrahl/pytest-dependency/issues/91
@@ -61,6 +61,7 @@ all = [
    "boto3",
    "botocore",
    "regions>=0.5",
+    "radis",
 ]
 
 [build-system]

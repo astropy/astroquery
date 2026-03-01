@@ -4,6 +4,14 @@
 New Tools and Services
 ----------------------
 
+astroquery.linelists.exomol
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Added new ``astroquery.linelists.exomol`` module for querying the ExoMol
+  molecular line list database. Wraps RADIS ExoMol reader into the standard
+  astroquery ``BaseQuery`` pattern. [#3536]
+
+
 noirlab
 ^^^^^^^
 
