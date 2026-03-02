@@ -470,7 +470,7 @@ class GaiaClass(TapPlus):
         return self.__gaiadata.get_datalinks(ids=ids, linking_parameter=final_linking_parameter, verbose=verbose)
 
     def __query_object(self, coordinate, *, radius=None, width=None, height=None,
-                       async_job=False, verbose=False, columns=()):
+                       async_job=False, verbose=False, columns=(), get_query_payload=False):
         """Launches a job
         TAP & TAP+
 
@@ -491,6 +491,9 @@ class GaiaClass(TapPlus):
             flag to display information about the process
         columns: list, optional, default ()
             if empty, all columns will be selected
+        get_query_payload : bool, optional
+            If True, return the SQL query string that would be sent to the server,
+            instead of executing the query. This is useful for debugging and testing.
 
         Returns
         -------
@@ -541,13 +544,18 @@ class GaiaClass(TapPlus):
                                   'columns': columns, 'table_name': self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE,
                                   'ra': ra, 'dec': dec,
                                   'width': widthDeg.value, 'height': heightDeg.value})
+
+            if get_query_payload:
+                return query
+
             if async_job:
                 job = self.launch_job_async(query, verbose=verbose)
             else:
                 job = self.launch_job(query, verbose=verbose)
         return job.get_results()
 
-    def query_object(self, coordinate, *, radius=None, width=None, height=None, verbose=False, columns=()):
+    def query_object(self, coordinate, *, radius=None, width=None, height=None, verbose=False, columns=(),
+                     get_query_payload=False):
         """Launches a synchronous cone search for the input search radius or the box on the sky, sorted by angular
         separation
         TAP & TAP+
@@ -566,13 +574,16 @@ class GaiaClass(TapPlus):
             flag to display information about the process
         columns: list, optional, default ()
             if empty, all columns will be selected
+        get_query_payload : bool, optional
+            If True, return the SQL query string that would be sent to the server,
+            instead of executing the query. This is useful for debugging and testing.
 
         Returns
         -------
         The job results (astropy.table).
         """
         return self.__query_object(coordinate, radius=radius, width=width, height=height, async_job=False,
-                                   verbose=verbose, columns=columns)
+                                   verbose=verbose, columns=columns, get_query_payload=get_query_payload)
 
     def query_object_async(self, coordinate, *, radius=None, width=None, height=None, verbose=False, columns=()):
         """Launches an asynchronous cone search for the input search radius or the box on the sky, sorted by angular
@@ -608,7 +619,8 @@ class GaiaClass(TapPlus):
                       background=False,
                       output_file=None, output_format="votable_gzip", verbose=False,
                       dump_to_file=False,
-                      columns=()):
+                      columns=(),
+                      get_query_payload=False):
         """Cone search sorted by distance
         TAP & TAP+
 
@@ -641,6 +653,9 @@ class GaiaClass(TapPlus):
             if True, the results are saved in a file instead of using memory
         columns: list, optional, default ()
             if empty, all columns will be selected
+        get_query_payload : bool, optional
+            If True, return the SQL query string that would be sent to the server,
+            instead of executing it. This is useful for debugging and testing.
 
         Returns
         -------
@@ -681,6 +696,9 @@ class GaiaClass(TapPlus):
                               'radius': radiusDeg,
                               'table_name': table_name or self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE})
 
+        if get_query_payload:
+            return query
+
         if async_job:
             return self.launch_job_async(query=query, output_file=output_file, output_format=output_format,
                                          verbose=verbose, dump_to_file=dump_to_file, background=background)
@@ -695,7 +713,8 @@ class GaiaClass(TapPlus):
                     output_file=None,
                     output_format="votable_gzip", verbose=False,
                     dump_to_file=False,
-                    columns=()):
+                    columns=(),
+                    get_query_payload=False):
         """Cone search sorted by distance (sync.)
         TAP & TAP+
 
@@ -722,6 +741,9 @@ class GaiaClass(TapPlus):
             if True, the results are saved in a file instead of using memory
         columns: list, optional, default ()
             if empty, all columns will be selected
+        get_query_payload : bool, optional
+            If True, return the SQL query string that would be sent to the server,
+            instead of executing the query. This is useful for debugging and testing.
 
         Returns
         -------
@@ -737,7 +759,8 @@ class GaiaClass(TapPlus):
                                   output_file=output_file,
                                   output_format=output_format,
                                   verbose=verbose,
-                                  dump_to_file=dump_to_file, columns=columns)
+                                  dump_to_file=dump_to_file, columns=columns,
+                                  get_query_payload=get_query_payload)
 
     def cone_search_async(self, coordinate, *, radius=None,
                           table_name=None,
