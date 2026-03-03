@@ -42,7 +42,7 @@ def get_mockreturn(method, url, params=None, timeout=10, cache=None, **kwargs):
           and params['PhotCalID'] == f'{TEST_FILTER_ID}/{TEST_MAG_SYSTEM}'):
         filename = data_path(DATA_FILES['zeropoint'])
     elif 'ID' in params and params['ID'] == TEST_FILTER_ID:
-        filename = data_path(DATA_FILES['transmission_data'])
+        filename = data_path(DATA_FILES['filter_index'])
     elif 'Facility' in params and (params['Facility'] == TEST_FACILITY
                                    and params['Instrument'] == TEST_INSTRUMENT):
         filename = data_path(DATA_FILES['filter_list'])
