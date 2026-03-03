@@ -183,7 +183,7 @@ class SvoFpsClass(BaseQuery):
          'ZeroPoint': <Quantity 3631. Jy>,
          'ZeroPointUnit': 'Jy',
          'ZeroPointType': 'Pogson'}
-        
+
         >>> SvoFps.get_filter_metadata(filter_id='2MASS/2MASS.J', PhotCalID='2MASS/2MASS.J/AB')
         {'FilterProfileService': 'ivo://svo/fps',
          'filterID': '2MASS/2MASS.J',
@@ -193,13 +193,13 @@ class SvoFpsClass(BaseQuery):
          'ZeroPoint': <Quantity 3631. Jy>,
          'ZeroPointUnit': 'Jy',
          'ZeroPointType': 'Pogson'}
-        
+
         """
         metadata = self.get_filter_metadata(filter_id=filter_id,
-                                            PhotCalID=f'{filter_id}/{mag_system}',**kwargs)
+                                            PhotCalID=f'{filter_id}/{mag_system}', **kwargs)
 
         zeropoint_keys = ['MagSys', 'ZeroPoint', 'ZeroPointUnit', 'ZeroPointType']
-        
+
         zp = {key: metadata[key] for key in zeropoint_keys if key in metadata}
 
         return zp
