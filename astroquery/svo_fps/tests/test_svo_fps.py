@@ -9,12 +9,14 @@ from ..core import SvoFps
 
 DATA_FILES = {'filter_index': 'svo_fps_WavelengthEff_min=12000_WavelengthEff_max=12100.xml',
               'transmission_data': 'svo_fps_ID=2MASS.2MASS.H.xml',
-              'filter_list': 'svo_fps_Facility=Keck_Instrument=NIRC2.xml'
+              'filter_list': 'svo_fps_Facility=Keck_Instrument=NIRC2.xml',
+              'zeropoint': 'svo_fps_PhotCalID=2MASS.2MASS.H.Vega.xml',
               }
 TEST_LAMBDA = 12000
 TEST_FILTER_ID = '2MASS/2MASS.H'
 TEST_FACILITY = 'Keck'
 TEST_INSTRUMENT = 'NIRC2'
+TEST_MAG_SYSTEM = 'Vega'
 
 
 def data_path(filename):
@@ -35,8 +37,12 @@ def get_mockreturn(method, url, params=None, timeout=10, cache=None, **kwargs):
         and (params['WavelengthEff_min'] == TEST_LAMBDA
              and params['WavelengthEff_max'] == TEST_LAMBDA+100)):
         filename = data_path(DATA_FILES['filter_index'])
+    elif ('PhotCalID' in params
+          and params.get('ID') == TEST_FILTER_ID
+          and params['PhotCalID'] == f'{TEST_FILTER_ID}/{TEST_MAG_SYSTEM}'):
+        filename = data_path(DATA_FILES['zeropoint'])
     elif 'ID' in params and params['ID'] == TEST_FILTER_ID:
-        filename = data_path(DATA_FILES['filter_index'])
+        filename = data_path(DATA_FILES['transmission_data'])
     elif 'Facility' in params and (params['Facility'] == TEST_FACILITY
                                    and params['Instrument'] == TEST_INSTRUMENT):
         filename = data_path(DATA_FILES['filter_list'])
@@ -82,6 +88,17 @@ def test_get_filter_list(patch_get):
     table = SvoFps.get_filter_list(TEST_FACILITY, instrument=TEST_INSTRUMENT)
     # Check if column for Filter ID (named 'filterID') exists in table
     assert 'filterID' in table.colnames
+
+
+def test_get_zeropoint(patch_get):
+    zp = SvoFps.get_zeropoint(TEST_FILTER_ID, mag_system=TEST_MAG_SYSTEM)
+    assert 'ZeroPoint' in zp
+    assert 'MagSys' in zp
+    assert zp['MagSys'] == TEST_MAG_SYSTEM
+    assert 'ZeroPointType' in zp
+    assert zp['ZeroPointType'] == 'Pogson'
+    assert 'ZeroPointUnit' in zp
+    assert zp['ZeroPoint'].unit == u.Jy
 
 
 def test_invalid_query(patch_get):
