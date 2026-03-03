@@ -177,14 +177,13 @@ class SvoFpsClass(BaseQuery):
 
         Examples
         --------
-        >>> from astroquery.svo_fps import SvoFps
-        >>> SvoFps.get_zeropoint(filter_id='2MASS/2MASS.J', mag_system='AB')
+        >>> from astroquery.svo_fps import SvoFps  # doctest: +REMOTE_DATA
+        >>> SvoFps.get_zeropoint(filter_id='2MASS/2MASS.J', mag_system='AB')  # doctest: +REMOTE_DATA
         {'MagSys': 'AB',
          'ZeroPoint': <Quantity 3631. Jy>,
          'ZeroPointUnit': 'Jy',
          'ZeroPointType': 'Pogson'}
-
-        >>> SvoFps.get_filter_metadata(filter_id='2MASS/2MASS.J', PhotCalID='2MASS/2MASS.J/AB')
+        >>> SvoFps.get_filter_metadata(filter_id='2MASS/2MASS.J', PhotCalID='2MASS/2MASS.J/AB')  # doctest: +REMOTE_DATA
         {'FilterProfileService': 'ivo://svo/fps',
          'filterID': '2MASS/2MASS.J',
          ...
