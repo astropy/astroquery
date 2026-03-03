@@ -40,6 +40,23 @@ class TestSvoFpsClass:
         # Check if column for Filter ID (named 'filterID') exists in table
         assert 'filterID' in table.colnames
 
+    @pytest.mark.parametrize('test_filter_id, mag_system, expected_zp_jy', [
+        ('2MASS/2MASS.J', 'Vega', 1594.0),
+        ('2MASS/2MASS.J', 'AB', 3631.0),
+    ])
+    def test_get_zeropoint(self, test_filter_id, mag_system, expected_zp_jy):
+        zp = SvoFps.get_zeropoint(test_filter_id, mag_system=mag_system)
+        # Check all expected keys are present
+        assert 'ZeroPoint' in zp
+        assert 'MagSys' in zp
+        assert 'ZeroPointType' in zp
+        assert 'ZeroPointUnit' in zp
+        # Check the magnitude system matches what was requested
+        assert zp['MagSys'] == mag_system
+        # Check zero point has the right unit and an approximately correct value
+        assert zp['ZeroPoint'].unit == u.Jy
+        assert abs(zp['ZeroPoint'].value - expected_zp_jy) < 10.0
+
     def test_query_parameter_names(self):
         # Checks if `QUERY_PARAMETERS` is up to date.
         query = {"FORMAT": "metadata"}
