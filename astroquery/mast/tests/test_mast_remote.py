@@ -39,6 +39,17 @@ def msa_product_table():
     return products
 
 
+@pytest.fixture()
+def reset_cloud_state():
+    pytest.importorskip('boto3')
+    # Reset cloud dataset state before and after each test
+    Observations._cloud_enabled_explicitly = None
+    Observations._cloud_connection = None
+    yield
+    Observations._cloud_enabled_explicitly = None
+    Observations._cloud_connection = None
+
+
 @pytest.mark.remote_data
 class TestMast:
 
@@ -783,9 +794,8 @@ class TestMast:
         with caplog.at_level("INFO", logger="astroquery"):
             assert "products were duplicates" in caplog.text
 
-    def test_observations_download_products_cloud(self, tmp_path, msa_product_table):
-        pytest.importorskip('boto3')
-
+    def test_observations_download_products_cloud(self, tmp_path, msa_product_table, reset_cloud_state):
+        # Explicity enable cloud dataset
         Observations.enable_cloud_dataset()
 
         # Adding a product that's not in the cloud to test mixed downloads
@@ -819,8 +829,6 @@ class TestMast:
         assert result['Status'][1] == 'COMPLETE'
         assert Path(result['Local Path'][0]).exists()
         assert Path(result['Local Path'][1]).exists()
-
-        Observations.disable_cloud_dataset()
 
     def test_observations_download_file(self, tmp_path):
 
@@ -863,22 +871,16 @@ class TestMast:
         'MISDR1_18916_0459-fd-flagstar.fits.gz',
         'mast:HST/product/u24r0102t_c3m.fits'
     ])
-    def test_observations_download_file_cloud(self, tmp_path, in_uri):
-        pytest.importorskip("boto3")
-
-        Observations.enable_cloud_dataset()
-
+    def test_observations_download_file_cloud(self, tmp_path, in_uri, reset_cloud_state):
         filename = Path(in_uri).name
         result = Observations.download_file(uri=in_uri, cloud_only=True, local_path=tmp_path)
         assert result == ('COMPLETE', None, None)
         assert Path(tmp_path, filename).exists()
 
-        Observations.disable_cloud_dataset()
-
-    def test_observations_download_file_cloud_not_found(self, tmp_path):
-        pytest.importorskip("boto3")
+    def test_observations_download_file_cloud_not_found(self, tmp_path, reset_cloud_state):
         in_uri = 'mast:IUE/url/pub/vospectra/iue2/swp18830mxlo_vo.fits'
 
+        # Explicity enable cloud dataset
         Observations.enable_cloud_dataset()
 
         # Warn and fallback
@@ -893,8 +895,6 @@ class TestMast:
             result = Observations.download_file(uri=in_uri, cloud_only=True, local_path=tmp_path)
             assert result == ('SKIPPED', None, None)
             assert not Path(tmp_path, Path(in_uri).name).exists()
-
-        Observations.disable_cloud_dataset()
 
     def test_observations_download_file_escaped(self, tmp_path):
         # test that `download_file` correctly escapes a URI
@@ -926,15 +926,13 @@ class TestMast:
         assert result == ("COMPLETE", None, None)
         assert Path(tmp_path, filename).exists()
 
-    def test_observations_list_cloud_missions(self):
-        pytest.importorskip('boto3')
-        Observations.enable_cloud_dataset()
+    def test_observations_list_cloud_missions(self, reset_cloud_state):
+        # Test that the function to list missions with cloud datasets returns expected missions
         missions = Observations.list_cloud_datasets()
         assert isinstance(missions, list)
         assert len(missions) > 0
         for m in ['hst', 'jwst', 'panstarrs', 'galex', 'tess']:
             assert m in missions
-        Observations.disable_cloud_dataset()
 
     @pytest.mark.parametrize("test_data_uri, expected_cloud_uri", [
         ("mast:HST/product/u24r0102t_c1f.fits",
@@ -943,13 +941,10 @@ class TestMast:
          "s3://stpubdata/panstarrs/ps1/public/rings.v3.skycell/1334/061/"
          "rings.v3.skycell.1334.061.stk.r.unconv.exp.fits")
     ])
-    def test_observations_get_cloud_uri(self, test_data_uri, expected_cloud_uri):
-        pytest.importorskip("boto3")
+    def test_observations_get_cloud_uri(self, test_data_uri, expected_cloud_uri, reset_cloud_state):
         # get a product list
         product = Table()
         product['dataURI'] = [test_data_uri]
-        # enable access to public AWS S3 bucket
-        Observations.enable_cloud_dataset()
 
         # get uri
         uri = Observations.get_cloud_uri(product[0])
@@ -961,21 +956,14 @@ class TestMast:
         uri = Observations.get_cloud_uri(test_data_uri)
         assert uri == expected_cloud_uri, f'Cloud URI does not match expected. ({uri} != {expected_cloud_uri})'
 
-        Observations.disable_cloud_dataset()
-
     @pytest.mark.parametrize("test_obs_id", ["25568122", "31411", "107604081"])
-    def test_observations_get_cloud_uris(self, test_obs_id):
-        pytest.importorskip("boto3")
-
+    def test_observations_get_cloud_uris(self, test_obs_id, reset_cloud_state):
         # get a product list
         index = 24 if test_obs_id == '25568122' else 0
         products = Observations.get_product_list(test_obs_id)[index:index + 2]
 
         assert len(products) > 0, (f'No products found for OBSID {test_obs_id}. '
                                    'Unable to move forward with getting URIs from the cloud.')
-
-        # enable access to public AWS S3 bucket
-        Observations.enable_cloud_dataset()
 
         # get uris
         uris = Observations.get_cloud_uris(products)
@@ -987,18 +975,12 @@ class TestMast:
             Observations.get_cloud_uris(products,
                                         extension='png')
 
-        Observations.disable_cloud_dataset()
-
-    def test_observations_get_cloud_uris_list_input(self):
-        pytest.importorskip("boto3")
+    def test_observations_get_cloud_uris_list_input(self, reset_cloud_state):
         uri_list = ['mast:HST/product/u24r0102t_c1f.fits',
                     'mast:PS1/product/rings.v3.skycell.1334.061.stk.r.unconv.exp.fits']
         expected = ['s3://stpubdata/hst/public/u24r/u24r0102t/u24r0102t_c1f.fits',
                     's3://stpubdata/panstarrs/ps1/public/rings.v3.skycell/1334/061/rings.v3.skycell.1334.'
                     '061.stk.r.unconv.exp.fits']
-
-        # enable access to public AWS S3 bucket
-        Observations.enable_cloud_dataset()
 
         # list of URI strings as input
         uris = Observations.get_cloud_uris(uri_list)
@@ -1021,14 +1003,7 @@ class TestMast:
         with pytest.warns(NoResultsWarning, match='Failed to retrieve cloud path'):
             Observations.get_cloud_uris(['mast:HST/product/does_not_exist.fits'])
 
-        Observations.disable_cloud_dataset()
-
-    def test_observations_get_cloud_uris_query(self):
-        pytest.importorskip("boto3")
-
-        # enable access to public AWS S3 bucket
-        Observations.enable_cloud_dataset()
-
+    def test_observations_get_cloud_uris_query(self, reset_cloud_state):
         # get uris with other functions
         obs = Observations.query_criteria(target_name=234295610)
         prod = Observations.get_product_list(obs)
@@ -1048,24 +1023,15 @@ class TestMast:
         with pytest.warns(NoResultsWarning):
             Observations.get_cloud_uris(target_name=234295611)
 
-        Observations.disable_cloud_dataset()
-
-    def test_observations_get_cloud_uris_no_duplicates(self, msa_product_table):
-        pytest.importorskip("boto3")
-
+    def test_observations_get_cloud_uris_no_duplicates(self, msa_product_table, reset_cloud_state):
         # Get a product list with 6 duplicate JWST MSA config files
         products = msa_product_table
 
         assert len(products) == 6
 
-        # enable access to public AWS S3 bucket
-        Observations.enable_cloud_dataset(provider='AWS')
-
         # Check that only one URI is returned
         uris = Observations.get_cloud_uris(products)
         assert len(uris) == 1
-
-        Observations.disable_cloud_dataset()
 
     ######################
     # CatalogClass tests #
