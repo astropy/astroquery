@@ -15,6 +15,12 @@ class Conf(_config.ConfigNamespace):
         'https://spec.jpl.nasa.gov/cgi-bin/catform',
         'JPL Spectral Catalog URL.')
 
+    ftp_cat_server = _config.ConfigItem(
+        ['https://spec.jpl.nasa.gov/ftp/pub/catalog/',
+         'https://web.archive.org/web/20250630185813/https://spec.jpl.nasa.gov/ftp/pub/catalog/'],
+         'JPL FTP Catalog URL'
+    )
+
     timeout = _config.ConfigItem(
         60,
         'Time limit for connecting to JPL server.')
