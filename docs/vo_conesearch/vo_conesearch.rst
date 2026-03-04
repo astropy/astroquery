@@ -6,6 +6,14 @@
 VO Simple Cone Search (``astroquery.vo_conesearch``)
 ****************************************************
 
+.. warning::
+
+   As of version 0.4.12, this module has been deprecated. Client-side queries can be made using
+   :ref:`PyVO Simple Cone Search (SCS) <pyvo:pyvo-scs>` interface instead.
+   However, there is no direct replacement for server validation functionality.
+   If you need help transitioning away from the deprecated
+   functionality here, please reach out to Astroquery or PyVO communities.
+
 Astroquery offers Simple Cone Search Version 1.03 as defined in IVOA
 Recommendation (February 22, 2008). Cone Search queries an
 area encompassed by a given radius centered on a given RA and Dec and returns

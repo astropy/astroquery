@@ -294,10 +294,8 @@ The following modules have been completed using a common API:
   ukidss/ukidss.rst
   vamdc/vamdc.rst
   vizier/vizier.rst
-  vo_conesearch/vo_conesearch.rst
   vsa/vsa.rst
   xmatch/xmatch.rst
-
 
 These others are functional, but do not follow a common & consistent API:
 
@@ -323,6 +321,13 @@ There are also subpackages that serve as the basis of others.
   :maxdepth: 1
 
   wfau/wfau.rst
+
+This module is deprecated in favor of :ref:`PyVO Simple Cone Search (SCS) <pyvo:pyvo-scs>`:
+
+.. toctree::
+  :maxdepth: 1
+
+  vo_conesearch/vo_conesearch.rst
 
 Catalog, Archive, and Other
 ===========================
@@ -355,7 +360,6 @@ for each source)
   simbad/simbad.rst
   ukidss/ukidss.rst
   vizier/vizier.rst
-  vo_conesearch/vo_conesearch.rst
   vsa/vsa.rst
   xmatch/xmatch.rst
 

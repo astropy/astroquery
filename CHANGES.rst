@@ -26,7 +26,7 @@ esa.euclid
 - Methods ``cone_search`` and ``cross_match_basic`` now define the  parameters ``table_name`` and ``ra_column_name`` and
   ``dec_column_name`` independently [#3496]
 
-- Method ``get_product`` now supports the input file_name as a Python list (e.g. ["file1.fits", "file2.fits"]) while 
+- Method ``get_product`` now supports the input file_name as a Python list (e.g. ["file1.fits", "file2.fits"]) while
   still accepting the original comma separated string format. [#3541]
 
 vizier
@@ -37,9 +37,15 @@ vizier
 mast
 ^^^^
 - ``utils.mast_relative_path`` is now deprecated in favor of ``utils.get_cloud_paths``. [#3488]
-- When cloud access is enabled, ``Observations.download_file`` and ``Observations.download_products`` 
-  now check all requested products against cloud storage. As a result, setting ``cloud_only=True`` will skip 
+- When cloud access is enabled, ``Observations.download_file`` and ``Observations.download_products``
+  now check all requested products against cloud storage. As a result, setting ``cloud_only=True`` will skip
   any products that are not available in the cloud, rather than falling back to on-prem downloads.
+
+vo_conesearch
+^^^^^^^^^^^^^
+- The whole ``vo_conesearch`` module is deprecated. Queries can be made using
+  PyVO Simple Cone Search interface instead. There is no direct replacement
+  for server validation. [#3548]
 
 Service fixes and enhancements
 ------------------------------
@@ -98,7 +104,7 @@ mast
 
 - Added full support for the International Ultraviolet Explorer (IUE) mission in ``MastMissions``. [#3517]
 
-- Added a new ``Observations.list_cloud_datasets()`` method for querying cloud-supported MAST datasets, alongside 
+- Added a new ``Observations.list_cloud_datasets()`` method for querying cloud-supported MAST datasets, alongside
   improvements to cloud download handling. [#3488]
 
 jplspec
