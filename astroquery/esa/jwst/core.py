@@ -16,7 +16,6 @@ import shutil
 import tarfile as esatar
 import zipfile
 from datetime import datetime, timezone
-from urllib.parse import urlencode
 
 import astroquery.esa.utils.utils as esautils
 
@@ -27,12 +26,11 @@ from astropy.table import vstack
 from astropy.units import Quantity
 from requests.exceptions import ConnectionError
 
+from astroquery.esa.utils import EsaTap
 from astroquery.exceptions import RemoteServiceError
 from astroquery.ipac.ned import Ned
-from astroquery.query import BaseQuery
 from astroquery.simbad import Simbad
 from astroquery.utils import commons
-from astroquery.utils.tap import TapPlus
 from astroquery.vizier import Vizier
 from . import conf
 from .data_access import JwstDataHandler
@@ -47,7 +45,7 @@ if hasattr(esatar, "fully_trusted_filter"):
     esatar.TarFile.extraction_filter = staticmethod(esatar.fully_trusted_filter)
 
 
-class JwstClass(BaseQuery):
+class JwstClass(EsaTap):
 
     """
     Proxy class to default TapPlus object (pointing to JWST Archive)
@@ -67,43 +65,15 @@ class JwstClass(BaseQuery):
     CAL_LEVELS = ['ALL', 1, 2, 3, -1]
     REQUESTED_OBSERVATION_ID = "Missing required argument: 'observation_id'"
 
-    def __init__(self, *, tap_plus_handler=None, data_handler=None, show_messages=True):
-        if tap_plus_handler is None:
-            self.__jwsttap = TapPlus(url=conf.JWST_TAP_SERVER,
-                                     data_context='data', client_id='ASTROQUERY')
-        else:
-            self.__jwsttap = tap_plus_handler
+    ESA_ARCHIVE_NAME = "ESA JWST"
+    TAP_URL = conf.JWST_TAP_SERVER
+    LOGIN_URL = conf.JWST_LOGIN_SERVER
+    LOGOUT_URL = conf.JWST_LOGOUT_SERVER
 
-        if data_handler is None:
-            self.__jwstdata = JwstDataHandler(
-                base_url=conf.JWST_DATA_SERVER)
-        else:
-            self.__jwstdata = data_handler
-
+    def __init__(self, *, show_messages=False, auth_session=None, tap_url=None):
+        super().__init__(auth_session=auth_session, tap_url=tap_url)
         if show_messages:
             self.get_status_messages()
-
-    def load_tables(self, *, only_names=False, include_shared_tables=False,
-                    verbose=False):
-        """Loads all public tables
-        TAP & TAP+
-
-        Parameters
-        ----------
-        only_names : bool, TAP+ only, optional, default 'False'
-            True to load table names only
-        include_shared_tables : bool, TAP+, optional, default 'False'
-            True to include shared tables
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A list of table objects
-        """
-        return self.__jwsttap.load_tables(only_names=only_names,
-                                          include_shared_tables=include_shared_tables,
-                                          verbose=verbose)
 
     def load_table(self, table, *, verbose=False):
         """Loads the specified table
@@ -630,46 +600,6 @@ class JwstClass(BaseQuery):
         """
         return self.__jwsttap.save_results(job=job, verbose=verbose)
 
-    def login(self, *, user=None, password=None, credentials_file=None,
-              token=None, verbose=False):
-        """Performs a login.
-        TAP+ only
-        User and password can be used or a file that contains user name and
-        password (2 lines: one for user name and the following one for the
-        password)
-
-        Parameters
-        ----------
-        user : str, mandatory if 'file' is not provided, default None
-            login name
-        password : str, mandatory if 'file' is not provided, default None
-            user password
-        credentials_file : str, mandatory if no 'user' & 'password' are
-            provided
-            file containing user and password in two lines
-        token: str, optional
-            MAST token to have access to propietary data
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-        """
-        self.__jwsttap.login(user=user,
-                             password=password,
-                             credentials_file=credentials_file,
-                             verbose=verbose)
-        if token:
-            self.set_token(token=token)
-
-    def logout(self, *, verbose=False):
-        """Performs a logout
-        TAP+ only
-
-        Parameters
-        ----------
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-        """
-        return self.__jwsttap.logout(verbose=verbose)
-
     def set_token(self, token):
         """Links a MAST token to the logged user
 
@@ -678,10 +608,13 @@ class JwstClass(BaseQuery):
         token: str, mandatory
             MAST token to have access to propietary data
         """
-        subContext = conf.JWST_TOKEN
-        data = urlencode({"token": token})
-        connHandler = self.__jwsttap._TapPlus__getconnhandler()
-        response = connHandler.execute_secure(subcontext=subContext, data=data, verbose=True)
+
+        response = esautils.execute_servlet_request(
+            tap=self.tap,
+            query_params={"token": token},
+            url=conf.JWST_DOMAIN_SERVER + conf.JWST_TARGET_ACTION
+        )
+
         if response.status == 403:
             print("ERROR: MAST tokens cannot be assigned or requested by anonymous users")
         elif response.status == 500:
@@ -693,17 +626,23 @@ class JwstClass(BaseQuery):
         """Retrieve the messages to inform users about
         the status of JWST TAP
         """
-
         try:
-            subContext = conf.JWST_MESSAGES
-            connHandler = self.__jwsttap._TapPlus__getconnhandler()
-            response = connHandler.execute_tapget(subContext, verbose=False)
-            if response.status == 200:
-                for line in response:
-                    string_message = line.decode("utf-8")
-                    print(string_message[string_message.index('=') + 1:])
+            esautils.execute_servlet_request(
+                url=conf.JWST_TAP_SERVER + "/" + conf.JWST_MESSAGES,
+                tap=self.tap,
+                query_params={},
+                parser_method=self.parse_messages_response
+            )
         except OSError:
             print("Status messages could not be retrieved")
+
+    def parse_messages_response(self, response):
+        string_messages = []
+        for line in response.iter_lines():
+            string_message = line.decode("utf-8")
+            string_messages.append(string_message[string_message.index('=') + 1:])
+            print(string_messages[len(string_messages) - 1])
+        return string_messages
 
     def get_product_list(self, *, observation_id=None,
                          cal_level="ALL",
@@ -923,8 +862,8 @@ class JwstClass(BaseQuery):
                 raise ValueError(f"Cannot retrieve product for file_name {file_name}: {exx}")
 
         try:
-            self.__jwsttap.load_data(params_dict=params_dict,
-                                     output_file=output_file_name)
+            esautils.download_file(url=conf.JWST_DATA_SERVER, session=self.tap._session, params=params_dict,
+                                   filename=output_file_name)
         except Exception as exx:
             log.info("error")
             raise ValueError(f"Error retrieving product for {err_msg}: {exx}")
@@ -1016,8 +955,8 @@ class JwstClass(BaseQuery):
         output_file_name = os.path.basename(output_file_full_path)
 
         try:
-            self.__jwsttap.load_data(params_dict=params_dict,
-                                     output_file=output_file_full_path)
+            esautils.download_file(url=conf.JWST_DATA_SERVER, session=self.tap._session, params=params_dict,
+                                   filename=output_file_full_path)
         except Exception as exx:
             raise ValueError(f"Cannot retrieve products for observation {observation_id}: {exx}")
 
@@ -1274,5 +1213,6 @@ class JwstClass(BaseQuery):
         except (UnicodeDecodeError, AttributeError):
             return str
 
+# Need to be False in order to avoid reaching out to the remote server at import time
+Jwst = JwstClass(show_messages=False)
 
-Jwst = JwstClass()
