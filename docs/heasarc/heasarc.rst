@@ -431,6 +431,7 @@ method. Here, for instance, we fetch the number of rows in the Suzaku 'master' o
 
     >>> from astroquery.heasarc import Heasarc
     >>> Heasarc.count_rows('suzamaster')
+    np.int64(3055)
 
 Reference/API
 =============
