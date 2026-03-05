@@ -958,7 +958,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             path = key.replace(f's3://{self.S3_BUCKET}/', '')
             _s3_tree_download(self.s3_client, self.S3_BUCKET, path, location)
 
-    def count_rows(self, catalog: str) -> int:
+    def count_rows(self, catalog: str) -> np.int64:
         """
         Returns the number of rows in the HEASARC-hosted catalog specified by
         the `catalog` argument.
@@ -972,11 +972,14 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         Returns
         -------
-        num_rows : `int`
+        num_rows : `np.int64`
             The total number of rows in the specified catalog.
         """
+        # Send a query requesting a count of the number of rows in the
+        #  specified catalog.
         count_return = self.query_tap(f"SELECT COUNT(*) FROM {catalog}")
 
+        # Extract an integer number of rows from the returned table.
         num_rows = count_return["count"][0]
         return num_rows
 
