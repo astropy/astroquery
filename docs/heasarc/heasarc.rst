@@ -422,6 +422,16 @@ in the XMM master catalog ``xmmmaster``:
     public_date     Public Date                              mjd
     ra              Right Ascension (Pointing Position)      degree
 
+Get Length Of Catalog
+---------------------
+To easily find out the number of rows in a catalog, use the `~astroquery.heasarc.HeasarcClass.count_rows`
+method. Here, for instance, we fetch the number of rows in the Suzaku 'master' observation table (``suzamaster``):
+
+.. doctest-remote-data::
+
+    >>> from astroquery.heasarc import Heasarc
+    >>> Heasarc.count_rows('suzamaster')
+
 Reference/API
 =============
 
