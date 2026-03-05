@@ -958,5 +958,27 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             path = key.replace(f's3://{self.S3_BUCKET}/', '')
             _s3_tree_download(self.s3_client, self.S3_BUCKET, path, location)
 
+    def count_rows(self, catalog: str) -> int:
+        """
+        Returns the number of rows in the HEASARC-hosted catalog specified by
+        the `catalog` argument.
+
+        Parameters
+        ----------
+        catalog : `str`
+            The name of the catalog to query for a total number of rows. To list
+            the available catalogs, use
+            :meth:`~astroquery.heasarc.HeasarcClass.list_catalogs`.
+
+        Returns
+        -------
+        num_rows : `int`
+            The total number of rows in the specified catalog.
+        """
+        count_return = self.query_tap(f"SELECT COUNT(*) FROM {catalog}")
+
+        num_rows = count_return["count"][0]
+        return num_rows
+
 
 Heasarc = HeasarcClass()
