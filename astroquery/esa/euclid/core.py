@@ -1365,9 +1365,10 @@ class EuclidClass(TapPlus):
             if dsr_part3 is not None:
                 params_dict['DSP3'] = dsr_part3
 
-        observation_id = product_id + '.fits'
         if file_name is not None:
             observation_id = file_name
+        else:
+            observation_id = product_id + '.fits'
 
         output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id=observation_id)
 
@@ -1436,9 +1437,8 @@ class EuclidClass(TapPlus):
         params_dict = {'TAPCLIENT': 'ASTROQUERY', 'FILEPATH': file_path, 'COLLECTION': instrument, 'OBSID': id,
                        'POS': pos}
 
-        output_file_full_path, output_dir = self.__set_dirs(output_file=output_file,
-                                                            observation_id=os.path.basename(file_path).replace('.fits',
-                                                                                                               '_cutout.fits'))
+        replace = os.path.basename(file_path).replace('.fits', '_cutout.fits')
+        output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id=replace)
         if verbose:
             print("Cutout output file: " + output_file_full_path)
 

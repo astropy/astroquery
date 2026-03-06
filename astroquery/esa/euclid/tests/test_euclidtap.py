@@ -801,8 +801,6 @@ def test_get_product_by_product_id(tmp_path_factory, capsys):
     remove_temp_dir()
 
 
-
-
 def test_get_product_by_product_id_data_set_release(tmp_path_factory):
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
