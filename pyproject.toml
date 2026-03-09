@@ -123,6 +123,7 @@ filterwarnings = [
   "error",
 # Ignore astroquery's own module reorganization deprecation warnings during testing
   "ignore:Importing from 'astroquery.jplspec' is deprecated:DeprecationWarning",
+  "ignore:astroquery\\.vo_conesearch was deprecated:astropy.utils.exceptions.AstropyDeprecationWarning",
 #   These are temporary measures, all of these should be fixed:
 #   -----------------------------------------------------------
   "ignore:distutils Version classes are deprecated:DeprecationWarning",
