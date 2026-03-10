@@ -98,7 +98,7 @@ class NedClass(BaseQuery):
             return request_payload
         response = self._request("GET", url=Ned.OBJ_SEARCH_URL,
                                  params=request_payload, timeout=Ned.TIMEOUT)
-
+        response.raise_for_status()
         return response
 
     def query_region(self, coordinates, *, radius=1 * u.arcmin, equinox='J2000.0',
@@ -283,6 +283,7 @@ class NedClass(BaseQuery):
             return request_payload
         response = self._request("GET", url=Ned.OBJ_SEARCH_URL,
                                  params=request_payload, timeout=Ned.TIMEOUT)
+        response.raise_for_status()
         return response
 
     def query_refcode(self, refcode, *, get_query_payload=False, verbose=False):
@@ -342,6 +343,7 @@ class NedClass(BaseQuery):
             return request_payload
         response = self._request("GET", url=Ned.OBJ_SEARCH_URL,
                                  params=request_payload, timeout=Ned.TIMEOUT)
+        response.raise_for_status()
         return response
 
     def get_images(self, object_name, *, get_query_payload=False,
@@ -488,6 +490,7 @@ class NedClass(BaseQuery):
         url = Ned.SPECTRA_URL if item == 'spectra' else Ned.IMG_DATA_URL
         response = self._request("GET", url=url, params=request_payload,
                                  timeout=Ned.TIMEOUT)
+        response.raise_for_status()
         return self._extract_image_urls(response.text, file_format=file_format)
 
     def _extract_image_urls(self, html_in, *, file_format='fits'):
@@ -630,6 +633,7 @@ class NedClass(BaseQuery):
             return request_payload
         response = self._request("GET", url=Ned.DATA_SEARCH_URL,
                                  params=request_payload, timeout=Ned.TIMEOUT)
+        response.raise_for_status()
         return response
 
     def _request_payload_init(self):
