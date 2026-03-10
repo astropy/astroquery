@@ -26,6 +26,9 @@ esa.euclid
 - Method ``get_product`` now supports the input file_name as a Python list (e.g. ["file1.fits", "file2.fits"]) while
   still accepting the original comma separated string format. [#3541]
 - update the output filename for downloads in the methods get_product and get_cutout [#3550]
+- The method ``get_spectrum`` accepts the new parameter ``linking_parameter`` to retrieve the spectra by source_id and
+  sourcepatch_id. [#3543]
+-  The ``source_id`` kwarg in the ``get_spectrum`` method has been renamed to ``ids``. [#3543]
 
 vizier
 ^^^^^^
