@@ -492,7 +492,7 @@ class GaiaClass(TapPlus):
         columns: list, optional, default ()
             if empty, all columns will be selected
         get_query_payload : bool, optional
-            If True, return the SQL query string that would be sent to the server,
+            If True, return the ADQL query string that would be sent to the server,
             instead of executing the query. This is useful for debugging and testing.
 
         Returns
@@ -575,7 +575,7 @@ class GaiaClass(TapPlus):
         columns: list, optional, default ()
             if empty, all columns will be selected
         get_query_payload : bool, optional
-            If True, return the SQL query string that would be sent to the server,
+            If True, return the ADQL query string that would be sent to the server,
             instead of executing the query. This is useful for debugging and testing.
 
         Returns
@@ -654,7 +654,7 @@ class GaiaClass(TapPlus):
         columns: list, optional, default ()
             if empty, all columns will be selected
         get_query_payload : bool, optional
-            If True, return the SQL query string that would be sent to the server,
+            If True, return the ADQL query string that would be sent to the server,
             instead of executing it. This is useful for debugging and testing.
 
         Returns
@@ -742,7 +742,7 @@ class GaiaClass(TapPlus):
         columns: list, optional, default ()
             if empty, all columns will be selected
         get_query_payload : bool, optional
-            If True, return the SQL query string that would be sent to the server,
+            If True, return the ADQL query string that would be sent to the server,
             instead of executing the query. This is useful for debugging and testing.
 
         Returns
