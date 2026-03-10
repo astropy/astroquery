@@ -727,11 +727,6 @@ def test_s3_mock_directory(s3_mock):
         assert os.path.exists(f"{tmpdir}/location/sub/sub2/file3.txt")
 
 
-# def test__list_columns(mock_tap, mock_default_cols):
-#     cols = Heasarc.list_columns(catalog_name='name-1')
-#     assert list(cols['name']) == ['col-2', 'col-3']
-#     assert list(cols['description']) == ['desc-2', 'desc-3']
-
 def test_row_count(mock_tap, mock_default_cols):
     cat = "name-1"
     assert Heasarc.count_rows(cat) == 3055
