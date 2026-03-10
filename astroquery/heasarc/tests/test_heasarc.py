@@ -6,6 +6,8 @@ import tempfile
 from unittest.mock import patch, PropertyMock
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
+from astropy.io import votable
+from pyvo.dal import TAPResults
 import astropy.units as u
 
 from astroquery.heasarc import Heasarc, HeasarcClass
@@ -55,7 +57,11 @@ class MockTap:
     }
 
     def search(self, query, language='ADQL', maxrec=1000, uploads=None):
-        return MockResult()
+        if "SELECT COUNT(*) FROM" in query:
+            return TAPResults(votable.from_table(Table([[3055]], names=['count'],
+                                                       dtype=['int64'])))
+        else:
+            return MockResult()
 
 
 class MockResult:
@@ -719,3 +725,13 @@ def test_s3_mock_directory(s3_mock):
         assert os.path.exists(f"{tmpdir}/location/file1.txt")
         assert os.path.exists(f"{tmpdir}/location/sub/file2.txt")
         assert os.path.exists(f"{tmpdir}/location/sub/sub2/file3.txt")
+
+
+# def test__list_columns(mock_tap, mock_default_cols):
+#     cols = Heasarc.list_columns(catalog_name='name-1')
+#     assert list(cols['name']) == ['col-2', 'col-3']
+#     assert list(cols['description']) == ['desc-2', 'desc-3']
+
+def test_row_count(mock_tap, mock_default_cols):
+    cat = "name-1"
+    assert Heasarc.count_rows(cat) == 3055
