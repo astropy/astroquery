@@ -976,7 +976,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             The total number of rows in the specified catalog.
         """
         # Send a query requesting a count of the number of rows in the
-        #  specified catalog.
+        #  specified catalog. Return is a one-row TAPResults object.
         count_return = self.query_tap(f"SELECT COUNT(*) FROM {catalog}")
 
         # Extract an integer number of rows from the returned table.
