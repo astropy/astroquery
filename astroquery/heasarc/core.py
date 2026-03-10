@@ -961,7 +961,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
     def count_rows(self, catalog):
         """
         Returns the number of rows in the HEASARC-hosted catalog specified by
-        the `catalog` argument.
+        the ``catalog`` argument.
 
         Parameters
         ----------
