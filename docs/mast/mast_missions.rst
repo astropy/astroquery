@@ -122,7 +122,7 @@ results matching *any* of the supplied positions are returned.
    ...                                   radius=0.1,
    ...                                   select_cols=select_cols,
    ...                                   sort_by='search_pos')
-   >>> results.pprint(max_width=-1)  +IGNORE_OUTPUT
+   >>> results.pprint(max_width=-1)  # doctest: +IGNORE_OUTPUT
         search_pos     sci_data_set_name  sci_targname sci_pep_id       ang_sep        sci_status
    ------------------- ----------------- ------------- ---------- -------------------- ----------
    205.54842 28.37728          O5GX13010 NGC5272-BSSV6       8226  0.09983625899279894     PUBLIC

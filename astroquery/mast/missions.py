@@ -277,7 +277,8 @@ class MastMissionsClass(MastQueryWithLogin):
         ----------
         coordinates : str, iterable of str, or `~astropy.coordinates` object, optional
             Coordinate target(s). Can be a single coordinate string/object, a comma-separated
-            coordinate string, or an iterable of coordinate strings/objects.
+            coordinate string, an iterable of coordinate strings/objects, or a vector
+            `~astropy.coordinates.SkyCoord`.
         object_names : str or iterable of str, optional
             Object-name target(s). Can be a single object name string, a comma-separated
             object-name string, or an iterable of object-name strings.
@@ -319,7 +320,12 @@ class MastMissionsClass(MastQueryWithLogin):
         # Parse coordinate targets
         for coord in coordinate_items:
             sc = commons.parse_coordinates(coord, return_frame='icrs')
-            targets.append(f"{sc.ra.deg} {sc.dec.deg}")
+            # If input is a vector SkyCoord, iterate through each coordinate
+            if isinstance(sc, SkyCoord) and sc.isscalar is False:
+                for ra, dec in zip(sc.ra.deg, sc.dec.deg):
+                    targets.append(f"{ra} {dec}")
+            else:
+                targets.append(f"{sc.ra.deg} {sc.dec.deg}")
 
         # Parse object name targets
         if object_names:

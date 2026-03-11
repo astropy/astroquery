@@ -363,6 +363,11 @@ def test_missions_parse_multiple_targets(patch_post):
     result = MastMissions._parse_multiple_targets(coordinates=coords_str)
     assert result == ['10.684 41.269', '83.6331 22.0145']
 
+    # Vector SkyCoord input
+    vector_coords = SkyCoord([10.684, 83.6324], [41.269, 22.0174], frame='icrs', unit='deg')
+    result = MastMissions._parse_multiple_targets(coordinates=vector_coords)
+    assert result == ['10.684 41.269', '83.6324 22.0174']
+
     # Single object name
     result = MastMissions._parse_multiple_targets(object_names="M101")
     assert result == ['210.802429 54.34875']
