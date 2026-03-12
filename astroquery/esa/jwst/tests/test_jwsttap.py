@@ -11,9 +11,11 @@ European Space Agency (ESA)
 import os
 import shutil
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from types import SimpleNamespace
+from unittest.mock import MagicMock, patch, call
 import sys
 import io
+
 
 import astropy.units as u
 import numpy as np
@@ -24,15 +26,13 @@ from astropy.coordinates.sky_coordinate import SkyCoord
 from astropy.io.votable import parse_single_table
 from astropy.table import Table
 from astropy.units import Quantity
+from requests import Response
+
 from astroquery.exceptions import TableParseError
 
 from astroquery.esa.jwst import JwstClass
-from astroquery.esa.jwst.tests.DummyTapHandler import DummyTapHandler
 from astroquery.ipac.ned import Ned
 from astroquery.simbad import SimbadClass
-from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
-from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
-from astroquery.utils.tap.core import TapPlus
 from astroquery.vizier import Vizier
 
 from astroquery.esa.jwst import conf
@@ -92,151 +92,57 @@ planeids = "('00000000-0000-0000-879d-ae91fa2f43e2', '00000000-0000-0000-9852-a9
 
 class TestTap:
 
-    def test_load_tables(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
-        # default parameters
-        parameters = {}
-        parameters['only_names'] = False
-        parameters['include_shared_tables'] = False
-        parameters['verbose'] = False
-        tap.load_tables()
-        dummyTapHandler.check_call('load_tables', parameters)
-        # test with parameters
-        dummyTapHandler.reset()
-        parameters = {}
-        parameters['only_names'] = True
-        parameters['include_shared_tables'] = True
-        parameters['verbose'] = True
-        tap.load_tables(only_names=True, include_shared_tables=True, verbose=True)
-        dummyTapHandler.check_call('load_tables', parameters)
-
-    def test_load_table(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
-        # default parameters
-        parameters = {}
-        parameters['table'] = 'table'
-        parameters['verbose'] = False
-        tap.load_table('table')
-        dummyTapHandler.check_call('load_table', parameters)
-        # test with parameters
-        dummyTapHandler.reset()
-        parameters = {}
-        parameters['table'] = 'table'
-        parameters['verbose'] = True
-        tap.load_table('table', verbose=True)
-        dummyTapHandler.check_call('load_table', parameters)
-
-    def test_launch_sync_job(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch.object(JwstClass, 'query_tap')
+    def test_launch_sync_job(self, mock_query_tap):
+        tap = JwstClass(show_messages=False)
         query = "query"
         # default parameters
-        parameters = {}
-        parameters['query'] = query
-        parameters['name'] = None
-        parameters['output_file'] = None
-        parameters['output_format'] = 'votable'
-        parameters['verbose'] = False
-        parameters['dump_to_file'] = False
-        parameters['upload_resource'] = None
-        parameters['upload_table_name'] = None
         tap.launch_job(query)
-        dummyTapHandler.check_call('launch_job', parameters)
-        # test with parameters
-        dummyTapHandler.reset()
-        name = 'name'
-        output_file = 'output'
-        output_format = 'format'
-        verbose = True
-        dump_to_file = True
-        upload_resource = 'upload_res'
-        upload_table_name = 'upload_table'
-        parameters['query'] = query
-        parameters['name'] = name
-        parameters['output_file'] = output_file
-        parameters['output_format'] = output_format
-        parameters['verbose'] = verbose
-        parameters['dump_to_file'] = dump_to_file
-        parameters['upload_resource'] = upload_resource
-        parameters['upload_table_name'] = upload_table_name
-        tap.launch_job(query,
-                       name=name,
-                       output_file=output_file,
-                       output_format=output_format,
-                       verbose=verbose,
-                       dump_to_file=dump_to_file,
-                       upload_resource=upload_resource,
-                       upload_table_name=upload_table_name)
-        dummyTapHandler.check_call('launch_job', parameters)
 
-    def test_launch_async_job(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+        # test with parameters
+        parameters={}
+        parameters['query'] = query
+        parameters['async_job'] = False
+        parameters['output_file'] = 'output'
+        parameters['output_format'] = 'format'
+        parameters['verbose'] = True
+        tap.launch_job(**parameters)
+
+        assert mock_query_tap.call_args_list == [
+            call('query', async_job=False, output_file=None, output_format='votable', verbose=False),
+            call('query', async_job=False, output_file='output', output_format='format', verbose=True),
+        ]
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch.object(JwstClass, 'query_tap')
+    def test_launch_async_job(self, mock_query_tap):
+        tap = JwstClass(show_messages=False)
         query = "query"
         # default parameters
         parameters = {}
         parameters['query'] = query
-        parameters['name'] = None
+        parameters['async_job'] = True
         parameters['output_file'] = None
         parameters['output_format'] = 'votable'
         parameters['verbose'] = False
-        parameters['dump_to_file'] = False
-        parameters['background'] = False
-        parameters['upload_resource'] = None
-        parameters['upload_table_name'] = None
-        tap.launch_job(query, async_job=True)
-        dummyTapHandler.check_call('launch_job_async', parameters)
-        # test with parameters
-        dummyTapHandler.reset()
-        name = 'name'
-        output_file = 'output'
-        output_format = 'format'
-        verbose = True
-        dump_to_file = True
-        background = True
-        upload_resource = 'upload_res'
-        upload_table_name = 'upload_table'
-        parameters['query'] = query
-        parameters['name'] = name
-        parameters['output_file'] = output_file
-        parameters['output_format'] = output_format
-        parameters['verbose'] = verbose
-        parameters['dump_to_file'] = dump_to_file
-        parameters['background'] = background
-        parameters['upload_resource'] = upload_resource
-        parameters['upload_table_name'] = upload_table_name
-        tap.launch_job(query,
-                       name=name,
-                       output_file=output_file,
-                       output_format=output_format,
-                       verbose=verbose,
-                       dump_to_file=dump_to_file,
-                       background=background,
-                       upload_resource=upload_resource,
-                       upload_table_name=upload_table_name,
-                       async_job=True)
-        dummyTapHandler.check_call('launch_job_async', parameters)
+        tap.launch_job(**parameters)
 
-    def test_list_async_jobs(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
-        # default parameters
-        parameters = {}
-        parameters['verbose'] = False
-        tap.list_async_jobs()
-        dummyTapHandler.check_call('list_async_jobs', parameters)
-        # test with parameters
-        dummyTapHandler.reset()
+        # test with set parameters
+        parameters['output_file'] = 'output'
+        parameters['output_format'] = 'format'
         parameters['verbose'] = True
-        tap.list_async_jobs(verbose=True)
-        dummyTapHandler.check_call('list_async_jobs', parameters)
+        tap.launch_job(**parameters)
 
-    def test_query_region(self):
-        connHandler = DummyConnHandler()
-        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
-        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
+        assert mock_query_tap.call_args_list == [
+            call('query', async_job=True, output_file=None, output_format='votable', verbose=False),
+            call('query', async_job=True, output_file='output', output_format='format', verbose=True),
+        ]
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch.object(JwstClass, 'query_tap')
+    def test_query_region(self, mock_query_tap):
+        tap = JwstClass(show_messages=False)
 
         with pytest.raises(ValueError) as err:
             tap.query_region(coordinate=123)
@@ -247,12 +153,7 @@ class TestTap:
         assert ("Unable to find coordinates for name 'test'" in err.value.args[0] or "Unable to retrieve "
                 "coordinates" in err.value.args[0])
 
-        # Launch response: we use default response because the
-        # query contains decimals
-        responseLaunchJob = DummyResponse(200)
-        responseLaunchJob.set_data(method='POST', body=JOB_DATA)
         # The query contains decimals: force default response
-        connHandler.set_default_response(responseLaunchJob)
         sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree),
                       frame='icrs')
         with pytest.raises(ValueError) as err:
@@ -270,6 +171,14 @@ class TestTap:
         with pytest.raises(ValueError) as err:
             tap.query_region(sc, width=width)
         assert "Missing required argument: 'height'" in err.value.args[0]
+
+        votable = parse_single_table(io.BytesIO(JOB_DATA.encode("utf-8")))
+        results_table = votable.to_table(use_names_over_ids=True)
+
+        # Mock job object returned by query_tap()
+        mock_job = MagicMock()
+        mock_job.get_results.return_value = results_table
+        mock_query_tap.return_value = mock_job
 
         assert (isinstance(tap.query_region(sc, width=width, height=height), Table))
 
@@ -380,27 +289,19 @@ class TestTap:
                                     None,
                                     np.int32)
 
-    def test_query_region_async(self):
-        connHandler = DummyConnHandler()
-        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
-        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
-        jobid = '12345'
-        # Launch response
-        responseLaunchJob = DummyResponse(303)
-        # list of list (httplib implementation for headers in response)
-        launchResponseHeaders = [['location', 'http://test:1111/tap/async/' + jobid]]
-        responseLaunchJob.set_data(method='POST', headers=launchResponseHeaders)
-        connHandler.set_default_response(responseLaunchJob)
-        # Phase response
-        responsePhase = DummyResponse(200)
-        responsePhase.set_data(method='GET', body="COMPLETED")
-        req = "async/" + jobid + "/phase"
-        connHandler.set_response(req, responsePhase)
-        # Results response
-        responseResultsJob = DummyResponse(200)
-        responseResultsJob.set_data(method='GET', body=JOB_DATA)
-        req = "async/" + jobid + "/results/result"
-        connHandler.set_response(req, responseResultsJob)
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch.object(JwstClass, 'query_tap')
+    def test_query_region_async(self, mock_query_tap):
+        tap = JwstClass(show_messages=False)
+
+        votable = parse_single_table(io.BytesIO(JOB_DATA.encode('utf-8')))
+        results_table = votable.to_table(use_names_over_ids=True)
+
+        # Mock job object returned by query_tap()
+        mock_job = MagicMock()
+        mock_job.get_results.return_value = results_table
+        mock_query_tap.return_value = mock_job
+
         sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree),
                       frame='icrs')
         width = Quantity(12, u.deg)
@@ -427,6 +328,8 @@ class TestTap:
                                     'table1_oid',
                                     None,
                                     np.int32)
+        assert mock_query_tap.call_args.kwargs['async_job'] is True
+        mock_query_tap.reset_mock()
         # by radius
         radius = Quantity(1, u.deg)
         table = tap.query_region(sc, radius=radius, async_job=True)
@@ -451,20 +354,29 @@ class TestTap:
                                     'table1_oid',
                                     None,
                                     np.int32)
+        assert mock_query_tap.call_args.kwargs['async_job'] is True
 
-    def test_cone_search_sync(self):
-        connHandler = DummyConnHandler()
-        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
-        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
-        # Launch response: we use default response because the
-        # query contains decimals
-        responseLaunchJob = DummyResponse(200)
-        responseLaunchJob.set_data(method='POST', body=JOB_DATA)
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch.object(JwstClass, 'query_tap')
+    def test_cone_search_sync(self, mock_query_tap):
+        tap = JwstClass(show_messages=False)
+
+        mock_job = MagicMock()
+        mock_job.async_ = False
+        mock_job.failed = False
+        mock_job.get_phase.return_value = 'COMPLETED'
+
+        votable = parse_single_table(io.BytesIO(JOB_DATA.encode("utf-8")))
+        results_table = votable.to_table(use_names_over_ids=True)
+
+        mock_job.get_results.return_value = results_table
+
+        # query_tap returns this job
+        mock_query_tap.return_value = mock_job
         ra = 19.0
         dec = 20.0
         sc = SkyCoord(ra=ra, dec=dec, unit=(u.degree, u.degree), frame='icrs')
         radius = Quantity(1.0, u.deg)
-        connHandler.set_default_response(responseLaunchJob)
         job = tap.cone_search(sc, radius)
         assert job is not None, "Expected a valid job"
         assert job.async_ is False, "Expected a synchronous job"
@@ -537,32 +449,32 @@ class TestTap:
             tap.cone_search(sc, radius, proposal_id=123)
         assert "proposal_id must be string" in err.value.args[0]
 
-    def test_cone_search_async(self):
-        connHandler = DummyConnHandler()
-        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
-        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
-        jobid = '12345'
-        # Launch response
-        responseLaunchJob = DummyResponse(303)
-        # list of list (httplib implementation for headers in response)
-        launchResponseHeaders = [['location', 'http://test:1111/tap/async/' + jobid]]
-        responseLaunchJob.set_data(method='POST', headers=launchResponseHeaders)
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch.object(JwstClass, 'query_tap')
+    def test_cone_search_async(self, mock_query_tap):
+        tap = JwstClass(show_messages=False)
+
+        mock_job = MagicMock()
+        mock_job.async_ = True
+        mock_job.failed = False
+        mock_job.get_phase.return_value = 'COMPLETED'
+
+        votable = parse_single_table(io.BytesIO(JOB_DATA.encode("utf-8")))
+        results_table = votable.to_table(use_names_over_ids=True)
+
+        mock_job.get_results.return_value = results_table
+
+        # query_tap returns this job
+        mock_query_tap.return_value = mock_job
+
         ra = 19
         dec = 20
         sc = SkyCoord(ra=ra, dec=dec, unit=(u.degree, u.degree), frame='icrs')
         radius = Quantity(1.0, u.deg)
-        connHandler.set_default_response(responseLaunchJob)
-        # Phase response
-        responsePhase = DummyResponse(200)
-        responsePhase.set_data(method='GET', body="COMPLETED")
-        req = "async/" + jobid + "/phase"
-        connHandler.set_response(req, responsePhase)
-        # Results response
-        responseResultsJob = DummyResponse(200)
-        responseResultsJob.set_data(method='GET', body=JOB_DATA)
-        req = "async/" + jobid + "/results/result"
-        connHandler.set_response(req, responseResultsJob)
+
         job = tap.cone_search(sc, radius, async_job=True)
+
+        assert job is mock_job
         assert job is not None, "Expected a valid job"
         assert job.async_ is True, "Expected an asynchronous job"
         assert job.get_phase() == 'COMPLETED', f"Wrong job phase. Expected: {'COMPLETED'}, found {job.get_phase()}"
@@ -591,17 +503,17 @@ class TestTap:
                                     None,
                                     np.int32)
 
-    def test_get_product_by_artifactid(self):
-        dummyTapHandler = DummyTapHandler()
-        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.download_file')
+    def test_get_product_by_artifactid(self, download_mock):
+        jwst = JwstClass(show_messages=False)
         # default parameters
+
         with pytest.raises(ValueError) as err:
             jwst.get_product()
         assert "Missing required argument: 'artifact_id' or 'file_name'" in err.value.args[0]
 
         # test with parameters
-        dummyTapHandler.reset()
-
         parameters = {}
         parameters['output_file'] = 'jw00617023001_02102_00001_nrcb4_uncal.fits'
         parameters['verbose'] = False
@@ -613,19 +525,29 @@ class TestTap:
         parameters['params_dict'] = param_dict
 
         jwst.get_product(artifact_id='00000000-0000-0000-8740-65e2827c9895')
-        dummyTapHandler.check_call('load_data', parameters)
+        assert download_mock.call_count == 1
 
-    def test_get_product_by_filename(self):
-        dummyTapHandler = DummyTapHandler()
-        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
+        # Check the arguments passed to download_file
+        args,kwargs = download_mock.call_args
+
+        assert kwargs["params"]["ARTIFACTID"] == "00000000-0000-0000-8740-65e2827c9895"
+        assert kwargs["params"]["RETRIEVAL_TYPE"] == "PRODUCT"
+        assert kwargs["params"]["TAPCLIENT"] == "ASTROQUERY"
+
+        assert kwargs["filename"] == "jw00617023001_02102_00001_nrcb4_uncal.fits"
+        assert kwargs["url"].startswith("https://jwst.esac.esa.int/server/data")
+        assert "session" in kwargs
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.download_file')
+    def test_get_product_by_filename(self, download_mock):
+        jwst = JwstClass(show_messages=False)
         # default parameters
         with pytest.raises(ValueError) as err:
             jwst.get_product()
         assert "Missing required argument: 'artifact_id' or 'file_name'" in err.value.args[0]
 
         # test with parameters
-        dummyTapHandler.reset()
-
         parameters = {}
         parameters['output_file'] = 'file_name_id'
         parameters['verbose'] = False
@@ -637,16 +559,32 @@ class TestTap:
         parameters['params_dict'] = param_dict
 
         jwst.get_product(file_name='file_name_id')
-        dummyTapHandler.check_call('load_data', parameters)
+        assert download_mock.call_count == 1
 
-    def test_get_products_list(self):
-        dummyTapHandler = DummyTapHandler()
-        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
+        # Check the arguments passed to download_file
+        args, kwargs = download_mock.call_args
 
-        # test with parameters
-        dummyTapHandler.reset()
+        assert kwargs["params"]["ARTIFACTID"] == "00000000-0000-0000-8740-65e2827c9895"
+        assert kwargs["params"]["RETRIEVAL_TYPE"] == "PRODUCT"
+        assert kwargs["params"]["TAPCLIENT"] == "ASTROQUERY"
 
+        assert kwargs["filename"] == "file_name_id"
+        assert kwargs["url"].startswith("https://jwst.esac.esa.int/server/data")
+        assert "session" in kwargs
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch.object(JwstClass, 'query_tap')
+    def test_get_products_list(self, mock_query_tap):
+        jwst = JwstClass(show_messages=False)
         observation_id = "jw00777011001_02104_00001_nrcblong"
+
+        # Mock job and table results
+        mock_job = MagicMock()
+        expected_table = {"filename": ["f1.fits", "f2.fits"]}
+        mock_job.get_results.return_value = expected_table
+        mock_query_tap.return_value = mock_job
+
+        result = jwst.get_product_list(observation_id=observation_id, product_type="science")
 
         query = (f"select distinct a.uri, a.artifactid, a.filename, "
                  f"a.contenttype, a.producttype, p.calibrationlevel, p.public "
@@ -654,23 +592,14 @@ class TestTap:
                  f"a ON (p.planeid=a.planeid) WHERE a.planeid "
                  f"IN {planeids} AND producttype ILIKE '%science%';")
 
-        parameters = {}
-        parameters['query'] = query
-        parameters['name'] = None
-        parameters['output_file'] = None
-        parameters['output_format'] = 'votable'
-        parameters['verbose'] = False
-        parameters['dump_to_file'] = False
-        parameters['upload_resource'] = None
-        parameters['upload_table_name'] = None
+        mock_query_tap.assert_called_once_with(query=query)
+        assert result == expected_table
 
-        jwst.get_product_list(observation_id=observation_id, product_type='science')
-        dummyTapHandler.check_call('launch_job', parameters)
-
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     def test_get_products_list_error(self):
-        dummyTapHandler = DummyTapHandler()
-        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
+        jwst = JwstClass(show_messages=False)
         observation_id = "jw00777011001_02104_00001_nrcblong"
+
         # default parameters
         with pytest.raises(ValueError) as err:
             jwst.get_product_list()
@@ -684,23 +613,24 @@ class TestTap:
             jwst.get_product_list(observation_id=observation_id, product_type='test')
         assert "product_type must be one of" in err.value.args[0]
 
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     def test_download_files_from_program(self):
-        dummyTapHandler = DummyTapHandler()
-        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
+        jwst = JwstClass(show_messages=False)
         with pytest.raises(TypeError) as err:
             jwst.download_files_from_program()
         assert "missing 1 required positional argument: 'proposal_id'" in err.value.args[0]
 
-    def test_get_obs_products(self):
-        dummyTapHandler = DummyTapHandler()
-        jwst = JwstClass(tap_plus_handler=dummyTapHandler, data_handler=dummyTapHandler, show_messages=False)
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.download_file')
+    def test_get_obs_products(self, download_mock):
+        get_obs_products_counter = 0
+        jwst = JwstClass(show_messages=False)
         # default parameters
         with pytest.raises(ValueError) as err:
             jwst.get_obs_products()
         assert "Missing required argument: 'observation_id'" in err.value.args[0]
 
         # test with parameters
-        dummyTapHandler.reset()
 
         output_file_full_path_dir = os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_1"
         try:
@@ -734,9 +664,9 @@ class TestTap:
             files_returned = (jwst.get_obs_products(
                               observation_id=observation_id, cal_level='ALL',
                               output_file=output_file_full_path))
-            dummyTapHandler.check_call('load_data', parameters)
             self.__check_extracted_files(files_expected=expected_files,
                                          files_returned=files_returned)
+            get_obs_products_counter += 1
         finally:
             shutil.rmtree(output_file_full_path_dir)
 
@@ -764,9 +694,15 @@ class TestTap:
                               product_type=product_type_as_list,
                               output_file=output_file_full_path))
             parameters['params_dict']['product_type'] = 'science,info'
-            dummyTapHandler.check_call('load_data', parameters)
+
+            args, kwargs = download_mock.call_args
+            assert kwargs["params"]["product_type"] == "science,info"
+            assert kwargs["params"]["RETRIEVAL_TYPE"] == "OBSERVATION"
+            assert kwargs["filename"] == output_file_full_path
+
             self.__check_extracted_files(files_expected=expected_files,
                                          files_returned=files_returned)
+            get_obs_products_counter += 1
         finally:
             shutil.rmtree(output_file_full_path_dir)
             del parameters['params_dict']['product_type']
@@ -794,9 +730,14 @@ class TestTap:
             files_returned = (jwst.get_obs_products(
                               observation_id=observation_id,
                               output_file=output_file_full_path))
-            dummyTapHandler.check_call('load_data', parameters)
+
+            args, kwargs = download_mock.call_args
+            assert kwargs["params"]["RETRIEVAL_TYPE"] == "OBSERVATION"
+            assert kwargs["params"]["calibrationlevel"] == "ALL"
+
             self.__check_extracted_files(files_expected=expected_files,
                                          files_returned=files_returned)
+            get_obs_products_counter += 1
         finally:
             # self.__remove_folder_contents(folder=output_file_full_path_dir)
             shutil.rmtree(output_file_full_path_dir)
@@ -826,9 +767,12 @@ class TestTap:
                               cal_level=1,
                               output_file=output_file_full_path))
             parameters['params_dict']['calibrationlevel'] = 'LEVEL1ONLY'
-            dummyTapHandler.check_call('load_data', parameters)
+
+            args, kwargs = download_mock.call_args
+            assert kwargs["params"]["calibrationlevel"] == "LEVEL1ONLY"
             self.__check_extracted_files(files_expected=expected_files,
                                          files_returned=files_returned)
+            get_obs_products_counter += 1
         finally:
             # self.__remove_folder_contents(folder=output_file_full_path_dir)
             shutil.rmtree(output_file_full_path_dir)
@@ -857,9 +801,14 @@ class TestTap:
             files_returned = (jwst.get_obs_products(
                               observation_id=observation_id,
                               output_file=output_file_full_path))
-            dummyTapHandler.check_call('load_data', parameters)
+
+            args, kwargs = download_mock.call_args
+            assert kwargs["params"]["RETRIEVAL_TYPE"] == "OBSERVATION"
+            assert kwargs["params"]["calibrationlevel"] == "ALL"
+
             self.__check_extracted_files(files_expected=expected_files,
                                          files_returned=files_returned)
+            get_obs_products_counter += 1
         finally:
             # self.__remove_folder_contents(folder=output_file_full_path_dir)
             shutil.rmtree(output_file_full_path_dir)
@@ -890,12 +839,20 @@ class TestTap:
             files_returned = (jwst.get_obs_products(
                               observation_id=observation_id,
                               output_file=output_file_full_path))
-            dummyTapHandler.check_call('load_data', parameters)
+
+            args, kwargs = download_mock.call_args
+            assert kwargs["params"]["RETRIEVAL_TYPE"] == "OBSERVATION"
+            assert kwargs["params"]["calibrationlevel"] == "ALL"
+
             self.__check_extracted_files(files_expected=expected_files,
                                          files_returned=files_returned)
+            get_obs_products_counter += 1
         finally:
             # self.__remove_folder_contents(folder=output_file_full_path_dir)
             shutil.rmtree(output_file_full_path_dir)
+
+        assert download_mock.call_count == get_obs_products_counter
+
 
     def test_gunzip_file(self):
         output_file_full_path_dir = (os.getcwd() + os.sep + "temp_test_jwsttap_gunzip")
@@ -1006,155 +963,187 @@ class TestTap:
                 assert ('This target name cannot be determined with this resolver: '
                         'VIZIER' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
 
-    def test_remove_jobs(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
-        job_list = ['dummyJob']
-        parameters = {}
-        parameters['jobs_list'] = job_list
-        parameters['verbose'] = False
-        tap.remove_jobs(jobs_list=job_list)
-        dummyTapHandler.check_call('remove_jobs', parameters)
-
-    def test_save_results(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
-        job = 'dummyJob'
-        parameters = {}
-        parameters['job'] = job
-        parameters['verbose'] = False
-        tap.save_results(job)
-        dummyTapHandler.check_call('save_results', parameters)
-
-    def test_login(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+    @patch.object(JwstClass, 'login')
+    def test_login(self, login_mock):
+        tap = JwstClass(show_messages=False)
         parameters = {}
         parameters['user'] = 'test_user'
         parameters['password'] = 'test_password'
         parameters['credentials_file'] = None
         parameters['verbose'] = False
         tap.login(user='test_user', password='test_password')
-        dummyTapHandler.check_call('login', parameters)
+        login_mock.assert_called_once_with(
+            user="test_user",
+            password="test_password"
+        )
 
-    def test_logout(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+    @patch.object(JwstClass, 'logout')
+    def test_logout(self, logout_mock):
+        tap = JwstClass(show_messages=False)
         parameters = {}
         parameters['verbose'] = False
         tap.logout()
-        dummyTapHandler.check_call('logout', parameters)
+        logout_mock.assert_called_once()
 
-    def test_set_token_ok(self):
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    def test_set_token_ok(self, mock_execute_servlet_request):
         old_stdout = sys.stdout  # Memorize the default stdout stream
         sys.stdout = buffer = io.StringIO()
 
-        connHandler = DummyConnHandler()
-        response = DummyResponse(200)
-        response.set_data(method='GET', body='OK')
+        tap = JwstClass(show_messages=False)
         token = 'test_token'
-        connHandler.set_response(f"{conf.JWST_TOKEN}?token={token}", response)
-        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
-        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
+
+        # Mock a successful servlet response
+        mock_execute_servlet_request.return_value = SimpleNamespace(status=200)
 
         tap.set_token(token=token)
 
         sys.stdout = old_stdout
         assert ('MAST token has been set successfully' in buffer.getvalue())
+        mock_execute_servlet_request.assert_called_once_with(
+            tap=tap.tap,
+            query_params={'token': token},
+            url=conf.JWST_DOMAIN_SERVER + conf.JWST_TARGET_ACTION,
+        )
 
-    def test_set_token_anonymous_error(self):
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    def test_set_token_anonymous_error(self, mock_execute_servlet_request):
         old_stdout = sys.stdout  # Memorize the default stdout stream
         sys.stdout = buffer = io.StringIO()
 
-        connHandler = DummyConnHandler()
-        response = DummyResponse(403)
-        response.set_data(method='GET', body='OK')
+        tap = JwstClass(show_messages=False)
         token = 'test_token'
-        connHandler.set_response(f"{conf.JWST_TOKEN}?token={token}", response)
-        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
-        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
+
+        # Mock 403 error
+        mock_execute_servlet_request.return_value = SimpleNamespace(status=403)
 
         tap.set_token(token=token)
 
         sys.stdout = old_stdout
         assert ('ERROR: MAST tokens cannot be assigned or requested by anonymous users' in buffer.getvalue())
+        mock_execute_servlet_request.assert_called_once_with(
+            tap=tap.tap,
+            query_params={'token': token},
+            url=conf.JWST_DOMAIN_SERVER + conf.JWST_TARGET_ACTION,
+        )
 
-    def test_set_token_server_error(self):
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    def test_set_token_server_error(self, mock_execute_servlet_request):
         old_stdout = sys.stdout  # Memorize the default stdout stream
         sys.stdout = buffer = io.StringIO()
 
-        connHandler = DummyConnHandler()
-        response = DummyResponse(500)
-        response.set_data(method='GET', body='OK')
+        tap = JwstClass(show_messages=False)
         token = 'test_token'
-        connHandler.set_response(f"{conf.JWST_TOKEN}?token={token}", response)
-        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
-        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
+
+        # Mock 500 error
+        mock_execute_servlet_request.return_value = SimpleNamespace(status=500)
 
         tap.set_token(token=token)
 
         sys.stdout = old_stdout
         assert ('ERROR: Server error when setting the token' in buffer.getvalue())
+        mock_execute_servlet_request.assert_called_once_with(
+            tap=tap.tap,
+            query_params={'token': token},
+            url=conf.JWST_DOMAIN_SERVER + conf.JWST_TARGET_ACTION,
+        )
 
-    def test_get_messages_ok(self):
-        old_stdout = sys.stdout  # Memorize the default stdout stream
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    def test_get_messages_ok(self, mock_execute_servlet_request):
+        old_stdout = sys.stdout # Memorize the default stdout stream
         sys.stdout = buffer = io.StringIO()
 
-        connHandler = DummyConnHandler()
-        response = DummyResponse(200)
-        response.set_data(method='GET', body='message=SERVER OK')
-        connHandler.set_response(f"{conf.JWST_MESSAGES}", response)
-        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
-        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
+        jwst = JwstClass(show_messages=False)
 
-        tap.get_status_messages()
+        # Fake response object for parse_messages_response
+        class FakeResponse:
+            def iter_lines(self):
+                return [b"message=SERVER OK"]
+
+        # Calls the parser method in execute_servlet_request using the fake response
+        mock_execute_servlet_request.side_effect = lambda *args, **kwargs: kwargs["parser_method"](FakeResponse())
+
+        jwst.get_status_messages()
+
         sys.stdout = old_stdout
         assert ('SERVER OK' in buffer.getvalue())
+        mock_execute_servlet_request.assert_called_once()
 
     @pytest.mark.noautofixt
-    def test_query_get_product(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch.object(JwstClass, 'query_tap')
+    def test_query_get_product(self, mock_query_tap):
+        tap = JwstClass(show_messages=False)
         file = 'test_file'
         parameters = {}
         parameters['query'] = f"select * from jwst.artifact a where a.filename = '{file}'"
-        parameters['name'] = None
         parameters['output_file'] = None
         parameters['output_format'] = 'votable'
         parameters['verbose'] = False
-        parameters['dump_to_file'] = False
-        parameters['upload_resource'] = None
-        parameters['upload_table_name'] = None
-        tap._query_get_product(file_name=file)
-        dummyTapHandler.check_call('launch_job', parameters)
+
+        # Mock return value for job.get_results()
+        mock_job = MagicMock()
+        mock_job.get_results.side_effect = [{'artifactid': ['artifact123']}, {"filename": ["file456.fits"]}]
+        mock_query_tap.return_value = mock_job
+
+        result = tap._query_get_product(file_name=file)
+
+        mock_query_tap.assert_called_once_with(query=f"select * from jwst.artifact a where a.filename = '{file}'")
+        assert result == 'artifact123'
+
+        mock_query_tap.reset_mock()
 
         artifact = 'test_artifact'
         parameters['query'] = f"select * from jwst.artifact a where a.artifactid = '{artifact}'"
-        tap._query_get_product(artifact_id=artifact)
-        dummyTapHandler.check_call('launch_job', parameters)
+        result = tap._query_get_product(artifact_id=artifact)
+        mock_query_tap.assert_called_once_with(query=f"select * from jwst.artifact a where a.artifactid = '{artifact}'")
+        assert result == 'file456.fits'
 
-    def test_get_related_observations(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch.object(JwstClass, 'query_tap')
+    def test_get_related_observations(self, mock_query_tap):
+        tap = JwstClass(show_messages=False)
         obs = 'dummyObs'
-        tap.get_related_observations(observation_id=obs)
-        parameters = {}
-        parameters['query'] = f"select * from jwst.main m where m.members like '%{obs}%'"
-        parameters['name'] = None
-        parameters['output_file'] = None
-        parameters['output_format'] = 'votable'
-        parameters['verbose'] = False
-        parameters['dump_to_file'] = False
-        parameters['upload_resource'] = None
-        parameters['upload_table_name'] = None
-        dummyTapHandler.check_call('launch_job', parameters)
 
-    def test_load_async_job(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
-        tap.load_async_job(jobid=101222)
-        parameters = {}
-        parameters['jobid'] = 101222
-        parameters['name'] = None
-        parameters['verbose'] = False
-        dummyTapHandler.check_call('load_async_job', parameters)
+        mock_job_ok = MagicMock()
+        mock_job_ok.get_results.return_value = {"observationid": ["OBS1", "OBS2"]}
+        mock_query_tap.return_value = mock_job_ok
+
+        result = tap.get_related_observations(observation_id=obs)
+        assert result == ["OBS1", "OBS2"]
+        mock_query_tap.assert_called_once_with(
+            query=f"select * from {conf.JWST_MAIN_TABLE} m where m.members like '%{obs}%'"
+        )
+
+        mock_query_tap.reset_mock()
+        mock_job_empty = MagicMock()
+        mock_job_empty.get_results.return_value = {"observationid": [""]}
+        mock_job_members = MagicMock()
+        mock_job_members.get_results.return_value = {"members": ["caom:JWST/123 456 789"]}
+        mock_query_tap.side_effect = [mock_job_empty, mock_job_members]
+
+        result = tap.get_related_observations(observation_id=obs)
+        assert result == ["123", "456", "789"]
+
+        assert mock_query_tap.call_args_list[0].kwargs == {"query": f"select * from {conf.JWST_MAIN_TABLE} m where m.members like '%{obs}%'"}
+        assert mock_query_tap.call_args_list[1].kwargs == {"query": f"select m.members from {conf.JWST_MAIN_TABLE} m where m.observationid='{obs}'"}
+
+    def test_parse_messages_response(self):
+        jwst = JwstClass(show_messages=False)
+        response = Response()
+        response.status_code = 200
+        plain_text = (
+            "notification_id1[type: type1,subtype1]=msg1\n"
+            "notification_id2[type: type2,subtype2]=msg2\n"
+            "notification_idn[type: typen,subtypen]=msgn"
+        )
+        response._content = plain_text.encode('utf-8')
+        response.headers['Content-Type'] = 'text/plain'
+        response.raw = io.BytesIO(response._content)
+        messages = jwst.parse_messages_response(response)
+        assert len(messages) == 3
+        assert messages == ["msg1", "msg2", "msgn"]

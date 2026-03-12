@@ -75,26 +75,8 @@ class JwstClass(EsaTap):
         if show_messages:
             self.get_status_messages()
 
-    def load_table(self, table, *, verbose=False):
-        """Loads the specified table
-        TAP+ only
-
-        Parameters
-        ----------
-        table : str, mandatory
-            full qualified table name (i.e. schema name + table name)
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A table object
-        """
-        return self.__jwsttap.load_table(table, verbose=verbose)
-
-    def launch_job(self, query, *, name=None, output_file=None,
-                   output_format="votable", verbose=False, dump_to_file=False,
-                   background=False, upload_resource=None, upload_table_name=None,
+    def launch_job(self, query, *, output_file=None,
+                   output_format="votable", verbose=False,
                    async_job=False):
         """Launches a synchronous or asynchronous job
         TAP & TAP+
@@ -103,8 +85,6 @@ class JwstClass(EsaTap):
         ----------
         query : str, mandatory
             query to be executed
-        name : str, optional, default None
-            name of the job to be executed
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
@@ -115,16 +95,6 @@ class JwstClass(EsaTap):
             'fits': str, FITS format
         verbose : bool, optional, default 'False'
             flag to display information about the process
-        dump_to_file : bool, optional, default 'False'
-            if True, the results are saved in a file instead of using memory
-        background : bool, optional, default 'False'
-            when the job is executed in asynchronous mode, this flag specifies
-            whether the execution will wait until results are available
-        upload_resource: str, optional, default None
-            resource to be uploaded to UPLOAD_SCHEMA
-        upload_table_name: str, required if uploadResource is provided
-            Default None
-            resource temporary table name associated to the uploaded resource
         async_job: bool, optional, default 'False'
             tag to execute the job in sync or async mode
 
@@ -132,76 +102,7 @@ class JwstClass(EsaTap):
         -------
         A Job object
         """
-        if async_job:
-            return (self.__jwsttap.launch_job_async(query=query,
-                                                    name=name,
-                                                    output_file=output_file,
-                                                    output_format=output_format,
-                                                    verbose=verbose,
-                                                    dump_to_file=dump_to_file,
-                                                    background=background,
-                                                    upload_resource=upload_resource,
-                                                    upload_table_name=upload_table_name))
-        else:
-            return self.__jwsttap.launch_job(query=query,
-                                             name=name,
-                                             output_file=output_file,
-                                             output_format=output_format,
-                                             verbose=verbose,
-                                             dump_to_file=dump_to_file,
-                                             upload_resource=upload_resource,
-                                             upload_table_name=upload_table_name)
-
-    def load_async_job(self, *, jobid=None, name=None, verbose=False):
-        """Loads an asynchronous job
-        TAP & TAP+
-
-        Parameters
-        ----------
-        jobid : str, mandatory if no name is provided, default None
-            job identifier
-        name : str, mandatory if no jobid is provided, default None
-            job name
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A Job object
-        """
-        return self.__jwsttap.load_async_job(jobid=jobid, name=name, verbose=verbose)
-
-    def search_async_jobs(self, *, jobfilter=None, verbose=False):
-        """Searches for jobs applying the specified filter
-        TAP+ only
-
-        Parameters
-        ----------
-        jobfilter : JobFilter, optional, default None
-            job filter
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A list of Job objects
-        """
-        return self.__jwsttap.search_async_jobs(jobfilter=jobfilter, verbose=verbose)
-
-    def list_async_jobs(self, *, verbose=False):
-        """Returns all the asynchronous jobs
-        TAP & TAP+
-
-        Parameters
-        ----------
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A list of Job objects
-        """
-        return self.__jwsttap.list_async_jobs(verbose=verbose)
+        return self.query_tap(query, async_job=async_job, output_file=output_file, output_format=output_format, verbose=verbose)
 
     def query_region(self, coordinate, *,
                      radius=None,
@@ -321,10 +222,7 @@ class JwstClass(EsaTap):
                      f"ORDER BY dist ASC")
             if verbose:
                 print(query)
-            if async_job:
-                job = self.__jwsttap.launch_job_async(query=query, verbose=verbose)
-            else:
-                job = self.__jwsttap.launch_job(query=query, verbose=verbose)
+            job = self.query_tap(query=query, async_job=async_job, verbose=verbose)
         return job.get_results()
 
     def cone_search(self, coordinate, radius, *,
@@ -435,19 +333,7 @@ class JwstClass(EsaTap):
                  f"{filter_name_condition}"
                  f"{proposal_id_condition}"
                  f"ORDER BY dist ASC")
-        if async_job:
-            return self.__jwsttap.launch_job_async(query=query,
-                                                   output_file=output_file,
-                                                   output_format=output_format,
-                                                   verbose=verbose,
-                                                   dump_to_file=dump_to_file,
-                                                   background=background)
-        else:
-            return self.__jwsttap.launch_job(query=query,
-                                             output_file=output_file,
-                                             output_format=output_format,
-                                             verbose=verbose,
-                                             dump_to_file=dump_to_file)
+        return self.query_tap(query=query, async_job=async_job, output_file=output_file, output_format=output_format, verbose=verbose)
 
     def query_target(self, target_name, *, target_resolver="ALL",
                      radius=None,
@@ -573,33 +459,6 @@ class JwstClass(EsaTap):
             raise ValueError(f"This target name cannot be determined with"
                              f" this resolver: {target_resolver}")
 
-    def remove_jobs(self, jobs_list, *, verbose=False):
-        """Removes the specified jobs
-        TAP+
-
-        Parameters
-        ----------
-        jobs_list : str, mandatory
-            jobs identifiers to be removed
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        """
-        return self.__jwsttap.remove_jobs(jobs_list=jobs_list, verbose=verbose)
-
-    def save_results(self, job, *, verbose=False):
-        """Saves job results
-        TAP & TAP+
-
-        Parameters
-        ----------
-        job : Job, mandatory
-            job
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-        """
-        return self.__jwsttap.save_results(job=job, verbose=verbose)
-
     def set_token(self, token):
         """Links a MAST token to the logged user
 
@@ -688,7 +547,7 @@ class JwstClass(EsaTap):
                  f"{conf.JWST_ARTIFACT_TABLE} a ON (p.planeid=a.planeid) "
                  f"WHERE a.planeid IN {list}"
                  f"{self.__get_artifact_producttype_condition(product_type=product_type)};")
-        job = self.__jwsttap.launch_job(query=query)
+        job = self.query_tap(query=query)
         return job.get_results()
 
     def __validate_cal_level(self, cal_level):
@@ -722,7 +581,7 @@ class JwstClass(EsaTap):
             query_plane = (f"select distinct m.planeid, m.calibrationlevel "
                            f"from {conf.JWST_MAIN_TABLE} m where "
                            f"m.observationid = '{observation_id}'")
-            job = self.__jwsttap.launch_job(query=query_plane)
+            job = self.query_tap(query=query_plane)
             job.get_results().sort(["calibrationlevel"])
             job.get_results().reverse()
             max_cal_level = job.get_results()["calibrationlevel"][0]
@@ -753,7 +612,7 @@ class JwstClass(EsaTap):
                               f"p.obsid=o.obsid JOIN "
                               f"{conf.JWST_PLANE_TABLE} sp ON "
                               f"sp.obsid=o.obsid {where_clause}'{planeid}'")
-            job = self.__jwsttap.launch_job(query=query_siblings)
+            job = self.query_tap(query=query_siblings)
             return job.get_results()
         except Exception as e:
             raise ValueError(e)
@@ -780,7 +639,7 @@ class JwstClass(EsaTap):
                              f"{conf.JWST_PLANE_TABLE} mp on "
                              f"mo.obsid=mp.obsid "
                              f"{where_clause}'{planeid}'")
-            job = self.__jwsttap.launch_job(query=query_members)
+            job = self.query_tap(query=query_members)
             return job.get_results()
         except Exception as e:
             raise ValueError(e)
@@ -807,14 +666,14 @@ class JwstClass(EsaTap):
         query_upper = (f"select * from {conf.JWST_MAIN_TABLE} m "
                        f"where m.members like "
                        f"'%{observation_id}%'")
-        job = self.__jwsttap.launch_job(query=query_upper)
+        job = self.query_tap(query=query_upper)
         if any(job.get_results()["observationid"]):
             oids = job.get_results()["observationid"]
         else:
             query_members = (f"select m.members from {conf.JWST_MAIN_TABLE} "
                              f"m where m.observationid"
                              f"='{observation_id}'")
-            job = self.__jwsttap.launch_job(query=query_members)
+            job = self.query_tap(query=query_members)
             oids = JwstClass.get_decoded_string(
                 job.get_results()["members"][0]).\
                 replace("caom:JWST/", "").split(" ")
@@ -875,14 +734,14 @@ class JwstClass(EsaTap):
             query_artifactid = (f"select * from {conf.JWST_ARTIFACT_TABLE} "
                                 f"a where a.filename = "
                                 f"'{file_name}'")
-            job = self.__jwsttap.launch_job(query=query_artifactid)
+            job = self.query_tap(query=query_artifactid)
             return JwstClass.get_decoded_string(
                 job.get_results()['artifactid'][0])
         else:
             query_filename = (f"select * from {conf.JWST_ARTIFACT_TABLE} a "
                               f"where a.artifactid = "
                               f"'{artifact_id}'")
-            job = self.__jwsttap.launch_job(query=query_filename)
+            job = self.query_tap(query=query_filename)
             return JwstClass.get_decoded_string(
                 job.get_results()['filename'][0])
 
@@ -1001,7 +860,7 @@ class JwstClass(EsaTap):
                  f"WHERE proposal_id='{str(proposal_id)}'")
         if verbose:
             print(query)
-        job = self.__jwsttap.launch_job_async(query=query, verbose=verbose)
+        job = self.query_tap(query=query, verbose=verbose)
         allobs = set(JwstClass.get_decoded_string(job.get_results()['observationid']))
         for oid in allobs:
             log.info(f"Downloading products for Observation ID: {oid}")
