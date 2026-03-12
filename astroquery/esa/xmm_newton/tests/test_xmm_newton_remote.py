@@ -212,7 +212,7 @@ class TestXMMNewtonRemote:
             xsa.download_data(**parameters)
 
     def test_download_proprietary_data_without_credentials(self, tmp_cwd):
-        parameters = {'observation_id': "0861270201",
+        parameters = {'observation_id': "0984300101",
                       'level': "PPS",
                       'name': 'OBSMLI',
                       'filename': 'single',

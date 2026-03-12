@@ -260,6 +260,8 @@ The following modules have been completed using a common API:
   esa/euclid/euclid.rst
   esa/hsa/hsa.rst
   esa/hubble/hubble.rst
+  esa/emds/emds.rst
+  esa/emds/einsteinprobe/einsteinprobe.rst
   esa/integral/integral.rst
   esa/iso/iso.rst
   esa/jwst/jwst.rst
@@ -376,7 +378,13 @@ generally return a table listing the available data first.
   alma/alma.rst
   cadc/cadc.rst
   casda/casda.rst
+  esa/euclid/euclid.rst
+  esa/hsa/hsa.rst
   esa/hubble/hubble.rst
+  esa/emds/emds.rst
+  esa/emds/einsteinprobe/einsteinprobe.rst
+  esa/integral/integral.rst
+  esa/iso/iso.rst
   esa/jwst/jwst.rst
   esa/xmm_newton/xmm_newton.rst
   eso/eso.rst
@@ -439,6 +447,7 @@ above categories. Those services are here:
   jplsbdb/jplsbdb.rst
   nasa_ads/nasa_ads.rst
   solarsystem/neodys/neodys.rst
+  esa/utils/utils.rst
   utils/tap.rst
 
 
