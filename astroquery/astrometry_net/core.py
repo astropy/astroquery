@@ -348,6 +348,7 @@ class AstrometryNetClass(BaseQuery):
                          solve_timeout=TIMEOUT,
                          verbose=True,
                          return_submission_id=False,
+                         get_query_payload=False,
                          **settings):
         """
         Plate solve from an image, either by uploading the image to
@@ -393,6 +394,9 @@ class AstrometryNetClass(BaseQuery):
 
         return_submission_id : bool, optional
             Whether to return the Submission ID number.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP
+            request.  Defaults to `False`.
 
         For a list of the remaining settings, use the method
         `~AstrometryNetClass.show_allowed_settings`.
@@ -416,6 +420,8 @@ class AstrometryNetClass(BaseQuery):
                 self._login()
             settings['session'] = self._session_id
             payload = self._construct_payload(settings)
+            if get_query_payload:
+                return payload
             url = url_helpers.join(self.API_URL, 'upload')
             with open(image_file_path, 'rb') as f:
                 response = self._request('POST', url, data=payload,
@@ -470,6 +476,7 @@ class AstrometryNetClass(BaseQuery):
                                                solve_timeout=solve_timeout,
                                                verbose=verbose,
                                                return_submission_id=return_submission_id,
+                                               get_query_payload=get_query_payload,
                                                **settings)
         if response.status_code != 200:
             raise RuntimeError('Post of job failed')
