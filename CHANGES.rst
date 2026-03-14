@@ -72,6 +72,11 @@ gaia
 - Added ``get_query_payload`` kwarg to return the ADQL query string. [#3539]
 
 
+esa.euclid
+^^^^^^^^^^
+
+- New method get_sia to access the Simple Image Access Protocol (SIAP) v2.0 [#3506]
+
 esa.hubble
 ^^^^^^^^^^
 
