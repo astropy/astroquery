@@ -77,6 +77,11 @@ You can also use the ``filter`` argument within the
 to return only the catalogs with their
 name or short description matching to the specified string (case-insensitive matching).
 
+.. note::
+
+   By default `~.astroquery.ipac.irsa.IrsaClass.list_catalogs` will only return catalogs. To list
+   all TAP supported tables, including metadata tables, use the ``include_metadata_tables=True`` parameter.
+
 
 .. doctest-remote-data::
 
