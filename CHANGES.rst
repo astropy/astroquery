@@ -55,6 +55,7 @@ svo_fps
 ^^^^^^^
 
 - Add ``get_filter_metadata`` to allow retrieval of filter metadata. [#3528]
+- Add ``get_zeropoint`` to allow retrieval of filter zeropoints and allow kwarg passing to ``get_filter_metadata``. [#3545]
 
 heasarc
 ^^^^^^^
