@@ -51,6 +51,11 @@ vo_conesearch
 Service fixes and enhancements
 ------------------------------
 
+astrometry_net
+^^^^^^^^^^^^^^
+
+- Added ``get_query_payload`` kwarg to aid in debugging. [#3555]
+
 svo_fps
 ^^^^^^^
 

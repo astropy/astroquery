@@ -397,6 +397,18 @@ There are two parameters that describe setting a license:
         other users. This can either be set to ``y``, ``n``, or ``d``, which
         uses the default license associated with the api key.
 
+Debugging Options
+^^^^^^^^^^^^^^^^^
+
+To inspect the data being sent to the server for debugging purposes without
+making a network call, you can use the following parameter:
+
+``get_query_payload``
+    If set to ``True``, returns the prepared query payload and does not send
+    the request to the external server. No job is created and no solution is
+    returned. This allows verification of parameters, source lists, or image
+    headers before submitting an actual solve operation.
+
 Reference/API
 =============
 

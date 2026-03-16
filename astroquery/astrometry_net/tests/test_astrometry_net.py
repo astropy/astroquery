@@ -3,6 +3,7 @@ import os
 import json
 
 import pytest
+from unittest.mock import patch, mock_open
 
 from .. import AstrometryNet
 
@@ -186,3 +187,43 @@ def test_invalid_setting_in_solve_from_source_list_name_raises_error():
         # The keyword argument is definitely not one of the allowed ones.
         anet.solve_from_source_list([], [], [], [], im_a_bad_setting_name=5)
     assert 'im_a_bad_setting_name is not allowed' in str(e.value)
+
+
+def test_get_query_payload_solve_from_source_list():
+    anet = AstrometryNet()
+    anet.api_key = 'fakekey'
+    # Mock the _login method to prevent actual HTTP requests
+    with patch.object(anet, '_login'):
+        # Test that get_query_payload=True returns the payload dict
+        payload = anet.solve_from_source_list([1, 2, 3], [4, 5, 6], 100, 100,
+                                              get_query_payload=True)
+        assert isinstance(payload, dict)
+        assert 'request-json' in payload
+        settings = json.loads(payload['request-json'])
+        assert settings['x'] == [1.0, 2.0, 3.0]
+        assert settings['y'] == [4.0, 5.0, 6.0]
+        assert settings['image_width'] == 100
+        assert settings['image_height'] == 100
+
+
+def test_get_query_payload_solve_from_image():
+    anet = AstrometryNet()
+    anet.api_key = 'fakekey'
+    with patch.object(anet, '_login'):
+        anet._session_id = 'fakesessionid'
+        with patch('builtins.open', mock_open()):
+            payload = anet.solve_from_image('fake_image.fits',
+                                            get_query_payload=True,
+                                            center_ra=10.5,
+                                            center_dec=20.3)
+            assert isinstance(payload, dict)
+            assert 'request-json' in payload
+            settings = json.loads(payload['request-json'])
+            assert settings['session'] == 'fakesessionid'
+            assert settings['center_ra'] == 10.5
+            assert settings['center_dec'] == 20.3
+            # Verify that source list specific parameters are not present
+            assert 'x' not in settings
+            assert 'y' not in settings
+            assert 'image_width' not in settings
+            assert 'image_height' not in settings
