@@ -167,6 +167,7 @@ class EsaTap(BaseVOQuery, BaseQuery):
     TIMEOUT = 60
     REQUEST_PARAMETERS = {}  # Additional parameters to be added to all requests
     THRESHOLD = 1e-5
+    UPLOAD_URL = None  # missions override if they support uploads
 
     """
     Class to init ESA TAP Module to communicate with {ESA_ARCHIVE_NAME} Science Archive
@@ -392,7 +393,9 @@ class EsaTap(BaseVOQuery, BaseQuery):
         """
         self._auth_session.logout(logout_url=self.LOGOUT_URL)
 
-    def query_tap(self, query, *, async_job=False, output_file=None, output_format='votable', verbose=False):
+    def query_tap(self, query, *, async_job=False, output_file=None, output_format='votable',
+                  verbose=False, name=None, dump_to_file=False, background=False,
+                  upload_resource=None, upload_table_name=None):
         """
         Launches a synchronous or asynchronous job to query the {ESA_ARCHIVE_NAME} TAP
 
@@ -410,11 +413,42 @@ class EsaTap(BaseVOQuery, BaseQuery):
             results format
         verbose: bool, optional, default False
             To log the query when executing this method.
+        name : str, optional, default None
+            name of the job to be executed
+        dump_to_file : bool, optional, default 'False'
+            if True, the results are saved in a file instead of using memory
+        background : bool, optional, default 'False'
+            when the job is executed in asynchronous mode, this flag specifies
+            whether the execution will wait until results are available
+        upload_resource: str, optional, default None
+            resource to be uploaded to UPLOAD_SCHEMA
+        upload_table_name: str, required if uploadResource is provided
+            Default None
+            resource temporary table name associated to the uploaded resource
 
         Returns
         -------
         An astropy.table object containing the results
         """
+
+        # handle upload ONLY if mission supports it
+        if upload_resource is not None:
+            if upload_table_name is None:
+                raise ValueError("upload_table_name must be provided when using upload_resource")
+
+            if self.UPLOAD_URL is None:
+                raise RuntimeError("Uploads are not supported for this mission.")
+
+            # Perform upload:
+            self.upload_table(
+                upload_resource=upload_resource,
+                table_name=upload_table_name,
+                verbose=verbose
+            )
+
+            if verbose:
+                print(f"Uploaded table '{upload_table_name}' to JWST TAP server.")
+
         if async_job:
             query_result = self.tap.run_async(query)
             result = query_result.to_table()
@@ -428,6 +462,46 @@ class EsaTap(BaseVOQuery, BaseQuery):
             print(f"Executed query:{query}")
 
         return result
+
+
+
+    def upload_table(self, *, upload_resource, table_name, verbose=False):
+        if self.UPLOAD_URL is None:
+            raise RuntimeError("This archive does not support table uploads.")
+
+        if upload_resource is None:
+            raise ValueError("upload_resource must be provided")
+        if table_name is None:
+            raise ValueError("table_name must be provided")
+
+        # prepare file
+        if hasattr(upload_resource, "read"):
+            content = upload_resource.read()
+            if isinstance(content, str):
+                content = content.encode("utf-8")
+            files = {"FILE": ("upload_file", content)}
+        else:
+            files = {"FILE": open(upload_resource, "rb")}
+
+        payload = {"TABLE_NAME": table_name}
+
+        try:
+            response = execute_servlet_request(
+                url=self.UPLOAD_URL,
+                tap=self,
+                method="POST",
+                data=payload,
+                files=files,
+            )
+        finally:
+            if not hasattr(upload_resource, "read"):
+                files["FILE"].close()
+
+        if verbose:
+            print(f"Uploaded table '{table_name}' to {self.UPLOAD_URL}")
+
+        return response
+
 
     def create_cone_search_query(self, ra, dec, ra_column, dec_column, radius):
         return f"1=CONTAINS(POINT('ICRS', {ra_column}, {dec_column}),CIRCLE('ICRS', {ra}, {dec}, {radius}))"
@@ -681,7 +755,7 @@ def download_table(astropy_table, output_file=None, output_format=None):
     astropy_table.write(output_file, format=output_format, overwrite=True)
 
 
-def execute_servlet_request(url, tap, *, query_params=None, parser_method=None):
+def execute_servlet_request(url, tap, *, method='GET', query_params=None, data=None, files=None, parser_method=None):
     """
     Method to execute requests to the servlets on a server
 
@@ -700,12 +774,33 @@ def execute_servlet_request(url, tap, *, query_params=None, parser_method=None):
     -------
     The request with the modified url
     """
+    if query_params is None:
+        query_params = {}
 
     if 'TAPCLIENT' not in query_params:
         query_params['TAPCLIENT'] = 'ASTROQUERY'
 
-    # Use the TAPService session to perform a custom GET request
-    response = tap._session.get(url=url, params=query_params)
+    session = tap._session
+
+    method = method.upper()
+
+
+    if method == "GET":
+        # Use the TAPService session to perform a custom GET request
+        response = session.get(url=url, params=query_params)
+
+    elif method == "POST":
+        response = session.post(
+            url=url,
+            params=query_params,
+            data=data,
+            files=files
+        )
+
+    else:
+        raise ValueError(f"Unsupported servlet method: {method}")
+
+
     if response.status_code == 200:
         if parser_method is None:
             return response.json()

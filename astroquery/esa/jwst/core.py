@@ -33,7 +33,6 @@ from astroquery.simbad import Simbad
 from astroquery.utils import commons
 from astroquery.vizier import Vizier
 from . import conf
-from .data_access import JwstDataHandler
 
 
 __all__ = ['Jwst', 'JwstClass']
@@ -69,14 +68,16 @@ class JwstClass(EsaTap):
     TAP_URL = conf.JWST_TAP_SERVER
     LOGIN_URL = conf.JWST_LOGIN_SERVER
     LOGOUT_URL = conf.JWST_LOGOUT_SERVER
+    UPLOAD_URL = conf.JWST_UPLOAD
 
     def __init__(self, *, show_messages=False, auth_session=None, tap_url=None):
         super().__init__(auth_session=auth_session, tap_url=tap_url)
         if show_messages:
             self.get_status_messages()
 
-    def launch_job(self, query, *, output_file=None,
-                   output_format="votable", verbose=False,
+    def launch_job(self, query, *, name=None, output_file=None,
+                   output_format="votable", verbose=False, dump_to_file=False,
+                   background=False, upload_resource=None, upload_table_name=None,
                    async_job=False):
         """Launches a synchronous or asynchronous job
         TAP & TAP+
@@ -85,6 +86,8 @@ class JwstClass(EsaTap):
         ----------
         query : str, mandatory
             query to be executed
+        name : str, optional, default None
+            name of the job to be executed
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
@@ -95,6 +98,16 @@ class JwstClass(EsaTap):
             'fits': str, FITS format
         verbose : bool, optional, default 'False'
             flag to display information about the process
+        dump_to_file : bool, optional, default 'False'
+            if True, the results are saved in a file instead of using memory
+        background : bool, optional, default 'False'
+            when the job is executed in asynchronous mode, this flag specifies
+            whether the execution will wait until results are available
+        upload_resource: str, optional, default None
+            resource to be uploaded to UPLOAD_SCHEMA
+        upload_table_name: str, required if uploadResource is provided
+            Default None
+            resource temporary table name associated to the uploaded resource
         async_job: bool, optional, default 'False'
             tag to execute the job in sync or async mode
 
@@ -102,7 +115,16 @@ class JwstClass(EsaTap):
         -------
         A Job object
         """
-        return self.query_tap(query, async_job=async_job, output_file=output_file, output_format=output_format, verbose=verbose)
+        return self.query_tap(query,
+                              async_job=async_job,
+                              output_file=output_file,
+                              output_format=output_format,
+                              verbose=verbose,
+                              name=name,
+                              dump_to_file=dump_to_file,
+                              background=background,
+                              upload_resource=upload_resource,
+                              upload_table_name=upload_table_name)
 
     def query_region(self, coordinate, *,
                      radius=None,

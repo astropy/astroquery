@@ -34,6 +34,8 @@ class Conf(_config.ConfigNamespace):
 
     JWST_MESSAGES = _config.ConfigItem("notification?action=GetNotifications", "JWST Messages")
 
+    JWST_UPLOAD = _config.ConfigItem(JWST_COMMON_SERVER + 'Upload', 'eJWST Upload Server')
+
     TIMEOUT = 60
 
     cache_location = os.path.join(paths.get_cache_dir(), 'astroquery/jwst',)
@@ -71,6 +73,5 @@ class Conf(_config.ConfigNamespace):
 conf = Conf()
 
 from .core import Jwst, JwstClass
-from .data_access import JwstDataHandler
 
-__all__ = ['Jwst', 'JwstClass', 'JwstDataHandler', 'Conf', 'conf']
+__all__ = ['Jwst', 'JwstClass', 'Conf', 'conf']

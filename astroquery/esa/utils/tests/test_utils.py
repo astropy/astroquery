@@ -95,6 +95,7 @@ class DummyTapClass(EsaTap):
     TAP_URL = "dummyUrl"
     LOGIN_URL = "dummyLogin"
     LOGOUT_URL = "dummyLogout"
+    UPLOAD_URL = None
 
 
 class TestEsaUtils:
@@ -169,6 +170,30 @@ class TestEsaUtils:
             esautils.execute_servlet_request(url='https://dummyurl.com/service',
                                              tap=mock_tap, query_params=query_params)
         assert error_message in err.value.args[0]
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService')
+    def test_execute_servlet_request_post(self, mock_tap):
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"ok": True}
+        mock_tap._session.post.return_value = mock_response
+
+        esautils.execute_servlet_request(
+            url="https://dummyurl.com/upload",
+            tap=mock_tap,
+            method="POST",
+            query_params={"A": 1},
+            data={"TABLE_NAME": "tbl"},
+            files={"FILE": ("file.dat", b"DATA")}
+        )
+
+        mock_tap._session.post.assert_called_once_with(
+            url="https://dummyurl.com/upload",
+            params={"A": 1, "TAPCLIENT": "ASTROQUERY"},
+            data={"TABLE_NAME": "tbl"},
+            files={"FILE": ("file.dat", b"DATA")}
+        )
 
     @patch("pyvo.auth.authsession.AuthSession.get")
     def test_download_local(self, mock_get, tmp_cwd):
@@ -497,3 +522,31 @@ class TestEsaUtils:
         # Validate first row
         assert meta[0]["Column"] == "ra"
         assert meta[0]["Description"] == "Right Ascension"
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.execute_servlet_request')
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService')
+    def test_upload_table_path(self, mock_tapservice, mock_exec):
+        mock_tap = Mock()
+        mock_tap._session.post.return_value = Mock(status_code=200)
+        mock_tapservice.return_value = mock_tap
+
+        tap = DummyTapClass()
+        tap.UPLOAD_URL = "https://dummyurl.com/Upload"
+
+        mock_exec.return_value = Mock()
+
+        with patch("builtins.open", create=True) as mock_open:
+            mock_open.return_value = Mock()
+
+            tap.upload_table(
+                upload_resource="dummy.file",
+                table_name="mytable"
+            )
+
+        mock_exec.assert_called_once()
+        _, kwargs = mock_exec.call_args
+
+        assert kwargs["method"] == "POST"
+        assert kwargs["data"] == {"TABLE_NAME": "mytable"}
+        assert "FILE" in kwargs["files"]
