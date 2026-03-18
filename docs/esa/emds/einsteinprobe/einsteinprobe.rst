@@ -51,8 +51,8 @@ available for consistency and are inherited from the base EMDS interface.
 
   >>> from astroquery.esa.emds.einsteinprobe import EinsteinProbeClass
   >>> epsa = EinsteinProbeClass()
-  >>> epsa.login() # doctest: +IGNORE_OUTPUT
-  >>> epsa.logout() # doctest: +IGNORE_OUTPUT
+  >>> epsa.login() # doctest: +SKIP
+  >>> epsa.logout() # doctest: +SKIP
 
 .. note::
 
@@ -87,9 +87,7 @@ accessing their full metadata.
 .. doctest-remote-data::
 
   >>> epsa.get_tables(only_names=True)
-  ['einsteinprobe.fxt_product', 'einsteinprobe.obscore',
-  'einsteinprobe.obscore_extended','einsteinprobe.preview_products',
-  'einsteinprobe.wxt_product']
+  ['einsteinprobe.fxt_product', 'einsteinprobe.obscore', 'einsteinprobe.obscore_extended', 'einsteinprobe.preview_products', 'einsteinprobe.wxt_product']
 
 Once a specific table is selected using ``get_table()``, the returned object provides access to the table metadata,
 including its columns.
@@ -130,28 +128,22 @@ and can be queried directly using fully-qualified table names.
   ...           "ORDER BY target_name DESC"
   ...       )
   ...   )  # doctest: +IGNORE_OUTPUT
-  <Table length=12298>
-  dataproduct_type obs_collection    obs_id           s_ra              s_dec
-       object          object        object         float64            float64
-  ---------------- -------------- ------------ ------------------ ------------------
-               arf           EPSA  10202076929                 --                 --
-               png           EPSA  11900006256                 --                 --
-               png           EPSA  11900006200                 --                 --
-               rmf           EPSA  11900012239                 --                 --
-               pds           EPSA  11900006204                 --                 --
-               arf           EPSA  11900012239                 --                 --
-               rmf           EPSA  11900012239                 --                 --
-               pds           EPSA  11900006231                 --                 --
-               ...            ...          ...                ...                ...
-                lc           EPSA  11900010908 344.33858806609254 20.740901740634797
-               img           EPSA  11900008319  81.12383621375398 17.417492453817907
-                lc           EPSA  11900008319  81.12383621375398 17.417492453817907
-               pha           EPSA  11900008319  81.12383618253855  17.41749240154885
-             event           EPSA  11900008319  81.12383621375398 17.417492453817907
-               img           EPSA  11900008319  81.12383618253855  17.41749240154885
-             event           EPSA  11900008319  81.12383618253855  17.41749240154885
-                lc           EPSA  11900008319  81.12383618253855  17.41749240154885
-               pha           EPSA  11900008319  81.12383621375398 17.417492453817907
+  <Table length=12278>
+  dataproduct_type obs_collection    obs_id         s_ra            s_dec
+       object          object        object       float64          float64
+  ---------------- -------------- ----------- ---------------- ----------------
+               arf           EPSA 11900001851               --               --
+               rmf           EPSA 11900010835               --               --
+               rmf           EPSA 11900001853               --               --
+               arf           EPSA 11900001853               --               --
+               pds           EPSA 11900001854               --               --
+               ...            ...         ...              ...              ...
+                lc           EPSA 11900008319 81.1238361825386 17.4174924015488
+             event           EPSA 11900008319  81.123836213754 17.4174924538179
+               pha           EPSA 11900008319 81.1238361825386 17.4174924015488
+               img           EPSA 11900008319  81.123836213754 17.4174924538179
+                lc           EPSA 11900008319  81.123836213754 17.4174924538179
+               pha           EPSA 11900008319  81.123836213754 17.4174924538179
 
 
 -------------------------------------
@@ -180,13 +172,19 @@ using ``get_metadata=True``:
   >>> from astroquery.esa.emds.einsteinprobe import EinsteinProbeClass
   >>> epsa = EinsteinProbeClass()
   >>> epsa.get_observations(get_metadata=True)  # doctest: +IGNORE_OUTPUT
-    <Table masked=True length=34>
-        Column     Description  Unit  Data Type  UCD   UType
-        str17         object   object    str7   object object
-    -------------- ----------- ------ --------- ------ ------
+  <Table masked=True length=34>
+       Column      Description  Unit  Data Type  UCD   UType
+       str17          object   object    str7   object object
+  ---------------- ----------- ------ --------- ------ ------
     access_estsize        None   None      long   None   None
      access_format        None   None      char   None   None
+        access_url        None   None      char   None   None
+       calib_level        None   None       int   None   None
+  dataproduct_type        None   None      char   None   None
                ...         ...    ...       ...    ...    ...
+         t_exptime        None   None      char   None   None
+             t_max        None   None      char   None   None
+             t_min        None   None      char   None   None
       t_resolution        None   None    double   None   None
              t_xel        None   None    double   None   None
        target_name        None   None      char   None   None
@@ -201,22 +199,23 @@ options, that can be combined to extract the required data:
   >>> from astroquery.esa.emds.einsteinprobe import EinsteinProbeClass
   >>> epsa = EinsteinProbeClass()
   >>> epsa.get_observations(target_name='V1589 Cyg')  # doctest: +IGNORE_OUTPUT
-    Executed query:SELECT * FROM ivoa.ObsCore WHERE 1=CONTAINS(POINT('ICRS', s_ra, s_dec),
-                    CIRCLE('ICRS', 310.7048109, 41.3833259, 1.0))
-    <Table length=12>
-    access_estsize        access_format        ... t_xel target_name
-        kbyte                                  ...
-        int64                 object           ... int64    object
-    -------------- --------------------------- ... ----- -----------
-            463680 application/x-fits-bintable ... 19233   V1589 Cyg
-           2888640 application/x-fits-bintable ...    --           0
-             51840 application/x-fits-bintable ...   961   V1589 Cyg
-            745920 application/x-fits-bintable ... 19233   V1589 Cyg
-               ...                         ... ...   ...         ...
-           2888640 application/x-fits-bintable ...    --           0
-           1465920 application/x-fits-bintable ... 19234   V1589 Cyg
-            362880 application/x-fits-bintable ... 19234   V1589 Cyg
-           1465920 application/x-fits-bintable ... 19233   V1589 Cyg
+  Executed query:SELECT * FROM einsteinprobe.obscore_extended WHERE 1=CONTAINS(POINT('ICRS', s_ra, s_dec),CIRCLE('ICRS', 310.7048109, 41.3833259, 1.0))
+  <Table length=12>
+  access_estsize        access_format        ...  t_xel  target_name
+      int64                 object           ... float64    object
+  -------------- --------------------------- ... ------- -----------
+          463680 application/x-fits-bintable ...      --   V1589 Cyg
+         2888640 application/x-fits-bintable ...      --           0
+          760320 application/x-fits-bintable ...      --   V1589 Cyg
+         2888640 application/x-fits-bintable ...      --           0
+           51840 application/x-fits-bintable ...      --   V1589 Cyg
+          745920 application/x-fits-bintable ...      --   V1589 Cyg
+         2888640 application/x-fits-bintable ...      --           0
+           51840 application/x-fits-bintable ...      --   V1589 Cyg
+         2888640 application/x-fits-bintable ...      --           0
+         1465920 application/x-fits-bintable ...      --   V1589 Cyg
+          362880 application/x-fits-bintable ...      --   V1589 Cyg
+         1465920 application/x-fits-bintable ...      --   V1589 Cyg
 
 + Retrieve only a specific set of columns.
 
@@ -225,23 +224,23 @@ options, that can be combined to extract the required data:
   >>> from astroquery.esa.emds.einsteinprobe import EinsteinProbeClass
   >>> epsa = EinsteinProbeClass()
   >>> epsa.get_observations(target_name="V1589 Cyg", columns=["s_ra", "s_dec", "obs_id", "s_xel1"])  # doctest: +IGNORE_OUTPUT
-    Executed query:SELECT s_ra, s_dec, obs_id, s_xel1 FROM ivoa.ObsCore WHERE
-                    1=CONTAINS(POINT('ICRS', s_ra, s_dec),
-                    CIRCLE('ICRS', 310.7048109, 41.3833259, 1.0))
-    <Table length=12>
-           s_ra             s_dec           obs_id   s_xel1
-           deg               deg
-         float64           float64          object   int64
-    ----------------- ------------------ ----------- ------
-    310.6757640621578 41.351414087733275 11900012239     95
-    310.6755985583337 41.351202980612555 11900012239    600
-    310.6755985583337 41.351202980612555 11900012239     20
-    310.6755985583337 41.351202980612555 11900012239    418
-                  ...                ...         ...    ...
-    310.6755985583337 41.351202980612555 11900012239    600
-    310.6756375374491 41.351278441170614 11900012239    600
-    310.6756375374491 41.351278441170614 11900012239     95
-    310.6757640621578 41.351414087733275 11900012239    600
+  Executed query:SELECT s_ra, s_dec, obs_id, s_xel1 FROM einsteinprobe.obscore_extended WHERE 1=CONTAINS(POINT('ICRS', s_ra, s_dec),CIRCLE('ICRS', 310.7048109, 41.3833259, 1.0))
+  <Table length=12>
+        s_ra            s_dec          obs_id   s_xel1
+      float64          float64         object   int64
+  ---------------- ---------------- ----------- ------
+  310.675764062158 41.3514140877333 11900012239     95
+  310.675598558334 41.3512029806126 11900012239    600
+  310.675599334032 41.3512028908431 11900012239    418
+  310.675598558334 41.3512029806126 11900012239    600
+  310.675598558334 41.3512029806126 11900012239     20
+  310.675598558334 41.3512029806126 11900012239    418
+  310.675599334032 41.3512028908431 11900012239    600
+  310.675599334032 41.3512028908431 11900012239     20
+  310.675599334032 41.3512028908431 11900012239    600
+  310.675637537449 41.3512784411706 11900012239    600
+  310.675637537449 41.3512784411706 11900012239     95
+  310.675764062158 41.3514140877333 11900012239    600
 
 + Filter by any other column available in the previous method.
 
@@ -250,23 +249,19 @@ options, that can be combined to extract the required data:
   >>> from astroquery.esa.emds.einsteinprobe import EinsteinProbeClass
   >>> epsa = EinsteinProbeClass()
   >>> epsa.get_observations(target_name="V1589 Cyg", columns=["s_ra", "s_dec", "obs_id", "s_xel1"], s_xel1=(">", 100))  # doctest: +IGNORE_OUTPUT
-    Executed query:SELECT s_ra, s_dec, obs_id, s_xel1 FROM ivoa.ObsCore
-        WHERE s_xel1 > 100 AND
-        1=CONTAINS(POINT('ICRS', s_ra, s_dec),
-        CIRCLE('ICRS', 310.7048109, 41.3833259, 1.0))
-    <Table length=8>
-           s_ra             s_dec           obs_id   s_xel1
-           deg               deg
-         float64           float64          object   int64
-    ----------------- ------------------ ----------- ------
-    310.6755985583337 41.351202980612555 11900012239    600
-    310.6755985583337 41.351202980612555 11900012239    418
-    310.6755993340324  41.35120289084306 11900012239    600
-    310.6755993340324  41.35120289084306 11900012239    600
-    310.6755993340324  41.35120289084306 11900012239    418
-    310.6755985583337 41.351202980612555 11900012239    600
-    310.6756375374491 41.351278441170614 11900012239    600
-    310.6757640621578 41.351414087733275 11900012239    600
+  Executed query:SELECT s_ra, s_dec, obs_id, s_xel1 FROM einsteinprobe.obscore_extended  WHERE s_xel1 > 100 AND 1=CONTAINS(POINT('ICRS', s_ra, s_dec),CIRCLE('ICRS', 310.7048109, 41.3833259, 1.0))
+  <Table length=8>
+        s_ra            s_dec          obs_id   s_xel1
+      float64          float64         object   int64
+  ---------------- ---------------- ----------- ------
+  310.675598558334 41.3512029806126 11900012239    600
+  310.675599334032 41.3512028908431 11900012239    418
+  310.675598558334 41.3512029806126 11900012239    600
+  310.675598558334 41.3512029806126 11900012239    418
+  310.675599334032 41.3512028908431 11900012239    600
+  310.675599334032 41.3512028908431 11900012239    600
+  310.675637537449 41.3512784411706 11900012239    600
+  310.675764062158 41.3514140877333 11900012239    600
 
 As it can be observed in the previous examples, additional constraints can be provided
 using the ``**filters`` syntax, where the keyword corresponds to an ObsCore column name
@@ -362,33 +357,24 @@ individual files directly from the EMDS data service.
 
   >>> from astroquery.esa.emds.einsteinprobe import EinsteinProbeClass
   >>> epsa = EinsteinProbeClass()
-  >>> t = epsa.get_products(obs_id="11900008319")
-  Executed query:SELECT obs_id, filename, filepath
-        FROM einsteinprobe.obscore_extended WHERE obs_id = ' 11900008319'
-  >>> t["filepath"].format = "%.20s"
-  >>> t  # doctest: +ELLIPSIS
+  >>> epsa.get_products(obs_id="11900008319")
+  Executed query:SELECT obs_id, filename, filepath FROM einsteinprobe.obscore_extended WHERE obs_id = '11900008319'
   <Table length=20>
-     obs_id                        filename                           filepath
-     object                         object                             object
-  ------------ ------------------------------------------------ --------------------
-   11900008319           fxt_b_11900008319_ff_01_po_cl_3ac.fits /epsa/repo/119000083
-   11900008319               fxt_b_11900008319_ff_01_po_3ac.pha /epsa/repo/119000083
-   11900008319              fxt_b_11900008319_ff_01_po_3ac.expo /epsa/repo/119000083
-   11900008319          fxt_b_11900008319_ff_01_po_gti_3bb.fits /epsa/repo/119000083
-   11900008319 fxt_a_11900008319_ff_01_po_3ac-without_vign.expo /epsa/repo/119000083
-   11900008319               fxt_b_11900008319_ff_01_po_3ac.pds /epsa/repo/119000083
-   11900008319 fxt_b_11900008319_ff_01_po_3ac-without_vign.expo /epsa/repo/119000083
-   11900008319                fxt_b_11900008319_ff_01_po_3ac.lc /epsa/repo/119000083
-           ...                                              ...                  ...
-   11900008319               fxt_b_11900008319_ff_01_po_3ac.img /epsa/repo/119000083
-   11900008319               fxt_a_11900008319_ff_01_po_3ac.pha /epsa/repo/119000083
-   11900008319                fxt_a_11900008319_ff_01_po_3ac.lc /epsa/repo/119000083
-   11900008319           fxt_a_11900008319_ff_01_po_cl_3ac.fits /epsa/repo/119000083
-   11900008319               fxt_a_11900008319_ff_01_po_3bb.arf /epsa/repo/119000083
-   11900008319               fxt_a_11900008319_ff_01_po_3bb.rmf /epsa/repo/119000083
-   11900008319          fxt_a_11900008319_ff_01_po_gti_3bb.fits /epsa/repo/119000083
-   11900008319               fxt_b_11900008319_ff_01_po_3bb.arf /epsa/repo/119000083
-   11900008319               fxt_b_11900008319_ff_01_po_3bb.rmf /epsa/repo/119000083
+     obs_id                   filename                              filepath
+     object                    object                                object
+  ----------- --------------------------------------- -----------------------------------
+  11900008319  fxt_b_11900008319_ff_01_po_cl_3ac.fits /epsa/repo/11900008319/fxt/products
+  11900008319      fxt_b_11900008319_ff_01_po_3ac.pha /epsa/repo/11900008319/fxt/products
+  11900008319     fxt_a_11900008319_ff_01_po_3ac.expo /epsa/repo/11900008319/fxt/products
+  11900008319      fxt_a_11900008319_ff_01_po_3ac.img /epsa/repo/11900008319/fxt/products
+  11900008319      fxt_a_11900008319_ff_01_po_3ac.pds /epsa/repo/11900008319/fxt/products
+          ...                                     ...                                 ...
+  11900008319      fxt_b_11900008319_ff_01_po_3ac.img /epsa/repo/11900008319/fxt/products
+  11900008319      fxt_a_11900008319_ff_01_po_3bb.arf /epsa/repo/11900008319/fxt/products
+  11900008319      fxt_a_11900008319_ff_01_po_3bb.rmf /epsa/repo/11900008319/fxt/products
+  11900008319 fxt_a_11900008319_ff_01_po_gti_3bb.fits /epsa/repo/11900008319/fxt/products
+  11900008319      fxt_b_11900008319_ff_01_po_3bb.arf /epsa/repo/11900008319/fxt/products
+  11900008319      fxt_b_11900008319_ff_01_po_3bb.rmf /epsa/repo/11900008319/fxt/products
 
 .. note::
 
@@ -401,7 +387,7 @@ By default, the file is downloaded to the current working directory.
 
     >>> from astroquery.esa.emds.einsteinprobe import EinsteinProbeClass
     >>> epsa = EinsteinProbeClass()
-    >>> epsa.download_product(filename='fxt_b_11900008319_ff_01_po_3bb.rmf') # doctest: +IGNORE_OUTPUT
+    >>> epsa.download_product(filename='fxt_b_11900008319_ff_01_po_3bb.rmf') # doctest: +SKIP
     'fxt_b_11900008319_ff_01_po_3bb.rmf'
 
 Product downloads return the files as stored in the archive. No output format needs to be

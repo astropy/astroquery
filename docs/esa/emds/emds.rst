@@ -29,8 +29,8 @@ through the ``login()`` and ``logout()`` methods provided by the EMDS Astroquery
 
   >>> from astroquery.esa.emds import EmdsClass
   >>> emds = EmdsClass()
-  >>> emds.login() # doctest: +IGNORE_OUTPUT
-  >>> emds.logout() # doctest: +IGNORE_OUTPUT
+  >>> emds.login() # doctest: +SKIP
+  >>> emds.logout() # doctest: +SKIP
 
 -----------------------------------
 2. Get available tables and columns
@@ -374,19 +374,22 @@ retrieved.
   >>> from astroquery.esa.emds import EmdsClass
   >>> emds = EmdsClass()
   >>> products=emds.get_products(target_name='RXCJ0120.9-1351') # doctest: +IGNORE_OUTPUT
-   Executed query:SELECT obs_id, obs_publisher_did, access_url FROM ivoa.ObsCore
-    WHERE 1=CONTAINS(POINT('ICRS', s_ra, s_dec),CIRCLE('ICRS', 20.24491667, -13.85194444, 1.0))
+  Executed query:SELECT obs_id, obs_publisher_did, access_url FROM ivoa.ObsCore WHERE 1=CONTAINS(POINT('ICRS', s_ra, s_dec),CIRCLE('ICRS', 20.244917, -13.851944, 1.0))
   >>> products
-    <Table length=10>
-       obs_id                 obs_publisher_did                        access_url
-       object                      object                                object
-    ----------- --------------------------------------------- ------------------------------
-    11900004579 ivo://esavo/EPSA?11900.../fxt_a_11900...img  https://emds.esac.esa.int/...'
-    11900004579 ivo://esavo/EPSA?11900.../fxt_b_11900...expo https://emds.esac.esa.int/...'
-            ...                                           ...                            ...
-    11900004579 ivo://esavo/EPSA?11900.../fxt_b_11900...lc   https://emds.esac.esa.int/...'
-    11900004579 ivo://esavo/EPSA?11900.../fxt_a_11900...expo https://emds.esac.esa.int/...'
-    11900004579 ivo://esavo/EPSA?11900.../fxt_a_11900...fits https://emds.esac.esa.int/...'
+  <Table length=10>
+     obs_id   ...                                                                                           access_url
+     object   ...                                                                                             object
+  ----------- ... ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  11900004579 ...               https://emds.esac.esa.int/service/data?retrieval_type=PRODUCT&QUERY=SELECT+filepath,filename+from+einsteinprobe.fxt_product+WHERE+filename='fxt_a_11900004579_ff_01_po_3ac.img'
+  11900004579 ... https://emds.esac.esa.int/service/data?retrieval_type=PRODUCT&QUERY=SELECT+filepath,filename+from+einsteinprobe.fxt_product+WHERE+filename='fxt_b_11900004579_ff_01_po_3ac-without_vign.expo'
+  11900004579 ...              https://emds.esac.esa.int/service/data?retrieval_type=PRODUCT&QUERY=SELECT+filepath,filename+from+einsteinprobe.fxt_product+WHERE+filename='fxt_b_11900004579_ff_01_po_3ac.expo'
+  11900004579 ...              https://emds.esac.esa.int/service/data?retrieval_type=PRODUCT&QUERY=SELECT+filepath,filename+from+einsteinprobe.fxt_product+WHERE+filename='fxt_a_11900004579_ff_01_po_3ac.expo'
+  11900004579 ...           https://emds.esac.esa.int/service/data?retrieval_type=PRODUCT&QUERY=SELECT+filepath,filename+from+einsteinprobe.fxt_product+WHERE+filename='fxt_b_11900004579_ff_01_po_cl_3ac.fits'
+  11900004579 ... https://emds.esac.esa.int/service/data?retrieval_type=PRODUCT&QUERY=SELECT+filepath,filename+from+einsteinprobe.fxt_product+WHERE+filename='fxt_a_11900004579_ff_01_po_3ac-without_vign.expo'
+  11900004579 ...           https://emds.esac.esa.int/service/data?retrieval_type=PRODUCT&QUERY=SELECT+filepath,filename+from+einsteinprobe.fxt_product+WHERE+filename='fxt_a_11900004579_ff_01_po_cl_3ac.fits'
+  11900004579 ...                https://emds.esac.esa.int/service/data?retrieval_type=PRODUCT&QUERY=SELECT+filepath,filename+from+einsteinprobe.fxt_product+WHERE+filename='fxt_a_11900004579_ff_01_po_3ac.lc'
+  11900004579 ...               https://emds.esac.esa.int/service/data?retrieval_type=PRODUCT&QUERY=SELECT+filepath,filename+from+einsteinprobe.fxt_product+WHERE+filename='fxt_b_11900004579_ff_01_po_3ac.img'
+  11900004579 ...                https://emds.esac.esa.int/service/data?retrieval_type=PRODUCT&QUERY=SELECT+filepath,filename+from+einsteinprobe.fxt_product+WHERE+filename='fxt_b_11900004579_ff_01_po_3ac.lc'
 
 .. note::
 

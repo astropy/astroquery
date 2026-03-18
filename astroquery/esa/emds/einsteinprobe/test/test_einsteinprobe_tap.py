@@ -389,3 +389,7 @@ class TestEmdsTap:
         with pytest.raises(ValueError) as err:
             epsa.download_product("dummy_file")
         assert 'OBSCORE_TABLE is not configured for EinsteinProbe.' in err.value.args[0]
+
+        # Restart overriden parameters
+        epsa.conf.OBSCORE_TABLE = 'einsteinprobe.obscore_extended'
+        epsa.conf.EMDS_DATA_SERVER = 'data?'
