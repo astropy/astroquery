@@ -357,24 +357,8 @@ individual files directly from the EMDS data service.
 
   >>> from astroquery.esa.emds.einsteinprobe import EinsteinProbeClass
   >>> epsa = EinsteinProbeClass()
-  >>> epsa.get_products(obs_id="11900008319")
+  >>> result = epsa.get_products(obs_id="11900008319")
   Executed query:SELECT obs_id, filename, filepath FROM einsteinprobe.obscore_extended WHERE obs_id = '11900008319'
-  <Table length=20>
-     obs_id                   filename                              filepath
-     object                    object                                object
-  ----------- --------------------------------------- -----------------------------------
-  11900008319  fxt_b_11900008319_ff_01_po_cl_3ac.fits /epsa/repo/11900008319/fxt/products
-  11900008319      fxt_b_11900008319_ff_01_po_3ac.pha /epsa/repo/11900008319/fxt/products
-  11900008319     fxt_a_11900008319_ff_01_po_3ac.expo /epsa/repo/11900008319/fxt/products
-  11900008319      fxt_a_11900008319_ff_01_po_3ac.img /epsa/repo/11900008319/fxt/products
-  11900008319      fxt_a_11900008319_ff_01_po_3ac.pds /epsa/repo/11900008319/fxt/products
-          ...                                     ...                                 ...
-  11900008319      fxt_b_11900008319_ff_01_po_3ac.img /epsa/repo/11900008319/fxt/products
-  11900008319      fxt_a_11900008319_ff_01_po_3bb.arf /epsa/repo/11900008319/fxt/products
-  11900008319      fxt_a_11900008319_ff_01_po_3bb.rmf /epsa/repo/11900008319/fxt/products
-  11900008319 fxt_a_11900008319_ff_01_po_gti_3bb.fits /epsa/repo/11900008319/fxt/products
-  11900008319      fxt_b_11900008319_ff_01_po_3bb.arf /epsa/repo/11900008319/fxt/products
-  11900008319      fxt_b_11900008319_ff_01_po_3bb.rmf /epsa/repo/11900008319/fxt/products
 
 .. note::
 
