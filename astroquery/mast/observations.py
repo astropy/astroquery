@@ -13,6 +13,7 @@ import os
 from urllib.parse import quote
 
 import numpy as np
+import boto3
 
 from requests import HTTPError
 
@@ -1175,6 +1176,43 @@ class MastClass(MastQueryWithLogin):
         """
 
         return self._portal_api_connection._parse_result(responses, verbose)
+
+    def read_product(s3_uri:str, 
+                     read_as: ReadAs="auto", 
+                     encoding: str = "utf-8", 
+                     boto3_session: Optional[boto3.session.Session] = None, 
+                     s3_client=None, 
+                     extra_kwargs: Optional[dict] = None
+                     ):
+        
+        bucket, key = Observations._parse_result(s3_uri)
+
+        if s3_client is None:
+            session = boto3_session
+            s3_client = session.client("s3")
+
+        get_kwargs = {"Bucket": bucket, "Key": key}
+        if extra_kwargs:
+                get_kwargs.update(extra_kwargs)
+        
+        obj = s3_client.get_object(**get_kwargs)
+        body = obj["Body"].read()
+
+        if read_as == "auto":
+            lowered = key.lower()
+            
+            if lowered.endswith(".fits"):
+                read_as = "fits"
+            
+            if lowered.endswith(".asdf"):
+                read_as = "asdf"
+            
+            if lowered.endswith(".parquet"):
+                read_as = "parquet"
+
+        raise ValueError(f"Unsupported read_as: {read_as}")
+            
+        
 
     @class_or_instance
     def service_request_async(self, service, params, *, pagesize=None, page=None, **kwargs):
