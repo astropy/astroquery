@@ -18,6 +18,7 @@ import boto3
 from requests import HTTPError
 
 import astropy.units as u
+from astropy.io import fits, asdf
 import astropy.coordinates as coord
 from botocore.exceptions import ClientError, BotoCoreError
 
@@ -1198,21 +1199,19 @@ class MastClass(MastQueryWithLogin):
         obj = s3_client.get_object(**get_kwargs)
         body = obj["Body"].read()
 
+        # Attempt to automatically load the file based on known extensions
         if read_as == "auto":
             lowered = key.lower()
             
             if lowered.endswith(".fits"):
                 read_as = "fits"
+                return fits.open(body)
             
             if lowered.endswith(".asdf"):
                 read_as = "asdf"
+                return asdf.open(body)
             
-            if lowered.endswith(".parquet"):
-                read_as = "parquet"
-
         raise ValueError(f"Unsupported read_as: {read_as}")
-            
-        
 
     @class_or_instance
     def service_request_async(self, service, params, *, pagesize=None, page=None, **kwargs):
