@@ -10,11 +10,11 @@ from pathlib import Path
 import warnings
 import time
 import os
-from typing import Optional
-from urllib.parse import quote, urlparse
+from urllib.parse import quote
 
 import numpy as np
-import boto3
+import s3fs
+import asdf
 
 from requests import HTTPError
 
@@ -1153,16 +1153,18 @@ def read_product(s3_uri: str, read_as="auto"):
 
     # NOTE: How stand alone does this function need to be, do we want it to handle query critera and retreiving the S3 URI or is the assumption that is done previous to invoking this function?
     if read_as == "auto":
+
+        # Block to load fits file to memory
         if s3_uri.endswith(".fits"):
             return fits.open(s3_uri, fsspec_kwargs={"anon": True})
         
+        # block to load asdf file to memory
         elif s3_uri.endswith(".asdf"):
             fs = s3fs.S3FileSystem(anon=True)
             
             with fs.open(s3_uri, 'rb') as s3_file:
-                af = asdf.open(s3_file, s3_uri)
-            
-            af.close()
+                af = asdf.open(s3_file)
+                return af
 
 
 
