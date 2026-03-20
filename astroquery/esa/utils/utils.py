@@ -394,8 +394,7 @@ class EsaTap(BaseVOQuery, BaseQuery):
         self._auth_session.logout(logout_url=self.LOGOUT_URL)
 
     def query_tap(self, query, *, async_job=False, output_file=None, output_format='votable',
-                  verbose=False, name=None, dump_to_file=False, background=False,
-                  upload_resource=None, upload_table_name=None):
+                  verbose=False):
         """
         Launches a synchronous or asynchronous job to query the {ESA_ARCHIVE_NAME} TAP
 
@@ -413,13 +412,6 @@ class EsaTap(BaseVOQuery, BaseQuery):
             results format
         verbose: bool, optional, default False
             To log the query when executing this method.
-        name : str, optional, default None
-            name of the job to be executed
-        dump_to_file : bool, optional, default 'False'
-            if True, the results are saved in a file instead of using memory
-        background : bool, optional, default 'False'
-            when the job is executed in asynchronous mode, this flag specifies
-            whether the execution will wait until results are available
         upload_resource: str, optional, default None
             resource to be uploaded to UPLOAD_SCHEMA
         upload_table_name: str, required if uploadResource is provided
@@ -430,24 +422,6 @@ class EsaTap(BaseVOQuery, BaseQuery):
         -------
         An astropy.table object containing the results
         """
-
-        # handle upload ONLY if mission supports it
-        if upload_resource is not None:
-            if upload_table_name is None:
-                raise ValueError("upload_table_name must be provided when using upload_resource")
-
-            if self.UPLOAD_URL is None:
-                raise RuntimeError("Uploads are not supported for this mission.")
-
-            # Perform upload:
-            self.upload_table(
-                upload_resource=upload_resource,
-                table_name=upload_table_name,
-                verbose=verbose
-            )
-
-            if verbose:
-                print(f"Uploaded table '{upload_table_name}' to JWST TAP server.")
 
         if async_job:
             query_result = self.tap.run_async(query)
@@ -462,45 +436,6 @@ class EsaTap(BaseVOQuery, BaseQuery):
             print(f"Executed query:{query}")
 
         return result
-
-
-
-    def upload_table(self, *, upload_resource, table_name, verbose=False):
-        if self.UPLOAD_URL is None:
-            raise RuntimeError("This archive does not support table uploads.")
-
-        if upload_resource is None:
-            raise ValueError("upload_resource must be provided")
-        if table_name is None:
-            raise ValueError("table_name must be provided")
-
-        # prepare file
-        if hasattr(upload_resource, "read"):
-            content = upload_resource.read()
-            if isinstance(content, str):
-                content = content.encode("utf-8")
-            files = {"FILE": ("upload_file", content)}
-        else:
-            files = {"FILE": open(upload_resource, "rb")}
-
-        payload = {"TABLE_NAME": table_name}
-
-        try:
-            response = execute_servlet_request(
-                url=self.UPLOAD_URL,
-                tap=self,
-                method="POST",
-                data=payload,
-                files=files,
-            )
-        finally:
-            if not hasattr(upload_resource, "read"):
-                files["FILE"].close()
-
-        if verbose:
-            print(f"Uploaded table '{table_name}' to {self.UPLOAD_URL}")
-
-        return response
 
 
     def create_cone_search_query(self, ra, dec, ra_column, dec_column, radius):

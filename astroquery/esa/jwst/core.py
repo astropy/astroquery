@@ -14,8 +14,11 @@ import gzip
 import os
 import shutil
 import tarfile as esatar
+import tempfile
 import zipfile
 from datetime import datetime, timezone
+
+from astropy.io.votable import from_table, writeto
 
 import astroquery.esa.utils.utils as esautils
 
@@ -115,16 +118,83 @@ class JwstClass(EsaTap):
         -------
         A Job object
         """
-        return self.query_tap(query,
-                              async_job=async_job,
-                              output_file=output_file,
-                              output_format=output_format,
-                              verbose=verbose,
-                              name=name,
-                              dump_to_file=dump_to_file,
-                              background=background,
-                              upload_resource=upload_resource,
-                              upload_table_name=upload_table_name)
+
+        if query == "" and upload_resource is None:
+            raise ValueError(
+                "Either 'query' or 'upload_resource' must be provided."
+            )
+
+        if query != "" and upload_resource is not None:
+            raise ValueError(
+                "Cannot define both 'query' and 'upload_resource' simultaneously."
+            )
+
+        if query != "" and upload_resource is None and upload_table_name is None:
+            if verbose:
+                print("Executing query (no upload requested)...")
+            result = self.query_tap(
+                query,
+                async_job=async_job,
+                output_file=output_file,
+                output_format=output_format,
+                verbose=verbose,
+            )
+            return result
+
+        if query != "" and upload_resource is None and upload_table_name is not None:
+
+            if verbose:
+                print("Executing query and preparing result upload...")
+
+            result = self.query_tap(
+                query,
+                async_job=async_job,
+                output_file=output_file,
+                output_format=output_format,
+                verbose=verbose,
+            )
+
+            tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".vot")
+            temp_path = tmp.name
+            tmp.close()
+
+            try:
+                votable = from_table(result)
+                writeto(votable, temp_path)
+
+                if verbose:
+                    print(f"Temporary VOTable written: {temp_path}")
+
+                upload_response = self.upload_table(
+                    upload_resource=temp_path,
+                    table_name=upload_table_name,
+                    verbose=verbose
+                )
+
+            finally:
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
+                    if verbose:
+                        print(f"Deleted temporary VOTable: {temp_path}")
+
+            return result
+
+        if query is None and upload_resource is not None:
+            if upload_table_name is None:
+                raise ValueError(
+                    "upload_table_name must be provided when upload_resource is used."
+                )
+
+            if verbose:
+                print("Uploading user-provided file...")
+
+            self.upload_table(
+                upload_resource=upload_resource,
+                table_name=upload_table_name,
+                verbose=verbose
+            )
+
+            return None
 
     def query_region(self, coordinate, *,
                      radius=None,
@@ -758,14 +828,14 @@ class JwstClass(EsaTap):
                                 f"'{file_name}'")
             job = self.query_tap(query=query_artifactid)
             return JwstClass.get_decoded_string(
-                job.get_results()['artifactid'][0])
+                job['artifactid'])
         else:
             query_filename = (f"select * from {conf.JWST_ARTIFACT_TABLE} a "
                               f"where a.artifactid = "
                               f"'{artifact_id}'")
             job = self.query_tap(query=query_filename)
             return JwstClass.get_decoded_string(
-                job.get_results()['filename'][0])
+                job['filename'])
 
     def __check_product_input(self, artifact_id, file_name):
         if artifact_id is None and file_name is None:
@@ -888,6 +958,59 @@ class JwstClass(EsaTap):
             log.info(f"Downloading products for Observation ID: {oid}")
             self.get_obs_products(observation_id=oid, product_type=product_type)
         return list(allobs)
+
+
+    def upload_table(self, upload_resource, table_name, verbose=False):
+        """
+        JWST-specific table upload. Uses the authenticated TAP session.
+
+        """
+
+        if self._auth_session is None:
+            raise RuntimeError(
+                "You must login() before calling upload_table()."
+            )
+
+        if upload_resource is None:
+            raise ValueError("upload_resource must be provided")
+        if table_name is None:
+            raise ValueError("table_name must be provided")
+
+        # Prepare payload
+        payload = {"TABLE_NAME": table_name}
+
+        # Prepare FILE
+        if hasattr(upload_resource, "read"):
+            # File-like object
+            content = upload_resource.read()
+            if isinstance(content, str):
+                content = content.encode("utf-8")
+            files = {"FILE": ("upload_file", content)}
+            close_needed = False
+        else:
+            files = {"FILE": open(upload_resource, "rb")}
+            close_needed = True
+
+        try:
+            # Use the JWST upload servlet (POST), authenticated TAP session
+
+            response = esautils.execute_servlet_request(
+                conf.JWST_UPLOAD,
+                tap=self.tap,
+                method="POST",
+                data=payload,
+                files=files
+            )
+            response.raise_for_status()
+
+        finally:
+            if close_needed:
+                files["FILE"].close()
+
+        if verbose:
+            print(f"Uploaded table '{table_name}' to {conf.JWST_UPLOAD}")
+
+        return response
 
     def __check_file_number(self, output_dir, output_file_name,
                             output_file_full_path, files):
