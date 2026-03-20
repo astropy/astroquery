@@ -29,6 +29,8 @@ esa.euclid
 - The method ``get_spectrum`` accepts the new parameter ``linking_parameter`` to retrieve the spectra by source_id and
   sourcepatch_id. [#3543]
 -  The ``source_id`` kwarg in the ``get_spectrum`` method has been renamed to ``ids``. [#3543]
+- Method ``get_cutout`` was updated to remove the deprecated instrument and id parameters, and clarified that it retrieves only
+  MER (background‑subtracted) image cutouts. [#]
 
 vizier
 ^^^^^^

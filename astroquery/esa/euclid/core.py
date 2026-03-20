@@ -1398,20 +1398,19 @@ class EuclidClass(TapPlus):
 
         return files
 
-    def get_cutout(self, *, file_path=None, instrument=None, id=None, coordinate, radius, output_file=None,
+    def get_cutout(self, *, file_path=None, coordinate, radius, output_file=None,
                    verbose=False):
         """
-        Downloads a cutout given its file path, instrument and obs_id, and the cutout region
+        Downloads a cutout from a MER mosaic (background-subtracted image) for a given
+        fits file path, centered on a coordinate and with a specified radius.
+
+        This method supports **only MER mosaic cutouts**.
 
         Parameters
         ----------
         file_path : str, mandatory, default None
-            file path for the product on the server
-        instrument : str, mandatory, default None
-            instrument for the product, can be 'VIS' or 'NISP'
-        id : str, mandatory, default None
-            the observation id or tile index for MER products
-        coordinate : astropy.coordinate, mandatory
+            file path for the product on the server (MER mosaic)
+        coordinate : astropy.coordinate or Simbad/VizieR/NED name (str), mandatory
             coordinates center point
         radius : astropy.units, mandatory
             the radius of the cutout to generate
@@ -1425,7 +1424,7 @@ class EuclidClass(TapPlus):
         The fits file is downloaded, and the local path where the cutout is saved is returned
         """
 
-        if file_path is None or instrument is None or id is None or coordinate is None or radius is None:
+        if file_path is None or coordinate is None or radius is None:
             raise ValueError(self.__ERROR_MSG_REQUESTED_GENERIC)
 
         # Parse POS
@@ -1437,8 +1436,7 @@ class EuclidClass(TapPlus):
         ra = ra_hours * 15.0  # Converts to degrees
         pos = """CIRCLE,{ra},{dec},{radius}""".format(**{'ra': ra, 'dec': dec, 'radius': radius_deg})
 
-        params_dict = {'TAPCLIENT': 'ASTROQUERY', 'FILEPATH': file_path, 'COLLECTION': instrument, 'OBSID': id,
-                       'POS': pos}
+        params_dict = {'TAPCLIENT': 'ASTROQUERY', 'FILEPATH': file_path, 'POS': pos}
 
         replace = os.path.basename(file_path).replace('.fits', '_cutout.fits')
         output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id=replace)
@@ -1449,12 +1447,12 @@ class EuclidClass(TapPlus):
             self.__euclidcutout.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
             log.error(
-                f"Cannot retrieve the product for file_path {file_path}, obsId {id}, and collection {instrument}. "
+                f"Cannot retrieve the product for file_path {file_path}. "
                 f"HTTP error: {err}")
             return None
         except Exception as exx:
             log.error(
-                f"Cannot retrieve the product for file_path {file_path}, obsId {id}, and collection {instrument}: "
+                f"Cannot retrieve the product for file_path {file_path}: "
                 f"{str(exx)}")
             return None
 
