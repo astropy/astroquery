@@ -10,7 +10,8 @@ from pathlib import Path
 import warnings
 import time
 import os
-from urllib.parse import quote
+from typing import Optional
+from urllib.parse import quote, urlparse
 
 import numpy as np
 import boto3
@@ -18,7 +19,7 @@ import boto3
 from requests import HTTPError
 
 import astropy.units as u
-from astropy.io import fits, asdf
+from astropy.io import fits
 import astropy.coordinates as coord
 from botocore.exceptions import ClientError, BotoCoreError
 
@@ -1147,6 +1148,22 @@ class ObservationsClass(MastQueryWithLogin):
         if len(unique_products) < len(products):
             log.info("To return all products, use `Observations.get_product_list`")
         return unique_products
+    
+def read_product(s3_uri: str, read_as="auto"):
+
+    # NOTE: How stand alone does this function need to be, do we want it to handle query critera and retreiving the S3 URI or is the assumption that is done previous to invoking this function?
+    if read_as == "auto":
+        if s3_uri.endswith(".fits"):
+            return fits.open(s3_uri, fsspec_kwargs={"anon": True})
+        
+        elif s3_uri.endswith(".asdf"):
+            fs = s3fs.S3FileSystem(anon=True)
+            
+            with fs.open(s3_uri, 'rb') as s3_file:
+                af = asdf.open(s3_file, s3_uri)
+            
+            af.close()
+
 
 
 @async_to_sync
@@ -1177,41 +1194,6 @@ class MastClass(MastQueryWithLogin):
         """
 
         return self._portal_api_connection._parse_result(responses, verbose)
-
-    def read_product(s3_uri:str, 
-                     read_as: ReadAs="auto", 
-                     encoding: str = "utf-8", 
-                     boto3_session: Optional[boto3.session.Session] = None, 
-                     s3_client=None, 
-                     extra_kwargs: Optional[dict] = None
-                     ):
-        
-        bucket, key = Observations._parse_result(s3_uri)
-
-        if s3_client is None:
-            session = boto3_session
-            s3_client = session.client("s3")
-
-        get_kwargs = {"Bucket": bucket, "Key": key}
-        if extra_kwargs:
-                get_kwargs.update(extra_kwargs)
-        
-        obj = s3_client.get_object(**get_kwargs)
-        body = obj["Body"].read()
-
-        # Attempt to automatically load the file based on known extensions
-        if read_as == "auto":
-            lowered = key.lower()
-            
-            if lowered.endswith(".fits"):
-                read_as = "fits"
-                return fits.open(body)
-            
-            if lowered.endswith(".asdf"):
-                read_as = "asdf"
-                return asdf.open(body)
-            
-        raise ValueError(f"Unsupported read_as: {read_as}")
 
     @class_or_instance
     def service_request_async(self, service, params, *, pagesize=None, page=None, **kwargs):
