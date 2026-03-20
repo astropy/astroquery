@@ -102,32 +102,33 @@ This is the access mode for non-registered (also known as "anonymous" in this do
 
 It is possible to access to the metadata (e.g., table names, sizes, descriptions, column names, etc.) of all the TAP_ tables stored in the Archive using the load_tables_ method. This feature allows to have a broad overview of the Archive content. To load only table names:
 
-.. doctest-skip::
-
     >>> tables = Euclid.load_tables(only_names=True, include_shared_tables=True)
+    INFO: Retrieving tables... [astroquery.utils.tap.core]
+    INFO: Parsing tables... [astroquery.utils.tap.core]
+    INFO: Done. [astroquery.utils.tap.core]
     >>> print(f'* Found {len(tables)} tables')
+    * Found 98 tables
     >>> print(*(table.name for table in tables), sep="\n")  # doctest: +IGNORE_OUTPUT
-    ivoa.obscore
-    public.dual
-    sedm.raw_detector
-    sedm.raw_frame
-    sedm.raw_quadrant
+    catalogue.mer_catalogue
+    catalogue.mer_cutouts
+    catalogue.mer_morphology
+    catalogue.phz_classification
     ...
 
 
 To load only one table and inspect its columns:
 
-  >>> raw_detector_table = Euclid.load_table('sedm.raw_detector')
-  >>> print(raw_detector_table)
-  TAP Table name: sedm.raw_detector
-  Description: None
-  Size (bytes): 0
-  Num. columns: 12
-  >>> print(*(column.name for column in raw_detector_table.columns), sep="\n")  # doctest: +IGNORE_OUTPUT
-  crpix1
-  crpix2
-  crval1
-  ...
+    >>> raw_detector_table = Euclid.load_table('sedm.raw_detector')
+    >>> print(raw_detector_table)
+    TAP Table name: sedm.raw_detector
+    Description: None
+    Size (bytes): 0
+    Num. columns: 12
+    >>> print(*(column.name for column in raw_detector_table.columns), sep="\n")  # doctest: +IGNORE_OUTPUT
+    crpix1
+    crpix2
+    crval1
+    ...
 
 
 1.2. Cone search
@@ -138,37 +139,43 @@ The example below shows how to launch a 0.5 degrees radius cone search around `N
 the "mer_catalogue" and its outcome is restricted to 50 rows.
 
 
-.. doctest-skip::
-
     >>> from astropy.coordinates import SkyCoord
     >>> import astropy.units as u
     >>> coord  = SkyCoord("17h51m07.4s +65d31m50.8s", frame='icrs')
     >>> radius = u.Quantity(0.5, u.deg)
     >>> job    = Euclid.cone_search(coordinate=coord, radius=radius, columns="*", async_job=True)
-    >>> res    = job.get_results()
+    INFO: Query finished. [astroquery.utils.tap.core]
+    >>> cone_results    = job.get_results()
     >>> print(f"Found {len(cone_results)} results")
-    basic_download_data_oid to_be_published      object_id       right_ascension   ...       gaia_id        gaia_match_quality           dist
-    ----------------------- --------------- ------------------- ------------------ ... ------------------- -------------------- ----------------------
-                      281               1 2677813028655307424 267.78130284070573 ...                  --                   -- 0.00019012520229516453
-                      281               1 2677926210655368830  267.7926210570132 ... 1441085261522268928  0.05010449141263962   0.007807472554918013
-                      281               1 2677747417655202562  267.7747417649051 ... 1441085055363835648 0.002425010548904538   0.010827275337244202
-
+    Found 50 results
+    >>> print(cone_results)
+    basic_download_data_oid to_be_published ...          dist
+                                            ...
+    ----------------------- --------------- ... ----------------------
+                        281               1 ... 0.00019856232836163457
+                        281               1 ...   0.007812860952408775
+                        281               1 ...   0.010825259849545266
+                        281               1 ...   0.011471166543895434
+    ...
 
 To remove the row limitation one can set the Euclid.ROW_LIMIT to "-1". The following example shows how to do this, as well as how to specify a target table. It also shows that the cone_search method accepts target names of coordinates, provided
 that the name is recognised by the Simbad, VizieR, or NED services.
 
-.. doctest-skip::
-
     >>> radius           = u.Quantity(0.2, u.deg)
     >>> Euclid.ROW_LIMIT = -1
     >>> job              = Euclid.cone_search(coordinate='NGC 6505', radius=radius, table_name="sedm.calibrated_frame", ra_column_name="ra", dec_column_name="dec", async_job=True, columns = ['ra', 'dec', 'datalabs_path', 'file_path', 'file_name', 'observation_id', 'instrument_name'])
+    INFO: Query finished. [astroquery.utils.tap.core]
     >>> res              = job.get_results()
     >>> print(f"* Found {len(res)} results")
+    * Found 14 results
     >>> print(res)
-       ra          dec                datalabs_path                               file_path                                                file_name                             observation_id instrument_name         dist
-    ------------ ----------- ----------------------------------- ----------------------------------------------- ----------------------------------------------------------------- -------------- --------------- -------------------
-    267.99354663 65.60351547 /data/euclid_q1/Q1_R1/VIS_QUAD/2704 /euclid/repository_idr/iqr1/Q1_R1/VIS_QUAD/2704 EUC_VIS_SWL-DET-002704-00-2-0000000__20241017T042759.344384Z.fits           2704             VIS 0.11414714851731637
-    267.99354663 65.60351547      /data/euclid_q1/Q1_R1/NIR/2704      /euclid/repository_idr/iqr1/Q1_R1/NIR/2704         EUC_NIR_W-CAL-IMAGE_H-2704-0_20240930T191946.868701Z.fits           2704            NISP 0.11414714851731637
+         ra          dec     ... instrument_name         dist
+        deg          deg     ...
+    ------------ ----------- ... --------------- -------------------
+    267.99354663 65.60351547 ...            NISP 0.11414714851731637
+    267.99354663 65.60351547 ...             VIS 0.11414714851731637
+    267.99354663 65.60351547 ...            NISP 0.11414714851731637
+    267.99354663 65.60351547 ...             VIS 0.11414714851731637
     ...
 
 
@@ -186,27 +193,38 @@ that the name is recognised by the Simbad, VizieR, or NED services.
 This is the recommended access mode for queries that do not require excessive computation time and/or generate tables with less than 2,000 rows.
 The example below shows how to extract a subset of three sources with ellipticity larger than zero from the "mer_catalogue":
 
-
-.. doctest-skip::
-
     >>> mer_cat_name = 'catalogue.mer_catalogue'
-    >>> query = f"SELECT TOP 3 object_id, right_ascension, declination, segmentation_area, ellipticity, kron_radius FROM {mer_cat_name} WHERE ellipticity > 0"
+    >>> query = f"SELECT TOP 3 object_id, right_ascension, declination, segmentation_area, ellipticity, kron_radius FROM {mer_cat_name} WHERE ellipticity > 0 ORDER BY object_id"
     >>> job   = Euclid.launch_job(query)
     >>> res   = job.get_results()
     >>> print(res)
-       object_id       right_ascension      declination    segmentation_area     ellipticity        kron_radius
-    ------------------- ------------------ ----------------- ----------------- ------------------- ------------------
-    2744182404684288509 274.41824043555044 68.42885096091729                98 0.34178537130355835 22.018617630004883
-    2744679115684290125  274.4679115369266  68.4290125712924                94 0.36368849873542786  19.16196632385254
-    2744820013684293317 274.48200131993156 68.42933179142987                47 0.13406670093536377 13.094022750854492
+         object_id       right_ascension  ...     ellipticity        kron_radius
+             NA                deg        ...          NA                pix
+    ------------------- ----------------- ... ------------------- ------------------
+    -861556546086816217 86.15565466445506 ... 0.49623847007751465 31.741762161254883
+    -861553116086842109 86.15531167595952 ... 0.14531998336315155 19.158174514770508
+    -861547479086786330 86.15474795427782 ... 0.47604748606681824  46.28372573852539
 
 
 The launch_job_ method returns a *Job* object. Its results can be extracted using the "get_results()" method, that generates an `Astropy table <https://docs.astropy.org/en/stable/table/index.html>`_ object.
 The job status can be inspected by typing:
 
-.. doctest-skip::
+  >>> print(job)    # doctest: +SKIP
+  <Table length=3>
+         name        dtype  unit                                                                          description
+  ----------------- ------- ---- -------------------------------------------------------------------------------------------------------------------------------------------------------------
+          object_id   int64   NA                                                                                                                               Euclid unique source identifier
+    right_ascension float64  deg                                                                                      Source barycenter RA coordinate (SExtractor ALPHA_J2000) decimal degrees
+        declination float64  deg                                                                                     Source barycenter DEC coordinate (SExtractor DELTA_J2000) decimal degrees
+  segmentation_area   int32  pix                                                                          Isophotal area of the source above the analysis threshold (SExtractor ISOAREA_IMAGE)
+        ellipticity float64   NA A parametrization of how stretched an object is in the detection band, computed from the minor and major axes of the object itself (directly from SExtractor)
+        kron_radius float64  pix                                       Major semi-axis (in pixels) of the elliptical aperture used for total (Kron) aperture photometry on the detection image
+  Jobid: None
+  Phase: COMPLETED
+  Owner: None
+  Output file: 43fa6c0a-2455-11f1-8a0e-e8ebd3edb7d7-TPDR-result.vot.gz
+  Results: None
 
-    >>> print(job)
 
 Note that deleting the "TOP 3" string in the query above will return a table with 2,000 rows (sources).
 
@@ -217,20 +235,36 @@ Note that deleting the "TOP 3" string in the query above will return a table wit
 This is the recommended mode for queries that are expected to output more than 2,000 rows and that require substantial execution time
 (noting that all the queries time out after 7200 seconds). The query results are stored in the Archive (although for anonymous users the jobs are automatically deleted after 72 hours). The example below generates a cone search combined with a constraint applied to the ellipticity, and is similar to the first ADQL_ query example listed in the `Euclid Archive <https://eas.esac.esa.int/sas/>`_ (see its "Search/ADQL FORM" subtab). For more ADQL_ examples please have a look at the Gaia Archive Help content (in particular, the `writing queries <https://www.cosmos.esa.int/web/gaia-users/archive/writing-queries>`_ section).
 
-.. doctest-skip::
-
-    >>> query = "SELECT right_ascension, declination, object_id, vis_det, det_quality_flag, flux_detection_total, flux_vis_sersic, segmentation_area, kron_radius, DISTANCE(267.78, 65.53, right_ascension, declination) AS dist FROM mer_catalogue WHERE DISTANCE(267.78, 65.53, right_ascension, declination) < 0.1 AND ellipticity > 0"
-    >>> job  = Euclid.launch_job_async(query, verbose=False)
-    >>> print(job_async)
+    >>> query = "SELECT right_ascension, declination, object_id, vis_det, det_quality_flag, flux_detection_total, flux_vis_sersic, segmentation_area, kron_radius, DISTANCE(267.78, 65.53, right_ascension, declination) AS dist FROM mer_catalogue WHERE DISTANCE(267.78, 65.53, right_ascension, declination) < 0.1 AND ellipticity > 0 order by right_ascension"
+    >>> job_async  = Euclid.launch_job_async(query, verbose=False)
+    INFO: Query finished. [astroquery.utils.tap.core]
+    >>> print(job_async)    # doctest: +SKIP
+    <Table length=15129>
+            name          dtype  unit                                                       description
+    -------------------- ------- ---- -----------------------------------------------------------------------------------------------------------------------
+         right_ascension float64  deg                                                Source barycenter RA coordinate (SExtractor ALPHA_J2000) decimal degrees
+             declination float64  deg                                               Source barycenter DEC coordinate (SExtractor DELTA_J2000) decimal degrees
+               object_id   int64   NA                                                                                         Euclid unique source identifier
+                 vis_det   int16   NA              Flag to indicate if the source is detected in the VIS mosaic (1) or is only detected in the NIR mosaic (0)
+        det_quality_flag   int16   NA                          Detection step flags that could indicate the possible corruption of the MAG_STARGAL_SEP values
+    flux_detection_total float64  uJy                                                           VIS or NIR stack band source total flux error (Kron aperture)
+         flux_vis_sersic float64  uJy                                                                                VIS band source flux from the Sersic fit
+       segmentation_area   int32  pix                                    Isophotal area of the source above the analysis threshold (SExtractor ISOAREA_IMAGE)
+             kron_radius float64  pix Major semi-axis (in pixels) of the elliptical aperture used for total (Kron) aperture photometry on the detection image
+                    dist float64
+    Jobid: 97ab70be-2455-11f1-8a0e-e8ebd3edb7d7-TPDR
+    Phase: COMPLETED
+    Owner: None
+    Output file: async_20260320120906.vot
+    Results: None
     >>> res  = job.get_results()
     >>> print(res)
-    right_ascension      declination         object_id      vis_det det_quality_flag ...   flux_vis_sersic   segmentation_area    kron_radius             dist
-    ------------------ ----------------- ------------------- ------- ---------------- ... ------------------- ----------------- ------------------ -------------------
-    267.7502407456637 65.43182123675119 2677502407654318212       1                2 ...  0.5517764091491699               101 28.096778869628906 0.09895246869367581
-    267.7684756197134 65.43194661918689 2677684756654319466       1                2 ... 0.12194870412349701                26 12.046527862548828  0.0981699461580744
-    267.7698066292422 65.43454030481347 2677698066654345403       1                0 ...  0.4004257917404175                61 15.562020301818848 0.09555336819768735
-    ...
-
+         object_id       right_ascension  ...     ellipticity        kron_radius
+             NA                deg        ...          NA                pix
+    ------------------- ----------------- ... ------------------- ------------------
+    -861556546086816217 86.15565466445506 ... 0.49623847007751465 31.741762161254883
+    -861553116086842109 86.15531167595952 ... 0.14531998336315155 19.158174514770508
+    -861547479086786330 86.15474795427782 ... 0.47604748606681824  46.28372573852539
 
 
 1.5 Query on an 'on-the-fly' uploaded table
@@ -271,18 +305,16 @@ and their sky coverage (in its "fov" field) is queried using ADQL_. Please note:
 
 #. the combination of the INTERSECTS clause with the CIRCLE function. The target coordinates correspond to NGC 6505.
 
-.. doctest-skip::
-
     >>> radius   = 0.5/60.
-    >>> query    = f"""SELECT file_name, file_path, datalabs_path, instrument_name, filter_name, ra, dec, creation_date, product_type, patch_id_list, tile_index
-                 FROM q1.mosaic_product
-                 WHERE instrument_name='VIS' AND
-                 INTERSECTS(CIRCLE(267.7808, 65.5308, {radius}), fov)=1"""
+    >>> query    = f"""SELECT file_name, file_path, datalabs_path, instrument_name, filter_name, ra, dec, creation_date, product_type, patch_id_list, tile_index FROM q1.mosaic_product WHERE instrument_name='VIS' AND INTERSECTS(CIRCLE(267.7808, 65.5308, {radius}), fov)=1 ORDER BY file_name"""
     >>> res      = Euclid.launch_job_async(query).get_results()
+    INFO: Query finished. [astroquery.utils.tap.core]
     >>> print(res)
-                                     file_name                                                          file_path                                   datalabs_path              instrument_name ...   product_type  patch_id_list tile_index
-    -------------------------------------------------------------------------------- --------------------------------------------------- --------------------------------------- --------------- ... --------------- ------------- ----------
-    EUC_MER_BGSUB-MOSAIC-VIS_TILE102158889-F95D3B_20241025T024806.508980Z_00.00.fits /euclid/repository_idr/iqr1/Q1_R1/MER/102158889/VIS /data/euclid_q1/Q1_R1/MER/102158889/VIS             VIS ... DpdMerBksMosaic            49  102158889
+                                       file_name                                     ...
+    -------------------------------------------------------------------------------- ...
+    EUC_MER_BGSUB-MOSAIC-VIS_TILE102158889-F95D3B_20241025T024806.508980Z_00.00.fits ...
+
+
 
 
 **Step 2:** The get_product_ method is used to download the fits file(s) listed in the "file_name" field included in the table returned in the previous step. The method returns the local path where the product(s) is saved.
@@ -293,11 +325,13 @@ and their sky coverage (in its "fov" field) is queried using ADQL_. Please note:
 
 * This step can be skipped if using ESA Datalabs_ (as direct access to the products is possible).
 
-
-.. doctest-skip::
-
     >>> file_name = res['file_name'][0]
     >>> print("Downloading file:", file_name)
+    Downloading file: EUC_MER_BGSUB-MOSAIC-VIS_TILE102158889-F95D3B_20241025T024806.508980Z_00.00.fits
+
+.. doctest-skip::
+.. Skip testing as the example requires a lot of time to download a huge file
+
     >>> path = Euclid.get_product(file_name=file_name, output_file=file_name)
 
 **Step 3:** Open the FITS file and inspect its content.
@@ -338,9 +372,10 @@ This method...
 Download the cutout...
 
 .. doctest-skip::
+.. Skip testing as the example requires a lot of time to download a huge file
 
     >>> file_path  = f"{res['file_path'][0]}/{res['file_name'][0]}"
-    >>> cutout_out = Euclid.get_cutout(file_path=file_path, coordinate='NGC 6505',radius= 0.1 * u.arcmin,output_file='ngc6505_cutout_mer.fits', instrument = 'None',id='None')
+    >>> cutout_out = Euclid.get_cutout(file_path=file_path, coordinate='NGC 6505', radius= 0.1 * u.arcmin, output_file='ngc6505_cutout_mer.fits', instrument = 'None',id='None')
     >>> cutout_out = cutout_out[0]
 
 ...  and inspect its content:
@@ -374,46 +409,56 @@ In the Archive the 1D Spectra data  is served via the the Datalink_ (a data acce
 
 **Step 1:** First, a list of sources that have associated spectra must be compiled. This information is available in the spectra_source table, that also includes the FITs file name and other metadata that is relevant if reading the spectra from Datalabs_:
 
-.. doctest-skip::
-
-    >>> query   = f"SELECT TOP 3 * FROM catalogue.spectra_source"
+    >>> query   = f"SELECT TOP 3 * FROM q1.spectra_source ORDER BY source_id"
     >>> results = Euclid.launch_job_async(query).get_results()
+    INFO: Query finished. [astroquery.utils.tap.core]
     >>> print(results)
-    combined_spectra_fk combined_spectra_product_fk            datalabs_path                dec_obj      ...      source_id      spectra_source_oid to_be_published
-    ------------------- --------------------------- ----------------------------------- ---------------- ... ------------------- ------------------ ---------------
-                  161                        6170 /data/euclid_q1/Q1_R1/SIR/102159190 66.2289618502955 ... 2673097098662289618              66176               1
-                  161                        6170 /data/euclid_q1/Q1_R1/SIR/102159190 66.2274291214739 ... 2674964457662274291              66197               1
-                  161                        6170 /data/euclid_q1/Q1_R1/SIR/102159190 66.2304517166735 ... 2675062482662304517              66201               1
+    combined_spectra_fk combined_spectra_product_fk ... to_be_published
+    ------------------- --------------------------- ... ---------------
+                    306                       19410 ...               1
+                    306                       19410 ...               1
+                    306                       19410 ...               1
 
 
 Alternatively, the get_datalinks_ method can be used to find out if a given source has associated spectra products, as well as to return its Datalabs_-related metadata:
 
-.. doctest-skip::
-
     >>> result = Euclid.get_datalinks(ids=2707008224650763513, extra_options='METADATA')
-    >>> print(results)
-             ID            linking_parameter                                       access_url                                            ...                           file_name                           hdu_index
-    ------------------------ ----------------- ------------------------------------------------------------------------------------------- ... ------------------------------------------------------------- ---------
-    sedm 2707008224650763513         SOURCE_ID https://eas.esac.esa.int/sas-dd/data?ID=sedm+2707008224650763513&RETRIEVAL_TYPE=SPECTRA_RGS ... EUC_SIR_W-COMBSPEC_102158586_2024-11-05T16:05:44.880543Z.fits      1602
-    sedm 2707008224650763513         SOURCE_ID https://eas.esac.esa.int/sas-dd/data?ID=sedm+2707008224650763513&RETRIEVAL_TYPE=SPECTRA_BGS ... EUC_SIR_W-COMBSPEC_102158586_2024-11-05T16:05:44.880543Z.fits      1602
+    >>> print(result)
+               ID            linking_parameter ... hdu_index
+                                               ...
+    ------------------------ ----------------- ... ---------
+    sedm 2707008224650763513         SOURCE_ID ...      1602
+    sedm 2707008224650763513         SOURCE_ID ...      1602
+
+
 
 
 **Step 2:** Retrieve the spectra associated to the list of sources compiled in the previous step using the get_spectrum_ method. The output is stored in a tabular fits file that can be open with the `Astropy Table <https://docs.astropy.org/en/stable/table/index.html>`_ package as detailed below.
 
 Download the spectra:
 
-.. doctest-skip::
+    >>> inp_source = str(result['ID'][0]).replace('sedm ', '')  # Note: the input of get_spectrum must be a string.
+    >>> dl_out     = Euclid.get_spectrum(ids=inp_source, retrieval_type = "SPECTRA_RGS", verbose = True) # doctest: +IGNORE_OUTPUT
+    Spectra output file: /tmp/pytest-of-jfernandez/pytest-22/euclid_rst0/temp_20260320_145445/2707008224650763513.fits.zip
+    Retrieving data.
+    Data request: ID=sedm+2707008224650763513&SCHEMA=sedm&RETRIEVAL_TYPE=SPECTRA_RGS&USE_ZIP_ALWAYS=true&TAPCLIENT=ASTROQUERY
+    ------>https
+    host = eas.esac.esa.int:443
+    context = /sas-dd/data
+    Content-type = application/x-www-form-urlencoded
+    200
+    Reading...
+    Done.
 
-    >>> inp_source = str(res['source_id'][0])  # Note: the input of get_spectrum must be a string.
-    >>> dl_out     = Euclid.get_spectrum(ids=inp_source, retrieval_type = "SPECTRA_RGS", verbose = True)
-    >>> print(f'Spectra downloaded and saved in: {dl_out}')
+    >>> print(f'Spectra downloaded and saved in: {dl_out}') # doctest: +IGNORE_OUTPUT
+    Spectra downloaded and saved in: ['/tmp/pytest-of-astroquery/pytest-23/euclid_rst0/temp_20260320_145608/SPECTRA_RGS-sedm 2707008224650763513.fits']
+
 
 Read the spectra and convert it to Astropy table:
 
-.. doctest-skip::
-
+    >>> from astropy.table import Table
     >>> path_to_fits = dl_out[0]
-    >>> spec         = Table.read(dl_out[0], format = 'fits')
+    >>> spec         = Table.read(dl_out[0], format = 'fits', unit_parse_strict='silent')
 
 Plot it:
 
@@ -457,6 +502,7 @@ package will also be available:
 There are several ways to log in to the Euclid archive, as detailed below:
 
 .. doctest-skip::
+.. Skip testing as the example require authentication
 
     >>> from astroquery.esa.euclid import Euclid
     >>> Euclid.login_gui()      # Login via graphic interface (pop-up window)
@@ -472,6 +518,7 @@ All the asynchronous jobs launched by registered users are stored in the user ar
 The example below shows how to delete all the jobs in the user area using the list_async_jobs and remove_jobs_ methods.
 
 .. doctest-skip::
+.. Skip testing as the example require authentication
 
     >>> Euclid.login()
     >>> job_ids = [job.jobid for job in Euclid.list_async_jobs()]
@@ -483,6 +530,7 @@ It is also possible to take advantage of the job metadata to delete all the jobs
 First, use the load_async_job_ method to download the metadata of the async jobs stored in the user space:
 
 .. doctest-skip::
+.. Skip testing as the example require authentication
 
     >>> job_obj  = [Euclid.load_async_job(jobid=jobid) for jobid in job_ids]
     >>> job_ids  = [job.jobid        for job in job_obj]
@@ -500,6 +548,7 @@ Second, create a dataframe that contains the jobid and date information:
 Finally, extract the job id's included in a given time range (in the example below, all the jobs stored since 2024-10-01 at 7 hours UTC) and delete them:
 
 .. doctest-skip::
+.. Skip testing as the example require authentication
 
     >>> subset          = df[(df['date'] == datetime.date(2024,10,1)) & (df['hour_UTC'].isin([7]))]
     >>> jobs_to_delete  = subset['job_id'].to_list()
