@@ -1398,6 +1398,7 @@ class EuclidClass(TapPlus):
 
         return files
 
+    @deprecated_renamed_argument('instrument', 'id', since='0.4.12', arg_in_kwargs=True)
     def get_cutout(self, *, file_path=None, coordinate, radius, output_file=None,
                    verbose=False):
         """
