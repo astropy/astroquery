@@ -309,19 +309,19 @@ and their sky coverage (in its "fov" field) is queried using ADQL_. Please note:
 1.7. MER Cutouts
 ^^^^^^^^^^^^^^^^
 
-It is also possible to download just small portions of the MER (background subtracted) images. The get_cutout_ allows to download image cutouts and store them locally - for reference, downloading a 1'x1'cutout takes less than one second and the downloaded fits file weights ~5.5 MB. In the example below, the results of Step 1 above are combined with the "file_path" and "file_name" values obtained from the mosaic_product TAP_ table to create the main input of the get_cutout_ method.
+It is also possible to download just small portions of the MER (background subtracted) images. The get_cutout_ allows to download image cutouts and store them locally - for reference, downloading a 1'x1'cutout takes less than one second and the downloaded fits file weights ~5.5 MB. In the example below, the results of Step 1 are used to build the file_path of the MER background-subtracted mosaic, which is the only required product input for the get_cutout method. This method now only retrieves cutouts from MER mosaics.
 
 **Notes:**
 This method...
 
-* makes use of the `Astroquery cutout service <https://astroquery.readthedocs.io/en/latest/image_cutouts/image_cutouts.html>`_ to download a cutout fits image from the Archive, and it only works for MER images. For more advanced use cases please see the Cutouts.ipynb notebook available in the Euclid Datalabs_.
+* makes use of the `Astroquery cutout service <https://astroquery.readthedocs.io/en/latest/image_cutouts/image_cutouts.html>`_ to extract a cutout from a MER (background-subtracted) mosaic. It only supports MER mosaics. For more advanced use cases please see the Cutouts.ipynb notebook available in the Euclid Datalabs_.
 
 * accepts both Astropy SkyCoord_ coordinates and Simbad/VizieR/NED valid names (as string).
 
 Download the cutout...
 
   >>> file_path  = f"{res['file_path'][0]}/{res['file_name'][0]}"
-  >>> cutout_out = Euclid.get_cutout(file_path=file_path, coordinate='NGC 6505',radius= 0.1 * u.arcmin,output_file='ngc6505_cutout_mer.fits', instrument = 'None',id='None')
+  >>> cutout_out = Euclid.get_cutout(file_path=file_path, coordinate='NGC 6505',radius= 0.1 * u.arcmin,output_file='ngc6505_cutout_mer.fits')
   >>> cutout_out = cutout_out[0]
 
 ...  and inspect its content:
