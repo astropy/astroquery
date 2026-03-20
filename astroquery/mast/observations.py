@@ -1149,24 +1149,21 @@ class ObservationsClass(MastQueryWithLogin):
             log.info("To return all products, use `Observations.get_product_list`")
         return unique_products
     
-def read_product(s3_uri: str, read_as="auto"):
+def read_product(s3_uri, read_as="auto"):
 
     # NOTE: How stand alone does this function need to be, do we want it to handle query critera and retreiving the S3 URI or is the assumption that is done previous to invoking this function?
     if read_as == "auto":
-
-        # Block to load fits file to memory
         if s3_uri.endswith(".fits"):
             return fits.open(s3_uri, fsspec_kwargs={"anon": True})
         
-        # block to load asdf file to memory
+        # This needs roman-datamodels installed to work
         elif s3_uri.endswith(".asdf"):
             fs = s3fs.S3FileSystem(anon=True)
-            
             with fs.open(s3_uri, 'rb') as s3_file:
                 af = asdf.open(s3_file)
                 return af
-
-
+    else:
+        log.info(f"Unsupported extension type")
 
 @async_to_sync
 class MastClass(MastQueryWithLogin):
