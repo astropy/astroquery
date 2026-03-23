@@ -160,12 +160,15 @@ class JwstClass(EsaTap):
 
             try:
                 votable = from_table(result)
+
+                # change bit to boolean for public and other columns
+                self._fix_jwst_boolean_fields(votable)
                 writeto(votable, temp_path)
 
                 if verbose:
                     print(f"Temporary VOTable written: {temp_path}")
 
-                upload_response = self.upload_table(
+                self.upload_table(
                     upload_resource=temp_path,
                     table_name=upload_table_name,
                     verbose=verbose
@@ -179,7 +182,7 @@ class JwstClass(EsaTap):
 
             return result
 
-        if query is None and upload_resource is not None:
+        if query == "" and upload_resource is not None:
             if upload_table_name is None:
                 raise ValueError(
                     "upload_table_name must be provided when upload_resource is used."
@@ -195,6 +198,7 @@ class JwstClass(EsaTap):
             )
 
             return None
+        return None
 
     def query_region(self, coordinate, *,
                      radius=None,
@@ -991,9 +995,10 @@ class JwstClass(EsaTap):
             files = {"FILE": open(upload_resource, "rb")}
             close_needed = True
 
+        response = None
+
         try:
             # Use the JWST upload servlet (POST), authenticated TAP session
-
             response = esautils.execute_servlet_request(
                 conf.JWST_UPLOAD,
                 tap=self.tap,
@@ -1001,7 +1006,10 @@ class JwstClass(EsaTap):
                 data=payload,
                 files=files
             )
-            response.raise_for_status()
+
+        except Exception as e:
+            if verbose:
+                print("Exception: ", e)
 
         finally:
             if close_needed:
@@ -1178,6 +1186,19 @@ class JwstClass(EsaTap):
             else:
                 condition = f" AND producttype ILIKE '%{product_type}%'"
         return condition
+
+    def _fix_jwst_boolean_fields(self, votable):
+        """
+        Convert bit to boolean for specific JWST columns, since Upload servlet does not ingest Bit types
+        """
+
+        BOOLEAN_FIX_COLUMNS = {"public", "vis_cube", "vis_image"}
+
+        table = votable.resources[0].tables[0]
+        for field in table.fields:
+            if field.name in BOOLEAN_FIX_COLUMNS:
+                if field.datatype == "bit":
+                    field.datatype = "boolean"
 
     @staticmethod
     def is_gz_file(filepath):
