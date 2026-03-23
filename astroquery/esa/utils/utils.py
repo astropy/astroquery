@@ -738,7 +738,10 @@ def execute_servlet_request(url, tap, *, method='GET', query_params=None, data=N
 
     if response.status_code == 200:
         if parser_method is None:
-            return response.json()
+            try:
+                return response.json()
+            except ValueError:
+                return response.text
         else:
             return parser_method(response)
     else:
