@@ -40,8 +40,9 @@ def get_product_request(request):
 class TestData:
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
-    @patch('astroquery.esa.jwst.core.esautils.download_file')  # <-- patch where used
-    @patch.object(JwstClass, '_query_get_product', return_value='jw00617023001_02102_00001_nrcb4_uncal.fits')
+    @patch('astroquery.esa.jwst.core.esautils.download_file')
+    @patch.object(JwstClass, '_query_get_product',
+                  return_value='jw00617023001_02102_00001_nrcb4_uncal.fits')
     def test_get_product(self, mock_qget, mock_download):
         jwst = JwstClass(show_messages=False)
 
@@ -50,7 +51,8 @@ class TestData:
         assert "Missing required argument: 'artifact_id'" in str(err.value)
 
         artifact_id = "00000000-0000-0000-8740-65e2827c9895"
-        mock_download.return_value = "/tmp/jw00617023001_02102_00001_nrcb4_uncal.fits"
+        mock_download.return_value = \
+            "/tmp/jw00617023001_02102_00001_nrcb4_uncal.fits"
 
         result = jwst.get_product(artifact_id=artifact_id)
 
@@ -65,7 +67,8 @@ class TestData:
             "TAPCLIENT": "ASTROQUERY",
             "ARTIFACTID": artifact_id,
         }
-        assert kwargs["filename"] == "jw00617023001_02102_00001_nrcb4_uncal.fits"
+        expected_filename = "jw00617023001_02102_00001_nrcb4_uncal.fits"
+        assert kwargs["filename"] == expected_filename
         assert result is not None
 
 

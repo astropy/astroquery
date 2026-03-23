@@ -41,10 +41,12 @@ from . import conf
 __all__ = ['Jwst', 'JwstClass']
 
 
-# We do trust the ESA tar files, this is to avoid the new to Python 3.12 deprecation warning
+# We do trust the ESA tar files, this is to avoid the new to Python 3.12
+# deprecation warning:
 # https://docs.python.org/3.12/library/tarfile.html#tarfile-extraction-filter
 if hasattr(esatar, "fully_trusted_filter"):
-    esatar.TarFile.extraction_filter = staticmethod(esatar.fully_trusted_filter)
+    esatar.TarFile.extraction_filter = (
+        staticmethod(esatar.fully_trusted_filter))
 
 
 class JwstClass(EsaTap):
@@ -73,14 +75,26 @@ class JwstClass(EsaTap):
     LOGOUT_URL = conf.JWST_LOGOUT_SERVER
     UPLOAD_URL = conf.JWST_UPLOAD
 
-    def __init__(self, *, show_messages=False, auth_session=None, tap_url=None):
+    def __init__(self,
+                 *,
+                 show_messages=False,
+                 auth_session=None,
+                 tap_url=None):
         super().__init__(auth_session=auth_session, tap_url=tap_url)
         if show_messages:
             self.get_status_messages()
 
-    def launch_job(self, query, *, name=None, output_file=None,
-                   output_format="votable", verbose=False, dump_to_file=False,
-                   background=False, upload_resource=None, upload_table_name=None,
+    def launch_job(self,
+                   query,
+                   *,
+                   name=None,
+                   output_file=None,
+                   output_format="votable",
+                   verbose=False,
+                   dump_to_file=False,
+                   background=False,
+                   upload_resource=None,
+                   upload_table_name=None,
                    async_job=False):
         """Launches a synchronous or asynchronous job
         TAP & TAP+
@@ -124,12 +138,13 @@ class JwstClass(EsaTap):
                 "Either 'query' or 'upload_resource' must be provided."
             )
 
-        if query != "" and upload_resource is not None:
+        if query and upload_resource is not None:
             raise ValueError(
-                "Cannot define both 'query' and 'upload_resource' simultaneously."
+                "Cannot define both 'query' and "
+                "'upload_resource' simultaneously."
             )
 
-        if query != "" and upload_resource is None and upload_table_name is None:
+        if query and upload_resource is None and upload_table_name is None:
             if verbose:
                 print("Executing query (no upload requested)...")
             result = self.query_tap(
@@ -141,7 +156,7 @@ class JwstClass(EsaTap):
             )
             return result
 
-        if query != "" and upload_resource is None and upload_table_name is not None:
+        if query and upload_resource is None and upload_table_name is not None:
 
             if verbose:
                 print("Executing query and preparing result upload...")
@@ -185,7 +200,8 @@ class JwstClass(EsaTap):
         if query == "" and upload_resource is not None:
             if upload_table_name is None:
                 raise ValueError(
-                    "upload_table_name must be provided when upload_resource is used."
+                    "upload_table_name must be provided when "
+                    "upload_resource is used."
                 )
 
             if verbose:
@@ -278,18 +294,27 @@ class JwstClass(EsaTap):
         else:
             raHours, dec = commons.coord_to_radec(coord)
             ra = raHours * 15.0  # Converts to degrees
-            widthQuantity = self.__get_quantity_input(value=width, msg="width")
-            heightQuantity = self.__get_quantity_input(value=height, msg="height")
+            widthQuantity = self.__get_quantity_input(
+                value=width, msg="width")
+            heightQuantity = self.__get_quantity_input(
+                value=height, msg="height")
             widthDeg = widthQuantity.to(units.deg)
             heightDeg = heightQuantity.to(units.deg)
 
-            obsid_cond = self.__get_observationid_condition(value=observation_id)
-            cal_level_condition = self.__get_callevel_condition(cal_level=cal_level)
-            public_condition = self.__get_public_condition(only_public=only_public)
-            prod_cond = self.__get_plane_dataproducttype_condition(prod_type=prod_type)
-            instr_cond = self.__get_instrument_name_condition(value=instrument_name)
-            filter_name_cond = self.__get_filter_name_condition(value=filter_name)
-            props_id_cond = self.__get_proposal_id_condition(value=proposal_id)
+            obsid_cond = self.__get_observationid_condition(
+                value=observation_id)
+            cal_level_condition = self.__get_callevel_condition(
+                cal_level=cal_level)
+            public_condition = self.__get_public_condition(
+                only_public=only_public)
+            prod_cond = self.__get_plane_dataproducttype_condition(
+                prod_type=prod_type)
+            instr_cond = self.__get_instrument_name_condition(
+                value=instrument_name)
+            filter_name_cond = self.__get_filter_name_condition(
+                value=filter_name)
+            props_id_cond = self.__get_proposal_id_condition(
+                value=proposal_id)
 
             columns = str(', '.join(self.JWST_DEFAULT_COLUMNS))
             if show_all_columns:
@@ -318,7 +343,9 @@ class JwstClass(EsaTap):
                      f"ORDER BY dist ASC")
             if verbose:
                 print(query)
-            job = self.query_tap(query=query, async_job=async_job, verbose=verbose)
+            job = self.query_tap(query=query,
+                                 async_job=async_job,
+                                 verbose=verbose)
         return job.get_results()
 
     def cone_search(self, coordinate, radius, *,
@@ -396,20 +423,28 @@ class JwstClass(EsaTap):
         ra_hours, dec = commons.coord_to_radec(coord)
         ra = ra_hours * 15.0  # Converts to degrees
 
-        obsid_condition = self.__get_observationid_condition(value=observation_id)
-        cal_level_condition = self.__get_callevel_condition(cal_level=cal_level)
-        public_condition = self.__get_public_condition(only_public=only_public)
-        prod_type_cond = self.__get_plane_dataproducttype_condition(prod_type=prod_type)
-        inst_name_cond = self.__get_instrument_name_condition(value=instrument_name)
-        filter_name_condition = self.__get_filter_name_condition(value=filter_name)
-        proposal_id_condition = self.__get_proposal_id_condition(value=proposal_id)
+        obsid_condition = self.__get_observationid_condition(
+            value=observation_id)
+        cal_level_condition = self.__get_callevel_condition(
+            cal_level=cal_level)
+        public_condition = self.__get_public_condition(
+            only_public=only_public)
+        prod_type_cond = self.__get_plane_dataproducttype_condition(
+            prod_type=prod_type)
+        inst_name_cond = self.__get_instrument_name_condition(
+            value=instrument_name)
+        filter_name_condition = self.__get_filter_name_condition(
+            value=filter_name)
+        proposal_id_condition = self.__get_proposal_id_condition(
+            value=proposal_id)
 
         columns = str(', '.join(self.JWST_DEFAULT_COLUMNS))
         if show_all_columns:
             columns = '*'
 
         if radius is not None:
-            radius_quantity = self.__get_quantity_input(value=radius, msg="radius")
+            radius_quantity = self.__get_quantity_input(
+                value=radius, msg="radius")
             radius_deg = Angle(radius_quantity).to_value(units.deg)
 
         query = (f"SELECT DISTANCE(POINT('ICRS',"
@@ -429,7 +464,11 @@ class JwstClass(EsaTap):
                  f"{filter_name_condition}"
                  f"{proposal_id_condition}"
                  f"ORDER BY dist ASC")
-        return self.query_tap(query=query, async_job=async_job, output_file=output_file, output_format=output_format, verbose=verbose)
+        return self.query_tap(query=query,
+                              async_job=async_job,
+                              output_file=output_file,
+                              output_format=output_format,
+                              verbose=verbose)
 
     def query_target(self, target_name, *, target_resolver="ALL",
                      radius=None,
@@ -445,7 +484,8 @@ class JwstClass(EsaTap):
                      show_all_columns=False,
                      async_job=False,
                      verbose=False):
-        """Searches for a specific target defined by its name and other parameters
+        """Searches for a specific target defined by
+        its name and other parameters
         TAP & TAP+
 
         Parameters
@@ -498,8 +538,9 @@ class JwstClass(EsaTap):
         -------
         The job results (astropy.table).
         """
-        coordinates = self.resolve_target_coordinates(target_name=target_name,
-                                                      target_resolver=target_resolver)
+        coordinates = (
+            self.resolve_target_coordinates(target_name=target_name,
+                                            target_resolver=target_resolver))
         return self.query_region(coordinate=coordinates,
                                  radius=radius,
                                  width=width,
@@ -571,7 +612,8 @@ class JwstClass(EsaTap):
         )
 
         if response.status == 403:
-            print("ERROR: MAST tokens cannot be assigned or requested by anonymous users")
+            print("ERROR: MAST tokens cannot be assigned "
+                  "or requested by anonymous users")
         elif response.status == 500:
             print("ERROR: Server error when setting the token")
         else:
@@ -595,7 +637,8 @@ class JwstClass(EsaTap):
         string_messages = []
         for line in response.iter_lines():
             string_message = line.decode("utf-8")
-            string_messages.append(string_message[string_message.index('=') + 1:])
+            string_messages.append(
+                string_message[string_message.index('=') + 1:])
             print(string_messages[len(string_messages) - 1])
         return string_messages
 
@@ -629,7 +672,8 @@ class JwstClass(EsaTap):
 
         if observation_id is None:
             raise ValueError(self.REQUESTED_OBSERVATION_ID)
-        plane_ids, max_cal_level = self._get_plane_id(observation_id=observation_id)
+        plane_ids, max_cal_level = (
+            self._get_plane_id(observation_id=observation_id))
         if cal_level == 3 and cal_level > max_cal_level:
             raise ValueError("Requesting upper levels is not allowed")
         list = self._get_associated_planes(plane_ids=plane_ids,
@@ -637,12 +681,15 @@ class JwstClass(EsaTap):
                                            max_cal_level=max_cal_level,
                                            is_url=False)
 
+        condition = self.__get_artifact_producttype_condition(
+            product_type=product_type
+        )
+
         query = (f"select distinct a.uri, a.artifactid, a.filename, "
                  f"a.contenttype, a.producttype, p.calibrationlevel, "
                  f"p.public FROM {conf.JWST_PLANE_TABLE} p JOIN "
                  f"{conf.JWST_ARTIFACT_TABLE} a ON (p.planeid=a.planeid) "
-                 f"WHERE a.planeid IN {list}"
-                 f"{self.__get_artifact_producttype_condition(product_type=product_type)};")
+                 f"WHERE a.planeid IN {list} {condition};")
         job = self.query_tap(query=query)
         return job.get_results()
 
@@ -661,8 +708,10 @@ class JwstClass(EsaTap):
         else:
             plane_list = []
             for plane_id in plane_ids:
-                siblings = self.__get_sibling_planes(planeid=plane_id, cal_level=cal_level)
-                members = self.__get_member_planes(planeid=plane_id, cal_level=cal_level)
+                siblings = self.__get_sibling_planes(planeid=plane_id,
+                                                     cal_level=cal_level)
+                members = self.__get_member_planes(planeid=plane_id,
+                                                   cal_level=cal_level)
                 plane_id_table = vstack([siblings, members])
                 plane_list.extend(plane_id_table['product_planeid'])
             if (not is_url):
@@ -799,10 +848,12 @@ class JwstClass(EsaTap):
 
         if file_name is None:
             try:
-                output_file_name = self._query_get_product(artifact_id=artifact_id)
+                output_file_name = self._query_get_product(
+                    artifact_id=artifact_id)
                 err_msg = str(artifact_id)
             except Exception as exx:
-                raise ValueError(f"Cannot retrieve product for artifact_id {artifact_id}: {exx}")
+                raise ValueError(f"Cannot retrieve product "
+                                 f"for artifact_id {artifact_id}: {exx}")
         else:
             output_file_name = str(file_name)
             err_msg = str(file_name)
@@ -814,10 +865,13 @@ class JwstClass(EsaTap):
                 params_dict['ARTIFACTID'] = (self._query_get_product(
                                              file_name=file_name))
             except Exception as exx:
-                raise ValueError(f"Cannot retrieve product for file_name {file_name}: {exx}")
+                raise ValueError(f"Cannot retrieve product "
+                                 f"for file_name {file_name}: {exx}")
 
         try:
-            esautils.download_file(url=conf.JWST_DATA_SERVER, session=self.tap._session, params=params_dict,
+            esautils.download_file(url=conf.JWST_DATA_SERVER,
+                                   session=self.tap._session,
+                                   params=params_dict,
                                    filename=output_file_name)
         except Exception as exx:
             log.info("error")
@@ -863,10 +917,12 @@ class JwstClass(EsaTap):
             levels, please use get_related_observations functions first.
             Possible values: 'ALL', 3, 2, 1, -1
         product_type : str or list, optional, default None
-            If the string or at least one element of the list is empty, the value is replaced by None.
+            If the string or at least one element of the list is empty,
+            the value is replaced by None.
             With None, all products will be downloaded.
-            Possible string values: 'thumbnail', 'preview', 'auxiliary', 'science' or 'info'.
-            Posible list values: any combination of string values.
+            Possible string values: 'thumbnail', 'preview',
+            'auxiliary', 'science' or 'info'.
+            Possible list values: any combination of string values.
         output_file : str, optional
             Output file. If no value is provided, a temporary one is created.
 
@@ -876,11 +932,14 @@ class JwstClass(EsaTap):
             Returns the local path where the product(s) are saved.
         """
 
-        if (isinstance(product_type, list) and '' in product_type) or not product_type:
+        if (
+                isinstance(product_type, list) and '' in product_type
+        ) or not product_type:
             product_type = None
         if observation_id is None:
             raise ValueError(self.REQUESTED_OBSERVATION_ID)
-        plane_ids, max_cal_level = self._get_plane_id(observation_id=observation_id)
+        plane_ids, max_cal_level = self._get_plane_id(
+            observation_id=observation_id)
 
         if (cal_level == 3 and cal_level > max_cal_level):
             raise ValueError("Requesting upper levels is not allowed")
@@ -904,16 +963,20 @@ class JwstClass(EsaTap):
                                          cal_level=cal_level,
                                          max_cal_level=max_cal_level,
                                          product_type=tap_product_type)
-        output_file_full_path, output_dir = self.__set_dirs(output_file=output_file,
-                                                            observation_id=observation_id)
+        (output_file_full_path,
+         output_dir) = self.__set_dirs(output_file=output_file,
+                                       observation_id=observation_id)
         # Get file name only
         output_file_name = os.path.basename(output_file_full_path)
 
         try:
-            esautils.download_file(url=conf.JWST_DATA_SERVER, session=self.tap._session, params=params_dict,
+            esautils.download_file(url=conf.JWST_DATA_SERVER,
+                                   session=self.tap._session,
+                                   params=params_dict,
                                    filename=output_file_full_path)
         except Exception as exx:
-            raise ValueError(f"Cannot retrieve products for observation {observation_id}: {exx}")
+            raise ValueError(f"Cannot retrieve products "
+                             f"for observation {observation_id}: {exx}")
 
         files = []
         self.__extract_file(output_file_full_path=output_file_full_path,
@@ -929,7 +992,11 @@ class JwstClass(EsaTap):
 
         return files
 
-    def download_files_from_program(self, proposal_id, *, product_type=None, verbose=False):
+    def download_files_from_program(self,
+                                    proposal_id,
+                                    *,
+                                    product_type=None,
+                                    verbose=False):
         """Get JWST products given its proposal ID.
 
         Parameters
@@ -940,7 +1007,8 @@ class JwstClass(EsaTap):
             If the string or at least one element of the list is empty,
             the value is replaced by None.
             With None, all products will be downloaded.
-            Possible string values: 'thumbnail', 'preview', 'auxiliary', 'science' or 'info'.
+            Possible string values: 'thumbnail', 'preview',
+            'auxiliary', 'science' or 'info'.
             Posible list values: any combination of string values.
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -957,14 +1025,18 @@ class JwstClass(EsaTap):
         if verbose:
             print(query)
         job = self.query_tap(query=query, verbose=verbose)
-        allobs = set(JwstClass.get_decoded_string(job.get_results()['observationid']))
+        allobs = set(JwstClass.get_decoded_string(
+            job.get_results()['observationid']))
         for oid in allobs:
             log.info(f"Downloading products for Observation ID: {oid}")
-            self.get_obs_products(observation_id=oid, product_type=product_type)
+            self.get_obs_products(observation_id=oid,
+                                  product_type=product_type)
         return list(allobs)
 
-
-    def upload_table(self, upload_resource, table_name, verbose=False):
+    def upload_table(self,
+                     upload_resource,
+                     table_name,
+                     verbose=False):
         """
         JWST-specific table upload. Uses the authenticated TAP session.
 
@@ -1067,7 +1139,8 @@ class JwstClass(EsaTap):
         try:
             os.makedirs(output_dir, exist_ok=True)
         except OSError as err:
-            raise OSError(f"Creation of the directory {output_dir} failed: {err.strerror}")
+            raise OSError(f"Creation of the directory {output_dir} "
+                          f"failed: {err.strerror}")
         return output_file_full_path, output_dir
 
     def __set_additional_parameters(self, param_dict, cal_level,
@@ -1088,7 +1161,8 @@ class JwstClass(EsaTap):
         if value is None:
             raise ValueError(f"Missing required argument: '{msg}'")
         if not (isinstance(value, str) or isinstance(value, units.Quantity)):
-            raise ValueError(f"{msg} must be either a string or units.Quantity")
+            raise ValueError(f"{msg} must be either a string "
+                             f"or units.Quantity")
         if isinstance(value, str):
             q = Quantity(value)
             return q
@@ -1098,7 +1172,8 @@ class JwstClass(EsaTap):
     def __get_coord_input(self, value, msg):
         if not (isinstance(value, str) or isinstance(value,
                                                      commons.CoordClasses)):
-            raise ValueError(f"{msg} must be either a string or astropy.coordinates")
+            raise ValueError(f"{msg} must be either a string "
+                             f"or astropy.coordinates")
         if isinstance(value, str):
             c = commons.parse_coordinates(value)
             return c
@@ -1140,9 +1215,12 @@ class JwstClass(EsaTap):
             if not isinstance(prod_type, str):
                 raise ValueError("prod_type must be string")
             elif str(prod_type).lower() not in self.PLANE_DATAPRODUCT_TYPES:
-                raise ValueError("prod_type must be one of: {str(', '.join(self.PLANE_DATAPRODUCT_TYPES))}")
+                raise ValueError("prod_type must be one of: "
+                                 "{str(', '.join(self."
+                                 "PLANE_DATAPRODUCT_TYPES))}")
             else:
-                condition = f" AND dataproducttype ILIKE '%{prod_type.lower()}%' "
+                condition = (f" AND dataproducttype "
+                             f"ILIKE '%{prod_type.lower()}%' ")
         return condition
 
     def __get_instrument_name_condition(self, *, value=None):
@@ -1151,7 +1229,11 @@ class JwstClass(EsaTap):
             if (not isinstance(value, str)):
                 raise ValueError("instrument_name must be string")
             elif (str(value).upper() not in self.INSTRUMENT_NAMES):
-                raise ValueError(f"instrument_name must be one of: {str(', '.join(self.INSTRUMENT_NAMES))}")
+                msg = (
+                    "instrument_name must be one of: "
+                    f"{', '.join(self.INSTRUMENT_NAMES)}"
+                )
+                raise ValueError(msg)
             else:
                 condition = f" AND instrument_name ILIKE '%{value.upper()}%' "
         return condition
@@ -1182,14 +1264,19 @@ class JwstClass(EsaTap):
             if (not isinstance(product_type, str)):
                 raise ValueError("product_type must be string")
             elif (product_type not in self.ARTIFACT_PRODUCT_TYPES):
-                raise ValueError(f"product_type must be one of: {str(', '.join(self.ARTIFACT_PRODUCT_TYPES))}")
+                msg = (
+                    "product_type must be one of: "
+                    f"{', '.join(self.ARTIFACT_PRODUCT_TYPES)}"
+                )
+                raise ValueError(msg)
             else:
                 condition = f" AND producttype ILIKE '%{product_type}%'"
         return condition
 
     def _fix_jwst_boolean_fields(self, votable):
         """
-        Convert bit to boolean for specific JWST columns, since Upload servlet does not ingest Bit types
+        Convert bit to boolean for specific JWST columns, since
+        Upload servlet does not ingest Bit types
         """
 
         BOOLEAN_FIX_COLUMNS = {"public", "vis_cube", "vis_image"}
@@ -1238,6 +1325,7 @@ class JwstClass(EsaTap):
         except (UnicodeDecodeError, AttributeError):
             return str
 
-# Need to be False in order to avoid reaching out to the remote server at import time
-Jwst = JwstClass(show_messages=False)
 
+# Need to be False in order to avoid reaching out
+# to the remote server at import time
+Jwst = JwstClass(show_messages=False)

@@ -48,7 +48,9 @@ class DummyTapHandler:
         if method == self.__invokedMethod:
             return
         else:
-            raise ValueError(f"Method '+{str(method)}' not invoked. (Invoked method is '{str(self.__invokedMethod)}')")
+            raise ValueError(f"Method '+{str(method)}' "
+                             f"not invoked. (Invoked method "
+                             f"is '{str(self.__invokedMethod)}')")
 
     def check_parameters(self, parameters, method_name):
         print("FOUND")

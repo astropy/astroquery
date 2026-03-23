@@ -87,7 +87,10 @@ def get_product_request(request):
     return mp
 
 
-planeids = "('00000000-0000-0000-879d-ae91fa2f43e2', '00000000-0000-0000-9852-a9fa8c63f7ef')"
+planeids = ("("
+            "'00000000-0000-0000-879d-ae91fa2f43e2', "
+            "'00000000-0000-0000-9852-a9fa8c63f7ef'"
+            ")")
 
 
 class TestTap:
@@ -101,7 +104,7 @@ class TestTap:
         tap.launch_job(query)
 
         # test with parameters
-        parameters={}
+        parameters = {}
         parameters['query'] = query
         parameters['async_job'] = False
         parameters['output_file'] = 'output'
@@ -110,8 +113,16 @@ class TestTap:
         tap.launch_job(**parameters)
 
         assert mock_query_tap.call_args_list == [
-            call('query', async_job=False, output_file=None, output_format='votable', verbose=False),
-            call('query', async_job=False, output_file='output', output_format='format', verbose=True),
+            call('query',
+                 async_job=False,
+                 output_file=None,
+                 output_format='votable',
+                 verbose=False),
+            call('query',
+                 async_job=False,
+                 output_file='output',
+                 output_format='format',
+                 verbose=True),
         ]
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
@@ -135,8 +146,16 @@ class TestTap:
         tap.launch_job(**parameters)
 
         assert mock_query_tap.call_args_list == [
-            call('query', async_job=True, output_file=None, output_format='votable', verbose=False),
-            call('query', async_job=True, output_file='output', output_format='format', verbose=True),
+            call('query',
+                 async_job=True,
+                 output_file=None,
+                 output_format='votable',
+                 verbose=False),
+            call('query',
+                 async_job=True,
+                 output_file='output',
+                 output_format='format',
+                 verbose=True),
         ]
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
@@ -146,11 +165,13 @@ class TestTap:
 
         with pytest.raises(ValueError) as err:
             tap.query_region(coordinate=123)
-        assert "coordinate must be either a string or astropy.coordinates" in err.value.args[0]
+        assert ("coordinate must be either a string "
+                "or astropy.coordinates") in err.value.args[0]
 
         with pytest.raises(NameResolveError) as err:
             tap.query_region(coordinate='test')
-        assert ("Unable to find coordinates for name 'test'" in err.value.args[0] or "Unable to retrieve "
+        assert ("Unable to find coordinates for name "
+                "'test'" in err.value.args[0] or "Unable to retrieve "
                 "coordinates" in err.value.args[0])
 
         # The query contains decimals: force default response
@@ -163,7 +184,8 @@ class TestTap:
         width = 123
         with pytest.raises(ValueError) as err:
             tap.query_region(sc, width=width)
-        assert "width must be either a string or units.Quantity" in err.value.args[0]
+        assert ("width must be either a string "
+                "or units.Quantity") in err.value.args[0]
 
         width = Quantity(12, u.deg)
         height = Quantity(10, u.deg)
@@ -180,30 +202,49 @@ class TestTap:
         mock_job.get_results.return_value = results_table
         mock_query_tap.return_value = mock_job
 
-        assert (isinstance(tap.query_region(sc, width=width, height=height), Table))
+        assert (isinstance(tap.query_region(sc,
+                                            width=width,
+                                            height=height), Table))
 
         # Test observation_id argument
         with pytest.raises(ValueError) as err:
             tap.query_region(sc, width=width, height=height, observation_id=1)
         assert "observation_id must be string" in err.value.args[0]
 
-        assert (isinstance(tap.query_region(sc, width=width, height=height, observation_id="observation"), Table))
+        assert (isinstance(tap.query_region(sc,
+                                            width=width,
+                                            height=height,
+                                            observation_id="observation"),
+                           Table))
         # raise ValueError
 
         # Test cal_level argument
         with pytest.raises(ValueError) as err:
-            tap.query_region(sc, width=width, height=height, cal_level='a')
-        assert "cal_level must be either 'Top' or an integer" in err.value.args[0]
+            tap.query_region(sc,
+                             width=width,
+                             height=height,
+                             cal_level='a')
+        assert ("cal_level must be either 'Top' "
+                "or an integer") in err.value.args[0]
 
-        assert (isinstance(tap.query_region(sc, width=width, height=height, cal_level='Top'), Table))
-        assert (isinstance(tap.query_region(sc, width=width, height=height, cal_level=1), Table))
+        assert (isinstance(tap.query_region(sc,
+                                            width=width,
+                                            height=height,
+                                            cal_level='Top'), Table))
+        assert (isinstance(tap.query_region(sc,
+                                            width=width,
+                                            height=height,
+                                            cal_level=1), Table))
 
         # Test only_public
         with pytest.raises(ValueError) as err:
             tap.query_region(sc, width=width, height=height, only_public='a')
         assert "only_public must be boolean" in err.value.args[0]
 
-        assert (isinstance(tap.query_region(sc, width=width, height=height, only_public=True), Table))
+        assert (isinstance(tap.query_region(sc,
+                                            width=width,
+                                            height=height,
+                                            only_public=True), Table))
 
         # Test dataproduct_type argument
         with pytest.raises(ValueError) as err:
@@ -211,17 +252,26 @@ class TestTap:
         assert "prod_type must be string" in err.value.args[0]
 
         with pytest.raises(ValueError) as err:
-            tap.query_region(sc, width=width, height=height, prod_type='a')
+            tap.query_region(sc,
+                             width=width,
+                             height=height,
+                             prod_type='a')
         assert "prod_type must be one of: " in err.value.args[0]
 
-        assert (isinstance(tap.query_region(sc, width=width, height=height, prod_type='image'), Table))
+        assert (isinstance(tap.query_region(sc,
+                                            width=width,
+                                            height=height,
+                                            prod_type='image'), Table))
 
         # Test instrument_name argument
         with pytest.raises(ValueError) as err:
             tap.query_region(sc, width=width, height=height, instrument_name=1)
         assert "instrument_name must be string" in err.value.args[0]
 
-        assert (isinstance(tap.query_region(sc, width=width, height=height, instrument_name='NIRCAM'), Table))
+        assert (isinstance(tap.query_region(sc,
+                                            width=width,
+                                            height=height,
+                                            instrument_name='NIRCAM'), Table))
 
         with pytest.raises(ValueError) as err:
             tap.query_region(sc, width=width, height=height,
@@ -233,17 +283,24 @@ class TestTap:
             tap.query_region(sc, width=width, height=height, filter_name=1)
         assert "filter_name must be string" in err.value.args[0]
 
-        assert (isinstance(tap.query_region(sc, width=width, height=height, filter_name='filter'), Table))
+        assert (isinstance(tap.query_region(sc,
+                                            width=width,
+                                            height=height,
+                                            filter_name='filter'), Table))
 
         # Test proposal_id argument
         with pytest.raises(ValueError) as err:
             tap.query_region(sc, width=width, height=height, proposal_id=123)
         assert "proposal_id must be string" in err.value.args[0]
 
-        assert (isinstance(tap.query_region(sc, width=width, height=height, proposal_id='123'), Table))
+        assert (isinstance(tap.query_region(sc,
+                                            width=width,
+                                            height=height,
+                                            proposal_id='123'), Table))
 
         table = tap.query_region(sc, width=width, height=height)
-        assert len(table) == 3, f"Wrong job results (num rows). Expected: {3}, found {len(table)}"
+        assert len(table) == 3, (f"Wrong job results (num rows). "
+                                 f"Expected: {3}, found {len(table)}")
         self.__check_results_column(table,
                                     'alpha',
                                     'alpha',
@@ -267,7 +324,8 @@ class TestTap:
         # by radius
         radius = Quantity(1, u.deg)
         table = tap.query_region(sc, radius=radius)
-        assert len(table) == 3, f"Wrong job results (num rows). Expected: {3}, found {len(table)}"
+        assert len(table) == 3, (f"Wrong job results (num rows). "
+                                 f"Expected: {3}, found {len(table)}")
         self.__check_results_column(table,
                                     'alpha',
                                     'alpha',
@@ -306,8 +364,12 @@ class TestTap:
                       frame='icrs')
         width = Quantity(12, u.deg)
         height = Quantity(10, u.deg)
-        table = tap.query_region(sc, width=width, height=height, async_job=True)
-        assert len(table) == 3, f"Wrong job results (num rows). Expected: {3}, found {len(table)}"
+        table = tap.query_region(sc,
+                                 width=width,
+                                 height=height,
+                                 async_job=True)
+        assert len(table) == 3, (f"Wrong job results (num rows). "
+                                 f"Expected: {3}, found {len(table)}")
         self.__check_results_column(table,
                                     'alpha',
                                     'alpha',
@@ -333,7 +395,8 @@ class TestTap:
         # by radius
         radius = Quantity(1, u.deg)
         table = tap.query_region(sc, radius=radius, async_job=True)
-        assert len(table) == 3, f"Wrong job results (num rows). Expected: {3}, found {len(table)}"
+        assert len(table) == 3, (f"Wrong job results (num rows). "
+                                 f"Expected: {3}, found {len(table)}")
         self.__check_results_column(table,
                                     'alpha',
                                     'alpha',
@@ -380,11 +443,14 @@ class TestTap:
         job = tap.cone_search(sc, radius)
         assert job is not None, "Expected a valid job"
         assert job.async_ is False, "Expected a synchronous job"
-        assert job.get_phase() == 'COMPLETED', f"Wrong job phase. Expected: {'COMPLETED'}, found {job.get_phase()}"
+        assert job.get_phase() == 'COMPLETED', (f"Wrong job phase. "
+                                                f"Expected: {'COMPLETED'}, "
+                                                f"found {job.get_phase()}")
         assert job.failed is False, "Wrong job status (set Failed = True)"
         # results
         results = job.get_results()
-        assert len(results) == 3, f"Wrong job results (num rows). Expected: {3}, found {len(results)}"
+        assert len(results) == 3, (f"Wrong job results (num rows). "
+                                   f"Expected: {3}, found {len(results)}")
         self.__check_results_column(results,
                                     'alpha',
                                     'alpha',
@@ -414,7 +480,8 @@ class TestTap:
         # Test cal_level argument
         with pytest.raises(ValueError) as err:
             tap.cone_search(sc, radius, cal_level='a')
-        assert "cal_level must be either 'Top' or an integer" in err.value.args[0]
+        assert ("cal_level must be either 'Top' "
+                "or an integer") in err.value.args[0]
 
         # Test only_public
         with pytest.raises(ValueError) as err:
@@ -477,11 +544,14 @@ class TestTap:
         assert job is mock_job
         assert job is not None, "Expected a valid job"
         assert job.async_ is True, "Expected an asynchronous job"
-        assert job.get_phase() == 'COMPLETED', f"Wrong job phase. Expected: {'COMPLETED'}, found {job.get_phase()}"
+        assert job.get_phase() == 'COMPLETED', (f"Wrong job phase. "
+                                                f"Expected: {'COMPLETED'}, "
+                                                f"found {job.get_phase()}")
         assert job.failed is False, "Wrong job status (set Failed = True)"
         # results
         results = job.get_results()
-        assert len(results) == 3, "Wrong job results (num rows). Expected: {3}, found {len(results)}"
+        assert len(results) == 3, ("Wrong job results (num rows). "
+                                   "Expected: {3}, found {len(results)}")
         self.__check_results_column(results,
                                     'alpha',
                                     'alpha',
@@ -511,11 +581,13 @@ class TestTap:
 
         with pytest.raises(ValueError) as err:
             jwst.get_product()
-        assert "Missing required argument: 'artifact_id' or 'file_name'" in err.value.args[0]
+        assert ("Missing required argument: 'artifact_id' or "
+                "'file_name'") in err.value.args[0]
 
         # test with parameters
         parameters = {}
-        parameters['output_file'] = 'jw00617023001_02102_00001_nrcb4_uncal.fits'
+        parameters['output_file'] = \
+            'jw00617023001_02102_00001_nrcb4_uncal.fits'
         parameters['verbose'] = False
 
         param_dict = {}
@@ -528,14 +600,17 @@ class TestTap:
         assert download_mock.call_count == 1
 
         # Check the arguments passed to download_file
-        args,kwargs = download_mock.call_args
+        args, kwargs = download_mock.call_args
 
-        assert kwargs["params"]["ARTIFACTID"] == "00000000-0000-0000-8740-65e2827c9895"
+        expected_artifact_id = "00000000-0000-0000-8740-65e2827c9895"
+        assert kwargs["params"]["ARTIFACTID"] == expected_artifact_id
         assert kwargs["params"]["RETRIEVAL_TYPE"] == "PRODUCT"
         assert kwargs["params"]["TAPCLIENT"] == "ASTROQUERY"
 
-        assert kwargs["filename"] == "jw00617023001_02102_00001_nrcb4_uncal.fits"
-        assert kwargs["url"].startswith("https://jwst.esac.esa.int/server/data")
+        expected_filename = "jw00617023001_02102_00001_nrcb4_uncal.fits"
+        assert kwargs["filename"] == expected_filename
+        assert kwargs["url"].startswith(
+            "https://jwst.esac.esa.int/server/data")
         assert "session" in kwargs
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
@@ -545,7 +620,8 @@ class TestTap:
         # default parameters
         with pytest.raises(ValueError) as err:
             jwst.get_product()
-        assert "Missing required argument: 'artifact_id' or 'file_name'" in err.value.args[0]
+        assert ("Missing required argument: 'artifact_id' or "
+                "'file_name'") in err.value.args[0]
 
         # test with parameters
         parameters = {}
@@ -564,12 +640,14 @@ class TestTap:
         # Check the arguments passed to download_file
         args, kwargs = download_mock.call_args
 
-        assert kwargs["params"]["ARTIFACTID"] == "00000000-0000-0000-8740-65e2827c9895"
+        expected_id = "00000000-0000-0000-8740-65e2827c9895"
+        assert kwargs["params"]["ARTIFACTID"] == expected_id
         assert kwargs["params"]["RETRIEVAL_TYPE"] == "PRODUCT"
         assert kwargs["params"]["TAPCLIENT"] == "ASTROQUERY"
 
         assert kwargs["filename"] == "file_name_id"
-        assert kwargs["url"].startswith("https://jwst.esac.esa.int/server/data")
+        assert kwargs["url"].startswith(
+            "https://jwst.esac.esa.int/server/data")
         assert "session" in kwargs
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
@@ -584,11 +662,13 @@ class TestTap:
         mock_job.get_results.return_value = expected_table
         mock_query_tap.return_value = mock_job
 
-        result = jwst.get_product_list(observation_id=observation_id, product_type="science")
+        result = jwst.get_product_list(observation_id=observation_id,
+                                       product_type="science")
 
         query = (f"select distinct a.uri, a.artifactid, a.filename, "
                  f"a.contenttype, a.producttype, p.calibrationlevel, p.public "
-                 f"FROM {conf.JWST_PLANE_TABLE} p JOIN {conf.JWST_ARTIFACT_TABLE} "
+                 f"FROM {conf.JWST_PLANE_TABLE} p "
+                 f"JOIN {conf.JWST_ARTIFACT_TABLE} "
                  f"a ON (p.planeid=a.planeid) WHERE a.planeid "
                  f"IN {planeids} AND producttype ILIKE '%science%';")
 
@@ -603,14 +683,17 @@ class TestTap:
         # default parameters
         with pytest.raises(ValueError) as err:
             jwst.get_product_list()
-        assert "Missing required argument: 'observation_id'" in err.value.args[0]
+        assert ("Missing required argument: "
+                "'observation_id'") in err.value.args[0]
 
         with pytest.raises(ValueError) as err:
-            jwst.get_product_list(observation_id=observation_id, product_type=1)
+            jwst.get_product_list(observation_id=observation_id,
+                                  product_type=1)
         assert "product_type must be string" in err.value.args[0]
 
         with pytest.raises(ValueError) as err:
-            jwst.get_product_list(observation_id=observation_id, product_type='test')
+            jwst.get_product_list(observation_id=observation_id,
+                                  product_type='test')
         assert "product_type must be one of" in err.value.args[0]
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
@@ -618,7 +701,8 @@ class TestTap:
         jwst = JwstClass(show_messages=False)
         with pytest.raises(TypeError) as err:
             jwst.download_files_from_program()
-        assert "missing 1 required positional argument: 'proposal_id'" in err.value.args[0]
+        assert ("missing 1 required positional argument: "
+                "'proposal_id'") in err.value.args[0]
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.download_file')
@@ -628,15 +712,20 @@ class TestTap:
         # default parameters
         with pytest.raises(ValueError) as err:
             jwst.get_obs_products()
-        assert "Missing required argument: 'observation_id'" in err.value.args[0]
+        assert ("Missing required argument: "
+                "'observation_id'") in err.value.args[0]
 
         # test with parameters
 
-        output_file_full_path_dir = os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_1"
+        output_file_full_path_dir = os.path.join(
+            os.getcwd(),
+            "temp_test_jwsttap_get_obs_products_1")
         try:
             os.makedirs(output_file_full_path_dir, exist_ok=True)
         except OSError as err:
-            print(f"Creation of the directory {output_file_full_path_dir} failed: {err.strerror}")
+            print(f"Creation of the directory "
+                  f"{output_file_full_path_dir} failed: "
+                  f"{err.strerror}")
             raise err
 
         observation_id = 'jw00777011001_02104_00001_nrcblong'
@@ -653,12 +742,16 @@ class TestTap:
 
         # Test single product tar
         file = data_path('single_product_retrieval.tar')
-        output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
+        output_file_full_path = os.path.join(
+            output_file_full_path_dir,
+            os.path.basename(file))
         shutil.copy(file, output_file_full_path)
         parameters['output_file'] = output_file_full_path
 
         expected_files = []
-        extracted_file_1 = output_file_full_path_dir + os.sep + 'single_product_retrieval_1.fits'
+        extracted_file_1 = os.path.join(
+            output_file_full_path_dir,
+            'single_product_retrieval_1.fits')
         expected_files.append(extracted_file_1)
         try:
             files_returned = (jwst.get_obs_products(
@@ -671,20 +764,28 @@ class TestTap:
             shutil.rmtree(output_file_full_path_dir)
 
         # Test product_type paramater with a list
-        output_file_full_path_dir = os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_1"
+        output_file_full_path_dir = os.path.join(
+            os.getcwd(),
+            "temp_test_jwsttap_get_obs_products_1")
         try:
             os.makedirs(output_file_full_path_dir, exist_ok=True)
         except OSError as err:
-            print(f"Creation of the directory {output_file_full_path_dir} failed: {err.strerror}")
+            print(f"Creation of the directory "
+                  f"{output_file_full_path_dir} failed: "
+                  f"{err.strerror}")
             raise err
 
         file = data_path('single_product_retrieval.tar')
-        output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
+        output_file_full_path = os.path.join(
+            output_file_full_path_dir,
+            os.path.basename(file))
         shutil.copy(file, output_file_full_path)
         parameters['output_file'] = output_file_full_path
 
         expected_files = []
-        extracted_file_1 = output_file_full_path_dir + os.sep + 'single_product_retrieval_1.fits'
+        extracted_file_1 = os.path.join(
+            output_file_full_path_dir,
+            'single_product_retrieval_1.fits')
         expected_files.append(extracted_file_1)
         product_type_as_list = ['science', 'info']
         try:
@@ -713,7 +814,9 @@ class TestTap:
         try:
             os.makedirs(output_file_full_path_dir, exist_ok=True)
         except OSError as err:
-            print(f"Creation of the directory {output_file_full_path_dir} failed: {err.strerror}")
+            print(f"Creation of the directory "
+                  f"{output_file_full_path_dir} failed: "
+                  f"{err.strerror}")
             raise err
 
         file = data_path('single_product_retrieval_1.fits')
@@ -743,11 +846,15 @@ class TestTap:
             shutil.rmtree(output_file_full_path_dir)
 
         # Test single file zip
-        output_file_full_path_dir = os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_3"
+        output_file_full_path_dir = os.path.join(
+            os.getcwd(),
+            "temp_test_jwsttap_get_obs_products_3")
         try:
             os.makedirs(output_file_full_path_dir, exist_ok=True)
         except OSError as err:
-            print(f"Creation of the directory {output_file_full_path_dir} failed: {err.strerror}")
+            print(f"Creation of the directory "
+                  f"{output_file_full_path_dir} failed: "
+                  f"{err.strerror}")
             raise err
 
         file = data_path('single_product_retrieval_3.fits.zip')
@@ -758,7 +865,9 @@ class TestTap:
         parameters['output_file'] = output_file_full_path
 
         expected_files = []
-        extracted_file_1 = output_file_full_path_dir + os.sep + 'single_product_retrieval.fits'
+        extracted_file_1 = os.path.join(
+            output_file_full_path_dir,
+            'single_product_retrieval.fits')
         expected_files.append(extracted_file_1)
 
         try:
@@ -780,21 +889,29 @@ class TestTap:
         parameters['params_dict']['calibrationlevel'] = 'ALL'
 
         # Test single file gzip
-        output_file_full_path_dir = (os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_4")
+        output_file_full_path_dir = os.path.join(
+            os.getcwd(),
+            "temp_test_jwsttap_get_obs_products_4")
         try:
             os.makedirs(output_file_full_path_dir, exist_ok=True)
         except OSError as err:
-            print(f"Creation of the directory {output_file_full_path_dir} failed: {err.strerror}")
+            print(f"Creation of the directory "
+                  f"{output_file_full_path_dir} failed: "
+                  f"{err.strerror}")
             raise err
 
         file = data_path('single_product_retrieval_2.fits.gz')
-        output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
+        output_file_full_path = os.path.join(
+            output_file_full_path_dir,
+            os.path.basename(file))
         shutil.copy(file, output_file_full_path)
 
         parameters['output_file'] = output_file_full_path
 
         expected_files = []
-        extracted_file_1 = output_file_full_path_dir + os.sep + 'single_product_retrieval_2.fits.gz'
+        extracted_file_1 = os.path.join(
+            output_file_full_path_dir,
+            'single_product_retrieval_2.fits.gz')
         expected_files.append(extracted_file_1)
 
         try:
@@ -814,26 +931,37 @@ class TestTap:
             shutil.rmtree(output_file_full_path_dir)
 
         # Test tar with 3 files, a normal one, a gzip one and a zip one
-        output_file_full_path_dir = (os.getcwd() + os.sep + "temp_test_jwsttap_get_obs_products_5")
+        output_file_full_path_dir = os.path.join(
+            os.getcwd(),
+            "temp_test_jwsttap_get_obs_products_5"
+        )
         try:
             os.makedirs(output_file_full_path_dir, exist_ok=True)
         except OSError as err:
-            print(f"Creation of the directory {output_file_full_path_dir} failed: {err.strerror}")
+            print(f"Creation of the directory "
+                  f"{output_file_full_path_dir} failed: "
+                  f"{err.strerror}")
             raise err
 
         file = data_path('three_products_retrieval.tar')
-        output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
+        output_file_full_path = os.path.join(
+            output_file_full_path_dir,
+            os.path.basename(file))
         shutil.copy(file, output_file_full_path)
 
         parameters['output_file'] = output_file_full_path
 
-        expected_files = []
-        extracted_file_1 = output_file_full_path_dir + os.sep + 'single_product_retrieval_1.fits'
-        expected_files.append(extracted_file_1)
-        extracted_file_2 = output_file_full_path_dir + os.sep + 'single_product_retrieval_2.fits.gz'
-        expected_files.append(extracted_file_2)
-        extracted_file_3 = output_file_full_path_dir + os.sep + 'single_product_retrieval_3.fits.zip'
-        expected_files.append(extracted_file_3)
+        expected_files = [
+            os.path.join(
+                output_file_full_path_dir,
+                "single_product_retrieval_1.fits"),
+            os.path.join(
+                output_file_full_path_dir,
+                "single_product_retrieval_2.fits.gz"),
+            os.path.join(
+                output_file_full_path_dir,
+                "single_product_retrieval_3.fits.zip"),
+        ]
 
         try:
             files_returned = (jwst.get_obs_products(
@@ -853,28 +981,37 @@ class TestTap:
 
         assert download_mock.call_count == get_obs_products_counter
 
-
     def test_gunzip_file(self):
-        output_file_full_path_dir = (os.getcwd() + os.sep + "temp_test_jwsttap_gunzip")
+        output_file_full_path_dir = \
+            (os.getcwd() + os.sep + "temp_test_jwsttap_gunzip")
         try:
             os.makedirs(output_file_full_path_dir, exist_ok=True)
         except OSError as err:
-            print(f"Creation of the directory {output_file_full_path_dir} failed: {err.strerror}")
+            print(f"Creation of the directory "
+                  f"{output_file_full_path_dir} failed: "
+                  f"{err.strerror}")
             raise err
 
         file = data_path('single_product_retrieval_2.fits.gz')
-        output_file_full_path = output_file_full_path_dir + os.sep + os.path.basename(file)
+        output_file_full_path = os.path.join(
+            output_file_full_path_dir,
+            os.path.basename(file)
+        )
         shutil.copy(file, output_file_full_path)
 
         expected_files = []
-        extracted_file_1 = output_file_full_path_dir + os.sep + "single_product_retrieval_2.fits"
+        extracted_file_1 = os.path.join(
+            output_file_full_path_dir,
+            "single_product_retrieval_2.fits"
+        )
         expected_files.append(extracted_file_1)
 
         try:
             extracted_file = (JwstClass.gzip_uncompress_and_rename_single_file(
                               output_file_full_path))
             if extracted_file != extracted_file_1:
-                raise ValueError(f"Extracted file not found: {extracted_file_1}")
+                raise ValueError(f"Extracted file not found: "
+                                 f"{extracted_file_1}")
         finally:
             # self.__remove_folder_contents(folder=output_file_full_path_dir)
             shutil.rmtree(output_file_full_path_dir)
@@ -882,13 +1019,20 @@ class TestTap:
     def __check_results_column(self, results, columnName, description, unit,
                                dataType):
         c = results[columnName]
-        assert c.description == description, \
-            f"Wrong description for results column '{columnName}'. Expected: '{description}', "\
-            f"found '{c.description}'"
+        assert c.description == description, (
+            f"Wrong description for results column '{columnName}'. "
+            f"Expected: '{description}', found '{c.description}'"
+        )
         assert c.unit == unit, \
-            f"Wrong unit for results column '{columnName}'. Expected: '{unit}', found '{c.unit}'"
+            (f"Wrong unit for results column "
+             f"'{columnName}'. Expected: "
+             f"'{unit}', found "
+             f"'{c.unit}'")
         assert c.dtype == dataType, \
-            f"Wrong dataType for results column '{columnName}'. Expected: '{dataType}', found '{c.dtype}'"
+            (f"Wrong dataType for results column "
+             f"'{columnName}'. Expected: "
+             f"'{dataType}', found "
+             f"'{c.dtype}'")
 
     def __remove_folder_contents(self, folder):
         for root, dirs, files in os.walk(folder):
@@ -911,10 +1055,13 @@ class TestTap:
 
     def test_query_target_error(self):
         # need to patch simbad query object here
-        with patch("astroquery.simbad.SimbadClass.query_object",
-                   side_effect=lambda object_name: parse_single_table(
-                       Path(__file__).parent / "data" / f"simbad_{object_name}.vot"
-                   ).to_table()):
+        with patch(
+                "astroquery.simbad.SimbadClass.query_object",
+                side_effect=lambda object_name: parse_single_table(
+                    Path(__file__).parent / "data" / f"simbad_{object_name}"
+                                                     f".vot"
+                ).to_table(),
+        ):
             jwst = JwstClass(show_messages=False)
             simbad = SimbadClass()
             ned = Ned()
@@ -922,46 +1069,74 @@ class TestTap:
             # Testing default parameters
             with pytest.raises((ValueError, TableParseError)) as err:
                 jwst.query_target(target_name="M1", target_resolver="")
-                assert "This target resolver is not allowed" in err.value.args[0]
+                assert ("This target resolver "
+                        "is not allowed") in err.value.args[0]
             with pytest.raises((ValueError, TableParseError)) as err:
                 jwst.query_target("TEST")
-                assert ('This target name cannot be determined with this '
-                        'resolver: ALL' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
+                assert any(
+                    msg in err.value.args[0]
+                    for msg in (
+                        'This target name cannot be determined '
+                        'with this resolver: ALL',
+                        'Failed to parse')
+                )
             with pytest.raises((ValueError, TableParseError)) as err:
                 jwst.query_target(target_name="M1", target_resolver="ALL")
-                assert err.value.args[0] in ["This target name cannot be determined "
-                                             "with this resolver: ALL", "Missing "
-                                             "required argument: 'width'"]
+                assert err.value.args[0] in ["This target name cannot be "
+                                             "determined with this resolver: "
+                                             "ALL",
+                                             "Missing required argument: "
+                                             "'width'"]
 
             # Testing no valid coordinates from resolvers
-            simbad_file = data_path('test_query_by_target_name_simbad_ned_error.vot')
+            simbad_file = data_path(
+                'test_query_by_target_name_simbad_ned_error.vot')
             simbad_table = Table.read(simbad_file)
             simbad.query_object = MagicMock(return_value=simbad_table)
-            ned_file = data_path('test_query_by_target_name_simbad_ned_error.vot')
+            ned_file = data_path(
+                'test_query_by_target_name_simbad_ned_error.vot')
             ned_table = Table.read(ned_file)
             ned.query_object = MagicMock(return_value=ned_table)
-            vizier_file = data_path('test_query_by_target_name_vizier_error.vot')
+            vizier_file = data_path(
+                'test_query_by_target_name_vizier_error.vot')
             vizier_table = Table.read(vizier_file)
             vizier.query_object = MagicMock(return_value=vizier_table)
 
-            # coordinate_error = 'coordinate must be either a string or astropy.coordinates'
+            # coordinate_error = 'coordinate must be either
+            # a string or astropy.coordinates'
             with pytest.raises((ValueError, TableParseError)) as err:
                 jwst.query_target(target_name="TEST", target_resolver="SIMBAD",
                                   radius=units.Quantity(5, units.deg))
-                assert ('This target name cannot be determined with this '
-                        'resolver: SIMBAD' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
+                assert any(
+                    msg in err.value.args[0]
+                    for msg in (
+                        'This target name cannot be determined '
+                        'with this resolver: SIMBAD',
+                        'Failed to parse')
+                )
 
             with pytest.raises((ValueError, TableParseError)) as err:
                 jwst.query_target(target_name="TEST", target_resolver="NED",
                                   radius=units.Quantity(5, units.deg))
-                assert ('This target name cannot be determined with this '
-                        'resolver: NED' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
+                assert any(
+                    msg in err.value.args[0]
+                    for msg in (
+                        'This target name cannot be determined '
+                        'with this resolver: NED',
+                        'Failed to parse')
+                )
 
             with pytest.raises((ValueError, TableParseError)) as err:
                 jwst.query_target(target_name="TEST", target_resolver="VIZIER",
                                   radius=units.Quantity(5, units.deg))
-                assert ('This target name cannot be determined with this resolver: '
-                        'VIZIER' in err.value.args[0] or 'Failed to parse' in err.value.args[0])
+                assert any(
+                    msg in err.value.args[0]
+                    for msg in (
+                        "This target name cannot be determined "
+                        "with this resolver: VIZIER",
+                        "Failed to parse",
+                    )
+                )
 
     @patch.object(JwstClass, 'login')
     def test_login(self, login_mock):
@@ -1022,7 +1197,9 @@ class TestTap:
         tap.set_token(token=token)
 
         sys.stdout = old_stdout
-        assert ('ERROR: MAST tokens cannot be assigned or requested by anonymous users' in buffer.getvalue())
+        assert ('ERROR: MAST tokens cannot be assigned '
+                'or requested by anonymous users'
+                in buffer.getvalue())
         mock_execute_servlet_request.assert_called_once_with(
             tap=tap.tap,
             query_params={'token': token},
@@ -1044,7 +1221,8 @@ class TestTap:
         tap.set_token(token=token)
 
         sys.stdout = old_stdout
-        assert ('ERROR: Server error when setting the token' in buffer.getvalue())
+        assert ('ERROR: Server error when setting the token'
+                in buffer.getvalue())
         mock_execute_servlet_request.assert_called_once_with(
             tap=tap.tap,
             query_params={'token': token},
@@ -1054,7 +1232,7 @@ class TestTap:
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.execute_servlet_request')
     def test_get_messages_ok(self, mock_execute_servlet_request):
-        old_stdout = sys.stdout # Memorize the default stdout stream
+        old_stdout = sys.stdout  # Memorize the default stdout stream
         sys.stdout = buffer = io.StringIO()
 
         jwst = JwstClass(show_messages=False)
@@ -1064,8 +1242,11 @@ class TestTap:
             def iter_lines(self):
                 return [b"message=SERVER OK"]
 
-        # Calls the parser method in execute_servlet_request using the fake response
-        mock_execute_servlet_request.side_effect = lambda *args, **kwargs: kwargs["parser_method"](FakeResponse())
+        # Calls the parser method in execute_servlet_request
+        # using the fake response
+        mock_execute_servlet_request.side_effect = (
+            lambda *args, **kwargs: kwargs["parser_method"](FakeResponse())
+        )
 
         jwst.get_status_messages()
 
@@ -1080,27 +1261,36 @@ class TestTap:
         tap = JwstClass(show_messages=False)
         file = 'test_file'
         parameters = {}
-        parameters['query'] = f"select * from jwst.artifact a where a.filename = '{file}'"
+        parameters['query'] = (f"select * from jwst.artifact a "
+                               f"where a.filename = '{file}'")
         parameters['output_file'] = None
         parameters['output_format'] = 'votable'
         parameters['verbose'] = False
 
         # Mock return value for job.get_results()
         mock_job = MagicMock()
-        mock_job.get_results.side_effect = [{'artifactid': ['artifact123']}, {"filename": ["file456.fits"]}]
+        mock_job.get_results.side_effect = [
+            {'artifactid': ['artifact123']},
+            {"filename": ["file456.fits"]}
+        ]
         mock_query_tap.return_value = mock_job
 
         result = tap._query_get_product(file_name=file)
 
-        mock_query_tap.assert_called_once_with(query=f"select * from jwst.artifact a where a.filename = '{file}'")
+        mock_query_tap.assert_called_once_with(
+            query=f"select * from jwst.artifact a "
+                  f"where a.filename = '{file}'")
         assert result == 'artifact123'
 
         mock_query_tap.reset_mock()
 
         artifact = 'test_artifact'
-        parameters['query'] = f"select * from jwst.artifact a where a.artifactid = '{artifact}'"
+        parameters['query'] = (f"select * from jwst.artifact a "
+                               f"where a.artifactid = '{artifact}'")
         result = tap._query_get_product(artifact_id=artifact)
-        mock_query_tap.assert_called_once_with(query=f"select * from jwst.artifact a where a.artifactid = '{artifact}'")
+        mock_query_tap.assert_called_once_with(
+            query=f"select * from jwst.artifact a "
+                  f"where a.artifactid = '{artifact}'")
         assert result == 'file456.fits'
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
@@ -1110,27 +1300,43 @@ class TestTap:
         obs = 'dummyObs'
 
         mock_job_ok = MagicMock()
-        mock_job_ok.get_results.return_value = {"observationid": ["OBS1", "OBS2"]}
+        mock_job_ok.get_results.return_value = {
+            "observationid": ["OBS1", "OBS2"]
+        }
         mock_query_tap.return_value = mock_job_ok
 
         result = tap.get_related_observations(observation_id=obs)
         assert result == ["OBS1", "OBS2"]
         mock_query_tap.assert_called_once_with(
-            query=f"select * from {conf.JWST_MAIN_TABLE} m where m.members like '%{obs}%'"
+            query=(
+                f"select * from {conf.JWST_MAIN_TABLE} m "
+                f"where m.members like '%{obs}%'"
+            )
         )
 
         mock_query_tap.reset_mock()
         mock_job_empty = MagicMock()
-        mock_job_empty.get_results.return_value = {"observationid": [""]}
+        mock_job_empty.get_results.return_value = {
+            "observationid": [""]
+        }
         mock_job_members = MagicMock()
-        mock_job_members.get_results.return_value = {"members": ["caom:JWST/123 456 789"]}
+        mock_job_members.get_results.return_value = {
+            "members": ["caom:JWST/123 456 789"]
+        }
         mock_query_tap.side_effect = [mock_job_empty, mock_job_members]
 
         result = tap.get_related_observations(observation_id=obs)
         assert result == ["123", "456", "789"]
 
-        assert mock_query_tap.call_args_list[0].kwargs == {"query": f"select * from {conf.JWST_MAIN_TABLE} m where m.members like '%{obs}%'"}
-        assert mock_query_tap.call_args_list[1].kwargs == {"query": f"select m.members from {conf.JWST_MAIN_TABLE} m where m.observationid='{obs}'"}
+        assert mock_query_tap.call_args_list[0].kwargs == {
+            "query": f"select * from {conf.JWST_MAIN_TABLE} m "
+                     f"where m.members like '%{obs}%'"
+        }
+
+        assert mock_query_tap.call_args_list[1].kwargs == {
+            "query": f"select m.members from {conf.JWST_MAIN_TABLE} m "
+                     f"where m.observationid='{obs}'"
+        }
 
     def test_parse_messages_response(self):
         jwst = JwstClass(show_messages=False)
