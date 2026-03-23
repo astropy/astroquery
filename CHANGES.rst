@@ -30,7 +30,7 @@ esa.euclid
   sourcepatch_id. [#3543]
 -  The ``source_id`` kwarg in the ``get_spectrum`` method has been renamed to ``ids``. [#3543]
 - The ``get_product_list`` method now also returns file_name_list column when the product type belongs to 
-  BASIC_DOWNLOAD_DATA_PRODUCTS (addressing issue #3512). [#3562]
+  BASIC_DOWNLOAD_DATA_PRODUCTS. [#3562]
 
 vizier
 ^^^^^^
