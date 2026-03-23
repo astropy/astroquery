@@ -50,6 +50,12 @@ vo_conesearch
 Service fixes and enhancements
 ------------------------------
 
+esa.xmm-newton
+^^^^^^^^^^
+
+- Update ``get_epic_spectra`` method to get the latest version of PN RMF files from the SAS server
+  instead of having it hardcoded [#3544]
+
 svo_fps
 ^^^^^^^
 

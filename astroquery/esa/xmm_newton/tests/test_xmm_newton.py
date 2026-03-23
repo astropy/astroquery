@@ -13,7 +13,7 @@ import os
 import shutil
 import tarfile
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 import pytest
 from astropy.io import fits
@@ -30,15 +30,18 @@ def data_path(filename):
 
 
 class mockResponse:
-    headers = {'Date': 'Wed, 24 Nov 2021 13:43:50 GMT',
-               'Server': 'Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips',
-               'Content-Disposition': 'inline; filename="0560181401.tar.gz"',
-               'Content-Type': 'application/x-gzip',
-               'Content-Length': '6590874', 'Connection': 'close'}
-    status_code = 400
+    def __init__(self, content=None, text=None, status_code=200, headers=None):
+        self.content = content
+        self.text = text
+        self.status_code = status_code
+        self.headers = headers if headers is not None else {
+            'Date': 'Wed, 24 Nov 2021 13:43:50 GMT',
+            'Server': 'Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips',
+            'Content-Disposition': 'inline; filename="0560181401.tar.gz"',
+            'Content-Type': 'application/x-gzip',
+            'Content-Length': '6590874', 'Connection': 'close'}
 
-    @staticmethod
-    def raise_for_status():
+    def raise_for_status(self):
         pass
 
 
@@ -527,7 +530,7 @@ class TestXMMNewton:
     @patch('astroquery.query.BaseQuery._request')
     def test_request_link(self, mock_request):
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        mock_request.return_value = mockResponse
+        mock_request.return_value = mockResponse()
         params = xsa._request_link("https://nxsa.esac.esa.int/nxsa-sl/servlet/data-action-aio?obsno=0560181401", None)
         assert params == {'filename': '0560181401.tar.gz'}
 
@@ -535,29 +538,21 @@ class TestXMMNewton:
     def test_request_link_protected(self, mock_request):
         with pytest.raises(LoginError):
             xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-            dummyclass = mockResponse
-            dummyclass.headers = {}
-            mock_request.return_value = dummyclass
+            mock_request.return_value = mockResponse(headers={})
             xsa._request_link("https://nxsa.esac.esa.int/nxsa-sl/servlet/data-action-aio?obsno=0560181401", None)
 
     @patch('astroquery.query.BaseQuery._request')
     def test_request_link_incorrect_credentials(self, mock_request):
         with pytest.raises(LoginError):
             xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-            dummyclass = mockResponse
-            dummyclass.headers = {}
-            dummyclass.status_code = 10
-            mock_request.return_value = dummyclass
+            mock_request.return_value = mockResponse(headers={}, status_code=10)
             xsa._request_link("https://nxsa.esac.esa.int/nxsa-sl/servlet/data-action-aio?obsno=0560181401", None)
 
     @patch('astroquery.query.BaseQuery._request')
     def test_request_link_with_statuscode_401(self, mock_request):
         with pytest.raises(LoginError):
             xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-            dummyclass = mockResponse
-            dummyclass.headers = {}
-            dummyclass.status_code = 401
-            mock_request.return_value = dummyclass
+            mock_request.return_value = mockResponse(headers={}, status_code=401)
             xsa._request_link("https://nxsa.esac.esa.int/nxsa-sl/servlet/data-action-aio?obsno=0560181401", None)
 
     def test_get_username_and_password(self):
@@ -576,3 +571,89 @@ class TestXMMNewton:
         xsa = XMMNewtonClass(self.get_dummy_tap_handler())
         filename = xsa._create_filename("Test", "0560181401", ['.tar', '.gz'])
         assert filename == "Test.tar.gz"
+
+    def test_download_data_verbose(self, tmp_path):
+        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+        xsa._create_link = MagicMock(return_value="http://dummy")
+        xsa._get_username_and_password = MagicMock(return_value=("user", "pass"))
+        xsa._request_link = MagicMock(return_value={"filename": "obs.tar.gz"})
+        # Mock _download_file
+        xsa._download_file = MagicMock()
+
+        with patch('astroquery.esa.xmm_newton.core.log') as mock_log:
+            xsa.download_data("0405320501", verbose=True, prop=True)
+            # Verify verbose logs
+            assert mock_log.info.called
+            assert xsa._download_file.called
+
+    def test_get_postcard_verbose(self, tmp_path):
+        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+        # Mock _request to return a local path for the postcard
+        dummy_png = Path(tmp_path, "dummy.png")
+        dummy_png.touch()
+        xsa._request = MagicMock(side_effect=[
+            str(dummy_png),  # For GET (save=True)
+            mockResponse(headers={'Content-Disposition': 'inline; filename="0405320501.png"'})  # For HEAD
+        ])
+        cwd = os.getcwd()
+        os.chdir(tmp_path)
+        try:
+            with patch('astroquery.esa.xmm_newton.core.log') as mock_log:
+                res = xsa.get_postcard("0405320501", verbose=True)
+                assert res == "0405320501.png"
+                assert mock_log.info.called
+                assert os.path.exists("0405320501.png")
+        finally:
+            os.chdir(cwd)
+
+    def test_get_epic_spectra_rmf(self, tmp_path):
+        # This test aims to cover the RMF fetching logic in get_epic_spectra
+        tar_path = Path(tmp_path, "test_spectra.tar")
+        obs_id = "0405320501"
+        # The member name in tar must have 3 levels: something/pps/filename
+        pps_dir = Path(tmp_path, "obs", "pps")
+        pps_dir.mkdir(parents=True)
+
+        # Create a dummy spectrum file with the expected header
+        source_number_hex = "%03x" % 83
+        spec_file_name = f"P{obs_id}PNS001SRSPEC0{source_number_hex}.FTZ"
+        spec_path = pps_dir / spec_file_name
+        hdr = fits.Header()
+        hdr["RESPFILE"] = "dummy.rmf"
+        hdu = fits.PrimaryHDU(header=hdr)
+        hdu.name = "SPECTRUM"
+        hdu.writeto(spec_path)
+
+        with tarfile.open(tar_path, "w") as tar:
+            tar.add(spec_path, arcname=os.path.join("obs", "pps", spec_file_name))
+
+        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+
+        # Mock _request for Version.txt and RMF file
+        def mock_request(method, url, *args, **kwargs):
+            if "Version.txt" in url:
+                return mockResponse(text="_v1")
+            else:
+                return mockResponse(content=b"rmf_content")
+
+        xsa._request = MagicMock(side_effect=mock_request)
+
+        res = xsa.get_epic_spectra(str(tar_path), 83, instrument=['PN'], path=str(tmp_path))
+
+        assert "PN" in res
+        assert "PN_rmf" in res
+        assert os.path.exists(res["PN_rmf"])
+
+    def test_get_epic_metadata(self):
+        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
+        xsa.query_xsa_tap = MagicMock(return_value=None)
+
+        # Test with target_name
+        xsa.get_epic_metadata(target_name="m31")
+        assert xsa.query_xsa_tap.called
+
+        # Test with coordinates
+        from astropy.coordinates import SkyCoord
+        c = SkyCoord(ra=10.6847, dec=41.2687, unit="deg")
+        xsa.get_epic_metadata(coordinates=c, radius=0.1)
+        assert xsa.query_xsa_tap.called
