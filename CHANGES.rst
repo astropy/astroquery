@@ -54,7 +54,7 @@ esa.xmm_newton
 ^^^^^^^^^^^^^^
 
 - Update ``get_epic_spectra`` method to get the latest version of PN RMF files from the SAS server
-  instead of having it hardcoded [#3544]
+  instead of having it hardcoded [#3563]
 
 svo_fps
 ^^^^^^^
