@@ -363,6 +363,11 @@ def test_missions_parse_multiple_targets(patch_post):
     result = MastMissions._parse_multiple_targets(coordinates=coords_str)
     assert result == ['10.684 41.269', '83.6331 22.0145']
 
+    # Special case: one string coordinate with elements separated by a comma instead of space
+    coords_str_comma = "10.684, 41.269"
+    result = MastMissions._parse_multiple_targets(coordinates=coords_str_comma)
+    assert result == ['10.684 41.269']
+
     # Vector SkyCoord input
     vector_coords = SkyCoord([10.684, 83.6324], [41.269, 22.0174], frame='icrs', unit='deg')
     result = MastMissions._parse_multiple_targets(coordinates=vector_coords)
@@ -895,7 +900,7 @@ def test_query_observations_criteria_async(patch_post):
 
     # with position
     responses = Observations.query_criteria_async(filters=["NUV", "FUV"],
-                                                  objectname="M101")
+                                                  object_name="M101")
     assert isinstance(responses, list)
 
 
@@ -908,16 +913,16 @@ def test_observations_query_criteria(patch_post):
 
     # with position
     result = Observations.query_criteria(filters=["NUV", "FUV"],
-                                         objectname="M101")
+                                         object_name="M101")
     assert isinstance(result, Table)
 
     with pytest.raises(InvalidQueryError) as invalid_query:
-        Observations.query_criteria(objectname="M101")
+        Observations.query_criteria(object_name="M101")
     assert "least one non-positional criterion" in str(invalid_query.value)
 
     with pytest.raises(InvalidQueryError) as invalid_query:
-        Observations.query_criteria(objectname="M101", coordinates=regionCoords, intentType="science")
-    assert "one of objectname and coordinates" in str(invalid_query.value)
+        Observations.query_criteria(object_name="M101", coordinates=regionCoords, intentType="science")
+    assert "one of object_name and coordinates" in str(invalid_query.value)
 
 
 # count functions
@@ -943,8 +948,8 @@ def test_observations_query_criteria_count(patch_post):
     assert result == 599
 
     with pytest.raises(InvalidQueryError) as invalid_query:
-        Observations.query_criteria_count(coordinates=regionCoords, objectname="M101", proposal_pi="Ost*")
-    assert "one of objectname and coordinates" in str(invalid_query.value)
+        Observations.query_criteria_count(coordinates=regionCoords, object_name="M101", proposal_pi="Ost*")
+    assert "one of object_name and coordinates" in str(invalid_query.value)
 
 
 # product functions
@@ -1427,16 +1432,16 @@ def test_catalogs_query_criteria_async(patch_post):
                                               Bmag=[30, 50], objType="STAR")
     assert isinstance(responses, list)
 
-    responses = Catalogs.query_criteria_async(catalog="Tic", objectname="M10",
+    responses = Catalogs.query_criteria_async(catalog="Tic", object_name="M10",
                                               Bmag=[30, 50], objType="STAR")
     assert isinstance(responses, list)
 
     responses = Catalogs.query_criteria_async(catalog="DiskDetective",
-                                              objectname="M10", radius=2,
+                                              object_name="M10", radius=2,
                                               state="complete")
     assert isinstance(responses, list)
 
-    responses = Catalogs.query_criteria_async(catalog="panstarrs", objectname="M10", radius=2,
+    responses = Catalogs.query_criteria_async(catalog="panstarrs", object_name="M10", radius=2,
                                               table="mean", qualityFlag=48)
     assert isinstance(responses, MockResponse)
 
@@ -1449,9 +1454,9 @@ def test_catalogs_query_criteria_async(patch_post):
     assert "query not available" in str(invalid_query.value)
 
     with pytest.raises(InvalidQueryError) as invalid_query:
-        Catalogs.query_criteria_async(catalog="panstarrs", objectname="M10", coordinates=regionCoords,
+        Catalogs.query_criteria_async(catalog="panstarrs", object_name="M10", coordinates=regionCoords,
                                       objType="STAR")
-    assert "one of objectname and coordinates" in str(invalid_query.value)
+    assert "one of object_name and coordinates" in str(invalid_query.value)
 
 
 def test_catalogs_query_criteria(patch_post):
@@ -1468,12 +1473,12 @@ def test_catalogs_query_criteria(patch_post):
 
     # with position
     result = Catalogs.query_criteria(catalog="DiskDetective",
-                                     objectname="M10", radius=2,
+                                     object_name="M10", radius=2,
                                      state="complete")
     assert isinstance(result, Table)
 
     with pytest.raises(InvalidQueryError) as invalid_query:
-        Catalogs.query_criteria(catalog="Tic", objectname="M10")
+        Catalogs.query_criteria(catalog="Tic", object_name="M10")
     assert "non-positional" in str(invalid_query.value)
 
 
@@ -1540,7 +1545,7 @@ def test_tesscut_get_sector(patch_post):
     assert sector_table['ccd'][0] == 3
 
     # Exercising the search by object name
-    sector_table = Tesscut.get_sectors(objectname="M103")
+    sector_table = Tesscut.get_sectors(object_name="M103")
     assert isinstance(sector_table, Table)
     assert len(sector_table) == 1
     assert sector_table['sectorName'][0] == "tess-s0001-1-3"
@@ -1549,7 +1554,7 @@ def test_tesscut_get_sector(patch_post):
     assert sector_table['ccd'][0] == 3
 
     # Exercising the search by moving target
-    sector_table = Tesscut.get_sectors(objectname="Ceres",
+    sector_table = Tesscut.get_sectors(object_name="Ceres",
                                        moving_target=True,
                                        mt_type='small_body')
     assert isinstance(sector_table, Table)
@@ -1562,9 +1567,9 @@ def test_tesscut_get_sector(patch_post):
     # Invalid queries
     # Testing catch for multiple designators'
     error_str = ("Only one of moving_target and coordinates may be specified. "
-                 "Please remove coordinates if using moving_target and objectname.")
+                 "Please remove coordinates if using moving_target and object_name.")
     with pytest.raises(InvalidQueryError) as invalid_query:
-        Tesscut.get_sectors(objectname='Ceres', moving_target=True, coordinates=coord)
+        Tesscut.get_sectors(object_name='Ceres', moving_target=True, coordinates=coord)
     assert error_str in str(invalid_query.value)
 
     # Error when no object name with moving target
@@ -1572,14 +1577,14 @@ def test_tesscut_get_sector(patch_post):
         Tesscut.get_sectors(moving_target=True)
 
     # Error when both object name and coordinates are specified
-    with pytest.raises(InvalidQueryError, match='Please remove objectname if using coordinates'):
-        Tesscut.get_sectors(objectname='Ceres', coordinates=coord)
+    with pytest.raises(InvalidQueryError, match='Please remove object_name if using coordinates'):
+        Tesscut.get_sectors(object_name='Ceres', coordinates=coord)
 
     # Testing invalid queries
     # Invalid product type
     with pytest.raises(InvalidQueryError) as invalid_query:
         with pytest.warns(AstropyDeprecationWarning, match="Tesscut no longer supports"):
-            Tesscut.get_sectors(objectname="M101", product="spooc")
+            Tesscut.get_sectors(object_name="M101", product="spooc")
     assert "Input product must be SPOC." in str(invalid_query.value)
 
 
@@ -1602,14 +1607,14 @@ def test_tesscut_download_cutouts(patch_post, tmpdir):
     assert os.path.isfile(manifest[0]['Local Path'])
 
     # Exercising the search by object name
-    manifest = Tesscut.download_cutouts(objectname="M103", size=5, path=str(tmpdir))
+    manifest = Tesscut.download_cutouts(object_name="M103", size=5, path=str(tmpdir))
     assert isinstance(manifest, Table)
     assert len(manifest) == 1
     assert manifest["Local Path"][0][-4:] == "fits"
     assert os.path.isfile(manifest[0]['Local Path'])
 
     # Exercising the search by moving target
-    manifest = Tesscut.download_cutouts(objectname="Eleonora",
+    manifest = Tesscut.download_cutouts(object_name="Eleonora",
                                         moving_target=True,
                                         mt_type='small_body',
                                         sector=1,
@@ -1622,10 +1627,10 @@ def test_tesscut_download_cutouts(patch_post, tmpdir):
 
     # Testing catch for multiple designators'
     error_str = ("Only one of moving_target and coordinates may be specified. "
-                 "Please remove coordinates if using moving_target and objectname.")
+                 "Please remove coordinates if using moving_target and object_name.")
 
     with pytest.raises(InvalidQueryError) as invalid_query:
-        Tesscut.download_cutouts(objectname="Eleonora",
+        Tesscut.download_cutouts(object_name="Eleonora",
                                  moving_target=True,
                                  coordinates=coord,
                                  size=5,
@@ -1635,7 +1640,7 @@ def test_tesscut_download_cutouts(patch_post, tmpdir):
     # Testing invalid queries
     with pytest.raises(InvalidQueryError) as invalid_query:
         with pytest.warns(AstropyDeprecationWarning, match="Tesscut no longer supports"):
-            Tesscut.download_cutouts(objectname="M101", product="spooc")
+            Tesscut.download_cutouts(object_name="M101", product="spooc")
     assert "Input product must be SPOC." in str(invalid_query.value)
 
 
@@ -1647,13 +1652,13 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
     assert isinstance(cutout_hdus_list[0], fits.HDUList)
 
     # Exercising the search by object name
-    cutout_hdus_list = Tesscut.get_cutouts(objectname="M103", size=5)
+    cutout_hdus_list = Tesscut.get_cutouts(object_name="M103", size=5)
     assert isinstance(cutout_hdus_list, list)
     assert len(cutout_hdus_list) == 1
     assert isinstance(cutout_hdus_list[0], fits.HDUList)
 
     # Exercising the search by object name
-    cutout_hdus_list = Tesscut.get_cutouts(objectname='Eleonora',
+    cutout_hdus_list = Tesscut.get_cutouts(object_name='Eleonora',
                                            moving_target=True,
                                            mt_type='small_body',
                                            sector=1,
@@ -1664,10 +1669,10 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
 
     # Testing catch for multiple designators'
     error_str = ("Only one of moving_target and coordinates may be specified. "
-                 "Please remove coordinates if using moving_target and objectname.")
+                 "Please remove coordinates if using moving_target and object_name.")
 
     with pytest.raises(InvalidQueryError) as invalid_query:
-        Tesscut.get_cutouts(objectname="Eleonora",
+        Tesscut.get_cutouts(object_name="Eleonora",
                             moving_target=True,
                             coordinates=coord,
                             size=5)
@@ -1676,7 +1681,7 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
     # Testing invalid queries
     with pytest.raises(InvalidQueryError) as invalid_query:
         with pytest.warns(AstropyDeprecationWarning, match="Tesscut no longer supports"):
-            Tesscut.get_cutouts(objectname="M101", product="spooc")
+            Tesscut.get_cutouts(object_name="M101", product="spooc")
     assert "Input product must be SPOC." in str(invalid_query.value)
 
 
@@ -1687,7 +1692,7 @@ def test_tesscut_get_cutouts_mt_no_sector(patch_post):
     automatically fetch available sectors and make individual requests per sector.
     """
     # Moving target without specifying sector - should automatically fetch sectors
-    cutout_hdus_list = Tesscut.get_cutouts(objectname="Eleonora", moving_target=True, mt_type="small_body", size=5)
+    cutout_hdus_list = Tesscut.get_cutouts(object_name="Eleonora", moving_target=True, mt_type="small_body", size=5)
     assert isinstance(cutout_hdus_list, list)
     # Mock returns 1 sector, so we expect 1 cutout
     assert len(cutout_hdus_list) == 1
@@ -1702,7 +1707,7 @@ def test_tesscut_download_cutouts_mt_no_sector(patch_post, tmpdir):
     """
     # Moving target without specifying sector - should automatically fetch sectors
     manifest = Tesscut.download_cutouts(
-        objectname="Eleonora", moving_target=True, mt_type="small_body", size=5, path=str(tmpdir)
+        object_name="Eleonora", moving_target=True, mt_type="small_body", size=5, path=str(tmpdir)
     )
     assert isinstance(manifest, Table)
     # Mock returns 1 sector, so we expect 1 file
@@ -1721,7 +1726,7 @@ def test_tesscut_get_cutouts_mt_no_sector_empty_results(patch_post, monkeypatch)
     monkeypatch.setattr(Tesscut, "get_sectors", lambda *args, **kwargs: empty_sector_table)
 
     with pytest.warns(NoResultsWarning, match="Coordinates are not in any TESS sector"):
-        cutout_hdus_list = Tesscut.get_cutouts(objectname="NonExistentObject", moving_target=True, size=5)
+        cutout_hdus_list = Tesscut.get_cutouts(object_name="NonExistentObject", moving_target=True, size=5)
     assert isinstance(cutout_hdus_list, list)
     assert len(cutout_hdus_list) == 0
 
@@ -1737,7 +1742,7 @@ def test_tesscut_download_cutouts_mt_no_sector_empty_results(patch_post, tmpdir,
 
     with pytest.warns(NoResultsWarning, match="Coordinates are not in any TESS sector"):
         manifest = Tesscut.download_cutouts(
-            objectname="NonExistentObject", moving_target=True, size=5, path=str(tmpdir)
+            object_name="NonExistentObject", moving_target=True, size=5, path=str(tmpdir)
         )
     assert isinstance(manifest, Table)
     assert len(manifest) == 0
@@ -1818,17 +1823,17 @@ def test_parse_input_location(patch_post):
 
     # Test with object name
     obj_coord = SkyCoord(124.531756290083, -68.3129998725044, unit="deg")
-    loc = utils.parse_input_location(objectname="TIC 307210830")
+    loc = utils.parse_input_location(object_name="TIC 307210830")
     assert isinstance(loc, SkyCoord)
     assert loc.ra == obj_coord.ra
     assert loc.dec == obj_coord.dec
 
     # Error if both coordinates and object name are provided
-    with pytest.raises(InvalidQueryError, match="Only one of objectname and coordinates may be specified"):
-        utils.parse_input_location(coordinates=coord, objectname="M101")
+    with pytest.raises(InvalidQueryError, match="Only one of object_name and coordinates may be specified"):
+        utils.parse_input_location(coordinates=coord, object_name="M101")
 
     # Error if neither coordinates nor object name is provided
-    with pytest.raises(InvalidQueryError, match="One of objectname and coordinates must be specified"):
+    with pytest.raises(InvalidQueryError, match="One of object_name and coordinates must be specified"):
         utils.parse_input_location()
 
     # Warn if resolver is specified without an object name

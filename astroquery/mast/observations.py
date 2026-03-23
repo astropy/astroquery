@@ -13,14 +13,13 @@ import os
 from urllib.parse import quote
 
 import numpy as np
-
-from requests import HTTPError
-
 import astropy.units as u
 import astropy.coordinates as coord
+from requests import HTTPError
 from botocore.exceptions import ClientError, BotoCoreError
-
 from astropy.table import Table, Row, vstack
+from astropy.utils.decorators import deprecated_renamed_argument
+
 from astroquery import log
 from astroquery.mast.cloud import CloudAccess
 from astroquery.utils import commons
@@ -134,7 +133,7 @@ class ObservationsClass(MastQueryWithLogin):
             for more information. Default is None.
         **criteria
             Criteria to apply.
-            Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
+            Valid criteria are coordinates, object_name, radius (as in `query_region` and `query_object`),
             and all observation fields returned by the ``get_metadata("observations")``.
             The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
             except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
@@ -146,22 +145,22 @@ class ObservationsClass(MastQueryWithLogin):
         Returns
         -------
         response : tuple
-            Tuple of the form (position, filter_set), where position is either None (coordinates and objectname
+            Tuple of the form (position, filter_set), where position is either None (coordinates and object_name
             not given) or a string, and filter_set is list of filters dictionaries.
         """
 
         # Separating any position info from the rest of the filters
         coordinates = criteria.pop('coordinates', None)
-        objectname = criteria.pop('objectname', None)
+        object_name = criteria.pop('object_name', None)
         radius = criteria.pop('radius', 0.2*u.deg)
 
         # Build the mashup filter object and store it in the correct service_name entry
-        if coordinates or objectname:
+        if coordinates or object_name:
             mashup_filters = self._portal_api_connection.build_filter_set(self._caom_cone,
                                                                           self._caom_filtered_position,
                                                                           **criteria)
             coordinates = utils.parse_input_location(coordinates=coordinates,
-                                                     objectname=objectname,
+                                                     object_name=object_name,
                                                      resolver=resolver)
         else:
             mashup_filters = self._portal_api_connection.build_filter_set(self._caom_cone,
@@ -248,14 +247,15 @@ class ObservationsClass(MastQueryWithLogin):
         return self._portal_api_connection.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def query_object_async(self, objectname, *, radius=0.2*u.deg, pagesize=None, page=None, resolver=None):
+    @deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
+    def query_object_async(self, object_name, *, radius=0.2*u.deg, pagesize=None, page=None, resolver=None):
         """
         Given an object name, returns a list of MAST observations.
         See column documentation `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
 
         Parameters
         ----------
-        objectname : str
+        object_name : str
             The name of the target around which to search.
         radius : str or `~astropy.units.Quantity` object, optional
             Default 0.2 degrees.
@@ -281,7 +281,7 @@ class ObservationsClass(MastQueryWithLogin):
         response : list of `~requests.Response`
         """
 
-        coordinates = utils.resolve_object(objectname, resolver=resolver)
+        coordinates = utils.resolve_object(object_name, resolver=resolver)
 
         return self.query_region_async(coordinates, radius=radius, pagesize=pagesize, page=page)
 
@@ -306,7 +306,7 @@ class ObservationsClass(MastQueryWithLogin):
             for more information. Default is None.
         **criteria
             Criteria to apply. At least one non-positional criteria must be supplied.
-            Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
+            Valid criteria are coordinates, object_name, radius (as in `query_region` and `query_object`),
             and all observation fields returned by the ``get_metadata("observations")``.
             The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
             except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
@@ -379,13 +379,14 @@ class ObservationsClass(MastQueryWithLogin):
 
         return int(self._portal_api_connection.service_request(service, params, pagesize, page)[0][0])
 
-    def query_object_count(self, objectname, *, radius=0.2*u.deg, pagesize=None, page=None, resolver=None):
+    @deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
+    def query_object_count(self, object_name, *, radius=0.2*u.deg, pagesize=None, page=None, resolver=None):
         """
         Given an object name, returns the number of MAST observations.
 
         Parameters
         ----------
-        objectname : str
+        object_name : str
             The name of the target around which to search.
         radius : str or `~astropy.units.Quantity` object, optional
             The string must be parsable by `~astropy.coordinates.Angle`. The
@@ -408,7 +409,7 @@ class ObservationsClass(MastQueryWithLogin):
         response : int
         """
 
-        coordinates = utils.resolve_object(objectname, resolver=resolver)
+        coordinates = utils.resolve_object(object_name, resolver=resolver)
 
         return self.query_region_count(coordinates, radius=radius, pagesize=pagesize, page=page)
 
@@ -431,7 +432,7 @@ class ObservationsClass(MastQueryWithLogin):
             for more information. Default is None.
         **criteria
             Criteria to apply. At least one non-positional criterion must be supplied.
-            Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
+            Valid criteria are coordinates, object_name, radius (as in `query_region` and `query_object`),
             and all observation fields listed `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
             The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
             except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
@@ -1012,7 +1013,7 @@ class ObservationsClass(MastQueryWithLogin):
             Default True. Whether to issue warnings if a product cannot be found in the cloud.
         **criteria
             Criteria to apply. At least one non-positional criteria must be supplied.
-            Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
+            Valid criteria are coordinates, object_name, radius (as in `query_region` and `query_object`),
             and all observation fields returned by the ``get_metadata("observations")``.
             The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
             except for fields with a float datatype where the argument should be in the form [minVal, maxVal].

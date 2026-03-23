@@ -104,7 +104,7 @@ Positional constraints are optional.
 Supported positional parameters include:
 
   - ``coordinates`` : Sky coordinates around which to perform a cone search.
-  - ``objectname`` : Name(s) of the object(s) around which to perform a cone search.
+  - ``object_name`` : Name(s) of the object(s) around which to perform a cone search.
   - ``resolver`` : Resolver service to use for object name resolution.
   - ``radius`` : Radius of the cone searches around the specified coordinates or object names. Can be defined as an `~astropy.units.Quantity`, 
     a string with units (e.g., ``"10 arcsec"``), or a numeric value interpreted as degrees.

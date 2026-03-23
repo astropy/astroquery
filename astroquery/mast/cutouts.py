@@ -100,7 +100,7 @@ class TesscutClass(MastQueryWithLogin):
                     }
         self._service_api_connection.set_service_params(services, "tesscut")
 
-    def _validate_target_input(self, coordinates, objectname, moving_target):
+    def _validate_target_input(self, coordinates, object_name, moving_target):
         """
         Validate the input parameters for target selection.
 
@@ -109,9 +109,9 @@ class TesscutClass(MastQueryWithLogin):
         coordinates : str or `astropy.coordinates` object, optional
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
-        objectname : str, optional
-            The target around which to search, by name (objectname="M104")
-            or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID
+        object_name : str, optional
+            The target around which to search, by name (object_name="M104")
+            or TIC ID (object_name="TIC 141914082"). If moving_target is True, input must be the name or ID
             (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons/app.html>`__)
             of a moving target such as an asteroid or comet.
         moving_target : bool, optional
@@ -122,22 +122,22 @@ class TesscutClass(MastQueryWithLogin):
         -------
         InvalidQueryError
             If ``moving_target`` is True and ``coordinates`` is provided.
-            If ``moving_target`` is True and ``objectname`` is not provided.
-            If both ``coordinates`` and ``objectname`` are provided.
+            If ``moving_target`` is True and ``object_name`` is not provided.
+            If both ``coordinates`` and ``object_name`` are provided.
         """
         if moving_target:
             if coordinates:
                 raise InvalidQueryError("Only one of moving_target and coordinates may be specified. "
-                                        "Please remove coordinates if using moving_target and objectname.")
+                                        "Please remove coordinates if using moving_target and object_name.")
 
-            if not objectname:
+            if not object_name:
                 raise InvalidQueryError("Please specify the object name or ID (as understood by the "
                                         "`JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons/app.html>`__) "
                                         "of a moving target such as an asteroid or comet.")
         else:
-            if coordinates and objectname:
-                raise InvalidQueryError("Only one of objectname and coordinates may be specified. "
-                                        "Please remove objectname if using coordinates.")
+            if coordinates and object_name:
+                raise InvalidQueryError("Only one of object_name and coordinates may be specified. "
+                                        "Please remove object_name if using coordinates.")
 
     def _validate_product(self, product):
         """
@@ -156,13 +156,13 @@ class TesscutClass(MastQueryWithLogin):
         if product.upper() != "SPOC":
             raise InvalidQueryError("Input product must be SPOC.")
 
-    def _get_moving_target_sectors(self, objectname, mt_type=None):
+    def _get_moving_target_sectors(self, object_name, mt_type=None):
         """
         Helper method to fetch unique sectors for a moving target
 
         Parameters
         ----------
-        objectname : str
+        object_name : str
             The name or ID of the moving target.
         mt_type : str, optional
             The moving target type (majorbody or smallbody).
@@ -174,7 +174,7 @@ class TesscutClass(MastQueryWithLogin):
         """
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=NoResultsWarning)
-            sector_table = self.get_sectors(objectname=objectname, moving_target=True, mt_type=mt_type)
+            sector_table = self.get_sectors(object_name=object_name, moving_target=True, mt_type=mt_type)
 
         if len(sector_table) == 0:
             warnings.warn("Coordinates are not in any TESS sector.", NoResultsWarning)
@@ -185,7 +185,8 @@ class TesscutClass(MastQueryWithLogin):
     @deprecated_renamed_argument('product', None, since='0.4.11', message='Tesscut no longer supports operations on '
                                  'TESS Image Calibrator (TICA) products. '
                                  'The `product` argument is deprecated and will be removed in a future version.')
-    def get_sectors(self, *, coordinates=None, radius=0*u.deg, product='SPOC', objectname=None,
+    @deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
+    def get_sectors(self, *, coordinates=None, radius=0*u.deg, product='SPOC', object_name=None,
                     moving_target=False, mt_type=None, resolver=None):
         """
         Get a list of the TESS data sectors whose footprints intersect
@@ -197,7 +198,7 @@ class TesscutClass(MastQueryWithLogin):
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
 
-            NOTE: If moving_target or objectname is supplied, this argument cannot be used.
+            NOTE: If moving_target or object_name is supplied, this argument cannot be used.
         radius : str, float, or `~astropy.units.Quantity` object, optional
             Default 0 degrees.
             If supplied as a float degrees is the assumed unit.
@@ -210,9 +211,9 @@ class TesscutClass(MastQueryWithLogin):
             Deprecated. Default is 'SPOC'.
             The product that the cutouts will be made out of. The only valid value for this parameter is 'SPOC', for the
             Science Processing Operations Center (SPOC) products.
-        objectname : str, optional
-            The target around which to search, by name (objectname="M104")
-            or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID
+        object_name : str, optional
+            The target around which to search, by name (object_name="M104")
+            or TIC ID (object_name="TIC 141914082"). If moving_target is True, input must be the name or ID
             (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons/app.html>`__)
             of a moving target such as an asteroid or comet.
 
@@ -236,20 +237,20 @@ class TesscutClass(MastQueryWithLogin):
         Returns
         -------
         response : `~astropy.table.Table`
-            Sector/camera/chip information for given coordinates/objectname/moving_target.
+            Sector/camera/chip information for given coordinates/object_name/moving_target.
         """
         self._validate_product(product)
-        self._validate_target_input(coordinates, objectname, moving_target)
+        self._validate_target_input(coordinates, object_name, moving_target)
 
         if moving_target:
-            params = {"obj_id": objectname}
+            params = {"obj_id": object_name}
             if mt_type:  # Add optional parameter if present
                 params["obj_type"] = mt_type
             service = "mt_sector"
         else:
             # Get Skycoord object for coordinates/object
             coordinates = parse_input_location(coordinates=coordinates,
-                                               objectname=objectname,
+                                               object_name=object_name,
                                                resolver=resolver)
             # If radius is just a number we assume degrees
             radius = Angle(radius, u.deg)
@@ -273,8 +274,9 @@ class TesscutClass(MastQueryWithLogin):
     @deprecated_renamed_argument('product', None, since='0.4.11', message='Tesscut no longer supports operations on '
                                  'TESS Image Calibrator (TICA) products. '
                                  'The `product` argument is deprecated and will be removed in a future version.')
+    @deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
     def download_cutouts(self, *, coordinates=None, size=5, sector=None, product='SPOC', path=".",
-                         inflate=True, objectname=None, moving_target=False, mt_type=None, resolver=None,
+                         inflate=True, object_name=None, moving_target=False, mt_type=None, resolver=None,
                          verbose=False):
         """
         Download cutout target pixel file(s) around the given coordinates with indicated size.
@@ -285,7 +287,7 @@ class TesscutClass(MastQueryWithLogin):
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
 
-            NOTE: If moving_target or objectname is supplied, this argument cannot be used.
+            NOTE: If moving_target or object_name is supplied, this argument cannot be used.
         size : int, array-like, `~astropy.units.Quantity`
             Optional, default 5 pixels.
             The size of the cutout array. If ``size`` is a scalar number or
@@ -314,9 +316,9 @@ class TesscutClass(MastQueryWithLogin):
             Cutout target pixel files are returned from the server in a zip file,
             by default they will be inflated and the zip will be removed.
             Set inflate to false to stop before the inflate step.
-        objectname : str, optional
-            The target around which to search, by name (objectname="M104")
-            or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID
+        object_name : str, optional
+            The target around which to search, by name (object_name="M104")
+            or TIC ID (object_name="TIC 141914082"). If moving_target is True, input must be the name or ID
             (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons/app.html>`__)
             of a moving target such as an asteroid or comet.
 
@@ -342,13 +344,13 @@ class TesscutClass(MastQueryWithLogin):
         response : `~astropy.table.Table`
         """
         self._validate_product(product)
-        self._validate_target_input(coordinates, objectname, moving_target)
+        self._validate_target_input(coordinates, object_name, moving_target)
 
         # For moving targets without a sector specified, fetch sectors first and make
         # individual requests per sector to reduce memory pressure on the service
         if moving_target and sector is None:
             localpath_table = Table(names=["Local Path"], dtype=[str])
-            unique_sectors = self._get_moving_target_sectors(objectname, mt_type)
+            unique_sectors = self._get_moving_target_sectors(object_name, mt_type)
 
             if unique_sectors is None:
                 return localpath_table
@@ -361,7 +363,7 @@ class TesscutClass(MastQueryWithLogin):
                     sector=sect,
                     path=path,
                     inflate=inflate,
-                    objectname=objectname,
+                    object_name=object_name,
                     moving_target=True,
                     mt_type=mt_type,
                     verbose=verbose,
@@ -377,13 +379,13 @@ class TesscutClass(MastQueryWithLogin):
             params["sector"] = sector
 
         if moving_target:
-            params["obj_id"] = objectname
+            params["obj_id"] = object_name
             if mt_type:  # Add optional parameter if present
                 params["obj_type"] = mt_type
             request_path = "moving_target/astrocut"
         else:
             coordinates = parse_input_location(coordinates=coordinates,
-                                               objectname=objectname,
+                                               object_name=object_name,
                                                resolver=resolver)
             params.update({"ra": coordinates.ra.deg, "dec": coordinates.dec.deg})
             request_path = "astrocut"
@@ -423,8 +425,9 @@ class TesscutClass(MastQueryWithLogin):
     @deprecated_renamed_argument('product', None, since='0.4.11', message='Tesscut no longer supports operations on '
                                  'TESS Image Calibrator (TICA) products. '
                                  'The `product` argument is deprecated and will be removed in a future version.')
+    @deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
     def get_cutouts(self, *, coordinates=None, size=5, product='SPOC', sector=None,
-                    objectname=None, moving_target=False, mt_type=None, resolver=None):
+                    object_name=None, moving_target=False, mt_type=None, resolver=None):
         """
         Get cutout target pixel file(s) around the given coordinates with indicated size,
         and return them as a list of  `~astropy.io.fits.HDUList` objects.
@@ -435,7 +438,7 @@ class TesscutClass(MastQueryWithLogin):
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
 
-            NOTE: If moving_target or objectname is supplied, this argument cannot be used.
+            NOTE: If moving_target or object_name is supplied, this argument cannot be used.
         size : int, array-like, `~astropy.units.Quantity`
             Optional, default 5 pixels.
             The size of the cutout array. If ``size`` is a scalar number or
@@ -455,9 +458,9 @@ class TesscutClass(MastQueryWithLogin):
 
             NOTE: For moving targets, if sector is not specified, the method will automatically
             fetch all available sectors and make individual requests per sector.
-        objectname : str, optional
-            The target around which to search, by name (objectname="M104")
-            or TIC ID (objectname="TIC 141914082"). If moving_target is True, input must be the name or ID
+        object_name : str, optional
+            The target around which to search, by name (object_name="M104")
+            or TIC ID (object_name="TIC 141914082"). If moving_target is True, input must be the name or ID
             (as understood by the `JPL ephemerides service <https://ssd.jpl.nasa.gov/horizons/app.html>`__)
             of a moving target such as an asteroid or comet.
 
@@ -483,12 +486,12 @@ class TesscutClass(MastQueryWithLogin):
         response : A list of `~astropy.io.fits.HDUList` objects.
         """
         self._validate_product(product)
-        self._validate_target_input(coordinates, objectname, moving_target)
+        self._validate_target_input(coordinates, object_name, moving_target)
 
         # For moving targets without a sector specified, fetch sectors first and make
         # individual requests per sector to reduce memory pressure on the service
         if moving_target and sector is None:
-            unique_sectors = self._get_moving_target_sectors(objectname, mt_type)
+            unique_sectors = self._get_moving_target_sectors(object_name, mt_type)
 
             if unique_sectors is None:
                 return []
@@ -497,7 +500,7 @@ class TesscutClass(MastQueryWithLogin):
             all_cutouts = []
             for sect in unique_sectors:
                 cutouts = self.get_cutouts(
-                    size=size, sector=sect, objectname=objectname, moving_target=True, mt_type=mt_type
+                    size=size, sector=sect, object_name=object_name, moving_target=True, mt_type=mt_type
                 )
                 all_cutouts.extend(cutouts)
             return all_cutouts
@@ -507,14 +510,14 @@ class TesscutClass(MastQueryWithLogin):
             params["sector"] = sector
 
         if moving_target:
-            params["obj_id"] = objectname
+            params["obj_id"] = object_name
             if mt_type:  # Add optional parameter if present
                 params["obj_type"] = mt_type
             service = "mt_astrocut"
         else:
             # Get Skycoord object for coordinates/object
             coordinates = parse_input_location(coordinates=coordinates,
-                                               objectname=objectname,
+                                               object_name=object_name,
                                                resolver=resolver)
             params.update({"ra": coordinates.ra.deg, "dec": coordinates.dec.deg})
             service = "astrocut"
@@ -707,7 +710,6 @@ class ZcutClass(MastQueryWithLogin):
         coordinates : str or `astropy.coordinates` object
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
-            One and only one of coordinates and objectname must be supplied.
         size : int, array-like, `~astropy.units.Quantity`
             Optional, default 5 pixels.
             The size of the cutout array. If ``size`` is a scalar number or
