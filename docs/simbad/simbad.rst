@@ -12,10 +12,16 @@ examples that illustrate the different types of queries that can be
 formulated. If successful all the queries will return the results in a
 `~astropy.table.Table`.
 
+Good practices
+==============
+
+The SIMBAD database is widely used. To ensure its continued accessibility and usability
+for everyone, here are some best practices to follow.
+
 A warning about query rate
 --------------------------
 
-The SIMBAD database is widely used and has to limit the rate of incoming queries.
+To support the load on their servers, SIMBAD has to limit the rate of incoming queries.
 If you spam the server with more that ~5-10 queries per second you will be
 blacklisted for up to an hour. This can happen when a query method is called within a loop.
 There is always a way to send the information in a bigger query rather than in a lot of
@@ -25,8 +31,16 @@ smaller ones. Frequent use cases are that you can pass a vector of coordinates t
 a single query. If this does not fit your use case, then you'll need to either use
 `Wildcards`_ or a custom :ref:`query TAP <query-tap>`.
 
+Declaring extra HTTP User agents
+--------------------------------
+
+If you are developing an application or software that calls this SIMBAD module, it is
+recommended to :ref:`declare the name of your software as an extra-user agent <user-agent>`
+in your requests. This helps the SIMBAD team to identify and analyze query patterns
+effectively.
+
 Simbad Evolutions
------------------
+=================
 
 The SIMBAD module follows evolutions of the SIMBAD database.
 Some of these changes are documented into more details here:
@@ -37,7 +51,7 @@ Some of these changes are documented into more details here:
     /simbad/simbad_evolution
 
 Different ways to access SIMBAD
--------------------------------
+===============================
 
 The SIMBAD module described here provides methods that write ADQL queries. These
 methods are described in the next sections.
@@ -45,9 +59,6 @@ methods are described in the next sections.
 A more versatile option is to query SIMBAD directly with your own ADQL queries via
 Table Access Protocol (TAP) with the `~astroquery.simbad.SimbadClass.query_tap` method.
 This is described in this section: :ref:`query TAP <query-tap>`.
-
-Query modes
-===========
 
 Objects queries
 ---------------
@@ -863,6 +874,20 @@ your cache:
 
 If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
+
+.. _user-agent:
+
+Make your requests identifiable
+===============================
+
+To declare who you are to the SIMBAD's servers, add an extra **HTTP user agent** to your
+SIMBAD instance:
+
+.. code-block:: python
+
+    >>> from astroquery.simbad import Simbad
+    >>> simbad = Simbad(extra_user_agents="you")
+
 
 Citation
 ========

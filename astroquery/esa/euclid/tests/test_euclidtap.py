@@ -646,6 +646,9 @@ def test_get_product_list():
     for product_type in conf.BASIC_DOWNLOAD_DATA_PRODUCTS:
         results = tap.get_product_list(observation_id='13', product_type=product_type)
         assert results is not None, "Expected a valid table"
+        if product_type == 'dpdMerFinalCatalog':
+            assert any(c.lower() == 'file_name_list' or 'file_name' for c in results.colnames), \
+                "Expected file_name_list column for dpdMerFinalCatalog"
 
     for product_type in conf.MER_SEGMENTATION_MAP_PRODUCTS:
         results = tap.get_product_list(observation_id='13', product_type=product_type)

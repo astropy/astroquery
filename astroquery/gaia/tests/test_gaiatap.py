@@ -23,6 +23,7 @@ from unittest.mock import patch
 import astropy.units as u
 import numpy as np
 import pytest
+import re
 from astropy.coordinates.sky_coordinate import SkyCoord
 from astropy.table import Column, Table
 from astropy.units import Quantity
@@ -515,6 +516,52 @@ def test_query_object_async(column_attrs, mock_querier_async, kwargs):
     assert len(table) == 3
     for colname, attrs in column_attrs.items():
         assert table[colname].attrs_equal(attrs)
+
+
+def test_query_object_precision(mock_querier):
+    """
+    Verifies that query_object() produces a query where RA, DEC, width and height
+    are formatted with exactly 14 decimal places when using get_query_payload=True.
+    """
+    coord = SkyCoord(ra=19 * u.deg, dec=20 * u.deg)
+    width = 12 * u.deg
+    height = 10 * u.deg
+
+    query = mock_querier.query_object(
+        coord,
+        width=width,
+        height=height,
+        get_query_payload=True
+    )
+
+    float14 = r"[0-9]+\.[0-9]{14}"
+    matches = re.findall(float14, query)
+
+    assert len(matches) == 6, (
+        f"Expected 6 float values with 14 decimals, found {len(matches)}.\n{query}"
+    )
+
+
+def test_cone_search_precision(mock_querier):
+    """
+    Verifies that cone_search() produces a query where RA, DEC and radius
+    appear formatted with exactly 14 decimal places when using get_query_payload=True.
+    """
+    coord = SkyCoord(ra=19*u.deg, dec=20*u.deg)
+    radius = 1*u.deg
+
+    query = mock_querier.cone_search(
+        coord,
+        radius=radius,
+        get_query_payload=True,
+    )
+
+    float14 = r"[0-9]+\.[0-9]{14}"
+    matches = re.findall(float14, query)
+
+    assert len(matches) == 5, (
+        f"Expected 5 float values with 14 decimals, found {len(matches)}.\n{query}"
+    )
 
 
 def test_cone_search_sync(column_attrs, mock_querier):

@@ -21,10 +21,16 @@ esa.euclid
   ``datalabs_path``, ``file_name`` and ``hdu_index``. [#3438]
 - The default value of the parameter ``output_format`` in the the methods ``launch_job``, ``launch_job_async`` and
   ``cone_search`` is changed to "votable_gzip". [#3497]
-
-
 - Methods ``cone_search`` and ``cross_match_basic`` now define the  parameters ``table_name`` and ``ra_column_name`` and
   ``dec_column_name`` independently [#3496]
+- Method ``get_product`` now supports the input file_name as a Python list (e.g. ["file1.fits", "file2.fits"]) while
+  still accepting the original comma separated string format. [#3541]
+- update the output filename for downloads in the methods get_product and get_cutout [#3550]
+- The method ``get_spectrum`` accepts the new parameter ``linking_parameter`` to retrieve the spectra by source_id and
+  sourcepatch_id. [#3543]
+-  The ``source_id`` kwarg in the ``get_spectrum`` method has been renamed to ``ids``. [#3543]
+- The ``get_product_list`` method now also returns file_name_list column when the product type belongs to 
+  BASIC_DOWNLOAD_DATA_PRODUCTS. [#3562]
 
 vizier
 ^^^^^^
@@ -34,12 +40,24 @@ vizier
 mast
 ^^^^
 - ``utils.mast_relative_path`` is now deprecated in favor of ``utils.get_cloud_paths``. [#3488]
-- When cloud access is enabled, ``Observations.download_file`` and ``Observations.download_products`` 
-  now check all requested products against cloud storage. As a result, setting ``cloud_only=True`` will skip 
+- When cloud access is enabled, ``Observations.download_file`` and ``Observations.download_products``
+  now check all requested products against cloud storage. As a result, setting ``cloud_only=True`` will skip
   any products that are not available in the cloud, rather than falling back to on-prem downloads.
+
+vo_conesearch
+^^^^^^^^^^^^^
+- The whole ``vo_conesearch`` module is deprecated. Queries can be made using
+  PyVO Simple Cone Search interface instead. There is no direct replacement
+  for server validation. [#3548]
 
 Service fixes and enhancements
 ------------------------------
+
+esa.xmm_newton
+^^^^^^^^^^^^^^
+
+- Update ``get_epic_spectra`` method to get the latest version of PN RMF files from the SAS server
+  instead of having it hardcoded [#3563]
 
 svo_fps
 ^^^^^^^
@@ -51,12 +69,16 @@ heasarc
 - Add ``query_constraints`` to allow querying of different catalog columns. [#3403]
 - Add support for uploading tables when using TAP directly through ``query_tap``. [#3403]
 - Add automatic guessing for the data host in ``download_data``. [#3403]
+- Include method to count the number of rows in a specified table. [#3549]
 
 gaia
 ^^^^
 
 - New datalink DR4 retrieval type RESIDUAL_IMAGE. [#3489]
 - The method ``load_data`` parses ecsv files [#3500].
+- Fixed decimal precision for query_object and cone_search to use 14 decimal places [#3539].
+- Added ``get_query_payload`` kwarg to return the ADQL query string. [#3539]
+
 
 esa.euclid
 ^^^^^^^^^^
@@ -100,8 +122,12 @@ mast
 
 - Added full support for the International Ultraviolet Explorer (IUE) mission in ``MastMissions``. [#3517]
 
-- Added a new ``Observations.list_cloud_datasets()`` method for querying cloud-supported MAST datasets, alongside 
+- Added a new ``Observations.list_cloud_datasets()`` method for querying cloud-supported MAST datasets, alongside
   improvements to cloud download handling. [#3488]
+
+- ``MastMissions`` query functions now support single or multiple targets via ``coordinates`` and
+  ``object_names`` (including combined use in ``query_criteria``). The legacy ``objectname`` keyword
+  is deprecated in favor of ``object_names``. [#3540]
 
 jplspec
 ^^^^^^^
@@ -125,6 +151,18 @@ linelists
 
 - General tools for both CDMS/JPL moved to linelists.core [#3456]
 - Added jplspec, moved from its previous location (astroquery.jplspec to astroquery.linelists.jplspec) [#3455]
+
+ogle
+^^^^
+
+- Added ``get_query_payload`` kwarg to aid in debugging. [#3533]
+- Removed support for deprecated non-coordinate use in queries. [#3533]
+
+simbad
+~~~~~~
+
+- Add the possibility to declare more information in the HTTP User-Agent header
+  in ``SimbadClass`` [#3529]
 
 xmatch
 ^^^^^^

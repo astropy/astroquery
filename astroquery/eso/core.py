@@ -727,7 +727,7 @@ class EsoClass(QueryWithLogin):
                         # Convert to string, removing quotation marks
                         elif value[0] == "'":
                             value = value[1:-1]
-                        elif "." in value:  # Convert to float
+                        elif "." in value or "E" in value:  # Convert to float
                             value = float(value)
                         else:  # Convert to integer
                             value = int(value)
