@@ -143,7 +143,7 @@ the "mer_catalogue" and its outcome is restricted to 50 rows.
     >>> import astropy.units as u
     >>> coord  = SkyCoord("17h51m07.4s +65d31m50.8s", frame='icrs')
     >>> radius = u.Quantity(0.5, u.deg)
-    >>> job    = Euclid.cone_search(coordinate=coord, radius=radius, columns="*", async_job=True)
+    >>> job    = Euclid.cone_search(coordinate=coord, radius=radius, columns="*", async_job=True)  # doctest: +IGNORE_WARNINGS
     INFO: Query finished. [astroquery.utils.tap.core]
     >>> cone_results    = job.get_results()
     >>> print(f"Found {len(cone_results)} results")
