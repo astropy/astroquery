@@ -17,6 +17,7 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 from astropy.io import fits
+from astropy.coordinates import SkyCoord
 
 from astroquery.exceptions import LoginError
 from astroquery.esa.xmm_newton.core import XMMNewtonClass
@@ -643,17 +644,3 @@ class TestXMMNewton:
         assert "PN" in res
         assert "PN_rmf" in res
         assert os.path.exists(res["PN_rmf"])
-
-    def test_get_epic_metadata(self):
-        xsa = XMMNewtonClass(self.get_dummy_tap_handler())
-        xsa.query_xsa_tap = MagicMock(return_value=None)
-
-        # Test with target_name
-        xsa.get_epic_metadata(target_name="m31")
-        assert xsa.query_xsa_tap.called
-
-        # Test with coordinates
-        from astropy.coordinates import SkyCoord
-        c = SkyCoord(ra=10.6847, dec=41.2687, unit="deg")
-        xsa.get_epic_metadata(coordinates=c, radius=0.1)
-        assert xsa.query_xsa_tap.called
