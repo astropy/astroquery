@@ -25,7 +25,11 @@ esa.euclid
   ``dec_column_name`` independently [#3496]
 - Method ``get_product`` now supports the input file_name as a Python list (e.g. ["file1.fits", "file2.fits"]) while
   still accepting the original comma separated string format. [#3541]
-- update the output filename for downloads in the methods get_product and get_cutout [#3550]
+- Method ``get_product`` now supports the input product_id as a Python list while still accepting the original comma
+  separated string format. [#3564]
+- Update the output filename for downloads in the methods ``get_product`` and ``get_cutout`` [#3550]
+- The output file returned by the method ``get_product`` is never uncompressed and has the default name
+  get_product_ouput.zip in case the ``output_file`` is not defined. [#3564]
 - The method ``get_spectrum`` accepts the new parameter ``linking_parameter`` to retrieve the spectra by source_id and
   sourcepatch_id. [#3543]
 -  The ``source_id`` kwarg in the ``get_spectrum`` method has been renamed to ``ids``. [#3543]
@@ -33,6 +37,7 @@ esa.euclid
   The method now only supports retrieval of MER (background‑subtracted) image cutouts. [#3559]
 - The ``get_product_list`` method now also returns file_name_list column when the product type belongs to 
   BASIC_DOWNLOAD_DATA_PRODUCTS. [#3562]
+
 
 vizier
 ^^^^^^
