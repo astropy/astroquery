@@ -17,7 +17,6 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 from astropy.io import fits
-from astropy.coordinates import SkyCoord
 
 from astroquery.exceptions import LoginError
 from astroquery.esa.xmm_newton.core import XMMNewtonClass
