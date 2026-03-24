@@ -853,7 +853,7 @@ class TapPlus(Tap):
         return self._Tap__load_tables(only_names=only_names, include_shared_tables=include_shared_tables,  # noqa
                                       verbose=verbose)
 
-    def load_data(self, *, params_dict=None, output_file=None, verbose=False):
+    def load_data(self, *, params_dict=None, output_file=None, http_method='POST', verbose=False):
         """Loads the specified data
 
         Parameters
@@ -863,6 +863,8 @@ class TapPlus(Tap):
         output_file : string, optional, default None
             file where the results are saved.
             If it is not provided, the http response contents are returned.
+        http_method: string, compulsory, default POST
+            HTTP Request Method: POST or GET
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -879,12 +881,20 @@ class TapPlus(Tap):
         data = urlencode(params_dict)
         if verbose:
             print(f"Data request: {data}")
-        response = connHandler.execute_datapost(data=data, verbose=verbose)
+
+        if http_method == 'POST':
+            response = connHandler.execute_datapost(data=data, verbose=verbose)
+        else:
+            response = connHandler.execute_dataget(query=data, verbose=verbose)
+
         if verbose:
             print(response.status, response.reason)
+
         connHandler.check_launch_response_status(response, verbose, 200)
+
         if verbose:
             print("Reading...")
+
         chunk = True
         if output_file is not None:
             with open(output_file, 'wb') as file:
@@ -903,9 +913,12 @@ class TapPlus(Tap):
                     output_format = params_dict['FORMAT'].lower()
                 else:
                     output_format = "votable"
+
             results = utils.read_http_response(response, output_format, use_names_over_ids=self.use_names_over_ids)
+
             if verbose:
                 print("Done.")
+
             return results
 
     def load_groups(self, *, verbose=False):
