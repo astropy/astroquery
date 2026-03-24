@@ -37,6 +37,8 @@ esa.euclid
   The method now only supports retrieval of MER (background‑subtracted) image cutouts. [#3559]
 - The ``get_product_list`` method now also returns file_name_list column when the product type belongs to 
   BASIC_DOWNLOAD_DATA_PRODUCTS. [#3562]
+- The method ``get_spectrum`` accepts a single source_id or designation or multiple values separated by commas or a
+   list. [#3570]
 
 
 vizier
