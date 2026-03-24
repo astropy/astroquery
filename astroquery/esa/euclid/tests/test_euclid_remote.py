@@ -77,3 +77,24 @@ def test_get_tables():
 
     table = euclid.load_table("catalogue.mer_catalogue")
     assert len(table.columns) == 471
+
+
+@pytest.mark.remote_data
+def test_get_sia():
+    coords = SkyCoord(267.78, 65.53, frame='icrs', unit="deg")
+    radius = u.Quantity(0.01, u.deg)
+
+    euclid = EuclidClass()
+
+    table = euclid.get_sia(coordinates=coords, radius=radius, calibration=3)
+    assert len(table.colnames) == 13
+    assert len(table['cutout_access_url']) == 9
+
+    assert 'POS=CIRCLE,267.78,65.53,0.01' in table['cutout_access_url'][0]
+
+    # Test coordinates as a string
+
+    table = euclid.get_sia(coordinates='267.7825, 65.5325', radius=radius, calibration=3)
+    assert len(table.colnames) == 13
+    assert 'POS=CIRCLE,267.7825,65.53252,0.01' in table['cutout_access_url'][0]
+    assert len(table['cutout_access_url']) == 9
