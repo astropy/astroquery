@@ -1398,9 +1398,9 @@ class EuclidClass(TapPlus):
 
         return files
 
-    @deprecated_renamed_argument('instrument', 'id', since='0.4.12', arg_in_kwargs=True)
+    @deprecated_renamed_argument(('instrument', 'id'), (None, None), since='0.4.12')
     def get_cutout(self, *, file_path=None, coordinate, radius, output_file=None,
-                   verbose=False):
+                   verbose=False, instrument=None, id=None):
         """
         Downloads a cutout from a MER mosaic (background-subtracted image) for a given
         fits file path, centered on a coordinate and with a specified radius.
