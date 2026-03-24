@@ -31,6 +31,8 @@ esa.euclid
 -  The ``source_id`` kwarg in the ``get_spectrum`` method has been renamed to ``ids``. [#3543]
 - Method ``get_cutout`` has deprecated the 'instrument' and 'id' parameters, providing them has no effect any more. 
   The method now only supports retrieval of MER (background‑subtracted) image cutouts. [#3559]
+- The ``get_product_list`` method now also returns file_name_list column when the product type belongs to 
+  BASIC_DOWNLOAD_DATA_PRODUCTS. [#3562]
 
 vizier
 ^^^^^^
@@ -52,6 +54,12 @@ vo_conesearch
 
 Service fixes and enhancements
 ------------------------------
+
+esa.xmm_newton
+^^^^^^^^^^^^^^
+
+- Update ``get_epic_spectra`` method to get the latest version of PN RMF files from the SAS server
+  instead of having it hardcoded [#3563]
 
 svo_fps
 ^^^^^^^

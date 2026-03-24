@@ -1167,7 +1167,8 @@ class EuclidClass(TapPlus):
             extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
 
             query = (
-                f"SELECT basic_download_data.basic_download_data_oid, basic_download_data.product_type, "
+                f"SELECT CAST(basic_download_data.file_name_list AS text) AS file_name_list, "
+                f"basic_download_data.basic_download_data_oid, basic_download_data.product_type, "
                 f"basic_download_data.product_id, CAST(basic_download_data.observation_id_list as text) AS "
                 f"observation_id_list, CAST(basic_download_data.tile_index_list as text) AS tile_index_list, "
                 f"CAST(basic_download_data.patch_id_list as text) AS patch_id_list, "
