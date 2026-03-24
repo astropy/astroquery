@@ -27,7 +27,7 @@ from astroquery.exceptions import (BlankResponseWarning, InvalidQueryError, Inpu
 try:
     from botocore.exceptions import ClientError
 except ImportError:
-    ClientError = BotoCoreError = ()
+    ClientError = ()
 
 DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Name.Lookup': 'resolver.json',
