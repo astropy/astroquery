@@ -1152,7 +1152,7 @@ class ObservationsClass(MastQueryWithLogin):
 def read_product(s3_uri: str, read_as="auto"):
 
     """
-    Read a product from S3 to memory.
+    Read a product from Open S3 bucket to memory.
 
     Parameters
     ----------
@@ -1168,11 +1168,14 @@ def read_product(s3_uri: str, read_as="auto"):
         FITS or ASDF object.
 
     """
+
     if read_as == "auto":
+        # Read logic for FITS
         if s3_uri.endswith(".fits"):
             return fits.open(s3_uri, fsspec_kwargs={"anon": True})
         
-        # This needs roman-datamodels installed to work
+        # Read logic for ASDF
+        # NOTE: Since asdf files are changing so rapidly this may need addition packages to run (e.x. roman-datamodels)
         elif s3_uri.endswith(".asdf"):
             fs = s3fs.S3FileSystem(anon=True)
             with fs.open(s3_uri, 'rb') as s3_file:
