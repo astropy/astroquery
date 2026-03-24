@@ -1120,7 +1120,7 @@ def test_get_cutout(capsys):
 
     result = tap.get_cutout(
         file_path='/data/repository/NIR/19704/EUC_NIR_W-STACK_NIR-J-19704_20190718T001858.5Z_00.00.fits',
-        instrument='NISP', id='19704', coordinate=c, radius=r, output_file=None, verbose=True)
+        coordinate=c, radius=r, output_file=None, verbose=True)
 
     assert result is not None
 
@@ -1148,29 +1148,23 @@ def test_get_cutout_exception():
 
     c = coordinates.SkyCoord("187.89d 29.54d", frame='icrs')
     r = 1 * u.arcmin
-    file_path = '/data/repository/NIR/19704/EUC_NIR_W-STACK_NIR-J-19704_20190718T001858.5Z_00.00.fits',
+    file_path = '/data/repository/NIR/19704/EUC_NIR_W-STACK_NIR-J-19704_20190718T001858.5Z_00.00.fits'
 
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, cutout_handler=cutout_handler,
                       show_server_messages=False)
 
     with pytest.raises(ValueError, match="Radius cannot be greater than 30 arcminutes"):
-        tap.get_cutout(file_path=file_path, instrument='NISP', id='19704', coordinate=c, radius=100 * u.arcmin,
+        tap.get_cutout(file_path=file_path, coordinate=c, radius=100 * u.arcmin,
                        output_file=None)
 
     with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_cutout(file_path=None, instrument='NISP', id='19704', coordinate=c, radius=r, output_file=None)
+        tap.get_cutout(file_path=None, coordinate=c, radius=r, output_file=None)
 
     with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_cutout(file_path=file_path, instrument=None, id='19704', coordinate=c, radius=r, output_file=None)
+        tap.get_cutout(file_path=file_path, coordinate=None, radius=r, output_file=None)
 
     with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_cutout(file_path=file_path, instrument='NISP', id=None, coordinate=c, radius=r, output_file=None)
-
-    with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_cutout(file_path=file_path, instrument='NISP', id='19704', coordinate=None, radius=r, output_file=None)
-
-    with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_cutout(file_path=file_path, instrument='NISP', id='19704', coordinate=c, radius=None, output_file=None)
+        tap.get_cutout(file_path=file_path, coordinate=c, radius=None, output_file=None)
 
 
 @patch.object(TapPlus, 'load_data')
@@ -1193,19 +1187,19 @@ def test_get_cutout_exceptions_2(mock_load_data, caplog):
 
     mock_load_data.side_effect = HTTPError("launch_job_async HTTPError")
 
-    tap.get_cutout(file_path='hola.fits', instrument='NISP', id='19704', coordinate=SKYCOORD, radius=1 * u.arcmin,
+    tap.get_cutout(file_path='hola.fits', coordinate=SKYCOORD, radius=1 * u.arcmin,
                    output_file=None)
 
-    mssg = ("Cannot retrieve the product for file_path hola.fits, obsId 19704, and collection NISP. HTTP error: "
+    mssg = ("Cannot retrieve the product for file_path hola.fits. HTTP error: "
             "launch_job_async HTTPError")
     assert caplog.records[0].msg == mssg
 
     mock_load_data.side_effect = Exception("launch_job_async Exception")
 
-    tap.get_cutout(file_path='hola.fits', instrument='NISP', id='19704', coordinate=SKYCOORD, radius=1 * u.arcmin,
+    tap.get_cutout(file_path='hola.fits', coordinate=SKYCOORD, radius=1 * u.arcmin,
                    output_file=None)
 
-    mssg = ("Cannot retrieve the product for file_path hola.fits, obsId 19704, and collection NISP: launch_job_async "
+    mssg = ("Cannot retrieve the product for file_path hola.fits: launch_job_async "
             "Exception")
     assert caplog.records[1].msg == mssg
 
