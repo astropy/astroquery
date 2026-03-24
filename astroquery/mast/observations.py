@@ -1149,9 +1149,25 @@ class ObservationsClass(MastQueryWithLogin):
             log.info("To return all products, use `Observations.get_product_list`")
         return unique_products
     
-def read_product(s3_uri, read_as="auto"):
+def read_product(s3_uri: str, read_as="auto"):
 
-    # NOTE: How stand alone does this function need to be, do we want it to handle query critera and retreiving the S3 URI or is the assumption that is done previous to invoking this function?
+    """
+    Read a product from S3 to memory.
+
+    Parameters
+    ----------
+    s3_uri: str
+        S3 URI to the product in open bucket.
+
+    read_as: str, optional
+        How to read the file. Currently only .fits and .asdf is supported by "auto".
+
+    Returns
+    -------
+    object
+        FITS or ASDF object.
+
+    """
     if read_as == "auto":
         if s3_uri.endswith(".fits"):
             return fits.open(s3_uri, fsspec_kwargs={"anon": True})
