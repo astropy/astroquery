@@ -13,10 +13,13 @@ import os
 from urllib.parse import quote
 
 import numpy as np
+import s3fs
+import asdf
 
 from requests import HTTPError
 
 import astropy.units as u
+from astropy.io import fits
 import astropy.coordinates as coord
 from botocore.exceptions import ClientError, BotoCoreError
 
@@ -1145,7 +1148,41 @@ class ObservationsClass(MastQueryWithLogin):
         if len(unique_products) < len(products):
             log.info("To return all products, use `Observations.get_product_list`")
         return unique_products
+    
+def read_product(s3_uri: str, read_as="auto"):
 
+    """
+    Read a product from Open S3 bucket to memory.
+
+    Parameters
+    ----------
+    s3_uri: str
+        S3 URI to the product in open bucket.
+
+    read_as: str, optional
+        How to read the file. Currently only .fits and .asdf is supported by "auto".
+
+    Returns
+    -------
+    object
+        FITS or ASDF object.
+
+    """
+
+    if read_as == "auto":
+        # Read logic for FITS
+        if s3_uri.endswith(".fits"):
+            return fits.open(s3_uri, fsspec_kwargs={"anon": True})
+        
+        # Read logic for ASDF
+        # NOTE: Since asdf files are changing so rapidly this may need addition packages to run (e.x. roman-datamodels)
+        elif s3_uri.endswith(".asdf"):
+            fs = s3fs.S3FileSystem(anon=True)
+            with fs.open(s3_uri, 'rb') as s3_file:
+                af = asdf.open(s3_file)
+                return af
+    else:
+        log.info(f"Unsupported extension type")
 
 @async_to_sync
 class MastClass(MastQueryWithLogin):
