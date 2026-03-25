@@ -792,23 +792,39 @@ class EuclidClass(TapPlus):
             now = datetime.now()
             output_dir = os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d_%H%M%S"))
             output_file_full_path = os.path.join(output_dir, str(observation_id))
+
+            try:
+                if output_dir:
+                    os.makedirs(output_dir, exist_ok=True)
+            except OSError as err:
+                raise OSError("Creation of the directory %s failed: %s"
+                              % (output_dir, err.strerror))
         else:
-            output_file_full_path = output_file
-            output_dir = os.path.dirname(output_file_full_path)
-        try:
-            if output_dir:
-                os.makedirs(output_dir, exist_ok=True)
-        except OSError as err:
-            raise OSError("Creation of the directory %s failed: %s"
-                          % (output_dir, err.strerror))
+            if '' == os.path.dirname(output_file):
+                output_file_full_path = os.path.join(os.getcwd(), output_file)
+                output_dir = os.path.dirname(output_file_full_path)
+            else:
+                output_file_full_path = output_file
+                output_dir = os.path.dirname(output_file_full_path)
+
         return output_file_full_path, output_dir
 
     @staticmethod
     def __check_file_number(output_dir, output_file_name, output_file_full_path, files):
+
+        if tarfile.is_tarfile(output_file_full_path):
+            with tarfile.open(output_file_full_path) as tar_ref:
+                files.extend([os.path.join(output_dir, file) for file in tar_ref.namelist()])
+            return
+        elif zipfile.is_zipfile(output_file_full_path):
+            with zipfile.ZipFile(output_file_full_path, 'r') as zip_ref:
+                files.extend([os.path.join(output_dir, file) for file in zip_ref.namelist()])
+            return
+
         num_files_in_dir = len(os.listdir(output_dir))
         if num_files_in_dir == 1:
             output_f = output_file_name
-            output_full_path = output_dir + os.sep + output_f
+            output_full_path = os.path.join(output_dir, output_f)
 
             os.rename(output_file_full_path, output_full_path)
             files.append(output_full_path)
@@ -824,13 +840,16 @@ class EuclidClass(TapPlus):
         if tarfile.is_tarfile(output_file_full_path):
             with tarfile.open(output_file_full_path) as tar_ref:
                 tar_ref.extractall(path=output_dir)
+                files.extend([os.path.join(output_dir, file) for file in tar_ref.namelist()])
         elif zipfile.is_zipfile(output_file_full_path):
             with zipfile.ZipFile(output_file_full_path, 'r') as zip_ref:
                 zip_ref.extractall(output_dir)
+                files.extend([os.path.join(output_dir, file) for file in zip_ref.namelist()])
         elif not EuclidClass.is_gz_file(output_file_full_path):
             # single file: return it
             files.append(output_file_full_path)
             return files
+        return None
 
     def get_observation_products(self, *, id=None, schema="sedm", product_type=None, product_subtype="STK",
                                  filter="VIS", dsr_part1=None, dsr_part2=None, dsr_part3=None, output_file=None,
@@ -1318,25 +1337,28 @@ class EuclidClass(TapPlus):
 
         Parameters
         ----------
-        file_name : str, optional, default None
+        file_name : str or list of str, default None
             file name for the product. Can be a single string, including multiple file names separated
             by commas, or a list of file name strings. Either file_name or product_id is mandatory.
-        product_id : str, optional, default None
-            product id. More than one can be specified between comma. Either file_name or product_id is mandatory
+            Downloading multiple files at once is less efficient than downloading them individually.
+        product_id : str or list of str, mandatory, default None
+            product id. More than one can be specified between comma or a list of product id strings.
+            Either file_name or product_id is mandatory.  Downloading multiple products at once is less efficient than
+            downloading them individually.
         schema : str, optional, default 'sedm'
             the data release name in which the product should be searched
         output_file : str, optional
-            output file, use zip extension when downloading multiple files
-            if no value is provided, a temporary one is created
+            output file path, use zip extension when downloading multiple files.
+            If no value is provided, a temporary one is created: "<working directory>/temp_<%Y%m%d_%H%M%S>/<file_name>".
         dsr_part1: str, optional, default None
             the data set release part 1: for OTF environment, the activity code; for REG and IDR, the target
-            environment. Not applicable if product_id is None
+            environment. Only applicable for product_id
         dsr_part2: str, optional, default None
             the data set release part 2: for OTF environment, the patch id (a positive integer); for REG and IDR,
-            the activity code. Not applicable if product_id is None
+            the activity code. Only applicable for product_id
         dsr_part3: int, optional, default None
             the data set release part 3: for OTF, REG and IDR environment, the version (an integer greater than 1).
-            Not applicable if product_id is None
+            Only applicable for product_id
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1348,15 +1370,27 @@ class EuclidClass(TapPlus):
         if file_name is None and product_id is None:
             raise ValueError("'file_name' and 'product_id' are both None")
 
-        if isinstance(file_name, (list, tuple)):
-            file_name = ",".join(file_name)
-
         params_dict = {'TAPCLIENT': 'ASTROQUERY', 'RELEASE': schema}
 
+        multiple_values = False
+
         if file_name is not None:
+
+            multiple_values = self.__is_multiple(file_name)
+
+            if isinstance(file_name, (list, tuple)):
+                file_name = ",".join(file_name)
+
             params_dict['FILE_NAME'] = file_name
             params_dict['RETRIEVAL_TYPE'] = 'FILE'
+
         if product_id is not None:
+
+            multiple_values = self.__is_multiple(product_id)
+
+            if isinstance(product_id, (list, tuple)):
+                product_id = ",".join(product_id)
+
             params_dict['PRODUCT_ID'] = product_id
             params_dict['RETRIEVAL_TYPE'] = 'PRODUCT_ID'
 
@@ -1369,10 +1403,13 @@ class EuclidClass(TapPlus):
             if dsr_part3 is not None:
                 params_dict['DSP3'] = dsr_part3
 
-        if file_name is not None:
-            observation_id = file_name
+        if multiple_values:
+            observation_id = 'get_product_output.zip'
         else:
-            observation_id = product_id + '.fits'
+            if file_name is not None:
+                observation_id = file_name
+            else:
+                observation_id = product_id + '.fits'
 
         output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id=observation_id)
 
@@ -1390,18 +1427,21 @@ class EuclidClass(TapPlus):
             return None
 
         files = []
-        self.__extract_file(output_file_full_path=output_file_full_path, output_dir=output_dir, files=files)
-        if files:
-            return files
-
-        self.__check_file_number(output_dir=output_dir, output_file_name=os.path.basename(output_file_full_path),
-                                 output_file_full_path=output_file_full_path, files=files)
+        if multiple_values:
+            self.__check_file_number(output_dir=output_dir, output_file_name=os.path.basename(output_file_full_path),
+                                     output_file_full_path=output_file_full_path, files=files)
+        else:
+            files.append(output_file_full_path)
 
         return files
 
+    def __is_multiple(self, value):
+
+        return (isinstance(value, (list, tuple)) and len(value) > 1) or ',' in value
+
     @deprecated_renamed_argument(('instrument', 'id'), (None, None), since='0.4.12')
-    def get_cutout(self, *, file_path=None, coordinate, radius, output_file=None,
-                   verbose=False, instrument=None, id=None):
+    def get_cutout(self, *, file_path=None, coordinate, radius, output_file=None, verbose=False, instrument=None,
+                   id=None):
         """
         Downloads a cutout from a MER mosaic (background-subtracted image) for a given
         fits file path, centered on a coordinate and with a specified radius.
@@ -1446,7 +1486,8 @@ class EuclidClass(TapPlus):
             print("Cutout output file: " + output_file_full_path)
 
         try:
-            self.__euclidcutout.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
+            self.__euclidcutout.load_data(params_dict=params_dict, output_file=output_file_full_path,
+                                          verbose=verbose)
         except HTTPError as err:
             log.error(
                 f"Cannot retrieve the product for file_path {file_path}. "

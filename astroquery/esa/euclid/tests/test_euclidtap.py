@@ -803,6 +803,35 @@ def test_get_product_by_product_id(tmp_path_factory, capsys):
 
     remove_temp_dir()
 
+    # Multiple product ids
+    result = tap.get_product(product_id='123456789,987654321', output_file=None)
+
+    assert result is not None
+
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    assert os.path.exists(os.path.join(dirs[0], 'get_product_output.zip'))
+
+    remove_temp_dir()
+
+    result = tap.get_product(product_id=['123456789', '987654321'], output_file=None)
+
+    assert result is not None
+
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    assert os.path.exists(os.path.join(dirs[0], 'get_product_output.zip'))
+
+    remove_temp_dir()
+
 
 def test_get_product_by_product_id_data_set_release(tmp_path_factory):
     conn_handler = DummyConnHandler()
@@ -868,6 +897,35 @@ def test_get_product(capsys):
 
     remove_temp_dir()
 
+    # Multiple product ids
+    result = tap.get_product(file_name='uno.fits,dos.fits', output_file=None)
+
+    assert result is not None
+
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    assert os.path.exists(os.path.join(dirs[0], 'get_product_output.zip'))
+
+    remove_temp_dir()
+
+    result = tap.get_product(file_name=['uno.fits', 'dos.fits'], output_file=None)
+
+    assert result is not None
+
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    assert os.path.exists(os.path.join(dirs[0], 'get_product_output.zip'))
+
+    remove_temp_dir()
+
 
 @patch.object(TapPlus, 'load_data')
 def test_get_product_with_list_of_filenames(mock_load_data, tmp_path_factory):
@@ -919,6 +977,20 @@ def test_get_product_with_list_of_filenames(mock_load_data, tmp_path_factory):
     params_dict = kwargs.get("params_dict")
     assert params_dict["FILE_NAME"] == "file1.fits,file2.fits,file3.fits,file4.fits"
     assert params_dict["RETRIEVAL_TYPE"] == "FILE"
+
+    result = tap.get_product(file_name=filenames)
+
+    assert result is not None
+
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    assert os.path.exists(os.path.join(dirs[0], 'get_product_output.zip'))
+
+    remove_temp_dir()
 
 
 def test_get_product_exceptions():
