@@ -1337,7 +1337,7 @@ class EuclidClass(TapPlus):
 
         Parameters
         ----------
-        file_name : str or list of str, mandatory, default None
+        file_name : str or list of str, default None
             file name for the product. Can be a single string, including multiple file names separated
             by commas, or a list of file name strings. Either file_name or product_id is mandatory.
             Downloading multiple files at once is less efficient than downloading them individually.
