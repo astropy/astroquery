@@ -187,14 +187,14 @@ for JWST science instruments, which you can read more about on the MAST page for
    >>> set(obs_table['instrument_name'])  # doctest: +IGNORE_OUTPUT
    {'NIRISS', 'NIRISS/IMAGE', 'NIRISS/SOSS'}
 
-You can also perform positional queries with additional criteria by passing in ``objectname``, ``coordinates``,
+You can also perform positional queries with additional criteria by passing in ``object_name``, ``coordinates``,
 and/or ``radius`` as keyword arguments.
 
 .. doctest-remote-data::
 
    >>> from astroquery.mast import Observations
    ...
-   >>> obs_table = Observations.query_criteria(objectname="M10",
+   >>> obs_table = Observations.query_criteria(object_name="M10",
    ...                                         radius="0.1 deg",
    ...                                         filters=["*UV","Kepler"],
    ...                                         obs_collection="GALEX")
@@ -273,7 +273,7 @@ If not provided, batch_size defaults to 500.
 
    >>> from astroquery.mast import Observations
    ...
-   >>> obs_table = Observations.query_criteria(objectname="M8", obs_collection=["K2", "IUE"])
+   >>> obs_table = Observations.query_criteria(object_name="M8", obs_collection=["K2", "IUE"])
    >>> data_products_by_obs = Observations.get_product_list(obs_table[0:2], batch_size=500)
    >>> print(data_products_by_obs)  # doctest: +IGNORE_OUTPUT
    obsID  obs_collection dataproduct_type ... dataRights calib_level filters

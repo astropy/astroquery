@@ -45,6 +45,9 @@ mast
 - When cloud access is enabled, ``Observations.download_file`` and ``Observations.download_products``
   now check all requested products against cloud storage. As a result, setting ``cloud_only=True`` will skip
   any products that are not available in the cloud, rather than falling back to on-prem downloads.
+- The ``objectname`` keyword is deprecated in ``MastMissions`` in favor of ``object_names``. [#3540]
+- The ``objectname`` parameter in ``Catalogs``, ``Observations``, ``Tesscut``, and ``utils`` is deprecated 
+  in favor of ``object_name``. [#3567]
 
 vo_conesearch
 ^^^^^^^^^^^^^
@@ -92,39 +95,26 @@ mast
 ^^^^
 
 - Raise an error if non-string values are passed to ``utils.resolve_object``. [#3435]
-
 - Filtering by file extension or by a string column is now case-insensitive in ``MastMissions.filter_products``
   and ``Observations.filter_products``. [#3427]
-
 - Switch to use HTTP continuation for partial downloads. [#3448]
-
 - Expand the supported data types for filter values in ``Mast.mast_query``. Previously, users had to input
   filter values enclosed in lists, even when specifying a single value or dictionary. [#3422]
-
 - Raise informative error if ``MastMissions`` query radius is too large. [#3447]
-
 - Add ``batch_size`` parameter to ``MastMissions.get_product_list``, ``Observations.get_product_list``,
   and ``utils.resolve_object`` to allow controlling the number of items sent in each batch request to the server.
   This can help avoid timeouts or connection errors for large requests. [#3454]
-
 - Separate requests for moving target cutouts in ``Tesscut`` to one per sector. [#3467]
-
 - Improved robustness of PanSTARRS column metadata parsing. This prevents metadata-related query errors. [#3485]
-
 - The ``select_cols`` parameter in ``MastMissions`` query functions now accepts an iterable of column names, a comma-delimited
   string of column names, or the special values 'all' or '*' to return all available columns. [#3492]
-
 - Improved robustness of product downloads for ``MastMissions``, including support for subscription-service JSON inputs and
   clearer validation of MAST URIs and product metadata. [#3517]
-
 - Added full support for the International Ultraviolet Explorer (IUE) mission in ``MastMissions``. [#3517]
-
 - Added a new ``Observations.list_cloud_datasets()`` method for querying cloud-supported MAST datasets, alongside
   improvements to cloud download handling. [#3488]
-
 - ``MastMissions`` query functions now support single or multiple targets via ``coordinates`` and
-  ``object_names`` (including combined use in ``query_criteria``). The legacy ``objectname`` keyword
-  is deprecated in favor of ``object_names``. [#3540]
+  ``object_names`` (including combined use in ``query_criteria``). [#3540]
 
 jplspec
 ^^^^^^^

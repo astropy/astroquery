@@ -531,7 +531,7 @@ class TestMast:
 
         # with position
         responses = Observations.query_criteria_async(filters=["NUV", "FUV"],
-                                                      objectname="M10")
+                                                      object_name="M10")
         assert isinstance(responses, list)
 
     def test_observations_query_criteria(self):
@@ -545,7 +545,7 @@ class TestMast:
         assert ((result['obs_collection'] == 'HST') | (result['obs_collection'] == 'HLA')).all()
 
         # with position
-        result = Observations.query_criteria(objectname="M10",
+        result = Observations.query_criteria(object_name="M10",
                                              filters=["NUV", "FUV"],
                                              obs_collection="GALEX")
         assert isinstance(result, Table)
@@ -553,7 +553,7 @@ class TestMast:
         assert (result['obs_collection'] == 'GALEX').all()
         assert sum(result['filters'] == 'NUV') == 4
 
-        result = Observations.query_criteria(objectname="M10",
+        result = Observations.query_criteria(object_name="M10",
                                              dataproduct_type="IMAGE",
                                              intentType="calibration")
         assert (result["intentType"] == "calibration").all()
@@ -602,7 +602,7 @@ class TestMast:
     # product functions
     def test_observations_get_product_list_async(self):
 
-        test_obs = Observations.query_criteria(filters=["NUV", "FUV"], objectname="M10")
+        test_obs = Observations.query_criteria(filters=["NUV", "FUV"], object_name="M10")
 
         responses = Observations.get_product_list_async(test_obs[0]["obsid"])
         assert isinstance(responses, list)
@@ -610,7 +610,7 @@ class TestMast:
         responses = Observations.get_product_list_async(test_obs[2:3])
         assert isinstance(responses, list)
 
-        observations = Observations.query_criteria(objectname="M8", obs_collection=["K2", "IUE"])
+        observations = Observations.query_criteria(object_name="M8", obs_collection=["K2", "IUE"])
         responses = Observations.get_product_list_async(observations[0])
         assert isinstance(responses, list)
 
@@ -622,7 +622,7 @@ class TestMast:
         assert isinstance(responses, list)
 
     def test_observations_get_product_list(self, capsys):
-        observations = Observations.query_criteria(objectname='M8', obs_collection=['K2', 'IUE'])
+        observations = Observations.query_criteria(object_name='M8', obs_collection=['K2', 'IUE'])
         test_obs_id = str(observations[0]['obsid'])
         mult_obs_ids = str(observations[0]['obsid']) + ',' + str(observations[1]['obsid'])
 
@@ -831,7 +831,7 @@ class TestMast:
             assert os.path.exists(path)
 
         # get observations from GALEX instrument with query_criteria
-        observations = Observations.query_criteria(objectname='M10',
+        observations = Observations.query_criteria(object_name='M10',
                                                    radius=0.001,
                                                    instrument_name='GALEX')
 
@@ -1267,24 +1267,24 @@ class TestMast:
 
         # with position
         responses = Catalogs.query_criteria_async(catalog="Tic",
-                                                  objectname="M10",
+                                                  object_name="M10",
                                                   objType="EXTENDED")
         assert isinstance(responses, list)
 
         responses = Catalogs.query_criteria_async(catalog="CTL",
-                                                  objectname="M10",
+                                                  object_name="M10",
                                                   objType="EXTENDED")
         assert isinstance(responses, list)
 
         responses = Catalogs.query_criteria_async(catalog="DiskDetective",
-                                                  objectname="M10",
+                                                  object_name="M10",
                                                   radius=2,
                                                   state="complete")
         assert isinstance(responses, list)
 
         responses = Catalogs.query_criteria_async(catalog="panstarrs",
                                                   table="mean",
-                                                  objectname="M10",
+                                                  object_name="M10",
                                                   radius=.02,
                                                   qualityFlag=48)
         assert isinstance(responses, Response)
@@ -1324,23 +1324,23 @@ class TestMast:
 
         # with position
         result = Catalogs.query_criteria(catalog="Tic",
-                                         objectname="M10", objType="EXTENDED")
+                                         object_name="M10", objType="EXTENDED")
         check_result(result, {'ID': '10000732589'})
 
-        result = Catalogs.query_criteria(objectname='TIC 291067184',
+        result = Catalogs.query_criteria(object_name='TIC 291067184',
                                          catalog="ctl",
                                          Tmag=[10.5, 11],
                                          POSflag="2mass")
         check_result(result, {'Tmag': 10.893})
 
         result = Catalogs.query_criteria(catalog="DiskDetective",
-                                         objectname="M10",
+                                         object_name="M10",
                                          radius=2,
                                          state="complete")
         check_result(result, {'designation': 'J165628.40-054630.8'})
 
         result = Catalogs.query_criteria(catalog="panstarrs",
-                                         objectname="M10",
+                                         object_name="M10",
                                          radius=.01,
                                          qualityFlag=32,
                                          zoneID=10306,
@@ -1473,13 +1473,13 @@ class TestMast:
         sector_table = Tesscut.get_sectors(coordinates=coord)
         check_sector_table(sector_table)
 
-        sector_table = Tesscut.get_sectors(objectname="M104")
+        sector_table = Tesscut.get_sectors(object_name="M104")
         check_sector_table(sector_table)
 
     def test_tesscut_get_sectors_mt(self):
         # Moving target functionality testing
         moving_target_name = 'Eleonora'
-        sector_table = Tesscut.get_sectors(objectname=moving_target_name,
+        sector_table = Tesscut.get_sectors(object_name=moving_target_name,
                                            moving_target=True)
         assert isinstance(sector_table, Table)
         assert len(sector_table) >= 1
@@ -1490,7 +1490,7 @@ class TestMast:
 
         error_nameresolve = f"Could not resolve \"{moving_target_name}\" to a sky position."
         with pytest.raises(ResolverError) as error_msg:
-            Tesscut.get_sectors(objectname=moving_target_name)
+            Tesscut.get_sectors(object_name=moving_target_name)
         assert error_nameresolve in str(error_msg.value)
 
     def test_tesscut_download_cutouts(self, tmpdir):
@@ -1518,14 +1518,14 @@ class TestMast:
                                             path=str(tmpdir), inflate=False)
         check_manifest(manifest, ".zip")
 
-        manifest = Tesscut.download_cutouts(objectname="TIC 32449963", size=1, path=str(tmpdir))
+        manifest = Tesscut.download_cutouts(object_name="TIC 32449963", size=1, path=str(tmpdir))
         check_manifest(manifest, "fits")
 
     def test_tesscut_download_cutouts_mt(self, tmpdir):
         # Moving target functionality testing
         moving_target_name = 'Eleonora'
 
-        manifest = Tesscut.download_cutouts(objectname=moving_target_name,
+        manifest = Tesscut.download_cutouts(object_name=moving_target_name,
                                             moving_target=True,
                                             sector=6,
                                             size=1,
@@ -1538,7 +1538,7 @@ class TestMast:
 
         error_nameresolve = f"Could not resolve \"{moving_target_name}\" to a sky position."
         with pytest.raises(ResolverError) as error_msg:
-            Tesscut.download_cutouts(objectname=moving_target_name)
+            Tesscut.download_cutouts(object_name=moving_target_name)
         assert error_nameresolve in str(error_msg.value)
 
     def test_tesscut_get_cutouts(self):
@@ -1559,7 +1559,7 @@ class TestMast:
                                                sector=[28, 68])
         check_cutout_hdu(cutout_hdus_list)
 
-        cutout_hdus_list = Tesscut.get_cutouts(objectname="TIC 32449963",
+        cutout_hdus_list = Tesscut.get_cutouts(object_name="TIC 32449963",
                                                size=1,
                                                sector=37)
         check_cutout_hdu(cutout_hdus_list)
@@ -1567,7 +1567,7 @@ class TestMast:
     def test_tesscut_get_cutouts_mt(self):
         # Moving target functionality testing
         moving_target_name = 'Eleonora'
-        cutout_hdus_list = Tesscut.get_cutouts(objectname=moving_target_name,
+        cutout_hdus_list = Tesscut.get_cutouts(object_name=moving_target_name,
                                                moving_target=True,
                                                sector=6,
                                                size=1)
@@ -1577,7 +1577,7 @@ class TestMast:
 
         error_nameresolve = f"Could not resolve \"{moving_target_name}\" to a sky position."
         with pytest.raises(ResolverError) as error_msg:
-            Tesscut.get_cutouts(objectname=moving_target_name)
+            Tesscut.get_cutouts(object_name=moving_target_name)
         assert error_nameresolve in str(error_msg.value)
 
     def test_tesscut_get_cutouts_mt_no_sector(self):
@@ -1588,7 +1588,7 @@ class TestMast:
         """
         moving_target_name = "Eleonora"
         # Moving target without specifying sector - should automatically fetch sectors
-        cutout_hdus_list = Tesscut.get_cutouts(objectname=moving_target_name, moving_target=True, size=1)
+        cutout_hdus_list = Tesscut.get_cutouts(object_name=moving_target_name, moving_target=True, size=1)
         assert isinstance(cutout_hdus_list, list)
         # Should return cutouts for all available sectors
         assert len(cutout_hdus_list) >= 1
@@ -1602,7 +1602,8 @@ class TestMast:
         """
         moving_target_name = "Eleonora"
         # Moving target without specifying sector - should automatically fetch sectors
-        manifest = Tesscut.download_cutouts(objectname=moving_target_name, moving_target=True, size=1, path=str(tmpdir))
+        manifest = Tesscut.download_cutouts(object_name=moving_target_name,
+                                            moving_target=True, size=1, path=str(tmpdir))
         assert isinstance(manifest, Table)
         # Should return files for all available sectors
         assert len(manifest) >= 1
