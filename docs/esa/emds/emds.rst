@@ -95,7 +95,7 @@ ObsCore view.
 
    >>> from astroquery.esa.emds import EmdsClass
    >>> emds = EmdsClass()
-   >>> emds.get_missions() # doctest: +IGNORE_OUTPUT
+   >>> emds.list_missions() # doctest: +IGNORE_OUTPUT
     <Table length=1>
     obs_collection
         object

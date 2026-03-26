@@ -13,10 +13,13 @@ from . import conf
 from astroquery.utils import commons
 from html import unescape
 import os
+import warnings
 import astroquery.esa.utils.utils as esautils
 from astroquery.esa.utils import EsaTap, download_file
 
 __all__ = ['Emds', 'EmdsClass']
+
+from ...exceptions import NoResultsWarning
 
 
 class EmdsClass(EsaTap):
@@ -101,7 +104,7 @@ class EmdsClass(EsaTap):
                 if belongs(getattr(t, "name", ""))
             ]
 
-    def get_missions(self):
+    def list_missions(self):
         """
         Retrieve the list of missions available in the EMDS ObsCore view.
 
@@ -258,6 +261,7 @@ class EmdsClass(EsaTap):
             List of local file paths for the downloaded products.
         """
         if products is None or len(products) == 0:
+            warnings.warn('There are no products available', NoResultsWarning)
             return []
 
         if "access_url" not in products.colnames:

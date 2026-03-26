@@ -24,13 +24,15 @@ from astropy.io import fits
 from astropy.table import Table
 import pyvo
 
-from PIL import Image
 import requests
 from io import BytesIO
 
 import numbers
 
 from astroquery.query import BaseVOQuery, BaseQuery
+
+__all__ = ['ESAAuthSession', 'EsaTap']
+
 
 TARGET_RESOLVERS = ['ALL', 'SIMBAD', 'NED', 'VIZIER']
 
@@ -167,6 +169,7 @@ class EsaTap(BaseVOQuery, BaseQuery):
     LOGOUT_URL: str  # must be defined for each module
     TIMEOUT = 60
     REQUEST_PARAMETERS = {}  # Additional parameters to be added to all requests
+    THRESHOLD = 1e-5
 
     """
     Class to init ESA TAP Module to communicate with {ESA_ARCHIVE_NAME} Science Archive
@@ -178,9 +181,10 @@ class EsaTap(BaseVOQuery, BaseQuery):
         LOGOUT_URL: str
         TIMEOUT (Optional) =  60
         REQUEST_PARAMETERS = {}
+        THRESHOLD = 1e-5
     """
 
-    def __init__(self, auth_session=None, tap_url=None):
+    def __init__(self, *, auth_session=None, tap_url=None):
         """
         Set the session, alternative TAP url, initial parameter for the TAP connection
 
@@ -253,7 +257,7 @@ class EsaTap(BaseVOQuery, BaseQuery):
 
         Returns
         -------
-        A pyvo.dal.TAPService object connected to {ESA_ARCHIVE_NAME} TAP
+        A `~pyvo.dal.TAPService` object connected to {ESA_ARCHIVE_NAME} TAP
         """
         if self._tap is None:
             self._tap = pyvo.dal.TAPService(
@@ -484,7 +488,7 @@ class EsaTap(BaseVOQuery, BaseQuery):
 
         # If filters are defined, generate the associated query criteria
         query_filters = (
-            self.__create_sql_criteria(filters)
+            self.__create_adql_criteria(filters)
             if filters and len(filters) > 0 else ''
         )
 
@@ -501,7 +505,7 @@ class EsaTap(BaseVOQuery, BaseQuery):
         return self.query_tap(query=query, async_job=async_job, output_file=output_file,
                               output_format=output_format, verbose=True)
 
-    def __create_sql_criteria(self, filters):
+    def __create_adql_criteria(self, filters):
         """
         Create the SQL clause associated to the query_criteria filters
 
@@ -577,10 +581,9 @@ class EsaTap(BaseVOQuery, BaseQuery):
         """
         # For exact searches in not integer values, check the number is
         # within a threshold of 1e-5
-        threshold = 1e-5
         if not isinstance(value, numbers.Integral) and comparator == '=':
-            return (f"({column} >= {value - threshold} and "
-                    f"{column} <= {value + threshold})")
+            return (f"({column} >= {value - self.THRESHOLD} and "
+                    f"{column} <= {value + self.THRESHOLD})")
         else:
             return f"{column} {comparator} {value}"
 
@@ -977,9 +980,3 @@ def resolve_target(url, session, target_name, target_resolver):
             return SkyCoord(ra=ra, dec=dec, unit="deg")
     except (ValueError, KeyError) as err:
         raise ValueError('This target cannot be resolved. {}'.format(err))
-
-
-def load_image_from_url(url):
-    response = requests.get(url)
-    response.raise_for_status()        # raise an error if download failed
-    return Image.open(BytesIO(response.content))

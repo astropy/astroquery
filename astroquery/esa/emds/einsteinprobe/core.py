@@ -33,7 +33,7 @@ class EinsteinProbeClass(EmdsClass):
         super().__init__(auth_session=auth_session, tap_url=tap_url)
         self.conf = conf
 
-    def get_products(self, obs_id=None, *, columns=None, custom_filters=None,
+    def get_products(self, *, obs_id=None, columns=None, custom_filters=None,
                      get_metadata=False, output_file=None, **filters):
         """
         Retrieve data products associated with Einstein Probe observations.
@@ -72,22 +72,21 @@ class EinsteinProbeClass(EmdsClass):
 
         if columns is None:
             # Minimal set + obs_id for context
-            columns = ["obs_id"] + required
+            columns = ["obs_id", *required]
         elif isinstance(columns, list):
-            for r in required:
-                if r not in columns:
-                    columns.append(r)
+            existing = set(columns)
+            columns.extend(r for r in required if r not in existing)
 
-        # If columns is a string (e.g. "*"), we leave it as-is.
+# If columns is a string (e.g. "*"), we leave it as-is.
         # Build an obs_id filter if provided
         obs_filter = None
         if obs_id:
-            obs_filter = "obs_id = '{0}'".format(obs_id)
+            obs_filter = f"obs_id = '{obs_id}'"
 
         # Combine obs_id filter with any custom_filters
         if obs_filter:
             if custom_filters:
-                custom_filters = "({0}) AND ({1})".format(custom_filters, obs_filter)
+                custom_filters = f"({custom_filters}) AND ({obs_filter})"
             else:
                 custom_filters = obs_filter
 
@@ -195,8 +194,8 @@ class EinsteinProbeClass(EmdsClass):
             ADQL query string used to retrieve the product location.
         """
 
-        safe = self._escape_adql_string(filename)
-        return "SELECT filepath, filename FROM {0} WHERE filename = '{1}'".format(table, safe)
+        safe_name = self._escape_adql_string(filename)
+        return "SELECT filepath, filename FROM {0} WHERE filename = '{1}'".format(table, safe_name)
 
     def _build_data_params(self, *, retrieval_type: str, query: str, size: str = None) -> dict:
         """
