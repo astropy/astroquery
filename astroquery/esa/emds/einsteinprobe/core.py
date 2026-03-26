@@ -33,7 +33,7 @@ class EinsteinProbeClass(EmdsClass):
         super().__init__(auth_session=auth_session, tap_url=tap_url)
         self.conf = conf
 
-    def get_products(self, *, obs_id=None, columns=None, custom_filters=None,
+    def get_products(self, *, observation_id=None, columns=None, custom_filters=None,
                      get_metadata=False, output_file=None, **filters):
         """
         Retrieve data products associated with Einstein Probe observations.
@@ -44,7 +44,7 @@ class EinsteinProbeClass(EmdsClass):
 
         Parameters
         ----------
-        obs_id : str, optional
+        observation_id : str, optional
             Observation identifier to restrict the query (e.g. a specific observation).
         columns : str or list of str, optional
             Columns to retrieve. If provided as a list, filename and filepath
@@ -80,8 +80,8 @@ class EinsteinProbeClass(EmdsClass):
 # If columns is a string (e.g. "*"), we leave it as-is.
         # Build an obs_id filter if provided
         obs_filter = None
-        if obs_id:
-            obs_filter = f"obs_id = '{obs_id}'"
+        if observation_id:
+            obs_filter = f"obs_id = '{observation_id}'"
 
         # Combine obs_id filter with any custom_filters
         if obs_filter:

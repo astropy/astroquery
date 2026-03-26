@@ -321,10 +321,8 @@ class TestEmdsTap:
         epsa = EinsteinProbeClass()
 
         with patch.object(EinsteinProbeClass, "query_table", autospec=True) as qmock:
-            epsa.get_products(
-                obs_id="OBS123",
-                columns=["obs_id", "dataproduct_type"]
-            )
+            epsa.get_products(observation_id="OBS123",
+                              columns=["obs_id", "dataproduct_type"])
 
             assert qmock.called
             _, kwargs = qmock.call_args
@@ -343,7 +341,7 @@ class TestEmdsTap:
         epsa = EinsteinProbeClass()
 
         with patch.object(EinsteinProbeClass, "query_table", autospec=True) as qmock:
-            epsa.get_products(obs_id="OBS123")
+            epsa.get_products(observation_id="OBS123")
 
             _, kwargs = qmock.call_args
             cols = kwargs["columns"]
@@ -354,7 +352,7 @@ class TestEmdsTap:
         epsa = EinsteinProbeClass()
 
         with patch.object(EinsteinProbeClass, "query_table", autospec=True) as qmock:
-            epsa.get_products(obs_id="OBS123")
+            epsa.get_products(observation_id="OBS123")
 
             _, kwargs = qmock.call_args
             cols = kwargs["columns"]

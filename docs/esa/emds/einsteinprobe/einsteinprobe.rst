@@ -357,7 +357,7 @@ individual files directly from the EMDS data service.
 
   >>> from astroquery.esa.emds.einsteinprobe import EinsteinProbeClass
   >>> epsa = EinsteinProbeClass()
-  >>> result = epsa.get_products(obs_id="11900008319")
+  >>> result = epsa.get_products(observation_id="11900008319")
   Executed query:SELECT obs_id, filename, filepath FROM einsteinprobe.obscore_extended WHERE obs_id = '11900008319'
 
 .. note::
