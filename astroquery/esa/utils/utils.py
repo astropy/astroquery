@@ -24,9 +24,6 @@ from astropy.io import fits
 from astropy.table import Table
 import pyvo
 
-import requests
-from io import BytesIO
-
 import numbers
 
 from astroquery.query import BaseVOQuery, BaseQuery
