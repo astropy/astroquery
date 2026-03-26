@@ -16,7 +16,6 @@ import numpy as np
 import astropy.units as u
 import astropy.coordinates as coord
 from requests import HTTPError
-from botocore.exceptions import ClientError, BotoCoreError
 from astropy.table import Table, Row, vstack
 from astropy.utils.decorators import deprecated_renamed_argument
 
@@ -34,9 +33,15 @@ from .core import MastQueryWithLogin
 try:
     from botocore.exceptions import ClientError, BotoCoreError
 except ImportError:
-    ClientError = BotoCoreError = ()
+    pass
 
 __all__ = ['Observations', 'ObservationsClass', 'MastClass', 'Mast']
+
+CLOUD_DISABLED_MESSAGE = (
+    'Cloud data access is not enabled. You may be missing prerequisite packages, or cloud access may not be '
+    'enabled by default in module configuration. To enable, try calling the '
+    '`~astroquery.mast.ObservationsClass.enable_cloud_dataset` method.'
+)
 
 
 @async_to_sync
@@ -62,15 +67,19 @@ class ObservationsClass(MastQueryWithLogin):
         """Ensure cloud access is initialized if appropriate."""
         # User explicitly disabled
         if self._cloud_enabled_explicitly is False:
-            return
+            return False
 
         # Already initialized
         if self._cloud_connection is not None:
-            return
+            return True
 
         # Default behavior is to enable cloud access if the config option is set, so we check that here
         if self._cloud_enabled_explicitly is None and conf.enable_cloud_dataset:
             self.enable_cloud_dataset(_internal=True)
+
+        # Return False if cloud access failed to initialize
+        if self._cloud_connection is not None:
+            return True
 
     def _parse_result(self, responses, *, verbose=False):  # Used by the async_to_sync decorator functionality
         """
@@ -203,8 +212,7 @@ class ObservationsClass(MastQueryWithLogin):
 
     def enable_cloud_dataset(self, provider="AWS", profile=None, verbose=True, *, _internal=False):
         """
-        Enable downloading public files from S3 instead of MAST.
-        Requires the boto3 library to function.
+        Enable downloading public files from S3 instead of MAST. Requires the botocore and boto3 libraries.
 
         Parameters
         ----------
@@ -221,9 +229,16 @@ class ObservationsClass(MastQueryWithLogin):
             self._cloud_connection = CloudAccess(provider, profile, verbose)
             if not _internal:
                 self._cloud_enabled_explicitly = True
-        except ImportError as e:
-            # boto3 or botocore is not installed
+        except (Exception) as e:
+            # Some error occurred trying to initialize cloud access
+            # Use a generic Exception catch here because there are various ways this can fail depending
+            # on the user's setup (e.g. missing dependencies, missing credentials, network issues), and
+            # we want to catch them all
             self._cloud_connection = None
+            if not _internal:
+                # If the user is calling this method directly, error should be raised
+                raise
+            # If called internally, just warn and continue without cloud access
             warnings.warn(e.msg, CloudAccessWarning)
 
     def disable_cloud_dataset(self):
@@ -1002,12 +1017,10 @@ class ObservationsClass(MastQueryWithLogin):
             List of dataset prefixes that support cloud data access.
         """
         # Ensure cloud access is enabled
-        self._ensure_cloud_access()
+        cloud_enabled = self._ensure_cloud_access()
 
-        if self._cloud_connection is None:
-            raise RemoteServiceError(
-                'Please enable anonymous cloud access by calling `enable_cloud_dataset` method. '
-                'Refer to `~astroquery.mast.ObservationsClass.enable_cloud_dataset` documentation for more info.')
+        if not cloud_enabled:
+            raise RemoteServiceError(CLOUD_DISABLED_MESSAGE)
 
         return self._cloud_connection.get_supported_datasets()
 
@@ -1071,12 +1084,10 @@ class ObservationsClass(MastQueryWithLogin):
             if data_products includes products not found in the cloud.
         """
         # Ensure cloud access is enabled
-        self._ensure_cloud_access()
+        cloud_enabled = self._ensure_cloud_access()
 
-        if self._cloud_connection is None:
-            raise RemoteServiceError(
-                'Please enable anonymous cloud access by calling `enable_cloud_dataset` method. '
-                'Refer to `~astroquery.mast.ObservationsClass.enable_cloud_dataset` documentation for more info.')
+        if not cloud_enabled:
+            raise RemoteServiceError(CLOUD_DISABLED_MESSAGE)
 
         if data_products is None:
             if not criteria:
@@ -1156,12 +1167,10 @@ class ObservationsClass(MastQueryWithLogin):
             found in the cloud, None is returned.
         """
         # Ensure cloud access is enabled
-        self._ensure_cloud_access()
+        cloud_enabled = self._ensure_cloud_access()
 
-        if self._cloud_connection is None:
-            raise RemoteServiceError(
-                'Please enable anonymous cloud access by calling `enable_cloud_dataset` method. '
-                'Refer to `~astroquery.mast.ObservationsClass.enable_cloud_dataset` documentation for more info.')
+        if not cloud_enabled:
+            raise RemoteServiceError(CLOUD_DISABLED_MESSAGE)
 
         # Query for product URIs
         return self._cloud_connection.get_cloud_uri(data_product, include_bucket, full_url)

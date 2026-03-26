@@ -22,12 +22,12 @@ from astroquery.mast import (Catalogs, MastMissions, Observations, Tesscut, Zcut
 from astroquery.mast.cloud import CloudAccess
 from astroquery.utils.mocks import MockResponse
 from astroquery.exceptions import (BlankResponseWarning, InvalidQueryError, InputWarning, MaxResultsWarning,
-                                   NoResultsWarning, RemoteServiceError, ResolverError, CloudAccessWarning)
+                                   NoResultsWarning, RemoteServiceError, ResolverError)
 
 try:
     from botocore.exceptions import ClientError
 except ImportError:
-    ClientError = ()
+    pass
 
 DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Name.Lookup': 'resolver.json',
@@ -1221,7 +1221,7 @@ def test_observations_list_cloud_missions_error(patch_boto3):
 
     # Cloud access not enabled
     Observations.disable_cloud_dataset()
-    with pytest.raises(RemoteServiceError, match='Please enable anonymous cloud access'):
+    with pytest.raises(RemoteServiceError, match='Cloud data access is not enabled.'):
         Observations.list_cloud_datasets()
 
 
@@ -1246,7 +1246,7 @@ def test_observations_get_cloud_uri(patch_boto3):
 
     # Cloud access not enabled
     Observations.disable_cloud_dataset()
-    with pytest.raises(RemoteServiceError, match='Please enable anonymous cloud access'):
+    with pytest.raises(RemoteServiceError, match='Cloud data access is not enabled.'):
         Observations.get_cloud_uri(mast_uri)
 
 
@@ -1291,7 +1291,7 @@ def test_observations_get_cloud_uris(patch_boto3):
 
     # Cloud access not enabled
     Observations.disable_cloud_dataset()
-    with pytest.raises(RemoteServiceError, match='Please enable anonymous cloud access'):
+    with pytest.raises(RemoteServiceError, match='Cloud data access is not enabled.'):
         Observations.get_cloud_uris([mast_uri])
 
 
@@ -1340,7 +1340,7 @@ def test_observations_enable_cloud_dataset(patch_boto3):
     # Force an import error when connecting to cloud dataset
     cloud.HAS_BOTO3 = False
     Observations.disable_cloud_dataset()  # reset state
-    with pytest.warns(CloudAccessWarning):
+    with pytest.raises(ImportError, match='to enable cloud dataset access'):
         Observations.enable_cloud_dataset()
 
     # Reset cloud dataset state for other tests
