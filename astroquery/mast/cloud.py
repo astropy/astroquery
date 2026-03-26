@@ -18,6 +18,7 @@ from ..exceptions import RemoteServiceError, NoResultsWarning
 
 from . import utils
 
+# Optional dependencies for cloud access functionality
 try:
     import boto3
     HAS_BOTO3 = True

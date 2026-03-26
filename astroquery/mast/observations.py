@@ -31,6 +31,7 @@ from . import utils, conf
 from .core import MastQueryWithLogin
 
 try:
+    # Optional dependency import for cloud access functionality
     from botocore.exceptions import ClientError, BotoCoreError
 except ImportError:
     pass

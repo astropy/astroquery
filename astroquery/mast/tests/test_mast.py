@@ -25,6 +25,7 @@ from astroquery.exceptions import (BlankResponseWarning, InvalidQueryError, Inpu
                                    NoResultsWarning, RemoteServiceError, ResolverError)
 
 try:
+    # Optional dependency import for cloud access functionality
     from botocore.exceptions import ClientError
 except ImportError:
     pass
