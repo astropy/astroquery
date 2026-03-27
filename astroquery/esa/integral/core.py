@@ -129,7 +129,7 @@ class IntegralClass(EsaTap):
             raise TypeError("Please use only target or coordinates as "
                             "parameter.")
         # Radius in degrees
-        if radius:
+        if radius is not None:
             radius = esautils.get_degree_radius(radius)
 
         # Resolve target or coordinates to get coordinates
@@ -234,7 +234,7 @@ class IntegralClass(EsaTap):
             timeline: An astropy.table object containing the results for scwExpo, scwRevs, scwTimes and scwOffAxis
         """
 
-        if radius:
+        if radius is not None:
             radius = esautils.get_degree_radius(radius)
 
         c = commons.parse_coordinates(coordinates=coordinates)

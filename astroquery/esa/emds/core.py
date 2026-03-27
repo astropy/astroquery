@@ -166,7 +166,7 @@ class EmdsClass(EsaTap):
         """
 
         cone_search_filter = None
-        if radius:
+        if radius is not None:
             radius = esautils.get_degree_radius(radius)
 
         if target_name and coordinates:
