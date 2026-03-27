@@ -329,8 +329,8 @@ and their sky coverage (in its "fov" field) is queried using ADQL_. Please note:
     >>> print("Downloading file:", file_name)
     Downloading file: EUC_MER_BGSUB-MOSAIC-VIS_TILE102158889-F95D3B_20241025T024806.508980Z_00.00.fits
 
-.. Skip testing as the example requires a lot of time to download a huge file
 .. doctest-skip::
+.. Skip testing as the example requires a lot of time to download a huge file
 
     >>> path = Euclid.get_product(file_name=file_name, output_file=file_name)
 
@@ -430,8 +430,8 @@ This method...
 
 Download the cutout...
 
-.. Skip testing as the example requires a lot of time to download a huge file
 .. doctest-skip::
+.. Skip testing as the example requires a lot of time to download a huge file
 
     >>> file_path  = f"{res['file_path'][0]}/{res['file_name'][0]}"
     >>> cutout_out = Euclid.get_cutout(file_path=file_path, coordinate='NGC 6505', radius= 0.1 * u.arcmin, output_file='ngc6505_cutout_mer.fits')
@@ -560,8 +560,8 @@ package will also be available:
 
 There are several ways to log in to the Euclid archive, as detailed below:
 
-.. Skip testing as the example require authentication
 .. doctest-skip::
+.. Skip testing as the example require authentication
 
     >>> from astroquery.esa.euclid import Euclid
     >>> Euclid.login_gui()      # Login via graphic interface (pop-up window)
@@ -576,8 +576,8 @@ There are several ways to log in to the Euclid archive, as detailed below:
 All the asynchronous jobs launched by registered users are stored in the user area, which can store up to 10 GB of jobs. Therefore, it is recommended to remove unnecessary jobs to avoid filling up the user quota.
 The example below shows how to delete all the jobs in the user area using the list_async_jobs and remove_jobs_ methods.
 
-.. Skip testing as the example require authentication
 .. doctest-skip::
+.. Skip testing as the example require authentication
 
     >>> Euclid.login()
     >>> job_ids = [job.jobid for job in Euclid.list_async_jobs()]
@@ -588,8 +588,8 @@ It is also possible to take advantage of the job metadata to delete all the jobs
 
 First, use the load_async_job_ method to download the metadata of the async jobs stored in the user space:
 
-.. Skip testing as the example require authentication
 .. doctest-skip::
+.. Skip testing as the example require authentication
 
     >>> job_obj  = [Euclid.load_async_job(jobid=jobid) for jobid in job_ids]
     >>> job_ids  = [job.jobid        for job in job_obj]
@@ -597,7 +597,6 @@ First, use the load_async_job_ method to download the metadata of the async jobs
 
 Second, create a dataframe that contains the jobid and date information:
 
-.. Skip testing as the example require authentication
 .. doctest-skip::
 
     >>> df              = pd.DataFrame.from_dict({'job_id':job_ids, 'fulldate':dates})
@@ -607,8 +606,8 @@ Second, create a dataframe that contains the jobid and date information:
 
 Finally, extract the job id's included in a given time range (in the example below, all the jobs stored since 2024-10-01 at 7 hours UTC) and delete them:
 
-.. Skip testing as the example require authentication
 .. doctest-skip::
+.. Skip testing as the example require authentication
 
     >>> subset          = df[(df['date'] == datetime.date(2024,10,1)) & (df['hour_UTC'].isin([7]))]
     >>> jobs_to_delete  = subset['job_id'].to_list()
