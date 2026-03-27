@@ -598,6 +598,7 @@ First, use the load_async_job_ method to download the metadata of the async jobs
 
 Second, create a dataframe that contains the jobid and date information:
 
+.. Skip testing as the example require authentication
 .. doctest-skip::
 
     >>> df              = pd.DataFrame.from_dict({'job_id':job_ids, 'fulldate':dates})
