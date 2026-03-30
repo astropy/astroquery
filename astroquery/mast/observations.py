@@ -1172,15 +1172,22 @@ def read_product(s3_uri: str, read_as="auto"):
     if read_as == "auto":
         # Read logic for FITS
         if s3_uri.endswith(".fits"):
-            return fits.open(s3_uri, fsspec_kwargs={"anon": True})
+            try:
+                return fits.open(s3_uri, fsspec_kwargs={"anon": True})
+            except Exception as e:
+                log.exception(f"Failed to open FITS File: {s3_uri} {e}")
         
         # Read logic for ASDF
         # NOTE: Since asdf files are changing so rapidly this may need addition packages to run (e.x. roman-datamodels)
         elif s3_uri.endswith(".asdf"):
-            fs = s3fs.S3FileSystem(anon=True)
-            with fs.open(s3_uri, 'rb') as s3_file:
-                af = asdf.open(s3_file)
-                return af
+            try:
+                fs = s3fs.S3FileSystem(anon=True)
+                with fs.open(s3_uri, 'rb') as s3_file:
+                    af = asdf.open(s3_file)
+                    return af
+            except Exception as e:
+                log.exception(f"Failed to open ASD File: {s3_uri} {e}")
+
     else:
         log.info(f"Unsupported extension type")
 
