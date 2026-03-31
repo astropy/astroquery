@@ -1,8 +1,11 @@
 .. _astroquery.esa.plato:
 
-*****************************************
-ESA PLATO ArXive (`astroquery.esa.plato`)
-*****************************************
+****************************************
+ESA PLATO ArXiv (`astroquery.esa.plato`)
+****************************************
+
+.. note::
+    The ESA PLATO ArXiv Astroquery Module will open on the 7th April for the Guest Observer call for proposals.
 
 The primary goal of PLATO (PLAnetary Transits and Oscillations of stars) is to open a new way in exoplanetary science
 by detecting terrestrial exoplanets and characterising their bulk properties, including planets in the habitable zone
