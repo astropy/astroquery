@@ -265,6 +265,7 @@ The following modules have been completed using a common API:
   esa/integral/integral.rst
   esa/iso/iso.rst
   esa/jwst/jwst.rst
+  esa/plato/plato.rst
   esa/xmm_newton/xmm_newton.rst
   esasky/esasky.rst
   eso/eso.rst
