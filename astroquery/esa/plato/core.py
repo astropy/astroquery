@@ -181,6 +181,7 @@ class PlatoClass(esautils.EsaTap):
                            error_y=None, log_scale=False, color='gray', fig=None, ax=None):
         """
         Draw two columns in a 2D plot with/without a third column drawn with a colormap
+
         Parameters
         ----------
         x : array of numbers, mandatory
