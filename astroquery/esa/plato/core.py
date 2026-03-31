@@ -28,8 +28,8 @@ class PlatoClass(esautils.EsaTap):
     LOGIN_URL = conf.PLATO_LOGIN_SERVER
     LOGOUT_URL = conf.PLATO_LOGOUT_SERVER
 
-    def search_catalogue(self, table_name, *, target_name=None, coordinates=None, radius=1*u.arcmin, columns=None, get_metadata=False,
-                         output_file=None, **filters):
+    def search_catalogue(self, table_name, *, target_name=None, coordinates=None, radius=1*u.arcmin, columns=None,
+                         get_metadata=False, output_file=None, **filters):
         """
         Execute a search in one of the catalogues and associated tbles available in PLATO TAP.
 
@@ -91,8 +91,8 @@ class PlatoClass(esautils.EsaTap):
                                 custom_filters=cone_search_filter, get_metadata=get_metadata, async_job=True,
                                 output_file=output_file, **filters)
 
-    def search_pic_target_go(self, *, target_name=None, coordinates=None, radius=1*u.arcmin, columns=None, get_metadata=False,
-                             output_file=None, **filters):
+    def search_pic_target_go(self, *, target_name=None, coordinates=None, radius=1*u.arcmin, columns=None,
+                             get_metadata=False, output_file=None, **filters):
         """
         Execute a search in PIC Target Catalogue.
 

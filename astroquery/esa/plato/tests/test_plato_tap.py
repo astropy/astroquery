@@ -53,10 +53,13 @@ def close_files(file_list):
 class FakePyplotAPI:
     def ion(self):
         ...
+
     def subplots(self, *args, **kwargs):
         ...
+
     def show(self, *args, **kwargs):
         ...
+
     def close(self, *args, **kwargs):
         ...
 
