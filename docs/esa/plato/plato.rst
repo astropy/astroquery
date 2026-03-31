@@ -14,7 +14,8 @@ and architecture of planetary systems) needed to determine the habitability of t
 PLATO will answer the profound and captivating question: how common are worlds like ours and are they suitable for
 the development of life?
 
-Understanding planet habitability is a true multi-disciplinary endeavour. It requires knowledge of the planetary composition, to distinguish terrestrial planets from non-habitable gaseous mini-Neptunes, and of the atmospheric properties of planets.
+Understanding planet habitability is a true multi-disciplinary endeavour. It requires knowledge of the planetary
+composition, to distinguish terrestrial planets from non-habitable gaseous mini-Neptunes, and of the atmospheric properties of planets.
 
 PLATO will be leading this effort by combining:
 
@@ -23,9 +24,13 @@ PLATO will be leading this effort by combining:
 + determination of accurate stellar masses, radii, and ages from asteroseismology, and
 + identification of bright targets for atmospheric spectroscopy.
 
-The mission will characterise hundreds of rocky (including Earth twins), icy or giant planets by providing exquisite measurements of their radii (3 per cent precision), masses (better than 10 per cent precision) and ages (10 per cent precision). This will revolutionise our understanding of planet formation and the evolution of planetary systems.
+The mission will characterise hundreds of rocky (including Earth twins), icy or giant planets by providing exquisite
+measurements of their radii (3 per cent precision), masses (better than 10 per cent precision) and ages
+(10 per cent precision). This will revolutionise our understanding of planet formation and the evolution
+of planetary systems.
 
-PLATO will assemble the first catalogue of confirmed and characterised planets with known mean densities, compositions, and evolutionary ages/stages, including planets in the habitable zone of their host stars.
+PLATO will assemble the first catalogue of confirmed and characterised planets with known mean densities,
+compositions, and evolutionary ages/stages, including planets in the habitable zone of their host stars.
 
 ========
 Examples
