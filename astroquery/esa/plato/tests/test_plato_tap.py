@@ -75,7 +75,7 @@ class FakeFigure:
     def __init__(self, name="ax", n_axes=1):
         self.name = name
         self.axes = [FakeAxes() for _ in range(n_axes)]
-        self.colorbar =  Mock(name=f"{name}.colorbar")
+        self.colorbar = Mock(name=f"{name}.colorbar")
 
 
 class TestPlatoTap:
@@ -210,7 +210,6 @@ class TestPlatoTap:
         plato.query_tap(query=query, async_job=True)
         async_job_mock.assert_called_with(query)
 
-
     @patch.dict(sys.modules, {"matplotlib": types.ModuleType("matplotlib")})
     def test_creates_new_figure(self):
 
@@ -229,7 +228,7 @@ class TestPlatoTap:
             assert fig is not None
             assert ax is not None
 
-    @patch.dict(sys.modules, {"matplotlib": types.ModuleType("matplotlib"),})
+    @patch.dict(sys.modules, {"matplotlib": types.ModuleType("matplotlib")})
     def test_uses_existing_figure(self):
         # Fake matplotlib
         fake_pyplot = Mock(spec=FakePyplotAPI)
