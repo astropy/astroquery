@@ -18,7 +18,7 @@ from astropy.coordinates import SkyCoord
 
 from astroquery.esa.plato import PlatoClass
 from astroquery.esa.plato import conf
-from unittest.mock import PropertyMock, patch, Mock, MagicMock
+from unittest.mock import PropertyMock, patch, Mock
 import pytest
 
 from requests import HTTPError
@@ -51,10 +51,14 @@ def close_files(file_list):
 
 
 class FakePyplotAPI:
-    def ion(self): ...
-    def subplots(self, *args, **kwargs): ...
-    def show(self, *args, **kwargs): ...
-    def close(self, *args, **kwargs): ...
+    def ion(self):
+        ...
+    def subplots(self, *args, **kwargs):
+        ...
+    def show(self, *args, **kwargs):
+        ...
+    def close(self, *args, **kwargs):
+        ...
 
 
 class FakeAxes:

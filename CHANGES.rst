@@ -5,7 +5,7 @@ New Tools and Services
 ----------------------
 
 esa.plato
-^^^^^^^^
+^^^^^^^^^
 - New module to access the ESA PLATO Science Archive. [#3573]
 
 noirlab

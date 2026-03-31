@@ -217,6 +217,7 @@ class PlatoClass(esautils.EsaTap):
         ax : matplotlib.axes.Axes
             The axes object used for plotting.
         """
+
         # Matplotlib is needed to execute this method
         try:
             import matplotlib.pyplot as plt
