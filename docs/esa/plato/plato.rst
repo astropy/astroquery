@@ -172,6 +172,7 @@ options, that can be combined to extract the required data:
   -73.1911625699751 111.432509739341 12.2231114055724
 
 + Filter by any other column available in the previous method.
+
 .. doctest-remote-data::
 
   >>> from astroquery.esa.plato import PlatoClass
