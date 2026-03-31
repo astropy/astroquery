@@ -183,27 +183,27 @@ class PlatoClass(esautils.EsaTap):
         Draw two columns in a 2D plot with/without a third column drawn with a colormap
         Parameters
         ----------
-        x: array of numbers, mandatory
+        x : array of numbers, mandatory
             values for the X series
-        y: array of numbers, mandatory
+        y : array of numbers, mandatory
             values for the Y series
-        x_label: str, mandatory
+        x_label : str, mandatory
             title of the X axis
-        y_label: str, mandatory
+        y_label : str, mandatory
             title of the Y axis
-        plot_title: str, mandatory
+        plot_title : str, mandatory
             title of the plot
-        z: array of numbers, optional
+        z : array of numbers, optional
             values to assign a color to each dot
-        z_label: str, optional
+        z_label : str, optional
             title of the colormap
-        error_x: array of numbers, optional
+        error_x : array of numbers, optional
             error on the X series
-        error_y: array of numbers, optional
+        error_y : array of numbers, optional
             error on the Y series
-        log_scale: boolean, optional, default False
+        log_scale : boolean, optional, default False
             Draw X and Y axes using log scale
-        color: str, optional, default gray
+        color : str, optional, default gray
             Color to be used in the 2D plot or a colormap if Z axis is defined
         fig : matplotlib.figure.Figure, optional
             Existing figure to draw on. If None, a new figure is created.
