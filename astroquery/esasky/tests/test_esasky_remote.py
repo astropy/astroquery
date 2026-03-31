@@ -288,5 +288,5 @@ class TestESASky:
 
     def _close_hdu_lists(self, result, mission):
         for hdu_list in result[mission.upper()]:
-                if hdu_list is not None:
-                    hdu_list.close()
+            if hdu_list is not None:
+                hdu_list.close()

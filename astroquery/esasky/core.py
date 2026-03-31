@@ -1,12 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from numpy.testing import verbose
-
 import astroquery.esa.utils.utils as esautils
 import json
 import os
 import tarfile as esatar
-import pyvo
 import sys
 import re
 import warnings
@@ -24,7 +21,6 @@ from requests import ConnectionError
 
 from astroquery.esa.utils import EsaTap
 from ..utils import commons
-from ..utils import async_to_sync
 from . import conf
 from .. import version
 from astropy.coordinates.name_resolve import sesame_database
@@ -91,7 +87,6 @@ class ESASkyClass(EsaTap):
         if show_messages:
             self.get_status_messages()
 
-
     def query(self, query, *, async_job=False, output_file=None, output_format="votable", verbose=False):
         """Launches a synchronous or asynchronous job to query the ESASky TAP
 
@@ -115,7 +110,8 @@ class ESASkyClass(EsaTap):
         -------
         A table object
         """
-        return self.query_tap(query=query, async_job=async_job, output_file=output_file, output_format=output_format, verbose=verbose)
+        return self.query_tap(query=query, async_job=async_job, output_file=output_file, output_format=output_format,
+                              verbose=verbose)
 
     def list_maps(self):
         """

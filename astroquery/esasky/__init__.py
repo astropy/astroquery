@@ -18,7 +18,8 @@ class Conf(_config.ConfigNamespace):
     ESASKY_DOMAIN_SERVER = _config.ConfigItem(ESASKY_COMMON_SERVER, "ESASky TAP Common Server")
     ESASKY_TAP_SERVER = _config.ConfigItem(ESASKY_COMMON_SERVER + ESASKY_TAP_COMMON, "ESASky TAP Server")
     ESASKY_DATA_SERVER = _config.ConfigItem(ESASKY_COMMON_SERVER + 'data?', "ESASky Data Server")
-    ESASKY_TABLES_SERVER = _config.ConfigItem(ESASKY_COMMON_SERVER + ESASKY_TAP_COMMON + "/tables", "ESASky TAP Tables Server")
+    ESASKY_TABLES_SERVER = _config.ConfigItem(ESASKY_COMMON_SERVER + ESASKY_TAP_COMMON + "/tables",
+                                              "ESASky TAP Tables Server")
     ESASKY_TARGET_ACTION = _config.ConfigItem("servlet/target-resolver?", "ESASky Target Resolver")
     ESASKY_MESSAGES = _config.ConfigItem("notification?action=GetNotifications", "ESASky Messages")
     ESASKY_LOGIN_SERVER = _config.ConfigItem(ESASKY_COMMON_SERVER + 'login', "ESASky Login Server")
@@ -27,6 +28,7 @@ class Conf(_config.ConfigNamespace):
     ESASKY_ROW_LIMIT = _config.ConfigItem(10000, 'Maximum number of rows returned (set to -1 for unlimited).')
 
     cache_location = os.path.join(paths.get_cache_dir(), 'astroquery/esasky', )
+
 
 conf = Conf()
 
