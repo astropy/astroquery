@@ -18,6 +18,8 @@ class Conf(_config.ConfigNamespace):
     ROW_LIMIT = _config.ConfigItem(50,
                                    "Number of rows to return from database query (set to -1 for unlimited).")
 
+    SPECTRA_LIMIT = _config.ConfigItem(1000, "Maximum amount of sources with spectra")
+
     USE_NAMES_OVER_IDS = _config.ConfigItem(True,
                                             "When converting from an astropy.io.votable.tree.TableElement object to "
                                             "an astropy.table.Table object, you can specify whether to give "
