@@ -56,6 +56,11 @@ esa.euclid
   BASIC_DOWNLOAD_DATA_PRODUCTS. [#3562]
 
 
+gemini
+^^^^^^
+
+- Added ``get_query_payload`` kwarg to allow inspection of the query payload to aid in debugging. [#3568]
+
 vizier
 ^^^^^^
 
