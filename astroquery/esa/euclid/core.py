@@ -10,7 +10,6 @@ import binascii
 import os
 import pprint
 import re
-import stat
 import tarfile
 import zipfile
 from collections.abc import Iterable
@@ -20,8 +19,6 @@ from datetime import timezone
 from astropy import units
 from astropy import units as u
 from astropy.coordinates import Angle
-from astropy.io import fits
-from astropy.table import Table
 from astropy.units import Quantity
 from astropy.utils import deprecated_renamed_argument
 from requests.exceptions import HTTPError
@@ -1519,12 +1516,13 @@ class EuclidClass(TapPlus):
     def get_spectrum(self, *, ids, schema='sedm', retrieval_type="ALL", linking_parameter='SOURCE_ID',
                      output_file=None, verbose=False):
         """
-        Downloads a spectrum with datalink.
+        Downloads spectra with datalink.
 
         The spectrum associated with the source_id is downloaded as a compressed fits file, and the files it contains
         are returned in a list. The compressed fits file is saved in the local path given by output_file. If this
-        parameter is not set, the result is saved in the file "<working directory>/temp_<%Y%m%d_%H%M%S>/
-        get_spectrum_output.zip". In any case, the content of the zip file is automatically extracted.
+        parameter is not set, for a single id, the result is saved in the file
+        "<working directory>/temp_<%Y%m%d_%H%M%S>/<source_id>.fits.zip" or get_spectrum_output.zip" for multiple ids.
+        In any case, the content of the zip file is automatically extracted.
 
         Parameters
         ----------
@@ -1542,7 +1540,7 @@ class EuclidClass(TapPlus):
             SOURCEPATCH_ID: the identifiers are considered as sourcepatch_id
         output_file : str, optional
             output file name. If no value is provided, a temporary one is created with the name
-            "<working directory>/temp_<%Y%m%d_%H%M%S>/get_spectrum_output.zip"
+            "<working directory>/temp_<%Y%m%d_%H%M%S>/<source_id>.fits or get_spectrum_output.zip"
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1550,7 +1548,7 @@ class EuclidClass(TapPlus):
         -------
         A list of files: the files contained in the downloaded compressed fits file. The format of the file is
         SPECTRA_<colour>-<schema> <source_id>.fits', where <colour> is BGS or RGS, and <schema> and <source_id> are
-        taken from the input parameters.
+        taken from the input parameters. For multiple ids, the format is SPECTRA_<colour>_COMBINED.fits
 
         """
 
@@ -1602,10 +1600,15 @@ class EuclidClass(TapPlus):
                 params_dict['LINKING_PARAMETER'] = linking_parameter
 
         if output_file is None:
+
+            if self.__is_multiple(ids):
+                download_name_formatted = 'get_spectrum_output.zip'
+            else:
+                download_name_formatted = ids + '.fits.zip'
+
             now = datetime.now(timezone.utc)
             now_formatted = now.strftime("%Y%m%d_%H%M%S.%f")
             path = os.path.join(os.getcwd(), "temp_" + now_formatted)
-            download_name_formatted = 'get_spectrum_output.zip'
             output_file = os.path.join(path, download_name_formatted)
         else:
             path = os.path.dirname(output_file)
@@ -1624,6 +1627,8 @@ class EuclidClass(TapPlus):
             except OSError:
                 log.error("Creation of the directory %s failed" % path)
 
+        files = []
+
         try:
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file, verbose=verbose)
         except HTTPError as err:
@@ -1633,10 +1638,13 @@ class EuclidClass(TapPlus):
             log.error(f'Cannot retrieve spectrum for source_id {ids_arg}, schema {schema}: {str(exx)}')
             return None
 
-        try:
-            files = EuclidClass.__get_data_files(output_file=output_file, path=path)
-        except Exception as err:
-            raise err
+        self.__extract_file(output_file_full_path=output_file, output_dir=path, files=files)
+
+        if files:
+            return files
+
+        self.__check_file_number(output_dir=path, output_file_name=os.path.basename(output_file),
+                                 output_file_full_path=output_file, files=files)
 
         if log.isEnabledFor(20):
             log.debug("List of products available:")
@@ -1644,64 +1652,6 @@ class EuclidClass(TapPlus):
                 log.debug("Product = " + item)
 
         return files
-
-    @staticmethod
-    def __remove_readonly(func, path, _):
-        "Clear the readonly bit and reattempt the removal"
-        os.chmod(path, stat.S_IWRITE)
-        func(path)
-
-    @staticmethod
-    def __get_data_files(output_file, path):
-        files = {}
-        extracted_files = []
-
-        with zipfile.ZipFile(output_file, "r") as zObject:
-            extracted_files.extend(zObject.namelist())
-            zObject.extractall(path)
-
-        # r=root, d=directories, f = files
-        for r, d, f in os.walk(path):
-            for file in f:
-                if file in extracted_files:
-                    files[file] = os.path.join(r, file)
-
-        result = dict()
-        for key, value in files.items():
-            if key.endswith('.fits') and os.path.getsize(value) > 0:
-
-                # if memmap = True, another handle to the FITS file is opened by mmap.
-                # See https://docs.astropy.org/en/latest/io/fits/index.html
-                with fits.open(value, memmap=False) as hduList:
-                    for hdu in hduList:
-                        if hdu.header['NAXIS'] == 0:
-                            continue
-                        table = Table.read(hdu, format='fits')
-                        EuclidClass.correct_table_units(table)
-                        result[str(hdu.header['SOURC_ID']) + '_' + key] = table
-
-        return result
-
-    @staticmethod
-    def correct_table_units(table):
-        """Correct format in the units of the columns
-        TAP & TAP+
-
-        Parameters
-        ----------
-        table : `~astropy.table.Table`, mandatory
-            change the format of the units in the columns of the input table: '.' by ' ' and "'" by ""
-        """
-
-        for cn in table.colnames:
-            col = table[cn]
-            if isinstance(col.unit, u.UnrecognizedUnit):
-                try:
-                    col.unit = u.Unit(col.unit.name.replace(".", " ").replace("'", ""))
-                except Exception:
-                    pass
-            elif isinstance(col.unit, str):
-                col.unit = col.unit.replace(".", " ").replace("'", "")
 
     def get_datalinks(self, ids, *, linking_parameter='SOURCE_ID', extra_options=None, verbose=False):
         """
