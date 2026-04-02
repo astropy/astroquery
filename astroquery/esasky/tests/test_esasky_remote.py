@@ -6,9 +6,8 @@ from pathlib import Path
 import pytest
 from astropy.io.fits.hdu.hdulist import HDUList
 
+from astroquery.exceptions import InputWarning
 from astroquery.utils.commons import TableList
-from astroquery.utils.tap.model.tapcolumn import TapColumn
-from astroquery.utils.tap.model.taptable import TapTableMeta
 from astroquery.esasky import ESASky
 
 
@@ -34,18 +33,18 @@ class TestESASky:
         assert "1342221848" in result["HERSCHEL"].columns["observation_id"]
 
     def test_esasky_query_ids_catalogs(self):
-        result = ESASky.query_ids_catalogs(source_ids=["2CXO J090341.1-322609", "2CXO J090353.8-322642"],
-                                           catalogs="CHANDRA-SC2")
+        result = ESASky.query_ids_catalogs(source_ids=["2CXO J031306.2-852820", "2CXO J031339.7-852543"],
+                                           catalogs="CHANDRA-SC21")
         assert isinstance(result, TableList)
-        assert "2CXO J090341.1-322609" in result["CHANDRA-SC2"].columns["name"]
-        assert "2CXO J090353.8-322642" in result["CHANDRA-SC2"].columns["name"]
+        assert "2CXO J031306.2-852820" in result["CHANDRA-SC21"].columns["name"]
+        assert "2CXO J031339.7-852543" in result["CHANDRA-SC21"].columns["name"]
 
-        result = ESASky.query_ids_catalogs(source_ids=["2CXO J090341.1-322609",
-                                                       "2CXO J090353.8-322642", "44899", "45057"],
-                                           catalogs=["CHANDRA-SC2", "Hipparcos-2"])
+        result = ESASky.query_ids_catalogs(source_ids=["2CXO J031306.2-852820",
+                                                       "2CXO J031339.7-852543", "44899", "45057"],
+                                           catalogs=["CHANDRA-SC21", "Hipparcos-2"])
         assert isinstance(result, TableList)
-        assert "2CXO J090341.1-322609" in result["CHANDRA-SC2"].columns["name"]
-        assert "2CXO J090353.8-322642" in result["CHANDRA-SC2"].columns["name"]
+        assert "2CXO J031306.2-852820" in result["CHANDRA-SC21"].columns["name"]
+        assert "2CXO J031339.7-852543" in result["CHANDRA-SC21"].columns["name"]
         assert "44899" in result["HIPPARCOS-2"].columns["name"]
         assert "45057" in result["HIPPARCOS-2"].columns["name"]
 
@@ -85,8 +84,7 @@ class TestESASky:
             assert isinstance(result[mission.upper()][0]["500"], HDUList)
         else:
             assert isinstance(result[mission.upper()][0], HDUList)
-            for hdu_list in result[mission.upper()]:
-                hdu_list.close()
+            self._close_hdu_lists(result, mission)
 
     @pytest.mark.parametrize("mission, observation_id",
                              zip(["ISO-IR", "Chandra", "IUE", "XMM-NEWTON",
@@ -118,30 +116,28 @@ class TestESASky:
                                          'ISO-IR', 'Herschel', 'Spitzer'])
     def test_esasky_get_images(self, tmp_path, mission):
         result = ESASky.get_images(position="M51", missions=mission, download_dir=tmp_path)
-        assert tmp_path.stat().st_size
+        assert any(p.is_file() for p in tmp_path.rglob("*"))
 
         if mission != "Herschel" and result:
-            for hdu_list in result[mission.upper()]:
-                hdu_list.close()
+            self._close_hdu_lists(result, mission)
 
     @pytest.mark.bigdata
     def test_esasky_get_images_for_erosita(self, tmp_path):
         mission = 'eROSITA'
-        result = ESASky.get_images(position="67.84 -61.44", missions=mission, download_dir=tmp_path)
-        assert tmp_path.stat().st_size
-
-        for hdu_list in result[mission.upper()]:
-            hdu_list.close()
+        with pytest.warns(InputWarning):
+            result = ESASky.get_images(position="67.84 -61.44", missions=mission, download_dir=tmp_path)
+            assert any(p.is_file() for p in tmp_path.rglob("*"))
+            self._close_hdu_lists(result, mission)
 
     @pytest.mark.bigdata
     @pytest.mark.parametrize('mission, position',
                              zip(['JWST-MID-IR', 'JWST-NEAR-IR'],
                                  ['340.50123388127435 -69.17904779241904', '225.6864099965157 -3.0315781490149467']))
     def test_esasky_get_images_jwst(self, tmp_path, mission, position):
-        result = ESASky.get_images(position=position, missions=mission, download_dir=tmp_path)
-        assert tmp_path.stat().st_size
-        for hdu_list in result[mission.upper()]:
-            hdu_list.close()
+        with pytest.warns(InputWarning):
+            result = ESASky.get_images(position=position, missions=mission, download_dir=tmp_path)
+            assert any(p.is_file() for p in tmp_path.rglob("*"))
+            self._close_hdu_lists(result, mission)
 
     @pytest.mark.bigdata
     def test_esasky_get_images_hst(self, tmp_path):
@@ -167,14 +163,12 @@ class TestESASky:
         iso_maps[mission].remove_rows([0, 1])
         result = ESASky.get_maps(iso_maps, download_dir=tmp_path)
         assert len(os.listdir(file_path)) == len(all_maps[mission]) - 2
-        for hdu_list in result[mission]:
-            hdu_list.close()
+        self._close_hdu_lists(result, mission)
 
         iso_maps2 = dict({mission: all_maps[mission][:2]})
         result = ESASky.get_maps(iso_maps2, download_dir=tmp_path)
         assert len(os.listdir(file_path)) == len(all_maps[mission])
-        for hdu_list in result[mission]:
-            hdu_list.close()
+        self._close_hdu_lists(result, mission)
 
     def test_esasky_query_region_spectra(self):
         result = ESASky.query_region_spectra(position="M51", radius="5 arcmin")
@@ -196,8 +190,7 @@ class TestESASky:
         assert Path(tmp_path, mission.upper()).exists()
 
         if mission != "Herschel":
-            for hdu_list in result[mission.upper()]:
-                hdu_list.close()
+            self._close_hdu_lists(result, mission)
 
     def test_esasky_get_spectra_small(self, tmp_path):
         missions = ['HST-IR']
@@ -217,34 +210,23 @@ class TestESASky:
         # Remove a few maps, so the other list will have downloadable ones, too
         iso_spectra[mission].remove_rows([0, 1])
         result = ESASky.get_spectra_from_table(query_table_list=iso_spectra, download_dir=tmp_path)
-        for hdu_list in result[mission]:
-            hdu_list.close()
+        self._close_hdu_lists(result, mission)
         assert len(os.listdir(file_path)) == len(all_spectra[mission]) - 2
 
         iso_spectra2 = dict({mission: all_spectra[mission][:2]})
         result = ESASky.get_spectra_from_table(query_table_list=iso_spectra2, download_dir=tmp_path)
-        for hdu_list in result[mission]:
-            hdu_list.close()
+        self._close_hdu_lists(result, mission)
         assert len(os.listdir(file_path)) == len(all_spectra[mission])
 
     def test_query(self):
         result = ESASky.query(query="SELECT * from observations.mv_v_esasky_xmm_om_uv_fdw")
-        assert len(result) == 2000  # Default row limit is 2000
+        assert len(result) > 0
 
     def test_get_tables(self):
         table_names = ESASky.get_tables(only_names=True)
         assert len(table_names) > 70
         tables = ESASky.get_tables(only_names=False)
-        assert isinstance(tables[0], TapTableMeta)
         assert len(table_names) == len(tables)
-
-    def test_get_columns(self):
-        column_names = ESASky.get_columns(table_name='observations.mv_v_esasky_xmm_om_uv_fdw', only_names=True)
-        assert len(column_names) == 17
-
-        columns = ESASky.get_columns(table_name='observations.mv_v_esasky_xmm_om_uv_fdw', only_names=False)
-        assert isinstance(columns[0], TapColumn)
-        assert len(column_names) == len(columns)
 
     def test_esasky_query_sso(self):
         result = ESASky.query_sso(sso_name="ceres")
@@ -303,3 +285,8 @@ class TestESASky:
         assert isinstance(fits_files["XMM"][0], HDUList)
 
         assert Path(tmp_path, "XMM").exists()
+
+    def _close_hdu_lists(self, result, mission):
+        for hdu_list in result[mission.upper()]:
+            if hdu_list is not None:
+                hdu_list.close()

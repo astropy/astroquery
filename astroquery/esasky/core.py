@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+import astroquery.esa.utils.utils as esautils
 import json
 import os
 import tarfile as esatar
@@ -18,10 +19,8 @@ from astroquery import log
 from requests import HTTPError
 from requests import ConnectionError
 
-from ..query import BaseQuery
-from ..utils.tap.core import TapPlus
+from astroquery.esa.utils import EsaTap
 from ..utils import commons
-from ..utils import async_to_sync
 from . import conf
 from .. import version
 from astropy.coordinates.name_resolve import sesame_database
@@ -33,12 +32,15 @@ if hasattr(esatar, "fully_trusted_filter"):
     esatar.TarFile.extraction_filter = staticmethod(esatar.fully_trusted_filter)
 
 
-@async_to_sync
-class ESASkyClass(BaseQuery):
+class ESASkyClass(EsaTap):
 
-    URLbase = conf.urlBase
-    TIMEOUT = conf.timeout
-    DEFAULT_ROW_LIMIT = conf.row_limit
+    URLbase = conf.ESASKY_DOMAIN_SERVER
+    ESA_ARCHIVE_NAME = "ESASky"
+    TAP_URL = conf.ESASKY_TAP_SERVER
+    LOGIN_URL = conf.ESASKY_LOGIN_SERVER
+    LOGOUT_URL = conf.ESASKY_LOGOUT_SERVER
+    CONNECTION_TIMEOUT = conf.ESASKY_CONNECTION_TIMEOUT
+    DEFAULT_ROW_LIMIT = conf.ESASKY_ROW_LIMIT
 
     __FITS_STRING = ".fits"
     __FTZ_STRING = ".FTZ"
@@ -79,21 +81,22 @@ class ESASkyClass(BaseQuery):
     SSO_TYPES = ['ALL', 'ASTEROID', 'COMET', 'SATELLITE', 'PLANET',
                  'DWARF_PLANET', 'SPACECRAFT', 'SPACEJUNK', 'EXOPLANET', 'STAR']
 
-    def __init__(self, tap_handler=None):
-        super().__init__()
+    def __init__(self, *, show_messages=False, auth_session=None, tap_url=None):
+        super().__init__(auth_session=auth_session, tap_url=tap_url)
 
-        if tap_handler is None:
-            self._tap = TapPlus(url=self.URLbase + "/tap")
-        else:
-            self._tap = tap_handler
+        if show_messages:
+            self.get_status_messages()
 
-    def query(self, query, *, output_file=None, output_format="votable", verbose=False):
-        """Launches a synchronous job to query the ESASky TAP
+    def query(self, query, *, async_job=False, output_file=None, output_format="votable", verbose=False):
+        """Launches a synchronous or asynchronous job to query the ESASky TAP
 
         Parameters
         ----------
         query : str, mandatory
             query (adql) to be executed
+        async_job : bool, optional, default 'False'
+                executes the query (job) in asynchronous/synchronous mode (default
+                synchronous)
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
@@ -107,91 +110,8 @@ class ESASkyClass(BaseQuery):
         -------
         A table object
         """
-        if not verbose:
-            with warnings.catch_warnings():
-                commons.suppress_vo_warnings()
-                warnings.filterwarnings("ignore", category=u.UnitsWarning)
-                job = self._tap.launch_job(query=query, output_file=output_file, output_format=output_format,
-                                           verbose=False, dump_to_file=output_file is not None)
-        else:
-            job = self._tap.launch_job(query=query, output_file=output_file, output_format=output_format,
-                                       verbose=True, dump_to_file=output_file is not None)
-        return job.get_results()
-
-    def get_tables(self, *, only_names=True, verbose=False, cache=True):
-        """
-        Get the available table in ESASky TAP service
-
-        Parameters
-        ----------
-        only_names : bool, optional, default 'True'
-            True to load table names only
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A list of tables
-        """
-
-        if cache and self._cached_tables is not None:
-            tables = self._cached_tables
-        else:
-            tables = self._tap.load_tables(only_names=only_names, include_shared_tables=False, verbose=verbose)
-            self._cached_tables = tables
-        if only_names:
-            return [t.name for t in tables]
-        else:
-            return tables
-
-    def get_columns(self, table_name, *, only_names=True, verbose=False):
-        """
-        Get the available columns for a table in ESASky TAP service
-
-        Parameters
-        ----------
-        table_name : str, mandatory, default None
-            table name of which, columns will be returned
-        only_names : bool, optional, default 'True'
-            True to load table names only
-        verbose : bool, optional, default 'False'
-            flag to display information about the process
-
-        Returns
-        -------
-        A list of columns
-        """
-
-        tables = self.get_tables(only_names=False, verbose=verbose)
-        columns = None
-        for table in tables:
-            if str(table.name) == str(table_name):
-                columns = table.columns
-                break
-
-        if columns is None:
-            raise ValueError("table name specified is not found in "
-                             "ESASky TAP service")
-
-        if only_names:
-            return [c.name for c in columns]
-        else:
-            return columns
-
-    def get_tap(self):
-        """
-        Get a TAP+ instance for the ESASky servers, which supports
-        all common TAP+ operations (synchronous & asynchronous queries,
-        uploading of tables, table sharing and more)
-        Full documentation and examples available here:
-        https://astroquery.readthedocs.io/en/latest/utils/tap.html
-
-        Returns
-        -------
-        tap : `~astroquery.utils.tap.core.TapPlus`
-        """
-
-        return self._tap
+        return self.query_tap(query=query, async_job=async_job, output_file=output_file, output_format=output_format,
+                              verbose=verbose)
 
     def list_maps(self):
         """
@@ -944,9 +864,9 @@ class ESASkyClass(BaseQuery):
 
         Examples
         --------
-        query_ids_catalogs(source_ids=['2CXO J090341.1-322609', '2CXO J090353.8-322642'], catalogs="CHANDRA-SC2")
-        query_ids_catalogs(source_ids='2CXO J090341.1-322609')
-        query_ids_catalogs(source_ids=['2CXO J090341.1-322609', '45057'], catalogs=["CHANDRA-SC2", "Hipparcos-2"])
+        query_ids_catalogs(source_ids=['2CXO J031306.2-852820', '2CXO J031339.7-852543'], catalogs="CHANDRA-SC21")
+        query_ids_catalogs(source_ids='2CXO J031306.2-852820')
+        query_ids_catalogs(source_ids=['2CXO J031306.2-852820', '45057'], catalogs=["CHANDRA-SC21", "Hipparcos-2"])
         """
         sanitized_catalogs = self._sanitize_input_catalogs(catalogs)
         sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
@@ -1349,6 +1269,27 @@ class ESASkyClass(BaseQuery):
             log.info("No spectra found.")
         return spectra
 
+    def get_status_messages(self):
+        """Retrieve the messages to inform users about the status of the ESASky TAP"""
+
+        try:
+            esautils.execute_servlet_request(
+                url=conf.ESASKY_TAP_SERVER + "/" + conf.ESASKY_MESSAGES,
+                tap=self.tap,
+                query_params={},
+                parser_method=self.parse_messages_response
+            )
+        except OSError:
+            print("Status messages could not be retrieved")
+
+    def parse_messages_response(self, response):
+        string_messages = []
+        for line in response.iter_lines():
+            string_message = line.decode("utf-8")
+            string_messages.append(string_message[string_message.index('=') + 1:])
+            print(string_messages[len(string_messages)-1])
+        return string_messages
+
     def _sanitize_input_radius(self, radius):
         if isinstance(radius, (str, u.Quantity)):
             return radius
@@ -1709,9 +1650,9 @@ class ESASkyClass(BaseQuery):
         if not query:
             # Could not create query. The most common reason for this is a type mismatch between user specified ID and
             # data type of database column.
-            # For example query_ids_catalogs(source_ids=["2CXO J090341.1-322609"], mission=["CHANDRA", "HSC"])
+            # For example query_ids_catalogs(source_ids=["2CXO J031306.2-852820"], mission=["CHANDRA", "HSC"])
             # would be able to create a query for Chandra, but not for Hubble because the hubble source id column type
-            # is a number and "2CXO J090341.1-322609" cannot be converted to a number.
+            # is a number and "2CXO J031306.2-852820" cannot be converted to a number.
             return query
 
         return self.query(query, output_format="votable", verbose=verbose)
@@ -1773,13 +1714,13 @@ class ESASkyClass(BaseQuery):
             if id_column == "designation":
                 id_column = "obsid"
 
-        data_type = None
-        for column in self.get_columns(table_name=descriptor['table_name'], only_names=False):
+        datatype = None
+        for column in self.get_table(table=descriptor['table_name']).columns:
             if column.name == id_column:
-                data_type = column.data_type
+                datatype = column.datatype
 
         valid_ids = ids
-        if data_type in self._NUMBER_DATA_TYPES:
+        if datatype in self._NUMBER_DATA_TYPES:
             valid_ids = [int(obs_id) for obs_id in ids if obs_id.isdigit()]
             if not valid_ids:
                 raise ValueError(f"Could not construct query for mission {descriptor['mission']}. Database column "
@@ -1850,7 +1791,7 @@ class ESASkyClass(BaseQuery):
         return self._request('GET',
                              url,
                              params=request_payload,
-                             timeout=self.TIMEOUT,
+                             timeout=self.CONNECTION_TIMEOUT,
                              cache=cache,
                              headers=self._get_header())
 
@@ -1861,4 +1802,4 @@ class ESASkyClass(BaseQuery):
         return {'User-Agent': user_agent}
 
 
-ESASky = ESASkyClass()
+ESASky = ESASkyClass(show_messages=False)
