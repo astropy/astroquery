@@ -1148,9 +1148,14 @@ class ObservationsClass(MastQueryWithLogin):
         if len(unique_products) < len(products):
             log.info("To return all products, use `Observations.get_product_list`")
         return unique_products
-    
-def read_product(s3_uri: str, read_as="auto"):
 
+# Function requires following packages
+# [Required] gwcs (which would also instasdf-astropy) - To obtain the general asdf schemas to correctly parse the asdf metadata. Should handle most non-roman schemas
+# [Required] s3fs - for actually connecting to s3 and retreiving the files
+# [Required] lz4 - to handle the asdf file compression
+# [Optional] roman-datamodels: Required for specific roman asdf schemas (i.e. Roman SOC and PIT)
+# [Optional Future]: Most likely some HLSP schema package 
+def read_product(s3_uri: str, read_as="auto"):
     """
     Read a product from Open S3 bucket to memory.
 
@@ -1168,7 +1173,7 @@ def read_product(s3_uri: str, read_as="auto"):
         FITS or ASDF object.
 
     """
-
+    
     if read_as == "auto":
         # Read logic for FITS
         if s3_uri.endswith(".fits"):
@@ -1178,7 +1183,6 @@ def read_product(s3_uri: str, read_as="auto"):
                 log.exception(f"Failed to open FITS File: {s3_uri} {e}")
         
         # Read logic for ASDF
-        # NOTE: Since asdf files are changing so rapidly this may need addition packages to run (e.x. roman-datamodels)
         elif s3_uri.endswith(".asdf"):
             try:
                 fs = s3fs.S3FileSystem(anon=True)
@@ -1187,10 +1191,9 @@ def read_product(s3_uri: str, read_as="auto"):
                     return af
             except Exception as e:
                 log.exception(f"Failed to open ASD File: {s3_uri} {e}")
-
     else:
         log.info(f"Unsupported extension type")
-
+        
 @async_to_sync
 class MastClass(MastQueryWithLogin):
     """
