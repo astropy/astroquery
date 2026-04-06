@@ -1158,7 +1158,7 @@ class ObservationsClass(MastQueryWithLogin):
 # [Optional Future]: Most likely some HLSP schema package 
 def read_product(s3_uri: str, read_as="auto"):
     """
-    Read a product from Open S3 bucket to memory.
+    Read a product from Open S3 bucket to memory. Currently can handle FITS and ASDF product types with appropriate package installation.
 
     Parameters
     ----------
