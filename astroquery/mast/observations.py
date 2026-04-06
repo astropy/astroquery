@@ -13,8 +13,9 @@ import os
 from urllib.parse import quote
 
 import numpy as np
+import gwcs
 import s3fs
-import asdf
+import lz4
 
 from requests import HTTPError
 
@@ -1193,7 +1194,7 @@ def read_product(s3_uri: str, read_as="auto"):
                 log.exception(f"Failed to open ASD File: {s3_uri} {e}")
     else:
         log.info(f"Unsupported extension type")
-        
+
 @async_to_sync
 class MastClass(MastQueryWithLogin):
     """
