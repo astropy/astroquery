@@ -31,7 +31,7 @@ class PlatoClass(esautils.EsaTap):
     def search_catalogue(self, table_name, *, target_name=None, coordinates=None, radius=1*u.arcmin, columns=None,
                          get_metadata=False, output_file=None, **filters):
         """
-        Execute a search in one of the catalogues and associated tbles available in PLATO TAP.
+        Execute a search in one of the catalogues and associated tables available in PLATO TAP.
 
         Parameters
         ----------
@@ -73,8 +73,8 @@ class PlatoClass(esautils.EsaTap):
             radius = esautils.get_degree_radius(radius)
 
         if target_name and coordinates:
-            raise TypeError("Please use only target or coordinates as "
-                            "parameter.")
+            raise TypeError("Please use only target_name or coordinates as "
+                            "parameter, not both.")
         elif target_name:
             coordinates = esautils.resolve_target(conf.PLATO_TARGET_RESOLVER,
                                                   self.tap._session, target_name,
@@ -94,7 +94,7 @@ class PlatoClass(esautils.EsaTap):
     def search_pic_target_go(self, *, target_name=None, coordinates=None, radius=1*u.arcmin, columns=None,
                              get_metadata=False, output_file=None, **filters):
         """
-        Execute a search in PIC Target Catalogue.
+        Execute a search for sources in the PLATO Input Catalogue (PIC).
 
         Parameters
         ----------
@@ -137,7 +137,7 @@ class PlatoClass(esautils.EsaTap):
     def search_pic_contaminant_go(self, *, target_name=None, coordinates=None, radius=1*u.arcmin, columns=None,
                                   get_metadata=False, output_file=None, **filters):
         """
-        Execute a search in PIC Contaminant Catalogue.
+        Execute a search for contaminant sources in the PLATO Input Catalogue (PIC).
 
         Parameters
         ----------
