@@ -39,8 +39,7 @@ Examples
 ---------------
 1. Login/Logout
 ---------------
-Authentication is mandatory and is managed through the ``login()`` and ``logout()`` methods provided by the
-PLATO Astroquery module.
+Authentication is managed through the ``login()`` and ``logout()`` methods provided by the PLATO Astroquery module.
 
 
 .. doctest-remote-data::
@@ -70,7 +69,7 @@ tables and their columns. This is useful for understanding what data is accessib
 ----------------------------
 
 The Query TAP functionality facilitates the execution of custom Table Access Protocol (TAP)
-queries within the PLATO Science Legacy Archive. Results can be exported to a specified
+queries within the PLATO ArXiv. Results can be exported to a specified
 file in the chosen format, and queries may be executed asynchronously.
 
 .. doctest-remote-data::
@@ -98,10 +97,6 @@ file in the chosen format, and queries may be executed asynchronously.
 -------------------------------------
 4. Filtering the PIC Target Catalogue
 -------------------------------------
-
-Because the PLATO field is extremely large it is not feasible to download raw data directly. Instead, the spacecraft
-generates light curves onboard for all targets. Only a small subset have their imagettes downloaded, which includes
-all P1 targets and requires that the full target list be selected in advance.
 
 The minimal content of the PLATO Input Catalog (PIC) includes the positions and basic parameters of the selected
 dwarf and sub-giant stars with spectral types later than F5, around which planet transits will be searched for and
