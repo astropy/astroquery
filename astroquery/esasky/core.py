@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
-from astropy_helpers.astropy_helpers.utils import AstropyDeprecationWarning
+from astropy.utils.exceptions import AstropyDeprecationWarning
 import astroquery.esa.utils.utils as esautils
 import json
 import os

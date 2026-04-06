@@ -26,9 +26,9 @@ class Conf(_config.ConfigNamespace):
     ESASKY_MESSAGES = _config.ConfigItem("notification?action=GetNotifications", "ESASky Messages")
     ESASKY_LOGIN_SERVER = _config.ConfigItem(ESASKY_COMMON_SERVER + 'login', "ESASky Login Server")
     ESASKY_LOGOUT_SERVER = _config.ConfigItem(ESASKY_COMMON_SERVER + 'logout', "ESASky Logout Server")
-    ESASKY_CONNECTION_TIMEOUT = _config.ConfigItem(1000, 'Time limit for connecting to a data product server.', 
+    ESASKY_CONNECTION_TIMEOUT = _config.ConfigItem(1000, 'Time limit for connecting to a data product server.',
                                                    aliases='timeout')
-    ESASKY_ROW_LIMIT = _config.ConfigItem(10000, 'Maximum number of rows returned (set to -1 for unlimited).', 
+    ESASKY_ROW_LIMIT = _config.ConfigItem(10000, 'Maximum number of rows returned (set to -1 for unlimited).',
                                           aliases='row_limit')
 
     @property
