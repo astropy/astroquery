@@ -329,7 +329,8 @@ class TestPlatoTap:
 
         with pytest.raises(TypeError) as err:
             plato.search_pic_target_go(target_name="m31", coordinates="12 13")
-        assert 'Please use only target or coordinates as parameter.' in err.value.args[0]
+        assert ('Please use only target_name or coordinates as parameter, '
+                'not both.') in err.value.args[0]
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.utils.utils.EsaTap.get_metadata')
