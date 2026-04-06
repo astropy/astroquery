@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+from astropy_helpers.astropy_helpers.utils import AstropyDeprecationWarning
 import astroquery.esa.utils.utils as esautils
 import json
 import os
@@ -15,6 +16,7 @@ from astropy import units as u
 from astropy.coordinates import Angle
 from astropy.io import fits
 from astropy.utils.console import ProgressBar
+from astropy.utils import deprecated
 from astroquery import log
 from requests import HTTPError
 from requests import ConnectionError
@@ -81,8 +83,15 @@ class ESASkyClass(EsaTap):
     SSO_TYPES = ['ALL', 'ASTEROID', 'COMET', 'SATELLITE', 'PLANET',
                  'DWARF_PLANET', 'SPACECRAFT', 'SPACEJUNK', 'EXOPLANET', 'STAR']
 
-    def __init__(self, *, show_messages=False, auth_session=None, tap_url=None):
+    def __init__(self, *, tap_handler=None, show_messages=False, auth_session=None, tap_url=None):
         super().__init__(auth_session=auth_session, tap_url=tap_url)
+        if tap_handler is not None:
+            warnings.warn(
+                "The 'tap_handler' parameter is deprecated and will be removed in a future version. "
+                "Use the ESASky instance directly for TAP queries (Using esa.utils.EsaTap and PyVO).",
+                AstropyDeprecationWarning,
+                stacklevel=2,
+            )
 
         if show_messages:
             self.get_status_messages()
@@ -112,6 +121,45 @@ class ESASkyClass(EsaTap):
         """
         return self.query_tap(query=query, async_job=async_job, output_file=output_file, output_format=output_format,
                               verbose=verbose)
+
+    def get_columns(self, table_name, *, only_names=True):
+        """
+        Get the available columns for a table in ESASky TAP service
+
+        Parameters
+        ----------
+        table_name : str, mandatory, default None
+            table name of which, columns will be returned
+        only_names : bool, optional, default 'True'
+            True to load table names only
+
+        Returns
+        -------
+        A list of columns
+        """
+        columns = self.get_table(table=table_name).columns
+
+        if only_names:
+            return [c.name for c in columns]
+        else:
+            return columns
+
+    @deprecated(since="0.4.12", message="The ESASky module no longer uses the TapPlus module. Equivalent functionality"
+                "is available directly on the ESASky module (Using esa.utils.EsaTap and PyVO).")
+    def get_tap(self):
+        """
+        Get a TAP+ instance for the ESASky servers, which supports
+        all common TAP+ operations (synchronous & asynchronous queries,
+        uploading of tables, table sharing and more)
+        Full documentation and examples available here:
+        https://astroquery.readthedocs.io/en/latest/utils/tap.html
+
+        Returns
+        -------
+        tap : `~astroquery.utils.tap.core.TapPlus`
+        """
+
+        return self
 
     def list_maps(self):
         """
