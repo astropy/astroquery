@@ -11,7 +11,6 @@ European Space Agency (ESA)
 import os
 import tempfile
 
-from astropy.coordinates import SkyCoord
 from astroquery.esa.plato import PlatoClass
 import pytest
 from pyvo import DALQueryError
