@@ -236,6 +236,8 @@ results for the contaminants using  ``pic_target_contaminants[PIC_Name]``.
 ------------------
 Once the required data has been extracted, it is possible to generate a chart to plot the required data:
 
+.. doctest-remote-data::
+
   >>> from astroquery.esa.plato import PlatoClass
   >>> plato = PlatoClass()
   >>> results = plato.search_pic_target_go(target_name='Gaia DR3 5262913119040164480', radius=5) # doctest: +IGNORE_OUTPUT
@@ -250,6 +252,8 @@ Once the required data has been extracted, it is possible to generate a chart to
 A third dimension can be drawn in the previous plot, assigning a value for the Z axis. This will generate the series with
 a colormap showing this third list of values. Please bear in mind that the colormap shall be available within Matplotlib
 collection.
+
+.. doctest-remote-data::
 
   >>> from astroquery.esa.plato import PlatoClass
   >>> plato = PlatoClass()
