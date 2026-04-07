@@ -33,7 +33,7 @@ extension of Table Access Protocol (TAP: http://www.ivoa.net/documents/TAP/)
 specified by the International Virtual Observatory Alliance (IVOA: http://www.ivoa.net).
 
 The TAP query language is Astronomical Data Query Language
-(ADQL: http://www.ivoa.net/documents/ADQL/2.0), which is similar
+(ADQL: http://www.ivoa.net/documents/ADQL), which is similar
 to Structured Query Language (SQL), widely used to query databases.
 
 TAP provides two operation modes: Synchronous and Asynchronous:

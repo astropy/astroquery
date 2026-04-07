@@ -19,8 +19,9 @@ There are two other packages with complimentary functionality as Astroquery:
 `Simple-Cone-Search-Creator <https://github.com/tboch/Simple-Cone-Search-Creator/>`_ to
 generate a cone search service complying with the
 `IVOA standard <http://www.ivoa.net/documents/latest/ConeSearch.html>`_.
-They are more oriented to general `virtual observatory <http://www.virtualobservatory.org>`_
-discovery and queries, whereas Astroquery has web service specific interfaces.
+They are more oriented to general Virtual Observatory (VO)
+discovery and queries, whereas Astroquery has a more user friendly API as well web service specific
+interfaces for serviced not providing VO access.
 
 
 Installation
