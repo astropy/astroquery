@@ -77,20 +77,29 @@ You can also use the ``filter`` argument within the
 to return only the catalogs with their
 name or short description matching to the specified string (case-insensitive matching).
 
+.. note::
+
+   By default `~.astroquery.ipac.irsa.IrsaClass.list_catalogs` will only return catalogs. To list
+   all TAP supported tables, including metadata tables, use the ``include_metadata_tables=True`` parameter.
+
 
 .. doctest-remote-data::
 
     >>> from astroquery.ipac.irsa import Irsa
     >>> Irsa.list_catalogs(filter='spitzer')   # doctest: +IGNORE_OUTPUT
-    {'spitzer.safires_images': 'Spitzer Archival FIR Extragalactic Survey (SAFIRES) Images',
-     'spitzer.safires_science': 'Spitzer SAFIRES Science Image Metadata',
-     'spitzer.safires_ancillary': 'Spitzer SAFIRES Ancillary Image Metadata',
-     'spitzer.sage_images': 'SAGE Images',
-     'spitzer.sage_mips_mos': 'Spitzer SAGE MIPS Mosaic Image Metadata',
-     ...
-     'spitzer.ssgss_irs_sl_ll': 'SSGSS IRS SL LL Spectra',
-     'spitzer.swire_images': 'Spitzer Wide-area InfraRed Extragalactic Survey (SWIRE) Images',
-     'herschel.hops_spitzer': 'HOPS Spitzer Metadata'}
+    {'xmm_160_cat_s05': "SWIRE XMM_LSS Region 160um Spring '05 Spitzer Catalog",
+    ...
+    'elaiss1_cat_f05': "SWIRE ELAIS S1 Region Fall '05 SWIRE Spitzer Catalog",
+    'elaiss1_24_cat_f05': "SWIRE ELAIS S1 Region 24um Fall '05 Spitzer Catalog",
+    'elaiss1_70_cat_f05': "SWIRE ELAIS S1 Region 70um Fall '05 Spitzer Catalog",
+    'elaiss1_160_cat_f05': "SWIRE ELAIS S1 Region 160um Fall '05 Spitzer Catalog",
+    'lockman_cat_s05': "SWIRE Lockman Region Spring '05 SWIRE Spitzer Catalog",
+    'lockman_24_cat_s05': "SWIRE Lockman Region 24um Spring '05 Spitzer Catalog",
+    'lockman_70_cat_s05': "SWIRE Lockman Region 70um Spring '05 Spitzer Catalog",
+    'lockman_160_cat_s05': "SWIRE Lockman Region 160um Spring '05 Spitzer Catalog",
+    'xmm_cat_s05': "SWIRE XMM_LSS Region Spring '05 Spitzer Catalog",
+    'xmm_24_cat_s05': "SWIRE XMM_LSS Region 24um Spring '05 Spitzer Catalog",
+    'xmm_70_cat_s05': "SWIRE XMM_LSS Region 70um Spring '05 Spitzer Catalog"}
 
 To get a full list of information available for each available
 catalog, use the ``full`` keyword argument. The output consists of many columns for each catalog.
@@ -101,16 +110,20 @@ the `~astroquery.ipac.irsa.IrsaClass.query_region` method.
 
     >>> from astroquery.ipac.irsa import Irsa
     >>> Irsa.list_catalogs(full=True)  # doctest: +IGNORE_OUTPUT
-    <Table length=951>
-    table_index schema_name          table_name          ... irsa_nrows irsa_odbc_datasource irsa_spatial_idx_name
-       int32       object              object            ...   int64           object                object
-    ----------- ----------- ---------------------------- ... ---------- -------------------- ---------------------
-            101         wax                      cf_info ...     456480                  wax                SPTC01
-            102         wax                      cf_link ...  204143440                  wax
-            103     twomass                    ext_src_c ...     403811              twomass        EXT_SRC_CIX413
-            104         wax                     ecf_info ...       2146                  wax              SPTETC01
-            105         wax                     ecf_link ...     473971                  wax
-            ...
+    <Table length=527>
+    table_index schema_name irsa_schema_name ... irsa_nrows irsa_odbc_datasource       irsa_spatial_idx_name
+       int32       object        object      ...   int64           object                      object
+    ----------- ----------- ---------------- ... ---------- -------------------- ---------------------------------
+            348     spitzer            swire ...        286                swire             XMM_160_CAT_S05IDX118
+            349     spitzer       astrometry ...     269358           astrometry                TAURUS_2_1_SPT_IND
+            350     spitzer          spitzer ...       1021              spitzer               YSOGGD1215OBJ_HTM20
+            351     spitzer          spitzer ...      83332              spitzer                YSOGGD1215LC_HTM20
+            352     spitzer          spitzer ...        156              spitzer
+            353     spitzer          spitzer ...      23105              spitzer                 YSOI20050LC_HTM20
+            354     spitzer          spitzer ...        884              spitzer
+            355     spitzer          spitzer ...      87077              spitzer                  YSOL1688LC_HTM20
+            356     spitzer          spitzer ...       6881              spitzer                 YSON1333OBJ_HTM20
+    ...
 
 
 Spatial search types
