@@ -5,8 +5,9 @@ from typing import Dict, Optional
 from pyvo.dal import TAPService, DALQueryError
 from astropy.table import Table
 
-from astroquery import log
-from astroquery.exceptions import InvalidQueryError
+from . import conf, utils
+from .. import log
+from ..exceptions import InvalidQueryError
 
 __all__ = ['CatalogCollection']
 
@@ -26,8 +27,11 @@ DEFAULT_CATALOGS = {
     'goods': 'dbo.goods_master_view',
     '3dhst': 'dbo.HLSP_3DHST_summary',
     'candels': 'dbo.candels_master_view',
-    'deepspace': 'dbo.DeepSpace_Summary'
+    'deepspace': 'dbo.DeepSpace_Summary',
+    'tic_v82': 'tic_v82.source'
 }
+
+GROUPED_COLLECTION_ENDPOINTS = ['mast_catalogs', 'roman_catalogs']
 
 
 @dataclass
@@ -47,7 +51,86 @@ class CatalogCollection:
     This class provides an interface to interact with MAST catalog collections via TAP service.
     """
 
-    TAP_BASE_URL = 'https://masttest.stsci.edu/vo-tap/api/v0.1/'
+    TAP_BASE_URL = conf.server + '/vo-tap/api/v0.1/'
+    _discovered_collections = None
+    _collection_parent_map = None
+
+    @classmethod
+    def discover_collections(cls):
+        """
+        Discover collection names available through TAP and track parent collections.
+
+        Returns
+        -------
+        `~astropy.table.Table`
+            A table containing collection_name and parent_collection columns.
+        """
+        if cls._discovered_collections is not None:
+            return cls._discovered_collections
+
+        # Query TAP service for collection names
+        url = cls.TAP_BASE_URL + 'openapi.json'
+        response = utils._simple_request(url)
+        response.raise_for_status()
+        data = response.json()
+
+        collection_enum = data['components']['schemas']['CatalogName']['enum']
+        collection_parent_map = {}
+
+        # Discover collections stored under grouped TAP collections
+        for parent_collection in GROUPED_COLLECTION_ENDPOINTS:
+            if parent_collection not in collection_enum:
+                continue
+
+            tap_service = TAPService(cls.TAP_BASE_URL + parent_collection)
+            result = tap_service.run_sync('SELECT table_name FROM tap_schema.tables')
+            tables = result.to_table()
+
+            for table_name in tables['table_name']:
+                table_name = str(table_name)
+                if table_name.lower().startswith('tap_schema.'):
+                    continue
+
+                collection_name = table_name.split('.', 1)[0].lower()
+                collection_parent_map.setdefault(collection_name, parent_collection)
+
+        # Include standalone collections in map
+        for collection_name in collection_enum:
+            normalized_name = collection_name.lower()
+            if normalized_name in GROUPED_COLLECTION_ENDPOINTS:
+                continue
+            collection_parent_map.setdefault(normalized_name, normalized_name)
+
+        collection_names = sorted(collection_parent_map.keys())
+        parent_names = [collection_parent_map[name] for name in collection_names]
+        cls._collection_parent_map = collection_parent_map
+        cls._discovered_collections = Table(
+            [collection_names, parent_names],
+            names=('collection_name', 'parent_collection'),
+        )
+
+        return cls._discovered_collections
+
+    @classmethod
+    def get_parent_collection(cls, collection_name):
+        """
+        Return the parent TAP collection for a user-facing collection name.
+
+        Parameters
+        ----------
+        collection_name : str
+            The user-facing collection name to get the parent collection for.
+        """
+        if cls._collection_parent_map is None:
+            try:
+                cls.discover_collections()
+            except Exception as ex:
+                log.debug(f"Failed to discover TAP collections; falling back to direct endpoint routing: {ex}")
+                cls._collection_parent_map = {}
+
+        normalized_name = collection_name.lower().strip()
+        parent_collection = cls._collection_parent_map.get(normalized_name, normalized_name)
+        return parent_collection
 
     def __init__(self, collection):
         """
@@ -59,8 +142,8 @@ class CatalogCollection:
             The name of the MAST catalog collection to interact with.
         """
         self.name = collection.strip().lower()
-        # Initialize TAP service for the specified collection
-        self.tap_service = TAPService(self.TAP_BASE_URL + self.name)
+        self._parent_collection = None
+        self._tap_service = None
 
         # Get catalogs within this collection
         self._catalogs = None  # Lazy-loaded property
@@ -68,11 +151,29 @@ class CatalogCollection:
         # ADQL functions supported by this collection's TAP service
         self._supported_adql_functions = None  # Lazy-loaded property
 
-        # Determine the default catalog for this collection
-        self.default_catalog = self.get_default_catalog()
+        # Determine the default catalog lazily to avoid requests during initialization
+        self._default_catalog = None
 
         # Cache for catalog metadata to avoid redundant queries
         self._catalog_metadata_cache: Dict[str, CatalogMetadata] = dict()
+
+    @property
+    def parent_collection(self):
+        if self._parent_collection is None:
+            self._parent_collection = self.get_parent_collection(self.name)
+        return self._parent_collection
+
+    @property
+    def tap_service(self):
+        if self._tap_service is None:
+            self._tap_service = TAPService(self.TAP_BASE_URL + self.parent_collection)
+        return self._tap_service
+
+    @property
+    def default_catalog(self):
+        if self._default_catalog is None:
+            self._default_catalog = self.get_default_catalog()
+        return self._default_catalog
 
     @property
     def catalogs(self):
@@ -200,11 +301,17 @@ class CatalogCollection:
         """
         log.debug(f"Fetching available tables for collection '{self.name}' from MAST TAP service.")
         query = 'SELECT table_name, description FROM tap_schema.tables'
+
+        # If this catalog is within a grouped collection, filter to only tables that belong to this collection
+        if self.parent_collection in GROUPED_COLLECTION_ENDPOINTS:
+            query += f" WHERE table_name LIKE '{self.name}.%'"
+
         result = self.tap_service.run_sync(query)
 
         # Rename table_name to catalog_name for clarity
         result_table = result.to_table()
         result_table.rename_column('table_name', 'catalog_name')
+
         return result_table
 
     def _fetch_adql_supported_functions(self):
