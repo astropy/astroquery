@@ -434,7 +434,7 @@ Enhanced Imaging products in the centre of the COSMOS field as a `~astropy.table
    the newer protocol yet. If you want access to these, please use
    `PyVO <https://pyvo.readthedocs.io/en/latest/>`_ directly as showcased in some of the
    `IRSA tutorials
-   <https://caltech-ipac.github.io/irsa-tutorials`__.
+   <https://caltech-ipac.github.io/irsa-tutorials>`__.
 
    For more info, visit the `IRSA documentation <https://irsa.ipac.caltech.edu/ibe/sia_v1.html>`__.
 
