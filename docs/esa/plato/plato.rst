@@ -215,6 +215,8 @@ the table.
 By combining the previous commands, it is possible to identify the PIC contaminants associated to each of the targets
 in the Plato Input Catalogue. As
 
+.. doctest-remote-data::
+
   >>> from astroquery.esa.plato import PlatoClass
   >>> plato = PlatoClass()
   >>> pic_targets = plato.search_pic_target_go(coordinates='95.97064 -48.07963', radius=0.1) # doctest: +IGNORE_OUTPUT
