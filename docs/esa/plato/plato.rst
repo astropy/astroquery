@@ -54,9 +54,13 @@ Authentication is managed through the ``login()`` and ``logout()`` methods provi
 PLATO Astroquery module allows users to explore the data structure of the TAP by listing available
 tables and their columns. This is useful for understanding what data is accessible before running ADQL queries.
 
+.. doctest-remote-data::
+
   >>> from astroquery.esa.plato import PlatoClass
   >>> plato = PlatoClass()
   >>> tables = plato.get_tables() # doctest: +IGNORE_OUTPUT
+
+.. doctest-remote-data::
 
   >>> pic_target_table = plato.get_table(table='pic_go.pic_target_go') # doctest: +IGNORE_OUTPUT
   >>> pic_target_table.columns # doctest: +IGNORE_OUTPUT
