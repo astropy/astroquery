@@ -4,9 +4,6 @@
 ESA PLATO ArXiv (`astroquery.esa.plato`)
 ****************************************
 
-.. note::
-    The ESA PLATO ArXiv Astroquery Module will open on the 7th April for the Guest Observer call for proposals.
-
 The primary goal of PLATO (PLAnetary Transits and Oscillations of stars) is to open a new way in exoplanetary science
 by detecting terrestrial exoplanets and characterising their bulk properties, including planets in the habitable zone
 of Sun-like stars. PLATO will provide the key information (planet radii, mean densities, stellar irradiation,
@@ -57,12 +54,16 @@ Authentication is managed through the ``login()`` and ``logout()`` methods provi
 PLATO Astroquery module allows users to explore the data structure of the TAP by listing available
 tables and their columns. This is useful for understanding what data is accessible before running ADQL queries.
 
-  >>> from astroquery.esa.plato import PlatoClass
-  >>> plato = PlatoClass() # doctest: +SKIP
-  >>> tables = plato.get_tables() # doctest: +SKIP
+.. doctest-remote-data::
 
-  >>> pic_target_table = plato.get_table(table='pic_go.pic_target_go') # doctest: +SKIP
-  >>> pic_target_table.columns # doctest: +SKIP
+  >>> from astroquery.esa.plato import PlatoClass
+  >>> plato = PlatoClass()
+  >>> tables = plato.get_tables() # doctest: +IGNORE_OUTPUT
+
+.. doctest-remote-data::
+
+  >>> pic_target_table = plato.get_table(table='pic_go.pic_target_go') # doctest: +IGNORE_OUTPUT
+  >>> pic_target_table.columns # doctest: +IGNORE_OUTPUT
 
 ----------------------------
 3. ADQL Queries to PLATO TAP
@@ -76,22 +77,22 @@ file in the chosen format, and queries may be executed asynchronously.
 
   >>> from astroquery.esa.plato import PlatoClass
   >>> plato = PlatoClass()
-  >>> plato.query_tap(query='select top 10 * from pic_go.pic_target_go')  # doctest: +SKIP
+  >>> plato.query_tap(query='select top 10 * from pic_go.pic_target_go order by "AKs" asc')
   <Table length=10>
-     active_end_date       active_start_date             AG                 AKs          BOLnCameraObsNCAM_T BOLnCameraSatNCAM_T ...       Teff       tPICplanetFlag tPICscientificRanking tPICsourceFlagNCAM_BOL  VmagCalculated
-                                                        mag                 mag                                                  ...        K                                                                           mag
-          object                 object               float64             float64               int32               int32        ...     float64          int32             float64                int32              float64
-  --------------------- ----------------------- ------------------- -------------------- ------------------- ------------------- ... ---------------- -------------- --------------------- ---------------------- ----------------
-  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678   0.118511503667862   0.0120064369426608                   0                   0 ... 6452.59731224531              0   0.00155243999324739                      4 12.9647220843443
-  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678 0.00319739622600106 0.000328237581132792                   0                   0 ... 6064.09004054152              2                   1.0                     51 7.15333662116065
-  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678   0.111406183470082   0.0119884246786291                   0                   0 ... 5257.10774608135              0  0.000892276002559811                      4 12.8432330623606
-  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678   0.117671118797919   0.0119420182132897                   0                   0 ... 6411.34274047572              0   0.00129307003226131                      4 12.6943213602032
-  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678  0.0744064119219777  0.00795330446071774                   0                   0 ... 5346.43374537458              0   0.00556798977777362                      4 12.5092805516452
-  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678   0.113209626327757   0.0114373241732229                   0                   0 ...  6514.1093105968              0   0.00160385004710406                      4 11.0127618006894
-  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678   0.111353362349635   0.0114880315158924                   0                   0 ... 6043.85529618795              0   0.00147032004315406                      4 12.5781580076992
-  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678  0.0824151366418965  0.00878801296984743                   0                   0 ... 5393.55915574524              0   0.00381073006428778                      4 12.1462587804849
-  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678  0.0969782812504503   0.0101950452596672                   0                   0 ... 5659.34012976861              0   0.00299305003136396                      4 12.3844392051627
-  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678  0.0910178678646904  0.00945415292450069                   0                   0 ... 5887.63652808232              0   0.00346793001517653                      4 11.7981844049229
+     active_end_date       active_start_date             AG                  AKs          BOLnCameraObsNCAM_T BOLnCameraSatNCAM_T ...       Teff       tPICplanetFlag tPICscientificRanking tPICsourceFlagNCAM_BOL  VmagCalculated
+                                                        mag                  mag                                                  ...        K                                                                           mag
+          object                 object               float64              float64               int32               int32        ...     float64          int32             float64                int32              float64
+  --------------------- ----------------------- -------------------- -------------------- ------------------- ------------------- ... ---------------- -------------- --------------------- ---------------------- ----------------
+  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678 0.000392371839482578 5.63007559782083e-05                  --                  -- ... 2928.56228932549              0                    --                      0 13.0350036388273
+  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678 0.000493503112186251 6.08337729744008e-05                  12                  12 ... 3755.39620642323              8                   1.0                     56 8.82921452227563
+  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678 0.000509265302321117 7.22192043991787e-05                   6                   0 ...               --             16                   1.0                     16 21.9206369681403
+  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678 0.000657507513223402 8.14809584614101e-05                   0                   0 ... 3717.27060392989             20                   1.0                     56 8.11376138419801
+  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678 0.000698787706941163 9.65585284990327e-05                  12                   0 ... 3090.49108860058              0     0.770008027553558                     40 13.5596587907992
+  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678  0.00072118635430255 0.000101119744311243                  12                   0 ... 3025.46216323845              0     0.563190996646881                     40 13.8272979075602
+  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678  0.00077666913888679 0.000102020745858284                  24                   0 ... 3355.59052045222              0     0.010423400439322                      8 11.6218496065505
+  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678 0.000777363925250955 0.000102159257544666                  24                   0 ... 3352.92381276721              0     0.010423400439322                      8 11.5894182420438
+  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678 0.000772691669641403 0.000108586032306435                  12                   0 ...  3015.7425470315              0     0.393148988485336                     40  12.930940579556
+  9999-12-31T00:00:00.0 2026-02-05T14:04:43.678  0.00100721872539282 0.000110645043470278                   0                   0 ... 4887.11519647067              0     0.170971006155014                     35 6.15823494035644
 
 
 -------------------------------------
@@ -114,32 +115,24 @@ available in this catalogue, the following method can be executed using ``get_me
 
   >>> from astroquery.esa.plato import PlatoClass
   >>> plato = PlatoClass()
-  >>> plato.search_pic_target_go(get_metadata=True)  # doctest: +SKIP
+  >>> plato.search_pic_target_go(get_metadata=True)
   <Table masked=True length=80>
-            Column                                      Description                                 Unit    Data Type  UCD   UType
-            str26                                          object                                  object      str6   object object
-  ------------------------- ------------------------------------------------------------------- ----------- --------- ------ ------
-            active_end_date                                                                None        None      char   None   None
-          active_start_date                                                                None        None      char   None   None
-                       "AG"                                            Extinction in the G band         mag    double   None   None
-                      "AKs"                                           Extinction in the Ks band         mag    double   None   None
-      "BOLnCameraObsNCAM_T"      BOL number of NCAM cameras observing the star (Typical values)        None       int   None   None
-      "BOLnCameraSatNCAM_T"               BOL number of saturated NCAM cameras (Typical values)        None       int   None   None
-       "BOLrandomNSRNCAM_T"                BOL random NSR for NCAM, 24 cameras (Typical values) ppm/sqrt(h)    double   None   None
-    "BOLrandomSysNSRNCAM_T"     BOL random+systematic NSR for NCAM, 24 cameras (Typical values) ppm/sqrt(h)    double   None   None
-                    "BPmag"                  Corrected mean magnitude in the integrated BP band         mag    double   None   None
-                 "caseFlag" Flag indicating basic inputs used to calculate the PLATO magnitudes        None       int   None   None
-                        ...                                                                 ...         ...       ...    ...    ...
-       "scientificPriority"            SGS PIC scheduling report (on board priority calculated)        None       int   None   None
-  "scvPICscientificRanking"                               Scientific ranking for scvPIC targets        None       int   None   None
-         "scvPICsourceFlag"      Bitmask indicating to which scvPIC sample an object belongs to        None       int   None   None
-                 "StarName"  Star identifier in the catalogue from which the source is selected        None      char   None   None
-         "targetStatusFlag"     Bitmask indicating the status of a target (current vs previous)        None       int   None   None
-                     "Teff"                                       Stellar effective temperature           K    double   None   None
-           "tPICplanetFlag"      Bitmask indicating the presence of confirmed/candidate planets        None       int   None   None
-    "tPICscientificRanking"                                 Scientific ranking for tPIC targets        None    double   None   None
-   "tPICsourceFlagNCAM_BOL"        Bitmask indicating to which tPIC sample an object belongs to        None       int   None   None
-           "VmagCalculated"      Apparent magnitude in the Johnson-Cousin V filter (calculated)         mag    double   None   None
+           Column                                    Description                            Unit  Data Type  UCD   UType
+           str26                                        object                             object    str6   object object
+  ------------------------ --------------------------------------------------------------- ------ --------- ------ ------
+           active_end_date                                                            None   None      char   None   None
+         active_start_date                                                            None   None      char   None   None
+                      "AG"                                        Extinction in the G band    mag    double   None   None
+                     "AKs"                                       Extinction in the Ks band    mag    double   None   None
+     "BOLnCameraObsNCAM_T"  BOL number of NCAM cameras observing the star (Typical values)   None       int   None   None
+     "BOLnCameraSatNCAM_T"           BOL number of saturated NCAM cameras (Typical values)   None       int   None   None
+                       ...                                                             ...    ...       ...    ...    ...
+        "targetStatusFlag" Bitmask indicating the status of a target (current vs previous)   None       int   None   None
+                    "Teff"                                   Stellar effective temperature      K    double   None   None
+          "tPICplanetFlag"  Bitmask indicating the presence of confirmed/candidate planets   None       int   None   None
+   "tPICscientificRanking"                             Scientific ranking for tPIC targets   None    double   None   None
+  "tPICsourceFlagNCAM_BOL"    Bitmask indicating to which tPIC sample an object belongs to   None       int   None   None
+          "VmagCalculated"  Apparent magnitude in the Johnson-Cousin V filter (calculated)    mag    double   None   None
 
 Once the columns of interest have been extracted, it is possible to execute the same function with the following
 options, that can be combined to extract the required data:
@@ -150,7 +143,7 @@ options, that can be combined to extract the required data:
 
   >>> from astroquery.esa.plato import PlatoClass
   >>> plato = PlatoClass()
-  >>> plato.search_pic_target_go(target_name='Gaia DR3 5262913119040164480') # doctest: +SKIP
+  >>> plato.search_pic_target_go(target_name='Gaia DR3 5262913119040164480') # doctest: +IGNORE_OUTPUT
   Executed query:SELECT * FROM pic_go.pic_target_go WHERE 1=CONTAINS(POINT('ICRS', RAdeg, DEdeg),CIRCLE('ICRS', 111.43276923, -73.19124693, 0.016666666666666666))
   <Table length=1>
      active_end_date       active_start_date            AG               AKs         BOLnCameraObsNCAM_T BOLnCameraSatNCAM_T ...       Teff       tPICplanetFlag tPICscientificRanking tPICsourceFlagNCAM_BOL  VmagCalculated
@@ -165,7 +158,7 @@ options, that can be combined to extract the required data:
 
   >>> from astroquery.esa.plato import PlatoClass
   >>> plato = PlatoClass()
-  >>> plato.search_pic_target_go(target_name='Gaia DR3 5262913119040164480', columns=['DEdeg', 'RAdeg', 'PlatoMagNCAM'])  # doctest: +SKIP
+  >>> plato.search_pic_target_go(target_name='Gaia DR3 5262913119040164480', columns=['DEdeg', 'RAdeg', 'PlatoMagNCAM']) # doctest: +IGNORE_OUTPUT
   Executed query:SELECT DEdeg, RAdeg, PlatoMagNCAM FROM pic_go.pic_target_go WHERE 1=CONTAINS(POINT('ICRS', RAdeg, DEdeg),CIRCLE('ICRS', 111.43276923445, -73.19124693094, 0.016666666666666666))
   <Table length=1>
         DEdeg            RAdeg         PlatoMagNCAM
@@ -180,7 +173,7 @@ options, that can be combined to extract the required data:
 
   >>> from astroquery.esa.plato import PlatoClass
   >>> plato = PlatoClass()
-  >>> plato.search_pic_target_go(target_name='Gaia DR3 5262913119040164480', columns=['DEdeg', 'RAdeg', 'PlatoMagNCAM'], PlatoMagNCAM=('>', 12))  # doctest: +SKIP
+  >>> plato.search_pic_target_go(target_name='Gaia DR3 5262913119040164480', columns=['DEdeg', 'RAdeg', 'PlatoMagNCAM'], PlatoMagNCAM=('>', 12))  # doctest: +IGNORE_OUTPUT
   Executed query:SELECT DEdeg, RAdeg, PlatoMagNCAM FROM pic_go.pic_target_go  WHERE PlatoMagNCAM > 12 AND 1=CONTAINS(POINT('ICRS', RAdeg, DEdeg),CIRCLE('ICRS', 111.43276923445, -73.19124693094, 0.016666666666666666))
   <Table length=1>
         DEdeg            RAdeg         PlatoMagNCAM
@@ -217,14 +210,16 @@ the table.
 
   >>> from astroquery.esa.plato import PlatoClass
   >>> plato = PlatoClass()
-  >>> plato.search_pic_contaminant_go(target_name='Gaia DR3 5262913119040164480')  # doctest: +SKIP
+  >>> plato.search_pic_contaminant_go(target_name='Gaia DR3 5262913119040164480')  # doctest: +IGNORE_OUTPUT
 
 By combining the previous commands, it is possible to identify the PIC contaminants associated to each of the targets
 in the Plato Input Catalogue. As
 
+.. doctest-remote-data::
+
   >>> from astroquery.esa.plato import PlatoClass
   >>> plato = PlatoClass()
-  >>> pic_targets = plato.search_pic_target_go(coordinates='95.97064 -48.07963', radius=0.1) # doctest: +SKIP
+  >>> pic_targets = plato.search_pic_target_go(coordinates='95.97064 -48.07963', radius=0.1) # doctest: +IGNORE_OUTPUT
   >>> pic_target_contaminants = {}
   >>> for target in pic_targets:
   ...       pic_name = target["PICname"]
@@ -243,11 +238,13 @@ results for the contaminants using  ``pic_target_contaminants[PIC_Name]``.
 ------------------
 Once the required data has been extracted, it is possible to generate a chart to plot the required data:
 
+.. doctest-remote-data::
+
   >>> from astroquery.esa.plato import PlatoClass
   >>> plato = PlatoClass()
-  >>> results = plato.search_pic_target_go(target_name='Gaia DR3 5262913119040164480', radius=5) # doctest: +SKIP
+  >>> results = plato.search_pic_target_go(target_name='Gaia DR3 5262913119040164480', radius=5) # doctest: +IGNORE_OUTPUT
   Executed query:SELECT * FROM pic_go.pic_target_go WHERE 1=CONTAINS(POINT('ICRS', RAdeg, DEdeg),CIRCLE('ICRS', 111.43276923445, -73.19124693094, 5.0))
-  >>> plato.plot_plato_results(x=results['RAdeg'], y=results['DEdeg'], x_label='RA (deg)', y_label='DEC (deg)', plot_title='PIC Targets', color='red') # doctest: +SKIP
+  >>> plato.plot_plato_results(x=results['RAdeg'], y=results['DEdeg'], x_label='RA (deg)', y_label='DEC (deg)', plot_title='PIC Targets', color='red') # doctest: +IGNORE_OUTPUT
 
 .. image:: plato_plot_1.png
    :align: center
@@ -258,11 +255,13 @@ A third dimension can be drawn in the previous plot, assigning a value for the Z
 a colormap showing this third list of values. Please bear in mind that the colormap shall be available within Matplotlib
 collection.
 
+.. doctest-remote-data::
+
   >>> from astroquery.esa.plato import PlatoClass
   >>> plato = PlatoClass()
-  >>> results = plato.search_pic_target_go(target_name='Gaia DR3 5262913119040164480', radius=5) # doctest: +SKIP
+  >>> results = plato.search_pic_target_go(target_name='Gaia DR3 5262913119040164480', radius=5) # doctest: +IGNORE_OUTPUT
   Executed query:SELECT * FROM pic_go.pic_target_go WHERE 1=CONTAINS(POINT('ICRS', RAdeg, DEdeg),CIRCLE('ICRS', 111.43276923445, -73.19124693094, 5.0))
-  >>> plato.plot_plato_results(x=results['RAdeg'], y=results['DEdeg'], z=results['BOLnCameraObsNCAM_T'], x_label='RA (deg)', y_label='DEC (deg)', z_label='Num. Cameras', plot_title='PIC Targets', color='viridis') # doctest: +SKIP
+  >>> plato.plot_plato_results(x=results['RAdeg'], y=results['DEdeg'], z=results['BOLnCameraObsNCAM_T'], x_label='RA (deg)', y_label='DEC (deg)', z_label='Num. Cameras', plot_title='PIC Targets', color='viridis') # doctest: +IGNORE_OUTPUT
 
 .. image:: plato_plot_2.png
    :align: center
