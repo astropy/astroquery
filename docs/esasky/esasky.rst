@@ -31,14 +31,15 @@ If you know the names of all the available catalogs you can use :meth:`~astroque
 
     >>> from astroquery.esasky import ESASky
     >>> catalog_list = ESASky.list_catalogs()
-    >>> print(catalog_list)
-    ['TYCHO-2', '2RXS', 'INTEGRAL', 'GAIA-DR3', 'XMM-EPIC', 'OU_BLAZARS', 'XMM-SLEW', 'HIPPARCOS-2',
-    'HERSCHEL-SPSC-500', 'AKARI-IRC-SC', 'HERSCHEL-HPPSC-070', 'HERSCHEL-HPPSC-100', 'HERSCHEL-HPPSC-160',
-    'HERSCHEL-SPSC-250', 'HERSCHEL-SPSC-350', 'PLANCK-PCCS2E-HFI', 'PLANCK-PGCC', 'PLANCK-PCCS2-HFI',
-    'PLANCK-PCCS2-LFI', 'PLANCK-PSZ2', 'CHANDRA-SC2', 'ALLWISE', 'TWOMASS', 'EROSITA-EFEDS-MAIN',
-    'EROSITA-EFEDS-HARD', 'XMM-OM', 'XMM-EPIC-STACK', 'FERMI_4FGL-DR2', 'FERMI_3FHL', 'EROSITA-ETACHA-MAIN',
-    'SWIFT-2SXPS', 'ICECUBE', 'FERMI_4LAC-DR2', 'EROSITA-ETACHA-HARD', 'HSC', 'PLATO ASPIC1.1', '2WHSP',
-    'GAIA-FPR', 'EROSITA-ERASS-MAIN', 'EROSITA-ERASS-HARD', 'GLADE+', 'LAMOST_MRS', 'LAMOST_LRS']
+    >>> print(catalog_list) # doctest: +IGNORE_OUTPUT
+    ['TYCHO-2', '2RXS', 'HERSCHEL-HPPSC-070', 'XMM-SLEW', 'GAIA-DR3', 'HERSCHEL-SPSC-350',
+    'OU_BLAZARS', 'HERSCHEL-SPSC-250', 'HERSCHEL-HPPSC-160', 'HIPPARCOS-2', 'INTEGRAL',
+    'HERSCHEL-SPSC-500', 'AKARI-IRC-SC', 'HERSCHEL-HPPSC-100', 'TWOMASS', 'ALLWISE',
+    'XMM-EPIC', 'PLANCK-PSZ2', 'PLANCK-PCCS2-LFI', 'PLANCK-PCCS2-HFI', 'PLANCK-PGCC',
+    'PLANCK-PCCS2E-HFI', 'EROSITA-EFEDS-MAIN', 'EROSITA-EFEDS-HARD', 'EUCLID-MER', 'XMM-OM',
+    'CHANDRA-SC21', 'XMM-EPIC-STACK', 'HCV', 'EROSITA-ETACHA-MAIN', 'FERMI_3FHL', 'FERMI_4FGL-DR2',
+    'SWIFT-2SXPS', 'ICECUBE', 'HSC', 'FERMI_4LAC-DR2', 'EROSITA-ETACHA-HARD', 'PLATO ASPIC1.1',
+    'GAIA-FPR', '2WHSP', 'EROSITA-ERASS-HARD', 'EROSITA-ERASS-MAIN', 'GLADE+', 'LAMOST_MRS', 'LAMOST_LRS']
 
 Get the available maps mission names
 ------------------------------------
@@ -48,9 +49,10 @@ If you know the names of all the available maps missions you can use :meth:`~ast
 .. doctest-remote-data::
 
     >>> maps_list = ESASky.list_maps()
-    >>> print(maps_list)
-    ['ALMA', 'ISO-IR', 'SPITZER', 'AKARI', 'HST-IR', 'HST-UV', 'HST-OPTICAL', 'EROSITA', 'INTEGRAL',
-    'SUZAKU', 'HERSCHEL', 'JWST-MID-IR', 'JWST-NEAR-IR', 'XMM', 'XMM-OM-UV', 'XMM-OM-OPTICAL', 'CHANDRA']
+    >>> print(maps_list) # doctest: +IGNORE_OUTPUT
+    ['EUCLID-NISP', 'EUCLID-VIS', 'ALMA', 'ISO-IR', 'SPITZER', 'HST-UV', 'HST-IR', 'AKARI',
+    'HST-OPTICAL', 'EROSITA', 'INTEGRAL', 'SUZAKU', 'JWST-MID-IR', 'JWST-NEAR-IR', 'HERSCHEL',
+    'XMM', 'XMM-OM-OPTICAL', 'XMM-OM-UV', 'CHANDRA']
 
 Get the available spectra mission names
 ---------------------------------------
@@ -60,9 +62,9 @@ If you know the names of all the available spectra you can use :meth:`~astroquer
 .. doctest-remote-data::
 
     >>> spectra_list = ESASky.list_spectra()
-    >>> print(spectra_list)
-    ['HERSCHEL', 'CHANDRA', 'IUE', 'ISO-IR', 'CHEOPS', 'XMM-NEWTON', 'JWST-MID-IR', 'JWST-NEAR-IR',
-    'HST-OPTICAL', 'HST-UV', 'HST-IR', 'LAMOST_MRS', 'LAMOST_LRS']
+    >>> print(spectra_list) # doctest: +IGNORE_OUTPUT
+    ['COROT-EXO', 'COROT-ASTERO', 'CHANDRA', 'HERSCHEL', 'XMM-NEWTON', 'ISO-IR', 'IUE',
+    'JWST-MID-IR', 'JWST-NEAR-IR', 'HST-UV', 'HST-OPTICAL', 'HST-IR', 'LAMOST_MRS', 'LAMOST_LRS']
 
 Get the available SSO mission names
 -----------------------------------
@@ -73,7 +75,7 @@ If you know the names of all the available missions with SSO cross match data, y
 .. doctest-remote-data::
 
     >>> sso_list = ESASky.list_sso()
-    >>> print(sso_list)
+    >>> print(sso_list) # doctest: +IGNORE_OUTPUT
     ['XMM-OM', 'HST', 'HERSCHEL', 'XMM']
 
 
@@ -115,19 +117,21 @@ To see the result:
 
 .. doctest-remote-data::
 
-    >>> print(result)
-     TableList with 11 tables:
-	'0:XMM-EPIC' with 223 column(s) and 15 row(s)
-	'1:HERSCHEL-HPPSC-070' with 21 column(s) and 1 row(s)
-	'2:HERSCHEL-HPPSC-100' with 21 column(s) and 1 row(s)
-	'3:CHANDRA-SC2' with 41 column(s) and 9 row(s)
-	'4:ALLWISE' with 25 column(s) and 1 row(s)
-	'5:TWOMASS' with 14 column(s) and 3 row(s)
-	'6:XMM-OM' with 122 column(s) and 7 row(s)
-	'7:XMM-EPIC-STACK' with 161 column(s) and 15 row(s)
-	'8:SWIFT-2SXPS' with 232 column(s) and 1 row(s)
-	'9:HSC' with 27 column(s) and 230 row(s)
-	'10:GLADE+' with 40 column(s) and 1 row(s)
+    >>> print(result) # doctest: +IGNORE_OUTPUT
+     TableList with 12 tables:
+    '0:HERSCHEL-HPPSC-070' with 21 column(s) and 1 row(s)
+    '1:XMM-SLEW' with 106 column(s) and 3 row(s)
+    '2:HERSCHEL-HPPSC-100' with 21 column(s) and 1 row(s)
+    '3:TWOMASS' with 14 column(s) and 3 row(s)
+    '4:ALLWISE' with 25 column(s) and 1 row(s)
+    '5:XMM-EPIC' with 223 column(s) and 15 row(s)
+    '6:XMM-OM' with 125 column(s) and 21 row(s)
+    '7:CHANDRA-SC21' with 517 column(s) and 9 row(s)
+    '8:XMM-EPIC-STACK' with 161 column(s) and 15 row(s)
+    '9:SWIFT-2SXPS' with 232 column(s) and 1 row(s)
+    '10:HSC' with 27 column(s) and 230 row(s)
+    '11:GLADE+' with 40 column(s) and 1 row(s)
+
 
 All the results are returned as a `~astroquery.utils.TableList` object. This is a container for `~astropy.table.Table`
 objects. It is basically an extension to `~collections.OrderedDict` for storing a `~astropy.table.Table` against its
@@ -197,30 +201,31 @@ To see the result:
 
 .. doctest-remote-data::
 
-    >>> print(result)
+    >>> print(result) # doctest: +IGNORE_OUTPUT
     TableList with 22 tables:
-	'0:2RXS' with 306 column(s) and 2 row(s)
-	'1:GAIA-DR3' with 153 column(s) and 932 row(s)
-	'2:XMM-EPIC' with 223 column(s) and 1467 row(s)
-	'3:XMM-SLEW' with 106 column(s) and 2 row(s)
-	'4:HERSCHEL-SPSC-500' with 36 column(s) and 7 row(s)
-	'5:AKARI-IRC-SC' with 29 column(s) and 1 row(s)
-	'6:HERSCHEL-HPPSC-070' with 21 column(s) and 93 row(s)
-	'7:HERSCHEL-HPPSC-100' with 21 column(s) and 122 row(s)
-	'8:HERSCHEL-HPPSC-160' with 21 column(s) and 93 row(s)
-	'9:HERSCHEL-SPSC-250' with 36 column(s) and 59 row(s)
-	'10:HERSCHEL-SPSC-350' with 36 column(s) and 24 row(s)
-	'11:PLANCK-PCCS2-HFI' with 9 column(s) and 8 row(s)
-	'12:CHANDRA-SC2' with 41 column(s) and 430 row(s)
-	'13:ALLWISE' with 25 column(s) and 1762 row(s)
-	'14:TWOMASS' with 14 column(s) and 188 row(s)
-	'15:XMM-OM' with 122 column(s) and 7026 row(s)
-	'16:XMM-EPIC-STACK' with 161 column(s) and 4185 row(s)
-	'17:SWIFT-2SXPS' with 232 column(s) and 120 row(s)
-	'18:HSC' with 27 column(s) and 10000 row(s)
-	'19:PLATO ASPIC1.1' with 70 column(s) and 3 row(s)
-	'20:GLADE+' with 40 column(s) and 51 row(s)
-	'21:LAMOST_LRS' with 40 column(s) and 47 row(s)
+    '0:2RXS' with 306 column(s) and 2 row(s)
+    '1:HERSCHEL-HPPSC-070' with 21 column(s) and 93 row(s)
+    '2:XMM-SLEW' with 106 column(s) and 11 row(s)
+    '3:GAIA-DR3' with 153 column(s) and 932 row(s)
+    '4:HERSCHEL-SPSC-350' with 36 column(s) and 24 row(s)
+    '5:HERSCHEL-SPSC-250' with 36 column(s) and 59 row(s)
+    '6:HERSCHEL-HPPSC-160' with 21 column(s) and 93 row(s)
+    '7:HERSCHEL-SPSC-500' with 36 column(s) and 7 row(s)
+    '8:AKARI-IRC-SC' with 29 column(s) and 1 row(s)
+    '9:HERSCHEL-HPPSC-100' with 21 column(s) and 122 row(s)
+    '10:TWOMASS' with 14 column(s) and 188 row(s)
+    '11:ALLWISE' with 25 column(s) and 1762 row(s)
+    '12:XMM-EPIC' with 223 column(s) and 1467 row(s)
+    '13:PLANCK-PCCS2-HFI' with 9 column(s) and 8 row(s)
+    '14:XMM-OM' with 125 column(s) and 10000 row(s)
+    '15:CHANDRA-SC21' with 517 column(s) and 450 row(s)
+    '16:XMM-EPIC-STACK' with 161 column(s) and 4185 row(s)
+    '17:SWIFT-2SXPS' with 232 column(s) and 120 row(s)
+    '18:HSC' with 27 column(s) and 10000 row(s)
+    '19:PLATO ASPIC1.1' with 70 column(s) and 3 row(s)
+    '20:GLADE+' with 40 column(s) and 51 row(s)
+    '21:LAMOST_LRS' with 40 column(s) and 47 row(s)
+
 
 You can use, :meth:`~astroquery.esasky.ESASkyClass.query_region_maps` and
 :meth:`~astroquery.esasky.ESASkyClass.query_region_maps` with the same parameters. To execute the same command as above
@@ -243,12 +248,9 @@ If you already know the observation ID's or source names of interest, you can ge
 
 .. doctest-remote-data::
 
-    >>> maps = ESASky.query_ids_maps(observation_ids=["lbsk03vbq", "ieag90010"], missions="HST-UV")
-    INFO: Retrieving tables... [astroquery.utils.tap.core]
-    INFO: Parsing tables... [astroquery.utils.tap.core]
-    INFO: Done. [astroquery.utils.tap.core]
+    >>> maps = ESASky.query_ids_maps(observation_ids=["lbsk03vbq", "ieag90010"], missions="HST-UV") # doctest: +IGNORE_OUTPUT
     >>> catalogs = ESASky.query_ids_catalogs(source_ids=["2CXO J090341.1-322609", "2CXO J090353.8-322642",
-    ...                                                  "44899", "45057"], catalogs=["CHANDRA-SC2", "Hipparcos-2"])
+    ...                                                  "44899", "45057"], catalogs=["CHANDRA-SC21", "Hipparcos-2"])
     >>> spectra = ESASky.query_ids_spectra(observation_ids="0001730501")
 
 If you already know which missions you are interested in, it is recommended to explicitly mention them in the mission
@@ -423,15 +425,15 @@ In this case, you can specify the sso_type
     >>> from astroquery.esasky import ESASky
     >>> ESASky.query_sso(sso_name="503", sso_type="SATELLITE")
     TableList with 2 tables:
-            '0:HST' with 45 column(s) and 618 row(s)
-	    '1:XMM' with 45 column(s) and 33 row(s)
+	    '0:XMM' with 45 column(s) and 33 row(s)
+        '1:HST' with 45 column(s) and 618 row(s)
 
 You can see the available missions with:
 
 .. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
-    >>> ESASky.list_sso()
+    >>> ESASky.list_sso() # doctest: +IGNORE_OUTPUT
     ['XMM-OM', 'HST', 'HERSCHEL', 'XMM']
 
 Other parameters and the return value are structured in the same manner as the other query methods.
@@ -456,9 +458,9 @@ Or download everything on an SSO by something like this:
 
     >>> from astroquery.esasky import ESASky
     >>> images=ESASky.get_images_sso(sso_name="2017 RN65")
-    INFO: Starting download of HST data. (1 files) [astroquery.esasky.core]
     INFO: Starting download of HERSCHEL data. (1 files) [astroquery.esasky.core]
     INFO: Starting download of XMM data. (1 files) [astroquery.esasky.core]
+    INFO: Starting download of HST data. (1 files) [astroquery.esasky.core]
     ...
 
 This module also offers access to IMCCE's SsODNet resolver, which allows you to find solar and extra solar system
