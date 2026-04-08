@@ -30,15 +30,22 @@ from astroquery.utils import system_tools
 __all__ = ['BaseVOQuery', 'BaseQuery', 'QueryWithLogin']
 
 
-def to_cache(response, cache_file):
+def to_cache(original_response, cache_file):
     log.debug("Caching data to {0}".format(cache_file))
 
-    response = copy.deepcopy(response)
-    if hasattr(response, 'request'):
-        for key in tuple(response.request.hooks.keys()):
-            del response.request.hooks[key]
+    hooks = None
+    if hasattr(original_response, 'request'):
+        hooks = original_response.request.hooks
+        del original_response.request.hooks
+    if hasattr(original_response, 'history'):
+        for r in original_response.history:
+            if hasattr(r, 'request'):
+                del r.request.hooks
+    response_copy = copy.deepcopy(original_response)
+    if hooks:
+        original_response.request.hooks = hooks
     with open(cache_file, "wb") as f:
-        pickle.dump(response, f, protocol=4)
+        pickle.dump(response_copy, f, protocol=4)
 
 
 def _replace_none_iterable(iterable):
