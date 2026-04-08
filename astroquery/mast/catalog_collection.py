@@ -122,11 +122,7 @@ class CatalogCollection:
             The user-facing collection name to get the parent collection for.
         """
         if cls._collection_parent_map is None:
-            try:
-                cls.discover_collections()
-            except Exception as ex:
-                log.debug(f"Failed to discover TAP collections; falling back to direct endpoint routing: {ex}")
-                cls._collection_parent_map = {}
+            cls.discover_collections()
 
         normalized_name = collection_name.lower().strip()
         parent_collection = cls._collection_parent_map.get(normalized_name, normalized_name)
@@ -480,13 +476,14 @@ class CatalogCollection:
         if not criteria:
             return
         col_names = list(self.get_catalog_metadata(catalog).column_metadata['column_name'])
+        col_name_lookup = {col.lower(): col for col in col_names}
 
         # Check each criteria argument for validity
         for kwd in criteria.keys():
-            if kwd not in col_names:
+            if kwd.lower() not in col_name_lookup:
                 # Suggest closest match for invalid keyword
-                closest = difflib.get_close_matches(kwd, col_names, n=1)
-                suggestion = f" Did you mean '{closest[0]}'?" if closest else ""
+                closest = difflib.get_close_matches(kwd.lower(), list(col_name_lookup.keys()), n=1)
+                suggestion = f" Did you mean '{col_name_lookup[closest[0]]}'?" if closest else ""
                 raise InvalidQueryError(
                     f"Filter '{kwd}' is not recognized for collection '{self.name}' and "
                     f"catalog '{catalog}'.{suggestion}"
