@@ -14,6 +14,7 @@ from urllib.parse import quote
 
 import numpy as np
 import gwcs
+import asdf
 import s3fs
 import lz4
 
@@ -1151,22 +1152,25 @@ class ObservationsClass(MastQueryWithLogin):
         return unique_products
 
 # Function requires following packages
-# [Required] gwcs (which would also instasdf-astropy) - To obtain the general asdf schemas to correctly parse the asdf metadata. Should handle most non-roman schemas
+# [Required] gwcs (which would also inst asdf-astropy) - To obtain the general asdf schemas to correctly parse the asdf metadata. Should handle most non-roman schemas
 # [Required] s3fs - for actually connecting to s3 and retreiving the files
 # [Required] lz4 - to handle the asdf file compression
 # [Optional] roman-datamodels: Required for specific roman asdf schemas (i.e. Roman SOC and PIT)
 # [Optional Future]: Most likely some HLSP schema package 
-def read_product(s3_uri: str, read_as="auto"):
+def read_product(uri, read_as="auto", ignore_unrecognized=False):
     """
     Read a product from Open S3 bucket to memory. Currently can handle FITS and ASDF product types with appropriate package installation.
 
     Parameters
     ----------
-    s3_uri: str
-        S3 URI to the product in open bucket.
+    uri: str
+        URI to the product in open bucket.
 
     read_as: str, optional
-        How to read the file. Currently only .fits and .asdf is supported by "auto".
+        How to read the file. Currently only .fits and .asdf is supported by "auto". Defaults to "auto".
+    
+    ignore_unrecognized: bool
+        Tells asdf.open() to include or ignore warnings from unrecognized asdf tags. Defaults to False
 
     Returns
     -------
@@ -1177,21 +1181,21 @@ def read_product(s3_uri: str, read_as="auto"):
     
     if read_as == "auto":
         # Read logic for FITS
-        if s3_uri.endswith(".fits"):
+        if uri.endswith(".fits"):
             try:
-                return fits.open(s3_uri, fsspec_kwargs={"anon": True})
+                return fits.open(uri, fsspec_kwargs={"anon": True})
             except Exception as e:
-                log.exception(f"Failed to open FITS File: {s3_uri} {e}")
+                log.exception(f"Failed to open FITS File: {uri} {e}")
         
         # Read logic for ASDF
-        elif s3_uri.endswith(".asdf"):
+        elif uri.endswith(".asdf"):
             try:
                 fs = s3fs.S3FileSystem(anon=True)
-                with fs.open(s3_uri, 'rb') as s3_file:
-                    af = asdf.open(s3_file)
+                with fs.open(uri, 'rb') as s3_file:
+                    af = asdf.open(s3_file, ignore_unrecognized_tag=ignore_unrecognized)
                     return af
             except Exception as e:
-                log.exception(f"Failed to open ASD File: {s3_uri} {e}")
+                log.exception(f"Failed to open ASD File: {uri} {e}")
     else:
         log.info(f"Unsupported extension type")
 
