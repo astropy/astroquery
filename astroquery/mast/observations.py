@@ -13,10 +13,8 @@ import os
 from urllib.parse import quote
 
 import numpy as np
-import gwcs
 import asdf
 import s3fs
-import lz4
 
 from requests import HTTPError
 
