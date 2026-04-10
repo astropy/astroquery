@@ -440,7 +440,7 @@ class EsoClass(QueryWithLogin):
                      f"\nNumber of records present in the table {table_name}:\n{num_records}\n")
 
     @unlimited_maxrec
-    def list_catalogues(self, all_versions: bool = False, cache: bool = True) -> List[str]:
+    def list_catalogues(self, *, all_versions: bool = False, cache: bool = True) -> List[str]:
         """
         List available catalogue tables offered by the ESO archive.
 
