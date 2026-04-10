@@ -72,7 +72,7 @@ class _EsoNames:
     phase3_table = "ivoa.ObsCore"
     raw_instruments_column = "instrument"
     phase3_surveys_column = "obs_collection"
-    catalogue_schema = "safcat"
+    catalog_schema = "safcat"
 
     @staticmethod
     def ist_table(instrument_name):
@@ -164,20 +164,20 @@ class EsoClass(QueryWithLogin):
             "tap_cat": conf.tap_cat_url,
         }
 
-    def _tap_url(self, which_tap: str = "tap_obs") -> str:
+    def _tap_url(self, tap_endpoint: str = "tap_obs") -> str:
         tap_urls = self._tap_urls()
         try:
-            return tap_urls[which_tap]
+            return tap_urls[tap_endpoint]
         except KeyError as exc:
             valid_keys = "', '".join(tap_urls.keys())
-            raise ValueError(f"which_tap must be one of '{valid_keys}'.") from exc
+            raise ValueError(f"tap_endpoint must be one of '{valid_keys}'.") from exc
 
-    def _which_tap(self, tap_url: str = conf.tap_obs_url) -> str:
+    def _tap_endpoint(self, tap_url: str = conf.tap_obs_url) -> str:
         tap_urls = self._tap_urls()
         normalized_tap_url = tap_url.rstrip("/")
-        for which_tap, known_url in tap_urls.items():
+        for tap_endpoint, known_url in tap_urls.items():
             if normalized_tap_url == known_url.rstrip("/"):
-                return which_tap
+                return tap_endpoint
 
         valid_urls = "', '".join(tap_urls.values())
         raise ValueError(f"tap_url must be one of '{valid_urls}'.")
@@ -282,15 +282,15 @@ class EsoClass(QueryWithLogin):
 
         def message(query_str):
             try:
-                which_tap = self._which_tap(tap.baseurl)
+                tap_endpoint = self._tap_endpoint(tap.baseurl)
             except ValueError:
                 # Keep the original exception path stable for unrecognized/custom TAP URLs.
-                which_tap = tap.baseurl
+                tap_endpoint = tap.baseurl
             return (f"Error executing the following query:\n\n"
                     f"{query_str}\n\n"
                     "See examples here: https://archive.eso.org/tap_obs/examples\n\n"
                     f"For maximum query freedom use the query_tap method:\n\n"
-                    f' >>> Eso().query_tap( "{query_str}", which_tap="{which_tap}")\n\n')
+                    f' >>> Eso().query_tap( "{query_str}", tap_endpoint="{tap_endpoint}")\n\n')
 
         try:
             row_limit_plus_one = self.ROW_LIMIT
@@ -308,7 +308,7 @@ class EsoClass(QueryWithLogin):
 
         return table_with_an_extra_row[:self.ROW_LIMIT]
 
-    def tap(self, authenticated: bool = False, *, which_tap: str = "tap_obs") -> TAPService:
+    def tap(self, authenticated: bool = False, *, tap_endpoint: str = "tap_obs") -> TAPService:
 
         if authenticated and not self.authenticated():
             raise LoginError(
@@ -323,16 +323,16 @@ class EsoClass(QueryWithLogin):
         if authenticated:
             h = self._get_auth_header()
             self._session.headers = {**self._session.headers, **h}
-            tap_service = TAPService(self._tap_url(which_tap), session=self._session)
+            tap_service = TAPService(self._tap_url(tap_endpoint), session=self._session)
         else:
-            tap_service = TAPService(self._tap_url(which_tap))
+            tap_service = TAPService(self._tap_url(tap_endpoint))
 
         return tap_service
 
     def query_tap(self,
                   query: str, *,
                   authenticated: bool = False,
-                  which_tap: str = "tap_obs",
+                  tap_endpoint: str = "tap_obs",
                   ) -> Table:
         """
         Query the ESO TAP service using a free ADQL string.
@@ -346,7 +346,7 @@ class EsoClass(QueryWithLogin):
             Authentication must be performed beforehand via
             :meth:`astroquery.eso.EsoClass.login`. Authenticated queries
             may be slower. Default is ``False``.
-        which_tap : {"tap_obs", "tap_cat"}, optional
+        tap_endpoint : {"tap_obs", "tap_cat"}, optional
             TAP endpoint to query. Default is ``"tap_obs"``.
 
         Returns
@@ -360,7 +360,7 @@ class EsoClass(QueryWithLogin):
         eso_instance.query_tap("SELECT * FROM ivoa.ObsCore")
         """
         table_to_return = Table()
-        tap_service = self.tap(authenticated, which_tap=which_tap)
+        tap_service = self.tap(authenticated, tap_endpoint=tap_endpoint)
         table_to_return = self._try_download_pyvo_table(query, tap_service)
         return table_to_return
 
@@ -411,26 +411,26 @@ class EsoClass(QueryWithLogin):
         return res
 
     @unlimited_maxrec
-    def _columns_table(self, table_name: str, *, which_tap: str = "tap_obs") -> Table:
-        if which_tap == "tap_obs":
+    def _columns_table(self, table_name: str, *, tap_endpoint: str = "tap_obs") -> Table:
+        if tap_endpoint == "tap_obs":
             help_query = ("select column_name, datatype, unit, xtype "
                           f"from TAP_SCHEMA.columns where table_name = '{table_name}'")
         else:
-            schema = _EsoNames.catalogue_schema
+            schema = _EsoNames.catalog_schema
             help_query = ("select column_name, datatype, unit, ucd "
                           f"from TAP_SCHEMA.columns "
                           f"where table_name = '{table_name.removeprefix(schema + '.')}'")
-        return self.query_tap(help_query, which_tap=which_tap)
+        return self.query_tap(help_query, tap_endpoint=tap_endpoint)
 
     @unlimited_maxrec
-    def _list_column(self, table_name: str, *, which_tap: str = "tap_obs") -> None:
+    def _list_column(self, table_name: str, *, tap_endpoint: str = "tap_obs") -> None:
         """
         Prints the columns contained in a given table.
         """
-        available_cols = self._columns_table(table_name, which_tap=which_tap)
+        available_cols = self._columns_table(table_name, tap_endpoint=tap_endpoint)
 
         count_query = f"select count(*) from {table_name}"
-        num_records = list(self.query_tap(count_query, which_tap=which_tap)[0].values())[0]
+        num_records = list(self.query_tap(count_query, tap_endpoint=tap_endpoint)[0].values())[0]
 
         with (astropy.conf.set_temp(
                 "max_lines", len(available_cols) + 2),
@@ -440,7 +440,7 @@ class EsoClass(QueryWithLogin):
                      f"\nNumber of records present in the table {table_name}:\n{num_records}\n")
 
     @unlimited_maxrec
-    def list_catalogues(self, *, all_versions: bool = False, cache: bool = True) -> List[str]:
+    def list_catalogs(self, *, all_versions: bool = False, cache: bool = True) -> List[str]:
         """
         List available catalogue tables offered by the ESO archive.
 
@@ -459,7 +459,7 @@ class EsoClass(QueryWithLogin):
             List of catalogue table names.
         """
         _ = cache  # We're aware about disregarding the argument
-        schema = _EsoNames.catalogue_schema
+        schema = _EsoNames.catalog_schema
 
         query_str = (f"SELECT table_name FROM TAP_SCHEMA.tables as ref "
                      "LEFT OUTER JOIN TAP_SCHEMA.keys AS k ON ref.table_name = k.from_table "
@@ -475,7 +475,7 @@ class EsoClass(QueryWithLogin):
 
         query_str += "ORDER BY table_name"
 
-        res = self.query_tap(query_str.strip(), which_tap="tap_cat")
+        res = self.query_tap(query_str.strip(), tap_endpoint="tap_cat")
         # to be compatable with TAP1.0 and TAP1.1
         res = [table_name.removeprefix(f"{schema}.") for table_name in res["table_name"]]
         return res
@@ -483,10 +483,10 @@ class EsoClass(QueryWithLogin):
     def _query_on_allowed_values(
         self,
         user_params: _UserParams,
-        which_tap="tap_obs",
+        tap_endpoint="tap_obs",
     ) -> Union[Table, int, str, None]:
         if user_params.print_help:
-            self._list_column(user_params.table_name, which_tap=user_params.which_tap)
+            self._list_column(user_params.table_name, tap_endpoint=user_params.tap_endpoint)
             return
 
         _raise_if_has_deprecated_keys(user_params.column_filters)
@@ -498,7 +498,7 @@ class EsoClass(QueryWithLogin):
         if user_params.get_query_payload:
             return query_str
 
-        ret_table = self.query_tap(query_str, which_tap=which_tap, authenticated=user_params.authenticated)
+        ret_table = self.query_tap(query_str, tap_endpoint=tap_endpoint, authenticated=user_params.authenticated)
         return list(ret_table[0].values())[0] if user_params.count_only else ret_table
 
     @deprecated_renamed_argument(('open_form', 'cache'), (None, None),
@@ -1143,8 +1143,8 @@ class EsoClass(QueryWithLogin):
                                   authenticated=authenticated)
         return self._query_on_allowed_values(user_params)
 
-    def query_catalogue(self,
-                        catalogue: str,
+    def query_catalog(self,
+                        catalog: str,
                         *,
                         cone_ra: float = None,
                         cone_dec: float = None,
@@ -1165,9 +1165,9 @@ class EsoClass(QueryWithLogin):
 
         Parameters
         ----------
-        catalogue : str
+        catalog : str
             Name of the catalogue to query. Should be ONLY ONE of the names
-            returned by :meth:`~astroquery.eso.EsoClass.list_catalogues`.
+            returned by :meth:`~astroquery.eso.EsoClass.list_catalogs`.
         cone_ra : float, optional
             Not yet implemented.
             Cone Search Center - Right Ascension in degrees.
@@ -1220,12 +1220,12 @@ class EsoClass(QueryWithLogin):
         _ = (open_form, cache,)  # make explicit that we are aware these arguments are unused
         column_filters = column_filters if column_filters else {}
 
-        schema = _EsoNames.catalogue_schema
+        schema = _EsoNames.catalog_schema
         # to be compatable with TAP1.0 and TAP1.1
-        table_name = catalogue if catalogue.startswith(f"{schema}.") else f"{schema}.{catalogue}"
+        table_name = catalog if catalog.startswith(f"{schema}.") else f"{schema}.{catalog}"
 
         with self._temporary_row_limit(ROW_LIMIT):
-            which_tap = "tap_cat"
+            tap_endpoint = "tap_cat"
             user_params = _UserParams(
                 table_name=table_name,
                 column_name=None,
@@ -1240,10 +1240,10 @@ class EsoClass(QueryWithLogin):
                 get_query_payload=get_query_payload,
                 print_help=help,
                 authenticated=authenticated,
-                which_tap=which_tap,
+                tap_endpoint=tap_endpoint,
             )
 
-            return self._query_on_allowed_values(user_params, which_tap=which_tap)
+            return self._query_on_allowed_values(user_params, tap_endpoint=tap_endpoint)
 
 
 Eso = EsoClass()

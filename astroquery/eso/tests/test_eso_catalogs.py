@@ -34,16 +34,16 @@ DATA_FILES = {
         "SELECT t1.cat_id "
         "FROM TAP_SCHEMA.tables t1 "
         "LEFT JOIN TAP_SCHEMA.tables t2 ON (t1.title = t2.title AND t1.version < t2.version) "
-        "WHERE t2.title IS NULL) ORDER BY table_name": "query_list_catalogues_latest_versions.csv",
+        "WHERE t2.title IS NULL) ORDER BY table_name": "query_list_catalogs_latest_versions.csv",
         "SELECT table_name FROM TAP_SCHEMA.tables as ref "
         "LEFT OUTER JOIN TAP_SCHEMA.keys AS k ON ref.table_name = k.from_table "
         "LEFT OUTER JOIN TAP_SCHEMA.key_columns AS kc ON k.key_id = kc.key_id "
-        "WHERE schema_name='safcat' ORDER BY table_name": "query_list_catalogues_all_versions.csv",
+        "WHERE schema_name='safcat' ORDER BY table_name": "query_list_catalogs_all_versions.csv",
         "select * from safcat.KiDS_DR4_1_ugriZYJHKs_cat_fits": "kids_dr4_sample.csv",
     }
 }
 
-catalogue_list = [
+catalog_list = [
     "AMBRE_V1",
     "ATLASGAL_V1",
     "COSMOS2015_Laigle_v1_1b_latestV7_fits_V1",
@@ -81,14 +81,14 @@ catalogue_list = [
     "NGTS_SOURCE_CAT_V2",
     "NGTS_LC_V2",
     "VVV_bandMergedSourceCat_V3",
-    "FDS_SourceCatalogue_V1",
+    "FDS_Sourcecatalog_V1",
     "VANDELS_SPECTRO_V4",
     "VEXAS_DESW_V2",
     "VEXAS_SMW_V2",
     "VEXAS_PSW_V2",
     "VEXAS_SPEC_GOOD_V2",
     "PESSTO_TRAN_CAT_V3",
-    "GNS_catalogue_V1",
+    "GNS_catalog_V1",
     "AMBRE_UVES_V1",
     "AMBRE_HARPS_V1",
     "PESSTO_MPHOT_V3",
@@ -132,14 +132,14 @@ catalogue_list = [
     "vmc_dr7_yjks_varCat_V3",
 ]
 
-catalogue_list_all = [
+catalog_list_all = [
     "AMBRE_V1",
     "atlas_er3_ugriz_catMetaData_fits_V2",
     "ATLASGAL_V1",
     "COSMOS2015_Laigle_v1_1b_latestV7_fits_V1",
     "EREBOS_cat_fits_V1",
     "EREBOS_RV_cat_fits_V1",
-    "GES_iDR4_PIII2016_Catalogue_v3_fits_V2",
+    "GES_iDR4_PIII2016_catalog_v3_fits_V2",
     "GOODS_FORS2_V1",
     "GOODS_ISAAC_V1",
     "GOODS_VIMOS_SPEC_V1",
@@ -181,8 +181,8 @@ catalogue_list_all = [
     "UVISTA_5band_cat_dr4_rc_v2_fits_V3",
     "atlas_er4_ugriz_catMetaData_fits_V3",
     "VVV_VIRAC_PM_V1",
-    "NGTS_SOURCE_CATALOGUE_fits_V1",
-    "NGTS_LC_CATALOGUE_fits_V1",
+    "NGTS_SOURCE_catalog_fits_V1",
+    "NGTS_LC_catalog_fits_V1",
     "MW_BULGE_PSFPHOT_V1",
     "VANDELS_spec_redshift_V3",
     "VEXAS_AllWISE_V1",
@@ -204,14 +204,14 @@ catalogue_list_all = [
     "NGTS_SOURCE_CAT_V2",
     "NGTS_LC_V2",
     "VVV_bandMergedSourceCat_V3",
-    "FDS_SourceCatalogue_V1",
+    "FDS_Sourcecatalog_V1",
     "VANDELS_SPECTRO_V4",
     "VEXAS_DESW_V2",
     "VEXAS_SMW_V2",
     "VEXAS_PSW_V2",
     "VEXAS_SPEC_GOOD_V2",
     "PESSTO_TRAN_CAT_V3",
-    "GNS_catalogue_V1",
+    "GNS_catalog_V1",
     "AMBRE_UVES_V1",
     "AMBRE_HARPS_V1",
     "PESSTO_MPHOT_V3",
@@ -274,25 +274,25 @@ def monkey_tap(query, **kwargs):
     return table
 
 
-def test_list_catalogues_latest_versions(monkeypatch):
+def test_list_catalogs_latest_versions(monkeypatch):
     eso = Eso()
     monkeypatch.setattr(eso, "query_tap", monkey_tap)
-    saved_list = eso.list_catalogues(all_versions=False)
+    saved_list = eso.list_catalogs(all_versions=False)
     assert isinstance(saved_list, list)
-    assert set(catalogue_list) <= set(saved_list)
+    assert set(catalog_list) <= set(saved_list)
 
 
-def test_list_catalogues_all_versions(monkeypatch):
+def test_list_catalogs_all_versions(monkeypatch):
     eso = Eso()
     monkeypatch.setattr(eso, "query_tap", monkey_tap)
-    saved_list = eso.list_catalogues(all_versions=True)
+    saved_list = eso.list_catalogs(all_versions=True)
     assert isinstance(saved_list, list)
-    assert len(saved_list) >= len(catalogue_list_all)
+    assert len(saved_list) >= len(catalog_list_all)
 
 
-def test_query_catalogues(monkeypatch):
+def test_query_catalogs(monkeypatch):
     eso = Eso()
     monkeypatch.setattr(eso, "query_tap", monkey_tap)
-    result = eso.query_catalogue("KiDS_DR4_1_ugriZYJHKs_cat_fits", ROW_LIMIT=5)
+    result = eso.query_catalog("KiDS_DR4_1_ugriZYJHKs_cat_fits", ROW_LIMIT=5)
     assert isinstance(result, Table)
     assert len(result) <= 5
