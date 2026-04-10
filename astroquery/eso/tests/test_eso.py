@@ -366,14 +366,14 @@ def test_maxrec():
     assert maxrec == EXPECTED_MAX_ROW_LIMIT
 
 
-def test_download_pyvo_table():
+def test_retrieve_pyvo_table():
     eso_instance = Eso()
     dal = pyvo.dal.TAPService(eso_instance._tap_url())
 
     q_str = "select * from ivoa.ObsCore"
     table = None
     with pytest.raises(pyvo.dal.exceptions.DALFormatError):
-        table = eso_instance._try_download_pyvo_table(q_str, dal)
+        table = eso_instance._try_retrieve_pyvo_table(q_str, dal)
 
     assert table is None
 

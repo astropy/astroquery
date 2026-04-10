@@ -275,7 +275,7 @@ class EsoClass(QueryWithLogin):
                           "To retrieve all the records set to None the ROW_LIMIT attribute",
                           MaxResultsWarning)
 
-    def _try_download_pyvo_table(self,
+    def _try_retrieve_pyvo_table(self,
                                  query_str: str,
                                  tap: TAPService) -> Optional[Table]:
         table_with_an_extra_row = Table()
@@ -361,7 +361,7 @@ class EsoClass(QueryWithLogin):
         """
         table_to_return = Table()
         tap_service = self.tap(authenticated, tap_endpoint=tap_endpoint)
-        table_to_return = self._try_download_pyvo_table(query, tap_service)
+        table_to_return = self._try_retrieve_pyvo_table(query, tap_service)
         return table_to_return
 
     @unlimited_maxrec
