@@ -13,7 +13,8 @@ def test_remote():
                               max_frequency=1000 * u.GHz,
                               min_strength=-500,
                               molecule="18003 H2O",
-                              fallback_to_getmolecule=False)
+                              fallback_to_getmolecule=False,
+                              use_getmolecule=False)
     assert isinstance(tbl, Table)
     assert len(tbl) == 36
     assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
@@ -62,7 +63,8 @@ def test_remote_regex():
                               max_frequency=1000 * u.GHz,
                               min_strength=-500,
                               molecule=("28001", "28002", "28003"),
-                              fallback_to_getmolecule=False)
+                              fallback_to_getmolecule=False,
+                              use_getmolecule=False)
     assert isinstance(tbl, Table)
     assert len(tbl) == 16
     assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
