@@ -209,7 +209,7 @@ class JPLSpecClass(BaseQuery):
         """
 
         if 'Zero lines were found' in response.text or use_getmolecule:
-            if fallback_to_getmolecule:
+            if fallback_to_getmolecule or use_getmolecule:
                 self.lookup_ids = build_lookup()
                 payload = parse_qs(response.request.body)
                 tbs = [self.get_molecule(mol) for mol in payload['Mol']]
