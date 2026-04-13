@@ -4,7 +4,7 @@ This module contains all the monkeypatch tests. The data for these
 tests is gathered in data folder and contains the information
 of different lists and object information from ESA NEOCC portal.
 """
-
+import os.path
 import re
 import pytest
 import warnings
@@ -24,6 +24,8 @@ from astroquery.esa import neocc
 API_URL = neocc.conf.API_URL
 TIMEOUT = neocc.conf.TIMEOUT
 VERIFICATION = neocc.conf.SSL_CERT_VERIFICATION
+
+package = "astroquery.esa.neocc.tests"
 
 
 @pytest.fixture
@@ -52,7 +54,7 @@ def get_mockreturn(name, timeout=TIMEOUT, verify=VERIFICATION):
     if '&oc' in fileloc:
         fileloc = fileloc.split(r'&')[0] + '.eph'
 
-    filename = get_pkg_data_filename("data/" + fileloc)
+    filename = get_pkg_data_filename(os.path.join("data", fileloc), package=package)
     with open(filename, 'rb') as FLE:
         content = FLE.read()
         content = content.replace(b"\r", b"")  # For windows tests

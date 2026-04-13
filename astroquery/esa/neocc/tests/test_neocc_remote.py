@@ -9,7 +9,7 @@ tests is requested to ESA NEOCC portal.
 * Author: C. Álvaro Arroyo Parejo
 * Date: 21-08-2022
 """
-
+import os.path
 import re
 import random
 import pytest
@@ -29,10 +29,12 @@ API_URL = neocc.conf.API_URL
 TIMEOUT = neocc.conf.TIMEOUT
 VERIFICATION = neocc.conf.SSL_CERT_VERIFICATION
 
+package = "astroquery.esa.neocc.tests"
+
 
 @pytest.fixture(scope="class")
 def nea_list():
-    filename = get_pkg_data_filename("data/allnea.csv")
+    filename = get_pkg_data_filename(os.path.join("data", "allnea.csv"), package=package)
     return Table.read(filename, format="ascii.csv")
 
 

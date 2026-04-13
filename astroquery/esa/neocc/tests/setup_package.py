@@ -22,4 +22,4 @@ def get_package_data():
                   os.path.join('data', '*.eq*'),
                   os.path.join('data', '*.csv*')]
 
-    return {'astroquery.esa.neocc.test': paths_test}
+    return {'astroquery.esa.neocc.tests': paths_test}
