@@ -5,7 +5,6 @@ tests is gathered in data folder and contains the information
 of different lists and object information from ESA NEOCC portal.
 """
 
-import os
 import re
 import pytest
 import warnings
@@ -15,6 +14,7 @@ import requests
 
 from astropy.table import Table
 from astropy.time import Time, TimeDelta
+from astropy.utils.data import get_pkg_data_filename
 
 from astroquery.utils.mocks import MockResponse
 
@@ -22,16 +22,8 @@ from astroquery.esa import neocc
 
 # Import BASE URL and TIMEOUT
 API_URL = neocc.conf.API_URL
-DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 TIMEOUT = neocc.conf.TIMEOUT
 VERIFICATION = neocc.conf.SSL_CERT_VERIFICATION
-
-
-def data_path(filename):
-    """Look for the data directory local to the test_module.py file.
-    """
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    return os.path.join(data_dir, filename)
 
 
 @pytest.fixture
@@ -60,7 +52,7 @@ def get_mockreturn(name, timeout=TIMEOUT, verify=VERIFICATION):
     if '&oc' in fileloc:
         fileloc = fileloc.split(r'&')[0] + '.eph'
 
-    filename = data_path(fileloc)
+    filename = get_pkg_data_filename("data/" + fileloc)
     with open(filename, 'rb') as FLE:
         content = FLE.read()
         content = content.replace(b"\r", b"")  # For windows tests

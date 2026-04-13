@@ -10,7 +10,6 @@ tests is requested to ESA NEOCC portal.
 * Date: 21-08-2022
 """
 
-import os
 import re
 import random
 import pytest
@@ -21,14 +20,20 @@ import numpy as np
 
 from astropy.table import Table
 from astropy.time import Time
+from astropy.utils.data import get_pkg_data_filename
 
 from astroquery.esa import neocc
 
 # Import BASE URL and TIMEOUT
 API_URL = neocc.conf.API_URL
-DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 TIMEOUT = neocc.conf.TIMEOUT
 VERIFICATION = neocc.conf.SSL_CERT_VERIFICATION
+
+
+@pytest.fixture(scope="class")
+def nea_list():
+    filename = get_pkg_data_filename("data/allnea.csv")
+    return Table.read(filename, format="ascii.csv")
 
 
 @pytest.mark.filterwarnings('ignore:ERFA function *:erfa.core.ErfaWarning')
@@ -115,7 +120,7 @@ class TestLists:
             with pytest.raises(KeyError):
                 neocc.lists.parse_list(elements, data_list_d)
 
-    def test_parse_nea(self):
+    def test_parse_nea(self, nea_list):
         """Check data: nea list, updated nea list and monthly update
         """
         url_series = ["nea_list", "updated_nea", "monthly_update"]
@@ -138,9 +143,6 @@ class TestLists:
 
                 # Check size of the result
                 assert len(new_list) > 20000
-
-                filename = os.path.join(DATA_DIR, "allnea.csv")
-                nea_list = Table.read(filename, format="ascii.csv")
 
                 # Check 74 first elements are equal from reference data
                 # (since provisional designator may change)
@@ -418,14 +420,12 @@ class TestLists:
 class TestTabs:
     """Class which contains the unitary tests for tabs module.
     """
-    path_nea = os.path.join(DATA_DIR, 'allnea.csv')
-    nea_list = Table.read(path_nea, format="ascii.csv")
 
     # Ignore the FutureWarning that only comes up with the oldest dependencies
     warnings.filterwarnings("ignore", category=FutureWarning,
                             message="Conversion of the second argument of issubdtype*")
 
-    def test_get_object_url(self):
+    def test_get_object_url(self, nea_list):
         """Test for checking the URL termination for requested object tab.
         Check invalid list name raise KeyError.
         """
@@ -439,7 +439,7 @@ class TestTabs:
         }
 
         # Choose a random object from stored nea list
-        rnd_object = random.choice(self.nea_list["NEA"])
+        rnd_object = random.choice(nea_list["NEA"])
 
         # Tabs to test
         object_tabs = ['impacts', 'close_approaches',
@@ -467,11 +467,11 @@ class TestTabs:
                     str(rnd_object).replace(' ', '%20') +\
                     tab_dict[tab]
 
-    def test_get_object_data(self):
+    def test_get_object_data(self, nea_list):
         """Test for obtaining the content of a URL.
         """
         # Choose a random object from stored nea list
-        rnd_object = random.choice(self.nea_list["NEA"])
+        rnd_object = random.choice(nea_list["NEA"])
 
         # Tabs used in url function
         object_tabs = ['impacts', 'close_approaches',
@@ -505,7 +505,7 @@ class TestTabs:
             with pytest.raises(KeyError):
                 neocc.neocc.query_object(name='433', tab=element)
 
-    def test_tabs_summary(self):
+    def test_tabs_summary(self, nea_list):
         """Check data: summary tab
         """
         # Check value error if empty
@@ -513,7 +513,7 @@ class TestTabs:
             neocc.neocc.query_object(name='foo', tab='summary')
 
         # Choose a random object from stored nea list
-        rnd_object = random.choice(self.nea_list["NEA"])
+        rnd_object = random.choice(nea_list["NEA"])
 
         # Request summary and check types
         result_list = neocc.neocc.query_object(name=rnd_object, tab='summary')
