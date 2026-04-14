@@ -789,3 +789,46 @@ class TestESAHubble:
 
             full_path = ehst.get_datalabs_path(filename=filename, default_volume=default_volume)
             assert full_path == "/data/user/myPath/i/b4x/04/ib4x04ivq_flt.jpg"
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch.object(ESAHubbleClass, 'query_tap')
+    @patch.object(ESAHubbleClass, '_get_decoded_string')
+    def test_get_datalabs_path_hsla(self, mock_get_decoded_string, mock_query_tap):
+        ehst = ESAHubbleClass(show_messages=False)
+
+        with patch('os.path.exists') as mock_exists:
+            mock_get_decoded_string.return_value = "/hstdata/hsla/hst_g249-36--7063/"
+            mock_exists.side_effect = [True]
+            filename = "hst_g249-36--7063_aspec_thumb.png"
+            default_volume = None
+            full_path = ehst.get_datalabs_path(filename=filename, default_volume=default_volume)
+            assert full_path == "/data/user/hub_hstdata_hsla/hst_g249-36--7063/hst_g249-36--7063_aspec_thumb.png"
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch.object(ESAHubbleClass, 'query_tap')
+    @patch.object(ESAHubbleClass, '_get_decoded_string')
+    def test_get_datalabs_path_hap(self, mock_get_decoded_string, mock_query_tap):
+        ehst = ESAHubbleClass(show_messages=False)
+        with patch('os.path.exists') as mock_exists:
+            mock_get_decoded_string.return_value = "/hstdata/hstdata_hap_i/11926/23/wfc3/"
+            mock_exists.side_effect = [True]
+            filename = "hst_11926_23_wfc3_ir_f098m_ibcf23_drz.fits.gz"
+            default_volume = None
+            full_path = ehst.get_datalabs_path(filename=filename, default_volume=default_volume)
+            assert full_path == "/data/user/hst_data_hap_i/11926/23/wfc3/hst_11926_23_wfc3_ir_f098m_ibcf23_drz.fits.gz"
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch.object(ESAHubbleClass, 'query_tap')
+    @patch.object(ESAHubbleClass, '_get_decoded_string')
+    def test_get_datalabs_path_hlsp(self, mock_get_decoded_string, mock_query_tap):
+        ehst = ESAHubbleClass(show_messages=False)
+
+        with patch('os.path.exists') as mock_exists:
+            mock_get_decoded_string.return_value = "/hstdata/hlsp/rocky-worlds/HST/GJ3929/visit8/"
+            mock_exists.side_effect = [True]
+            filename = "hlsp_rocky-worlds_hst_stis_gj3929_g140m_v1.0_lc.fits"
+            default_volume = None
+            full_path = ehst.get_datalabs_path(filename=filename, default_volume=default_volume)
+            assert full_path == "/data/user/hst_hstdata_hlsp/rocky-worlds/HST/GJ3929/visit8/hlsp_rocky-worlds_hst_stis_gj3929_g140m_v1.0_lc.fits"
+
+
