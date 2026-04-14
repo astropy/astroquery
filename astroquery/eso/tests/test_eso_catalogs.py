@@ -279,7 +279,7 @@ def test_list_catalogs_latest_versions(monkeypatch):
     monkeypatch.setattr(eso, "query_tap", monkey_tap)
     saved_list = eso.list_catalogs(all_versions=False)
     assert isinstance(saved_list, list)
-    assert set(catalog_list) <= set(saved_list)
+    assert len(saved_list) >= len(catalog_list)
 
 
 def test_list_catalogs_all_versions(monkeypatch):

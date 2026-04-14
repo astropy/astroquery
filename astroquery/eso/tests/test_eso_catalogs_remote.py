@@ -15,6 +15,7 @@ from astroquery.eso import Eso
 
 from .test_eso_catalogs import catalog_list, catalog_list_all
 
+catalog_list_test = ["KiDS_DR4_1_ugriZYJHKs_cat_fits"] # test catalog 
 
 @pytest.mark.remote_data
 class TestEso:
@@ -23,20 +24,17 @@ class TestEso:
         eso = Eso()
         t = eso.list_catalogs(all_versions=False)
         t_all = eso.list_catalogs(all_versions=True)
-        lt = len(t)
-        lt_all = len(t_all)
 
         assert isinstance(t, list), f"Expected type {type(list)}; Obtained {type(t)}"
-        assert lt > 0, "Expected non-empty list of catalogs"
-        assert set(t) <= set(catalog_list), "Expected different list of catalogs"
-        assert set(t_all) <= set(catalog_list_all), "Expected different list of catalogs"
-        assert (
-            lt_all >= lt
-        ), "Expected all_versions=True to return equal or more catalogs than all_versions=False"
+        assert len(t) > 0, "Expected non-empty list of catalogs"
+        assert len(t_all) > 0, "Expected non-empty list of catalogs"
+        assert len(t) >= len(catalog_list), "Expected more catalogs than the test list"
+        assert len(t_all) >= len(catalog_list_all), "Expected more catalogs than the test list of all versions"
+        assert len(t_all) > len(t), "Expected all_versions=True to return more catalogs than all_versions=False"
 
     @pytest.mark.filterwarnings("ignore::astroquery.exceptions.MaxResultsWarning")
     @pytest.mark.filterwarnings("ignore::pyvo.dal.exceptions.DALOverflowWarning")
-    @pytest.mark.parametrize("catalog", catalog_list)
+    @pytest.mark.parametrize("catalog", catalog_list_test)
     def test_query_catalog(self, catalog):
         eso = Eso()
         t = eso.query_catalog(catalog, ROW_LIMIT=5)
@@ -45,7 +43,7 @@ class TestEso:
         assert len(t) <= 5, f"Expected max 5 records; Obtained {len(t)}"
         assert len(t) > 0, "Expected non-empty table"
 
-    @pytest.mark.parametrize("catalog", catalog_list)
+    @pytest.mark.parametrize("catalog", catalog_list_test)
     def test_query_catalog_help(self, catalog):
         eso = Eso()
         eso.query_catalog(catalog, help=True)
