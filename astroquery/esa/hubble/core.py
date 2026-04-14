@@ -940,7 +940,7 @@ class ESAHubbleClass(EsaTap):
         """
 
         # FITS files are always compressed
-        if filename.endswith('.fits') and not 'hlsp' in filename:
+        if filename.endswith('.fits') and 'hlsp' not in filename:
             filename = f"{filename}.gz"
 
         query = f"select file_path from ehst.artifact where file_name = '{filename}'"

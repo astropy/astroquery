@@ -829,6 +829,6 @@ class TestESAHubble:
             filename = "hlsp_rocky-worlds_hst_stis_gj3929_g140m_v1.0_lc.fits"
             default_volume = None
             full_path = ehst.get_datalabs_path(filename=filename, default_volume=default_volume)
-            assert full_path == "/data/user/hst_hstdata_hlsp/rocky-worlds/HST/GJ3929/visit8/hlsp_rocky-worlds_hst_stis_gj3929_g140m_v1.0_lc.fits"
-
+            assert full_path == ("/data/user/hst_hstdata_hlsp/rocky-worlds/HST/"
+                                 "GJ3929/visit8/hlsp_rocky-worlds_hst_stis_gj3929_g140m_v1.0_lc.fits")
 
