@@ -167,8 +167,8 @@ def test_timeout(changing_mocked_response, monkeypatch):
     resp = mytest.test_func(URL1)
     assert resp.content == TEXT2  # now see the new response
 
-    # Testing a cache timeout of "none"
-    cache_conf.cache_timeout = None
+    # Testing a cache timeout of -1
+    cache_conf.cache_timeout = -1
     # Ensure response can only come from cache.
     monkeypatch.delattr(requests.Session, "request")
 
