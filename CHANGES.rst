@@ -199,7 +199,7 @@ Infrastructure, Utility and Other Changes and Additions
 - ``BaseVOQuery`` now accepts a ``extra_user_agents`` parameter to allow the addition
   of user agents on top of astroquery's ones [#3526]
 
-- Fix no experation case for ``cache_timeout`` config option. [#3579]
+- Fix no expiration case for ``cache_timeout`` config option. [#3579]
 
 utils.tap
 ^^^^^^^^^
