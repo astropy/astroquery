@@ -108,7 +108,7 @@ class SvoFpsClass(BaseQuery):
                 "succeed. Try increasing the timeout limit if a large range is needed."
             )
 
-    def get_filter_metadata(self, filter_id, *, cache=True, timeout=None):
+    def get_filter_metadata(self, filter_id, *, cache=True, timeout=None, **kwargs):
         """Get metadata/parameters for the requested Filter ID from SVO
 
         Parameters
@@ -122,6 +122,8 @@ class SvoFpsClass(BaseQuery):
             See :ref:`caching documentation <astroquery_cache>`.
         timeout : int
             Timeout in seconds. If not specified, defaults to ``conf.timeout``.
+        kwargs : dict
+            Appended to the ``query`` dictionary sent to SVO.
 
         Returns
         -------
@@ -129,6 +131,17 @@ class SvoFpsClass(BaseQuery):
             Dictionary of VOTable PARAM names and values.
         """
         query = {'ID': filter_id, 'VERB': 0}
+        query.update(kwargs)
+
+        bad_params = [param for param in query if param not in QUERY_PARAMETERS]
+        if bad_params:
+            raise InvalidQueryError(
+                f"parameter{'s' if len(bad_params) > 1 else ''} "
+                f"{', '.join(bad_params)} {'are' if len(bad_params) > 1 else 'is'} "
+                f"invalid. For a description of valid query parameters see "
+                "https://svo2.cab.inta-csic.es/theory/fps/index.php?mode=voservice"
+            )
+
         response = self._request("GET", self.SVO_MAIN_URL, params=query,
                                  timeout=timeout or self.TIMEOUT,
                                  cache=cache)
@@ -142,6 +155,53 @@ class SvoFpsClass(BaseQuery):
             else:
                 params[param.name] = param.value
         return params
+
+    def get_zeropoint(self, filter_id, mag_system='Vega', **kwargs):
+        """
+        Get the zero point for a specififed filter in a specified system.
+
+        This is a highly-specific downselection of the metadata returned by
+        `get_filter_metadata`; the full metadata includes the zero point with
+        ``Vega`` as the default system.
+
+        Parameters
+        ----------
+        filter_id : str
+            Filter ID in the format SVO specifies it: 'facilty/instrument.filter'.
+            This is returned by `get_filter_list` and `get_filter_index` as the
+            ``filterID`` column.
+        mag_system : str
+            The magnitude system for which to return the zero point.
+        kwargs : dict
+            Appended to the ``query`` dictionary sent to SVO.
+
+        Examples
+        --------
+        >>> from astroquery.svo_fps import SvoFps  # doctest: +REMOTE_DATA
+        >>> SvoFps.get_zeropoint(filter_id='2MASS/2MASS.J', mag_system='AB')  # doctest: +REMOTE_DATA
+        {'MagSys': 'AB',
+         'ZeroPoint': <Quantity 3631. Jy>,
+         'ZeroPointUnit': 'Jy',
+         'ZeroPointType': 'Pogson'}
+        >>> SvoFps.get_filter_metadata(filter_id='2MASS/2MASS.J', PhotCalID='2MASS/2MASS.J/AB')  # doctest: +REMOTE_DATA
+        {'FilterProfileService': 'ivo://svo/fps',
+         'filterID': '2MASS/2MASS.J',
+         ...
+         'PhotCalID': '2MASS/2MASS.J/AB',
+         'MagSys': 'AB',
+         'ZeroPoint': <Quantity 3631. Jy>,
+         'ZeroPointUnit': 'Jy',
+         'ZeroPointType': 'Pogson'}
+
+        """
+        metadata = self.get_filter_metadata(filter_id=filter_id,
+                                            PhotCalID=f'{filter_id}/{mag_system}', **kwargs)
+
+        zeropoint_keys = ['MagSys', 'ZeroPoint', 'ZeroPointUnit', 'ZeroPointType']
+
+        zp = {key: metadata[key] for key in zeropoint_keys if key in metadata}
+
+        return zp
 
     def get_transmission_data(self, filter_id, **kwargs):
         """Get transmission data for the requested Filter ID from SVO
