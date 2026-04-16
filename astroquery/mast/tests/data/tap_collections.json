@@ -4,11 +4,6 @@
         "title": "tap_search",
         "version": "0.1"
     },
-    "servers": [
-        {
-            "url": "/vo-tap/api/v0.1"
-        }
-    ],
     "paths": {
         "/{catalog}/": {
             "get": {
@@ -1558,7 +1553,7 @@
         "schemas": {
             "Body_TAPAsyncHandler_post__catalog__async_post": {
                 "properties": {
-                    "lang": {
+                    "LANG": {
                         "anyOf": [
                             {
                                 "$ref": "#/components/schemas/LangName"
@@ -1576,25 +1571,25 @@
                         "description": "Content type of the response",
                         "default": "votable"
                     },
-                    "param_format": {
+                    "FORMAT": {
                         "$ref": "#/components/schemas/EncodingEnum",
                         "description": "Content type of the response",
                         "default": "votable"
                     },
-                    "query": {
+                    "QUERY": {
                         "type": "string",
                         "title": "Query",
                         "description": "Query to perform",
                         "default": ""
                     },
-                    "maxrec": {
+                    "MAXREC": {
                         "type": "integer",
                         "minimum": 0.0,
                         "title": "Maxrec",
                         "description": "Maximum number of records to be returned (max 100k)",
                         "default": 100000
                     },
-                    "runid": {
+                    "RUNID": {
                         "anyOf": [
                             {
                                 "type": "string",
@@ -1608,7 +1603,7 @@
                         "description": "RUNID for the request",
                         "default": ""
                     },
-                    "phase": {
+                    "PHASE": {
                         "anyOf": [
                             {
                                 "type": "string",
@@ -1630,7 +1625,7 @@
             },
             "Body_TAPAsyncHandler_post_update_job_destruction__catalog__async__job_id__destruction_post": {
                 "properties": {
-                    "destruction": {
+                    "DESTRUCTION": {
                         "type": "string",
                         "format": "date-time",
                         "title": "Destruction",
@@ -1642,10 +1637,10 @@
             },
             "Body_TAPAsyncHandler_post_update_job_execution_duration__catalog__async__job_id__executionduration_post": {
                 "properties": {
-                    "execution_duration": {
+                    "EXECUTIONDURATION": {
                         "type": "integer",
                         "minimum": 0.0,
-                        "title": "Execution Duration",
+                        "title": "Executionduration",
                         "description": "Requested execution duration in seconds",
                         "default": 600
                     }
@@ -1655,7 +1650,7 @@
             },
             "Body_TAPAsyncHandler_post_update_job_info__catalog__async__job_id__post": {
                 "properties": {
-                    "phase": {
+                    "PHASE": {
                         "anyOf": [
                             {
                                 "$ref": "#/components/schemas/PhaseAction"
@@ -1666,7 +1661,7 @@
                         ],
                         "description": "Execution Phase"
                     },
-                    "destruction": {
+                    "DESTRUCTION": {
                         "anyOf": [
                             {
                                 "type": "string",
@@ -1679,7 +1674,7 @@
                         "title": "Destruction",
                         "description": "ISO 8601 UTC datetime for proposed job destruction"
                     },
-                    "action": {
+                    "ACTION": {
                         "anyOf": [
                             {
                                 "type": "string"
@@ -1697,20 +1692,20 @@
             },
             "Body_TAPAsyncHandler_post_update_job_phase__catalog__async__job_id__phase_post": {
                 "properties": {
-                    "phase": {
+                    "PHASE": {
                         "$ref": "#/components/schemas/PhaseAction",
                         "description": "Execution Phase"
                     }
                 },
                 "type": "object",
                 "required": [
-                    "phase"
+                    "PHASE"
                 ],
                 "title": "Body_TAPAsyncHandler_post_update_job_phase__catalog__async__job_id__phase_post"
             },
             "Body_TAPAsyncHandler_update_job_info_parameters__catalog__async__job_id__parameters_post": {
                 "properties": {
-                    "query": {
+                    "QUERY": {
                         "anyOf": [
                             {
                                 "type": "string"
@@ -1722,7 +1717,7 @@
                         "title": "Query",
                         "description": "Query to be executed"
                     },
-                    "lang": {
+                    "LANG": {
                         "anyOf": [
                             {
                                 "$ref": "#/components/schemas/LangName"
@@ -1733,7 +1728,7 @@
                         ],
                         "description": "Query langauge to be used."
                     },
-                    "responseformat": {
+                    "RESPONSEFORMAT": {
                         "anyOf": [
                             {
                                 "$ref": "#/components/schemas/EncodingEnum"
@@ -1744,7 +1739,7 @@
                         ],
                         "description": "Content type of the response"
                     },
-                    "param_format": {
+                    "FORMAT": {
                         "anyOf": [
                             {
                                 "$ref": "#/components/schemas/EncodingEnum"
@@ -1755,7 +1750,7 @@
                         ],
                         "description": "Content type of the response"
                     },
-                    "maxrec": {
+                    "MAXREC": {
                         "anyOf": [
                             {
                                 "type": "integer"
@@ -1767,7 +1762,7 @@
                         "title": "Maxrec",
                         "description": "Maximum number of records to return"
                     },
-                    "runid": {
+                    "RUNID": {
                         "anyOf": [
                             {
                                 "type": "string"
@@ -1785,7 +1780,7 @@
             },
             "Body_TAPHandler_post__catalog__sync_post": {
                 "properties": {
-                    "lang": {
+                    "LANG": {
                         "$ref": "#/components/schemas/LangName",
                         "description": "Query language to be used for this request"
                     },
@@ -1794,17 +1789,17 @@
                         "description": "Content type of the response",
                         "default": "votable"
                     },
-                    "param_format": {
+                    "format": {
                         "$ref": "#/components/schemas/EncodingEnum",
                         "description": "Content type of the response",
                         "default": "votable"
                     },
-                    "query": {
+                    "QUERY": {
                         "type": "string",
                         "title": "Query",
                         "description": "Query to perform"
                     },
-                    "maxrec": {
+                    "MAXREC": {
                         "type": "integer",
                         "minimum": 0.0,
                         "title": "Maxrec",
@@ -1827,8 +1822,8 @@
                 },
                 "type": "object",
                 "required": [
-                    "lang",
-                    "query"
+                    "LANG",
+                    "QUERY"
                 ],
                 "title": "Body_TAPHandler_post__catalog__sync_post"
             },
@@ -1838,16 +1833,14 @@
                     "caom",
                     "classy",
                     "gaiadr3",
-                    "greenplum",
                     "hsc",
                     "hscv2",
+                    "mast_catalogs",
                     "missionmast",
                     "ps1dr1",
                     "ps1dr2",
-                    "ps1_dr2",
                     "registry",
-                    "roman",
-                    "romanspectra",
+                    "roman_catalogs",
                     "skymapperdr4",
                     "tic",
                     "ullyses",
@@ -1903,7 +1896,7 @@
                 "type": "string",
                 "enum": [
                     "ADQL",
-                    "ADQL-2.0"
+                    "ADQL-2.1"
                 ],
                 "title": "LangName",
                 "description": "Enum for language names as param"
@@ -1940,6 +1933,13 @@
                     "type": {
                         "type": "string",
                         "title": "Error Type"
+                    },
+                    "input": {
+                        "title": "Input"
+                    },
+                    "ctx": {
+                        "type": "object",
+                        "title": "Context"
                     }
                 },
                 "type": "object",
@@ -1951,5 +1951,10 @@
                 "title": "ValidationError"
             }
         }
-    }
+    },
+    "servers": [
+        {
+            "url": "/vo-tap/api/v0.1"
+        }
+    ]
 }
