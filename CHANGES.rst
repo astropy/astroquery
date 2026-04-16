@@ -54,9 +54,9 @@ esa.euclid
 - The method ``get_spectrum`` accepts the new parameter ``linking_parameter`` to retrieve the spectra by source_id and
   sourcepatch_id. [#3543]
 -  The ``source_id`` kwarg in the ``get_spectrum`` method has been renamed to ``ids``. [#3543]
-- Method ``get_cutout`` has deprecated the 'instrument' and 'id' parameters, providing them has no effect any more. 
+- Method ``get_cutout`` has deprecated the 'instrument' and 'id' parameters, providing them has no effect any more.
   The method now only supports retrieval of MER (background‑subtracted) image cutouts. [#3559]
-- The ``get_product_list`` method now also returns file_name_list column when the product type belongs to 
+- The ``get_product_list`` method now also returns file_name_list column when the product type belongs to
   BASIC_DOWNLOAD_DATA_PRODUCTS. [#3562]
 - The method ``get_spectrum`` accepts a single source_id or designation or multiple values separated by commas or a
    list. [#3570]
@@ -74,7 +74,7 @@ mast
   now check all requested products against cloud storage. As a result, setting ``cloud_only=True`` will skip
   any products that are not available in the cloud, rather than falling back to on-prem downloads.
 - The ``objectname`` keyword is deprecated in ``MastMissions`` in favor of ``object_names``. [#3540]
-- The ``objectname`` parameter in ``Catalogs``, ``Observations``, ``Tesscut``, and ``utils`` is deprecated 
+- The ``objectname`` parameter in ``Catalogs``, ``Observations``, ``Tesscut``, and ``utils`` is deprecated
   in favor of ``object_name``. [#3567]
 
 vo_conesearch
@@ -199,6 +199,7 @@ Infrastructure, Utility and Other Changes and Additions
 - ``BaseVOQuery`` now accepts a ``extra_user_agents`` parameter to allow the addition
   of user agents on top of astroquery's ones [#3526]
 
+- Fix no experation case for ``cache_timeout`` config option. [#3579]
 
 utils.tap
 ^^^^^^^^^
