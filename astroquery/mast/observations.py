@@ -1151,11 +1151,13 @@ class ObservationsClass(MastQueryWithLogin):
 
 # Function requires following packages
 # [Required] gwcs (which would also inst asdf-astropy) - To obtain the general asdf schemas to correctly parse the asdf metadata. Should handle most non-roman schemas
+# NOTE: It looks like gwc is a dev dependency in asdf-astropy
 # [Required] s3fs - for actually connecting to s3 and retreiving the files
 # [Required] lz4 - to handle the asdf file compression
 # [Optional] roman-datamodels: Required for specific roman asdf schemas (i.e. Roman SOC and PIT)
-# [Optional Future]: Most likely some HLSP schema package 
-def read_product(uri, read_as="auto", ignore_unrecognized=False):
+# [Optional Future]: Most likely some HLSP schema package
+# TODO: Need to inlcude way to parse if it is a MAST on prem URL and handle the streaming of that
+def read_product(product_path, read_as="auto", ignore_unrecognized=False):
     """
     Read a product from Open S3 bucket to memory. Currently can handle FITS and ASDF product types with appropriate package installation.
 
@@ -1179,21 +1181,23 @@ def read_product(uri, read_as="auto", ignore_unrecognized=False):
     
     if read_as == "auto":
         # Read logic for FITS
-        if uri.endswith(".fits"):
+        if product_path.endswith(".fits"):
             try:
-                return fits.open(uri, fsspec_kwargs={"anon": True})
+                return fits.open(product_path, fsspec_kwargs={"anon": True})
+            
             except Exception as e:
-                log.exception(f"Failed to open FITS File: {uri} {e}")
+                log.exception(f"Failed to open FITS File: {product_path} {e}")
         
         # Read logic for ASDF
-        elif uri.endswith(".asdf"):
+        elif product_path.endswith(".asdf"):
             try:
                 fs = s3fs.S3FileSystem(anon=True)
-                with fs.open(uri, 'rb') as s3_file:
-                    af = asdf.open(s3_file, ignore_unrecognized_tag=ignore_unrecognized)
+                with fs.open(product_path, 'rb') as asdf_file:
+                    af = asdf.open(asdf_file, ignore_unrecognized_tag=ignore_unrecognized)
+
                     return af
             except Exception as e:
-                log.exception(f"Failed to open ASD File: {uri} {e}")
+                log.exception(f"Failed to open ASD File: {product_path} {e}")
     else:
         log.info(f"Unsupported extension type")
 
