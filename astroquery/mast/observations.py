@@ -1163,7 +1163,7 @@ def read_product(product_path, read_as="auto", ignore_unrecognized=False):
 
     Parameters
     ----------
-    uri: str
+    product_path: str
         URI to the product in open bucket.
 
     read_as: str, optional
