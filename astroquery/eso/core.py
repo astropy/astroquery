@@ -182,6 +182,11 @@ class EsoClass(QueryWithLogin):
         valid_urls = "', '".join(tap_urls.values())
         raise ValueError(f"tap_url must be one of '{valid_urls}'.")
 
+    def _tap_cat_table_names_have_schema_prefix(self, *, tap_endpoint: str) -> bool:
+        query = "select top 1 table_name from TAP_SCHEMA.tables"
+        result = self.query_tap(query, tap_endpoint=tap_endpoint)
+        return len(result) > 0 and "." in str(result["table_name"][0])
+
     def _authenticate(self, *, username: str, password: str) -> bool:
         """
         Get the access token from ESO SSO provider
@@ -417,9 +422,12 @@ class EsoClass(QueryWithLogin):
                           f"from TAP_SCHEMA.columns where table_name = '{table_name}'")
         else:
             schema = _EsoNames.catalog_schema
+            tap_schema_table_name = table_name
+            if not self._tap_cat_table_names_have_schema_prefix(tap_endpoint=tap_endpoint):
+                tap_schema_table_name = table_name.removeprefix(schema + ".")
             help_query = ("select column_name, datatype, unit, ucd "
                           f"from TAP_SCHEMA.columns "
-                          f"where table_name = '{table_name.removeprefix(schema + '.')}'")
+                          f"where table_name = '{tap_schema_table_name}'")
         return self.query_tap(help_query, tap_endpoint=tap_endpoint)
 
     @unlimited_maxrec
