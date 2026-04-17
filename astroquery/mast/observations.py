@@ -13,8 +13,6 @@ import os
 from urllib.parse import quote
 
 import numpy as np
-import asdf
-import s3fs
 
 from requests import HTTPError
 
@@ -37,6 +35,29 @@ from .core import MastQueryWithLogin
 
 __all__ = ['Observations', 'ObservationsClass',
            'MastClass', 'Mast']
+
+from importlib.metadata import PackageNotFoundError, version
+
+asdf_module_req= ["asdf", "s3fs"]
+asdf_package_req = ["lz4", "gwcs"]
+asdf_missing = []
+
+for module in asdf_module_req:
+    try:
+        # Is there a better way to do this
+        globals()[module] = __import__(module)
+
+    except ModuleNotFoundError:
+        asdf_missing.append(module)
+        log.debug(f"Module Not Found: {module} please pip install to stream and open asdf data products")
+
+for package in asdf_package_req:
+    try:
+        version(package)
+
+    except PackageNotFoundError:
+        asdf_missing.append(package)
+        log.debug(f"Package Not Found: {package} please pip install to stream and open asdf data products")
 
 
 @async_to_sync
@@ -1149,13 +1170,7 @@ class ObservationsClass(MastQueryWithLogin):
             log.info("To return all products, use `Observations.get_product_list`")
         return unique_products
 
-# Function requires following packages
-# [Required] gwcs (which would also inst asdf-astropy) - To obtain the general asdf schemas to correctly parse the asdf metadata. Should handle most non-roman schemas
-# NOTE: It looks like gwc is a dev dependency in asdf-astropy
-# [Required] s3fs - for actually connecting to s3 and retreiving the files
-# [Required] lz4 - to handle the asdf file compression
-# [Optional] roman-datamodels: Required for specific roman asdf schemas (i.e. Roman SOC and PIT)
-# [Optional Future]: Most likely some HLSP schema package
+
 # TODO: Need to inlcude way to parse if it is a MAST on prem URL and handle the streaming of that
 def read_product(product_path, read_as="auto", ignore_unrecognized=False):
     """
@@ -1182,24 +1197,30 @@ def read_product(product_path, read_as="auto", ignore_unrecognized=False):
     if read_as == "auto":
         # Read logic for FITS
         if product_path.endswith(".fits"):
-            try:
+             try:
                 return fits.open(product_path, fsspec_kwargs={"anon": True})
-            
-            except Exception as e:
-                log.exception(f"Failed to open FITS File: {product_path} {e}")
-        
+             
+             except Exception as e:
+                 log.exception(f"Failed to open FITS File: {product_path} {e}")
+
+
         # Read logic for ASDF
         elif product_path.endswith(".asdf"):
-            try:
-                fs = s3fs.S3FileSystem(anon=True)
-                with fs.open(product_path, 'rb') as asdf_file:
-                    af = asdf.open(asdf_file, ignore_unrecognized_tag=ignore_unrecognized)
 
-                    return af
-            except Exception as e:
-                log.exception(f"Failed to open ASD File: {product_path} {e}")
+            if asdf_missing:
+                log.debug(f"Missing Required Packaged for ASDF product type handeling: {asdf_missing}")
+
+            else:
+                try:
+                    fs = s3fs.S3FileSystem(anon=True)
+                    with fs.open(product_path, 'rb') as s3_file:
+                        af = asdf.open(s3_file, ignore_unrecognized_tag=ignore_unrecognized)
+                        return af
+                    
+                except Exception as e:
+                    log.exception(f"Failed to open ASD File: {product_path} {e}")
     else:
-        log.info(f"Unsupported extension type")
+        print(f"Unsupported extension type")
 
 @async_to_sync
 class MastClass(MastQueryWithLogin):
