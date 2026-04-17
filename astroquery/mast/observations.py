@@ -1237,7 +1237,7 @@ def read_product(product_path, read_as="auto", ignore_unrecognized=False):
             try:
                 return fits.open(product_path, fsspec_kwargs={"anon": True})
             except Exception as e:
-                 log.exception(f"Failed to open FITS File: {product_path} {e}")
+                log.exception(f"Failed to open FITS File: {product_path} {e}")
 
         # Read logic for ASDF
         elif product_path.endswith(".asdf"):
