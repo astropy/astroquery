@@ -59,6 +59,7 @@ for module in asdf_module_req:
     except ModuleNotFoundError:
         asdf_missing.append(module)
         log.debug(f"Module Not Found: {module} please pip install to stream and open asdf data products")
+        pass
 
 for package in asdf_package_req:
     try:
@@ -67,6 +68,7 @@ for package in asdf_package_req:
     except PackageNotFoundError:
         asdf_missing.append(package)
         log.debug(f"Package Not Found: {package} please pip install to stream and open asdf data products")
+        pass
 
 
 @async_to_sync
