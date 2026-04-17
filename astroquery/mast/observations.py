@@ -46,12 +46,13 @@ CLOUD_DISABLED_MESSAGE = (
     '`~astroquery.mast.ObservationsClass.enable_cloud_dataset` method.'
 )
 
-asdf_modules= ["asdf", "s3fs", "lz4", "gwcs"]
+asdf_modules = ["asdf", "s3fs", "lz4", "gwcs"]
 try:
     import asdf
     import s3fs
 except ImportError:
     pass
+
 
 @async_to_sync
 class ObservationsClass(MastQueryWithLogin):
@@ -1232,13 +1233,11 @@ def read_product(product_path, read_as="auto", ignore_unrecognized=False):
         FITS or ASDF object.
     """
     if read_as == "auto":
-        # Read logic for FITS
         if product_path.endswith(".fits"):
-             try:
+            try:
                 return fits.open(product_path, fsspec_kwargs={"anon": True})
-             except Exception as e:
+            except Exception as e:
                  log.exception(f"Failed to open FITS File: {product_path} {e}")
-
 
         # Read logic for ASDF
         elif product_path.endswith(".asdf"):
@@ -1246,7 +1245,7 @@ def read_product(product_path, read_as="auto", ignore_unrecognized=False):
             for module in asdf_modules:
                 try:
                     version(module)
-                except:
+                except ModuleNotFoundError:
                     log.debug(f"Missing Required Module: {module}")
                     return
 
@@ -1258,7 +1257,8 @@ def read_product(product_path, read_as="auto", ignore_unrecognized=False):
             except Exception as e:
                 log.exception(f"Failed to open ASD File: {product_path} {e}")
     else:
-        print(f"Unsupported extension type")
+        print("Unsupported extension type")
+
 
 @async_to_sync
 class MastClass(MastQueryWithLogin):
