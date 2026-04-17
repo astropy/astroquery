@@ -469,9 +469,7 @@ class EsoClass(QueryWithLogin):
         _ = cache  # We're aware about disregarding the argument
         schema = _EsoNames.catalog_schema
 
-        query_str = (f"SELECT table_name FROM TAP_SCHEMA.tables as ref "
-                     "LEFT OUTER JOIN TAP_SCHEMA.keys AS k ON ref.table_name = k.from_table "
-                     "LEFT OUTER JOIN TAP_SCHEMA.key_columns AS kc ON k.key_id = kc.key_id "
+        query_str = (f"SELECT table_name FROM TAP_SCHEMA.tables "
                      f"WHERE schema_name='{schema}' ")
 
         if not all_versions:
