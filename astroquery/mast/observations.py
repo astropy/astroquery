@@ -1213,51 +1213,51 @@ class ObservationsClass(MastQueryWithLogin):
         return unique_products
 
 
-# TODO: Need to inlcude way to parse if it is a MAST on prem URL and handle the streaming of that
-def read_product(product_path, read_as="auto", ignore_unrecognized=False):
-    """
-    Read a product from Open S3 bucket to memory. Currently can handle FITS and ASDF product types.
+    # TODO: Need to inlcude way to parse if it is a MAST on prem URL and handle the streaming of that
+    def read_product(self, product_path, read_as="auto", ignore_unrecognized=False):
+        """
+        Read a product from Open S3 bucket to memory. Currently can handle FITS and ASDF product types.
 
-    Parameters
-    ----------
-    product_path: str
-        URI to the product in open bucket.
-    read_as: str, optional
-        How to read the file. Currently only .fits and .asdf is supported by "auto". Defaults to "auto".
-    ignore_unrecognized: bool
-        Tells asdf.open() to include or ignore warnings from unrecognized asdf tags. Defaults to False
+        Parameters
+        ----------
+        product_path: str
+            URI to the product in open bucket.
+        read_as: str, optional
+            How to read the file. Currently only .fits and .asdf is supported by "auto". Defaults to "auto".
+        ignore_unrecognized: bool
+            Tells asdf.open() to include or ignore warnings from unrecognized asdf tags. Defaults to False
 
-    Returns
-    -------
-    object
-        FITS or ASDF object.
-    """
-    if read_as == "auto":
-        if product_path.endswith(".fits"):
-            try:
-                return fits.open(product_path, fsspec_kwargs={"anon": True})
-            except Exception as e:
-                log.exception(f"Failed to open FITS File: {product_path} {e}")
-
-        # Read logic for ASDF
-        elif product_path.endswith(".asdf"):
-            # Check all required modules are available
-            for module in asdf_modules:
+        Returns
+        -------
+        object
+            FITS or ASDF object.
+        """
+        if read_as == "auto":
+            if product_path.endswith(".fits"):
                 try:
-                    version(module)
-                except ModuleNotFoundError:
-                    log.debug(f"Missing Required Module: {module}")
-                    return
+                    return fits.open(product_path, fsspec_kwargs={"anon": True})
+                except Exception as e:
+                    log.exception(f"Failed to open FITS File: {product_path} {e}")
 
-            try:
-                fs = s3fs.S3FileSystem(anon=True)
-                with fs.open(product_path, 'rb') as s3_file:
-                    af = asdf.open(s3_file, ignore_unrecognized_tag=ignore_unrecognized)
-                    return af
-            except Exception as e:
-                log.exception(f"Failed to open ASD File: {product_path} {e}")
-    else:
-        print("Unsupported extension type")
+            # Read logic for ASDF
+            elif product_path.endswith(".asdf"):
+                # Check all required modules are available
+                for module in asdf_modules:
+                    try:
+                        version(module)
+                    except ModuleNotFoundError:
+                        log.debug(f"Missing Required Module: {module}")
+                        return
+
+                try:
+                    fs = s3fs.S3FileSystem(anon=True)
+                    with fs.open(product_path, 'rb') as s3_file:
+                        af = asdf.open(s3_file, ignore_unrecognized_tag=ignore_unrecognized)
+                        return af
+                except Exception as e:
+                    log.exception(f"Failed to open ASD File: {product_path} {e}")
+        else:
+            print("Unsupported extension type")
 
 
 @async_to_sync
