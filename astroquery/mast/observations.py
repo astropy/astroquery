@@ -1212,7 +1212,6 @@ class ObservationsClass(MastQueryWithLogin):
             log.info("To return all products, use `Observations.get_product_list`")
         return unique_products
 
-
     # TODO: Need to inlcude way to parse if it is a MAST on prem URL and handle the streaming of that
     def read_product(self, product_path, read_as="auto", ignore_unrecognized=False):
         """
