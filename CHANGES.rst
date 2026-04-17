@@ -62,6 +62,11 @@ esa.euclid
    list. [#3570]
 
 
+gemini
+^^^^^^
+
+- Added ``get_query_payload`` kwarg to allow inspection of the query payload to aid in debugging. [#3568]
+
 vizier
 ^^^^^^
 
