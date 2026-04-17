@@ -940,7 +940,7 @@ class ESAHubbleClass(EsaTap):
         """
 
         # FITS files are always compressed
-        if filename.endswith('.fits'):
+        if filename.endswith('.fits') and 'hlsp' not in filename:
             filename = f"{filename}.gz"
 
         query = f"select file_path from ehst.artifact where file_name = '{filename}'"
@@ -968,7 +968,7 @@ class ESAHubbleClass(EsaTap):
         for datalabs_path in ["/data/user/", "/data/"]:
             # Automatic fill: convert /hstdata/hstdata_i/i/b4x/04 to <datalabs_path>/hub_hstdata_i/i/b4x/04
             if default_volume is None:
-                full_path = datalabs_path + "hub_" + path_parsed + "/" + filename
+                full_path = self.__get_default_datalabs_path(datalabs_path, path_parsed, filename)
 
             # Use the path provided by the user: convert /hstdata/hstdata_i/i/b4x/04 to <datalabs_path>/myPath/i/b4x/04
             else:
@@ -980,9 +980,38 @@ class ESAHubbleClass(EsaTap):
             if file_exists:
                 return full_path
 
-        warnings.warn(f"File {filename} is not accessible. Please ensure the {instrument_name} "
+        warnings.warn(f"File {filename} is not accessible. Please ensure the {instrument_name} / {path_parsed} "
                       "volume is mounted in your ESA Datalabs instance.")
         return full_path
+
+    def __get_default_datalabs_path(self, datalabs_path, path_parsed, filename):
+        """Get the default path based on the type of the collection
+
+        Parameters
+        ----------
+        datalabs_path : string, mandatory
+            Default datalabs path where volumes can be mounted
+        path_parsed : string, mandatory
+            Folder in the volumes where data is stored
+        filename : string, mandatory
+            Name of the file to be retrieved
+
+        Returns
+        -------
+        The complete path of the file name in Datalabs
+        """
+        if 'hap' in path_parsed:
+            instrument_folder = path_parsed.split('_')[2]
+            return f"{datalabs_path}hst_data_hap_{instrument_folder}{filename}"
+
+        if 'hlsp' in path_parsed:
+            subfolders = path_parsed.split('hlsp/')[1]
+            return f"{datalabs_path}hst_hstdata_hlsp/{subfolders}{filename}"
+        if 'hsla' in path_parsed:
+            target_folder = path_parsed.split('hsla/')[1]
+            return f"{datalabs_path}hub_hstdata_hsla/{target_folder}{filename}"
+        # Default value
+        return f"{datalabs_path}hub_{path_parsed}/{filename}"
 
 
 # Need to be False in order to avoid reaching out to the remote server at import time
