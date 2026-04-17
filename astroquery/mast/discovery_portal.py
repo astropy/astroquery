@@ -378,7 +378,7 @@ class PortalAPI(BaseQuery):
             The service that will use the columns config, default is to be the same as column_config_name.
         **filters :
             Filters to apply. At least one filter must be supplied.
-            Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
+            Valid criteria are coordinates, object_name, radius (as in `query_region` and `query_object`),
             and all observation fields listed `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
             The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
             except for fields with a float datatype where the argument should be in the form [minVal, maxVal].

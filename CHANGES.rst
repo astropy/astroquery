@@ -4,14 +4,35 @@
 New Tools and Services
 ----------------------
 
+esa.plato
+^^^^^^^^^
+- New module to access the ESA PLATO Science Archive. [#3573]
+
 noirlab
 ^^^^^^^
 
 - Restore access to the `NSF NOIRLab <https://noirlab.edu>`_
   `Astro Data Archive <https://astroarchive.noirlab.edu>`_ [#3359].
 
+esa.emds
+^^^^^^^^
+
+- New module to access the ESA ESDC Multi-Mission Data Services (EMDS). [#3511]
+
+esa.emds.einsteinprobe
+^^^^^^^^^^^^^^^^^^^^^^
+
+- New module to access the ESA Einstein Probe Science Archive. [#3511]
+
+
+
 API changes
 -----------
+
+esa.utils
+^^^^^^^^^^
+
+- Class EsaTap created as abstract class to extend all ESA modules based on PyVO. [#3511]
 
 esa.euclid
 ^^^^^^^^^^
@@ -25,10 +46,21 @@ esa.euclid
   ``dec_column_name`` independently [#3496]
 - Method ``get_product`` now supports the input file_name as a Python list (e.g. ["file1.fits", "file2.fits"]) while
   still accepting the original comma separated string format. [#3541]
-- update the output filename for downloads in the methods get_product and get_cutout [#3550]
+- Method ``get_product`` now supports the input product_id as a Python list while still accepting the original comma
+  separated string format. [#3564]
+- Update the output filename for downloads in the methods ``get_product`` and ``get_cutout`` [#3550]
+- The output file returned by the method ``get_product`` is never uncompressed and has the default name
+  get_product_ouput.zip in case the ``output_file`` is not defined. [#3564]
 - The method ``get_spectrum`` accepts the new parameter ``linking_parameter`` to retrieve the spectra by source_id and
   sourcepatch_id. [#3543]
 -  The ``source_id`` kwarg in the ``get_spectrum`` method has been renamed to ``ids``. [#3543]
+- Method ``get_cutout`` has deprecated the 'instrument' and 'id' parameters, providing them has no effect any more.
+  The method now only supports retrieval of MER (background‑subtracted) image cutouts. [#3559]
+- The ``get_product_list`` method now also returns file_name_list column when the product type belongs to
+  BASIC_DOWNLOAD_DATA_PRODUCTS. [#3562]
+- The method ``get_spectrum`` accepts a single source_id or designation or multiple values separated by commas or a
+   list. [#3570]
+
 
 vizier
 ^^^^^^
@@ -41,6 +73,9 @@ mast
 - When cloud access is enabled, ``Observations.download_file`` and ``Observations.download_products``
   now check all requested products against cloud storage. As a result, setting ``cloud_only=True`` will skip
   any products that are not available in the cloud, rather than falling back to on-prem downloads.
+- The ``objectname`` keyword is deprecated in ``MastMissions`` in favor of ``object_names``. [#3540]
+- The ``objectname`` parameter in ``Catalogs``, ``Observations``, ``Tesscut``, and ``utils`` is deprecated
+  in favor of ``object_name``. [#3567]
 
 vo_conesearch
 ^^^^^^^^^^^^^
@@ -50,6 +85,12 @@ vo_conesearch
 
 Service fixes and enhancements
 ------------------------------
+
+esa.xmm_newton
+^^^^^^^^^^^^^^
+
+- Update ``get_epic_spectra`` method to get the latest version of PN RMF files from the SAS server
+  instead of having it hardcoded [#3563]
 
 svo_fps
 ^^^^^^^
@@ -82,39 +123,30 @@ mast
 ^^^^
 
 - Raise an error if non-string values are passed to ``utils.resolve_object``. [#3435]
-
 - Filtering by file extension or by a string column is now case-insensitive in ``MastMissions.filter_products``
   and ``Observations.filter_products``. [#3427]
-
 - Switch to use HTTP continuation for partial downloads. [#3448]
-
 - Expand the supported data types for filter values in ``Mast.mast_query``. Previously, users had to input
   filter values enclosed in lists, even when specifying a single value or dictionary. [#3422]
-
 - Raise informative error if ``MastMissions`` query radius is too large. [#3447]
-
 - Add ``batch_size`` parameter to ``MastMissions.get_product_list``, ``Observations.get_product_list``,
   and ``utils.resolve_object`` to allow controlling the number of items sent in each batch request to the server.
   This can help avoid timeouts or connection errors for large requests. [#3454]
-
 - Separate requests for moving target cutouts in ``Tesscut`` to one per sector. [#3467]
-
 - Improved robustness of PanSTARRS column metadata parsing. This prevents metadata-related query errors. [#3485]
-
 - The ``select_cols`` parameter in ``MastMissions`` query functions now accepts an iterable of column names, a comma-delimited
   string of column names, or the special values 'all' or '*' to return all available columns. [#3492]
-
 - Improved robustness of product downloads for ``MastMissions``, including support for subscription-service JSON inputs and
   clearer validation of MAST URIs and product metadata. [#3517]
-
 - Added full support for the International Ultraviolet Explorer (IUE) mission in ``MastMissions``. [#3517]
-
 - Added a new ``Observations.list_cloud_datasets()`` method for querying cloud-supported MAST datasets, alongside
   improvements to cloud download handling. [#3488]
-
 - ``MastMissions`` query functions now support single or multiple targets via ``coordinates`` and
-  ``object_names`` (including combined use in ``query_criteria``). The legacy ``objectname`` keyword
-  is deprecated in favor of ``object_names``. [#3540]
+  ``object_names`` (including combined use in ``query_criteria``). [#3540]
+
+- The cloud dataset in ``Observations`` is now enabled by default if the ``boto3`` and ``botocore`` packages are installed. This
+  default can be overridden by setting the ``enable_cloud_dataset`` configuration option to False. [#3534]
+
 
 jplspec
 ^^^^^^^
@@ -167,6 +199,7 @@ Infrastructure, Utility and Other Changes and Additions
 - ``BaseVOQuery`` now accepts a ``extra_user_agents`` parameter to allow the addition
   of user agents on top of astroquery's ones [#3526]
 
+- Fix no expiration case for ``cache_timeout`` config option. [#3579]
 
 utils.tap
 ^^^^^^^^^

@@ -5,7 +5,7 @@ import os
 import re
 import warnings
 from shutil import copyfile
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 from pathlib import Path
 
 import astropy.units as u
@@ -14,16 +14,21 @@ import numpy as np
 from astropy.table import Table, unique
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
-from botocore.exceptions import ClientError
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from requests import HTTPError, Response
 
 from astroquery.mast import (Catalogs, MastMissions, Observations, Tesscut, Zcut, Mast, utils, services,
-                             discovery_portal, auth, core)
+                             discovery_portal, auth, core, cloud)
 from astroquery.mast.cloud import CloudAccess
 from astroquery.utils.mocks import MockResponse
 from astroquery.exceptions import (BlankResponseWarning, InvalidQueryError, InputWarning, MaxResultsWarning,
                                    NoResultsWarning, RemoteServiceError, ResolverError)
+
+try:
+    # Optional dependency import for cloud access functionality
+    from botocore.exceptions import ClientError
+except ImportError:
+    pass
 
 DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Name.Lookup': 'resolver.json',
@@ -68,7 +73,7 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def patch_post(request):
     mp = request.getfixturevalue("monkeypatch")
 
@@ -82,6 +87,32 @@ def patch_post(request):
     mp.setattr(core.MastQueryWithLogin, '_download_file', download_mockreturn)
 
     return mp
+
+
+@pytest.fixture()
+def patch_boto3(monkeypatch, reset_cloud_state):
+    """Fixture to patch boto3 client and resource for cloud access tests."""
+    pytest.importorskip('boto3')
+    mock_client = MagicMock()
+    mock_client.head_object.return_value = {'ContentLength': 12345}
+
+    mock_resource = MagicMock()
+    mock_resource.Bucket.return_value.download_file.return_value = None
+
+    monkeypatch.setattr('boto3.client', lambda *args, **kwargs: mock_client)
+    monkeypatch.setattr('boto3.resource', lambda *args, **kwargs: mock_resource)
+
+    return mock_client, mock_resource
+
+
+@pytest.fixture()
+def reset_cloud_state():
+    """Reset the cloud dataset access state in Observations before and after each test."""
+    Observations.disable_cloud_dataset()
+    Observations._cloud_enabled_explicitly = None
+    yield
+    Observations.disable_cloud_dataset()
+    Observations._cloud_enabled_explicitly = None
 
 
 def post_mockreturn(self, method="POST", url=None, data=None, timeout=10, **kwargs):
@@ -210,23 +241,23 @@ def zcut_download_mockreturn(url, file_path):
 ###########################
 
 
-def test_missions_query_region_async(patch_post):
+def test_missions_query_region_async():
     responses = MastMissions.query_region_async(regionCoords, radius=0.002, sci_pi_last_name='GORDON')
     assert isinstance(responses, MockResponse)
 
 
-def test_missions_query_object_async(patch_post):
+def test_missions_query_object_async():
     responses = MastMissions.query_object_async("M101", radius="0.002 deg")
     assert isinstance(responses, MockResponse)
 
 
-def test_missions_query_object(patch_post):
+def test_missions_query_object():
     result = MastMissions.query_object("M101", radius=".002 deg")
     assert isinstance(result, Table)
     assert len(result) > 0
 
 
-def test_missions_query_region(patch_post):
+def test_missions_query_region():
     result = MastMissions.query_region(regionCoords,
                                        sci_instrume=['ACS', 'WFPC'],
                                        radius=0.002 * u.deg,
@@ -236,7 +267,7 @@ def test_missions_query_region(patch_post):
     assert len(result) > 0
 
 
-def test_missions_query_criteria_async(patch_post):
+def test_missions_query_criteria_async():
     responses = MastMissions.query_criteria_async(
         coordinates=regionCoords,
         radius=3,
@@ -248,7 +279,7 @@ def test_missions_query_criteria_async(patch_post):
     assert isinstance(responses, MockResponse)
 
 
-def test_missions_query_criteria_async_with_missing_results(patch_post):
+def test_missions_query_criteria_async_with_missing_results():
     with pytest.raises(KeyError):
         responses = MastMissions.query_criteria_async(
             coordinates=regionCoords,
@@ -262,7 +293,7 @@ def test_missions_query_criteria_async_with_missing_results(patch_post):
         services._json_to_table(json.loads(responses), 'results')
 
 
-def test_missions_query_criteria(patch_post):
+def test_missions_query_criteria():
     result = MastMissions.query_criteria(
         coordinates=regionCoords,
         radius=3,
@@ -293,7 +324,7 @@ def test_missions_query_criteria(patch_post):
         )
 
 
-def test_missions_parse_select_cols(patch_post):
+def test_missions_parse_select_cols():
     # Default columns
     cols = MastMissions._parse_select_cols(None)  # Default columns for HST
     assert cols is None
@@ -343,7 +374,7 @@ def test_missions_parse_select_cols(patch_post):
         assert col in ullyses_cols
 
 
-def test_missions_parse_multiple_targets(patch_post):
+def test_missions_parse_multiple_targets():
     # Single coordinate object
     coord = SkyCoord(10.684, 41.269, unit='deg')
     result = MastMissions._parse_multiple_targets(coordinates=coord)
@@ -362,6 +393,11 @@ def test_missions_parse_multiple_targets(patch_post):
     coords_str = "10.684 41.269, 83.6331 22.0145"
     result = MastMissions._parse_multiple_targets(coordinates=coords_str)
     assert result == ['10.684 41.269', '83.6331 22.0145']
+
+    # Special case: one string coordinate with elements separated by a comma instead of space
+    coords_str_comma = "10.684, 41.269"
+    result = MastMissions._parse_multiple_targets(coordinates=coords_str_comma)
+    assert result == ['10.684 41.269']
 
     # Vector SkyCoord input
     vector_coords = SkyCoord([10.684, 83.6324], [41.269, 22.0174], frame='icrs', unit='deg')
@@ -397,7 +433,7 @@ def test_missions_parse_multiple_targets(patch_post):
         MastMissions._parse_multiple_targets(object_names=["invalid_object"])
 
 
-def test_missions_get_product_list_async(patch_post):
+def test_missions_get_product_list_async():
     # String input
     result = MastMissions.get_product_list_async('Z14Z0104T')
     assert isinstance(result, list)
@@ -432,7 +468,7 @@ def test_missions_get_product_list_async(patch_post):
         missions.get_product_list_async(Table({'a': [1, 2, 3]}))
 
 
-def test_missions_get_product_list(patch_post):
+def test_missions_get_product_list():
     # String input
     result = MastMissions.get_product_list('Z14Z0104T')
     assert isinstance(result, Table)
@@ -457,7 +493,7 @@ def test_missions_get_product_list(patch_post):
     assert isinstance(result, Table)
 
 
-def test_missions_get_unique_product_list(patch_post, caplog):
+def test_missions_get_unique_product_list(caplog):
     unique_products = MastMissions.get_unique_product_list('Z14Z0104T')
     assert isinstance(unique_products, Table)
     assert (len(unique_products) == len(unique(unique_products, keys='filename')))
@@ -466,7 +502,7 @@ def test_missions_get_unique_product_list(patch_post, caplog):
         assert caplog.text == ''
 
 
-def test_missions_filter_products(patch_post):
+def test_missions_filter_products():
     # Filter products list by column
     products = MastMissions.get_product_list('Z14Z0104T')
     filtered = MastMissions.filter_products(products, category='CALIBRATED')
@@ -550,7 +586,7 @@ def test_missions_filter_products(patch_post):
         MastMissions.filter_products(products, non_existing='value')
 
 
-def test_missions_download_products(patch_post, tmp_path):
+def test_missions_download_products(tmp_path):
     # Check string input
     test_dataset_id = 'Z14Z0104T'
     result = MastMissions.download_products(test_dataset_id, download_dir=tmp_path)
@@ -603,7 +639,7 @@ def test_missions_download_products(patch_post, tmp_path):
 
 
 @patch.object(Path, 'is_file', return_value=True)
-def test_missions_download_file(mock_is_file, patch_post, tmp_path):
+def test_missions_download_file(mock_is_file, tmp_path):
     # JWST download
     missions = MastMissions()
     missions.mission = 'JWST'
@@ -620,7 +656,7 @@ def test_missions_download_file(mock_is_file, patch_post, tmp_path):
         missions.download_file('classy_test_file.fits', local_path=tmp_path)
 
 
-def test_missions_download_no_auth(patch_post, caplog):
+def test_missions_download_no_auth(caplog):
     # Exclusive access products should not be downloaded if user is not authenticated
     # User is not authenticated
     uri = 'unauthorized.fits'
@@ -643,7 +679,7 @@ def test_missions_download_no_auth(patch_post, caplog):
         assert 'You do not have access to download this data' in caplog.text
 
 
-def test_missions_get_dataset_kwd(patch_post, caplog):
+def test_missions_get_dataset_kwd(caplog):
     m = MastMissions()
 
     # Default is HST
@@ -673,7 +709,7 @@ def test_missions_get_dataset_kwd(patch_post, caplog):
     [['query_region', dict()],
      ['query_criteria', dict(ang_sep=0.6)]]
 )
-def test_missions_radius_too_large(method, kwargs, patch_post):
+def test_missions_radius_too_large(method, kwargs):
     m = MastMissions(mission='jwst')
     coordinates = SkyCoord(0, 0, unit=u.deg)
     radius = m._max_query_radius + 0.1 * u.deg
@@ -688,14 +724,14 @@ def test_missions_radius_too_large(method, kwargs, patch_post):
 ###################
 
 
-def test_list_missions(patch_post):
+def test_list_missions():
     missions = Observations.list_missions()
     assert isinstance(missions, list)
     for m in ['HST', 'HLA', 'GALEX', 'Kepler']:
         assert m in missions
 
 
-def test_mast_service_request_async(patch_post):
+def test_mast_service_request_async():
     service = 'Mast.Name.Lookup'
     params = {'input': "M103",
               'format': 'json'}
@@ -707,7 +743,7 @@ def test_mast_service_request_async(patch_post):
     assert output
 
 
-def test_mast_service_request(patch_post):
+def test_mast_service_request():
     service = 'Mast.Caom.Cone'
     params = {'ra': 23.34086,
               'dec': 60.658,
@@ -717,7 +753,7 @@ def test_mast_service_request(patch_post):
     assert isinstance(result, Table)
 
 
-def test_mast_query(patch_post):
+def test_mast_query():
     # cone search
     result = Mast.mast_query('Mast.Caom.Cone', ra=23.34086, dec=60.658, radius=0.2)
     assert isinstance(result, Table)
@@ -750,7 +786,7 @@ def test_mast_query(patch_post):
         Mast.mast_query('Mast.Caom.Filtered', s_ra={'min': 10.0})
 
 
-def test_resolve_object_single(patch_post):
+def test_resolve_object_single():
     obj = "TIC 307210830"
     tic_coord = SkyCoord(124.531756290083, -68.3129998725044, unit="deg")
     simbad_coord = SkyCoord(124.5317560026638, -68.3130014904408, unit="deg")
@@ -799,7 +835,7 @@ def test_resolve_object_single(patch_post):
         assert isinstance(loc, dict)
 
 
-def test_resolve_object_multi(patch_post):
+def test_resolve_object_multi():
     objects = ["TIC 307210830", "M1", "Barnard's Star"]
 
     # No resolver specified
@@ -839,7 +875,7 @@ def test_resolve_object_multi(patch_post):
         Mast.resolve_object(["nonexisting1", "nonexisting2"])
 
 
-def test_login_logout(patch_post):
+def test_login_logout():
     test_token = "56a9cf3df4c04052atest43feb87f282"
 
     Mast.login(token=test_token)
@@ -851,7 +887,7 @@ def test_login_logout(patch_post):
     assert not Mast._session.cookies.get("mast_token")
 
 
-def test_session_info(patch_post):
+def test_session_info():
     info = Mast.session_info(verbose=False)
     assert isinstance(info, dict)
     assert info['ezid'] == 'alice'
@@ -866,27 +902,27 @@ regionCoords = SkyCoord(23.34086, 60.658, unit=('deg', 'deg'))
 
 
 # query functions
-def test_observations_query_region_async(patch_post):
+def test_observations_query_region_async():
     responses = Observations.query_region_async(regionCoords, radius=0.2)
     assert isinstance(responses, list)
 
 
-def test_observations_query_region(patch_post):
+def test_observations_query_region():
     result = Observations.query_region(regionCoords, radius=0.2 * u.deg)
     assert isinstance(result, Table)
 
 
-def test_observations_query_object_async(patch_post):
+def test_observations_query_object_async():
     responses = Observations.query_object_async("M103", radius="0.2 deg")
     assert isinstance(responses, list)
 
 
-def test_observations_query_object(patch_post):
+def test_observations_query_object():
     result = Observations.query_object("M103", radius=".02 deg")
     assert isinstance(result, Table)
 
 
-def test_query_observations_criteria_async(patch_post):
+def test_query_observations_criteria_async():
     # without position
     responses = Observations.query_criteria_async(dataproduct_type=["image"],
                                                   proposal_pi="Ost*",
@@ -895,11 +931,11 @@ def test_query_observations_criteria_async(patch_post):
 
     # with position
     responses = Observations.query_criteria_async(filters=["NUV", "FUV"],
-                                                  objectname="M101")
+                                                  object_name="M101")
     assert isinstance(responses, list)
 
 
-def test_observations_query_criteria(patch_post):
+def test_observations_query_criteria():
     # without position
     result = Observations.query_criteria(dataproduct_type=["image"],
                                          proposal_pi="Ost*",
@@ -908,30 +944,30 @@ def test_observations_query_criteria(patch_post):
 
     # with position
     result = Observations.query_criteria(filters=["NUV", "FUV"],
-                                         objectname="M101")
+                                         object_name="M101")
     assert isinstance(result, Table)
 
     with pytest.raises(InvalidQueryError) as invalid_query:
-        Observations.query_criteria(objectname="M101")
+        Observations.query_criteria(object_name="M101")
     assert "least one non-positional criterion" in str(invalid_query.value)
 
     with pytest.raises(InvalidQueryError) as invalid_query:
-        Observations.query_criteria(objectname="M101", coordinates=regionCoords, intentType="science")
-    assert "one of objectname and coordinates" in str(invalid_query.value)
+        Observations.query_criteria(object_name="M101", coordinates=regionCoords, intentType="science")
+    assert "one of object_name and coordinates" in str(invalid_query.value)
 
 
 # count functions
-def test_observations_query_region_count(patch_post):
+def test_observations_query_region_count():
     result = Observations.query_region_count(regionCoords, radius="0.2 deg")
     assert result == 599
 
 
-def test_observations_query_object_count(patch_post):
+def test_observations_query_object_count():
     result = Observations.query_object_count("M8", radius=0.2*u.deg)
     assert result == 599
 
 
-def test_observations_query_criteria_count(patch_post):
+def test_observations_query_criteria_count():
     result = Observations.query_criteria_count(dataproduct_type=["image"],
                                                proposal_pi="Ost*",
                                                s_dec=[43.5, 45.5])
@@ -943,12 +979,12 @@ def test_observations_query_criteria_count(patch_post):
     assert result == 599
 
     with pytest.raises(InvalidQueryError) as invalid_query:
-        Observations.query_criteria_count(coordinates=regionCoords, objectname="M101", proposal_pi="Ost*")
-    assert "one of objectname and coordinates" in str(invalid_query.value)
+        Observations.query_criteria_count(coordinates=regionCoords, object_name="M101", proposal_pi="Ost*")
+    assert "one of object_name and coordinates" in str(invalid_query.value)
 
 
 # product functions
-def test_observations_get_product_list_async(patch_post):
+def test_observations_get_product_list_async():
     responses = Observations.get_product_list_async('2003738726')
     assert isinstance(responses, list)
 
@@ -963,7 +999,7 @@ def test_observations_get_product_list_async(patch_post):
     assert isinstance(responses, list)
 
 
-def test_observations_get_product_list(patch_post):
+def test_observations_get_product_list():
     result = Observations.get_product_list('2003738726')
     assert isinstance(result, Table)
 
@@ -986,7 +1022,7 @@ def test_observations_get_product_list(patch_post):
         Observations.get_product_list([' '])
 
 
-def test_observations_filter_products(patch_post):
+def test_observations_filter_products():
     products = Observations.get_product_list('2003738726')
     filtered = Observations.filter_products(products,
                                             productType=["sCiEnCE"],
@@ -1017,85 +1053,69 @@ def test_observations_filter_products(patch_post):
         Observations.filter_products(products, invalid=True)
 
 
-def test_observations_download_products(patch_post, tmpdir):
-    # actually download the products
-    result = Observations.download_products('2003738726',
-                                            download_dir=str(tmpdir),
-                                            productType=["SCIENCE"],
-                                            mrp_only=False)
+@patch.object(Path, "is_file", return_value=True)
+def test_observations_download_products(mock_is_file, patch_boto3, monkeypatch):
+    mock_resource = patch_boto3[1]
+    obsid = '2003738726'
+    data_uri = 'mast:HST/product/u9o40504m_c3m.fits'
+
+    # Actually download the products
+    result = Observations.download_products(obsid,
+                                            dataURI=data_uri)
     assert isinstance(result, Table)
 
-    # just get the curl script
-    result = Observations.download_products('2003738726',
-                                            download_dir=str(tmpdir),
+    # Just get the curl script
+    result = Observations.download_products(obsid,
                                             curl_flag=True,
                                             productType=["SCIENCE"],
                                             mrp_only=False)
     assert isinstance(result, Table)
 
-    # without console output
-    result = Observations.download_products('2003738726',
-                                            download_dir=str(tmpdir),
-                                            productType=["SCIENCE"],
+    # Without console output, flat
+    result = Observations.download_products(obsid,
+                                            dataURI=data_uri,
+                                            flat=True,
                                             verbose=False)
     assert isinstance(result, Table)
 
-    # passing row product
-    products = Observations.get_product_list('2003738726')
-    result1 = Observations.download_products(products[0], download_dir=str(tmpdir))
+    # Passing row product
+    products = Observations.get_product_list(obsid)
+    result1 = Observations.download_products(products[0])
     assert isinstance(result1, Table)
 
     # Warn if no products to download
     with pytest.warns(NoResultsWarning, match='No products to download'):
-        result = Observations.download_products('2003738726',
-                                                download_dir=str(tmpdir),
-                                                productType=["INVALID_TYPE"])
+        result = Observations.download_products(obsid, productType=["INVALID_TYPE"])
         assert result is None
 
     # Warn if curl_flag and flags are both set
     with pytest.warns(InputWarning, match='flat=True has no effect on curl downloads.'):
-        result = Observations.download_products('2003738726',
+        result = Observations.download_products(obsid,
                                                 curl_flag=True,
                                                 flat=True)
         assert isinstance(result, Table)
-
-
-@patch('boto3.resource')
-@patch('boto3.client')
-@patch.object(Path, "is_file", return_value=True)
-def test_observations_download_products_cloud(mock_is_file, mock_client, mock_resource, patch_post,
-                                              monkeypatch):
-    pytest.importorskip("boto3")
-    mock_client.return_value.head_object.return_value = {'ContentLength': 12345}
-    mock_resource.return_value.Bucket.return_value.download_file.return_value = None
-    obsid = '2003738726'
-    data_uri = 'mast:HST/product/u9o40504m_c3m.fits'
-
-    # Enable access to public AWS S3 bucket
-    Observations.enable_cloud_dataset()
 
     result = Observations.download_products(obsid,
                                             dataURI=data_uri)
     assert isinstance(result, Table)
     assert result[0]['Status'] == 'COMPLETE'
 
-    # Mock cloud download failure, fallback to on-prem
+    # Mock cloud download failure
+    Observations.enable_cloud_dataset()  # enable cloud dataset to emit warning
     client_err = ClientError({'Error': {'Code': '500', 'Message': 'Internal Server Error'}}, 'HeadObject')
-    mock_resource.return_value.Bucket.return_value.download_file.side_effect = client_err
-    # Check that info message is logged
+    mock_resource.Bucket.return_value.download_file.side_effect = client_err
+    # Warn and fall back to on-prem download
     with pytest.warns(InputWarning, match='Falling back to MAST download'):
-        result = Observations.download_products(obsid,
-                                                dataURI=data_uri)
+        result = Observations.download_products(obsid, dataURI=data_uri)
     assert result[0]['Status'] == 'COMPLETE'
-
-    # Cloud download failure, do not fallback to on-prem
+    # Do not fall back to on-prem download, skip instead
     with pytest.warns(NoResultsWarning, match='Skipping download.'):
         result = Observations.download_products(obsid,
                                                 dataURI=data_uri,
                                                 cloud_only=True)
     assert result[0]['Status'] == 'SKIPPED'
 
-    # Products not found in cloud, skip download
+    # Products not found in cloud
     monkeypatch.setattr(Observations, 'get_cloud_uris', lambda *a, **k: {})
     with pytest.warns(NoResultsWarning, match='was not found in the cloud. Skipping download.'):
         result = Observations.download_products(obsid,
@@ -1103,15 +1123,13 @@ def test_observations_download_products_cloud(mock_is_file, mock_client, mock_re
                                                 cloud_only=True)
     assert result[0]['Status'] == 'SKIPPED'
     assert result[0]['Message'] == 'Product not found in cloud'
-
-    # Products not found in cloud, fall back
+    # Warn and fall back to on-prem download if products not found in cloud and cloud_only is False
     with pytest.warns(InputWarning, match='was not found in the cloud. Falling back to MAST download'):
         result = Observations.download_products(obsid, dataURI=data_uri)
     assert result[0]['Status'] == 'COMPLETE'
 
-    Observations.disable_cloud_dataset()
-
     # Cloud access not enabled, warn if cloud_only is True
+    Observations.disable_cloud_dataset()
     with pytest.warns(InputWarning, match='cloud data access is not enabled'):
         result = Observations.download_products('2003738726',
                                                 dataURI='mast:HST/product/u9o40504m_c3m.fits',
@@ -1120,37 +1138,14 @@ def test_observations_download_products_cloud(mock_is_file, mock_client, mock_re
 
 
 @patch.object(Path, "is_file", return_value=True)
-def test_observations_download_file(mock_is_file, patch_post, tmpdir):
+def test_observations_download_file(mock_is_file, patch_boto3, tmpdir):
+    mock_client, mock_resource = patch_boto3
+    mock_client.head_object.return_value = {'ContentLength': 12345}
+    mock_resource.Bucket.return_value.download_file.return_value = None
     mast_uri = 'mast:HST/product/u9o40504m_c3m.fits'
 
     result = Observations.download_file(mast_uri, local_path=tmpdir)
     assert result == ('COMPLETE', None, None)
-
-    unauth_uri = 'mast:HST/product/unauthorized.fits'
-    result = Observations.download_file(unauth_uri)
-    assert result[0] == 'ERROR'
-    assert 'HTTPError' in result[1]
-
-
-def test_observations_download_file_not_found(patch_post, tmpdir):
-    mast_uri = 'mast:HST/product/u9o40504m_c3m.fits'
-
-    result = Observations.download_file(mast_uri, local_path=tmpdir)
-    assert result[0] == 'ERROR'
-    assert result[1] == 'File was not downloaded'
-
-
-@patch('boto3.resource')
-@patch('boto3.client')
-@patch.object(Path, "is_file", return_value=True)
-def test_observations_download_file_cloud(mock_is_file, mock_client, mock_resource, patch_post):
-    pytest.importorskip("boto3")
-    mock_client.return_value.head_object.return_value = {'ContentLength': 12345}
-    mock_resource.return_value.Bucket.return_value.download_file.return_value = None
-
-    # Enable access to public AWS S3 bucket
-    Observations.enable_cloud_dataset()
-    mast_uri = 'mast:HST/product/u9o40504m_c3m.fits'
 
     # Warn if both cloud_only and force_on_prem are True
     with pytest.raises(InvalidQueryError, match='Invalid argument combination'):
@@ -1163,6 +1158,7 @@ def test_observations_download_file_cloud(mock_is_file, mock_client, mock_resour
         assert result == ('SKIPPED', None, None)
 
     # Use on-prem download if cloud_only is False and file is not in cloud
+    Observations.enable_cloud_dataset()  # enable cloud dataset to emit warning
     with pytest.warns(InputWarning, match=f'The product {nonexistent_uri} was not found in the cloud'):
         result = Observations.download_file(nonexistent_uri, cloud_only=False)
         assert result == ('COMPLETE', None, None)
@@ -1171,66 +1167,68 @@ def test_observations_download_file_cloud(mock_is_file, mock_client, mock_resour
     with pytest.raises(InvalidQueryError, match='A valid data product URI'):
         Observations.download_file(12345, cloud_only=True)
 
-    Observations.disable_cloud_dataset()
+    # Mock cloud download failure, fallback to on-prem
+    client_err = ClientError({'Error': {'Code': '500', 'Message': 'Internal Server Error'}}, 'HeadObject')
+    mock_resource.Bucket.return_value.download_file.side_effect = client_err
+    with pytest.warns(InputWarning, match='Falling back to MAST download'):
+        result = Observations.download_file(mast_uri)
+    assert result == ('COMPLETE', None, None)
+
+    # Skip if cloud download fails and cloud_only is True
+    with pytest.warns(NoResultsWarning, match='Skipping download.'):
+        result = Observations.download_file(mast_uri, cloud_only=True)
+    assert result == ('SKIPPED', None, None)
 
     # Warning if cloud dataset is not enabled
+    Observations.disable_cloud_dataset()
     with pytest.warns(InputWarning, match='cloud data access is not enabled'):
         result = Observations.download_file(mast_uri, cloud_only=True)
         assert result == ('COMPLETE', None, None)
 
 
-@patch('boto3.client')
-def test_observations_list_cloud_missions(mock_client, patch_post):
-    pytest.importorskip('boto3')
-    mock_client.return_value.list_objects_v2.return_value = {
+def test_observations_download_file_not_found(patch_boto3):
+    mast_uri = 'mast:HST/product/u9o40504m_c3m.fits'
+    result = Observations.download_file(mast_uri)
+    assert result[0] == 'ERROR'
+    assert result[1] == 'File was not downloaded'
+
+    mast_uri = 'mast:HST/product/u9o40504m_c3m.fits'
+    result = Observations.download_file(mast_uri)
+    assert result[0] == 'ERROR'
+    assert result[1] == 'File was not downloaded'
+
+
+def test_observations_list_cloud_missions(patch_boto3):
+    mock_client = patch_boto3[0]
+    mock_client.list_objects_v2.return_value = {
         'CommonPrefixes': [{'Prefix': 'hst/'}, {'Prefix': 'jwst/'}, {'Prefix': 'mast/'}]
     }
 
-    with pytest.raises(RemoteServiceError):
-        Observations.list_cloud_datasets()
-
-    Observations.enable_cloud_dataset()
     supported = Observations.list_cloud_datasets()
     assert isinstance(supported, list)
     assert 'hst' in supported
     assert 'jwst' in supported
     assert 'mast' in supported
 
-    Observations.disable_cloud_dataset()
 
-
-@patch('boto3.client')
-def test_observations_list_cloud_missions_error(mock_client, patch_post, caplog):
-    pytest.importorskip('boto3')
-
-    # Error without cloud connection
-    with pytest.raises(RemoteServiceError):
-        Observations.list_cloud_datasets()
-
+def test_observations_list_cloud_missions_error(patch_boto3):
     # Mock an error when listing objects
+    mock_client = patch_boto3[0]
     client_error = ClientError({'Error': {'Code': 'AWS error'}}, 'ListObjectsV2')
-    mock_client.return_value.list_objects_v2.side_effect = client_error
+    mock_client.list_objects_v2.side_effect = client_error
 
-    Observations.enable_cloud_dataset()
     supported = Observations.list_cloud_datasets()
     assert supported == []
 
+    # Cloud access not enabled
     Observations.disable_cloud_dataset()
+    with pytest.raises(RemoteServiceError, match='Cloud data access is not enabled.'):
+        Observations.list_cloud_datasets()
 
 
-@patch('boto3.client')
-def test_observations_get_cloud_uri(mock_client, patch_post):
-    pytest.importorskip("boto3")
-
+def test_observations_get_cloud_uri(patch_boto3):
     mast_uri = 'mast:HST/product/u9o40504m_c3m.fits'
     expected = 's3://stpubdata/hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits'
-
-    # Error without cloud connection
-    with pytest.raises(RemoteServiceError):
-        Observations.get_cloud_uri('mast:HST/product/u9o40504m_c3m.fits')
-
-    # Enable access to public AWS S3 bucket
-    Observations.enable_cloud_dataset()
 
     # Row input
     product = Table()
@@ -1247,22 +1245,15 @@ def test_observations_get_cloud_uri(mock_client, patch_post):
     with pytest.warns(NoResultsWarning, match='Failed to retrieve cloud path'):
         Observations.get_cloud_uri('mast:HST/product/does_not_exist.fits')
 
+    # Cloud access not enabled
     Observations.disable_cloud_dataset()
+    with pytest.raises(RemoteServiceError, match='Cloud data access is not enabled.'):
+        Observations.get_cloud_uri(mast_uri)
 
 
-@patch('boto3.client')
-def test_observations_get_cloud_uris(mock_client, patch_post):
-    pytest.importorskip("boto3")
-
+def test_observations_get_cloud_uris(patch_boto3):
     mast_uri = 'mast:HST/product/u9o40504m_c3m.fits'
     expected = 's3://stpubdata/hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits'
-
-    # Error without cloud connection
-    with pytest.raises(RemoteServiceError):
-        Observations.get_cloud_uris(['mast:HST/product/u9o40504m_c3m.fits'])
-
-    # Enable access to public AWS S3 bucket
-    Observations.enable_cloud_dataset()
 
     # Get the cloud URIs
     # Table input
@@ -1299,40 +1290,33 @@ def test_observations_get_cloud_uris(mock_client, patch_post):
     with pytest.warns(NoResultsWarning, match='Failed to retrieve cloud path'):
         Observations.get_cloud_uris(['mast:HST/product/does_not_exist.fits'])
 
+    # Cloud access not enabled
     Observations.disable_cloud_dataset()
+    with pytest.raises(RemoteServiceError, match='Cloud data access is not enabled.'):
+        Observations.get_cloud_uris([mast_uri])
 
 
-@patch('boto3.client')
-def test_observations_get_cloud_uris_error(mock_client, patch_post):
-    pytest.importorskip("boto3")
+def test_observations_get_cloud_uris_error(patch_boto3):
+    mock_client = patch_boto3[0]
 
     # Mock head_object to raise an exception
     # Raise the error if not a 404
     exc = ClientError({'Error': {'Code': '500', 'Message': 'Internal Server Error'}}, 'HeadObject')
-    mock_client.return_value.head_object.side_effect = exc
+    mock_client.head_object.side_effect = exc
 
-    Observations.enable_cloud_dataset()
     with pytest.raises(ClientError):
         Observations.get_cloud_uris(['mast:HST/product/u9o40504m_c3m.fits'])
 
     # Only warn if the error is a 404
     exc = ClientError({'Error': {'Code': '404', 'Message': 'Not Found'}}, 'HeadObject')
-    mock_client.return_value.head_object.side_effect = exc
+    mock_client.head_object.side_effect = exc
 
     with pytest.warns(NoResultsWarning, match='Failed to retrieve cloud path'):
         uris = Observations.get_cloud_uris(['mast:HST/product/u9o40504m_c3m.fits'])
     assert uris == []
 
-    Observations.disable_cloud_dataset()
 
-
-@patch('boto3.client')
-def test_observations_get_cloud_uris_query(mock_client, patch_post):
-    pytest.importorskip("boto3")
-
-    # enable access to public AWS S3 bucket
-    Observations.enable_cloud_dataset()
-
+def test_observations_get_cloud_uris_query(patch_boto3):
     # get uris with streamlined function
     uris = Observations.get_cloud_uris(target_name=234295610,
                                        filter_products={'productSubGroupDescription': 'C3M'})
@@ -1347,7 +1331,28 @@ def test_observations_get_cloud_uris_query(mock_client, patch_post):
         Observations.get_cloud_uris(target_name=234295610,
                                     filter_products={'productSubGroupDescription': 'LC'})
 
+
+def test_observations_enable_cloud_dataset(patch_boto3):
+    # Enable cloud dataset
+    Observations.enable_cloud_dataset()
+    assert Observations._cloud_connection is not None
+    assert Observations._cloud_enabled_explicitly is True
+
+    # Force an import error when connecting to cloud dataset
+    cloud.HAS_BOTO3 = False
+    Observations.disable_cloud_dataset()  # reset state
+    with pytest.raises(ImportError, match='to enable cloud dataset access'):
+        Observations.enable_cloud_dataset()
+
+    # Reset cloud dataset state for other tests
+    cloud.HAS_BOTO3 = True
+
+
+def test_observations_disable_cloud_dataset(patch_boto3):
+    # Explicitly disable cloud dataset
     Observations.disable_cloud_dataset()
+    assert Observations._cloud_connection is None
+    assert Observations._cloud_enabled_explicitly is False
 
 
 ######################
@@ -1355,17 +1360,17 @@ def test_observations_get_cloud_uris_query(mock_client, patch_post):
 ######################
 
 
-def test_catalogs_query_region_async(patch_post):
+def test_catalogs_query_region_async():
     responses = Catalogs.query_region_async(regionCoords, radius=0.002)
     assert isinstance(responses, list)
 
 
-def test_catalogs_fabric_query_region_async(patch_post):
+def test_catalogs_fabric_query_region_async():
     responses = Catalogs.query_region_async(regionCoords, radius=0.002, catalog="panstarrs", table="mean")
     assert isinstance(responses, MockResponse)
 
 
-def test_catalogs_query_region(patch_post):
+def test_catalogs_query_region():
     result = Catalogs.query_region(regionCoords, radius=0.002 * u.deg)
     assert isinstance(result, Table)
 
@@ -1393,32 +1398,32 @@ def test_catalogs_query_region(patch_post):
     assert isinstance(result, Table)
 
 
-def test_catalogs_fabric_query_region(patch_post):
+def test_catalogs_fabric_query_region():
     result = Catalogs.query_region(regionCoords, radius=0.002 * u.deg, catalog="panstarrs", table="mean")
     assert isinstance(result, Table)
 
 
-def test_catalogs_query_object_async(patch_post):
+def test_catalogs_query_object_async():
     responses = Catalogs.query_object_async("M101", radius="0.002 deg")
     assert isinstance(responses, list)
 
 
-def test_catalogs_fabric_query_object_async(patch_post):
+def test_catalogs_fabric_query_object_async():
     responses = Catalogs.query_object_async("M101", radius="0.002 deg", catalog="panstarrs", table="mean")
     assert isinstance(responses, MockResponse)
 
 
-def test_catalogs_query_object(patch_post):
+def test_catalogs_query_object():
     result = Catalogs.query_object("M101", radius=".002 deg")
     assert isinstance(result, Table)
 
 
-def test_catalogs_fabric_query_object(patch_post):
+def test_catalogs_fabric_query_object():
     result = Catalogs.query_object("M101", radius=".002 deg", catalog="panstarrs", table="mean")
     assert isinstance(result, Table)
 
 
-def test_catalogs_query_criteria_async(patch_post):
+def test_catalogs_query_criteria_async():
     responses = Catalogs.query_criteria_async(catalog="Tic",
                                               Bmag=[30, 50], objType="STAR")
     assert isinstance(responses, list)
@@ -1427,16 +1432,16 @@ def test_catalogs_query_criteria_async(patch_post):
                                               Bmag=[30, 50], objType="STAR")
     assert isinstance(responses, list)
 
-    responses = Catalogs.query_criteria_async(catalog="Tic", objectname="M10",
+    responses = Catalogs.query_criteria_async(catalog="Tic", object_name="M10",
                                               Bmag=[30, 50], objType="STAR")
     assert isinstance(responses, list)
 
     responses = Catalogs.query_criteria_async(catalog="DiskDetective",
-                                              objectname="M10", radius=2,
+                                              object_name="M10", radius=2,
                                               state="complete")
     assert isinstance(responses, list)
 
-    responses = Catalogs.query_criteria_async(catalog="panstarrs", objectname="M10", radius=2,
+    responses = Catalogs.query_criteria_async(catalog="panstarrs", object_name="M10", radius=2,
                                               table="mean", qualityFlag=48)
     assert isinstance(responses, MockResponse)
 
@@ -1449,12 +1454,12 @@ def test_catalogs_query_criteria_async(patch_post):
     assert "query not available" in str(invalid_query.value)
 
     with pytest.raises(InvalidQueryError) as invalid_query:
-        Catalogs.query_criteria_async(catalog="panstarrs", objectname="M10", coordinates=regionCoords,
+        Catalogs.query_criteria_async(catalog="panstarrs", object_name="M10", coordinates=regionCoords,
                                       objType="STAR")
-    assert "one of objectname and coordinates" in str(invalid_query.value)
+    assert "one of object_name and coordinates" in str(invalid_query.value)
 
 
-def test_catalogs_query_criteria(patch_post):
+def test_catalogs_query_criteria():
     # without position
     result = Catalogs.query_criteria(catalog="Tic",
                                      Bmag=[30, 50], objType="STAR")
@@ -1468,16 +1473,16 @@ def test_catalogs_query_criteria(patch_post):
 
     # with position
     result = Catalogs.query_criteria(catalog="DiskDetective",
-                                     objectname="M10", radius=2,
+                                     object_name="M10", radius=2,
                                      state="complete")
     assert isinstance(result, Table)
 
     with pytest.raises(InvalidQueryError) as invalid_query:
-        Catalogs.query_criteria(catalog="Tic", objectname="M10")
+        Catalogs.query_criteria(catalog="Tic", object_name="M10")
     assert "non-positional" in str(invalid_query.value)
 
 
-def test_catalogs_query_hsc_matchid_async(patch_post):
+def test_catalogs_query_hsc_matchid_async():
     responses = Catalogs.query_hsc_matchid_async(82371983)
     assert isinstance(responses, list)
 
@@ -1489,22 +1494,22 @@ def test_catalogs_query_hsc_matchid_async(patch_post):
     assert "Invalid HSC version number" in str(i_w[0].message)
 
 
-def test_catalogs_query_hsc_matchid(patch_post):
+def test_catalogs_query_hsc_matchid():
     result = Catalogs.query_hsc_matchid(82371983)
     assert isinstance(result, Table)
 
 
-def test_catalogs_get_hsc_spectra_async(patch_post):
+def test_catalogs_get_hsc_spectra_async():
     responses = Catalogs.get_hsc_spectra_async()
     assert isinstance(responses, list)
 
 
-def test_catalogs_get_hsc_spectra(patch_post):
+def test_catalogs_get_hsc_spectra():
     result = Catalogs.get_hsc_spectra()
     assert isinstance(result, Table)
 
 
-def test_catalogs_download_hsc_spectra(patch_post, tmpdir):
+def test_catalogs_download_hsc_spectra(tmpdir):
     allSpectra = Catalogs.get_hsc_spectra()
 
     # actually download the products
@@ -1521,7 +1526,7 @@ def test_catalogs_download_hsc_spectra(patch_post, tmpdir):
 # TesscutClass tests #
 ######################
 
-def test_tesscut_get_sector(patch_post):
+def test_tesscut_get_sector():
     coord = SkyCoord(324.24368, -27.01029, unit="deg")
     sector_table = Tesscut.get_sectors(coordinates=coord)
     assert isinstance(sector_table, Table)
@@ -1540,7 +1545,7 @@ def test_tesscut_get_sector(patch_post):
     assert sector_table['ccd'][0] == 3
 
     # Exercising the search by object name
-    sector_table = Tesscut.get_sectors(objectname="M103")
+    sector_table = Tesscut.get_sectors(object_name="M103")
     assert isinstance(sector_table, Table)
     assert len(sector_table) == 1
     assert sector_table['sectorName'][0] == "tess-s0001-1-3"
@@ -1549,7 +1554,7 @@ def test_tesscut_get_sector(patch_post):
     assert sector_table['ccd'][0] == 3
 
     # Exercising the search by moving target
-    sector_table = Tesscut.get_sectors(objectname="Ceres",
+    sector_table = Tesscut.get_sectors(object_name="Ceres",
                                        moving_target=True,
                                        mt_type='small_body')
     assert isinstance(sector_table, Table)
@@ -1562,9 +1567,9 @@ def test_tesscut_get_sector(patch_post):
     # Invalid queries
     # Testing catch for multiple designators'
     error_str = ("Only one of moving_target and coordinates may be specified. "
-                 "Please remove coordinates if using moving_target and objectname.")
+                 "Please remove coordinates if using moving_target and object_name.")
     with pytest.raises(InvalidQueryError) as invalid_query:
-        Tesscut.get_sectors(objectname='Ceres', moving_target=True, coordinates=coord)
+        Tesscut.get_sectors(object_name='Ceres', moving_target=True, coordinates=coord)
     assert error_str in str(invalid_query.value)
 
     # Error when no object name with moving target
@@ -1572,18 +1577,18 @@ def test_tesscut_get_sector(patch_post):
         Tesscut.get_sectors(moving_target=True)
 
     # Error when both object name and coordinates are specified
-    with pytest.raises(InvalidQueryError, match='Please remove objectname if using coordinates'):
-        Tesscut.get_sectors(objectname='Ceres', coordinates=coord)
+    with pytest.raises(InvalidQueryError, match='Please remove object_name if using coordinates'):
+        Tesscut.get_sectors(object_name='Ceres', coordinates=coord)
 
     # Testing invalid queries
     # Invalid product type
     with pytest.raises(InvalidQueryError) as invalid_query:
         with pytest.warns(AstropyDeprecationWarning, match="Tesscut no longer supports"):
-            Tesscut.get_sectors(objectname="M101", product="spooc")
+            Tesscut.get_sectors(object_name="M101", product="spooc")
     assert "Input product must be SPOC." in str(invalid_query.value)
 
 
-def test_tesscut_download_cutouts(patch_post, tmpdir):
+def test_tesscut_download_cutouts(tmpdir):
     coord = SkyCoord(107.27, -70.0, unit="deg")
 
     # Testing with inflate
@@ -1602,14 +1607,14 @@ def test_tesscut_download_cutouts(patch_post, tmpdir):
     assert os.path.isfile(manifest[0]['Local Path'])
 
     # Exercising the search by object name
-    manifest = Tesscut.download_cutouts(objectname="M103", size=5, path=str(tmpdir))
+    manifest = Tesscut.download_cutouts(object_name="M103", size=5, path=str(tmpdir))
     assert isinstance(manifest, Table)
     assert len(manifest) == 1
     assert manifest["Local Path"][0][-4:] == "fits"
     assert os.path.isfile(manifest[0]['Local Path'])
 
     # Exercising the search by moving target
-    manifest = Tesscut.download_cutouts(objectname="Eleonora",
+    manifest = Tesscut.download_cutouts(object_name="Eleonora",
                                         moving_target=True,
                                         mt_type='small_body',
                                         sector=1,
@@ -1622,10 +1627,10 @@ def test_tesscut_download_cutouts(patch_post, tmpdir):
 
     # Testing catch for multiple designators'
     error_str = ("Only one of moving_target and coordinates may be specified. "
-                 "Please remove coordinates if using moving_target and objectname.")
+                 "Please remove coordinates if using moving_target and object_name.")
 
     with pytest.raises(InvalidQueryError) as invalid_query:
-        Tesscut.download_cutouts(objectname="Eleonora",
+        Tesscut.download_cutouts(object_name="Eleonora",
                                  moving_target=True,
                                  coordinates=coord,
                                  size=5,
@@ -1635,11 +1640,11 @@ def test_tesscut_download_cutouts(patch_post, tmpdir):
     # Testing invalid queries
     with pytest.raises(InvalidQueryError) as invalid_query:
         with pytest.warns(AstropyDeprecationWarning, match="Tesscut no longer supports"):
-            Tesscut.download_cutouts(objectname="M101", product="spooc")
+            Tesscut.download_cutouts(object_name="M101", product="spooc")
     assert "Input product must be SPOC." in str(invalid_query.value)
 
 
-def test_tesscut_get_cutouts(patch_post, tmpdir):
+def test_tesscut_get_cutouts(tmpdir):
     coord = SkyCoord(107.27, -70.0, unit="deg")
     cutout_hdus_list = Tesscut.get_cutouts(coordinates=coord, size=5)
     assert isinstance(cutout_hdus_list, list)
@@ -1647,13 +1652,13 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
     assert isinstance(cutout_hdus_list[0], fits.HDUList)
 
     # Exercising the search by object name
-    cutout_hdus_list = Tesscut.get_cutouts(objectname="M103", size=5)
+    cutout_hdus_list = Tesscut.get_cutouts(object_name="M103", size=5)
     assert isinstance(cutout_hdus_list, list)
     assert len(cutout_hdus_list) == 1
     assert isinstance(cutout_hdus_list[0], fits.HDUList)
 
     # Exercising the search by object name
-    cutout_hdus_list = Tesscut.get_cutouts(objectname='Eleonora',
+    cutout_hdus_list = Tesscut.get_cutouts(object_name='Eleonora',
                                            moving_target=True,
                                            mt_type='small_body',
                                            sector=1,
@@ -1664,10 +1669,10 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
 
     # Testing catch for multiple designators'
     error_str = ("Only one of moving_target and coordinates may be specified. "
-                 "Please remove coordinates if using moving_target and objectname.")
+                 "Please remove coordinates if using moving_target and object_name.")
 
     with pytest.raises(InvalidQueryError) as invalid_query:
-        Tesscut.get_cutouts(objectname="Eleonora",
+        Tesscut.get_cutouts(object_name="Eleonora",
                             moving_target=True,
                             coordinates=coord,
                             size=5)
@@ -1676,25 +1681,25 @@ def test_tesscut_get_cutouts(patch_post, tmpdir):
     # Testing invalid queries
     with pytest.raises(InvalidQueryError) as invalid_query:
         with pytest.warns(AstropyDeprecationWarning, match="Tesscut no longer supports"):
-            Tesscut.get_cutouts(objectname="M101", product="spooc")
+            Tesscut.get_cutouts(object_name="M101", product="spooc")
     assert "Input product must be SPOC." in str(invalid_query.value)
 
 
-def test_tesscut_get_cutouts_mt_no_sector(patch_post):
+def test_tesscut_get_cutouts_mt_no_sector():
     """Test get_cutouts with moving target but no sector specified.
 
     When sector is not specified for moving targets, the method should
     automatically fetch available sectors and make individual requests per sector.
     """
     # Moving target without specifying sector - should automatically fetch sectors
-    cutout_hdus_list = Tesscut.get_cutouts(objectname="Eleonora", moving_target=True, mt_type="small_body", size=5)
+    cutout_hdus_list = Tesscut.get_cutouts(object_name="Eleonora", moving_target=True, mt_type="small_body", size=5)
     assert isinstance(cutout_hdus_list, list)
     # Mock returns 1 sector, so we expect 1 cutout
     assert len(cutout_hdus_list) == 1
     assert isinstance(cutout_hdus_list[0], fits.HDUList)
 
 
-def test_tesscut_download_cutouts_mt_no_sector(patch_post, tmpdir):
+def test_tesscut_download_cutouts_mt_no_sector(tmpdir):
     """Test download_cutouts with moving target but no sector specified.
 
     When sector is not specified for moving targets, the method should
@@ -1702,7 +1707,7 @@ def test_tesscut_download_cutouts_mt_no_sector(patch_post, tmpdir):
     """
     # Moving target without specifying sector - should automatically fetch sectors
     manifest = Tesscut.download_cutouts(
-        objectname="Eleonora", moving_target=True, mt_type="small_body", size=5, path=str(tmpdir)
+        object_name="Eleonora", moving_target=True, mt_type="small_body", size=5, path=str(tmpdir)
     )
     assert isinstance(manifest, Table)
     # Mock returns 1 sector, so we expect 1 file
@@ -1711,7 +1716,7 @@ def test_tesscut_download_cutouts_mt_no_sector(patch_post, tmpdir):
     assert os.path.isfile(manifest[0]["Local Path"])
 
 
-def test_tesscut_get_cutouts_mt_no_sector_empty_results(patch_post, monkeypatch):
+def test_tesscut_get_cutouts_mt_no_sector_empty_results(monkeypatch):
     """Test get_cutouts with moving target when no sectors are available.
 
     When get_sectors returns an empty table, the method should warn and return an empty list.
@@ -1721,12 +1726,12 @@ def test_tesscut_get_cutouts_mt_no_sector_empty_results(patch_post, monkeypatch)
     monkeypatch.setattr(Tesscut, "get_sectors", lambda *args, **kwargs: empty_sector_table)
 
     with pytest.warns(NoResultsWarning, match="Coordinates are not in any TESS sector"):
-        cutout_hdus_list = Tesscut.get_cutouts(objectname="NonExistentObject", moving_target=True, size=5)
+        cutout_hdus_list = Tesscut.get_cutouts(object_name="NonExistentObject", moving_target=True, size=5)
     assert isinstance(cutout_hdus_list, list)
     assert len(cutout_hdus_list) == 0
 
 
-def test_tesscut_download_cutouts_mt_no_sector_empty_results(patch_post, tmpdir, monkeypatch):
+def test_tesscut_download_cutouts_mt_no_sector_empty_results(tmpdir, monkeypatch):
     """Test download_cutouts with moving target when no sectors are available.
 
     When get_sectors returns an empty table, the method should warn and return an empty Table.
@@ -1737,7 +1742,7 @@ def test_tesscut_download_cutouts_mt_no_sector_empty_results(patch_post, tmpdir,
 
     with pytest.warns(NoResultsWarning, match="Coordinates are not in any TESS sector"):
         manifest = Tesscut.download_cutouts(
-            objectname="NonExistentObject", moving_target=True, size=5, path=str(tmpdir)
+            object_name="NonExistentObject", moving_target=True, size=5, path=str(tmpdir)
         )
     assert isinstance(manifest, Table)
     assert len(manifest) == 0
@@ -1748,7 +1753,7 @@ def test_tesscut_download_cutouts_mt_no_sector_empty_results(patch_post, tmpdir,
 ######################
 
 
-def test_zcut_get_survey(patch_post):
+def test_zcut_get_survey():
 
     coord = SkyCoord(189.49206, 62.20615, unit="deg")
     survey_list = Zcut.get_surveys(coordinates=coord)
@@ -1766,7 +1771,7 @@ def test_zcut_get_survey(patch_post):
     assert survey_list[2] == 'goods_north'
 
 
-def test_zcut_download_cutouts(patch_post, tmpdir):
+def test_zcut_download_cutouts(tmpdir):
 
     coord = SkyCoord(189.49206, 62.20615, unit="deg")
 
@@ -1794,7 +1799,7 @@ def test_zcut_download_cutouts(patch_post, tmpdir):
     assert os.path.isfile(cutout_table[0]['Local Path'])
 
 
-def test_zcut_get_cutouts(patch_post, tmpdir):
+def test_zcut_get_cutouts(tmpdir):
 
     coord = SkyCoord(189.49206, 62.20615, unit="deg")
     cutout_list = Zcut.get_cutouts(coordinates=coord, size=5)
@@ -1808,7 +1813,7 @@ def test_zcut_get_cutouts(patch_post, tmpdir):
 ################
 
 
-def test_parse_input_location(patch_post):
+def test_parse_input_location():
     # Test with coordinates
     coord = SkyCoord(23.34086, 60.658, unit="deg")
     loc = utils.parse_input_location(coordinates=coord)
@@ -1818,17 +1823,17 @@ def test_parse_input_location(patch_post):
 
     # Test with object name
     obj_coord = SkyCoord(124.531756290083, -68.3129998725044, unit="deg")
-    loc = utils.parse_input_location(objectname="TIC 307210830")
+    loc = utils.parse_input_location(object_name="TIC 307210830")
     assert isinstance(loc, SkyCoord)
     assert loc.ra == obj_coord.ra
     assert loc.dec == obj_coord.dec
 
     # Error if both coordinates and object name are provided
-    with pytest.raises(InvalidQueryError, match="Only one of objectname and coordinates may be specified"):
-        utils.parse_input_location(coordinates=coord, objectname="M101")
+    with pytest.raises(InvalidQueryError, match="Only one of object_name and coordinates may be specified"):
+        utils.parse_input_location(coordinates=coord, object_name="M101")
 
     # Error if neither coordinates nor object name is provided
-    with pytest.raises(InvalidQueryError, match="One of objectname and coordinates must be specified"):
+    with pytest.raises(InvalidQueryError, match="One of object_name and coordinates must be specified"):
         utils.parse_input_location()
 
     # Warn if resolver is specified without an object name
@@ -1837,7 +1842,7 @@ def test_parse_input_location(patch_post):
         assert isinstance(loc, SkyCoord)
 
 
-def test_json_to_table_fallback_type_coercion(patch_post):
+def test_json_to_table_fallback_type_coercion():
     json_obj = {'info': [{'name': 'test_int', 'type': 'int'}],
                 'data': [['1'], ['2'], ['not_an_int'], ['3'], [-999]]}
 
@@ -1863,49 +1868,45 @@ def test_json_to_table_fallback_type_coercion(patch_post):
 # Cloud tests #
 ################
 
-@patch("boto3.resource")
-@patch("boto3.client")
-def test_download_file_from_cloud(mock_client, mock_resource, patch_post):
-    pytest.importorskip("boto3")
+def test_cloud_access_init():
+    cloud.HAS_BOTO3 = False
+    with pytest.raises(ImportError, match='Please install the `boto3` and `botocore` packages'):
+        CloudAccess()
 
+    # Restore the original state for other tests
+    cloud.HAS_BOTO3 = True
+
+
+def test_download_file_from_cloud(patch_boto3):
+    mock_client, mock_resource = patch_boto3
     cloud = CloudAccess()
 
-    mock_client.return_value.head_object.return_value = {'ContentLength': 123}
-    mock_resource.return_value.Bucket.return_value.download_file.return_value = None
+    mock_client.head_object.return_value = {'ContentLength': 123}
+    mock_resource.Bucket.return_value.download_file.return_value = None
 
     cloud.download_file_from_cloud(
         "s3://stpubdata/hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits",
         "local.fits",
         verbose=False
     )
-    mock_resource.return_value.Bucket.return_value.download_file.assert_called_once()
+    mock_resource.Bucket.return_value.download_file.assert_called_once()
 
 
-@patch("boto3.resource")
-@patch("boto3.client")
-def test_download_file_from_cloud_not_found(mock_client, mock_resource, patch_post):
-    pytest.importorskip("boto3")
-
+def test_download_file_from_cloud_not_found(patch_boto3):
     cloud = CloudAccess()
 
     # Force get_cloud_uri_list to return [None]
     cloud.get_cloud_uri_list = lambda *a, **k: [None]
 
     with pytest.raises(RemoteServiceError, match='was not found in the cloud'):
-        cloud.download_file_from_cloud(
-            "mast:HST/product/missing.fits",
-            "local.fits",
-        )
+        cloud.download_file_from_cloud("mast:HST/product/missing.fits", "local.fits")
 
 
 @patch('os.path.exists', return_value=True)
 @patch('os.path.getsize', return_value=123)
-@patch('boto3.resource')
-@patch('boto3.client')
-def test_download_file_from_cloud_existing(mock_client, mock_resource, mock_getsize, mock_exists, patch_post):
-    pytest.importorskip("boto3")
-
-    mock_client.return_value.head_object.return_value = {'ContentLength': 123}
+def test_download_file_from_cloud_existing(mock_getsize, mock_exists, patch_boto3):
+    mock_client, mock_resource = patch_boto3
+    mock_client.head_object.return_value = {'ContentLength': 123}
     cloud = CloudAccess()
 
     # File exists locally with same size
@@ -1915,7 +1916,7 @@ def test_download_file_from_cloud_existing(mock_client, mock_resource, mock_gets
         verbose=False
     )
     # No download should be attempted
-    mock_resource.return_value.Bucket.return_value.download_file.assert_not_called()
+    mock_resource.Bucket.return_value.download_file.assert_not_called()
 
     # File exists locally with different size
     mock_getsize.return_value = 456
@@ -1925,17 +1926,15 @@ def test_download_file_from_cloud_existing(mock_client, mock_resource, mock_gets
         verbose=False
     )
     # Download should be attempted
-    mock_resource.return_value.Bucket.return_value.download_file.assert_called_once()
+    mock_resource.Bucket.return_value.download_file.assert_called_once()
 
 
-@patch("boto3.resource")
-@patch("boto3.client")
-def test_download_file_from_cloud_verbose(mock_client, mock_resource, patch_post):
-    pytest.importorskip("boto3")
+def test_download_file_from_cloud_verbose(patch_boto3):
+    mock_client, mock_resource = patch_boto3
     cloud = CloudAccess()
 
-    mock_client.return_value.head_object.return_value = {'ContentLength': 123}
-    mock_resource.return_value.Bucket.return_value.download_file.return_value = None
+    mock_client.head_object.return_value = {'ContentLength': 123}
+    mock_resource.Bucket.return_value.download_file.return_value = None
 
     cloud.download_file_from_cloud(
         "s3://stpubdata/hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits",
@@ -1943,5 +1942,5 @@ def test_download_file_from_cloud_verbose(mock_client, mock_resource, patch_post
         verbose=True
     )
     # Ensure callback was supplied
-    _, kwargs = mock_resource.return_value.Bucket.return_value.download_file.call_args
+    _, kwargs = mock_resource.Bucket.return_value.download_file.call_args
     assert "Callback" in kwargs

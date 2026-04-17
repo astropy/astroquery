@@ -39,6 +39,17 @@ def msa_product_table():
     return products
 
 
+@pytest.fixture()
+def reset_cloud_state():
+    pytest.importorskip('boto3')
+    # Reset cloud dataset state before and after each test
+    Observations._cloud_enabled_explicitly = None
+    Observations._cloud_connection = None
+    yield
+    Observations._cloud_enabled_explicitly = None
+    Observations._cloud_connection = None
+
+
 @pytest.mark.remote_data
 class TestMast:
 
@@ -531,7 +542,7 @@ class TestMast:
 
         # with position
         responses = Observations.query_criteria_async(filters=["NUV", "FUV"],
-                                                      objectname="M10")
+                                                      object_name="M10")
         assert isinstance(responses, list)
 
     def test_observations_query_criteria(self):
@@ -545,7 +556,7 @@ class TestMast:
         assert ((result['obs_collection'] == 'HST') | (result['obs_collection'] == 'HLA')).all()
 
         # with position
-        result = Observations.query_criteria(objectname="M10",
+        result = Observations.query_criteria(object_name="M10",
                                              filters=["NUV", "FUV"],
                                              obs_collection="GALEX")
         assert isinstance(result, Table)
@@ -553,7 +564,7 @@ class TestMast:
         assert (result['obs_collection'] == 'GALEX').all()
         assert sum(result['filters'] == 'NUV') == 4
 
-        result = Observations.query_criteria(objectname="M10",
+        result = Observations.query_criteria(object_name="M10",
                                              dataproduct_type="IMAGE",
                                              intentType="calibration")
         assert (result["intentType"] == "calibration").all()
@@ -602,7 +613,7 @@ class TestMast:
     # product functions
     def test_observations_get_product_list_async(self):
 
-        test_obs = Observations.query_criteria(filters=["NUV", "FUV"], objectname="M10")
+        test_obs = Observations.query_criteria(filters=["NUV", "FUV"], object_name="M10")
 
         responses = Observations.get_product_list_async(test_obs[0]["obsid"])
         assert isinstance(responses, list)
@@ -610,7 +621,7 @@ class TestMast:
         responses = Observations.get_product_list_async(test_obs[2:3])
         assert isinstance(responses, list)
 
-        observations = Observations.query_criteria(objectname="M8", obs_collection=["K2", "IUE"])
+        observations = Observations.query_criteria(object_name="M8", obs_collection=["K2", "IUE"])
         responses = Observations.get_product_list_async(observations[0])
         assert isinstance(responses, list)
 
@@ -622,7 +633,7 @@ class TestMast:
         assert isinstance(responses, list)
 
     def test_observations_get_product_list(self, capsys):
-        observations = Observations.query_criteria(objectname='M8', obs_collection=['K2', 'IUE'])
+        observations = Observations.query_criteria(object_name='M8', obs_collection=['K2', 'IUE'])
         test_obs_id = str(observations[0]['obsid'])
         mult_obs_ids = str(observations[0]['obsid']) + ',' + str(observations[1]['obsid'])
 
@@ -785,9 +796,8 @@ class TestMast:
         with caplog.at_level("INFO", logger="astroquery"):
             assert "products were duplicates" in caplog.text
 
-    def test_observations_download_products_cloud(self, tmp_path, msa_product_table):
-        pytest.importorskip('boto3')
-
+    def test_observations_download_products_cloud(self, tmp_path, msa_product_table, reset_cloud_state):
+        # Explicity enable cloud dataset
         Observations.enable_cloud_dataset()
 
         # Adding a product that's not in the cloud to test mixed downloads
@@ -822,8 +832,6 @@ class TestMast:
         assert Path(result['Local Path'][0]).exists()
         assert Path(result['Local Path'][1]).exists()
 
-        Observations.disable_cloud_dataset()
-
     def test_observations_download_file(self, tmp_path):
 
         def check_result(result, path):
@@ -831,7 +839,7 @@ class TestMast:
             assert os.path.exists(path)
 
         # get observations from GALEX instrument with query_criteria
-        observations = Observations.query_criteria(objectname='M10',
+        observations = Observations.query_criteria(object_name='M10',
                                                    radius=0.001,
                                                    instrument_name='GALEX')
 
@@ -865,22 +873,16 @@ class TestMast:
         'MISDR1_18916_0459-fd-flagstar.fits.gz',
         'mast:HST/product/u24r0102t_c3m.fits'
     ])
-    def test_observations_download_file_cloud(self, tmp_path, in_uri):
-        pytest.importorskip("boto3")
-
-        Observations.enable_cloud_dataset()
-
+    def test_observations_download_file_cloud(self, tmp_path, in_uri, reset_cloud_state):
         filename = Path(in_uri).name
         result = Observations.download_file(uri=in_uri, cloud_only=True, local_path=tmp_path)
         assert result == ('COMPLETE', None, None)
         assert Path(tmp_path, filename).exists()
 
-        Observations.disable_cloud_dataset()
-
-    def test_observations_download_file_cloud_not_found(self, tmp_path):
-        pytest.importorskip("boto3")
+    def test_observations_download_file_cloud_not_found(self, tmp_path, reset_cloud_state):
         in_uri = 'mast:IUE/url/pub/vospectra/iue2/swp18830mxlo_vo.fits'
 
+        # Explicity enable cloud dataset
         Observations.enable_cloud_dataset()
 
         # Warn and fallback
@@ -895,8 +897,6 @@ class TestMast:
             result = Observations.download_file(uri=in_uri, cloud_only=True, local_path=tmp_path)
             assert result == ('SKIPPED', None, None)
             assert not Path(tmp_path, Path(in_uri).name).exists()
-
-        Observations.disable_cloud_dataset()
 
     def test_observations_download_file_escaped(self, tmp_path):
         # test that `download_file` correctly escapes a URI
@@ -928,15 +928,13 @@ class TestMast:
         assert result == ("COMPLETE", None, None)
         assert Path(tmp_path, filename).exists()
 
-    def test_observations_list_cloud_missions(self):
-        pytest.importorskip('boto3')
-        Observations.enable_cloud_dataset()
+    def test_observations_list_cloud_missions(self, reset_cloud_state):
+        # Test that the function to list missions with cloud datasets returns expected missions
         missions = Observations.list_cloud_datasets()
         assert isinstance(missions, list)
         assert len(missions) > 0
         for m in ['hst', 'jwst', 'panstarrs', 'galex', 'tess']:
             assert m in missions
-        Observations.disable_cloud_dataset()
 
     @pytest.mark.parametrize("test_data_uri, expected_cloud_uri", [
         ("mast:HST/product/u24r0102t_c1f.fits",
@@ -945,13 +943,10 @@ class TestMast:
          "s3://stpubdata/panstarrs/ps1/public/rings.v3.skycell/1334/061/"
          "rings.v3.skycell.1334.061.stk.r.unconv.exp.fits")
     ])
-    def test_observations_get_cloud_uri(self, test_data_uri, expected_cloud_uri):
-        pytest.importorskip("boto3")
+    def test_observations_get_cloud_uri(self, test_data_uri, expected_cloud_uri, reset_cloud_state):
         # get a product list
         product = Table()
         product['dataURI'] = [test_data_uri]
-        # enable access to public AWS S3 bucket
-        Observations.enable_cloud_dataset()
 
         # get uri
         uri = Observations.get_cloud_uri(product[0])
@@ -963,21 +958,14 @@ class TestMast:
         uri = Observations.get_cloud_uri(test_data_uri)
         assert uri == expected_cloud_uri, f'Cloud URI does not match expected. ({uri} != {expected_cloud_uri})'
 
-        Observations.disable_cloud_dataset()
-
     @pytest.mark.parametrize("test_obs_id", ["25568122", "31411", "107604081"])
-    def test_observations_get_cloud_uris(self, test_obs_id):
-        pytest.importorskip("boto3")
-
+    def test_observations_get_cloud_uris(self, test_obs_id, reset_cloud_state):
         # get a product list
         index = 24 if test_obs_id == '25568122' else 0
         products = Observations.get_product_list(test_obs_id)[index:index + 2]
 
         assert len(products) > 0, (f'No products found for OBSID {test_obs_id}. '
                                    'Unable to move forward with getting URIs from the cloud.')
-
-        # enable access to public AWS S3 bucket
-        Observations.enable_cloud_dataset()
 
         # get uris
         uris = Observations.get_cloud_uris(products)
@@ -989,18 +977,12 @@ class TestMast:
             Observations.get_cloud_uris(products,
                                         extension='png')
 
-        Observations.disable_cloud_dataset()
-
-    def test_observations_get_cloud_uris_list_input(self):
-        pytest.importorskip("boto3")
+    def test_observations_get_cloud_uris_list_input(self, reset_cloud_state):
         uri_list = ['mast:HST/product/u24r0102t_c1f.fits',
                     'mast:PS1/product/rings.v3.skycell.1334.061.stk.r.unconv.exp.fits']
         expected = ['s3://stpubdata/hst/public/u24r/u24r0102t/u24r0102t_c1f.fits',
                     's3://stpubdata/panstarrs/ps1/public/rings.v3.skycell/1334/061/rings.v3.skycell.1334.'
                     '061.stk.r.unconv.exp.fits']
-
-        # enable access to public AWS S3 bucket
-        Observations.enable_cloud_dataset()
 
         # list of URI strings as input
         uris = Observations.get_cloud_uris(uri_list)
@@ -1023,14 +1005,7 @@ class TestMast:
         with pytest.warns(NoResultsWarning, match='Failed to retrieve cloud path'):
             Observations.get_cloud_uris(['mast:HST/product/does_not_exist.fits'])
 
-        Observations.disable_cloud_dataset()
-
-    def test_observations_get_cloud_uris_query(self):
-        pytest.importorskip("boto3")
-
-        # enable access to public AWS S3 bucket
-        Observations.enable_cloud_dataset()
-
+    def test_observations_get_cloud_uris_query(self, reset_cloud_state):
         # get uris with other functions
         obs = Observations.query_criteria(target_name=234295610)
         prod = Observations.get_product_list(obs)
@@ -1050,24 +1025,15 @@ class TestMast:
         with pytest.warns(NoResultsWarning):
             Observations.get_cloud_uris(target_name=234295611)
 
-        Observations.disable_cloud_dataset()
-
-    def test_observations_get_cloud_uris_no_duplicates(self, msa_product_table):
-        pytest.importorskip("boto3")
-
+    def test_observations_get_cloud_uris_no_duplicates(self, msa_product_table, reset_cloud_state):
         # Get a product list with 6 duplicate JWST MSA config files
         products = msa_product_table
 
         assert len(products) == 6
 
-        # enable access to public AWS S3 bucket
-        Observations.enable_cloud_dataset(provider='AWS')
-
         # Check that only one URI is returned
         uris = Observations.get_cloud_uris(products)
         assert len(uris) == 1
-
-        Observations.disable_cloud_dataset()
 
     ######################
     # CatalogClass tests #
@@ -1267,24 +1233,24 @@ class TestMast:
 
         # with position
         responses = Catalogs.query_criteria_async(catalog="Tic",
-                                                  objectname="M10",
+                                                  object_name="M10",
                                                   objType="EXTENDED")
         assert isinstance(responses, list)
 
         responses = Catalogs.query_criteria_async(catalog="CTL",
-                                                  objectname="M10",
+                                                  object_name="M10",
                                                   objType="EXTENDED")
         assert isinstance(responses, list)
 
         responses = Catalogs.query_criteria_async(catalog="DiskDetective",
-                                                  objectname="M10",
+                                                  object_name="M10",
                                                   radius=2,
                                                   state="complete")
         assert isinstance(responses, list)
 
         responses = Catalogs.query_criteria_async(catalog="panstarrs",
                                                   table="mean",
-                                                  objectname="M10",
+                                                  object_name="M10",
                                                   radius=.02,
                                                   qualityFlag=48)
         assert isinstance(responses, Response)
@@ -1324,23 +1290,23 @@ class TestMast:
 
         # with position
         result = Catalogs.query_criteria(catalog="Tic",
-                                         objectname="M10", objType="EXTENDED")
+                                         object_name="M10", objType="EXTENDED")
         check_result(result, {'ID': '10000732589'})
 
-        result = Catalogs.query_criteria(objectname='TIC 291067184',
+        result = Catalogs.query_criteria(object_name='TIC 291067184',
                                          catalog="ctl",
                                          Tmag=[10.5, 11],
                                          POSflag="2mass")
         check_result(result, {'Tmag': 10.893})
 
         result = Catalogs.query_criteria(catalog="DiskDetective",
-                                         objectname="M10",
+                                         object_name="M10",
                                          radius=2,
                                          state="complete")
         check_result(result, {'designation': 'J165628.40-054630.8'})
 
         result = Catalogs.query_criteria(catalog="panstarrs",
-                                         objectname="M10",
+                                         object_name="M10",
                                          radius=.01,
                                          qualityFlag=32,
                                          zoneID=10306,
@@ -1473,13 +1439,13 @@ class TestMast:
         sector_table = Tesscut.get_sectors(coordinates=coord)
         check_sector_table(sector_table)
 
-        sector_table = Tesscut.get_sectors(objectname="M104")
+        sector_table = Tesscut.get_sectors(object_name="M104")
         check_sector_table(sector_table)
 
     def test_tesscut_get_sectors_mt(self):
         # Moving target functionality testing
         moving_target_name = 'Eleonora'
-        sector_table = Tesscut.get_sectors(objectname=moving_target_name,
+        sector_table = Tesscut.get_sectors(object_name=moving_target_name,
                                            moving_target=True)
         assert isinstance(sector_table, Table)
         assert len(sector_table) >= 1
@@ -1490,7 +1456,7 @@ class TestMast:
 
         error_nameresolve = f"Could not resolve \"{moving_target_name}\" to a sky position."
         with pytest.raises(ResolverError) as error_msg:
-            Tesscut.get_sectors(objectname=moving_target_name)
+            Tesscut.get_sectors(object_name=moving_target_name)
         assert error_nameresolve in str(error_msg.value)
 
     def test_tesscut_download_cutouts(self, tmpdir):
@@ -1518,14 +1484,14 @@ class TestMast:
                                             path=str(tmpdir), inflate=False)
         check_manifest(manifest, ".zip")
 
-        manifest = Tesscut.download_cutouts(objectname="TIC 32449963", size=1, path=str(tmpdir))
+        manifest = Tesscut.download_cutouts(object_name="TIC 32449963", size=1, path=str(tmpdir))
         check_manifest(manifest, "fits")
 
     def test_tesscut_download_cutouts_mt(self, tmpdir):
         # Moving target functionality testing
         moving_target_name = 'Eleonora'
 
-        manifest = Tesscut.download_cutouts(objectname=moving_target_name,
+        manifest = Tesscut.download_cutouts(object_name=moving_target_name,
                                             moving_target=True,
                                             sector=6,
                                             size=1,
@@ -1538,7 +1504,7 @@ class TestMast:
 
         error_nameresolve = f"Could not resolve \"{moving_target_name}\" to a sky position."
         with pytest.raises(ResolverError) as error_msg:
-            Tesscut.download_cutouts(objectname=moving_target_name)
+            Tesscut.download_cutouts(object_name=moving_target_name)
         assert error_nameresolve in str(error_msg.value)
 
     def test_tesscut_get_cutouts(self):
@@ -1559,7 +1525,7 @@ class TestMast:
                                                sector=[28, 68])
         check_cutout_hdu(cutout_hdus_list)
 
-        cutout_hdus_list = Tesscut.get_cutouts(objectname="TIC 32449963",
+        cutout_hdus_list = Tesscut.get_cutouts(object_name="TIC 32449963",
                                                size=1,
                                                sector=37)
         check_cutout_hdu(cutout_hdus_list)
@@ -1567,7 +1533,7 @@ class TestMast:
     def test_tesscut_get_cutouts_mt(self):
         # Moving target functionality testing
         moving_target_name = 'Eleonora'
-        cutout_hdus_list = Tesscut.get_cutouts(objectname=moving_target_name,
+        cutout_hdus_list = Tesscut.get_cutouts(object_name=moving_target_name,
                                                moving_target=True,
                                                sector=6,
                                                size=1)
@@ -1577,7 +1543,7 @@ class TestMast:
 
         error_nameresolve = f"Could not resolve \"{moving_target_name}\" to a sky position."
         with pytest.raises(ResolverError) as error_msg:
-            Tesscut.get_cutouts(objectname=moving_target_name)
+            Tesscut.get_cutouts(object_name=moving_target_name)
         assert error_nameresolve in str(error_msg.value)
 
     def test_tesscut_get_cutouts_mt_no_sector(self):
@@ -1588,7 +1554,7 @@ class TestMast:
         """
         moving_target_name = "Eleonora"
         # Moving target without specifying sector - should automatically fetch sectors
-        cutout_hdus_list = Tesscut.get_cutouts(objectname=moving_target_name, moving_target=True, size=1)
+        cutout_hdus_list = Tesscut.get_cutouts(object_name=moving_target_name, moving_target=True, size=1)
         assert isinstance(cutout_hdus_list, list)
         # Should return cutouts for all available sectors
         assert len(cutout_hdus_list) >= 1
@@ -1602,7 +1568,8 @@ class TestMast:
         """
         moving_target_name = "Eleonora"
         # Moving target without specifying sector - should automatically fetch sectors
-        manifest = Tesscut.download_cutouts(objectname=moving_target_name, moving_target=True, size=1, path=str(tmpdir))
+        manifest = Tesscut.download_cutouts(object_name=moving_target_name,
+                                            moving_target=True, size=1, path=str(tmpdir))
         assert isinstance(manifest, Table)
         # Should return files for all available sectors
         assert len(manifest) >= 1

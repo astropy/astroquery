@@ -290,7 +290,8 @@ class MastMissionsClass(MastQueryWithLogin):
         list of str
             A list of target strings in "ra dec" format for the API.
         """
-        def _normalize_inputs(values):
+        def _as_list(values):
+            """Normalize the input values into a list of strings or coordinate objects."""
             if values is None:
                 items = []
             elif isinstance(values, str):
@@ -302,8 +303,26 @@ class MastMissionsClass(MastQueryWithLogin):
 
             return [item.strip() if isinstance(item, str) else item for item in items]
 
-        coordinate_items = _normalize_inputs(coordinates)
-        object_name_items = _normalize_inputs(object_names)
+        def _is_legacy_ra_dec_pair(items):
+            """Detect ['ra', 'dec'] passed as one coordinate split on comma."""
+            if len(items) != 2 or not all(isinstance(item, str) for item in items):
+                return False
+
+            try:
+                float(items[0])
+                float(items[1])
+                return True
+            except ValueError:
+                return False
+
+        coordinate_items = _as_list(coordinates)
+        object_name_items = _as_list(object_names)
+
+        # Backward compatibility for historical single-coordinate input like:
+        # coordinates="10.5, -20.1"
+        if _is_legacy_ra_dec_pair(coordinate_items):
+            coordinate_items = [f"{coordinate_items[0]} {coordinate_items[1]}"]
+
         total_targets = len(coordinate_items) + len(object_name_items)
 
         if total_targets == 0:
@@ -338,7 +357,7 @@ class MastMissionsClass(MastQueryWithLogin):
         return targets
 
     @class_or_instance
-    @deprecated_renamed_argument('objectname', 'object_names', since='0.4.11')
+    @deprecated_renamed_argument('objectname', 'object_names', since='0.4.12')
     def query_criteria_async(self, *, coordinates=None, object_names=None, radius=3*u.arcmin,
                              limit=5000, offset=0, select_cols=None, resolver=None, **criteria):
         """
@@ -479,7 +498,7 @@ class MastMissionsClass(MastQueryWithLogin):
                                          **criteria)
 
     @class_or_instance
-    @deprecated_renamed_argument('objectname', 'object_names', since='0.4.11')
+    @deprecated_renamed_argument('objectname', 'object_names', since='0.4.12')
     def query_object_async(self, object_names, *, radius=3*u.arcmin, limit=5000, offset=0,
                            select_cols=None, resolver=None, **criteria):
         """

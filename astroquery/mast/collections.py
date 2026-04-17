@@ -16,8 +16,8 @@ from requests import HTTPError, RequestException
 
 import astropy.units as u
 import astropy.coordinates as coord
-
 from astropy.table import Table, Row
+from astropy.utils.decorators import deprecated_renamed_argument
 
 from ..utils import commons, async_to_sync
 from ..utils.class_or_instance import class_or_instance
@@ -298,7 +298,8 @@ class CatalogsClass(MastQueryWithLogin):
                                                               use_json=use_json)
 
     @class_or_instance
-    def query_object_async(self, objectname, *, radius=0.2*u.deg, catalog="Hsc",
+    @deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
+    def query_object_async(self, object_name, *, radius=0.2*u.deg, catalog="Hsc",
                            pagesize=None, page=None, version=None, resolver=None, **criteria):
         """
         Given an object name, returns a list of catalog entries.
@@ -306,7 +307,7 @@ class CatalogsClass(MastQueryWithLogin):
 
         Parameters
         ----------
-        objectname : str
+        object_name : str
             The name of the target around which to search.
         radius : str or `~astropy.units.Quantity` object, optional
             Default 0.2 degrees.
@@ -349,7 +350,7 @@ class CatalogsClass(MastQueryWithLogin):
         response : list of `~requests.Response`
         """
 
-        coordinates = utils.resolve_object(objectname, resolver=resolver)
+        coordinates = utils.resolve_object(object_name, resolver=resolver)
 
         return self.query_region_async(coordinates,
                                        radius=radius,
@@ -382,7 +383,7 @@ class CatalogsClass(MastQueryWithLogin):
             for more information. Default is None.
         **criteria
             Criteria to apply. At least one non-positional criteria must be supplied.
-            Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
+            Valid criteria are coordinates, object_name, radius (as in `query_region` and `query_object`),
             and all fields listed in the column documentation for the catalog being queried.
             The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
             except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
@@ -406,12 +407,12 @@ class CatalogsClass(MastQueryWithLogin):
 
         # Separating any position info from the rest of the filters
         coordinates = criteria.pop('coordinates', None)
-        objectname = criteria.pop('objectname', None)
+        object_name = criteria.pop('object_name', None)
         radius = criteria.pop('radius', 0.2*u.deg)
 
-        if objectname or coordinates:
+        if object_name or coordinates:
             coordinates = utils.parse_input_location(coordinates=coordinates,
-                                                     objectname=objectname,
+                                                     object_name=object_name,
                                                      resolver=resolver)
 
         # if radius is just a number we assume degrees
@@ -444,21 +445,21 @@ class CatalogsClass(MastQueryWithLogin):
 
             if catalog.lower() == "tic":
                 service = "Mast.Catalogs.Filtered.Tic"
-                if coordinates or objectname:
+                if coordinates or object_name:
                     service += ".Position"
                 service += ".Rows"  # Using the rowstore version of the query for speed
                 column_config_name = "Mast.Catalogs.Tess.Cone"
                 params["columns"] = "*"
             elif catalog.lower() == "ctl":
                 service = "Mast.Catalogs.Filtered.Ctl"
-                if coordinates or objectname:
+                if coordinates or object_name:
                     service += ".Position"
                 service += ".Rows"  # Using the rowstore version of the query for speed
                 column_config_name = "Mast.Catalogs.Tess.Cone"
                 params["columns"] = "*"
             elif catalog.lower() == "diskdetective":
                 service = "Mast.Catalogs.Filtered.DiskDetective"
-                if coordinates or objectname:
+                if coordinates or object_name:
                     service += ".Position"
                 column_config_name = "Mast.Catalogs.Dd.Cone"
             else:
