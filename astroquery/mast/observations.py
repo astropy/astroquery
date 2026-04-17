@@ -11,6 +11,7 @@ import warnings
 import time
 import os
 from urllib.parse import quote
+from importlib.metadata import version
 
 import numpy as np
 import astropy.units as u
@@ -45,31 +46,12 @@ CLOUD_DISABLED_MESSAGE = (
     '`~astroquery.mast.ObservationsClass.enable_cloud_dataset` method.'
 )
 
-from importlib.metadata import PackageNotFoundError, version
-
-asdf_module_req = ["asdf", "s3fs"]
-asdf_package_req = ["lz4", "gwcs"]
-asdf_missing = []
-
-for module in asdf_module_req:
-    try:
-        # Is there a better way to do this
-        globals()[module] = __import__(module)
-
-    except ModuleNotFoundError:
-        asdf_missing.append(module)
-        log.debug(f"Module Not Found: {module} please pip install to stream and open asdf data products")
-        pass
-
-for package in asdf_package_req:
-    try:
-        version(package)
-
-    except PackageNotFoundError:
-        asdf_missing.append(package)
-        log.debug(f"Package Not Found: {package} please pip install to stream and open asdf data products")
-        pass
-
+asdf_modules= ["asdf", "s3fs", "lz4", "gwcs"]
+try:
+    import asdf
+    import s3fs
+except ImportError:
+    pass
 
 @async_to_sync
 class ObservationsClass(MastQueryWithLogin):
@@ -1260,16 +1242,21 @@ def read_product(product_path, read_as="auto", ignore_unrecognized=False):
 
         # Read logic for ASDF
         elif product_path.endswith(".asdf"):
-            if asdf_missing:
-                log.debug(f"Missing Required Packaged for ASDF product type handeling: {asdf_missing}")
-            else:
+            # Check all required modules are available
+            for module in asdf_modules:
                 try:
-                    fs = s3fs.S3FileSystem(anon=True)
-                    with fs.open(product_path, 'rb') as s3_file:
-                        af = asdf.open(s3_file, ignore_unrecognized_tag=ignore_unrecognized)
-                        return af
-                except Exception as e:
-                    log.exception(f"Failed to open ASD File: {product_path} {e}")
+                    version(module)
+                except:
+                    log.debug(f"Missing Required Module: {module}")
+                    return
+
+            try:
+                fs = s3fs.S3FileSystem(anon=True)
+                with fs.open(product_path, 'rb') as s3_file:
+                    af = asdf.open(s3_file, ignore_unrecognized_tag=ignore_unrecognized)
+                    return af
+            except Exception as e:
+                log.exception(f"Failed to open ASD File: {product_path} {e}")
     else:
         print(f"Unsupported extension type")
 
