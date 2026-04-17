@@ -47,7 +47,7 @@ CLOUD_DISABLED_MESSAGE = (
 
 from importlib.metadata import PackageNotFoundError, version
 
-asdf_module_req= ["asdf", "s3fs"]
+asdf_module_req = ["asdf", "s3fs"]
 asdf_package_req = ["lz4", "gwcs"]
 asdf_missing = []
 
@@ -1233,16 +1233,14 @@ class ObservationsClass(MastQueryWithLogin):
 # TODO: Need to inlcude way to parse if it is a MAST on prem URL and handle the streaming of that
 def read_product(product_path, read_as="auto", ignore_unrecognized=False):
     """
-    Read a product from Open S3 bucket to memory. Currently can handle FITS and ASDF product types with appropriate package installation.
+    Read a product from Open S3 bucket to memory. Currently can handle FITS and ASDF product types.
 
     Parameters
     ----------
     product_path: str
         URI to the product in open bucket.
-
     read_as: str, optional
         How to read the file. Currently only .fits and .asdf is supported by "auto". Defaults to "auto".
-    
     ignore_unrecognized: bool
         Tells asdf.open() to include or ignore warnings from unrecognized asdf tags. Defaults to False
 
@@ -1250,32 +1248,26 @@ def read_product(product_path, read_as="auto", ignore_unrecognized=False):
     -------
     object
         FITS or ASDF object.
-
     """
-    
     if read_as == "auto":
         # Read logic for FITS
         if product_path.endswith(".fits"):
              try:
                 return fits.open(product_path, fsspec_kwargs={"anon": True})
-             
              except Exception as e:
                  log.exception(f"Failed to open FITS File: {product_path} {e}")
 
 
         # Read logic for ASDF
         elif product_path.endswith(".asdf"):
-
             if asdf_missing:
                 log.debug(f"Missing Required Packaged for ASDF product type handeling: {asdf_missing}")
-
             else:
                 try:
                     fs = s3fs.S3FileSystem(anon=True)
                     with fs.open(product_path, 'rb') as s3_file:
                         af = asdf.open(s3_file, ignore_unrecognized_tag=ignore_unrecognized)
                         return af
-                    
                 except Exception as e:
                     log.exception(f"Failed to open ASD File: {product_path} {e}")
     else:
