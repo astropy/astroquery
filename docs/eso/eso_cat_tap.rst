@@ -5,8 +5,8 @@ Catalogues - Query with TAP
 The ESO TAP service can also be used to query catalogue tables directly with
 free ADQL, using :meth:`~astroquery.eso.EsoClass.query_tap`. By default,
 ``query_tap(query)`` targets the observations TAP service (equivalent to
-``which_tap="tap_obs"``). To query catalogue content, pass
-``which_tap="tap_cat"`` -- i.e. ``eso.query_tap(query, which_tap="tap_cat")``.
+``tap_endpoint="tap_obs"``). To query catalogue content, pass
+``tap_endpoint="tap_cat"`` -- i.e. ``eso.query_tap(query, tap_endpoint="tap_cat")``.
 
 Basic Usage
 ===========
@@ -19,7 +19,7 @@ Basic Usage
 .. doctest-remote-data::
 
     >>> query = "SELECT table_name FROM TAP_SCHEMA.tables"
-    >>> table = eso.query_tap(query, which_tap="tap_cat")
+    >>> table = eso.query_tap(query, tap_endpoint="tap_cat")
 
 The examples below focus on common catalogue TAP workflows: schema discovery,
 spatial filtering, metadata-driven joins, and light-curve retrieval.
@@ -43,7 +43,7 @@ https://www.eso.org/rm/api/v1/public/releaseDescriptions/7
     ... WHERE schema_name = 'safcat' AND cat_id IS NOT NULL
     ... ORDER BY cat_id
     ... """
-    >>> table = eso.query_tap(query, which_tap="tap_cat") 
+    >>> table = eso.query_tap(query, tap_endpoint="tap_cat") 
     >>> print(table[:2]) # doctest: +IGNORE_OUTPUT
     table_name       cat_id                  release_documentation_url
     ---------------- ------ -----------------------------------------------------------
@@ -64,7 +64,7 @@ metadata for all published ESO tables.
     ... FROM TAP_SCHEMA.columns
     ... WHERE table_name='COSMOS2015_Laigle_v1_1b_latestV7_fits_V1'
     ... """
-    >>> table = eso.query_tap(query, which_tap="tap_cat")
+    >>> table = eso.query_tap(query, tap_endpoint="tap_cat")
 
 Find the Main RA/Dec Columns via UCD
 ------------------------------------
@@ -81,7 +81,7 @@ Here, the UCD values mark the primary ``RA`` and ``Dec`` fields -- in this case
     ... WHERE table_name='PESSTO_TRAN_CAT_fits_V2'
     ...   AND (ucd = 'pos.eq.ra;meta.main' OR ucd = 'pos.eq.dec;meta.main')
     ... """
-    >>> table = eso.query_tap(query, which_tap="tap_cat")
+    >>> table = eso.query_tap(query, tap_endpoint="tap_cat")
 
 List VMC Tables with Coordinate and Source-ID Columns
 -----------------------------------------------------
@@ -107,7 +107,7 @@ collection, ordered by publication date.
     ...   )
     ... ORDER BY publication_date DESC, 2, 4
     ... """
-    >>> table = eso.query_tap(query, which_tap="tap_cat")
+    >>> table = eso.query_tap(query, tap_endpoint="tap_cat")
 
 List Coordinate and Source-ID Columns Across All Collections
 ------------------------------------------------------------
@@ -128,7 +128,7 @@ catalogues, ordered by publication date and collection.
     ...   )
     ... ORDER BY publication_date DESC, 2, 3, 5
     ... """
-    >>> table = eso.query_tap(query, which_tap="tap_cat")
+    >>> table = eso.query_tap(query, tap_endpoint="tap_cat")
 
 Spatial Query Example
 =====================
@@ -151,7 +151,7 @@ Search the PESSTO master catalogue for transients in a circle of ``0.04 deg``
     ...     CIRCLE('', 41.2863, -55.7406, 0.04)
     ... ) = 1
     ... """
-    >>> table = eso.query_tap(query, which_tap="tap_cat")
+    >>> table = eso.query_tap(query, tap_endpoint="tap_cat")
 
 The target coordinates can also be resolved online using a name resolver and then included in 
 the query, as e.g.: 
@@ -176,7 +176,7 @@ the query, as e.g.:
     ...     CIRCLE('ICRS', {ra_deg}, {dec_deg}, {radius_deg})
     ... ) = 1
     ... """
-    >>> table = eso.query_tap(query, which_tap="tap_cat")
+    >>> table = eso.query_tap(query, tap_endpoint="tap_cat")
 
 Metadata Join Example
 =====================
@@ -215,7 +215,7 @@ The resulting table shows join pairs as:
     ...   AND k.key_id = kc.key_id
     ... ORDER BY table_name, column_name, 1, 3, 2
     ... """
-    >>> table = eso.query_tap(query, which_tap="tap_cat")
+    >>> table = eso.query_tap(query, tap_endpoint="tap_cat")
 
 After identifying the join keys (here, linking ``VVV_CAT_V2`` to
 ``VVV_MPHOT_Ks_V2`` and ``VVV_VAR_V2``), you can build a light curve while
@@ -241,7 +241,7 @@ Retrieve multi-epoch photometry and variability metrics for a known VVV source.
     ... WHERE VVV.IAUNAME='VVV J135433.73-594836.43'
     ... ORDER BY 1, 5
     ... """
-    >>> table = eso.query_tap(query, which_tap="tap_cat")
+    >>> table = eso.query_tap(query, tap_endpoint="tap_cat")
 
 In this query:
 
@@ -271,7 +271,7 @@ transients within ``0.05 deg`` (``3 arcmin``) around ESO 154-10.
     ... ) = 1
     ... ORDER BY transient_id
     ... """
-    >>> table = eso.query_tap(query, which_tap="tap_cat")
+    >>> table = eso.query_tap(query, tap_endpoint="tap_cat")
 
 The light-curve table does not provide coordinates directly, so it is joined to
 the PESSTO master catalogue for spatial filtering. To retrieve all available
@@ -305,4 +305,4 @@ This can also be done using a name resolver for the target coordinates, as previ
     ... ) = 1
     ... ORDER BY transient_id
     ... """
-    >>> table = eso.query_tap(query, which_tap="tap_cat") # doctest: +SKIP
+    >>> table = eso.query_tap(query, tap_endpoint="tap_cat") # doctest: +SKIP
