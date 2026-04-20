@@ -5,11 +5,12 @@ Catalogues - Cone Search
 In the simplest case, catalogue queries can be constrained by sky
 position (cone search). For catalogue tables, this is currently done by
 building an ADQL cone-search expression and passing it through
-``column_filters`` in ``eso.query_catalogue``.
+``column_filters`` in :meth:`~astroquery.eso.EsoClass.query_catalog`.
 
 .. note::
     The ``cone_ra``, ``cone_dec``, and ``cone_radius`` arguments are not
-    currently implemented in ``eso.query_catalogue`` (as they are with e.g. ``eso.query_main``).
+    currently implemented in :meth:`~astroquery.eso.EsoClass.query_catalog` 
+    (as they are with e.g. :meth:`~astroquery.eso.EsoClass.query_main`).
     For catalogue cone searches, use a custom ADQL spatial filter as shown
     below.
 
@@ -33,7 +34,7 @@ For example:
 
 .. doctest-remote-data::
 
-    >>> eso.query_catalogue(catalogue='KiDS_DR4_1_ugriZYJHKs_cat_fits', help=True) # doctest: +IGNORE_OUTPUT
+    >>> eso.query_catalog(catalogue='KiDS_DR4_1_ugriZYJHKs_cat_fits', help=True) # doctest: +IGNORE_OUTPUT
     ...
                 RAJ2000   DOUBLE              deg                   pos.eq.ra;meta.main
                DECJ2000   DOUBLE              deg                  pos.eq.dec;meta.main
@@ -48,12 +49,12 @@ Query with Cone Filter
 ===========================
 
 Catalogue cone searches are implemented using the ADQL spatial function
-``CONTAINS(POINT, CIRCLE)``. Since ``eso.query_catalogue`` builds its
+``CONTAINS(POINT, CIRCLE)``. Since :meth:`~astroquery.eso.EsoClass.query_catalog` builds its
 ``WHERE`` clause from the ``column_filters`` dictionary, the spatial
 constraint must be provided as a key with value ``1`` (corresponding to
 ``CONTAINS(...) = 1`` in ADQL). 
 
-Under the hood, ``eso.query_catalogue`` submits an ADQL query via TAP.
+Under the hood, :meth:`~astroquery.eso.EsoClass.query_catalog` submits an ADQL query via TAP.
 For example, a cone search on the KiDS DR4 catalogue corresponds to an
 ADQL statement of the form:
 
@@ -125,7 +126,7 @@ and construct the ADQL cone search predicate:
     ...         ORDER BY table_name, ucd DESC
     ...     """
     ...
-    ...     return eso.query_tap(query, which_tap="tap_cat")
+    ...     return eso.query_tap(query, tap_endpoint="tap_cat")
     ...
     >>> def main_cols(table_name):
     ...     """Return main id/ra/dec column names for a catalogue table."""
@@ -202,7 +203,7 @@ Run search with cone filter:
 
 .. doctest-remote-data::
 
-    >>> table = eso.query_catalogue(
+    >>> table = eso.query_catalog(
     ...     catalogue=table_name,
     ...     column_filters=column_filters,
     ... )  # doctest: +SKIP
@@ -234,7 +235,7 @@ normal dictionary updates.
     >>> # Add a magnitude constraint
     >>> column_filters.update({"MAG_AUTO": "<22"})
 
-    >>> table = eso.query_catalogue(
+    >>> table = eso.query_catalog(
     ...     catalogue="KiDS_DR4_1_ugriZYJHKs_cat_fits",
     ...     column_filters=column_filters,
     ... )  # doctest: +SKIP
