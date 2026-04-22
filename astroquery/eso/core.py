@@ -489,7 +489,6 @@ class EsoClass(QueryWithLogin):
     def _query_on_allowed_values(
         self,
         user_params: _UserParams,
-        tap_endpoint="tap_obs",
     ) -> Union[Table, int, str, None]:
         if user_params.print_help:
             self._list_column(user_params.table_name, tap_endpoint=user_params.tap_endpoint)
@@ -504,7 +503,7 @@ class EsoClass(QueryWithLogin):
         if user_params.get_query_payload:
             return query_str
 
-        ret_table = self.query_tap(query_str, tap_endpoint=tap_endpoint, authenticated=user_params.authenticated)
+        ret_table = self.query_tap(query_str, tap_endpoint=user_params.tap_endpoint, authenticated=user_params.authenticated)
         return list(ret_table[0].values())[0] if user_params.count_only else ret_table
 
     @deprecated_renamed_argument(('open_form', 'cache'), (None, None),
@@ -1249,7 +1248,7 @@ class EsoClass(QueryWithLogin):
                 tap_endpoint=tap_endpoint,
             )
 
-            return self._query_on_allowed_values(user_params, tap_endpoint=tap_endpoint)
+            return self._query_on_allowed_values(user_params)
 
 
 Eso = EsoClass()
