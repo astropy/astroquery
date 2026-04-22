@@ -25,6 +25,7 @@ from ...exceptions import NoResultsWarning, MaxResultsWarning
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 EXPECTED_MAXREC = 1000
+EXPECTED_MAX_ROW_LIMIT = 15000000
 MONKEYPATCH_TABLE_LENGTH = 50
 
 
@@ -257,10 +258,27 @@ def test_calselector_multipart(monkeypatch, tmp_path):
     assert datasets[0] not in result and datasets[1] not in result
 
 
-def test_tap_url():
+def test_tap_obs_url():
     prod_url = "https://archive.eso.org/tap_obs"
     eso_instance = Eso()
     assert eso_instance._tap_url() == prod_url
+
+
+@pytest.mark.parametrize("tap_url, expected", [
+    ("https://archive.eso.org/tap_obs", "tap_obs"),
+    ("https://archive.eso.org/tap_obs/", "tap_obs"),
+    ("https://archive.eso.org/tap_cat", "tap_cat"),
+    ("https://archive.eso.org/tap_cat/", "tap_cat"),
+])
+def test_tap_endpoint(tap_url, expected):
+    eso_instance = Eso()
+    assert eso_instance._tap_endpoint(tap_url) == expected
+
+
+def test_tap_endpoint_invalid_url():
+    eso_instance = Eso()
+    with pytest.raises(ValueError, match="tap_url must be one of"):
+        eso_instance._tap_endpoint("https://archive.eso.org/not-a-tap")
 
 
 @pytest.mark.parametrize("input_val, expected", [
@@ -335,27 +353,27 @@ def test_maxrec():
     # change it to no-truncation
     eso_instance.ROW_LIMIT = None
     maxrec = eso_instance.ROW_LIMIT
-    assert maxrec == sys.maxsize
+    assert maxrec == EXPECTED_MAX_ROW_LIMIT
 
     # no truncation
     eso_instance.ROW_LIMIT = 0
     maxrec = eso_instance.ROW_LIMIT
-    assert maxrec == sys.maxsize
+    assert maxrec == EXPECTED_MAX_ROW_LIMIT
 
     # no truncation
     eso_instance.ROW_LIMIT = -1
     maxrec = eso_instance.ROW_LIMIT
-    assert maxrec == sys.maxsize
+    assert maxrec == EXPECTED_MAX_ROW_LIMIT
 
 
-def test_download_pyvo_table():
+def test_retrieve_pyvo_table():
     eso_instance = Eso()
     dal = pyvo.dal.TAPService(eso_instance._tap_url())
 
     q_str = "select * from ivoa.ObsCore"
     table = None
     with pytest.raises(pyvo.dal.exceptions.DALFormatError):
-        table = eso_instance._try_download_pyvo_table(q_str, dal)
+        table = eso_instance._try_retrieve_pyvo_table(q_str, dal)
 
     assert table is None
 
