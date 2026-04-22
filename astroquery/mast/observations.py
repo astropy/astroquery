@@ -1264,7 +1264,8 @@ class ObservationsClass(MastQueryWithLogin):
                 except Exception as e:
                     log.exception(f"Failed to open ASD File: {product_path} {e}")
         else:
-            print("Unsupported extension type")
+            log.error("Unsupported extension type")
+            return
 
 
 @async_to_sync
