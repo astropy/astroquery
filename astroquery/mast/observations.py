@@ -11,9 +11,11 @@ import warnings
 import time
 import os
 from urllib.parse import quote
+from importlib.metadata import version
 
 import numpy as np
 import astropy.units as u
+from astropy.io import fits
 import astropy.coordinates as coord
 from requests import HTTPError
 from astropy.table import Table, Row, vstack
@@ -43,6 +45,15 @@ CLOUD_DISABLED_MESSAGE = (
     'enabled by default in module configuration. To enable, try calling the '
     '`~astroquery.mast.ObservationsClass.enable_cloud_dataset` method.'
 )
+
+asdf_packages = ["asdf", "s3fs", "fsspec", "lz4", "gwcs"]
+fits_packages = ['s3fs', 'fsspec']
+
+try:
+    import asdf
+    import s3fs
+except ImportError:
+    pass
 
 
 @async_to_sync
@@ -1202,6 +1213,59 @@ class ObservationsClass(MastQueryWithLogin):
         if len(unique_products) < len(products):
             log.info("To return all products, use `Observations.get_product_list`")
         return unique_products
+
+    # TODO: Need to inlcude way to parse if it is a MAST on prem URL and handle the streaming of that
+    def read_product(self, product_path, read_as="auto", ignore_unrecognized=False):
+        """
+        Read a product from Open S3 bucket to memory. Currently can handle FITS and ASDF product types.
+
+        Parameters
+        ----------
+        product_path: str
+            URI to the product in open bucket.
+        read_as: str, optional
+            How to read the file. Currently only .fits and .asdf is supported by "auto". Defaults to "auto".
+        ignore_unrecognized: bool
+            Tells asdf.open() to include or ignore warnings from unrecognized asdf tags. Defaults to False
+
+        Returns
+        -------
+        object
+            FITS or ASDF object.
+        """
+        if read_as == "auto":
+            if product_path.endswith(".fits"):
+                for package in fits_packages:
+                    try:
+                        version(package)
+                    except ModuleNotFoundError:
+                        log.debug(f"Missing Required Package: {package}")
+                        return
+                try:
+                    return fits.open(product_path, fsspec_kwargs={"anon": True})
+                except Exception as e:
+                    log.exception(f"Failed to open FITS File: {product_path} {e}")
+
+            # Read logic for ASDF
+            elif product_path.endswith(".asdf"):
+                # Check all required modules are available
+                for package in asdf_packages:
+                    try:
+                        version(package)
+                    except ModuleNotFoundError:
+                        log.debug(f"Missing Required Package: {package}")
+                        return
+
+                try:
+                    fs = s3fs.S3FileSystem(anon=True)
+                    with fs.open(product_path, 'rb') as s3_file:
+                        af = asdf.open(s3_file, ignore_unrecognized_tag=ignore_unrecognized)
+                        return af
+                except Exception as e:
+                    log.exception(f"Failed to open ASD File: {product_path} {e}")
+        else:
+            log.error("Unsupported extension type")
+            return
 
 
 @async_to_sync
