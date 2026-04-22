@@ -26,18 +26,14 @@ def data_path(filename):
 
 DATA_FILES = {
     "ADQL": {
-        "SELECT table_name FROM TAP_SCHEMA.tables as ref "
-        "LEFT OUTER JOIN TAP_SCHEMA.keys AS k ON ref.table_name = k.from_table "
-        "LEFT OUTER JOIN TAP_SCHEMA.key_columns AS kc ON k.key_id = kc.key_id "
+        "SELECT table_name FROM TAP_SCHEMA.tables "
         "WHERE schema_name='safcat' "
         "AND cat_id IN ( "
         "SELECT t1.cat_id "
         "FROM TAP_SCHEMA.tables t1 "
         "LEFT JOIN TAP_SCHEMA.tables t2 ON (t1.title = t2.title AND t1.version < t2.version) "
         "WHERE t2.title IS NULL) ORDER BY table_name": "query_list_catalogs_latest_versions.csv",
-        "SELECT table_name FROM TAP_SCHEMA.tables as ref "
-        "LEFT OUTER JOIN TAP_SCHEMA.keys AS k ON ref.table_name = k.from_table "
-        "LEFT OUTER JOIN TAP_SCHEMA.key_columns AS kc ON k.key_id = kc.key_id "
+        "SELECT table_name FROM TAP_SCHEMA.tables "
         "WHERE schema_name='safcat' ORDER BY table_name": "query_list_catalogs_all_versions.csv",
         "select * from safcat.KiDS_DR4_1_ugriZYJHKs_cat_fits": "kids_dr4_sample.csv",
     }
@@ -106,8 +102,6 @@ catalog_list = [
     "VVVX_VIRAC_V2_REJECTED_SOURCES",
     "VVVX_VIRAC_V2_OBS",
     "VVVX_VIRAC_V2_LC",
-    "VVVX_VIRAC_V2_LC",
-    "VVVX_VIRAC_V2_REJECTED_LC",
     "VVVX_VIRAC_V2_REJECTED_LC",
     "KiDS_DR5_0_ugriZYJHKs_cat_fits",
     "PHANGS_DR1_NebCat",
@@ -238,8 +232,6 @@ catalog_list_all = [
     "VVVX_VIRAC_V2_REJECTED_SOURCES",
     "VVVX_VIRAC_V2_OBS",
     "VVVX_VIRAC_V2_LC",
-    "VVVX_VIRAC_V2_LC",
-    "VVVX_VIRAC_V2_REJECTED_LC",
     "VVVX_VIRAC_V2_REJECTED_LC",
     "KiDS_DR5_0_ugriZYJHKs_cat_fits",
     "PHANGS_DR1_NebCat",
