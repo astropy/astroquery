@@ -15,7 +15,8 @@ from astroquery.eso import Eso
 
 from .test_eso_catalogs import catalog_list, catalog_list_all
 
-catalog_list_test = ["KiDS_DR4_1_ugriZYJHKs_cat_fits"] # test catalog 
+catalog_list_test = ["KiDS_DR4_1_ugriZYJHKs_cat_fits"]  # test catalog
+
 
 @pytest.mark.remote_data
 class TestEso:

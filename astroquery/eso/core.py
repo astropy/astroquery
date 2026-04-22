@@ -503,7 +503,8 @@ class EsoClass(QueryWithLogin):
         if user_params.get_query_payload:
             return query_str
 
-        ret_table = self.query_tap(query_str, tap_endpoint=user_params.tap_endpoint, authenticated=user_params.authenticated)
+        ret_table = self.query_tap(query_str, tap_endpoint=user_params.tap_endpoint, 
+                                   authenticated=user_params.authenticated)
         return list(ret_table[0].values())[0] if user_params.count_only else ret_table
 
     @deprecated_renamed_argument(('open_form', 'cache'), (None, None),
@@ -1149,22 +1150,22 @@ class EsoClass(QueryWithLogin):
         return self._query_on_allowed_values(user_params)
 
     def query_catalog(self,
-                        catalog: str,
-                        *,
-                        cone_ra: float = None,
-                        cone_dec: float = None,
-                        cone_radius: float = None,
-                        columns: Union[List, str] = None,
-                        column_filters: Optional[dict] = None,
-                        top: int = None,
-                        count_only: bool = False,
-                        get_query_payload: bool = False,
-                        help: bool = False,
-                        authenticated: bool = False,
-                        open_form: bool = False,
-                        cache: bool = False,
-                        ROW_LIMIT: Optional[int] = None,
-                        ) -> Union[Table, int, str]:
+                    catalog: str,
+                    *,
+                    cone_ra: float = None,
+                    cone_dec: float = None,
+                    cone_radius: float = None,
+                    columns: Union[List, str] = None,
+                    column_filters: Optional[dict] = None,
+                    top: int = None,
+                    count_only: bool = False,
+                    get_query_payload: bool = False,
+                    help: bool = False,
+                    authenticated: bool = False,
+                    open_form: bool = False,
+                    cache: bool = False,
+                    ROW_LIMIT: Optional[int] = None,
+                    ) -> Union[Table, int, str]:
         """
         Query catalogue data contained in the ESO archive.
 
