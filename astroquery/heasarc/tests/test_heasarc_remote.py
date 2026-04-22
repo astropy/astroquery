@@ -273,6 +273,13 @@ class TestHeasarc:
                 Heasarc.query_region(pos, mission="xmmmaster",
                                      **{keyword: value})
 
+    def test_row_count(self):
+        """Test the convenience method that uses ADQL's COUNT function to
+        return the number of rows in a catalog.
+        """
+        cat = "suzamaster"
+        assert Heasarc.count_rows(cat) == 3055
+
 
 @pytest.mark.remote_data
 class TestHeasarcBrowse:

@@ -1,6 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+import warnings
+
 from astropy import config as _config
+from astropy.utils.exceptions import AstropyDeprecationWarning
+
+warnings.warn(
+    "astroquery.vo_conesearch was deprecated in version 0.4.12 "
+    "and will be removed in a future version; "
+    "where possible, use PyVO SCS instead.",
+    AstropyDeprecationWarning)
 
 
 class Conf(_config.ConfigNamespace):

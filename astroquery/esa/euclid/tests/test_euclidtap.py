@@ -49,6 +49,10 @@ SKYCOORD = SkyCoord(ra=19 * u.deg, dec=20 * u.deg, frame="icrs")
 PRODUCT_LIST_FILE_NAME = get_pkg_data_filename(os.path.join("data", 'test_get_product_list.vot'), package=package)
 TEST_GET_PRODUCT_LIST = Path(PRODUCT_LIST_FILE_NAME).read_text()
 
+MULTIPLE_GET_SPECTRUM = get_pkg_data_filename(os.path.join("data", 'get_spectrum_output.zip'), package=package)
+
+SINGLE_GET_SPECTRUM = get_pkg_data_filename(os.path.join("data", '1499442653027920313.fits.zip'), package=package)
+
 
 def make_table_metadata(table_name, ra, dec):
     tap_table = TapTableMeta()
@@ -642,6 +646,9 @@ def test_get_product_list():
     for product_type in conf.BASIC_DOWNLOAD_DATA_PRODUCTS:
         results = tap.get_product_list(observation_id='13', product_type=product_type)
         assert results is not None, "Expected a valid table"
+        if product_type == 'dpdMerFinalCatalog':
+            assert any(c.lower() == 'file_name_list' or 'file_name' for c in results.colnames), \
+                "Expected file_name_list column for dpdMerFinalCatalog"
 
     for product_type in conf.MER_SEGMENTATION_MAP_PRODUCTS:
         results = tap.get_product_list(observation_id='13', product_type=product_type)
@@ -749,7 +756,7 @@ def test_get_product_list_errors():
         tap.get_product_list(observation_id='13', product_type='DpdMerBksMosaic')
 
 
-def test_get_product_by_product_id(tmp_path_factory):
+def test_get_product_by_product_id(tmp_path_factory, capsys):
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
                        connhandler=conn_handler)
@@ -775,9 +782,59 @@ def test_get_product_by_product_id(tmp_path_factory):
 
     fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.fits')
 
-    result = tap.get_product(product_id='123456789', output_file=fits_file)
+    captured = capsys.readouterr()
+
+    result = tap.get_product(product_id='123456789', output_file=fits_file, verbose=True)
 
     assert result is not None
+
+    captured = capsys.readouterr()
+
+    file_path = captured.out.splitlines()[0].replace('Product output file: ', '')
+    assert os.path.exists(file_path)
+
+    remove_temp_dir()
+
+    result = tap.get_product(product_id='123456789', output_file=None, verbose=True)
+
+    assert result is not None
+
+    captured = capsys.readouterr()
+
+    file_path = captured.out.splitlines()[0].replace('Product output file: ', '')
+    assert os.path.exists(file_path)
+    assert '123456789' in file_path
+
+    remove_temp_dir()
+
+    # Multiple product ids
+    result = tap.get_product(product_id='123456789,987654321', output_file=None)
+
+    assert result is not None
+
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    assert os.path.exists(os.path.join(dirs[0], 'get_product_output.zip'))
+
+    remove_temp_dir()
+
+    result = tap.get_product(product_id=['123456789', '987654321'], output_file=None)
+
+    assert result is not None
+
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    assert os.path.exists(os.path.join(dirs[0], 'get_product_output.zip'))
+
+    remove_temp_dir()
 
 
 def test_get_product_by_product_id_data_set_release(tmp_path_factory):
@@ -813,7 +870,7 @@ def test_get_product_by_product_id_data_set_release(tmp_path_factory):
     assert result is not None
 
 
-def test_get_product():
+def test_get_product(capsys):
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
                        connhandler=conn_handler)
@@ -826,7 +883,26 @@ def test_get_product():
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
     result = tap.get_product(file_name='EUC_SIM_NISRGS180-8-1_20220722T094150.427Z_PV023_NISP-S_8_18_0.fits',
-                             output_file=None)
+                             output_file=None, verbose=True)
+
+    assert result is not None
+
+    captured = capsys.readouterr()
+
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    file_path = captured.out.splitlines()[0].replace('Product output file: ', '')
+    assert os.path.exists(file_path)
+    assert 'EUC_SIM_NISRGS180-8-1_20220722T094150.427Z_PV023_NISP-S_8_18_0' in file_path
+
+    remove_temp_dir()
+
+    # Multiple product ids
+    result = tap.get_product(file_name='uno.fits,dos.fits', output_file=None)
 
     assert result is not None
 
@@ -835,6 +911,88 @@ def test_get_product():
 
     assert len(dirs) == 1
     assert dirs[0] is not None
+
+    assert os.path.exists(os.path.join(dirs[0], 'get_product_output.zip'))
+
+    remove_temp_dir()
+
+    result = tap.get_product(file_name=['uno.fits', 'dos.fits'], output_file=None)
+
+    assert result is not None
+
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    assert os.path.exists(os.path.join(dirs[0], 'get_product_output.zip'))
+
+    remove_temp_dir()
+
+
+@patch.object(TapPlus, 'load_data')
+def test_get_product_with_list_of_filenames(mock_load_data, tmp_path_factory):
+    """
+    Test that get_product accepts a list for file_name and converts it into
+    a comma-separated string, while ensuring a real output file exists so
+    __extract_file doesn't fail.
+    """
+
+    # Set up the enviornment
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+
+    responseLaunchJob = DummyResponse(200)
+    responseLaunchJob.set_data(method='POST', context=None, body='', headers=None)
+    conn_handler.set_default_response(responseLaunchJob)
+
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+
+    # Mock: create the file
+    def _fake_load_data(*args, **kwargs):
+        output_file = kwargs.get("output_file")
+        # Create a dummy fits and directory
+        of = Path(output_file)
+        of.parent.mkdir(parents=True, exist_ok=True)
+        of.write_bytes(b"SIMPLE  =                    T\nEND\n")
+        return None
+
+    mock_load_data.side_effect = _fake_load_data
+
+    # Input a as file names list
+    filenames = ["file1.fits", "file2.fits", "file3.fits", "file4.fits"]
+
+    # Force an output name with .fits so that the extractor treats it as 1 file
+    out_dir = tmp_path_factory.mktemp("euclid_tmp")
+    output_file = str(out_dir / "dummy.fits")
+
+    result = tap.get_product(file_name=filenames, output_file=output_file)
+
+    # Must return a list of files (at least the one we created)
+    assert result is not None
+    assert isinstance(result, list)
+    assert len(result) >= 1
+    assert result[0].endswith(".fits")
+
+    # Verify that FILE_NAME is correct
+    kwargs = mock_load_data.call_args.kwargs
+    params_dict = kwargs.get("params_dict")
+    assert params_dict["FILE_NAME"] == "file1.fits,file2.fits,file3.fits,file4.fits"
+    assert params_dict["RETRIEVAL_TYPE"] == "FILE"
+
+    result = tap.get_product(file_name=filenames)
+
+    assert result is not None
+
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    assert os.path.exists(os.path.join(dirs[0], 'get_product_output.zip'))
 
     remove_temp_dir()
 
@@ -1016,7 +1174,7 @@ def test_get_observation_products_exceptions_2(mock_load_data, caplog):
     remove_temp_dir()
 
 
-def test_get_cutout():
+def test_get_cutout(capsys):
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='cutout', client_id='ASTROQUERY',
                        connhandler=conn_handler)
@@ -1038,9 +1196,14 @@ def test_get_cutout():
 
     result = tap.get_cutout(
         file_path='/data/repository/NIR/19704/EUC_NIR_W-STACK_NIR-J-19704_20190718T001858.5Z_00.00.fits',
-        instrument='NISP', id='19704', coordinate=c, radius=r, output_file=None)
+        coordinate=c, radius=r, output_file=None, verbose=True)
 
     assert result is not None
+
+    captured = capsys.readouterr()
+
+    file_path = captured.out.splitlines()[0].replace('Cutout output file: ', '')
+    assert os.path.exists(file_path)
 
     remove_temp_dir()
 
@@ -1061,29 +1224,23 @@ def test_get_cutout_exception():
 
     c = coordinates.SkyCoord("187.89d 29.54d", frame='icrs')
     r = 1 * u.arcmin
-    file_path = '/data/repository/NIR/19704/EUC_NIR_W-STACK_NIR-J-19704_20190718T001858.5Z_00.00.fits',
+    file_path = '/data/repository/NIR/19704/EUC_NIR_W-STACK_NIR-J-19704_20190718T001858.5Z_00.00.fits'
 
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, cutout_handler=cutout_handler,
                       show_server_messages=False)
 
     with pytest.raises(ValueError, match="Radius cannot be greater than 30 arcminutes"):
-        tap.get_cutout(file_path=file_path, instrument='NISP', id='19704', coordinate=c, radius=100 * u.arcmin,
+        tap.get_cutout(file_path=file_path, coordinate=c, radius=100 * u.arcmin,
                        output_file=None)
 
     with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_cutout(file_path=None, instrument='NISP', id='19704', coordinate=c, radius=r, output_file=None)
+        tap.get_cutout(file_path=None, coordinate=c, radius=r, output_file=None)
 
     with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_cutout(file_path=file_path, instrument=None, id='19704', coordinate=c, radius=r, output_file=None)
+        tap.get_cutout(file_path=file_path, coordinate=None, radius=r, output_file=None)
 
     with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_cutout(file_path=file_path, instrument='NISP', id=None, coordinate=c, radius=r, output_file=None)
-
-    with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_cutout(file_path=file_path, instrument='NISP', id='19704', coordinate=None, radius=r, output_file=None)
-
-    with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_cutout(file_path=file_path, instrument='NISP', id='19704', coordinate=c, radius=None, output_file=None)
+        tap.get_cutout(file_path=file_path, coordinate=c, radius=None, output_file=None)
 
 
 @patch.object(TapPlus, 'load_data')
@@ -1106,24 +1263,33 @@ def test_get_cutout_exceptions_2(mock_load_data, caplog):
 
     mock_load_data.side_effect = HTTPError("launch_job_async HTTPError")
 
-    tap.get_cutout(file_path='hola.fits', instrument='NISP', id='19704', coordinate=SKYCOORD, radius=1 * u.arcmin,
+    tap.get_cutout(file_path='hola.fits', coordinate=SKYCOORD, radius=1 * u.arcmin,
                    output_file=None)
 
-    mssg = ("Cannot retrieve the product for file_path hola.fits, obsId 19704, and collection NISP. HTTP error: "
+    mssg = ("Cannot retrieve the product for file_path hola.fits. HTTP error: "
             "launch_job_async HTTPError")
     assert caplog.records[0].msg == mssg
 
     mock_load_data.side_effect = Exception("launch_job_async Exception")
 
-    tap.get_cutout(file_path='hola.fits', instrument='NISP', id='19704', coordinate=SKYCOORD, radius=1 * u.arcmin,
+    tap.get_cutout(file_path='hola.fits', coordinate=SKYCOORD, radius=1 * u.arcmin,
                    output_file=None)
 
-    mssg = ("Cannot retrieve the product for file_path hola.fits, obsId 19704, and collection NISP: launch_job_async "
+    mssg = ("Cannot retrieve the product for file_path hola.fits: launch_job_async "
             "Exception")
     assert caplog.records[1].msg == mssg
 
 
-def test_get_spectrum(tmp_path_factory):
+@pytest.mark.filterwarnings('ignore:')
+@patch.object(TapPlus, 'load_data')
+def test_get_spectrum(mock_load_data, tmp_path_factory, capsys):
+    def _fake_load_data(*args, **kwargs):
+        output_file = kwargs.get("output_file")
+        shutil.copy2(SINGLE_GET_SPECTRUM, Path(output_file))
+        return None
+
+    mock_load_data.side_effect = _fake_load_data
+
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
                        connhandler=conn_handler)
@@ -1135,9 +1301,12 @@ def test_get_spectrum(tmp_path_factory):
 
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
-    result = tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=None)
+    result = tap.get_spectrum(ids='1499442653027920313', schema='sedm_sc8', output_file=None)
 
     assert result is not None
+    assert len(result) == 2
+    assert "SPECTRA_RGS-sedm 1499442653027920313.fits" in result[0]
+    assert "SPECTRA_BGS-sedm 1499442653027920313.fits" in result[1]
 
     now = datetime.now()
     dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
@@ -1147,11 +1316,147 @@ def test_get_spectrum(tmp_path_factory):
 
     remove_temp_dir()
 
-    fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.fits')
+    fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.zip')
 
-    result = tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=fits_file)
+    result = tap.get_spectrum(ids='1499442653027920313', schema='sedm_sc8', output_file=fits_file)
+    assert os.path.exists(fits_file)
 
     assert result is not None
+    assert len(result) == 2
+    assert "SPECTRA_RGS-sedm 1499442653027920313.fits" in result[0]
+    assert "SPECTRA_BGS-sedm 1499442653027920313.fits" in result[1]
+
+    remove_temp_dir()
+
+    result = tap.get_spectrum(ids='1499442653027920313', schema='sedm_sc8', output_file=None, verbose=True)
+
+    assert result is not None
+    assert len(result) == 2
+    assert "SPECTRA_RGS-sedm 1499442653027920313.fits" in result[0]
+    assert "SPECTRA_BGS-sedm 1499442653027920313.fits" in result[1]
+
+    captured = capsys.readouterr()
+
+    file_path = captured.out.splitlines()[1].replace('Spectra output file: ', '')
+    assert os.path.exists(file_path)
+    assert os.path.basename(file_path) == '1499442653027920313.fits.zip'
+
+    remove_temp_dir()
+
+    fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.fits')
+
+    result = tap.get_spectrum(ids='1499442653027920313', schema='sedm_sc8', linking_parameter="SOURCE_ID",
+                              output_file=fits_file)
+
+    assert result is not None
+    assert len(result) == 2
+    assert "SPECTRA_RGS-sedm 1499442653027920313.fits" in result[0]
+    assert "SPECTRA_BGS-sedm 1499442653027920313.fits" in result[1]
+
+    remove_temp_dir()
+
+    fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.zip')
+
+    result = tap.get_spectrum(ids='1499442653027920313', schema='sedm_sc8', linking_parameter="SOURCEPATCH_ID",
+                              output_file=fits_file)
+
+    assert result is not None
+    assert len(result) == 2
+    assert "SPECTRA_RGS-sedm 1499442653027920313.fits" in result[0]
+    assert "SPECTRA_BGS-sedm 1499442653027920313.fits" in result[1]
+
+    remove_temp_dir()
+
+    # Check int value
+    fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.zip')
+
+    result = tap.get_spectrum(ids=1499442653027920313, schema='sedm_sc8', linking_parameter="SOURCEPATCH_ID",
+                              output_file=fits_file)
+
+    assert result is not None
+    assert len(result) == 2
+    assert "SPECTRA_RGS-sedm 1499442653027920313.fits" in result[0]
+    assert "SPECTRA_BGS-sedm 1499442653027920313.fits" in result[1]
+
+    remove_temp_dir()
+
+    fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.zip')
+
+    result = tap.get_spectrum(ids=1499442653027920313)
+
+    assert result is not None
+    assert len(result) == 2
+    assert "SPECTRA_RGS-sedm 1499442653027920313.fits" in result[0]
+    assert "SPECTRA_BGS-sedm 1499442653027920313.fits" in result[1]
+
+    remove_temp_dir()
+
+
+@pytest.mark.filterwarnings('ignore:')
+@patch.object(TapPlus, 'load_data')
+def test_get_spectrum_multiple(mock_load_data, tmp_path_factory, capsys):
+    def _fake_load_data(*args, **kwargs):
+        output_file = kwargs.get("output_file")
+        shutil.copy2(MULTIPLE_GET_SPECTRUM, Path(output_file))
+        return None
+
+    mock_load_data.side_effect = _fake_load_data
+
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+    # Launch response: we use default response because the query contains decimals
+    responseLaunchJob = DummyResponse(200)
+    responseLaunchJob.set_data(method='POST', context=None, body='', headers=None)
+
+    conn_handler.set_default_response(responseLaunchJob)
+
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+
+    result = tap.get_spectrum(ids='1499442653027920313,1500431128027836270', schema='sedm_sc8', output_file=None,
+                              verbose=True)
+
+    assert result is not None
+    assert len(result) == 2
+    assert "SPECTRA_RGS_COMBINED.fits" in result[0]
+    assert "SPECTRA_BGS_COMBINED.fits" in result[1]
+
+    captured = capsys.readouterr()
+
+    file_path = captured.out.splitlines()[0].replace('Spectra output file: ', '')
+    assert os.path.exists(file_path)
+    assert os.path.basename(file_path) == 'get_spectrum_output.zip'
+
+    remove_temp_dir()
+
+    # A list of ids
+
+    capsys.readouterr()
+
+    result = tap.get_spectrum(ids=['1499442653027920313', '1500431128027836270'], schema='sedm_sc8', output_file=None,
+                              verbose=True)
+
+    assert result is not None
+    assert len(result) == 2
+    assert "SPECTRA_RGS_COMBINED.fits" in result[0]
+    assert "SPECTRA_BGS_COMBINED.fits" in result[1]
+
+    captured = capsys.readouterr()
+
+    file_path = captured.out.splitlines()[0].replace('Spectra output file: ', '')
+    assert os.path.exists(file_path)
+    assert os.path.basename(file_path) == 'get_spectrum_output.zip'
+
+    remove_temp_dir()
+
+    ids = ['sedm 1499442653027920313'] * 2000
+
+    with pytest.raises(ValueError, match="Invalid number of ids:  2000 > 1000"):
+        tap.get_spectrum(ids=ids, schema='sedm_sc8', output_file=None, verbose=True)
+
+    message = "Missing data release in: ids = 1499442653027920313,1500431128027836270 and schema = None"
+    with pytest.raises(ValueError, match=message):
+        tap.get_spectrum(ids='1499442653027920313,1500431128027836270', schema=None, output_file=None, verbose=True)
 
 
 @patch.object(TapPlus, 'load_data')
@@ -1169,7 +1474,7 @@ def test_get_spectrum_exceptions_2(mock_load_data, caplog):
 
     mock_load_data.side_effect = HTTPError("launch_job_async HTTPError")
 
-    tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=None)
+    tap.get_spectrum(ids='2417660845403252054', schema='sedm_sc8', output_file=None)
 
     mssg = ("Cannot retrieve spectrum for source_id 2417660845403252054, schema sedm_sc8. HTTP error: launch_job_async "
             "HTTPError")
@@ -1177,7 +1482,7 @@ def test_get_spectrum_exceptions_2(mock_load_data, caplog):
 
     mock_load_data.side_effect = Exception("launch_job_async Exception")
 
-    tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=None)
+    tap.get_spectrum(ids='2417660845403252054', schema='sedm_sc8', output_file=None)
 
     mssg = "Cannot retrieve spectrum for source_id 2417660845403252054, schema sedm_sc8: launch_job_async Exception"
     assert caplog.records[1].msg == mssg
@@ -1198,15 +1503,20 @@ def test_get_spectrum_exceptions():
     # if source_id is None or schema is None:
 
     with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_spectrum(source_id=None, schema='sedm_sc8', output_file=None)
+        tap.get_spectrum(ids=None, schema='sedm_sc8', output_file=None)
 
-    with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_spectrum(source_id='2417660845403252054', schema=None, output_file=None)
+    with pytest.raises(ValueError, match="Missing data release in: ids = 2417660845403252054 and schema = None "):
+        tap.get_spectrum(ids='2417660845403252054', schema=None, output_file=None)
 
     with pytest.raises(ValueError, match=(
             "Invalid argument value for 'retrieval_type'. Found hola, expected: 'ALL' or any of \\['SPECTRA_BGS', "
             "'SPECTRA_RGS'\\]")):
-        tap.get_spectrum(retrieval_type='hola', source_id='2417660845403252054', schema='schema', output_file=None)
+        tap.get_spectrum(retrieval_type='hola', ids='2417660845403252054', schema='schema', output_file=None)
+
+    linking_parameter = 'NOT_VALID'
+    with pytest.raises(ValueError, match=f"^Invalid linking_parameter value '{linking_parameter}' .*"):
+        tap.get_spectrum(ids='2417660845403252054', schema='sedm_sc8', linking_parameter=linking_parameter,
+                         output_file='fits_file')
 
 
 def test_get_scientific_data_product_list():

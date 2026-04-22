@@ -15,16 +15,15 @@ using an `astropy.coordinates` instance use:
 
 .. doctest-remote-data::
 
-    >>> from astropy import coordinates
+    >>> from astropy.coordinates import SkyCoord
     >>> from astropy import units as u
     >>> from astroquery.ogle import Ogle
-    >>> co = coordinates.SkyCoord(0*u.deg, 3*u.deg, frame='galactic')
+    >>> co = SkyCoord(0*u.deg, 3*u.deg, frame='galactic')
     >>> t = Ogle.query_region(coord=co)
 
 Arguments can be passed to choose the interpolation algorithm, quality factor,
 and coordinate system. Multiple coordinates may be queried simultaneously by
-passing a list-like object of string/float values or a list-like object of
-`astropy.coordinates` instances. All of coordinates will be internally converted
+passing a vector SkyCoord object. All of coordinates will be internally converted
 to FK5.
 
 .. doctest-remote-data::
@@ -33,8 +32,8 @@ to FK5.
     >>> co_list = [co, co, co]
     >>> t1 = Ogle.query_region(coord=co_list)
     >>> # (2 x N) list of values
-    >>> co_list_values = [[0, 0, 0], [3, 3, 3]]
-    >>> t2 = Ogle.query_region(coord=co_list_values, coord_sys='LB')  # doctest: +IGNORE_WARNINGS
+    >>> co_list_values = SkyCoord([0, 1, 2], [3, 3, 3], unit=u.deg, frame='galactic')
+    >>> t2 = Ogle.query_region(coord=co_list_values, coord_sys='LB')
 
 Note that non-Astropy coordinates may not be supported in a future version.
 

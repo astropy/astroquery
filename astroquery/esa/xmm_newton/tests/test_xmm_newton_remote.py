@@ -198,7 +198,7 @@ class TestXMMNewtonRemote:
         assert report_diff_values(slew_source, table)
 
     def test_download_proprietary_data_incorrect_credentials(self, tmp_cwd):
-        parameters = {'observation_id': "0861270201",
+        parameters = {'observation_id': "0984300101",
                       'prop': 'True',
                       'credentials_file': data_path("dummy_config.ini"),
                       'level': "PPS",
@@ -212,7 +212,7 @@ class TestXMMNewtonRemote:
             xsa.download_data(**parameters)
 
     def test_download_proprietary_data_without_credentials(self, tmp_cwd):
-        parameters = {'observation_id': "0861270201",
+        parameters = {'observation_id': "0984300101",
                       'level': "PPS",
                       'name': 'OBSMLI',
                       'filename': 'single',
