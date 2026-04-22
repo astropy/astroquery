@@ -16,6 +16,7 @@ from astropy.coordinates import SkyCoord
 from astropy.table import Table
 from astropy.utils import deprecated
 from astropy.utils.console import ProgressBarOrSpinner
+from astropy.utils.decorators import deprecated_renamed_argument
 from astropy import units as u
 
 from .. import log
@@ -149,13 +150,14 @@ def _batched_request(
         return extract_func(resp)
 
 
-def resolve_object(objectname, *, resolver=None, resolve_all=False, batch_size=30):
+@deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
+def resolve_object(object_name, *, resolver=None, resolve_all=False, batch_size=30):
     """
     Resolves one or more object names to a position on the sky.
 
     Parameters
     ----------
-    objectname : str, or iterable of str
+    object_name : str, or iterable of str
         Name(s) of astronomical object(s) to resolve.
     resolver : str, optional
         The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
@@ -185,11 +187,11 @@ def resolve_object(objectname, *, resolver=None, resolve_all=False, batch_size=3
     # Normalize input
     try:
         # Strings are iterable, so check explicitly
-        if isinstance(objectname, str):
+        if isinstance(object_name, str):
             raise TypeError
-        object_names = list(objectname)
+        object_names = list(object_name)
     except TypeError:
-        object_names = [objectname]
+        object_names = [object_name]
 
     # If any items are not strings, raise an error
     if not all(isinstance(name, str) for name in object_names):
@@ -304,20 +306,21 @@ def resolve_object(objectname, *, resolver=None, resolve_all=False, batch_size=3
     return list(resolved_coords.values())[0] if single else resolved_coords
 
 
-def parse_input_location(*, coordinates=None, objectname=None, resolver=None):
+@deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
+def parse_input_location(*, coordinates=None, object_name=None, resolver=None):
     """
-    Convenience function to parse user input of coordinates and objectname.
+    Convenience function to parse user input of coordinates and object_name.
 
     Parameters
     ----------
     coordinates : str or `astropy.coordinates` object, optional
         The target around which to search. It may be specified as a
         string or as the appropriate `astropy.coordinates` object.
-        One and only one of coordinates and objectname must be supplied.
-    objectname : str, optional
-        The target around which to search, by name (objectname="M104")
-        or TIC ID (objectname="TIC 141914082").
-        One and only one of coordinates and objectname must be supplied.
+        One and only one of coordinates and object_name must be supplied.
+    object_name : str, optional
+        The target around which to search, by name (object_name="M104")
+        or TIC ID (object_name="TIC 141914082").
+        One and only one of coordinates and object_name must be supplied.
     resolver : str, optional
         The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
         If not specified, the default resolver order will be used. Please see the
@@ -332,17 +335,17 @@ def parse_input_location(*, coordinates=None, objectname=None, resolver=None):
     """
 
     # Checking for valid input
-    if objectname and coordinates:
-        raise InvalidQueryError("Only one of objectname and coordinates may be specified.")
+    if object_name and coordinates:
+        raise InvalidQueryError("Only one of object_name and coordinates may be specified.")
 
-    if not (objectname or coordinates):
-        raise InvalidQueryError("One of objectname and coordinates must be specified.")
+    if not (object_name or coordinates):
+        raise InvalidQueryError("One of object_name and coordinates must be specified.")
 
-    if not objectname and resolver:
+    if not object_name and resolver:
         warnings.warn("Resolver is only used when resolving object names and will be ignored.", InputWarning)
 
-    if objectname:
-        obj_coord = resolve_object(objectname, resolver=resolver)
+    if object_name:
+        obj_coord = resolve_object(object_name, resolver=resolver)
 
     # Parse coordinates, if given
     if coordinates:

@@ -116,7 +116,7 @@ class AstroQuery:
     def from_cache(self, cache_location, cache_timeout):
         request_file = self.request_file(cache_location)
         try:
-            if cache_timeout is None:
+            if cache_timeout == -1:
                 expired = False
             else:
                 current_time = datetime.now(timezone.utc)

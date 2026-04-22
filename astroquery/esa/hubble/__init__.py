@@ -28,6 +28,8 @@ class Conf(_config.ConfigNamespace):
     EHST_TABLES_SERVER = _config.ConfigItem(EHST_COMMON_SERVER + EHST_TAP_COMMON + "/tables", "eHST TAP Common Server")
     EHST_TARGET_ACTION = _config.ConfigItem("servlet/target-resolver?", "eHST Target Resolver")
     EHST_MESSAGES = _config.ConfigItem("notification?action=GetNotifications", "eHST Messages")
+    EHST_LOGIN_SERVER = _config.ConfigItem(EHST_COMMON_SERVER + 'login', "eHST Login Server")
+    EHST_LOGOUT_SERVER = _config.ConfigItem(EHST_COMMON_SERVER + 'logout', "eHST Logout Server")
     TIMEOUT = 60
 
     cache_location = os.path.join(paths.get_cache_dir(), 'astroquery/ehst', )

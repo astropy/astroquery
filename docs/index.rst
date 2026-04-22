@@ -19,8 +19,9 @@ There are two other packages with complimentary functionality as Astroquery:
 `Simple-Cone-Search-Creator <https://github.com/tboch/Simple-Cone-Search-Creator/>`_ to
 generate a cone search service complying with the
 `IVOA standard <http://www.ivoa.net/documents/latest/ConeSearch.html>`_.
-They are more oriented to general `virtual observatory <http://www.virtualobservatory.org>`_
-discovery and queries, whereas Astroquery has web service specific interfaces.
+They are more oriented to general Virtual Observatory (VO)
+discovery and queries, whereas Astroquery has a more user friendly API as well web service specific
+interfaces for serviced not providing VO access.
 
 
 Installation
@@ -260,9 +261,12 @@ The following modules have been completed using a common API:
   esa/euclid/euclid.rst
   esa/hsa/hsa.rst
   esa/hubble/hubble.rst
+  esa/emds/emds.rst
+  esa/emds/einsteinprobe/einsteinprobe.rst
   esa/integral/integral.rst
   esa/iso/iso.rst
   esa/jwst/jwst.rst
+  esa/plato/plato.rst
   esa/xmm_newton/xmm_newton.rst
   esasky/esasky.rst
   eso/eso.rst
@@ -294,10 +298,8 @@ The following modules have been completed using a common API:
   ukidss/ukidss.rst
   vamdc/vamdc.rst
   vizier/vizier.rst
-  vo_conesearch/vo_conesearch.rst
   vsa/vsa.rst
   xmatch/xmatch.rst
-
 
 These others are functional, but do not follow a common & consistent API:
 
@@ -323,6 +325,13 @@ There are also subpackages that serve as the basis of others.
   :maxdepth: 1
 
   wfau/wfau.rst
+
+This module is deprecated in favor of :ref:`PyVO Simple Cone Search (SCS) <pyvo:pyvo-scs>`:
+
+.. toctree::
+  :maxdepth: 1
+
+  vo_conesearch/vo_conesearch.rst
 
 Catalog, Archive, and Other
 ===========================
@@ -355,7 +364,6 @@ for each source)
   simbad/simbad.rst
   ukidss/ukidss.rst
   vizier/vizier.rst
-  vo_conesearch/vo_conesearch.rst
   vsa/vsa.rst
   xmatch/xmatch.rst
 
@@ -372,7 +380,13 @@ generally return a table listing the available data first.
   alma/alma.rst
   cadc/cadc.rst
   casda/casda.rst
+  esa/euclid/euclid.rst
+  esa/hsa/hsa.rst
   esa/hubble/hubble.rst
+  esa/emds/emds.rst
+  esa/emds/einsteinprobe/einsteinprobe.rst
+  esa/integral/integral.rst
+  esa/iso/iso.rst
   esa/jwst/jwst.rst
   esa/xmm_newton/xmm_newton.rst
   eso/eso.rst
@@ -435,6 +449,7 @@ above categories. Those services are here:
   jplsbdb/jplsbdb.rst
   nasa_ads/nasa_ads.rst
   solarsystem/neodys/neodys.rst
+  esa/utils/utils.rst
   utils/tap.rst
 
 

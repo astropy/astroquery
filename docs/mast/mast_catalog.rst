@@ -166,7 +166,7 @@ The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can 
    >>> from astroquery.mast import Catalogs
    ...
    >>> catalog_data = Catalogs.query_criteria(catalog="Ctl",
-   ...                                        objectname='M101', 
+   ...                                        object_name='M101', 
    ...                                        radius=1, 
    ...                                        Tmag=[10.75,11])
    >>> print(catalog_data)
@@ -187,7 +187,7 @@ The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can 
    >>> from astroquery.mast import Catalogs
    ...
    >>> catalog_data = Catalogs.query_criteria(catalog="DiskDetective",
-   ...                                        objectname="M10",
+   ...                                        object_name="M10",
    ...                                        radius=2,
    ...                                        state="complete")
    >>> print(catalog_data)      # doctest: +IGNORE_OUTPUT
@@ -204,7 +204,7 @@ The TESS Input Catalog (TIC), Disk Detective Catalog, and PanSTARRS Catalog can 
 
 The `~astroquery.mast.CatalogsClass.query_criteria` function requires at least one non-positional parameter.
 These parameters are the column names listed in the `field descriptions <https://mast.stsci.edu/api/v0/pages.html>`__
-of the catalog being queried. They do not include objectname, coordinates, or radius. Running a query with only positional
+of the catalog being queried. They do not include object_name, coordinates, or radius. Running a query with only positional
 parameters will result in an error.
 
 .. doctest-remote-data::
@@ -212,7 +212,7 @@ parameters will result in an error.
    >>> from astroquery.mast import Catalogs
    ...
    >>> catalog_data = Catalogs.query_criteria(catalog="Tic",
-   ...                                        objectname='M101', radius=1)
+   ...                                        object_name='M101', radius=1)
    Traceback (most recent call last):
    ...
    astroquery.exceptions.InvalidQueryError: At least one non-positional criterion must be supplied.

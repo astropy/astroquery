@@ -9,15 +9,18 @@ European Space Agency (ESA)
 import binascii
 import os
 import pprint
+import re
 import tarfile
 import zipfile
 from collections.abc import Iterable
 from datetime import datetime
+from datetime import timezone
 
 from astropy import units
 from astropy import units as u
 from astropy.coordinates import Angle
 from astropy.units import Quantity
+from astropy.utils import deprecated_renamed_argument
 from requests.exceptions import HTTPError
 
 from astroquery import log
@@ -34,6 +37,7 @@ class EuclidClass(TapPlus):
     __ERROR_MSG_REQUESTED_PRODUCT_TYPE = "Missing required argument: 'product_type'"
     __ERROR_MSG_REQUESTED_GENERIC = "Missing required argument"
     __ERROR_MSG_REQUESTED_RADIUS = "Radius cannot be greater than 30 arcminutes"
+
     EUCLID_MESSAGES = "notification?action=GetNotifications"
 
     """
@@ -42,6 +46,8 @@ class EuclidClass(TapPlus):
     ROW_LIMIT = conf.ROW_LIMIT
 
     __VALID_DATALINK_RETRIEVAL_TYPES = conf.VALID_DATALINK_RETRIEVAL_TYPES
+    __VALID_LINKING_PARAMETERS = conf.VALID_LINKING_PARAMETERS
+    __regex_designation = re.compile(r"\s*(\S+)\s(-?\d+)\s*", flags=re.MULTILINE | re.UNICODE)
 
     def __init__(self, *, environment='PDR', tap_plus_conn_handler=None, datalink_handler=None, cutout_handler=None,
                  verbose=False, show_server_messages=True):
@@ -787,26 +793,41 @@ class EuclidClass(TapPlus):
     def __set_dirs(output_file, observation_id):
         if output_file is None:
             now = datetime.now()
-            output_dir = os.getcwd() + os.sep + "temp_" + now.strftime("%Y%m%d_%H%M%S")
-            output_file_full_path = output_dir + os.sep + str(observation_id)
+            output_dir = os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d_%H%M%S"))
+            output_file_full_path = os.path.join(output_dir, str(observation_id))
+
+            try:
+                if output_dir:
+                    os.makedirs(output_dir, exist_ok=True)
+            except OSError as err:
+                raise OSError("Creation of the directory %s failed: %s"
+                              % (output_dir, err.strerror))
         else:
-            output_file_full_path = output_file
-            output_dir = os.path.dirname(output_file_full_path)
-        try:
-            if output_dir:
-                os.makedirs(output_dir, exist_ok=True)
-        except OSError as err:
-            raise OSError("Creation of the directory %s failed: %s"
-                          % (output_dir, err.strerror))
+            if '' == os.path.dirname(output_file):
+                output_file_full_path = os.path.join(os.getcwd(), output_file)
+                output_dir = os.path.dirname(output_file_full_path)
+            else:
+                output_file_full_path = output_file
+                output_dir = os.path.dirname(output_file_full_path)
+
         return output_file_full_path, output_dir
 
     @staticmethod
-    def __check_file_number(output_dir, output_file_name,
-                            output_file_full_path, files):
+    def __check_file_number(output_dir, output_file_name, output_file_full_path, files):
+
+        if tarfile.is_tarfile(output_file_full_path):
+            with tarfile.open(output_file_full_path) as tar_ref:
+                files.extend([os.path.join(output_dir, file) for file in tar_ref.namelist()])
+            return
+        elif zipfile.is_zipfile(output_file_full_path):
+            with zipfile.ZipFile(output_file_full_path, 'r') as zip_ref:
+                files.extend([os.path.join(output_dir, file) for file in zip_ref.namelist()])
+            return
+
         num_files_in_dir = len(os.listdir(output_dir))
         if num_files_in_dir == 1:
             output_f = output_file_name
-            output_full_path = output_dir + os.sep + output_f
+            output_full_path = os.path.join(output_dir, output_f)
 
             os.rename(output_file_full_path, output_full_path)
             files.append(output_full_path)
@@ -822,13 +843,16 @@ class EuclidClass(TapPlus):
         if tarfile.is_tarfile(output_file_full_path):
             with tarfile.open(output_file_full_path) as tar_ref:
                 tar_ref.extractall(path=output_dir)
+                files.extend([os.path.join(output_dir, file) for file in tar_ref.namelist()])
         elif zipfile.is_zipfile(output_file_full_path):
             with zipfile.ZipFile(output_file_full_path, 'r') as zip_ref:
                 zip_ref.extractall(output_dir)
+                files.extend([os.path.join(output_dir, file) for file in zip_ref.namelist()])
         elif not EuclidClass.is_gz_file(output_file_full_path):
             # single file: return it
             files.append(output_file_full_path)
             return files
+        return None
 
     def get_observation_products(self, *, id=None, schema="sedm", product_type=None, product_subtype="STK",
                                  filter="VIS", dsr_part1=None, dsr_part2=None, dsr_part3=None, output_file=None,
@@ -1165,7 +1189,8 @@ class EuclidClass(TapPlus):
             extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
 
             query = (
-                f"SELECT basic_download_data.basic_download_data_oid, basic_download_data.product_type, "
+                f"SELECT CAST(basic_download_data.file_name_list AS text) AS file_name_list, "
+                f"basic_download_data.basic_download_data_oid, basic_download_data.product_type, "
                 f"basic_download_data.product_id, CAST(basic_download_data.observation_id_list as text) AS "
                 f"observation_id_list, CAST(basic_download_data.tile_index_list as text) AS tile_index_list, "
                 f"CAST(basic_download_data.patch_id_list as text) AS patch_id_list, "
@@ -1315,25 +1340,28 @@ class EuclidClass(TapPlus):
 
         Parameters
         ----------
-        file_name : str, optional, default None
-            file name for the product. More than one can be specified between comma. Either file_name or product_id
-            is mandatory
-        product_id : str, optional, default None
-            product id. More than one can be specified between comma. Either file_name or product_id is mandatory
+        file_name : str or list of str, default None
+            file name for the product. Can be a single string, including multiple file names separated
+            by commas, or a list of file name strings. Either file_name or product_id is mandatory.
+            Downloading multiple files at once is less efficient than downloading them individually.
+        product_id : str or list of str, mandatory, default None
+            product id. More than one can be specified between comma or a list of product id strings.
+            Either file_name or product_id is mandatory.  Downloading multiple products at once is less efficient than
+            downloading them individually.
         schema : str, optional, default 'sedm'
             the data release name in which the product should be searched
         output_file : str, optional
-            output file, use zip extension when downloading multiple files
-            if no value is provided, a temporary one is created
+            output file path, use zip extension when downloading multiple files.
+            If no value is provided, a temporary one is created: "<working directory>/temp_<%Y%m%d_%H%M%S>/<file_name>".
         dsr_part1: str, optional, default None
             the data set release part 1: for OTF environment, the activity code; for REG and IDR, the target
-            environment. Not applicable if product_id is None
+            environment. Only applicable for product_id
         dsr_part2: str, optional, default None
             the data set release part 2: for OTF environment, the patch id (a positive integer); for REG and IDR,
-            the activity code. Not applicable if product_id is None
+            the activity code. Only applicable for product_id
         dsr_part3: int, optional, default None
             the data set release part 3: for OTF, REG and IDR environment, the version (an integer greater than 1).
-            Not applicable if product_id is None
+            Only applicable for product_id
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1347,10 +1375,25 @@ class EuclidClass(TapPlus):
 
         params_dict = {'TAPCLIENT': 'ASTROQUERY', 'RELEASE': schema}
 
+        multiple_values = False
+
         if file_name is not None:
+
+            multiple_values = self.__is_multiple(file_name)
+
+            if isinstance(file_name, (list, tuple)):
+                file_name = ",".join(file_name)
+
             params_dict['FILE_NAME'] = file_name
             params_dict['RETRIEVAL_TYPE'] = 'FILE'
+
         if product_id is not None:
+
+            multiple_values = self.__is_multiple(product_id)
+
+            if isinstance(product_id, (list, tuple)):
+                product_id = ",".join(product_id)
+
             params_dict['PRODUCT_ID'] = product_id
             params_dict['RETRIEVAL_TYPE'] = 'PRODUCT_ID'
 
@@ -1363,7 +1406,19 @@ class EuclidClass(TapPlus):
             if dsr_part3 is not None:
                 params_dict['DSP3'] = dsr_part3
 
-        output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id='temp')
+        if multiple_values:
+            observation_id = 'get_product_output.zip'
+        else:
+            if file_name is not None:
+                observation_id = file_name
+            else:
+                observation_id = product_id + '.fits'
+
+        output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id=observation_id)
+
+        if verbose:
+            print(f"Product output file: {output_file_full_path}")
+
         try:
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
@@ -1375,29 +1430,32 @@ class EuclidClass(TapPlus):
             return None
 
         files = []
-        self.__extract_file(output_file_full_path=output_file_full_path, output_dir=output_dir, files=files)
-        if files:
-            return files
-
-        self.__check_file_number(output_dir=output_dir, output_file_name=os.path.basename(output_file_full_path),
-                                 output_file_full_path=output_file_full_path, files=files)
+        if multiple_values:
+            self.__check_file_number(output_dir=output_dir, output_file_name=os.path.basename(output_file_full_path),
+                                     output_file_full_path=output_file_full_path, files=files)
+        else:
+            files.append(output_file_full_path)
 
         return files
 
-    def get_cutout(self, *, file_path=None, instrument=None, id=None, coordinate, radius, output_file=None,
-                   verbose=False):
+    def __is_multiple(self, value):
+
+        return not isinstance(value, int) and ((isinstance(value, (list, tuple)) and len(value) > 1) or ',' in value)
+
+    @deprecated_renamed_argument(('instrument', 'id'), (None, None), since='0.4.12')
+    def get_cutout(self, *, file_path=None, coordinate, radius, output_file=None, verbose=False, instrument=None,
+                   id=None):
         """
-        Downloads a cutout given its file path, instrument and obs_id, and the cutout region
+        Downloads a cutout from a MER mosaic (background-subtracted image) for a given
+        fits file path, centered on a coordinate and with a specified radius.
+
+        This method supports **only MER mosaic cutouts**.
 
         Parameters
         ----------
         file_path : str, mandatory, default None
-            file path for the product on the server
-        instrument : str, mandatory, default None
-            instrument for the product, can be 'VIS' or 'NISP'
-        id : str, mandatory, default None
-            the observation id or tile index for MER products
-        coordinate : astropy.coordinate, mandatory
+            file path for the product on the server (MER mosaic)
+        coordinate : astropy.coordinate or Simbad/VizieR/NED name (str), mandatory
             coordinates center point
         radius : astropy.units, mandatory
             the radius of the cutout to generate
@@ -1411,7 +1469,7 @@ class EuclidClass(TapPlus):
         The fits file is downloaded, and the local path where the cutout is saved is returned
         """
 
-        if file_path is None or instrument is None or id is None or coordinate is None or radius is None:
+        if file_path is None or coordinate is None or radius is None:
             raise ValueError(self.__ERROR_MSG_REQUESTED_GENERIC)
 
         # Parse POS
@@ -1423,20 +1481,24 @@ class EuclidClass(TapPlus):
         ra = ra_hours * 15.0  # Converts to degrees
         pos = """CIRCLE,{ra},{dec},{radius}""".format(**{'ra': ra, 'dec': dec, 'radius': radius_deg})
 
-        params_dict = {'TAPCLIENT': 'ASTROQUERY', 'FILEPATH': file_path, 'COLLECTION': instrument, 'OBSID': id,
-                       'POS': pos}
+        params_dict = {'TAPCLIENT': 'ASTROQUERY', 'FILEPATH': file_path, 'POS': pos}
 
-        output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id='temp')
+        replace = os.path.basename(file_path).replace('.fits', '_cutout.fits')
+        output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id=replace)
+        if verbose:
+            print("Cutout output file: " + output_file_full_path)
+
         try:
-            self.__euclidcutout.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
+            self.__euclidcutout.load_data(params_dict=params_dict, output_file=output_file_full_path,
+                                          verbose=verbose)
         except HTTPError as err:
             log.error(
-                f"Cannot retrieve the product for file_path {file_path}, obsId {id}, and collection {instrument}. "
+                f"Cannot retrieve the product for file_path {file_path}. "
                 f"HTTP error: {err}")
             return None
         except Exception as exx:
             log.error(
-                f"Cannot retrieve the product for file_path {file_path}, obsId {id}, and collection {instrument}: "
+                f"Cannot retrieve the product for file_path {file_path}: "
                 f"{str(exx)}")
             return None
 
@@ -1450,28 +1512,35 @@ class EuclidClass(TapPlus):
 
         return files
 
-    def get_spectrum(self, *, source_id, schema='sedm', retrieval_type="ALL", output_file=None, verbose=False):
+    @deprecated_renamed_argument('source_id', 'ids', since='0.4.12')
+    def get_spectrum(self, *, ids, schema='sedm', retrieval_type="ALL", linking_parameter='SOURCE_ID',
+                     output_file=None, verbose=False):
         """
-        Downloads a spectrum with datalink.
+        Downloads spectra with datalink.
 
         The spectrum associated with the source_id is downloaded as a compressed fits file, and the files it contains
         are returned in a list. The compressed fits file is saved in the local path given by output_file. If this
-        parameter is not set, the result is saved in the file "<working
-        directory>/temp_<%Y%m%d_%H%M%S>/<source_id>.fits.zip". In any case, the content of the zip file is
-        automatically extracted.
+        parameter is not set, for a single id, the result is saved in the file
+        "<working directory>/temp_<%Y%m%d_%H%M%S>/<source_id>.fits.zip" or get_spectrum_output.zip" for multiple ids.
+        In any case, the content of the zip file is automatically extracted.
 
         Parameters
         ----------
-        source_id : str, mandatory, default None
-            source id for the spectrum
-        schema : str, mandatory, default 'sedm'
+        ids : str, int, str list or int list, mandatory
+            The identifier (<source_id>) or designation (<data-release>+blank+<source_id>). Can be a single designation
+            or id, a string with multiple values separated by commas, or a list.
+        schema : str, optional, default 'sedm'
             the data release
         retrieval_type : str, optional, default 'ALL' to retrieve all data from the list of sources
             retrieval type identifier. Possible values are: 'SPECTRA_BGS' for the blue spectrum and 'SPECTRA_RGS' for
             the red one.
+        linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID or SOURCEPATCH_ID
+            By default, all the identifiers are considered as source_id
+            SOURCE_ID: the identifiers are considered as source_id
+            SOURCEPATCH_ID: the identifiers are considered as sourcepatch_id
         output_file : str, optional
             output file name. If no value is provided, a temporary one is created with the name
-            "<working directory>/temp_<%Y%m%d_%H%M%S>/<source_id>.fits"
+            "<working directory>/temp_<%Y%m%d_%H%M%S>/<source_id>.fits or get_spectrum_output.zip"
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1479,11 +1548,14 @@ class EuclidClass(TapPlus):
         -------
         A list of files: the files contained in the downloaded compressed fits file. The format of the file is
         SPECTRA_<colour>-<schema> <source_id>.fits', where <colour> is BGS or RGS, and <schema> and <source_id> are
-        taken from the input parameters.
+        taken from the input parameters. For multiple ids, the format is SPECTRA_<colour>_COMBINED.fits
 
         """
 
-        if source_id is None or schema is None:
+        if ids is None:
+            raise ValueError(self.__ERROR_MSG_REQUESTED_GENERIC)
+
+        if isinstance(ids, (list, tuple)) and not ids:
             raise ValueError(self.__ERROR_MSG_REQUESTED_GENERIC)
 
         rt = str(retrieval_type).upper()
@@ -1491,52 +1563,93 @@ class EuclidClass(TapPlus):
             raise ValueError(f"Invalid argument value for 'retrieval_type'. Found {retrieval_type}, "
                              f"expected: 'ALL' or any of {self.__VALID_DATALINK_RETRIEVAL_TYPES}")
 
-        params_dict = {}
+        max_allow_elements = conf.SPECTRA_LIMIT
+        max_elements = 1
+        if isinstance(ids, str):
+            ids_arg = ids
+            if ',' in ids:
+                max_elements = ids.count(',')
+        elif isinstance(ids, int):
+            ids_arg = str(ids)
+        elif isinstance(ids, (list, tuple)):
+            max_elements = len(ids)
+            ids_arg = ','.join(str(item) for item in ids)
+        else:
+            raise ValueError(self.__ERROR_MSG_REQUESTED_GENERIC)
 
-        id_value = """{schema} {source_id}""".format(**{'schema': schema, 'source_id': source_id})
-        params_dict['ID'] = id_value
-        params_dict['SCHEMA'] = schema
+        if not self.__regex_designation.search(ids_arg) and schema is None:
+            raise ValueError(f"Missing data release in: ids = {ids_arg} and schema = {schema} ")
+
+        if max_elements > max_allow_elements:
+            raise ValueError(f"Invalid number of ids:  {max_elements} > {max_allow_elements} ")
+
+        params_dict = {}
+        params_dict['ID'] = ids_arg
+        if schema is not None:
+            params_dict['RELEASE'] = schema
         params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
         params_dict['USE_ZIP_ALWAYS'] = 'true'
         params_dict['TAPCLIENT'] = 'ASTROQUERY'
 
-        fits_file = source_id + '.fits.zip'
+        if linking_parameter not in self.__VALID_LINKING_PARAMETERS:
+            raise ValueError(
+                f"Invalid linking_parameter value '{linking_parameter}' (Valid values: "
+                f"{', '.join(self.__VALID_LINKING_PARAMETERS)})")
+        else:
+            if linking_parameter != 'SOURCE_ID':
+                params_dict['LINKING_PARAMETER'] = linking_parameter
 
-        if output_file is not None:
-            if not output_file.endswith('.zip'):
-                output_file = output_file + '.zip'
+        if output_file is None:
 
-            if os.path.dirname(output_file) == '':
-                output_file = os.path.join(os.getcwd(), output_file)
+            if self.__is_multiple(ids):
+                download_name_formatted = 'get_spectrum_output.zip'
+            else:
+                download_name_formatted = str(ids) + '.fits.zip'
 
-            if verbose:
-                print(f"output file: {output_file}")
+            now = datetime.now(timezone.utc)
+            now_formatted = now.strftime("%Y%m%d_%H%M%S.%f")
+            path = os.path.join(os.getcwd(), "temp_" + now_formatted)
+            output_file = os.path.join(path, download_name_formatted)
+        else:
+            path = os.path.dirname(output_file)
+            if path == '':
+                path = os.getcwd()
+                output_file = os.path.join(path, output_file)
 
-        output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id=fits_file)
+        if verbose:
+            print(f"Spectra output file: {output_file}")
 
-        if os.listdir(output_dir):
-            raise IOError(f'The directory is not empty: {output_dir}')
+        if not os.path.exists(path):
+            try:
+                os.mkdir(path)
+            except FileExistsError:
+                log.debug("Path %s already exist" % path)
+            except OSError:
+                log.error("Creation of the directory %s failed" % path)
 
         files = []
 
         try:
-            self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
+            self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file, verbose=verbose)
         except HTTPError as err:
-            log.error(f'Cannot retrieve spectrum for source_id {source_id}, schema {schema}. HTTP error: {err}')
+            log.error(f'Cannot retrieve spectrum for source_id {ids_arg}, schema {schema}. HTTP error: {err}')
             return None
         except Exception as exx:
-            log.error(f'Cannot retrieve spectrum for source_id {source_id}, schema {schema}: {str(exx)}')
+            log.error(f'Cannot retrieve spectrum for source_id {ids_arg}, schema {schema}: {str(exx)}')
             return None
 
-        self.__extract_file(output_file_full_path=output_file_full_path, output_dir=output_dir, files=files)
+        self.__extract_file(output_file_full_path=output_file, output_dir=path, files=files)
 
         if files:
             return files
 
-        self.__check_file_number(output_dir=output_dir,
-                                 output_file_name=os.path.basename(output_file_full_path),
-                                 output_file_full_path=output_file_full_path,
-                                 files=files)
+        self.__check_file_number(output_dir=path, output_file_name=os.path.basename(output_file),
+                                 output_file_full_path=output_file, files=files)
+
+        if log.isEnabledFor(20):
+            log.debug("List of products available:")
+            for item in sorted([key for key in files.keys()]):
+                log.debug("Product = " + item)
 
         return files
 
@@ -1548,8 +1661,10 @@ class EuclidClass(TapPlus):
         ----------
         ids : str, int, list of str or list of int, mandatory
             list of identifiers
-        linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID
+        linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID or SOURCEPATCH_ID
             By default, all the identifiers are considered as source_id
+            SOURCE_ID: the identifiers are considered as source_id
+            SOURCEPATCH_ID: the identifiers are considered as sourcepatch_id
         extra_options : str, optional, default None, valid values: METADATA
             To let customize the server behaviour, if present.
             If provided with value METADATA, the extra fields datalabs_path, file_name & hdu_index will be retrieved.
@@ -1562,10 +1677,17 @@ class EuclidClass(TapPlus):
 
         """
 
-        return self.__eucliddata.get_datalinks(ids=ids,
-                                               linking_parameter=linking_parameter,
-                                               extra_options=extra_options,
-                                               verbose=verbose)
+        if linking_parameter not in self.__VALID_LINKING_PARAMETERS:
+            raise ValueError(
+                f"Invalid linking_parameter value '{linking_parameter}' (Valid values: "
+                f"{', '.join(self.__VALID_LINKING_PARAMETERS)})")
+
+        final_linking_parameter = None
+        if linking_parameter != 'SOURCE_ID':
+            final_linking_parameter = linking_parameter
+
+        return self.__eucliddata.get_datalinks(ids=ids, linking_parameter=final_linking_parameter,
+                                               extra_options=extra_options, verbose=verbose)
 
     def get_scientific_product_list(self, *, observation_id=None, tile_index=None, category=None, group=None,
                                     product_type=None, dataset_release='REGREPROC1_R2', dsr_part1=None, dsr_part2=None,
