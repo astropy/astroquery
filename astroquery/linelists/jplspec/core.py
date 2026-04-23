@@ -27,6 +27,7 @@ class JPLSpecClass(BaseQuery):
 
     # use the Configuration Items imported from __init__.py
     URL = conf.server
+    FTP_CAT_URL = conf.ftp_cat_server
     TIMEOUT = conf.timeout
 
     def __init__(self):
@@ -142,6 +143,7 @@ class JPLSpecClass(BaseQuery):
                     parse_name_locally=False,
                     get_query_payload=False,
                     fallback_to_getmolecule=True,
+                    use_getmolecule=True,
                     cache=True):
         """
         Query the JPLSpec service for spectral lines.
@@ -153,6 +155,9 @@ class JPLSpecClass(BaseQuery):
         governs whether `get_molecule` will be used when no results are returned
         by the query service.  This workaround is needed while JPLSpec's query
         tool is broken.
+
+        use_getmolecule is an option to force the query to use get_molecule.
+        It is needed if the JPL server is completely unresponsive.
         """
         response = self.query_lines_async(min_frequency=min_frequency,
                                           max_frequency=max_frequency,
@@ -166,11 +171,13 @@ class JPLSpecClass(BaseQuery):
         if get_query_payload:
             return response
         else:
-            return self._parse_result(response, fallback_to_getmolecule=fallback_to_getmolecule)
+            return self._parse_result(response, fallback_to_getmolecule=fallback_to_getmolecule,
+                                      use_getmolecule=use_getmolecule)
 
     query_lines.__doc__ = process_asyncs.async_to_sync_docstr(query_lines_async.__doc__)
 
-    def _parse_result(self, response, *, verbose=False, fallback_to_getmolecule=False):
+    def _parse_result(self, response, *, verbose=False, fallback_to_getmolecule=False,
+                      use_getmolecule=True):
         """
         Parse a response into an `~astropy.table.Table`
 
@@ -201,8 +208,8 @@ class JPLSpecClass(BaseQuery):
         QN":   Quantum numbers for the lower state.
         """
 
-        if 'Zero lines were found' in response.text:
-            if fallback_to_getmolecule:
+        if 'Zero lines were found' in response.text or use_getmolecule:
+            if fallback_to_getmolecule or use_getmolecule:
                 self.lookup_ids = build_lookup()
                 payload = parse_qs(response.request.body)
                 tbs = [self.get_molecule(mol) for mol in payload['Mol']]
@@ -320,7 +327,7 @@ class JPLSpecClass(BaseQuery):
         molecule_str = parse_molid(molecule_id)
 
         # Construct the URL to the catalog file
-        url = f'https://spec.jpl.nasa.gov/ftp/pub/catalog/c{molecule_str}.cat'
+        url = f'{self.FTP_CAT_URL}/c{molecule_str}.cat'
 
         # Request the catalog file
         response = self._request(method='GET', url=url,

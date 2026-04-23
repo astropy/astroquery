@@ -23,8 +23,10 @@ def data_path(filename):
 
 class MockResponseSpec:
 
-    def __init__(self, filename):
+    def __init__(self, filename, body=''):
         self.filename = data_path(filename)
+        self.request = Mock()
+        self.request.body = body
 
     @property
     def text(self):
@@ -76,8 +78,8 @@ def test_input_multi():
 
 def test_query():
 
-    response = MockResponseSpec(file1)
-    tbl = JPLSpec._parse_result(response)
+    response = MockResponseSpec(file1, body='Mol=28001 CO')
+    tbl = JPLSpec._parse_result(response, fallback_to_getmolecule=False, use_getmolecule=False)
     assert isinstance(tbl, Table)
     assert len(tbl) == 8
     assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
@@ -94,8 +96,8 @@ def test_query():
 
 def test_query_truncated():
 
-    response = MockResponseSpec(file2)
-    tbl = JPLSpec._parse_result(response)
+    response = MockResponseSpec(file2, body='Mol=28001 CO')
+    tbl = JPLSpec._parse_result(response, fallback_to_getmolecule=False, use_getmolecule=False)
     assert isinstance(tbl, Table)
     assert len(tbl) == 6
     assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
@@ -109,8 +111,8 @@ def test_query_truncated():
 
 def test_query_multi():
 
-    response = MockResponseSpec(file3)
-    tbl = JPLSpec._parse_result(response)
+    response = MockResponseSpec(file3, body='Mol=28001 CO')
+    tbl = JPLSpec._parse_result(response, fallback_to_getmolecule=False, use_getmolecule=False)
     assert isinstance(tbl, Table)
     assert len(tbl) == 208
     assert set(tbl.keys()) == set(['FREQ', 'ERR', 'LGINT', 'DR', 'ELO', 'GUP',
@@ -230,7 +232,7 @@ def test_fallback_to_getmolecule_with_empty_response():
 
     # Test with fallback disabled - should raise EmptyResponseError
     with pytest.raises(EmptyResponseError, match="Response was empty"):
-        JPLSpec._parse_result(mock_response, fallback_to_getmolecule=False)
+        JPLSpec._parse_result(mock_response, fallback_to_getmolecule=False, use_getmolecule=False)
 
     # Test with fallback enabled - should call get_molecule
     molecules = {'18003': ('H2O', {'FREQ': [100.0, 200.0]})}
