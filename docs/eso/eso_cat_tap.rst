@@ -2,6 +2,18 @@
 Catalogues - Query with TAP
 *****************************
 
+.. warning::
+
+    **TAP v1 vs v1.1**
+
+    ESO is in the process of upgrading the catalogue TAP service from v1 to
+    v1.1. During this transition, some table references may differ between the
+    two versions. In v1.1, catalogue tables are exposed using unqualified table names.
+    Queries written for v1 may therefore need to be updated to include the
+    ``safcat.`` prefix. For example, ``PESSTO_TRAN_CAT_fits_V2`` becomes
+    ``safcat.PESSTO_TRAN_CAT_fits_V2``.
+
+
 The ESO TAP service can also be used to query catalogue tables directly with
 free ADQL, using :meth:`~astroquery.eso.EsoClass.query_tap`. By default,
 ``query_tap(query)`` targets the observations TAP service (equivalent to
