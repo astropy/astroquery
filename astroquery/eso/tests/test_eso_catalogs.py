@@ -284,7 +284,8 @@ def test_list_catalogs_all_versions(monkeypatch):
 
 def test_query_catalogs(monkeypatch):
     eso = Eso()
+    eso.ROW_LIMIT = 5
     monkeypatch.setattr(eso, "query_tap", monkey_tap)
-    result = eso.query_catalog("KiDS_DR4_1_ugriZYJHKs_cat_fits", ROW_LIMIT=5)
+    result = eso.query_catalog("KiDS_DR4_1_ugriZYJHKs_cat_fits")
     assert isinstance(result, Table)
     assert len(result) <= 5

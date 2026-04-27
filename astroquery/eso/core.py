@@ -19,7 +19,6 @@ import subprocess
 import time
 import warnings
 import xml.etree.ElementTree as ET
-from contextlib import contextmanager
 from typing import List, Optional, Tuple, Dict, Set, Union
 
 import astropy.utils.data
@@ -145,18 +144,6 @@ class EsoClass(QueryWithLogin):
             mr = value
 
         self._ROW_LIMIT = mr
-
-    @contextmanager
-    def _temporary_row_limit(self, row_limit: Optional[int]):
-        if row_limit is None:
-            yield
-            return
-        tmpvar = self.ROW_LIMIT
-        try:
-            self.ROW_LIMIT = row_limit
-            yield
-        finally:
-            self.ROW_LIMIT = tmpvar
 
     def _tap_urls(self) -> Dict[str, str]:
         return {
@@ -1164,7 +1151,6 @@ class EsoClass(QueryWithLogin):
                       authenticated: bool = False,
                       open_form: bool = False,
                       cache: bool = False,
-                      ROW_LIMIT: Optional[int] = None,
                       ) -> Union[Table, int, str]:
         """
         Query catalogue data contained in the ESO archive.
@@ -1210,8 +1196,6 @@ class EsoClass(QueryWithLogin):
             **Deprecated** - unused.
         cache : bool, optional
             **Deprecated** - unused.
-        ROW_LIMIT : int, optional
-            Overrides the configured (eso.ROW_LIMIT) row limit for this query only.
 
         Returns
         -------
@@ -1230,26 +1214,25 @@ class EsoClass(QueryWithLogin):
         # to be compatable with TAP1.0 and TAP1.1
         table_name = catalog if catalog.startswith(f"{schema}.") else f"{schema}.{catalog}"
 
-        with self._temporary_row_limit(ROW_LIMIT):
-            tap_endpoint = "tap_cat"
-            user_params = _UserParams(
-                table_name=table_name,
-                column_name=None,
-                allowed_values=None,
-                cone_ra=None,
-                cone_dec=None,
-                cone_radius=None,
-                columns=columns,
-                column_filters=column_filters,
-                top=top,
-                count_only=count_only,
-                get_query_payload=get_query_payload,
-                print_help=help,
-                authenticated=authenticated,
-                tap_endpoint=tap_endpoint,
-            )
+        tap_endpoint = "tap_cat"
+        user_params = _UserParams(
+            table_name=table_name,
+            column_name=None,
+            allowed_values=None,
+            cone_ra=None,
+            cone_dec=None,
+            cone_radius=None,
+            columns=columns,
+            column_filters=column_filters,
+            top=top,
+            count_only=count_only,
+            get_query_payload=get_query_payload,
+            print_help=help,
+            authenticated=authenticated,
+            tap_endpoint=tap_endpoint,
+        )
 
-            return self._query_on_allowed_values(user_params)
+        return self._query_on_allowed_values(user_params)
 
 
 Eso = EsoClass()
