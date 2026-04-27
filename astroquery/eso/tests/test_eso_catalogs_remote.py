@@ -38,7 +38,8 @@ class TestEso:
     @pytest.mark.parametrize("catalog", catalog_list_test)
     def test_query_catalog(self, catalog):
         eso = Eso()
-        t = eso.query_catalog(catalog, ROW_LIMIT=5)
+        eso.ROW_LIMIT = 5
+        t = eso.query_catalog(catalog)
 
         assert isinstance(t, Table), f"Expected type {type(Table)}; Obtained {type(t)}"
         assert len(t) <= 5, f"Expected max 5 records; Obtained {len(t)}"
