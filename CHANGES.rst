@@ -24,6 +24,12 @@ esa.emds.einsteinprobe
 
 - New module to access the ESA Einstein Probe Science Archive. [#3511]
 
+mast
+^^^^
+
+- Updated ``Catalogs`` interface for MAST TAP catalogs, including collection/catalog discovery helpers and a unified query workflow across
+  positional and non-positional searches. [#3582]
+
 
 
 API changes
@@ -76,6 +82,19 @@ mast
 - The ``objectname`` keyword is deprecated in ``MastMissions`` in favor of ``object_names``. [#3540]
 - The ``objectname`` parameter in ``Catalogs``, ``Observations``, ``Tesscut``, and ``utils`` is deprecated
   in favor of ``object_name``. [#3567]
+- ``Catalogs`` has been refactored around VO-TAP queries. The new workflow uses ``collection`` + ``catalog`` (instead of HSC/PanSTARRS-specific
+  assumptions), supports discovery helpers (``get_collections``, ``get_catalogs``, ``get_column_metadata``), and 
+  adds ``supports_spatial_queries`` to inspect positional-query support before querying. [#3582]
+- ``Catalogs.query_criteria`` now provides a unified query interface for positional and non-positional searches, with support for 
+  cone searches around coordinates or an object, STC-S regions via the ``region`` parameter, column selection, sorting, count-only queries, 
+  pagination via ``limit``/``offset``, and a ``filters`` dictionary for column names that conflict with method arguments. [#3582]
+- ``Catalogs.query_region`` and ``Catalogs.query_object`` now follow the same unified backend as ``query_criteria``, including support 
+  for ``collection``/``catalog``, ``limit``/``offset``, ``select_cols``, sorting, and advanced criteria filters. [#3582]
+- The legacy ``version``, ``pagesize``, and ``page`` parameters in ``Catalogs`` query methods are now deprecated in favor 
+  of ``collection``/``catalog`` and ``limit``/``offset``. [#3582]
+- Passing a collection name via ``Catalogs(..., catalog=...)`` is deprecated; use the ``collection`` parameter instead. [#3582]
+- ``Catalogs`` legacy HSC-only helper methods (``query_hsc_matchid[_async]``, ``get_hsc_spectra[_async]``, and
+  ``download_hsc_spectra``) are deprecated and will be removed in a future release. [#3582]
 
 vo_conesearch
 ^^^^^^^^^^^^^
