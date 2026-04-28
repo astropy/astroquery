@@ -3,10 +3,10 @@
 Catalog Queries
 ***************
 
-The `~astroquery.mast.Catalogs` interface provides toold for discovering and querying the wide
+The `~astroquery.mast.CatalogsClass` interface provides tools for discovering and querying the wide
 range of astronomical catalogs hosted by MAST. These catalogs span multiple missions and surveys
 and are organized into **collections**, each of which may contain one or more **catalogs** with
-distinct schemas and capabilties. This interface is designed for **flexible, SQL-like querying** of 
+distinct schemas and capabilities. This interface is designed for **flexible, SQL-like querying** of 
 catalog data, including spatial searches and column-based filtering.
 
 At a high level, querying MAST catalogs follows three steps:
@@ -85,7 +85,7 @@ Discovering Catalogs in a Collection
 -------------------------------------
 
 Once a collection is selected, you can list the catalogs available within it using the
-`~astroquery.mast.catalog_collection.CatalogCollection.get_catalogs` method.
+`~astroquery.mast.CatalogsClass.get_catalogs` method.
 
 To query catalogs for a specific collection without changing the class state, you can pass the 
 collection name as an argument to the method.
@@ -114,10 +114,10 @@ Inspecting Catalog Metadata
 ----------------------------
 
 Before querying a catalog, it is often useful to inspect its metadata to understand the available columns,
-data types, and supported query capabilties. The `~astroquery.mast.CatalogsClass.get_catalog_metadata` method returns
+data types, and supported query capabilities. The `~astroquery.mast.CatalogsClass.get_column_metadata` method returns
 an `~astropy.table.Table` describing the catalog schema, including column names, data types, units, and descriptions.
 This metadata can help you construct valid queries, select columns of interest, and understand which fields support
-numeric comparions, string matching, or spatial queries.
+numeric comparisons, string matching, or spatial queries.
 
 Again, you can specify a collection and catalog explicitly as inputs to the function, or use the current defaults.
 If you only specify a collection, the default catalog for that collection will be used.
@@ -126,7 +126,7 @@ If you only specify a collection, the default catalog for that collection will b
 
    >>> from astroquery.mast import Catalogs
    ...
-   >>> catalog_metadata = Catalogs.get_catalog_metadata('gaiadr3', 'dbo.gaia_source')
+   >>> catalog_metadata = Catalogs.get_column_metadata('gaiadr3', 'dbo.gaia_source')
    >>> catalog_metadata[:5].pprint(max_width=-1)
    column_name  datatype unit        ucd                description         
    ------------ -------- ---- ----------------- ----------------------------
@@ -184,7 +184,7 @@ Positional constraints are optional.
 
 Supported positional parameters include:
   - ``coordinates`` : Sky coordinates around which to perform a cone search.
-  - ``objectname`` : Name of the object around which to perform a cone search.
+  - ``object_name`` : Name of the object around which to perform a cone search.
   - ``resolver`` : Resolver service to use for object name resolution.
   - ``radius`` : Radius of the cone search around the specified coordinates or object name. Can be defined as an `~astropy.units.Quantity`, a string with units (e.g., ``"10 arcsec"``), or a numeric value interpreted as degrees.
   - ``region`` : Explicit region specification for the search. See :ref:`specifying-spatial-regions` below for more details.
@@ -223,7 +223,7 @@ Criteria syntax supports a variety of operations, including:
 
 - To filter by multiple values for a single column, use a list of values. This performs an **OR** operation between the values.
 
-- A filter value can be negated by prefiing it with ``!``, meaning that rows matching that value will be excluded from the results.
+- A filter value can be negated by prefixing it with ``!``, meaning that rows matching that value will be excluded from the results.
   When a negated value is present in a list of filters, any positive values in that set are combined with **OR** logic, and any negated 
   values are combined with **AND** logic against the positives.
 
@@ -269,7 +269,7 @@ convenience wrappers around `~astroquery.mast.CatalogsClass.query_criteria`:
 
   - `~astroquery.mast.CatalogsClass.query_region` requires a positional constraint (``coordinates`` or ``region``).
 
-  - `~astroquery.mast.CatalogsClass.query_object` requires an ``objectname`` and performs a cone search.
+  - `~astroquery.mast.CatalogsClass.query_object` requires an ``object_name`` and performs a cone search.
 
 Both methods also accept column-based criteria, which are applied in the same way as in `~astroquery.mast.CatalogsClass.query_criteria`.
 
@@ -291,7 +291,7 @@ Both methods also accept column-based criteria, which are applied in the same wa
 .. doctest-remote-data::
 
    >>> result = Catalogs.query_object(collection='skymapperdr4',
-   ...                                objectname='M11', 
+   ...                                object_name='M11', 
    ...                                radius=0.01,
    ...                                catwise_id='2825m061*',
    ...                                sort_by='mean_epoch',
@@ -316,10 +316,10 @@ Catalogs that support spatial queries allow regions to be specified in several w
 Cone Searches
 ^^^^^^^^^^^^^
 
-Cone searches are the most common type of spatial query, defined by a center position and a radius. They may be specifed using:
+Cone searches are the most common type of spatial query, defined by a center position and a radius. They may be specified using:
   - ``coordinates`` and ``radius``
-  - ``objectname`` and ``radius``
-  - A `~astropy.regions.CircleSkyRegion` object as the ``region`` parameter
+  - ``object_name`` and ``radius``
+  - A `~regions.CircleSkyRegion` object as the ``region`` parameter
   - A Space-Time Coordinate (STC) CIRCLE region string as the ``region`` parameter
 
 An STC-S CIRCLE region string has the following format:
@@ -358,7 +358,7 @@ Polygon searches allow for more complex spatial queries by defining a polygonal 
 They may be specified using any of the following as the ``region`` parameter:
 
   - An iterable of coordinate pairs
-  - A `~astropy.regions.PolygonSkyRegion` object
+  - A `~regions.PolygonSkyRegion` object
   - A Space-Time Coordinate (STC) POLYGON region string
 
 An STC-S POLYGON string has the form:
