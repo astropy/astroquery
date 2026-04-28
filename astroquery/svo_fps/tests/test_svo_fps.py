@@ -3,7 +3,7 @@ import os
 from astropy import units as u
 from requests import ReadTimeout
 
-from astroquery.exceptions import InvalidQueryError, TimeoutError
+from astroquery.exceptions import TimeoutError
 from astroquery.utils.mocks import MockResponse
 from ..core import SvoFps
 
@@ -102,9 +102,6 @@ def test_get_zeropoint(patch_get):
 
 
 def test_invalid_query(patch_get):
-    msg = r"^parameter bad_param is invalid\. For a description of valid query "
-    with pytest.raises(InvalidQueryError, match=msg):
-        SvoFps.data_from_svo(query={"bad_param": 0, "FWHM": 20})
-    msg = r"^parameters invalid_param, bad_param are invalid\. For a description of "
-    with pytest.raises(InvalidQueryError, match=msg):
-        SvoFps.data_from_svo(query={"invalid_param": 0, 'bad_param': -1})
+    msg = r"^SvoFpsClass.data_from_svo\(\) got an unexpected keyword argument 'bad_param'"
+    with pytest.raises(TypeError, match=msg):
+        SvoFps.data_from_svo(bad_param=0, FWHM_min=20)
