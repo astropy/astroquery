@@ -15,7 +15,6 @@ from astropy.time import Time
 from requests.models import Response
 
 from astroquery.mast import (
-    CatalogCollection,
     Catalogs,
     Hapcut,
     Mast,
@@ -32,7 +31,7 @@ from ...exceptions import (
     MaxResultsWarning,
     NoResultsWarning,
 )
-from ..catalog_collection import DEFAULT_CATALOGS, CatalogMetadata
+from ..catalog_collection import DEFAULT_CATALOGS, CatalogCollection, CatalogMetadata
 from ..utils import ResolverError
 
 
