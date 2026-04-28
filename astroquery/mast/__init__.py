@@ -20,9 +20,6 @@ class Conf(_config.ConfigNamespace):
     ssoserver = _config.ConfigItem(
         'https://ssoportal.stsci.edu',
         'MAST SSO Portal server.')
-    catalogs_server = _config.ConfigItem(
-        'https://catalogs.mast.stsci.edu',
-        'Catalogs.MAST server.')
     timeout = _config.ConfigItem(
         600,
         'Time limit for requests from the STScI server.')
@@ -38,6 +35,7 @@ class Conf(_config.ConfigNamespace):
 conf = Conf()
 
 from . import utils
+from .catalog_collection import CatalogCollection
 from .collections import Catalogs, CatalogsClass
 from .cutouts import Hapcut, HapcutClass, Tesscut, TesscutClass, Zcut, ZcutClass
 from .missions import MastMissions, MastMissionsClass
@@ -48,6 +46,7 @@ __all__ = [
     "ObservationsClass",
     "Catalogs",
     "CatalogsClass",
+    "CatalogCollection",
     "MastMissions",
     "MastMissionsClass",
     "Mast",
