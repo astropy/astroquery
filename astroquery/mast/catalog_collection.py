@@ -208,7 +208,7 @@ class CatalogCollection:
 
     def get_catalog_metadata(self, catalog):
         """
-        For a given catalog, cache and return metadata about its columns and capabilties.
+        For a given catalog, cache and return metadata about its columns and capabilities.
 
         Parameters
         ----------
@@ -310,8 +310,8 @@ class CatalogCollection:
 
         Returns
         -------
-        list of str
-            List of catalog names.
+        `~astropy.table.Table`
+            A table containing the catalog names and descriptions for this collection.
         """
         log.debug(f"Fetching available tables for collection '{self.name}' from MAST TAP service.")
         query = "SELECT TOP 5000 table_name, description FROM tap_schema.tables"
@@ -334,8 +334,9 @@ class CatalogCollection:
 
         Returns
         -------
-        list
-            A list of supported ADQL functions.
+        set
+            A set of supported ADQL geometry functions (e.g. "POINT", "CIRCLE", "CONTAINS", etc.) for
+            this collection's TAP service.
         """
         adql_functions = ["CIRCLE", "POLYGON", "POINT", "CONTAINS", "INTERSECTS"]
         supported = set()
