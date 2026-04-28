@@ -99,7 +99,7 @@ To generate `~astroquery.mast.tests.data.tap_columns.vot`, use the following:
     >>> result = tap_service.run_sync(query)
     >>> writeto(result.votable, 'tap_columns.vot')  # doctest: +SKIP
 
-To generate `~astroquery.mast.tests.data.tap_capabilities.vot`, use the following:
+To generate `~astroquery.mast.tests.data.tap_capabilities.xml`, use the following:
 
 .. doctest-remote-data::
 
