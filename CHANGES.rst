@@ -147,6 +147,8 @@ mast
 - The cloud dataset in ``Observations`` is now enabled by default if the ``boto3`` and ``botocore`` packages are installed. This
   default can be overridden by setting the ``enable_cloud_dataset`` configuration option to False. [#3534]
 
+- Adding in ability to read FITS and ASDF dataproducts to memory from s3:// using ``Observations.read_product()`` function. [#3561]
+
 
 jplspec
 ^^^^^^^
