@@ -19,7 +19,6 @@ import requests
 from astropy.table import Row, Table
 from astropy.time import Time
 from astropy.utils.decorators import deprecated, deprecated_renamed_argument
-from regions import CircleSkyRegion, PolygonSkyRegion
 
 from .. import log
 from ..exceptions import InputWarning, InvalidQueryError, NoResultsWarning
@@ -28,6 +27,12 @@ from ..utils.class_or_instance import class_or_instance
 from . import conf, utils
 from .catalog_collection import CatalogCollection
 from .core import MastQueryWithLogin
+
+try:
+    from regions import CircleSkyRegion, PolygonSkyRegion
+    HAS_REGIONS = True
+except ImportError:
+    HAS_REGIONS = False
 
 __all__ = ["Catalogs", "CatalogsClass"]
 
@@ -232,7 +237,7 @@ class CatalogsClass(MastQueryWithLogin):
     ):
         """
         Query a MAST catalog from a given collection using criteria filters. To return columns for a given
-        collection and catalog, use `~astroquery.mast.collections.get_catalog_metadata`.
+        collection and catalog, use `~astroquery.mast.CatalogsClass.get_column_metadata`.
 
         Parameters
         ----------
@@ -243,10 +248,10 @@ class CatalogsClass(MastQueryWithLogin):
         coordinates : str or `~astropy.coordinates` object, optional
             The target around which to search. It may be specified as a string (e.g., '350 -80') or as an
             Astropy coordinates object.
-        region : str | iterable | `~astropy.regions.CircleSkyRegion` | `~astropy.regions.PolygonSkyRegion`, optional
+        region : str | iterable | `~regions.CircleSkyRegion` | `~regions.PolygonSkyRegion`, optional
             The region to search within. It may be specified as a STC-S POLYGON or CIRCLE string
             (e.g., 'CIRCLE 350 -80 0.2'), an iterable of coordinate pairs, or as an
-            `~astropy.regions.CircleSkyRegion` or `~astropy.regions.PolygonSkyRegion`.
+            `~regions.CircleSkyRegion` or `~regions.PolygonSkyRegion`.
         object_name : str, optional
             The name of the object to resolve and search around.
         radius : str or `~astropy.units.Quantity` object, optional
@@ -264,17 +269,17 @@ class CatalogsClass(MastQueryWithLogin):
         sort_by : str or list of str, optional
             Column name(s) to sort the results by.
         sort_desc : bool or list of bool, optional
-            Indicates whether to sort in descending order for each column in `sort_by`. If a single bool,
-            applies to all columns. If a list, must match length of `sort_by`. Default is False (ascending order).
+            Indicates whether to sort in descending order for each column in ``sort_by``. If a single bool,
+            applies to all columns. If a list, must match length of ``sort_by``. Default is False (ascending order).
         filters : dict, optional
             Another parameter to specify criteria filters as a dictionary. Use this option when the name of a column
             conflicts with a named parameter of this method.
         version : str, optional
-            Deprecated. The version argument is no longer used. Please use `collection` and `catalog` instead.
+            Deprecated. The version argument is no longer used. Please use ``collection`` and ``catalog`` instead.
         pagesize : int, optional
-            Deprecated. The pagesize argument is no longer used. Please use `limit` instead.
+            Deprecated. The pagesize argument is no longer used. Please use ``limit`` instead.
         page : int, optional
-            Deprecated. The page argument is no longer used. Please use `offset` instead.
+            Deprecated. The page argument is no longer used. Please use ``offset`` instead.
         **criteria
             Keyword arguments representing criteria filters to apply.
 
@@ -464,7 +469,7 @@ class CatalogsClass(MastQueryWithLogin):
     ):
         """
         Query for MAST catalog entries within a specified region using criteria filters. To return columns for a given
-        collection and catalog, use `~astroquery.mast.collections.get_catalog_metadata`.
+        collection and catalog, use `~astroquery.mast.CatalogsClass.get_column_metadata`.
 
         Parameters
         ----------
@@ -473,10 +478,10 @@ class CatalogsClass(MastQueryWithLogin):
             Astropy coordinates object.
         radius : str or `~astropy.units.Quantity` object, optional
             The search radius around the target coordinates or object. Default 0.2 degrees.
-        region : str | iterable | `~astropy.regions.CircleSkyRegion` | `~astropy.regions.PolygonSkyRegion`, optional
+        region : str | iterable | `~regions.CircleSkyRegion` | `~regions.PolygonSkyRegion`, optional
             The region to search within. It may be specified as a STC-S POLYGON or CIRCLE string
             (e.g., 'CIRCLE 350 -80 0.2'), an iterable of coordinate pairs, or as an
-            `~astropy.regions.CircleSkyRegion` or `~astropy.regions.PolygonSkyRegion`.
+            `~regions.CircleSkyRegion` or `~regions.PolygonSkyRegion`.
         collection : str, optional
             The collection to be queried. If None, uses the instance's `collection` attribute.
         catalog : str, optional
@@ -492,17 +497,17 @@ class CatalogsClass(MastQueryWithLogin):
         sort_by : str or list of str, optional
             Column name(s) to sort the results by.
         sort_desc : bool or list of bool, optional
-            Indicates whether to sort in descending order for each column in `sort_by`. If a single bool,
-            applies to all columns. If a list, must match length of `sort_by`. Default is False (ascending order).
+            Indicates whether to sort in descending order for each column in ``sort_by``. If a single bool,
+            applies to all columns. If a list, must match length of ``sort_by``. Default is False (ascending order).
         filters : dict, optional
             Another parameter to specify criteria filters as a dictionary. Use this option when the name of a column
             conflicts with a named parameter of this method.
         version : str, optional
-            Deprecated. The version argument is no longer used. Please use `collection` and `catalog` instead.
+            Deprecated. The version argument is no longer used. Please use ``collection`` and ``catalog`` instead.
         pagesize : int, optional
-            Deprecated. The pagesize argument is no longer used. Please use `limit` instead.
+            Deprecated. The pagesize argument is no longer used. Please use ``limit`` instead.
         page : int, optional
-            Deprecated. The page argument is no longer used. Please use `offset` instead.
+            Deprecated. The page argument is no longer used. Please use ``offset`` instead.
         **criteria
             Keyword arguments representing criteria filters to apply.
 
@@ -597,7 +602,7 @@ class CatalogsClass(MastQueryWithLogin):
     ):
         """
         Query for MAST catalog entries around a specified object name using criteria filters. To return columns
-        for a given collection and catalog, use `~astroquery.mast.collections.get_catalog_metadata`.
+        for a given collection and catalog, use `~astroquery.mast.CatalogsClass.get_column_metadata`.
 
         Parameters
         ----------
@@ -622,17 +627,17 @@ class CatalogsClass(MastQueryWithLogin):
         sort_by : str or list of str, optional
             Column name(s) to sort the results by.
         sort_desc : bool or list of bool, optional
-            Indicates whether to sort in descending order for each column in `sort_by`. If a single bool,
-            applies to all columns. If a list, must match length of `sort_by`. Default is False (ascending order).
+            Indicates whether to sort in descending order for each column in ``sort_by``. If a single bool,
+            applies to all columns. If a list, must match length of ``sort_by``. Default is False (ascending order).
         filters : dict, optional
             Another parameter to specify criteria filters as a dictionary. Use this option when the name of a column
             conflicts with a named parameter of this method.
         version : str, optional
-            Deprecated. The version argument is no longer used. Please use `collection` and `catalog` instead.
+            Deprecated. The version argument is no longer used. Please use ``collection`` and ``catalog`` instead.
         pagesize : int, optional
-            Deprecated. The pagesize argument is no longer used. Please use `limit` instead.
+            Deprecated. The pagesize argument is no longer used. Please use ``limit`` instead.
         page : int, optional
-            Deprecated. The page argument is no longer used. Please use `offset` instead.
+            Deprecated. The page argument is no longer used. Please use ``offset`` instead.
         **criteria
             Keyword arguments representing criteria filters to apply.
 
@@ -1083,17 +1088,18 @@ class CatalogsClass(MastQueryWithLogin):
 
         # Case 2: region is an astropy region object
         # TODO: When released, change these to use `CircleSphericalSkyRegion` and `PolygonSphericalSkyRegion`
-        elif isinstance(region, CircleSkyRegion):
-            center = region.center.icrs
-            radius = region.radius.to(u.deg).value
-            return f"CIRCLE('ICRS',{center.ra.deg},{center.dec.deg},{radius})"
-        elif isinstance(region, PolygonSkyRegion):
-            verts = region.vertices.icrs
-            point_string = ",".join(f"{v.ra.deg},{v.dec.deg}" for v in verts)
-            return f"POLYGON('ICRS',{point_string})"
+        if HAS_REGIONS:
+            if isinstance(region, CircleSkyRegion):
+                center = region.center.icrs
+                radius = region.radius.to(u.deg).value
+                return f"CIRCLE('ICRS',{center.ra.deg},{center.dec.deg},{radius})"
+            elif isinstance(region, PolygonSkyRegion):
+                verts = region.vertices.icrs
+                point_string = ",".join(f"{v.ra.deg},{v.dec.deg}" for v in verts)
+                return f"POLYGON('ICRS',{point_string})"
 
         # Case 3: region is an iterable of coordinate pairs
-        elif isinstance(region, Iterable):
+        if isinstance(region, Iterable):
             # Expect something like [(ra1, dec1), (ra2, dec2), ...]
             try:
                 points = [float(x) for point in region for x in point]
