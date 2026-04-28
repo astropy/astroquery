@@ -22,9 +22,9 @@ with a shared scientific or mission context (for example, Hubble source catalogs
 Within a collection, one or more **catalogs** may be available, each with its own schema and data.
 
 `~astroquery.mast.CatalogsClass` maintains a current collection and catalog as attributes. If no collection or catalog
-is specified in a query, these attributes will be used as defaults. The ``collection`` attribute is a 
-`~astroquery.mast.catalog_collection.CatalogCollection` instance representing the current collection,
-and the ``catalog`` attribute is a string representing the name of the current catalog within that collection.
+is specified in a query, these attributes will be used as defaults. The ``collection`` attribute is an object
+representing the current collection, and the ``catalog`` attribute is a string representing the name of the current 
+catalog within that collection.
 
 .. doctest-remote-data::
 
