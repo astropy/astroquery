@@ -6,8 +6,7 @@ readme = { file = "README.rst", content-type = "text/x-rst" }
 authors = [
   {name = "The Astroquery Developers"},
 ]
-license = "BSD-3-Clause"
-license-files = ["LICENSE.rst"]
+license = { text = "BSD-3-Clause" }
 classifiers = [
   "Intended Audience :: Science/Research",
   "Operating System :: OS Independent",
@@ -73,6 +72,7 @@ write_to = 'astroquery/version.py'
 
 [tool.setuptools]
 include-package-data = false
+license-files = ["LICENSE.rst"]
 
 [tool.setuptools.packages.find]
 include = ["astroquery*"]
