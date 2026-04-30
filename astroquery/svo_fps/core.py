@@ -223,8 +223,9 @@ class SvoFpsClass(BaseQuery):
         timeout : int
             Timeout in seconds. If not specified, defaults to ``conf.timeout``.
         kwargs : dict
-            Appended to the ``query`` dictionary sent to SVO. See the API documentation of `data_from_svo` for the valid parameter names.
-
+            Appended to the ``query`` dictionary sent to SVO. See the API
+            documentation of `data_from_svo` for the valid parameter names.
+            
         Returns
         -------
         params : dict
@@ -284,8 +285,9 @@ class SvoFpsClass(BaseQuery):
         mag_system : str
             The magnitude system for which to return the zero point.
         kwargs : dict
-            Appended to the ``query`` dictionary sent to SVO. See the API documentation of `data_from_svo` for the valid parameter names.
-
+            Appended to the ``query`` dictionary sent to SVO. See the API
+            documentation of `data_from_svo` for the valid parameter names.
+            
         Examples
         --------
         >>> from astroquery.svo_fps import SvoFps  # doctest: +REMOTE_DATA
