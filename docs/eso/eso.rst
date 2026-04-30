@@ -52,15 +52,16 @@ catalogue and inspect a small subset of rows:
 
 .. doctest-remote-data::
 
-    >>> table_cat = eso.query_catalog("KiDS_DR4_1_ugriZYJHKs_cat_fits", ROW_LIMIT=5)
+    >>> eso.ROW_LIMIT = 5
+    >>> table_cat = eso.query_catalog("KiDS_DR4_1_ugriZYJHKs_cat_fits")
 
 By default, queries are limited to returning a maximum of 1000 rows. This limit
-can be modified by setting the ``ROW_LIMIT`` attribute. To disable truncation
+can be modified by setting ``eso.ROW_LIMIT``. To disable truncation
 and return all matching results (up to TAP limit of 15,000,000), set:
 
 .. doctest-remote-data::
 
-    >>> eso.ROW_LIMIT = -1 # 0 or None to return all results without truncation 
+    >>> eso.ROW_LIMIT = -1 # 0 or None to return all results without truncation
 
 Getting Started
 ===============
