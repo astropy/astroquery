@@ -98,9 +98,9 @@ Automatic Login
 
 To avoid having to enter your username every session, you can configure a default username in the Astroquery configuration file. This file is located as described in the `astropy.config documentation <https://docs.astropy.org/en/stable/config/index.html>`_.
 
-Add the following to the ``[eso]`` section of your config file:
+Add the following to the ``[eso]`` section of your config astroquery.cfg file:
 
-.. doctest-skip::
+.. code-block::
 
     [eso]
     username = ICONDOR

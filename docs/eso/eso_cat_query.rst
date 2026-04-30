@@ -69,7 +69,7 @@ table. To see more infomation on this specific version of the Kilo-Degree Survey
 
 .. doctest-remote-data::
 
-    >>> eso.query_catalog(catalogue='KiDS_DR4_1_ugriZYJHKs_cat_fits', help=True) # doctest: +IGNORE_OUTPUT
+    >>> eso.query_catalog(catalog='KiDS_DR4_1_ugriZYJHKs_cat_fits', help=True) # doctest: +IGNORE_OUTPUT
     INFO:
     Columns present in the table safcat.KiDS_DR4_1_ugriZYJHKs_cat_fits:
         column_name     datatype       unit                        ucd
@@ -132,12 +132,12 @@ Query with Constraints
 
 The table can be queried using the :meth:`~astroquery.eso.EsoClass.query_catalog` method.
 Note, however, that catalogue tables can be very large, so it is often useful to start with a
-small row limit, which can be set with e.g ``eso.ROW_LIMIT = 5`` or by passing
-e.g. ``ROW_LIMIT=5`` to the query method: 
+small row limit, which can be set with e.g. ``eso.ROW_LIMIT = 5``:
 
 .. doctest-remote-data::
 
-    >>> table = eso.query_catalog(catalogue='KiDS_DR4_1_ugriZYJHKs_cat_fits', ROW_LIMIT=5)
+    >>> eso.ROW_LIMIT = 5
+    >>> table = eso.query_catalog(catalog='KiDS_DR4_1_ugriZYJHKs_cat_fits')
     >>> table # doctest: +IGNORE_OUTPUT
     WARNING: MaxResultsWarning: Results truncated to 5. To retrieve all the records set to None the ROW_LIMIT attribute [astroquery.eso.core]
     <Table length=5>
@@ -162,7 +162,7 @@ the available columns, you can do:
 .. doctest-remote-data::
 
     >>> table = eso.query_catalog(
-    ...     catalogue='KiDS_DR4_1_ugriZYJHKs_cat_fits',
+    ...     catalog='KiDS_DR4_1_ugriZYJHKs_cat_fits',
     ...     columns=["ID", "RAJ2000", "DECJ2000", "KIDS_TILE", "MAG_AUTO", "MAGERR_AUTO"],
     ...     column_filters={"MAG_AUTO": "<10"}
     ... )

@@ -34,7 +34,7 @@ For example:
 
 .. doctest-remote-data::
 
-    >>> eso.query_catalog(catalogue='KiDS_DR4_1_ugriZYJHKs_cat_fits', help=True) # doctest: +IGNORE_OUTPUT
+    >>> eso.query_catalog(catalog='KiDS_DR4_1_ugriZYJHKs_cat_fits', help=True) # doctest: +IGNORE_OUTPUT
     ...
                 RAJ2000   DOUBLE              deg                   pos.eq.ra;meta.main
                DECJ2000   DOUBLE              deg                  pos.eq.dec;meta.main
@@ -204,7 +204,7 @@ Run search with cone filter:
 .. doctest-remote-data::
 
     >>> table = eso.query_catalog(
-    ...     catalogue=table_name,
+    ...     catalog=table_name,
     ...     column_filters=column_filters,
     ... )  # doctest: +SKIP
     >>> table # doctest: +SKIP
@@ -236,7 +236,7 @@ normal dictionary updates.
     >>> column_filters.update({"MAG_AUTO": "<22"})
 
     >>> table = eso.query_catalog(
-    ...     catalogue="KiDS_DR4_1_ugriZYJHKs_cat_fits",
+    ...     catalog="KiDS_DR4_1_ugriZYJHKs_cat_fits",
     ...     column_filters=column_filters,
     ... )  # doctest: +SKIP
     <Table length=6>
