@@ -43,7 +43,7 @@ website <https://simbad.cds.unistra.fr/simbad/>`_, use the ``simbad`` sub-packag
 Installation and Requirements
 -----------------------------
 
-Astroquery works with Python 3.9 or later.
+Astroquery works with Python 3.10 or later.
 As an `astropy`_ affiliate, astroquery requires `astropy`_ version 5.0 or later.
 
 The latest version of astroquery can be pip installed (note the ``--pre`` for
