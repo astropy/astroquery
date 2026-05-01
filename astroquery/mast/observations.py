@@ -46,9 +46,6 @@ CLOUD_DISABLED_MESSAGE = (
     '`~astroquery.mast.ObservationsClass.enable_cloud_dataset` method.'
 )
 
-asdf_packages = ["asdf", "s3fs", "fsspec", "lz4", "gwcs"]
-fits_packages = ['s3fs', 'fsspec']
-
 try:
     import asdf
     import s3fs
@@ -1234,28 +1231,15 @@ class ObservationsClass(MastQueryWithLogin):
             FITS or ASDF object.
         """
         if read_as == "auto":
+            # Read logic for fits
             if product_path.endswith(".fits"):
-                for package in fits_packages:
-                    try:
-                        version(package)
-                    except ModuleNotFoundError:
-                        log.debug(f"Missing Required Package: {package}")
-                        return
                 try:
                     return fits.open(product_path, fsspec_kwargs={"anon": True})
                 except Exception as e:
                     log.exception(f"Failed to open FITS File: {product_path} {e}")
 
             # Read logic for ASDF
-            elif product_path.endswith(".asdf"):
-                # Check all required modules are available
-                for package in asdf_packages:
-                    try:
-                        version(package)
-                    except ModuleNotFoundError:
-                        log.debug(f"Missing Required Package: {package}")
-                        return
-
+            elif product_path.endswith(".asdf"):                      
                 try:
                     fs = s3fs.S3FileSystem(anon=True)
                     with fs.open(product_path, 'rb') as s3_file:
