@@ -1035,6 +1035,25 @@ class TestMast:
         uris = Observations.get_cloud_uris(products)
         assert len(uris) == 1
 
+    @pytest.mark.remote_data
+    def test_observations_read_product_fits(self):
+        product_path = "s3://stpubdata/hst/public/u24r/u24r0102t/u24r0102t_c1f.fits"
+
+        product = Observations.read_product(product_path)
+
+        assert isinstance(product, fits.HDUList)
+
+    @pytest.mark.remote_data
+    def test_observations_read_product_asdf(self):
+        asdf = pytest.importorskip("asdf")
+
+        product_path = "s3://stpubdata/roman/nexus/soc_simulations/tutorial_data" \
+            "/r0003201001001001004_0001_wfi01_f106_cal.asdf"
+
+        product = Observations.read_product(product_path)
+
+        assert isinstance(product, asdf.AsdfFile)
+
     ######################
     # CatalogClass tests #
     ######################
