@@ -11,7 +11,6 @@ import warnings
 import time
 import os
 from urllib.parse import quote
-from importlib.metadata import version
 
 import numpy as np
 import astropy.units as u
@@ -1231,7 +1230,7 @@ class ObservationsClass(MastQueryWithLogin):
             FITS or ASDF object.
         """
         if read_as == "auto":
-            # Read logic for fits
+            # Read logic for fits data products
             if product_path.endswith(".fits"):
                 try:
                     return fits.open(product_path, fsspec_kwargs={"anon": True})
@@ -1239,7 +1238,7 @@ class ObservationsClass(MastQueryWithLogin):
                     log.exception(f"Failed to open FITS File: {product_path} {e}")
 
             # Read logic for ASDF
-            elif product_path.endswith(".asdf"):                      
+            elif product_path.endswith(".asdf"):
                 try:
                     fs = s3fs.S3FileSystem(anon=True)
                     with fs.open(product_path, 'rb') as s3_file:

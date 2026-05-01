@@ -1385,36 +1385,44 @@ def s3_asdf_path():
 def mock_s3fs(mocker):
     s3_file = MagicMock(name="S3File")
     s3_file.__enter__.return_value = s3_file
+    s3_file.__exit__.return_value = None
 
     fs = MagicMock(name="S3FileSystem")
     fs.open.return_value = s3_file
 
-    mocker.patch("s3fs.S3FileSystem", return_value=fs)
+    mocker.patch(
+        "astroquery.mast.observations.s3fs.S3FileSystem",
+        return_value=fs,
+    )
+
     return fs
 
 
 @pytest.fixture
 def mock_asdf_open(mocker):
-    return mocker.patch("asdf.open", return_value=MagicMock(name="AsdfFile"))
+    return mocker.patch(
+        "astroquery.mast.observations.asdf.open",
+        return_value=MagicMock(name="AsdfFile"),
+    )
 
 
-def test_read_product_asdf(
-    s3_asdf_path,
-    mock_s3fs,
-    mock_asdf_open,
-    mocker,
-):
-    mocker.patch("importlib.metadata.version", return_value="1.0.0")
+def test_read_product_asdf(s3_asdf_path, mock_s3fs, mock_asdf_open):
+    pytest.importorskip("asdf")
+    pytest.importorskip("s3fs")
 
     result = Observations.read_product(s3_asdf_path)
 
-    mock_s3fs.open.assert_called_once_with(s3_asdf_path, "rb")
+    mock_s3fs.open.assert_called_once_with(
+        s3_asdf_path,
+        "rb",
+    )
+
     mock_asdf_open.assert_called_once_with(
         mock_s3fs.open.return_value.__enter__.return_value,
         ignore_unrecognized_tag=False,
     )
-    assert result is mock_asdf_open.return_value
 
+    assert result is mock_asdf_open.return_value
 
 ######################
 # CatalogClass tests #
