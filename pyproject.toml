@@ -34,6 +34,7 @@ Documentation = "https://astroquery.readthedocs.io"
 
 [project.optional-dependencies]
 test = [
+   "asdf",
    "pytest>=7.4",
    "pytest-doctestplus>=1.4",
    "pytest-timeout",
