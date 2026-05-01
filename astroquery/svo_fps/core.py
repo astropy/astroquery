@@ -225,7 +225,7 @@ class SvoFpsClass(BaseQuery):
         kwargs : dict
             Appended to the ``query`` dictionary sent to SVO. See the API
             documentation of `data_from_svo` for the valid parameter names.
-            
+
         Returns
         -------
         params : dict
@@ -287,7 +287,7 @@ class SvoFpsClass(BaseQuery):
         kwargs : dict
             Appended to the ``query`` dictionary sent to SVO. See the API
             documentation of `data_from_svo` for the valid parameter names.
-            
+
         Examples
         --------
         >>> from astroquery.svo_fps import SvoFps  # doctest: +REMOTE_DATA
