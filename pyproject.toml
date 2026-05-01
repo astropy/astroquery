@@ -35,10 +35,13 @@ Documentation = "https://astroquery.readthedocs.io"
 [project.optional-dependencies]
 test = [
    "asdf",
+   "gwcs",
+   "roman-datamodels",
    "pytest>=7.4",
    "pytest-doctestplus>=1.4",
    "pytest-timeout",
    "pytest-astropy",
+   "lz4",
    "matplotlib",
    # Temp workaround for https://github.com/RKrahl/pytest-dependency/issues/91
    "pytest-dependency; platform_system != 'Windows'",
