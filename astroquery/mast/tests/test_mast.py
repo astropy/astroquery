@@ -1355,6 +1355,67 @@ def test_observations_disable_cloud_dataset(patch_boto3):
     assert Observations._cloud_enabled_explicitly is False
 
 
+@pytest.fixture
+def s3_fits_path():
+    return "s3://stpubdata/hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits"
+
+
+@pytest.fixture
+def mock_fits_open(mocker):
+    return mocker.patch("astropy.io.fits.open", return_value=MagicMock(name="HDUList"))
+
+
+def test_read_product_fits(s3_fits_path, mock_fits_open, mocker):
+    mocker.patch("astropy.__version__", "5.0.0")
+
+    result = Observations.read_product(s3_fits_path)
+
+    mock_fits_open.assert_called_once_with(
+        s3_fits_path, fsspec_kwargs={"anon": True}
+    )
+    assert result is mock_fits_open.return_value
+
+
+@pytest.fixture
+def s3_asdf_path():
+    return "s3://stpubdata/hst/public/test/test.asdf"
+
+
+@pytest.fixture
+def mock_s3fs(mocker):
+    s3_file = MagicMock(name="S3File")
+    s3_file.__enter__.return_value = s3_file
+
+    fs = MagicMock(name="S3FileSystem")
+    fs.open.return_value = s3_file
+
+    mocker.patch("s3fs.S3FileSystem", return_value=fs)
+    return fs
+
+
+@pytest.fixture
+def mock_asdf_open(mocker):
+    return mocker.patch("asdf.open", return_value=MagicMock(name="AsdfFile"))
+
+
+def test_read_product_asdf(
+    s3_asdf_path,
+    mock_s3fs,
+    mock_asdf_open,
+    mocker,
+):
+    mocker.patch("importlib.metadata.version", return_value="1.0.0")
+
+    result = Observations.read_product(s3_asdf_path)
+
+    mock_s3fs.open.assert_called_once_with(s3_asdf_path, "rb")
+    mock_asdf_open.assert_called_once_with(
+        mock_s3fs.open.return_value.__enter__.return_value,
+        ignore_unrecognized_tag=False,
+    )
+    assert result is mock_asdf_open.return_value
+
+
 ######################
 # CatalogClass tests #
 ######################
