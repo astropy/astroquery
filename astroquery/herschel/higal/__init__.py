@@ -16,7 +16,7 @@ class Conf(_config.ConfigNamespace):
     """
     server = _config.ConfigItem(
         ['https://tools.ssdc.asi.it/',
-         ],
+         ]
         'Name of the higal server to use.')
 
     timeout = _config.ConfigItem(
