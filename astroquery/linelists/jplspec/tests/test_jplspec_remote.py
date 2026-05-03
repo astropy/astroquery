@@ -3,7 +3,6 @@ from astropy import units as u
 from astropy.table import Table
 
 from astroquery.linelists.jplspec import JPLSpec
-from astroquery.exceptions import EmptyResponseError
 
 
 @pytest.mark.remote_data

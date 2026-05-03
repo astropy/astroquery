@@ -18,7 +18,7 @@ class Conf(_config.ConfigNamespace):
     ftp_cat_server = _config.ConfigItem(
         ['https://spec.jpl.nasa.gov/ftp/pub/catalog/',
          'https://web.archive.org/web/20250630185813/https://spec.jpl.nasa.gov/ftp/pub/catalog/'],
-         'JPL FTP Catalog URL'
+        'JPL FTP Catalog URL'
     )
 
     timeout = _config.ConfigItem(
