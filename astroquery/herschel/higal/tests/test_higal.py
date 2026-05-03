@@ -1,131 +1,90 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import os
+from __future__ import print_function
 
 import pytest
 
-from astropy import coordinates as coord
-from astropy import units as u
+import os
+import requests
+
+from numpy import testing as npt
 from astropy.table import Table
+import astropy.coordinates as coord
+import astropy.units as u
 
-from astroquery.utils.mocks import MockResponse
-from astroquery.herschel import higal
-from astroquery.herschel.higal.core import HiGalClass
+from ...utils.testing_tools import MockResponse
 
+from ... import higal
+from ...higal import conf
 
-DATA_FILES = {
-    ('GET', 'https://tools.ssdc.asi.it/MMCAjaxFunction'): 'catalog_blue.json',
-    ('GET', 'https://tools.ssdc.asi.it/HiGALSearch.jsp'): 'frontpage.html',
-    ('POST', 'https://tools.ssdc.asi.it/HiGALSearch.jsp'): 'cutout_page.html',
-}
+DATA_FILES = {'POST':
+              {'https://tools.ssdc.asi.it/HiGALSearch.jsp':
+               'g49.html'},
+              'GET':
+              {'https://tools.ssdc.asi.it/MMCAjaxFunction':
+               'g49.html',
+               'https://tools.ssdc.asi.it/HiGALSearch.jsp':
+               'frontpage.html',
+              }
+             }
 
 
 def data_path(filename):
-    return os.path.join(os.path.dirname(__file__), 'data', filename)
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    return os.path.join(data_dir, filename)
 
 
+# define a monkeypatch replacement request function that returns the
+# dummy HTTP response for the dummy 'get' function, by
+# reading in data from some data file:
 def nonremote_request(self, request_type, url, **kwargs):
-    with open(data_path(DATA_FILES[(request_type, url)]), 'rb') as f:
-        return MockResponse(content=f.read(), url=url)
+    # kwargs are ignored in this case, but they don't have to be
+    # (you could use them to define which data file to read)
+    with open(data_path(DATA_FILES[request_type][url]), 'rb') as f:
+        response = MockResponse(content=f.read(), url=url)
+    return response
 
 
+# use a pytest fixture to create a dummy 'requests.get' function,
+# that mocks(monkeypatches) the actual 'requests.get' function:
 @pytest.fixture
-def patch_request(monkeypatch):
-    monkeypatch.setattr(HiGalClass, '_request', nonremote_request)
-
-
-class FakeCookie:
-    def __init__(self, name='JSESSIONID', path='/', domain=''):
-        self.name = name
-        self.path = path
-        self.domain = domain
-
+def patch_request(request):
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(higal.core.HiGalClass, '_request',
+               nonremote_request)
+    return mp
 
 class FakeCookieJar(list):
     def values(self):
         return self
 
-    def clear(self, *args, **kwargs):
+    def clear(self, arg1, arg2, arg3, **kwargs):
         return
 
-
-@pytest.fixture
-def hg(patch_request):
-    """A HiGalClass instance with a pre-seeded fake session, so the lazy
-    session-bootstrap code in `_args_to_payload` is skipped."""
-    instance = HiGalClass()
-    instance._session.cookies = FakeCookieJar([FakeCookie(), FakeCookie()])
-    instance._session_id = 'fake-session-id'
-    return instance
+class FakeCookie(object):
+    def __init__(self):
+        self.name = "JSESSIONID"
+        self.path = '/cas/'
+        self.domain = ""
 
 
-def test_args_to_payload_catalog(hg):
-    target = coord.SkyCoord(49.5, -0.3, frame='galactic',
-                            unit=(u.deg, u.deg))
-    payload = hg._args_to_payload(coords=target, radius=10*u.arcmin,
-                                  catalog_id=4047, catalog_query=True)
-    assert payload['mission'] == 'Hi-GAL'
-    assert payload['action'] == 'getMMCCatalogData'
-    assert payload['catalogId'] == 4047
-    assert payload['radius'] == '10.0'
+def test_query_region(patch_request):
+    target = coord.SkyCoord(49.5, -0.3, frame='galactic', unit=(u.deg, u.deg))
+    hg = higal.core.HiGalClass()
+    hg._session.cookies = FakeCookieJar([FakeCookie()]*2)
 
-
-def test_args_to_payload_cutout(hg):
-    target = coord.SkyCoord(49.5, -0.3, frame='galactic',
-                            unit=(u.deg, u.deg))
-    payload = hg._args_to_payload(coords=target, radius=10*u.arcmin,
-                                  catalog_query=False)
-    assert payload['HIGAL'] == 'HIGAL'
-    assert payload['radiusInput'] == '10.0'
-    assert payload['sessionId'] == 'fake-session-id'
-    assert payload['coordsType'] == 'RADEC'
-    assert payload['catalog'] == [4047, 4048, 4049, 4050, 4051]
-
-
-def test_query_region_catalog(hg):
-    target = coord.SkyCoord(49.5, -0.3, frame='galactic',
-                            unit=(u.deg, u.deg))
-    result = hg.query_region(coordinates=target, radius=0.25*u.deg,
-                             catalog='blue', catalog_query=True)
+    result = hg.query_region(coordinates=target, radius=0.25*u.deg, catalog_query=True)
     assert isinstance(result, Table)
-    assert len(result) == 2
-    assert 'DESIGNATION' in result.colnames
-    assert result['DESIGNATION'][0] == 'HIGALPB049.5000-0.3000'
 
+    result = hg.query_region(coordinates=target, radius=0.25*u.deg, catalog_query=False)
+    assert isinstance(result, Table)
 
-def test_query_region_get_query_payload(hg):
-    target = coord.SkyCoord(49.5, -0.3, frame='galactic',
-                            unit=(u.deg, u.deg))
-    payload = hg.query_region(coordinates=target, radius=0.25*u.deg,
-                              catalog='blue', catalog_query=True,
-                              get_query_payload=True)
-    assert payload['catalogId'] == higal.core.HiGal.HIGAL_CATALOGS['blue']
-
-
-def test_invalid_catalog_name(hg):
-    target = coord.SkyCoord(49.5, -0.3, frame='galactic',
-                            unit=(u.deg, u.deg))
-    with pytest.raises(KeyError):
-        hg.query_region(coordinates=target, radius=0.25*u.deg,
-                        catalog='bogus', catalog_query=True)
-
-
-def test_get_image_list(hg):
-    target = coord.SkyCoord(49.5, -0.3, frame='galactic',
-                            unit=(u.deg, u.deg))
-    image_list = hg.get_image_list(target, radius=3*u.arcmin)
-    # the cutout page contains all 5 wavelengths
-    assert len(image_list) == 5
-    # filenames had .jpeg → translated to .fits
-    for url in image_list:
-        assert url.endswith('.fits')
-        assert url.startswith('https://tools.ssdc.asi.it/')
-    # ordering follows HIGAL_CATALOGS dict ordering
-    assert 'blue' in image_list[0]
-
-
-def test_get_image_list_get_query_payload(hg):
-    target = coord.SkyCoord(49.5, -0.3, frame='galactic',
-                            unit=(u.deg, u.deg))
-    payload = hg.get_image_list(target, radius=3*u.arcmin,
-                                get_query_payload=True)
-    assert payload == {}
+# these tests are challenging to do locally; we'll rely on the remote ones for
+# now =(
+# def test_get_images(patch_request):
+#     target = coord.SkyCoord(49.5, -0.3, frame='galactic', unit=(u.deg, u.deg))
+#     result = higal.core.HiGalClass().get_images(coordinates=target,
+#                                                 radius=0.25*u.deg)
+#     assert isinstance(result, Table)

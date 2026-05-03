@@ -1,15 +1,20 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+from __future__ import print_function
+
 import json
-from urllib.parse import urljoin
+from six.moves.urllib.parse import urljoin
+import io
 
 import astropy.units as u
 from astropy import coordinates
+import astropy.io.votable as votable
 from astropy.table import Table
 from astropy.io import fits
 
-from ...query import BaseQuery, AstroQuery
-from ...utils import prepend_docstr_nosections
-from ...utils import async_to_sync
+from ..query import BaseQuery, AstroQuery
+from ..utils import commons
+from ..utils import prepend_docstr_nosections
+from ..utils import async_to_sync
 from . import conf
 
 __all__ = ['HiGal', 'HiGalClass']
