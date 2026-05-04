@@ -33,8 +33,8 @@ The classes will have the following methods where appropriate:
 .. code-block:: python
 
     query_object(objectname, ...)
-    query_region(coordinate, radius=, width=)
-    get_images(coordinate)
+    query_region(coordinates, radius=, width=)
+    get_images(coordinates)
 
 They may also have other methods for querying non-standard data types
 (e.g., ADS queries that may return a ``bibtex`` text block).
@@ -100,7 +100,7 @@ remote server before it can be downloaded.  For these queries, the approach is
 
 .. code-block:: python
 
-    result = Service.query_region_async(coordinate)
+    result = Service.query_region_async(coordinates)
 
     data = result.get_data()
     # this will periodically check whether the data is available at the specified URL
