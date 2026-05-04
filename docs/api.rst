@@ -85,7 +85,7 @@ Common Keywords
 
 These keywords are common to all query methods::
 
-    return_query_payload - Return the POST data that will be submitted as a dictionary
+    get_query_payload - Return the POST data that will be submitted as a dictionary
     savename - [optional - see discussion below] File path to save the downloaded query to
     timeout - timeout in seconds
 
