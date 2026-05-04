@@ -1078,6 +1078,8 @@ def test_get_observation_products(tmp_path_factory):
 
     assert result is not None
 
+    remove_temp_dir()
+
     result = tap.get_observation_products(id='13', product_type='mosaic', filter='VIS', output_file=None)
 
     assert result is not None
@@ -1096,6 +1098,8 @@ def test_get_observation_products(tmp_path_factory):
 
     assert result is not None
 
+    remove_temp_dir()
+
 
 def test_get_observation_products_data_set_release(tmp_path_factory):
     conn_handler = DummyConnHandler()
@@ -1113,6 +1117,8 @@ def test_get_observation_products_data_set_release(tmp_path_factory):
                                           dsr_part1='CALBLOCK', dsr_part2='PV-023', dsr_part3=1)
 
     assert result is not None
+
+    remove_temp_dir()
 
     result = tap.get_observation_products(id='13', product_type='mosaic', filter='VIS', output_file=None,
                                           dsr_part1='CALBLOCK', dsr_part2='PV-023', dsr_part3=1)
@@ -1133,6 +1139,8 @@ def test_get_observation_products_data_set_release(tmp_path_factory):
                                           dsr_part1='CALBLOCK', dsr_part2='PV-023', dsr_part3=1)
 
     assert result is not None
+
+    remove_temp_dir()
 
 
 def test_get_observation_products_exceptions():
