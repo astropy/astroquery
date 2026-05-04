@@ -50,7 +50,7 @@ name parser.
 
 query_region
 ````````````
-Query a region around a coordinate.
+Query a region around a coordinate.  The coordinate should be specified with the keyword ``coordinates`` and should be a astropy ``SkyCoord`` object.
 
 One of these keywords *must* be specified (no default is assumed)::
 
