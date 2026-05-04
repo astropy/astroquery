@@ -91,7 +91,7 @@ Here, the UCD values mark the primary ``RA`` and ``Dec`` fields -- in this case
     ... SELECT column_name
     ... FROM TAP_SCHEMA.columns
     ... WHERE table_name='PESSTO_TRAN_CAT_fits_V2'
-    ...   AND (ucd = 'pos.eq.ra;meta.main' OR ucd = 'pos.eq.dec;meta.main')
+    ...   AND ucd in ('pos.eq.ra;meta.main', 'pos.eq.dec;meta.main')
     ... """
     >>> table = eso.query_tap(query, tap_endpoint="tap_cat")
 
@@ -112,14 +112,14 @@ collection, ordered by publication date.
     ...       FROM TAP_SCHEMA.tables
     ...       WHERE collection='VMC'
     ...   )
-    ...   AND (
-    ...       ucd = 'pos.eq.ra;meta.main'
-    ...       OR ucd = 'pos.eq.dec;meta.main'
-    ...       OR ucd = 'meta.id;meta.main'
-    ...   )
+    ...   AND ucd in ('pos.eq.ra;meta.main', 'pos.eq.dec;meta.main', 'meta.id;meta.main')
     ... ORDER BY publication_date DESC, 2, 4
     ... """
     >>> table = eso.query_tap(query, tap_endpoint="tap_cat")
+
+Note that not all VMC tables have coordinates. Indeed some catalogues (e.g. variability 
+catalogues) rely on the main source catalogue for the position of the objects. An example of 
+that is provided in the "Discover Join Keys for VVV Tables" section.
 
 List Coordinate and Source-ID Columns Across All Collections
 ------------------------------------------------------------
@@ -133,11 +133,7 @@ catalogues, ordered by publication date and collection.
     ... SELECT publication_date, collection, T.table_name, column_name, ucd
     ... FROM TAP_SCHEMA.columns AS C, TAP_SCHEMA.tables AS T
     ... WHERE T.table_name = C.table_name
-    ...   AND (
-    ...       ucd = 'pos.eq.ra;meta.main'
-    ...       OR ucd = 'pos.eq.dec;meta.main'
-    ...       OR ucd = 'meta.id;meta.main'
-    ...   )
+    ...     AND ucd in ('pos.eq.ra;meta.main', 'pos.eq.dec;meta.main', 'meta.id;meta.main')
     ... ORDER BY publication_date DESC, 2, 3, 5
     ... """
     >>> table = eso.query_tap(query, tap_endpoint="tap_cat")

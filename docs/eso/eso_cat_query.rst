@@ -21,18 +21,13 @@ catalogue.
 .. doctest-remote-data::
 
     >>> eso.list_catalogs(all_versions=False) # doctest: +IGNORE_OUTPUT
-    ['AMBRE_V1',
-     'ATLASGAL_V1',
-     'COSMOS2015_Laigle_v1_1b_latestV7_fits_V1',
-     'EREBOS_cat_fits_V1',
-     'EREBOS_RV_cat_fits_V1',
-     ...
-     'KiDS_DR3_0_ugri_src_fits_V2',
-     'KiDS_DR3_1_ugri_shear_fits_V1',
-     'KiDS_DR4_1_ugriZYJHKs_cat_fits',
-     ...
-     'vmc_dr7_yjks_back_V1',
-     'vmc_dr7_yjks_varCat_V3']
+    ['AMBRE_HARPS_V1',
+    'AMBRE_UVES_V1',
+    'AMBRE_V1',
+    ...
+    'vmc_dr7_yjks_varCat_V3',
+    'vmc_dr7_yjks_ysoVar_V1',
+    'vphas_er3_ugr_1r_2ihavphas_catMetaData_fits_V3']
     >>> print(len(eso.list_catalogs(all_versions=False))) # doctest: +IGNORE_OUTPUT
     84
 
@@ -42,19 +37,13 @@ To include every available version of every catalogue, set
 .. doctest-remote-data::
 
     >>> eso.list_catalogs(all_versions=True) # doctest: +IGNORE_OUTPUT
-    ['AMBRE_V1',
-     'atlas_er3_ugriz_catMetaData_fits_V2',
-     'ATLASGAL_V1',
-     'COSMOS2015_Laigle_v1_1b_latestV7_fits_V1',
-     'EREBOS_cat_fits_V1',
-     'EREBOS_RV_cat_fits_V1',
-     ...
-     'KiDS_DR3_0_ugri_src_fits_V2',
-     'KiDS_DR3_1_ugri_shear_fits_V1',
-     'KiDS_DR4_1_ugriZYJHKs_cat_fits',
-     ...
-     'vmc_dr7_yjks_back_V1',
-     'vmc_dr7_yjks_varCat_V3']
+    ['AMBRE_HARPS_V1',
+    'AMBRE_UVES_V1',
+    'AMBRE_V1',
+    ...
+    'vmc_er4_yjks_psfCatMetaData_fits_V2',
+    'vmc_er4_yjks_rrLyrCatMetaData_fits_V1',
+    'vphas_er3_ugr_1r_2ihavphas_catMetaData_fits_V3']
     >>> print(len(eso.list_catalogs(all_versions=True))) # doctest: +IGNORE_OUTPUT
     127
 
