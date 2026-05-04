@@ -1419,7 +1419,7 @@ def test_read_product_asdf(s3_asdf_path, mock_s3fs, mock_asdf_open):
 
     mock_asdf_open.assert_called_once_with(
         mock_s3fs.open.return_value.__enter__.return_value,
-        ignore_unrecognized_tag=False,
+        ignore_unrecognized_tag=True,
     )
 
     assert result is mock_asdf_open.return_value

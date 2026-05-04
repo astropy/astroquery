@@ -1211,9 +1211,9 @@ class ObservationsClass(MastQueryWithLogin):
         return unique_products
 
     # TODO: Need to inlcude way to parse if it is a MAST on prem URL and handle the streaming of that
-    def read_product(self, product_path, read_as="auto", ignore_unrecognized=False):
+    def read_product(self, product_path, read_as="auto", ignore_unrecognized=True):
         """
-        Read a product from Open S3 bucket to memory. Currently can handle FITS and ASDF product types.
+        Read a product from Open S3 bucket to memory. Currently supports FITS and ASDF product types only.
 
         Parameters
         ----------
@@ -1246,6 +1246,9 @@ class ObservationsClass(MastQueryWithLogin):
                         return af
                 except Exception as e:
                     log.exception(f"Failed to open ASD File: {product_path} {e}")
+
+            log.info(f"Loaded: {product_path}")
+
         else:
             log.error("Unsupported extension type")
             return
