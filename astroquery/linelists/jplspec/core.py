@@ -201,7 +201,13 @@ class JPLSpecClass(BaseQuery):
         return [molecule]
 
     def _build_table_from_get_molecule(self, mols):
-        """Fetch full catalog tables for each molecule and combine them."""
+        """
+        Fetch full catalog tables for each molecule and combine them.
+
+        `mols` should be passed through `_resolve_molecules` before being
+        sent to this function if it is user-specified, but if it comes directly
+        from a query, it should be trusted as-is.
+        """
         self.lookup_ids = build_lookup()
         tbs = [self.get_molecule(mol) for mol in mols]
         if len(tbs) > 1:
@@ -252,7 +258,10 @@ class JPLSpecClass(BaseQuery):
         if 'Zero lines were found' in response.text:
             if fallback_to_getmolecule:
                 payload = parse_qs(response.request.body)
-                return self._build_table_from_get_molecule(payload['Mol'])
+                return self._build_table_from_get_molecule(
+                    [payload['Mol']]
+                    if isinstance(payload['Mol'], str)
+                    else payload['Mol'])
             raise EmptyResponseError(f"Response was empty; message was '{response.text}'.")
 
         # data starts at 0 since regex was applied
