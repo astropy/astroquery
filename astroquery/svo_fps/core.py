@@ -242,17 +242,6 @@ class SvoFpsClass(BaseQuery):
                 f"invalid. For a description of valid query parameters see the docstring for SvoFps.data_from_svo"
             )
 
-        query.update(kwargs)
-
-        bad_params = [param for param in query if param not in QUERY_PARAMETERS]
-        if bad_params:
-            raise InvalidQueryError(
-                f"parameter{'s' if len(bad_params) > 1 else ''} "
-                f"{', '.join(bad_params)} {'are' if len(bad_params) > 1 else 'is'} "
-                f"invalid. For a description of valid query parameters see "
-                "https://svo2.cab.inta-csic.es/theory/fps/index.php?mode=voservice"
-            )
-
         response = self._request("GET", self.SVO_MAIN_URL, params=query,
                                  timeout=timeout or self.TIMEOUT,
                                  cache=cache)
