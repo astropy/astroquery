@@ -3,18 +3,20 @@ import os
 from astropy import units as u
 from requests import ReadTimeout
 
-from astroquery.exceptions import InvalidQueryError, TimeoutError
+from astroquery.exceptions import TimeoutError, InvalidQueryError
 from astroquery.utils.mocks import MockResponse
 from ..core import SvoFps
 
 DATA_FILES = {'filter_index': 'svo_fps_WavelengthEff_min=12000_WavelengthEff_max=12100.xml',
               'transmission_data': 'svo_fps_ID=2MASS.2MASS.H.xml',
-              'filter_list': 'svo_fps_Facility=Keck_Instrument=NIRC2.xml'
+              'filter_list': 'svo_fps_Facility=Keck_Instrument=NIRC2.xml',
+              'zeropoint': 'svo_fps_PhotCalID=2MASS.2MASS.H.Vega.xml',
               }
 TEST_LAMBDA = 12000
 TEST_FILTER_ID = '2MASS/2MASS.H'
 TEST_FACILITY = 'Keck'
 TEST_INSTRUMENT = 'NIRC2'
+TEST_MAG_SYSTEM = 'Vega'
 
 
 def data_path(filename):
@@ -35,6 +37,10 @@ def get_mockreturn(method, url, params=None, timeout=10, cache=None, **kwargs):
         and (params['WavelengthEff_min'] == TEST_LAMBDA
              and params['WavelengthEff_max'] == TEST_LAMBDA+100)):
         filename = data_path(DATA_FILES['filter_index'])
+    elif ('PhotCalID' in params
+          and params.get('ID') == TEST_FILTER_ID
+          and params['PhotCalID'] == f'{TEST_FILTER_ID}/{TEST_MAG_SYSTEM}'):
+        filename = data_path(DATA_FILES['zeropoint'])
     elif 'ID' in params and params['ID'] == TEST_FILTER_ID:
         filename = data_path(DATA_FILES['filter_index'])
     elif 'Facility' in params and (params['Facility'] == TEST_FACILITY
@@ -84,10 +90,29 @@ def test_get_filter_list(patch_get):
     assert 'filterID' in table.colnames
 
 
+def test_get_zeropoint(patch_get):
+    zp = SvoFps.get_zeropoint(TEST_FILTER_ID, mag_system=TEST_MAG_SYSTEM)
+    assert 'ZeroPoint' in zp
+    assert 'MagSys' in zp
+    assert zp['MagSys'] == TEST_MAG_SYSTEM
+    assert 'ZeroPointType' in zp
+    assert zp['ZeroPointType'] == 'Pogson'
+    assert 'ZeroPointUnit' in zp
+    assert zp['ZeroPoint'].unit == u.Jy
+
+
 def test_invalid_query(patch_get):
-    msg = r"^parameter bad_param is invalid\. For a description of valid query "
+    msg = 'Invalid value for parameter VERB. Allowed values are {0, 1, 2}'
     with pytest.raises(InvalidQueryError, match=msg):
-        SvoFps.data_from_svo(query={"bad_param": 0, "FWHM": 20})
-    msg = r"^parameters invalid_param, bad_param are invalid\. For a description of "
+        SvoFps.data_from_svo(VERB=5)
+    # need this wonky regex b/c {'metadata', None} is a set and the order flips every time
+    msg = r"Invalid value for parameter FORMAT\. Allowed values are \{(?=.*'metadata')(?=.*None).*\}"
     with pytest.raises(InvalidQueryError, match=msg):
-        SvoFps.data_from_svo(query={"invalid_param": 0, 'bad_param': -1})
+        SvoFps.data_from_svo(FORMAT='silly_format')
+
+
+def test_invalid_get_filter_metadata(patch_get):
+    msg = ('parameter flag_system is invalid. '
+           'For a description of valid query parameters see the docstring for SvoFps.data_from_svo')
+    with pytest.raises(InvalidQueryError, match=msg):
+        SvoFps.get_filter_metadata(TEST_FILTER_ID, flag_system='no such kwd')
