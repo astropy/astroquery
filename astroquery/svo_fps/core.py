@@ -268,7 +268,7 @@ class SvoFpsClass(BaseQuery):
                 params[param.name] = param.value
         return params
 
-    def get_zeropoint(self, filter_id, mag_system='Vega', **kwargs):
+    def get_zeropoint(self, filter_id, *, mag_system='Vega', **kwargs):
         """
         Get the zero point for a specififed filter in a specified system.
 
