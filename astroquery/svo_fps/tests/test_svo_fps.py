@@ -3,7 +3,7 @@ import os
 from astropy import units as u
 from requests import ReadTimeout
 
-from astroquery.exceptions import TimeoutError
+from astroquery.exceptions import TimeoutError, InvalidQueryError
 from astroquery.utils.mocks import MockResponse
 from ..core import SvoFps
 
@@ -102,6 +102,15 @@ def test_get_zeropoint(patch_get):
 
 
 def test_invalid_query(patch_get):
-    msg = r"^SvoFpsClass.data_from_svo\(\) got an unexpected keyword argument 'bad_param'"
-    with pytest.raises(TypeError, match=msg):
-        SvoFps.data_from_svo(bad_param=0, FWHM_min=20)
+    msg = 'Invalid value for parameter VERB. Allowed values are {0, 1, 2}'
+    with pytest.raises(InvalidQueryError, match=msg):
+        SvoFps.data_from_svo(VERB=5)
+    # need this wonky regex b/c {'metadata', None} is a set and the order flips every time
+    msg = r"Invalid value for parameter FORMAT\. Allowed values are \{(?=.*'metadata')(?=.*None).*\}"
+    with pytest.raises(InvalidQueryError, match=msg):
+        SvoFps.data_from_svo(FORMAT='silly_format')
+
+def test_invalid_get_filter_metadata(patch_get):
+    msg = 'parameter flag_system is invalid. For a description of valid query parameters see the docstring for SvoFps.data_from_svo'
+    with pytest.raises(InvalidQueryError, match=msg):
+        SvoFps.get_filter_metadata(TEST_FILTER_ID, flag_system='no such kwd')

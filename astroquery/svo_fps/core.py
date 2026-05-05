@@ -239,8 +239,7 @@ class SvoFpsClass(BaseQuery):
             raise InvalidQueryError(
                 f"parameter{'s' if len(bad_params) > 1 else ''} "
                 f"{', '.join(bad_params)} {'are' if len(bad_params) > 1 else 'is'} "
-                f"invalid. For a description of valid query parameters see "
-                "https://svo2.cab.inta-csic.es/theory/fps/index.php?mode=voservice"
+                f"invalid. For a description of valid query parameters see the docstring for SvoFps.data_from_svo"
             )
 
         query.update(kwargs)
@@ -282,7 +281,7 @@ class SvoFpsClass(BaseQuery):
             Filter ID in the format SVO specifies it: 'facilty/instrument.filter'.
             This is returned by `get_filter_list` and `get_filter_index` as the
             ``filterID`` column.
-        mag_system : str
+        mag_system : 'Vega' (default), 'AB', or 'ST'
             The magnitude system for which to return the zero point.
         kwargs : dict
             Appended to the ``query`` dictionary sent to SVO. See the API
@@ -307,6 +306,9 @@ class SvoFpsClass(BaseQuery):
          'ZeroPointType': 'Pogson'}
 
         """
+        if mag_system not in ['Vega', 'AB', 'ST']:
+            raise InvalidQueryError("Invalid magnitude system. Allowed values are 'Vega', 'AB', and 'ST'.")
+
         metadata = self.get_filter_metadata(filter_id=filter_id,
                                             PhotCalID=f'{filter_id}/{mag_system}', **kwargs)
 
