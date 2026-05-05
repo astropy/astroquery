@@ -113,6 +113,6 @@ def test_invalid_query(patch_get):
 
 def test_invalid_get_filter_metadata(patch_get):
     msg = ('parameter flag_system is invalid. '
-        'For a description of valid query parameters see the docstring for SvoFps.data_from_svo')
+           'For a description of valid query parameters see the docstring for SvoFps.data_from_svo')
     with pytest.raises(InvalidQueryError, match=msg):
         SvoFps.get_filter_metadata(TEST_FILTER_ID, flag_system='no such kwd')
