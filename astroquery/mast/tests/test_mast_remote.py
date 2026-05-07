@@ -324,8 +324,11 @@ class TestMast:
         assert all(filtered['category'] == 'CALIBRATED')
 
     def test_missions_download_products(self, tmp_path):
-        def check_filepath(path):
-            assert path.is_file()
+        def check_filepaths(result):
+            for row in result:
+                if row['Status'] == 'COMPLETE':
+                    path = Path(row['Local Path'])
+                    assert path.is_file()
 
         # Check string input
         test_dataset_id = 'Z14Z0104T'
@@ -333,28 +336,32 @@ class TestMast:
                                                 download_dir=tmp_path)
         for row in result:
             if row['Status'] == 'COMPLETE':
-                check_filepath(row['Local Path'])
+                check_filepaths(result)
 
         # Check Row input
         datasets = MastMissions.query_object("M4", radius=0.1)
         prods = MastMissions.get_product_list(datasets[0])[0]
         result = MastMissions.download_products(prods,
                                                 download_dir=tmp_path)
-        check_filepath(result['Local Path'][0])
+        check_filepaths(result)
 
         # JSON data input
-        json_data = [{'fileset': 'Z14Z0104T',
-                      'filename': 'z14z0104t_pdq.fits'}]
+        json_data = [{'mission': 'hst',
+                      'fileset': 'Z14Z0104T',
+                      'filename': 'z14z0104t_pdq.fits'},
+                     {'mission': 'jwst',
+                      'fileset': 'jw01189001001_02101_00001',
+                      'filename': 'jw01189001001_02101_00001_nrs1_uncal.jpg'}]
         result = MastMissions.download_products(json_data,
                                                 download_dir=tmp_path)
-        check_filepath(result['Local Path'][0])
+        check_filepaths(result)
 
         # JSON file input
         json_file = tmp_path / 'products.json'
         json_file.write_text(json.dumps(json_data))
         result = MastMissions.download_products(json_file,
                                                 download_dir=tmp_path)
-        check_filepath(result['Local Path'][0])
+        check_filepaths(result)
 
         # Warn about no products
         with pytest.warns(NoResultsWarning):
