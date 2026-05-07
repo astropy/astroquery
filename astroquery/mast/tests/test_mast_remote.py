@@ -149,17 +149,23 @@ class TestMast:
 
     def test_missions_query_criteria(self):
         # Non-positional search
+        select_cols = ['sci_pep_id', 'sci_obs_type', 'sci_aec']
         with pytest.warns(MaxResultsWarning):
             result = MastMissions.query_criteria(sci_pep_id=12557,
                                                  sci_obs_type='SPECTRUM',
                                                  sci_aec='S',
                                                  limit=3,
-                                                 select_cols=['sci_pep_id', 'sci_obs_type', 'sci_aec'])
+                                                 select_cols=select_cols)
         assert isinstance(result, Table)
         assert len(result) == 3
         assert (result['sci_pep_id'] == 12557).all()
         assert (result['sci_obs_type'] == 'SPECTRUM').all()
         assert (result['sci_aec'] == 'S').all()
+        assert result.meta
+        assert len(result.meta['search_params']['conditions']) == 3
+        for cols in select_cols:
+            assert 'description' in result[cols].meta
+            assert result[cols].meta['description']
 
         # Positional criteria search
         result = MastMissions.query_criteria(object_names='NGC6121',
@@ -395,7 +401,7 @@ class TestMast:
         ('jwst', {'fileSetName': 'jw01189001001_02101_00001'}),
         ('classy', {'Target': 'J0021+0052'}),
         ('ullyses', {'host_galaxy_name': 'WLM', 'select_cols': ['observation_id']}),
-        ('roman', {'program': 3}),
+        ('roman', {'program': 3, 'pass_id': 1}),
         ('iue', {'iue_data_id': 'LWR08496'}),
     ])
     def test_missions_workflow(self, tmp_path, mission, query_params):
