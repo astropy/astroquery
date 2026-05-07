@@ -1069,22 +1069,22 @@ class TestMast:
     def test_catalogs_collection(self):
         # Default collection should be HSC
         c = Catalogs()
-        assert c.collection.name == "hsc"
+        assert c.collection == "hsc"
         assert c.catalog == "dbo.SumMagAper2CatView"
 
         # Initialize with a different collection
         c = Catalogs(collection="gaiadr3")
-        assert c.collection.name == "gaiadr3"
+        assert c.collection == "gaiadr3"
         assert c.catalog == "dbo.gaia_source"
 
         # Initialize with a different collection and catalog
         c = Catalogs(collection="ullyses", catalog="publications")
-        assert c.collection.name == "ullyses"
+        assert c.collection == "ullyses"
         assert c.catalog == "dbo.publications"
 
         # Set the collection
         c.collection = "caom"
-        assert c.collection.name == "caom"
+        assert c.collection == "caom"
         assert c.catalog == "dbo.obspointing"
 
     def test_catalogs_get_collections(self):
@@ -1242,7 +1242,7 @@ class TestMast:
 
         # Region search with circle
         result = Catalogs.query_region(
-            collection="caom", region="CIRCLE ICRS 18.85 -6.95 0.1", limit=5, select_cols=select_cols
+            collection="caom", region="CIRCLE ICRS 18.85 -6.95 0.01", limit=5, select_cols=select_cols
         )
         assert isinstance(result, Table)
         assert len(result) <= 5

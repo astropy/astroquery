@@ -1494,7 +1494,8 @@ def test_catalogs_attributes(patch_tap):
         offset=1,
         sort_by="ra",
     )
-    assert isinstance(Catalogs.collection, CatalogCollection)
+    # Should not change after query
+    assert Catalogs.collection == "hsc"
     assert Catalogs.catalog == "dbo.SumMagAper2CatView"
 
 
