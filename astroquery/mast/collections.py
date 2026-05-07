@@ -72,7 +72,9 @@ class CatalogsClass(MastQueryWithLogin):
         """
         The current MAST collection to be queried.
         """
-        return self._collection
+        # Return the collection name instead of the object for easier user interaction,
+        # but keep the object internally for API calls
+        return self._collection.name
 
     @collection.setter
     def collection(self, collection):
@@ -99,7 +101,7 @@ class CatalogsClass(MastQueryWithLogin):
         """
         Setter that verifies that the catalog is valid for the current collection.
         """
-        catalog = self.collection._verify_catalog(catalog)
+        catalog = self._collection._verify_catalog(catalog)
         self._catalog = catalog
 
     @property
@@ -147,7 +149,7 @@ class CatalogsClass(MastQueryWithLogin):
             A table containing the available catalogs within the specified collection.
         """
         # If no collection specified, use the class attribute
-        collection_obj = self._get_collection_obj(collection) if collection else self.collection
+        collection_obj = self._get_collection_obj(collection) if collection else self._collection
         return collection_obj.catalogs
 
     @class_or_instance
@@ -924,7 +926,7 @@ class CatalogsClass(MastQueryWithLogin):
         tuple
             A tuple containing the (collection, catalog) to be queried.
         """
-        collection_obj = self._get_collection_obj(collection) if collection else self.collection
+        collection_obj = self._get_collection_obj(collection) if collection else self._collection
 
         if not catalog:
             # If the class attribute catalog is valid for the collection, use it
