@@ -1229,25 +1229,27 @@ class ObservationsClass(MastQueryWithLogin):
         object
             FITS or ASDF object.
         """
+        path_lower = product_path.lower()
+
         if read_as == "auto":
             # Read logic for fits data products
-            if product_path.endswith(".fits"):
+            if path_lower.endswith((".fits", ".fits.gz")):
                 try:
+                    log.info(f"Loaded: {product_path}")
                     return fits.open(product_path, fsspec_kwargs={"anon": True})
                 except Exception as e:
                     log.exception(f"Failed to open FITS File: {product_path} {e}")
-
+                    
             # Read logic for ASDF
-            elif product_path.endswith(".asdf"):
+            elif path_lower.endswith(".asdf"):
                 try:
                     fs = s3fs.S3FileSystem(anon=True)
                     with fs.open(product_path, 'rb') as s3_file:
                         af = asdf.open(s3_file, ignore_unrecognized_tag=ignore_unrecognized)
+                        log.info(f"Loaded: {product_path}")
                         return af
                 except Exception as e:
                     log.exception(f"Failed to open ASD File: {product_path} {e}")
-
-            log.info(f"Loaded: {product_path}")
 
         else:
             log.error("Unsupported extension type")
