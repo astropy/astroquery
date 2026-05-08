@@ -622,7 +622,6 @@ remain fully cloud-based.
    Downloading URL s3://stpubdata/hst/public/jbev/jbevetdqq/jbevetdqq_log.txt to ./mastDownload/HST/jbevetdqq/jbevetdqq_log.txt ... [Done]
    Downloading URL s3://stpubdata/hst/public/jbev/jbevetdqq/jbevetdqq_raw.jpg to ./mastDownload/HST/jbevetdqq/jbevetdqq_raw.jpg ... [Done]
    >>> print(manifest["Status"])
-   
    Status
    --------
    COMPLETE

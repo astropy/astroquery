@@ -1222,7 +1222,7 @@ class ObservationsClass(MastQueryWithLogin):
         read_as: str, optional
             How to read the file. Currently only .fits and .asdf is supported by "auto". Defaults to "auto".
         ignore_unrecognized: bool
-            Tells asdf.open() to include or ignore warnings from unrecognized asdf tags. Defaults to False
+            Tells asdf.open() to include or ignore warnings from unrecognized asdf tags. Defaults to True
 
         Returns
         -------
@@ -1239,7 +1239,7 @@ class ObservationsClass(MastQueryWithLogin):
                     return fits.open(product_path, fsspec_kwargs={"anon": True})
                 except Exception as e:
                     log.exception(f"Failed to open FITS File: {product_path} {e}")
-                    
+
             # Read logic for ASDF
             elif path_lower.endswith(".asdf"):
                 try:
