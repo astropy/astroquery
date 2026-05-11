@@ -24,6 +24,6 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .core import Hitran, HitranClass
+from .core import Hitran, HitranClass, parse_hitran_text
 
-__all__ = ['Hitran', 'HitranClass', 'conf']
+__all__ = ['Hitran', 'HitranClass', 'parse_hitran_text', 'conf']
