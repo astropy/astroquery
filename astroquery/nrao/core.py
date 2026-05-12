@@ -44,6 +44,8 @@ __all__ = {'NraoClass',}
 __doctest_skip__ = ['NraoClass.*']
 
 NRAO_BANDS = {
+    '4': (0.054*u.GHz, 0.084*u.GHz),  
+    'P': (0.2*u.GHz, 0.5*u.GHz),
     'L': (1*u.GHz,   2*u.GHz),
     'S': (2*u.GHz,   4*u.GHz),
     'C': (4*u.GHz,   8*u.GHz),
