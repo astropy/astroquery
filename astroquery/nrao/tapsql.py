@@ -207,12 +207,14 @@ def _gen_band_list_sql(field, value):
 
 
 def _gen_pol_sql(field, value):
-    # band list value is expected to be space separated list of bands
     val = ''
     states_map = {'Stokes I': '*I*',
-                  'Single': '/LL/',
-                  'Dual': '/LL/RR/',
-                  'Full': '/LL/LR/RL/RR/'}
+                  'Single-circular': 'RR',
+                  'Dual-circular': 'RR, LL',
+                  'Full-circular': 'RR, RL, LR, LL',
+                  'Single-linear': 'XX',
+                  'Dual-linear': 'XX, YY',
+                  'Full-linear': 'XX, XY, YX, YY'}
     for state in states_map:
         if state in value:
             if val:
