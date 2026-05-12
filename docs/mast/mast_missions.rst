@@ -172,6 +172,11 @@ Criteria syntax supports several operations:
   allowing for flexible matching of strings. The wildcard character is ``*`` and it replaces any number
   of characters preceding, following, or in between existing characters, depending on its placement.
 
+.. note::
+
+  For the Roman mission, query methods also support the ``pass_id`` parameter as an alias for the ``pass`` column, 
+  which refers to a single iteration of a pass plan. This is to avoid conflicts with the reserved Python keyword.
+
 .. doctest-remote-data::
 
    >>> results = missions.query_criteria(sci_obs_type="IMAGE",

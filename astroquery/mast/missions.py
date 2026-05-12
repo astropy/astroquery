@@ -15,19 +15,23 @@ from pathlib import Path
 from urllib.parse import quote
 
 import astropy.units as u
-from astropy.coordinates import SkyCoord, BaseCoordinateFrame, Angle
 import numpy as np
-from astropy.table import Table, Row, Column, vstack
+from astropy.coordinates import Angle, BaseCoordinateFrame, SkyCoord
+from astropy.table import Column, Row, Table, vstack
 from astropy.utils.decorators import deprecated_renamed_argument
 from requests import HTTPError, RequestException
 
 from astroquery import log
-from astroquery.utils import commons, async_to_sync
-from astroquery.utils.class_or_instance import class_or_instance
-from astroquery.exceptions import InputWarning, InvalidQueryError, MaxResultsWarning, NoResultsWarning
-
+from astroquery.exceptions import (
+    InputWarning,
+    InvalidQueryError,
+    MaxResultsWarning,
+    NoResultsWarning,
+)
 from astroquery.mast import utils
 from astroquery.mast.core import MastQueryWithLogin
+from astroquery.utils import async_to_sync, commons
+from astroquery.utils.class_or_instance import class_or_instance
 
 from . import conf
 
@@ -134,6 +138,17 @@ class MastMissionsClass(MastQueryWithLogin):
         if self.service == self._search:
             results = self._service_api_connection._parse_result(response, verbose, data_key='results')
 
+            # Add column descriptions to column metadata
+            column_list = self.get_column_list()
+            for col in results.columns:
+                if col in column_list['name']:
+                    description = column_list[column_list['name'] == col]['description'].value[0]
+                    results[col].meta = {'description': str(description)}
+
+            # Add search parameters to table metadata
+            result_json = response.json()
+            results.meta['search_params'] = result_json.get('search_params', {})
+
             # Warn if maximum results are returned
             if len(results) >= self.limit:
                 warnings.warn("Maximum results returned, may not include all sources within radius.",
@@ -166,6 +181,10 @@ class MastMissionsClass(MastQueryWithLogin):
         # Check each criteria argument for validity
         valid_cols = list(self.columns[self.mission]['name']) + self._search_option_fields
         for kwd in criteria.keys():
+            if kwd == "pass_id" and "pass_id" not in valid_cols and "pass" in valid_cols:
+                # Special case where the actual column name is "pass", but that's a reserved keyword in Python
+                # We allow "pass_id" as an alias
+                kwd = "pass"
             col = next((name for name in valid_cols if name == kwd), None)
             if not col:
                 closest_match = difflib.get_close_matches(kwd, valid_cols, n=1)
@@ -403,7 +422,8 @@ class MastMissionsClass(MastQueryWithLogin):
             List of all valid fields that can be used to match results on criteria can be retrieved by calling
             `~astroquery.mast.missions.MastMissionsClass.get_column_list` function.
             To filter by multiple values for a single column, pass in a list of values or
-            a comma-separated string of values.
+            a comma-separated string of values. For the Roman mission, you can also use the special "pass_id"
+            keyword as an alias for the "pass" column, which is a reserved keyword in Python.
 
         Returns
         -------
@@ -479,7 +499,8 @@ class MastMissionsClass(MastQueryWithLogin):
             function.
             For example, one can specify the output columns(select_cols) or use other filters(conditions).
             To filter by multiple values for a single column, pass in a list of values or
-            a comma-separated string of values.
+            a comma-separated string of values. For the Roman mission, you can also use the special "pass_id"
+            keyword as an alias for the "pass" column, which is a reserved keyword in Python.
 
         Returns
         -------
@@ -536,7 +557,8 @@ class MastMissionsClass(MastQueryWithLogin):
             function.
             For example, one can specify the output columns(select_cols) or use other filters(conditions).
             To filter by multiple values for a single column, pass in a list of values or
-            a comma-separated string of values.
+            a comma-separated string of values. For the Roman mission, you can also use the special "pass_id"
+            keyword as an alias for the "pass" column, which is a reserved keyword in Python.
 
         Returns
         -------
@@ -691,7 +713,7 @@ class MastMissionsClass(MastQueryWithLogin):
 
         return products[filter_mask]
 
-    def download_file(self, uri, *, local_path=None, cache=True, verbose=True):
+    def download_file(self, uri, *, local_path=None, cache=True, mission=None, verbose=True):
         """
         Downloads a single file based on the data URI.
 
@@ -703,6 +725,9 @@ class MastMissionsClass(MastQueryWithLogin):
             Directory or filename to which the file will be downloaded.  Defaults to current working directory.
         cache : bool
             Default is True. If file is found on disk, it will not be downloaded again.
+        mission : str, optional
+            The mission to which the file belongs. If not provided, the current value of the ``mission`` attribute
+            will be used.
         verbose : bool, optional
             Default is True. Whether to show download progress in the console.
 
@@ -717,9 +742,12 @@ class MastMissionsClass(MastQueryWithLogin):
         """
 
         # Construct the full data URL based on mission
-        if self.mission in ['hst', 'jwst', 'roman', 'roman_spectra', 'roman_cgi']:
+        current_mission = mission.lower() if mission else self.mission
+
+        if current_mission in ['hst', 'jwst', 'roman', 'roman_spectra', 'roman_cgi']:
             # HST, JWST, and RST have a dedicated endpoint for retrieving products
-            base_url = self._service_api_connection.MISSIONS_DOWNLOAD_URL + self.mission + '/api/v0.1/retrieve_product'
+            base_url = (f"{self._service_api_connection.MISSIONS_DOWNLOAD_URL}{current_mission}"
+                        "/api/v0.1/retrieve_product")
             keyword = 'product_name'
         else:
             # HLSPs use MAST download URL
@@ -727,8 +755,8 @@ class MastMissionsClass(MastQueryWithLogin):
             keyword = 'uri'
             # These files require a MAST URI and not just a filename
             if not uri.startswith('mast:'):
-                raise InvalidQueryError(f'For mission "{self.mission}", a full MAST URI is required for downloading. '
-                                        f'Got "{uri}".')
+                raise InvalidQueryError(f'For mission "{current_mission}", a full MAST URI is required '
+                                        f'for downloading. Got "{uri}".')
         data_url = base_url + f'?{keyword}=' + uri
         escaped_url = base_url + f'?{keyword}=' + quote(uri, safe='')
 
@@ -813,7 +841,12 @@ class MastMissionsClass(MastQueryWithLogin):
                 raise InvalidQueryError('Data product is missing "dataset" or "fileset" field required for '
                                         'constructing local download path. Specify `flat=True` to avoid this '
                                         'requirement.')
-            local_path = base_dir / dataset if not flat else base_dir
+
+            # If the products are a subscription JSON, they should include a mission field
+            mission = data_product['mission'].lower() if 'mission' in col_names else self.mission
+
+            # Create the local file path
+            local_path = base_dir if flat else base_dir / 'mastDownload' / mission / dataset
             local_path.mkdir(parents=True, exist_ok=True)
             local_file_path = local_path / Path(filename).name
 
@@ -821,6 +854,7 @@ class MastMissionsClass(MastQueryWithLogin):
             status, msg, url = self.download_file(uri,
                                                   local_path=local_file_path,
                                                   cache=cache,
+                                                  mission=mission,
                                                   verbose=verbose)
             manifest_entries.append([local_file_path, status, msg, url])
 
@@ -901,11 +935,10 @@ class MastMissionsClass(MastQueryWithLogin):
 
         # Set up base directory for downloads
         download_dir = Path(download_dir or '.')
-        base_dir = download_dir if flat else download_dir / 'mastDownload' / self.mission
 
         # Download files
         manifest = self._download_files(products,
-                                        base_dir=base_dir,
+                                        base_dir=download_dir,
                                         flat=flat,
                                         cache=cache,
                                         verbose=verbose)
