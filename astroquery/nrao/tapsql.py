@@ -180,9 +180,9 @@ def _gen_spec_res_sql(field, value):
 
 def _gen_pub_sql(field, value):
     if value is True:
-        return "{}='Public'".format(field)
+        return "{}='PUBLIC'".format(field)
     elif value is False:
-        return "{}='Proprietary'".format(field)
+        return "{}='LOCKED'".format(field)
     else:
         return None
 
