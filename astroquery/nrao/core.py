@@ -35,9 +35,9 @@ from ..query import BaseQuery, QueryWithLogin, BaseVOQuery
 from . import conf, auth_urls, tap_urls
 from astroquery.exceptions import CorruptDataWarning
 from ..alma.tapsql import (_gen_str_sql, _gen_numeric_sql,
-                     _gen_band_list_sql, _gen_datetime_sql, _gen_pol_sql, _gen_pub_sql,
+                     _gen_band_list_sql, _gen_datetime_sql, _gen_pol_sql,
                      _gen_science_sql, ALMA_DATE_FORMAT)
-from .tapsql import (_gen_pos_sql)
+from .tapsql import (_gen_pos_sql, _gen_pub_sql)
 
 __all__ = {'NraoClass',}
 
@@ -98,12 +98,16 @@ NRAO_FORM_KEYS = {
                                       'em_resolution', _gen_numeric_sql],
         'Band': ['band_list', 'band_list', _gen_band_list_sql]
     },
+    'Options': {
+        'Public data only': ['public_data', 'proprietary_status', _gen_pub_sql],
+    }
 
 }
 
 _OBSCORE_TO_NRAORESULT = {
     's_ra': 'RA',
     's_dec': 'Dec',
+    'data_rights': 'proprietary_status'
 }
 
 
@@ -257,9 +261,9 @@ class NraoClass(BaseQuery):
             payload = {'source_name_resolver': object_name}
         return self.query(payload=payload, **kwargs)
 
-    def query_region(self, coordinate, radius, *,
+    def query_region(self, coordinate, radius, *,public=None,
                            get_query_payload=False,
-                           payload=None, **kwargs):
+                           payload=None,  **kwargs):
         """
         Query the NRAO archive with a source name and radius
 
@@ -269,6 +273,9 @@ class NraoClass(BaseQuery):
             the identifier or coordinates around which to query.
         radius : str / `~astropy.units.Quantity`, optional
             the radius of the region
+        public : bool
+            True to return only public datasets, False to return private only,
+            None to return both
         payload : dict
             Dictionary of additional keywords.  See `help`.
         """
@@ -287,9 +294,9 @@ class NraoClass(BaseQuery):
         if get_query_payload:
             return payload
 
-        return self.query(payload=payload, **kwargs)
+        return self.query(public=public,payload=payload, **kwargs)
 
-    def query(self, payload, *, get_query_payload=False,
+    def query(self, payload, *, public=None, get_query_payload=False,
                     maxrec=None, **kwargs):
         """
         Perform a generic query with user-specified payload
@@ -298,6 +305,9 @@ class NraoClass(BaseQuery):
         ----------
         payload : dictionary
             Please consult the `help` method
+        public : bool
+            True to return only public datasets, False to return private only,
+            None to return both
         legacy_columns : bool
             True to return the columns from the obsolete NRAO advanced query,
             otherwise return the current columns based on ObsCore model.
@@ -321,6 +331,15 @@ class NraoClass(BaseQuery):
                 payload[arg] = '{} {}'.format(payload[arg], value)
             else:
                 payload[arg] = value
+                
+        if public is not None:
+            if 'public_data' in kwargs:
+                warnings.warn("Both public and public_data are set. "
+                              "The ``public`` kwarg takes precedence. "
+                              "If you want ``public_data`` to be respected, "
+                              "set ``public=None``.")
+            payload['public_data'] = public
+                            
         query = _gen_sql(payload)
         if get_query_payload:
             # Return the TAP query payload that goes out to the server rather
