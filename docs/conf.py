@@ -19,7 +19,7 @@ from pathlib import Path
 
 # Load all of the global Astropy configuration
 try:
-    from sphinx_astropy.conf.v1 import *  # noqa
+    from sphinx_astropy.conf.v3 import *  # noqa
 except ImportError:
     print('ERROR: the documentation requires the sphinx-astropy package to '
           'be installed')
@@ -79,19 +79,6 @@ release = package.__version__
 
 
 # -- Options for HTML output ---------------------------------------------------
-
-# A NOTE ON HTML THEMES
-# The global astropy configuration uses a custom theme, 'bootstrap-astropy',
-# which is installed along with astropy. A different theme can be used or
-# the options for this theme can be modified by overriding some of the
-# variables set in the global configuration. The variables set in the
-# global configuration are listed below, commented out.
-
-html_theme_options = {
-    'logotext1': 'astro',  # white,  semi-bold
-    'logotext2': 'query',  # orange, light
-    'logotext3': ':docs',   # white,  light
-}
 
 # Add any paths that contain custom themes here, relative to this directory.
 # To use a different custom theme, add the directory containing the theme.
