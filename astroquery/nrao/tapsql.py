@@ -1,5 +1,5 @@
 """
-Utilities for generating ADQL for ALMA TAP service
+Utilities for generating ADQL for NRAO TAP service
 """
 from datetime import datetime
 

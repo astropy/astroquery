@@ -36,7 +36,7 @@ from . import conf, auth_urls, tap_urls
 from astroquery.exceptions import CorruptDataWarning
 from ..alma.tapsql import (_gen_str_sql, _gen_numeric_sql,
                      _gen_band_list_sql, _gen_datetime_sql, _gen_pol_sql, _gen_pub_sql,
-                     _gen_science_sql, _gen_spec_res_sql, ALMA_DATE_FORMAT)
+                     _gen_science_sql, ALMA_DATE_FORMAT)
 from .tapsql import (_gen_pos_sql)
 
 __all__ = {'NraoClass',}
@@ -93,7 +93,7 @@ NRAO_FORM_KEYS = {
         'Frequency (GHz)': ['frequency', 'center_frequencies', _gen_numeric_sql],
         'Bandwidth (Hz)': ['bandwidth', 'aggregate_bandwidth', _gen_numeric_sql],
         'Spectral resolution (KHz)': ['spectral_resolution',
-                                      'em_resolution', _gen_spec_res_sql],
+                                      'em_resolution', _gen_numeric_sql],
         'Band': ['band_list', 'band_list', _gen_band_list_sql]
     },
 
