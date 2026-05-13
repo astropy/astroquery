@@ -37,7 +37,8 @@ from astroquery.exceptions import CorruptDataWarning
 from ..alma.tapsql import (_gen_str_sql, _gen_numeric_sql,
                       _gen_datetime_sql,
                      _gen_science_sql, ALMA_DATE_FORMAT)
-from .tapsql import (_gen_pos_sql, _gen_pub_sql, _gen_pol_sql)
+from .tapsql import (_gen_pos_sql, _gen_pub_sql, _gen_pol_sql,
+                     _gen_band_list_nrao_sql)
 
 __all__ = {'NraoClass','NRAO_BANDS'}
 
@@ -51,8 +52,8 @@ NRAO_BANDS = {
     'C': (4*u.GHz,   8*u.GHz),
     'X': (8*u.GHz,  12*u.GHz),
     'U': (12*u.GHz, 18*u.GHz),
-    'K': (18*u.GHz, 26*u.GHz),
-    'A': (26*u.GHz, 39*u.GHz),
+    'K': (18*u.GHz, 26.5*u.GHz),
+    'A': (26.5*u.GHz, 39*u.GHz),
     'Q': (39*u.GHz, 50*u.GHz),
     'W': (80*u.GHz, 115*u.GHz),
     '1': (30*u.GHz, 50*u.GHz),
@@ -111,6 +112,7 @@ NRAO_FORM_KEYS = {
         'Minimum Frequency (GHz)': ['freq_min', 'freq_min', _gen_numeric_sql],
         'Spectral resolution (KHz)': ['spectral_resolution',
                                       'em_resolution', _gen_numeric_sql],
+        'Band': ['band_list', 'band_list', _gen_band_list_nrao_sql]
     },
     'Options': {
         'Public data only': ['public_data', 'proprietary_status', _gen_pub_sql],
