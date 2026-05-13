@@ -9,6 +9,29 @@ from astropy.time import Time
 
 ALMA_DATE_FORMAT = '%d-%m-%Y'
 
+NRAO_BANDS = {
+    '4': (0.054*u.GHz, 0.084*u.GHz),  
+    'P': (0.2*u.GHz, 0.5*u.GHz),
+    'L': (1*u.GHz,   2*u.GHz),
+    'S': (2*u.GHz,   4*u.GHz),
+    'C': (4*u.GHz,   8*u.GHz),
+    'X': (8*u.GHz,  12*u.GHz),
+    'U': (12*u.GHz, 18*u.GHz),
+    'K': (18*u.GHz, 26.5*u.GHz),
+    'A': (26.5*u.GHz, 39*u.GHz),
+    'Q': (39*u.GHz, 50*u.GHz),
+    'W': (80*u.GHz, 115*u.GHz),
+    '1': (30*u.GHz, 50*u.GHz),
+    '2': (67*u.GHz, 116*u.GHz),    
+    '3': (84*u.GHz, 116*u.GHz),
+    '4': (125*u.GHz, 163*u.GHz),
+    '5': (163*u.GHz, 211*u.GHz),
+    '6': (211*u.GHz, 275*u.GHz),
+    '7': (275*u.GHz, 373*u.GHz),
+    '8': (385*u.GHz, 500*u.GHz),
+    '9': (602*u.GHz, 720*u.GHz),
+    '10': (787*u.GHz, 950*u.GHz)    
+}
 
 def _gen_pos_sql(field, value):
     result = ''
@@ -197,15 +220,26 @@ def _gen_science_sql(field, value):
         return None
 
 
-def _gen_band_list_sql(field, value):
-    # band list value is expected to be space separated list of bands
+def _gen_band_list_nrao_sql(field, value):
+    # converts a specified band to a frequency range; alias to search
+    # via freq_min and freq_max
     if isinstance(value, list):
         val = value
     else:
         val = value.split(' ')
-    return _gen_str_sql(field, '|'.join(
-        ['*{}*'.format(_) for _ in val]))
-
+    query=''
+    for value in val:
+        band_min = NRAO_BANDS[value][0]
+        band_max = NRAO_BANDS[value][1]
+        band_query = '(freq_min >= {} AND freq_max <= {})'.format(
+                      band_min.to(u.Hz).to_value(),band_max.to(u.Hz).to_value())
+        if query != '':
+           query += ' OR '+band_query
+        else:
+           query = band_query
+        query='('+query+')'
+    print(query)
+    return query
 
 def _gen_pol_sql(field, value):
     val = ''
