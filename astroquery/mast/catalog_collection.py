@@ -69,6 +69,8 @@ class CatalogCollection:
         if cls._discovered_collections is not None:
             return cls._discovered_collections
 
+        log.debug("Fetching available collections from MAST TAP service.")
+
         # Query TAP service for collection names
         url = cls.TAP_BASE_URL + "openapi.json"
         response = utils._simple_request(url)
@@ -228,6 +230,8 @@ class CatalogCollection:
         if catalog in self._catalog_metadata_cache:
             return self._catalog_metadata_cache[catalog]
 
+        log.debug(f"Fetching catalog metadata for collection '{self.name}', catalog '{catalog}' from MAST TAP service.")
+
         # Get column metadata
         metadata = self._get_column_metadata(catalog)
 
@@ -313,7 +317,7 @@ class CatalogCollection:
         `~astropy.table.Table`
             A table containing the catalog names and descriptions for this collection.
         """
-        log.debug(f"Fetching available tables for collection '{self.name}' from MAST TAP service.")
+        log.debug(f"Fetching available catalogs for collection '{self.name}' from MAST TAP service.")
         query = "SELECT TOP 5000 table_name, description FROM tap_schema.tables"
 
         # If this catalog is within a grouped collection, filter to only tables that belong to this collection
@@ -437,8 +441,6 @@ class CatalogCollection:
         response : `~astropy.table.Table`
             A table containing metadata about the specified table, including column names, data types, and descriptions.
         """
-        log.debug(f"Fetching column metadata for collection '{self.name}', catalog '{catalog}' from MAST TAP service.")
-
         query = f"""
             SELECT TOP 5000
                 column_name,
