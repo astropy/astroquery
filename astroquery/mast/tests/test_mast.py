@@ -1704,6 +1704,17 @@ def test_catalogs_get_collections_cached(patch_tap):
     assert "collection_name" in collections.colnames
 
 
+def test_catalogs_collection_cache_is_shared(patch_tap):
+    collection = "gaiadr3"
+    catalog_one = Catalogs(collection)
+    catalog_two = Catalogs(collection)
+
+    collection_one = catalog_one._get_collection_obj(collection)
+    collection_two = catalog_two._get_collection_obj(collection)
+
+    assert collection_one is collection_two
+
+
 def test_catalogs_supports_spatial_queries(patch_tap):
     catalog = Catalogs()
     result = catalog.supports_spatial_queries(
