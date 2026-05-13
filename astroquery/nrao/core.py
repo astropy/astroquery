@@ -69,7 +69,8 @@ NRAO_FORM_KEYS = {
         # each observation.
     },
     'Polarization': {
-        'Polarization type (Single, Dual, Full)': ['polarization_type',
+        'Polarization type (Single-circular/linear, Dual-circular/linear, \
+                            Full-circular/linear)': ['polarization_type',
                                                    'pol_states', _gen_pol_sql]
     },
     'Energy': {
