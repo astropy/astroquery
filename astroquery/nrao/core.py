@@ -22,13 +22,6 @@ from astropy.utils.console import ProgressBar
 from astropy import units as u
 from astropy.time import Time
 
-try:
-    from pyvo.dal.sia2 import SIA2_PARAMETERS_DESC, SIA2Service
-except ImportError:
-    # Can be removed once min version of pyvo is 1.5
-    from pyvo.dal.sia2 import SIA_PARAMETERS_DESC as SIA2_PARAMETERS_DESC
-    from pyvo.dal.sia2 import SIAService as SIA2Service
-
 from ..exceptions import LoginError
 from ..utils import commons
 from ..query import BaseQuery, QueryWithLogin, BaseVOQuery
@@ -42,8 +35,6 @@ from .tapsql import (_gen_pos_sql, _gen_pub_sql, _gen_pol_sql,
 __all__ = {'NraoClass','NRAO_BANDS'}
 
 __doctest_skip__ = ['NraoClass.*']
-
-
 
 TAP_SERVICE_PATH = 'tap'
 
@@ -89,6 +80,7 @@ NRAO_FORM_KEYS = {
     },
     'Options': {
         'Public data only': ['public_data', 'proprietary_status', _gen_pub_sql],
+        'Data Product Type': ['data_type','dataproduct_type', _gen_str_sql],
     }
 
 }
@@ -399,18 +391,18 @@ class NraoClass(BaseQuery):
             downloadDataFormat = 'MS'
 
         post_data = {
-          "emailNotification": email,
-          "requestDescription": f"{instrument} Download Request",
-          "archive": "VLA",
-          "p_telescope": instrument,
-          "p_project": project_code,
-          "productLocator": locator,
-          "requestCommand": "startVlaPPIWorkflow",
-          "p_workflowEventName": workflow,
-          "p_downloadDataFormat": downloadDataFormat,
-          "p_intentsFileName": "intents_hifv.xml",
-          "p_proceduresFileName": "procedure_hifv.xml"
-        }
+                      "emailNotification": email,
+                      "requestDescription": f"{instrument} Download Request",
+                      "archive": "VLA",
+                      "p_telescope": instrument,
+                      "p_project": project_code,
+                      "productLocator": locator,
+                      "requestCommand": "startVlaPPIWorkflow",
+                      "p_workflowEventName": workflow,
+                      "p_downloadDataFormat": downloadDataFormat,
+                      "p_intentsFileName": "intents_hifv.xml",
+                      "p_proceduresFileName": "procedure_hifv.xml"
+                    }
 
         if instrument in ('VLA', 'EVLA'):
             post_data['p_applyTelescopeFlags'] = apply_flags
