@@ -10,10 +10,10 @@ ALMA_DATE_FORMAT = '%d-%m-%Y'
 NRAO_BANDS = {
     '4m': (0.054*u.GHz, 0.084*u.GHz),
     'P': (0.195*u.GHz, 0.6*u.GHz),
-    'L': (0.95*u.GHz,   2*u.GHz),
-    'S': (1.95*u.GHz,   4*u.GHz),
-    'C': (3.95*u.GHz,   8*u.GHz),
-    'X': (7.95*u.GHz,  12*u.GHz),
+    'L': (0.95*u.GHz, 2*u.GHz),
+    'S': (1.95*u.GHz, 4*u.GHz),
+    'C': (3.95*u.GHz, 8*u.GHz),
+    'X': (7.95*u.GHz, 12*u.GHz),
     'U': (1.95*u.GHz, 18*u.GHz),
     'K': (17.95*u.GHz, 26.5*u.GHz),
     'A': (26.45*u.GHz, 39*u.GHz),
@@ -88,6 +88,7 @@ def _gen_pos_sql(field, value):
         return '(' + result + ')'
     else:
         return result
+        
 
 def _gen_pub_sql(field, value):
     if value is True:
@@ -110,12 +111,12 @@ def _gen_band_list_nrao_sql(field, value):
         band_min = NRAO_BANDS[value][0]
         band_max = NRAO_BANDS[value][1]
         band_query = '(freq_min >= {} AND freq_max <= {})'.format(
-                      band_min.to(u.Hz).to_value(), band_max.to(u.Hz).to_value())
+            band_min.to(u.Hz).to_value(), band_max.to(u.Hz).to_value())
         if query != '':
-           query += ' OR '+band_query
+            query += ' OR '+band_query
         else:
-           query = band_query
-        query='('+query+')'
+            query = band_query
+        query = '('+query+')'
 
     return query
 
