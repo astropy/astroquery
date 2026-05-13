@@ -282,9 +282,6 @@ class NraoClass(BaseQuery):
         public : bool
             True to return only public datasets, False to return private only,
             None to return both
-        legacy_columns : bool
-            True to return the columns from the obsolete NRAO advanced query,
-            otherwise return the current columns based on ObsCore model.
         get_query_payload : bool
             Flag to indicate whether to simply return the payload.
         maxrec : integer
