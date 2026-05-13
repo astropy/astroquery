@@ -1,16 +1,14 @@
 """
 Utilities for generating ADQL for NRAO TAP service
 """
-from datetime import datetime
-
 from astropy import units as u
 import astropy.coordinates as coord
-from astropy.time import Time
+from ..alma.tapsql import (_gen_str_sql, _val_parse)
 
 ALMA_DATE_FORMAT = '%d-%m-%Y'
 
 NRAO_BANDS = {
-    '4m': (0.054*u.GHz, 0.084*u.GHz),  
+    '4m': (0.054*u.GHz, 0.084*u.GHz),
     'P': (0.195*u.GHz, 0.6*u.GHz),
     'L': (0.95*u.GHz,   2*u.GHz),
     'S': (1.95*u.GHz,   4*u.GHz),
@@ -22,7 +20,7 @@ NRAO_BANDS = {
     'Q': (38.95*u.GHz, 50*u.GHz),
     'W': (66.95*u.GHz, 115*u.GHz),
     '1': (30*u.GHz, 50*u.GHz),
-    '2': (67*u.GHz, 116*u.GHz),    
+    '2': (67*u.GHz, 116*u.GHz),
     '3': (84*u.GHz, 116*u.GHz),
     '4': (125*u.GHz, 163*u.GHz),
     '5': (163*u.GHz, 211*u.GHz),
@@ -30,8 +28,9 @@ NRAO_BANDS = {
     '7': (275*u.GHz, 373*u.GHz),
     '8': (385*u.GHz, 500*u.GHz),
     '9': (602*u.GHz, 720*u.GHz),
-    '10': (787*u.GHz, 950*u.GHz)    
+    '10': (787*u.GHz, 950*u.GHz)
 }
+
 
 def _gen_pos_sql(field, value):
     result = ''
@@ -98,6 +97,7 @@ def _gen_pub_sql(field, value):
     else:
         return None
 
+
 def _gen_band_list_nrao_sql(field, value):
     # converts a specified band to a frequency range; alias to search
     # via freq_min and freq_max
@@ -105,19 +105,20 @@ def _gen_band_list_nrao_sql(field, value):
         val = value
     else:
         val = value.split(' ')
-    query=''
+    query = ''
     for value in val:
         band_min = NRAO_BANDS[value][0]
         band_max = NRAO_BANDS[value][1]
         band_query = '(freq_min >= {} AND freq_max <= {})'.format(
-                      band_min.to(u.Hz).to_value(),band_max.to(u.Hz).to_value())
+                      band_min.to(u.Hz).to_value(), band_max.to(u.Hz).to_value())
         if query != '':
            query += ' OR '+band_query
         else:
            query = band_query
         query='('+query+')'
-    print(query)
+
     return query
+
 
 def _gen_pol_sql(field, value):
     val = ''
@@ -134,47 +135,3 @@ def _gen_pol_sql(field, value):
                 val += '|'
             val += states_map[state]
     return _gen_str_sql(field, val)
-
-
-def _val_parse(value, val_type=float):
-    # parses an ALMA query field and returns a list of values (of type
-    # val_type) or tuples representing parsed values or intervals. Open
-    # intervals have None at one of the ends
-    def _one_val_parse(value, val_type=float):
-        # parses the value and returns corresponding interval for
-        # sia to work with. E.g <2 => (None, 2)
-        if value.startswith('<'):
-            return (None, val_type(value[1:]))
-        elif value.startswith('>'):
-            return (val_type(value[1:]), None)
-        else:
-            return val_type(value)
-    result = []
-    if isinstance(value, str):
-        try:
-            if value.startswith('!'):
-                start, end = _val_parse(value[2:-1].strip(), val_type=val_type)[0]
-                result.append((None, start))
-                result.append((end, None))
-            elif value.startswith('('):
-                result += _val_parse(value[1:-1], val_type=val_type)
-            elif '|' in value:
-                for vv in value.split('|'):
-                    result += _val_parse(vv.strip(), val_type=val_type)
-            elif '..' in value:
-                start, end = value.split('..')
-                if not start or not end:
-                    raise ValueError('start or end interval missing in {}'.
-                                     format(value))
-                result.append((_one_val_parse(start.strip(), val_type=val_type),
-                               _one_val_parse(end.strip(), val_type=val_type)))
-            else:
-                result.append(_one_val_parse(value, val_type=val_type))
-        except Exception as e:
-            raise ValueError(
-                'Error parsing {}. Details: {}'.format(value, str(e)))
-    elif isinstance(value, list):
-        result = value
-    else:
-        result.append(value)
-    return result
