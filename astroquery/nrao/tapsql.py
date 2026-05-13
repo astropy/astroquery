@@ -139,6 +139,7 @@ def _gen_datetime_sql(field, value):
             # TODO is it just a value (midnight) or the entire day?
             result += "{}={}".format(
                 field, Time(datetime.strptime(interval, ALMA_DATE_FORMAT)).mjd)
+    print(result)
     if ' OR ' in result:
         # use brackets for multiple ORs
         return '(' + result + ')'

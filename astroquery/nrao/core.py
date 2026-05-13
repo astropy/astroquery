@@ -93,9 +93,12 @@ NRAO_FORM_KEYS = {
     },
     'Time': {
         'Observation start': ['start_date', 't_min', _gen_datetime_sql],
-        'Observation end': ['end_date', 't_max', _gen_datetime_sql],
-        'Integration time (s)': ['integration_time', 't_exptime',
-                                 _gen_numeric_sql]
+        #'Integration time (s)': ['integration_time', 't_exptime',
+        #                         _gen_numeric_sql]
+        # NRAO archive returns a scan per row and t_exptime is the length of each scan
+        # so there is not a simple way to get total integration time on source from TAP
+        # returns. Output would need to be manipulated to get the total integration for
+        # each observation.
     },
     'Polarization': {
         'Polarization type (Single, Dual, Full)': ['polarization_type',
