@@ -85,12 +85,6 @@ NRAO_FORM_KEYS = {
 
 }
 
-_OBSCORE_TO_NRAORESULT = {
-    's_ra': 'RA',
-    's_dec': 'Dec',
-}
-
-
 def _gen_sql(payload):
     sql = 'select * from tap_schema.obscore'
     where = ''
