@@ -1,26 +1,6 @@
 Astroquery
 ==========
 
-.. raw:: html
-
-    <div style="min-height:2em;"></div>
-
-.. image:: _static/astroquery_logo_light.svg
-    :class: only=light
-    :width: 55%
-    :align: center
-    :alt: astroquery logo
-
-.. image:: _static/astroquery_logo_dark.svg
-    :class: only=dark
-    :width: 55%
-    :align: center
-    :alt: astroquery logo
-
-.. raw:: html
-
-    <div style="min-height:2em;"></div>
-
 This is the documentation for the Astroquery coordinated package of `astropy
 <https://www.astropy.org>`__.
 
