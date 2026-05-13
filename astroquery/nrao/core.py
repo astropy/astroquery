@@ -139,51 +139,13 @@ class NraoClass(BaseQuery):
     def __init__(self):
         # sia service does not need disambiguation but tap does
         super().__init__()
-        self._sia = None
         self._tap = None
-        self._datalink = None
-        self._sia_url = None
-        self._tap_url = None
-        self._datalink_url = None
         # TODO self._auth = NraoAuth()
 
     @property
     def auth(self):
         return self._auth
 
-    @property
-    def datalink(self):
-        if not self._datalink:
-            self._datalink = pyvo.dal.adhoc.DatalinkService(self.datalink_url)
-        return self._datalink
-
-    @property
-    def datalink_url(self):
-        if not self._datalink_url:
-            try:
-                self._datalink_url = urljoin(self._get_dataarchive_url(), DATALINK_SERVICE_PATH)
-            except requests.exceptions.HTTPError as err:
-                log.debug(
-                    f"ERROR getting the NRAO Archive URL: {str(err)}")
-                raise err
-        return self._datalink_url
-
-    @property
-    def sia(self):
-        if not self._sia:
-            self._sia = SIA2Service(baseurl=self.sia_url)
-        return self._sia
-
-    @property
-    def sia_url(self):
-        if not self._sia_url:
-            try:
-                self._sia_url = urljoin(self._get_dataarchive_url(), SIA_SERVICE_PATH)
-            except requests.exceptions.HTTPError as err:
-                log.debug(
-                    f"ERROR getting the  NRAO Archive URL: {str(err)}")
-                raise err
-        return self._sia_url
 
     @property
     def tap(self):
