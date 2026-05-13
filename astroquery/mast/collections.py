@@ -20,7 +20,6 @@ from astropy.table import Row, Table
 from astropy.time import Time
 from astropy.utils.decorators import deprecated, deprecated_renamed_argument
 
-from .. import log
 from ..exceptions import InputWarning, InvalidQueryError, NoResultsWarning
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
@@ -44,6 +43,7 @@ class CatalogsClass(MastQueryWithLogin):
     """
 
     TAP_BASE_URL = conf.server + "/vo-tap/api/v0.1/"
+    _collections_cache = dict()
 
     def __init__(self, collection=None, catalog=None):
 
@@ -52,7 +52,6 @@ class CatalogsClass(MastQueryWithLogin):
         self._available_collections = None  # Lazy load on first request
         self._no_longer_supported_collections = ["ctl", "diskdetective", "galex", "plato"]
         self._renamed_collections = {"panstarrs": "ps1_dr2", "gaia": "gaiadr3"}
-        self._collections_cache = dict()
 
         # Default initialization of this class should not trigger network requests
         # Only set collection and catalog if explicitly provided, otherwise defer to property setters
@@ -129,7 +128,6 @@ class CatalogsClass(MastQueryWithLogin):
             return Table([self._available_collections], names=("collection_name",))
 
         # Otherwise, fetch from TAP service discovery, including grouped collections.
-        log.debug("Fetching available collections from MAST TAP service.")
         collection_table = CatalogCollection.discover_collections()[["collection_name"]]
         return collection_table
 
@@ -171,7 +169,7 @@ class CatalogsClass(MastQueryWithLogin):
             and descriptions.
         """
         collection_obj, catalog = self._parse_inputs(collection, catalog)
-        return collection_obj._get_column_metadata(catalog)
+        return collection_obj.get_catalog_metadata(catalog).column_metadata
 
     def supports_spatial_queries(self, collection=None, catalog=None):
         """
