@@ -35,38 +35,15 @@ from ..query import BaseQuery, QueryWithLogin, BaseVOQuery
 from . import conf, auth_urls, tap_urls
 from astroquery.exceptions import CorruptDataWarning
 from ..alma.tapsql import (_gen_str_sql, _gen_numeric_sql,
-                      _gen_datetime_sql,
-                     _gen_science_sql, ALMA_DATE_FORMAT)
+                           _gen_datetime_sql)
 from .tapsql import (_gen_pos_sql, _gen_pub_sql, _gen_pol_sql,
-                     _gen_band_list_nrao_sql)
+                     _gen_band_list_nrao_sql, ALMA_DATE_FORMAT, NRAO_BANDS)
 
 __all__ = {'NraoClass','NRAO_BANDS'}
 
 __doctest_skip__ = ['NraoClass.*']
 
-NRAO_BANDS = {
-    '4': (0.054*u.GHz, 0.084*u.GHz),  
-    'P': (0.2*u.GHz, 0.5*u.GHz),
-    'L': (1*u.GHz,   2*u.GHz),
-    'S': (2*u.GHz,   4*u.GHz),
-    'C': (4*u.GHz,   8*u.GHz),
-    'X': (8*u.GHz,  12*u.GHz),
-    'U': (12*u.GHz, 18*u.GHz),
-    'K': (18*u.GHz, 26.5*u.GHz),
-    'A': (26.5*u.GHz, 39*u.GHz),
-    'Q': (39*u.GHz, 50*u.GHz),
-    'W': (80*u.GHz, 115*u.GHz),
-    '1': (30*u.GHz, 50*u.GHz),
-    '2': (67*u.GHz, 116*u.GHz),    
-    '3': (84*u.GHz, 116*u.GHz),
-    '4': (125*u.GHz, 163*u.GHz),
-    '5': (163*u.GHz, 211*u.GHz),
-    '6': (211*u.GHz, 275*u.GHz),
-    '7': (275*u.GHz, 373*u.GHz),
-    '8': (385*u.GHz, 500*u.GHz),
-    '9': (602*u.GHz, 720*u.GHz),
-    '10': (787*u.GHz, 950*u.GHz)    
-}
+
 
 TAP_SERVICE_PATH = 'tap'
 
@@ -80,17 +57,16 @@ NRAO_FORM_KEYS = {
                                _gen_pos_sql],
         'Angular resolution (arcsec)': ['spatial_resolution',
                                         's_resolution', _gen_numeric_sql],
-        'Field of view (arcsec)': ['fov', 's_fov', _gen_numeric_sql],
+         # s_resolution not filled in for VLA, thus configuration is also available
+         # s_fov is mostly meaningless in NRAO archive, thus removed ability to search
+         # on it
         'Maximum UV Distance (meters)': ['max_uv_dist', 'max_uv_dist', _gen_numeric_sql]
-
-
     },
     'Project': {
         'Project code': ['project_code', 'project_code', _gen_str_sql],
         'Telescope': ['instrument', 'instrument_name', _gen_str_sql],
-        'Number of Antennas': ['n_ants', 'num_antennas', _gen_str_sql],
+        'Number of Antennas': ['n_ants', 'num_antennas', _gen_numeric_sql],
         'Configuration': ['configuration', 'configuration', _gen_str_sql],
-
     },
     'Time': {
         'Observation start': ['start_date', 't_min', _gen_datetime_sql],
@@ -106,12 +82,9 @@ NRAO_FORM_KEYS = {
                                                    'pol_states', _gen_pol_sql]
     },
     'Energy': {
-        'Frequency (GHz)': ['frequency', 'center_frequencies', _gen_numeric_sql],
         'Bandwidth (Hz)': ['bandwidth', 'aggregate_bandwidth', _gen_numeric_sql],
         'Maximum Frequency (GHz)': ['freq_max', 'freq_max', _gen_numeric_sql],
         'Minimum Frequency (GHz)': ['freq_min', 'freq_min', _gen_numeric_sql],
-        'Spectral resolution (KHz)': ['spectral_resolution',
-                                      'em_resolution', _gen_numeric_sql],
         'Band': ['band_list', 'band_list', _gen_band_list_nrao_sql]
     },
     'Options': {

@@ -10,17 +10,17 @@ from astropy.time import Time
 ALMA_DATE_FORMAT = '%d-%m-%Y'
 
 NRAO_BANDS = {
-    '4': (0.054*u.GHz, 0.084*u.GHz),  
-    'P': (0.2*u.GHz, 0.5*u.GHz),
-    'L': (1*u.GHz,   2*u.GHz),
-    'S': (2*u.GHz,   4*u.GHz),
-    'C': (4*u.GHz,   8*u.GHz),
-    'X': (8*u.GHz,  12*u.GHz),
-    'U': (12*u.GHz, 18*u.GHz),
-    'K': (18*u.GHz, 26.5*u.GHz),
-    'A': (26.5*u.GHz, 39*u.GHz),
-    'Q': (39*u.GHz, 50*u.GHz),
-    'W': (80*u.GHz, 115*u.GHz),
+    '4m': (0.054*u.GHz, 0.084*u.GHz),  
+    'P': (0.195*u.GHz, 0.6*u.GHz),
+    'L': (0.95*u.GHz,   2*u.GHz),
+    'S': (1.95*u.GHz,   4*u.GHz),
+    'C': (3.95*u.GHz,   8*u.GHz),
+    'X': (7.95*u.GHz,  12*u.GHz),
+    'U': (1.95*u.GHz, 18*u.GHz),
+    'K': (17.95*u.GHz, 26.5*u.GHz),
+    'A': (26.45*u.GHz, 39*u.GHz),
+    'Q': (38.95*u.GHz, 50*u.GHz),
+    'W': (66.95*u.GHz, 115*u.GHz),
     '1': (30*u.GHz, 50*u.GHz),
     '2': (67*u.GHz, 116*u.GHz),    
     '3': (84*u.GHz, 116*u.GHz),
@@ -90,118 +90,6 @@ def _gen_pos_sql(field, value):
     else:
         return result
 
-
-def _gen_numeric_sql(field, value):
-    result = ''
-    for interval in _val_parse(value, float):
-        if result:
-            result += ' OR '
-        if isinstance(interval, tuple):
-            int_min, int_max = interval
-            if int_min is None:
-                if int_max is None:
-                    # no constraints on bandwith
-                    pass
-                else:
-                    result += '{}<={}'.format(field, int_max)
-            elif int_max is None:
-                result += '{}>={}'.format(field, int_min)
-            else:
-                result += '({1}<={0} AND {0}<={2})'.format(field, int_min,
-                                                           int_max)
-        else:
-            result += '{}={}'.format(field, interval)
-    if ' OR ' in result:
-        # use brakets for multiple ORs
-        return '(' + result + ')'
-    else:
-        return result
-
-
-def _gen_str_sql(field, value):
-    result = ''
-    for interval in _val_parse(value, str):
-        if result:
-            result += ' OR '
-        if '*' in interval:
-            # use LIKE
-            # escape wildcards if they exists in the value
-            interval = interval.replace('%', r'\%')  # noqa
-            interval = interval.replace('_', r'\_')  # noqa
-            # ADQL wild cards are % and _
-            interval = interval.replace('*', '%')
-            interval = interval.replace('?', '_')
-            result += "{} LIKE '{}'".format(field, interval)
-        else:
-            result += "{}='{}'".format(field, interval)
-    if ' OR ' in result:
-        # use brackets for multiple ORs
-        return '(' + result + ')'
-    else:
-        return result
-
-
-def _gen_datetime_sql(field, value):
-    result = ''
-    for interval in _val_parse(value, str):
-        if result:
-            result += ' OR '
-        if isinstance(interval, tuple):
-            min_datetime, max_datetime = interval
-            if max_datetime is None:
-                result += "{}>={}".format(
-                    field, Time(datetime.strptime(min_datetime, ALMA_DATE_FORMAT)).mjd)
-            elif min_datetime is None:
-                result += "{}<={}".format(
-                    field, Time(datetime.strptime(max_datetime, ALMA_DATE_FORMAT)).mjd)
-            else:
-                result += "({1}<={0} AND {0}<={2})".format(
-                    field, Time(datetime.strptime(min_datetime, ALMA_DATE_FORMAT)).mjd,
-                    Time(datetime.strptime(max_datetime, ALMA_DATE_FORMAT)).mjd)
-        else:
-            # TODO is it just a value (midnight) or the entire day?
-            result += "{}={}".format(
-                field, Time(datetime.strptime(interval, ALMA_DATE_FORMAT)).mjd)
-    print(result)
-    if ' OR ' in result:
-        # use brackets for multiple ORs
-        return '(' + result + ')'
-    else:
-        return result
-
-
-def _gen_spec_res_sql(field, value):
-    # This needs special treatment because spectral_resolution in AQ is in
-    # KHz while corresponding em_resolution is in m
-    result = ''
-    for interval in _val_parse(value):
-        if result:
-            result += ' OR '
-        if isinstance(interval, tuple):
-            min_val, max_val = interval
-            if max_val is None:
-                result += "{}<={}".format(
-                    field,
-                    min_val*u.kHz.to(u.m, equivalencies=u.spectral()))
-            elif min_val is None:
-                result += "{}>={}".format(
-                    field,
-                    max_val*u.kHz.to(u.m, equivalencies=u.spectral()))
-            else:
-                result += "({1}<={0} AND {0}<={2})".format(
-                    field,
-                    max_val*u.kHz.to(u.m, equivalencies=u.spectral()),
-                    min_val*u.kHz.to(u.m, equivalencies=u.spectral()))
-        else:
-            result += "{}={}".format(
-                field, interval*u.kHz.to(u.m, equivalencies=u.spectral()))
-    if ' OR ' in result:
-        # use brackets for multiple ORs
-        return '(' + result + ')'
-    else:
-        return result
-
-
 def _gen_pub_sql(field, value):
     if value is True:
         return "{}='PUBLIC'".format(field)
@@ -209,16 +97,6 @@ def _gen_pub_sql(field, value):
         return "{}='LOCKED'".format(field)
     else:
         return None
-
-
-def _gen_science_sql(field, value):
-    if value is True:
-        return "{}='T'".format(field)
-    elif value is False:
-        return "{}='F'".format(field)
-    else:
-        return None
-
 
 def _gen_band_list_nrao_sql(field, value):
     # converts a specified band to a frequency range; alias to search
