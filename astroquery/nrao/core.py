@@ -443,5 +443,4 @@ class NraoClass(BaseQuery):
         return wait_url
 
 
-
 Nrao = NraoClass()
