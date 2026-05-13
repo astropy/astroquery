@@ -108,6 +108,12 @@ html_title = '{0} v{1}'.format(project, release)
 # Output file base name for HTML help builder.
 htmlhelp_basename = project + 'doc'
 
+html_theme_options = {
+    "logo": {
+        "image_light": "_static/astroquery_logo_light.svg",
+        "image_dark": "_static/astroquery_logo_dark.svg",
+    }
+}
 
 # -- Options for LaTeX output --------------------------------------------------
 
