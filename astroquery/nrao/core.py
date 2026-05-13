@@ -1,22 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import os.path
-import keyring
-import numpy as np
-import re
-import tarfile
 import string
 import requests
 import warnings
 import json
 import time
 
-from pkg_resources import resource_filename
-from bs4 import BeautifulSoup
 import pyvo
 from urllib.parse import urljoin
 
-from astropy.table import Table, Column, vstack
 from astroquery import log
 from astropy.utils.console import ProgressBar
 from astropy import units as u
