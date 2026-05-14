@@ -77,4 +77,4 @@ def test_login_error():
     jwst = JwstClass(show_messages=False)
     with pytest.raises(HTTPError) as err:
         jwst.login(user="dummy", password="dummy")
-    assert "Unauthorized" in err.value.args[0]
+    assert "401" in err.value.args[0]

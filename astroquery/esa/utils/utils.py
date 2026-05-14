@@ -135,7 +135,7 @@ class ESAAuthSession(pyvo.auth.authsession.AuthSession):
         """
 
         # Add the custom query parameter to the URL
-        additional_params = {'TAPCLIENT': 'ASTROQUERY'}
+        additional_params = {'TAPCLIENT': 'ASTROQUERY'} if '/login' not in url else {}
         # Merge the default parameters with the additional request parameters
         additional_params = additional_params | self.request_parameters
         if kwargs is not None and 'params' in kwargs:
@@ -712,7 +712,7 @@ def execute_servlet_request(url, tap, *, method='GET', query_params=None, data=N
     if query_params is None:
         query_params = {}
 
-    if 'TAPCLIENT' not in query_params:
+    if 'TAPCLIENT' not in query_params and '/login' not in url:
         query_params['TAPCLIENT'] = 'ASTROQUERY'
 
     session = tap._session
