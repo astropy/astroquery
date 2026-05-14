@@ -705,9 +705,10 @@ class EsaTap(BaseVOQuery, BaseQuery):
                 files["FILE"].close()
 
         if verbose:
-            print(f"Uploaded table '{table_name}' to {conf.JWST_UPLOAD}")
+            print(f"Uploaded table '{table_name}' to {url}")
 
         return response
+
 
 def get_degree_radius(radius):
     """
