@@ -705,7 +705,7 @@ class EsaTap(BaseVOQuery, BaseQuery):
                 files["FILE"].close()
 
         if verbose:
-            print(f"Uploaded table '{table_name}' to {url}")
+            print(f"Uploaded table '{table_name}' to {upload_url}")
 
         return response
 
