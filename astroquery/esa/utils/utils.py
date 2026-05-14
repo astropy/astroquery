@@ -437,7 +437,6 @@ class EsaTap(BaseVOQuery, BaseQuery):
 
         return result
 
-
     def create_cone_search_query(self, ra, dec, ra_column, dec_column, radius):
         return f"1=CONTAINS(POINT('ICRS', {ra_column}, {dec_column}),CIRCLE('ICRS', {ra}, {dec}, {radius}))"
 
@@ -719,7 +718,6 @@ def execute_servlet_request(url, tap, *, method='GET', query_params=None, data=N
 
     method = method.upper()
 
-
     if method == "GET":
         # Use the TAPService session to perform a custom GET request
         response = session.get(url=url, params=query_params)
@@ -734,7 +732,6 @@ def execute_servlet_request(url, tap, *, method='GET', query_params=None, data=N
 
     else:
         raise ValueError(f"Unsupported servlet method: {method}")
-
 
     if response.status_code == 200:
         if parser_method is None:

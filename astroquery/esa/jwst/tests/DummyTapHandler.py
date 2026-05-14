@@ -238,6 +238,11 @@ class DummyTapHandler:
         self.__parameters['verbose'] = verbose
         return None
 
+    def upload_table(self, *, verbose=False):
+        self.__invokedMethod = 'upload_table'
+        self.__parameters['verbose'] = verbose
+        return None
+
     def load_data(self, params_dict, output_file=None, verbose=False):
         self.__invokedMethod = 'load_data'
         self.__parameters['params_dict'] = params_dict
