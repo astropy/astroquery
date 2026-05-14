@@ -85,6 +85,11 @@ vo_conesearch
 Service fixes and enhancements
 ------------------------------
 
+esa.jwst
+^^^^^^^^^^^^^^
+
+- Refactored to use PyVo instead of deprecated TapPlus class [#3592]
+
 esa.xmm_newton
 ^^^^^^^^^^^^^^
 
