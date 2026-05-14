@@ -1218,16 +1218,16 @@ class ObservationsClass(MastQueryWithLogin):
         Parameters
         ----------
         product_path: str
-            URI to the product in open bucket.
+            URI to the product in the STScI S3 open data bucket.
         read_as: str, optional
-            How to read the file. Currently only .fits and .asdf is supported by "auto". Defaults to "auto".
+            How to read the file. Currently only FITS and ASDF file types are supported by "auto". Default is "auto".
         ignore_unrecognized: bool
             Tells asdf.open() to include or ignore warnings from unrecognized asdf tags. Defaults to True
 
         Returns
         -------
         object
-            FITS or ASDF object.
+            FITS or ASDF object for the given data product.
         """
         path_lower = product_path.lower()
 
