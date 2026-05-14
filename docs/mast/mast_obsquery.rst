@@ -633,7 +633,7 @@ remain fully cloud-based.
 Streaming Data Products from S3 to memory
 -----------------------------------------
 If instead of downloading you would like to load an S3 URI directly to memory you can use `~astroquery.mast.ObservationsClass.read_product`. 
-This function supports FITS and ASDF data products and will automatically parse the file for the suffix and load it to memory using `~astropy.io.fits.open` or ``~asdf.open``.
+This function supports FITS and ASDF data products and will automatically parse the file for the suffix and load it to memory using `~astropy.io.fits.open` or `~asdf.open`.
 For ASDF data products additional packages may be required (e.g lz4 and roman-datamodels for ROMAN data). 
 
 .. doctest-remote-data::
