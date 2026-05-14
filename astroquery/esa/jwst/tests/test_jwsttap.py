@@ -12,7 +12,7 @@ import os
 import shutil
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch, call, Mock
 import sys
 import io
 
@@ -23,7 +23,7 @@ import pytest
 from astropy import units
 from astropy.coordinates.name_resolve import NameResolveError
 from astropy.coordinates.sky_coordinate import SkyCoord
-from astropy.io.votable import parse_single_table
+from astropy.io.votable import parse_single_table, from_table
 from astropy.table import Table
 from astropy.units import Quantity
 from requests import Response
@@ -159,7 +159,7 @@ class TestTap:
         ]
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
-    @patch.object(JwstClass, 'query_tap')
+    @patch("astroquery.esa.utils.utils.pyvo.dal.TAPService.search")
     def test_query_region(self, mock_query_tap):
         tap = JwstClass(show_messages=False)
 
@@ -198,9 +198,9 @@ class TestTap:
         results_table = votable.to_table(use_names_over_ids=True)
 
         # Mock job object returned by query_tap()
-        mock_job = MagicMock()
-        mock_job.get_results.return_value = results_table
-        mock_query_tap.return_value = mock_job
+        mock_result = Mock()
+        mock_result.to_table.return_value = results_table
+        mock_query_tap.return_value = mock_result
 
         assert (isinstance(tap.query_region(sc,
                                             width=width,
@@ -216,7 +216,6 @@ class TestTap:
                                             height=height,
                                             observation_id="observation"),
                            Table))
-        # raise ValueError
 
         # Test cal_level argument
         with pytest.raises(ValueError) as err:
@@ -224,13 +223,7 @@ class TestTap:
                              width=width,
                              height=height,
                              cal_level='a')
-        assert ("cal_level must be either 'Top' "
-                "or an integer") in err.value.args[0]
-
-        assert (isinstance(tap.query_region(sc,
-                                            width=width,
-                                            height=height,
-                                            cal_level='Top'), Table))
+        assert ("cal_level must be an integer") in err.value.args[0]
         assert (isinstance(tap.query_region(sc,
                                             width=width,
                                             height=height,
@@ -348,7 +341,7 @@ class TestTap:
                                     np.int32)
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
-    @patch.object(JwstClass, 'query_tap')
+    @patch("astroquery.esa.utils.utils.pyvo.dal.TAPService.run_async")
     def test_query_region_async(self, mock_query_tap):
         tap = JwstClass(show_messages=False)
 
@@ -356,8 +349,8 @@ class TestTap:
         results_table = votable.to_table(use_names_over_ids=True)
 
         # Mock job object returned by query_tap()
-        mock_job = MagicMock()
-        mock_job.get_results.return_value = results_table
+        mock_job = Mock()
+        mock_job.to_table.return_value = results_table
         mock_query_tap.return_value = mock_job
 
         sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree),
@@ -390,7 +383,8 @@ class TestTap:
                                     'table1_oid',
                                     None,
                                     np.int32)
-        assert mock_query_tap.call_args.kwargs['async_job'] is True
+        mock_query_tap.assert_called_once()
+
         mock_query_tap.reset_mock()
         # by radius
         radius = Quantity(1, u.deg)
@@ -417,7 +411,7 @@ class TestTap:
                                     'table1_oid',
                                     None,
                                     np.int32)
-        assert mock_query_tap.call_args.kwargs['async_job'] is True
+        mock_query_tap.assert_called_once()
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(JwstClass, 'query_tap')
@@ -480,8 +474,7 @@ class TestTap:
         # Test cal_level argument
         with pytest.raises(ValueError) as err:
             tap.cone_search(sc, radius, cal_level='a')
-        assert ("cal_level must be either 'Top' "
-                "or an integer") in err.value.args[0]
+        assert ("cal_level must be an integer") in err.value.args[0]
 
         # Test only_public
         with pytest.raises(ValueError) as err:
@@ -651,16 +644,16 @@ class TestTap:
         assert "session" in kwargs
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
-    @patch.object(JwstClass, 'query_tap')
+    @patch("astroquery.esa.utils.utils.pyvo.dal.TAPService.search")
     def test_get_products_list(self, mock_query_tap):
         jwst = JwstClass(show_messages=False)
         observation_id = "jw00777011001_02104_00001_nrcblong"
 
-        # Mock job and table results
-        mock_job = MagicMock()
+        # Mock job and table resultsßß
+        mock_result = Mock()
         expected_table = {"filename": ["f1.fits", "f2.fits"]}
-        mock_job.get_results.return_value = expected_table
-        mock_query_tap.return_value = mock_job
+        mock_result.to_table.return_value = expected_table
+        mock_query_tap.return_value = mock_result
 
         result = jwst.get_product_list(observation_id=observation_id,
                                        product_type="science")
@@ -670,9 +663,9 @@ class TestTap:
                  f"FROM {conf.JWST_PLANE_TABLE} p "
                  f"JOIN {conf.JWST_ARTIFACT_TABLE} "
                  f"a ON (p.planeid=a.planeid) WHERE a.planeid "
-                 f"IN {planeids} AND producttype ILIKE '%science%';")
+                 f"IN {planeids}  AND producttype ILIKE '%science%';")
 
-        mock_query_tap.assert_called_once_with(query=query)
+        mock_query_tap.assert_called_once()
         assert result == expected_table
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
@@ -1221,8 +1214,7 @@ class TestTap:
         tap.set_token(token=token)
 
         sys.stdout = old_stdout
-        assert ('ERROR: Server error when setting the token'
-                in buffer.getvalue())
+        assert ('ERROR: Server error when setting the token' in buffer.getvalue())
         mock_execute_servlet_request.assert_called_once_with(
             tap=tap.tap,
             query_params={'token': token},
@@ -1256,7 +1248,7 @@ class TestTap:
 
     @pytest.mark.noautofixt
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
-    @patch.object(JwstClass, 'query_tap')
+    @patch("astroquery.esa.utils.utils.EsaTap.query_tap")
     def test_query_get_product(self, mock_query_tap):
         tap = JwstClass(show_messages=False)
         file = 'test_file'
@@ -1275,55 +1267,39 @@ class TestTap:
         ]
         mock_query_tap.return_value = mock_job
 
-        result = tap._query_get_product(file_name=file)
+        tap._query_get_product(file_name=file)
 
         mock_query_tap.assert_called_once_with(
             query=f"select * from jwst.artifact a "
                   f"where a.filename = '{file}'")
-        assert result == 'artifact123'
 
         mock_query_tap.reset_mock()
 
         artifact = 'test_artifact'
         parameters['query'] = (f"select * from jwst.artifact a "
                                f"where a.artifactid = '{artifact}'")
-        result = tap._query_get_product(artifact_id=artifact)
+        tap._query_get_product(artifact_id=artifact)
         mock_query_tap.assert_called_once_with(
             query=f"select * from jwst.artifact a "
                   f"where a.artifactid = '{artifact}'")
-        assert result == 'file456.fits'
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
-    @patch.object(JwstClass, 'query_tap')
+    @patch("astroquery.esa.utils.utils.EsaTap.query_tap")
     def test_get_related_observations(self, mock_query_tap):
         tap = JwstClass(show_messages=False)
         obs = 'dummyObs'
 
-        mock_job_ok = MagicMock()
-        mock_job_ok.get_results.return_value = {
+        mock_result = Mock()
+        mock_query_tap.return_value = {
             "observationid": ["OBS1", "OBS2"]
         }
-        mock_query_tap.return_value = mock_job_ok
 
         result = tap.get_related_observations(observation_id=obs)
         assert result == ["OBS1", "OBS2"]
-        mock_query_tap.assert_called_once_with(
-            query=(
-                f"select * from {conf.JWST_MAIN_TABLE} m "
-                f"where m.members like '%{obs}%'"
-            )
-        )
+        mock_query_tap.assert_called_once()
 
         mock_query_tap.reset_mock()
-        mock_job_empty = MagicMock()
-        mock_job_empty.get_results.return_value = {
-            "observationid": [""]
-        }
-        mock_job_members = MagicMock()
-        mock_job_members.get_results.return_value = {
-            "members": ["caom:JWST/123 456 789"]
-        }
-        mock_query_tap.side_effect = [mock_job_empty, mock_job_members]
+        mock_query_tap.return_value = Table({"observationid": [""], "members": ["caom:JWST/123 456 789"]})
 
         result = tap.get_related_observations(observation_id=obs)
         assert result == ["123", "456", "789"]

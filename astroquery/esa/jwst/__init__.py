@@ -65,15 +65,9 @@ class Conf(_config.ConfigNamespace):
         _config.ConfigItem("jwstToken", "eJWST token"))
 
     JWST_MAIN_TABLE = (
-        _config.ConfigItem("jwst.main",
+        _config.ConfigItem("jwst.archive",
                            "JWST main table, combination "
                            "of observation and plane tables."))
-
-    JWST_MAIN_TABLE_RA = (
-        _config.ConfigItem("target_ra", "Name of RA parameter in table"))
-
-    JWST_MAIN_TABLE_DEC = (
-        _config.ConfigItem("target_dec", "Name of Dec parameter in table"))
 
     JWST_ARTIFACT_TABLE = (
         _config.ConfigItem("jwst.artifact",

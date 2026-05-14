@@ -57,8 +57,8 @@ class JwstClass(EsaTap):
 
     JWST_DEFAULT_COLUMNS = ['observationid', 'calibrationlevel', 'public',
                             'dataproducttype', 'instrument_name',
-                            'energy_bandpassname', 'target_name', 'target_ra',
-                            'target_dec', 'position_bounds_center',
+                            'energy_bandpassname', 'target_name', 'targetposition_coordinates_cval1',
+                            'targetposition_coordinates_cval2',
                             'position_bounds_spoly']
 
     PLANE_DATAPRODUCT_TYPES = ['image', 'cube', 'measurements', 'spectrum']
@@ -221,7 +221,7 @@ class JwstClass(EsaTap):
                      width=None,
                      height=None,
                      observation_id=None,
-                     cal_level="Top",
+                     cal_level=None,
                      prod_type=None,
                      instrument_name=None,
                      filter_name=None,
@@ -245,10 +245,9 @@ class JwstClass(EsaTap):
             box height
         observation_id : str, optional, default None
             get the observation given by its ID.
-        cal_level : object, optional, default 'Top'
+        cal_level : integer, optional, default None
             get the planes with the given calibration level. Options are:
-            'Top': str, only the planes with the highest calibration level
-            1,2,3: int, the given calibration level
+            1,2,3
         prod_type : str, optional, default None
             get the observations providing the given product type. Options are:
             'image','cube','measurements','spectrum': str, only results of the
@@ -278,19 +277,18 @@ class JwstClass(EsaTap):
         The job results (astropy.table).
         """
         coord = self.__get_coord_input(value=coordinate, msg="coordinate")
-        job = None
         if radius is not None:
-            job = self.cone_search(coordinate=coord,
-                                   radius=radius,
-                                   only_public=only_public,
-                                   observation_id=observation_id,
-                                   cal_level=cal_level,
-                                   prod_type=prod_type,
-                                   instrument_name=instrument_name,
-                                   filter_name=filter_name,
-                                   proposal_id=proposal_id,
-                                   show_all_columns=show_all_columns,
-                                   async_job=async_job, verbose=verbose)
+            return self.cone_search(coordinate=coord,
+                                    radius=radius,
+                                    only_public=only_public,
+                                    observation_id=observation_id,
+                                    cal_level=cal_level,
+                                    prod_type=prod_type,
+                                    instrument_name=instrument_name,
+                                    filter_name=filter_name,
+                                    proposal_id=proposal_id,
+                                    show_all_columns=show_all_columns,
+                                    async_job=async_job, verbose=verbose)
         else:
             raHours, dec = commons.coord_to_radec(coord)
             ra = raHours * 15.0  # Converts to degrees
@@ -321,15 +319,15 @@ class JwstClass(EsaTap):
                 columns = '*'
 
             query = (f"SELECT DISTANCE(POINT('ICRS',"
-                     f"{str(conf.JWST_MAIN_TABLE_RA)},"
-                     f"{str(conf.JWST_MAIN_TABLE_DEC)} ), "
+                     f"{str(conf.JWST_OBSERVATION_TABLE_RA)},"
+                     f"{str(conf.JWST_OBSERVATION_TABLE_DEC)} ), "
                      f"POINT('ICRS',{str(ra)},{str(dec)} )) "
                      f"AS dist, {columns} "
-                     f"FROM {str(conf.JWST_MAIN_TABLE)} "
+                     f"FROM {str(conf.JWST_ARCHIVE_TABLE)} "
                      f"WHERE CONTAINS("
                      f"POINT('ICRS',"
-                     f"{str(conf.JWST_MAIN_TABLE_RA)},"
-                     f"{str(conf.JWST_MAIN_TABLE_DEC)}),"
+                     f"{str(conf.JWST_OBSERVATION_TABLE_RA)},"
+                     f"{str(conf.JWST_OBSERVATION_TABLE_DEC)}),"
                      f"BOX('ICRS',{str(ra)},{str(dec)}, "
                      f"{str(widthDeg.value)}, "
                      f"{str(heightDeg.value)}))=1 "
@@ -340,17 +338,16 @@ class JwstClass(EsaTap):
                      f"{instr_cond}"
                      f"{filter_name_cond}"
                      f"{props_id_cond}"
-                     f"ORDER BY dist ASC")
+                     f" ORDER BY dist ASC")
             if verbose:
                 print(query)
-            job = self.query_tap(query=query,
-                                 async_job=async_job,
-                                 verbose=verbose)
-        return job.get_results()
+            return self.query_tap(query=query,
+                                  async_job=async_job,
+                                  verbose=verbose)
 
     def cone_search(self, coordinate, radius, *,
                     observation_id=None,
-                    cal_level="Top",
+                    cal_level=None,
                     prod_type=None,
                     instrument_name=None,
                     filter_name=None,
@@ -374,10 +371,9 @@ class JwstClass(EsaTap):
             radius
         observation_id : str, optional, default None
             get the observation given by its ID.
-        cal_level : object, optional, default 'Top'
+        cal_level : int, optional, default None
             get the planes with the given calibration level. Options are:
-            'Top': str, only the planes with the highest calibration level
-            1,2,3: int, the given calibration level
+            1,2,3
         prod_type : str, optional, default None
             get the observations providing the given product type. Options are:
             'image','cube','measurements','spectrum': str, only results of
@@ -419,9 +415,9 @@ class JwstClass(EsaTap):
         -------
         A Job object
         """
-        coord = self.__get_coord_input(value=coordinate, msg="coordinate")
-        ra_hours, dec = commons.coord_to_radec(coord)
-        ra = ra_hours * 15.0  # Converts to degrees
+        parsed_coords = commons.parse_coordinates(coordinates=coordinate)
+        ra = parsed_coords.ra.degree
+        dec = parsed_coords.dec.degree
 
         obsid_condition = self.__get_observationid_condition(
             value=observation_id)
@@ -447,23 +443,19 @@ class JwstClass(EsaTap):
                 value=radius, msg="radius")
             radius_deg = Angle(radius_quantity).to_value(units.deg)
 
-        query = (f"SELECT DISTANCE(POINT('ICRS',"
-                 f"{str(conf.JWST_MAIN_TABLE_RA)},"
-                 f"{str(conf.JWST_MAIN_TABLE_DEC)}), "
-                 f"POINT('ICRS',{str(ra)},{str(dec)})) AS dist, {columns} "
-                 f"FROM {str(conf.JWST_MAIN_TABLE)} WHERE CONTAINS("
-                 f"POINT('ICRS',{str(conf.JWST_MAIN_TABLE_RA)},"
-                 f"{str(conf.JWST_MAIN_TABLE_DEC)}),"
+        query = (f"SELECT {columns} "
+                 f"FROM {str(conf.JWST_ARCHIVE_TABLE)} WHERE "
+                 f"(position_bounds_spoly IS NOT NULL AND INTERSECTS("
                  f"CIRCLE('ICRS',{str(ra)},{str(dec)}, "
-                 f"{str(radius_deg)}))=1"
+                 f"{str(radius_deg)}),position_bounds_spoly)=1)"
                  f"{obsid_condition}"
                  f"{cal_level_condition}"
                  f"{public_condition}"
                  f"{prod_type_cond}"
                  f"{inst_name_cond}"
                  f"{filter_name_condition}"
-                 f"{proposal_id_condition}"
-                 f"ORDER BY dist ASC")
+                 f"{proposal_id_condition} "
+                 f"ORDER BY jwst.archive.calibrationlevel DESC")
         return self.query_tap(query=query,
                               async_job=async_job,
                               output_file=output_file,
@@ -475,7 +467,7 @@ class JwstClass(EsaTap):
                      width=None,
                      height=None,
                      observation_id=None,
-                     cal_level="Top",
+                     cal_level=None,
                      prod_type=None,
                      instrument_name=None,
                      filter_name=None,
@@ -505,10 +497,9 @@ class JwstClass(EsaTap):
             box height
         observation_id : str, optional, default None
             get the observation given by its ID.
-        cal_level : object, optional, default 'Top'
+        cal_level : int, optional, default None
             get the planes with the given calibration level. Options are:
-            'Top': str, only the planes with the highest calibration level
-            1,2,3: int, the given calibration level
+            1,2,3
         prod_type : str, optional, default None
             get the observations providing the given product type. Options are:
             'image','cube','measurements','spectrum': str, only results of the
@@ -690,8 +681,7 @@ class JwstClass(EsaTap):
                  f"p.public FROM {conf.JWST_PLANE_TABLE} p JOIN "
                  f"{conf.JWST_ARTIFACT_TABLE} a ON (p.planeid=a.planeid) "
                  f"WHERE a.planeid IN {list} {condition};")
-        job = self.query_tap(query=query)
-        return job.get_results()
+        return self.query_tap(query=query)
 
     def __validate_cal_level(self, cal_level):
         if (cal_level not in self.CAL_LEVELS):
@@ -724,13 +714,13 @@ class JwstClass(EsaTap):
         try:
             planeids = []
             query_plane = (f"select distinct m.planeid, m.calibrationlevel "
-                           f"from {conf.JWST_MAIN_TABLE} m where "
+                           f"from {conf.JWST_ARCHIVE_TABLE} m where "
                            f"m.observationid = '{observation_id}'")
-            job = self.query_tap(query=query_plane)
-            job.get_results().sort(["calibrationlevel"])
-            job.get_results().reverse()
-            max_cal_level = job.get_results()["calibrationlevel"][0]
-            for row in job.get_results():
+            results = self.query_tap(query=query_plane)
+            results.sort(["calibrationlevel"])
+            results.reverse()
+            max_cal_level = results["calibrationlevel"][0]
+            for row in results:
                 if row["calibrationlevel"] == max_cal_level:
                     planeids.append(
                         JwstClass.get_decoded_string(row["planeid"]))
@@ -757,8 +747,7 @@ class JwstClass(EsaTap):
                               f"p.obsid=o.obsid JOIN "
                               f"{conf.JWST_PLANE_TABLE} sp ON "
                               f"sp.obsid=o.obsid {where_clause}'{planeid}'")
-            job = self.query_tap(query=query_siblings)
-            return job.get_results()
+            return self.query_tap(query=query_siblings)
         except Exception as e:
             raise ValueError(e)
 
@@ -784,8 +773,7 @@ class JwstClass(EsaTap):
                              f"{conf.JWST_PLANE_TABLE} mp on "
                              f"mo.obsid=mp.obsid "
                              f"{where_clause}'{planeid}'")
-            job = self.query_tap(query=query_members)
-            return job.get_results()
+            return self.query_tap(query=query_members)
         except Exception as e:
             raise ValueError(e)
 
@@ -808,19 +796,19 @@ class JwstClass(EsaTap):
         """
         if observation_id is None:
             raise ValueError(self.REQUESTED_OBSERVATION_ID)
-        query_upper = (f"select * from {conf.JWST_MAIN_TABLE} m "
+        query_upper = (f"select * from {conf.JWST_ARCHIVE_TABLE} m "
                        f"where m.members like "
                        f"'%{observation_id}%'")
-        job = self.query_tap(query=query_upper)
-        if any(job.get_results()["observationid"]):
-            oids = job.get_results()["observationid"]
+        results = self.query_tap(query=query_upper)
+        if any(results["observationid"]):
+            oids = results["observationid"]
         else:
-            query_members = (f"select m.members from {conf.JWST_MAIN_TABLE} "
+            query_members = (f"select m.members from {conf.JWST_ARCHIVE_TABLE} "
                              f"m where m.observationid"
                              f"='{observation_id}'")
-            job = self.query_tap(query=query_members)
+            results = self.query_tap(query=query_members)
             oids = JwstClass.get_decoded_string(
-                job.get_results()["members"][0]).\
+                results["members"][0]).\
                 replace("caom:JWST/", "").split(" ")
         return oids
 
@@ -884,16 +872,16 @@ class JwstClass(EsaTap):
             query_artifactid = (f"select * from {conf.JWST_ARTIFACT_TABLE} "
                                 f"a where a.filename = "
                                 f"'{file_name}'")
-            job = self.query_tap(query=query_artifactid)
+            results = self.query_tap(query=query_artifactid)
             return JwstClass.get_decoded_string(
-                job['artifactid'])
+                results['artifactid'])
         else:
             query_filename = (f"select * from {conf.JWST_ARTIFACT_TABLE} a "
                               f"where a.artifactid = "
                               f"'{artifact_id}'")
-            job = self.query_tap(query=query_filename)
+            results = self.query_tap(query=query_filename)
             return JwstClass.get_decoded_string(
-                job['filename'])
+                results['filename'])
 
     def __check_product_input(self, artifact_id, file_name):
         if artifact_id is None and file_name is None:
@@ -1024,9 +1012,9 @@ class JwstClass(EsaTap):
                  f"WHERE proposal_id='{str(proposal_id)}'")
         if verbose:
             print(query)
-        job = self.query_tap(query=query, verbose=verbose)
+        results = self.query_tap(query=query, verbose=verbose)
         allobs = set(JwstClass.get_decoded_string(
-            job.get_results()['observationid']))
+            results['observationid']))
         for oid in allobs:
             log.info(f"Downloading products for Observation ID: {oid}")
             self.get_obs_products(observation_id=oid,
@@ -1192,13 +1180,10 @@ class JwstClass(EsaTap):
     def __get_callevel_condition(self, cal_level):
         condition = ""
         if (cal_level is not None):
-            if (isinstance(cal_level, str) and cal_level == 'Top'):
-                condition = " AND max_cal_level=calibrationlevel "
-            elif (isinstance(cal_level, int)):
+            if isinstance(cal_level, int):
                 condition = f" AND calibrationlevel={str(cal_level)} "
             else:
-                raise ValueError("cal_level must be either "
-                                 "'Top' or an integer")
+                raise ValueError("cal_level must be an integer")
         return condition
 
     def __get_public_condition(self, only_public):
