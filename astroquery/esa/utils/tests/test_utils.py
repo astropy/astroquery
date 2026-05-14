@@ -540,6 +540,7 @@ class TestEsaUtils:
             mock_open.return_value = Mock()
 
             tap.upload_table(
+                tap.UPLOAD_URL,
                 upload_resource="dummy.file",
                 table_name="mytable"
             )

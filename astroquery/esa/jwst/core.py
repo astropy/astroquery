@@ -184,6 +184,7 @@ class JwstClass(EsaTap):
                     print(f"Temporary VOTable written: {temp_path}")
 
                 self.upload_table(
+                    conf.JWST_UPLOAD,
                     upload_resource=temp_path,
                     table_name=upload_table_name,
                     verbose=verbose
@@ -208,6 +209,7 @@ class JwstClass(EsaTap):
                 print("Uploading user-provided file...")
 
             self.upload_table(
+                conf.JWST_UPLOAD,
                 upload_resource=upload_resource,
                 table_name=upload_table_name,
                 verbose=verbose
@@ -1020,65 +1022,6 @@ class JwstClass(EsaTap):
             self.get_obs_products(observation_id=oid,
                                   product_type=product_type)
         return list(allobs)
-
-    def upload_table(self,
-                     upload_resource,
-                     table_name,
-                     verbose=False):
-        """
-        JWST-specific table upload. Uses the authenticated TAP session.
-
-        """
-
-        if self._auth_session is None:
-            raise RuntimeError(
-                "You must login() before calling upload_table()."
-            )
-
-        if upload_resource is None:
-            raise ValueError("upload_resource must be provided")
-        if table_name is None:
-            raise ValueError("table_name must be provided")
-
-        # Prepare payload
-        payload = {"TABLE_NAME": table_name}
-
-        # Prepare FILE
-        if hasattr(upload_resource, "read"):
-            # File-like object
-            content = upload_resource.read()
-            if isinstance(content, str):
-                content = content.encode("utf-8")
-            files = {"FILE": ("upload_file", content)}
-            close_needed = False
-        else:
-            files = {"FILE": open(upload_resource, "rb")}
-            close_needed = True
-
-        response = None
-
-        try:
-            # Use the JWST upload servlet (POST), authenticated TAP session
-            response = esautils.execute_servlet_request(
-                conf.JWST_UPLOAD,
-                tap=self.tap,
-                method="POST",
-                data=payload,
-                files=files
-            )
-
-        except Exception as e:
-            if verbose:
-                print("Exception: ", e)
-
-        finally:
-            if close_needed:
-                files["FILE"].close()
-
-        if verbose:
-            print(f"Uploaded table '{table_name}' to {conf.JWST_UPLOAD}")
-
-        return response
 
     def __check_file_number(self, output_dir, output_file_name,
                             output_file_full_path, files):
