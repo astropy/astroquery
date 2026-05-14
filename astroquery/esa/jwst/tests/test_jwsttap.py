@@ -23,7 +23,7 @@ import pytest
 from astropy import units
 from astropy.coordinates.name_resolve import NameResolveError
 from astropy.coordinates.sky_coordinate import SkyCoord
-from astropy.io.votable import parse_single_table, from_table
+from astropy.io.votable import parse_single_table,
 from astropy.table import Table
 from astropy.units import Quantity
 from requests import Response
@@ -658,13 +658,6 @@ class TestTap:
         result = jwst.get_product_list(observation_id=observation_id,
                                        product_type="science")
 
-        query = (f"select distinct a.uri, a.artifactid, a.filename, "
-                 f"a.contenttype, a.producttype, p.calibrationlevel, p.public "
-                 f"FROM {conf.JWST_PLANE_TABLE} p "
-                 f"JOIN {conf.JWST_ARTIFACT_TABLE} "
-                 f"a ON (p.planeid=a.planeid) WHERE a.planeid "
-                 f"IN {planeids}  AND producttype ILIKE '%science%';")
-
         mock_query_tap.assert_called_once()
         assert result == expected_table
 
@@ -1289,7 +1282,6 @@ class TestTap:
         tap = JwstClass(show_messages=False)
         obs = 'dummyObs'
 
-        mock_result = Mock()
         mock_query_tap.return_value = {
             "observationid": ["OBS1", "OBS2"]
         }
