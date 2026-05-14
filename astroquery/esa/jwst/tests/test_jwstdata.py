@@ -9,10 +9,12 @@ European Space Agency (ESA)
 
 """
 import os
+from unittest.mock import patch
+
 import pytest
 from requests import HTTPError
 
-from astroquery.esa.jwst.tests.DummyTapHandler import DummyTapHandler
+from astroquery.esa.jwst import conf
 from astroquery.esa.jwst.core import JwstClass
 
 
@@ -37,32 +39,42 @@ def get_product_request(request):
 
 class TestData:
 
-    def test_get_product(self):
-        dummyTapHandler = DummyTapHandler()
-        jwst = JwstClass(tap_plus_handler=dummyTapHandler, show_messages=False)
-        # default parameters
-        parameters = {}
-        parameters['artifact_id'] = None
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.jwst.core.esautils.download_file')
+    @patch.object(JwstClass, '_query_get_product',
+                  return_value='jw00617023001_02102_00001_nrcb4_uncal.fits')
+    def test_get_product(self, mock_qget, mock_download):
+        jwst = JwstClass(show_messages=False)
+
         with pytest.raises(ValueError) as err:
             jwst.get_product()
-        assert "Missing required argument: 'artifact_id'" in err.value.args[0]
-        # test with parameters
-        dummyTapHandler.reset()
-        parameters = {}
-        params_dict = {}
-        params_dict['RETRIEVAL_TYPE'] = 'PRODUCT'
-        params_dict['TAPCLIENT'] = 'ASTROQUERY'
-        params_dict['ARTIFACTID'] = '00000000-0000-0000-8740-65e2827c9895'
-        parameters['params_dict'] = params_dict
-        parameters['output_file'] = 'jw00617023001_02102_00001_nrcb4_uncal.fits'
-        parameters['verbose'] = False
-        jwst.get_product(artifact_id='00000000-0000-0000-8740-65e2827c9895')
-        dummyTapHandler.check_call('load_data', parameters)
+        assert "Missing required argument: 'artifact_id'" in str(err.value)
+
+        artifact_id = "00000000-0000-0000-8740-65e2827c9895"
+        mock_download.return_value = \
+            "/tmp/jw00617023001_02102_00001_nrcb4_uncal.fits"
+
+        result = jwst.get_product(artifact_id=artifact_id)
+
+        mock_qget.assert_called_once_with(artifact_id=artifact_id)
+        mock_download.assert_called_once()
+        _, kwargs = mock_download.call_args
+
+        assert kwargs["url"] == conf.JWST_DATA_SERVER
+        assert kwargs["session"] is jwst.tap._session
+        assert kwargs["params"] == {
+            "RETRIEVAL_TYPE": "PRODUCT",
+            "TAPCLIENT": "ASTROQUERY",
+            "ARTIFACTID": artifact_id,
+        }
+        expected_filename = "jw00617023001_02102_00001_nrcb4_uncal.fits"
+        assert kwargs["filename"] == expected_filename
+        assert result is not None
 
 
 @pytest.mark.remote_data
 def test_login_error():
-    jwst = JwstClass()
+    jwst = JwstClass(show_messages=False)
     with pytest.raises(HTTPError) as err:
         jwst.login(user="dummy", password="dummy")
-    assert "Unauthorized" in err.value.args[0]
+    assert "401" in err.value.args[0]
