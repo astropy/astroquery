@@ -1,5 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from astropy.utils.exceptions import AstropyDeprecationWarning
 import astroquery.esa.utils.utils as esautils
 import json
 import os
@@ -25,6 +24,7 @@ from ..utils import commons
 from . import conf
 from .. import version
 from astropy.coordinates.name_resolve import sesame_database
+from astropy.utils import deprecated_renamed_argument
 
 
 # We do trust the ESA tar files, this is to avoid the new to Python 3.12 deprecation warning
@@ -82,15 +82,11 @@ class ESASkyClass(EsaTap):
     SSO_TYPES = ['ALL', 'ASTEROID', 'COMET', 'SATELLITE', 'PLANET',
                  'DWARF_PLANET', 'SPACECRAFT', 'SPACEJUNK', 'EXOPLANET', 'STAR']
 
+    @deprecated_renamed_argument('tap_handler', None, since='8.0', message="The 'tap_handler' parameter is deprecated"
+                                 "and will be removed in a future version. Use the ESASky instance directly for TAP"
+                                 "queries (Using esa.utils.EsaTap and PyVO).")
     def __init__(self, *, tap_handler=None, show_messages=False, auth_session=None, tap_url=None):
         super().__init__(auth_session=auth_session, tap_url=tap_url)
-        if tap_handler is not None:
-            warnings.warn(
-                "The 'tap_handler' parameter is deprecated and will be removed in a future version. "
-                "Use the ESASky instance directly for TAP queries (Using esa.utils.EsaTap and PyVO).",
-                AstropyDeprecationWarning,
-                stacklevel=2,
-            )
 
         if show_messages:
             self.get_status_messages()

@@ -1,9 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import warnings
-
 from astropy import config as _config
 from astropy.config import paths
-from astropy.utils.exceptions import AstropyDeprecationWarning
+from astropy.utils.decorators import deprecated_attribute
 
 import os
 
@@ -32,47 +30,9 @@ class Conf(_config.ConfigNamespace):
     ESASKY_ROW_LIMIT = _config.ConfigItem(10000, 'Maximum number of rows returned (set to -1 for unlimited).',
                                           aliases=['astroquery.esasky.row_limit'])
 
-    @property
-    def urlBase(self):
-        return self.ESASKY_DOMAIN_SERVER
-
-    @urlBase.setter
-    def urlBase(self, value):
-        warnings.warn(
-            "'urlBase' is deprecated and will be removed in a future version. "
-            "Use 'ESASKY_DOMAIN_SERVER' instead.",
-            AstropyDeprecationWarning,
-            stacklevel=2,
-        )
-        self.ESASKY_DOMAIN_SERVER = value
-
-    @property
-    def timeout(self):
-        return self.ESASKY_CONNECTION_TIMEOUT
-
-    @timeout.setter
-    def timeout(self, value):
-        warnings.warn(
-            "'timeout' is deprecated and will be removed in a future version. "
-            "Use 'ESASKY_CONNECTION_TIMEOUT' instead.",
-            AstropyDeprecationWarning,
-            stacklevel=2,
-        )
-        self.ESASKY_CONNECTION_TIMEOUT = value
-
-    @property
-    def row_limit(self):
-        return self.ESASKY_ROW_LIMIT
-
-    @row_limit.setter
-    def row_limit(self, value):
-        warnings.warn(
-            "'row_limit' is deprecated and will be removed in a future version. "
-            "Use 'ESASKY_ROW_LIMIT' instead.",
-            AstropyDeprecationWarning,
-            stacklevel=2,
-        )
-        self.ESASKY_ROW_LIMIT = value
+    urlBase = deprecated_attribute(name='urlBase', alternative='ESASKY_DOMAIN_SERVER', since='8.0')
+    timeout = deprecated_attribute(name='timeout', alternative='ESASKY_CONNECTION_TIMEOUT', since='8.0')
+    row_limit = deprecated_attribute(name='row_limit', alternative='ESASKY_ROW_LIMIT', since='8.0')
 
     cache_location = os.path.join(paths.get_cache_dir(), 'astroquery/esasky', )
 
