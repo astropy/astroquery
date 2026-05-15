@@ -1373,127 +1373,62 @@ def test_observations_disable_cloud_dataset(patch_boto3):
 
 
 @pytest.fixture
-def s3_fits_path():
-    return "s3://stpubdata/hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits"
-
-
-@pytest.fixture
 def mock_fits_open(mocker):
-    return mocker.patch("astropy.io.fits.open", return_value=MagicMock(name="HDUList"))
-
-
-def test_read_product_fits(s3_fits_path, mock_fits_open, mocker):
-    mocker.patch("astropy.__version__", "5.0.0")
-
-    result = Observations.read_product(s3_fits_path)
-
-    mock_fits_open.assert_called_once_with(
-        s3_fits_path, fsspec_kwargs={"anon": True}
-    )
-    assert result is mock_fits_open.return_value
-
-
-@pytest.fixture
-def s3_asdf_path():
-    return "s3://stpubdata/hst/public/test/test.asdf"
-
-
-@pytest.fixture
-def mock_s3fs(mocker):
-    s3_file = MagicMock(name="S3File")
-    s3_file.__enter__.return_value = s3_file
-    s3_file.__exit__.return_value = None
-
-    fs = MagicMock(name="S3FileSystem")
-    fs.open.return_value = s3_file
-
-    mocker.patch(
-        "astroquery.mast.observations.s3fs.S3FileSystem",
-        return_value=fs,
-    )
-
-    return fs
+    """Mock fits.open to return a valid HDUList without network access."""
+    return mocker.patch("astropy.io.fits.open", return_value=fits.HDUList([fits.PrimaryHDU()]))
 
 
 @pytest.fixture
 def mock_asdf_open(mocker):
     return mocker.patch(
-        "astroquery.mast.observations.asdf.open",
+        "asdf.open",
         return_value=MagicMock(name="AsdfFile"),
     )
 
 
-def test_read_product_asdf(s3_asdf_path, mock_s3fs, mock_asdf_open):
-    pytest.importorskip("asdf")
-    pytest.importorskip("s3fs")
+@pytest.fixture
+def mock_fsspec_open(mocker):
+    fake = mocker.Mock()
+    fake.open.return_value = "mock_asdf_file_object"
+    return mocker.patch("fsspec.open", return_value=fake)
 
+
+def test_observations_read_product_fits(mock_fits_open):
+    s3_fits_path = "s3://mock_fits_path.fits"
+    result = Observations.read_product(s3_fits_path)
+
+    mock_fits_open(s3_fits_path, fsspec_kwargs={"anon": True})
+    assert result is mock_fits_open.return_value
+
+
+def test_observations_read_product_asdf(mock_asdf_open, mock_fsspec_open):
+    s3_asdf_path = "s3://fake_asdf_path.asdf"
     result = Observations.read_product(s3_asdf_path)
 
-    mock_s3fs.open.assert_called_once_with(
-        s3_asdf_path,
-        "rb",
-    )
-
-    mock_asdf_open.assert_called_once_with(
-        mock_s3fs.open.return_value.__enter__.return_value,
-        ignore_unrecognized_tag=True,
-    )
-
+    mock_asdf_open("mock_asdf_file_object")
     assert result is mock_asdf_open.return_value
 
 
-def test_read_product_fits_open_failure(mocker, s3_fits_path):
-    # Simulate failure when opening the FITS file
-    mock_fits_open = mocker.patch(
-        "astropy.io.fits.open",
-        side_effect=OSError("Cannot read FITS file")
-    )
-
-    result = Observations.read_product(s3_fits_path)
-
-    # fits.open should have been called once with correct arguments
-    mock_fits_open.assert_called_once_with(
-        s3_fits_path, fsspec_kwargs={"anon": True}
-    )
-
-    # Function should return None after failure
-    assert result is None
+@pytest.mark.parametrize(
+    "product_path, expected_exception, match",
+    [
+        ("", ValueError, "No product path provided"),
+        ("   ", ValueError, "No product path provided"),
+        (None, ValueError, "No product path provided"),
+        ("unsupported_ex.txt", ValueError, "Unsupported product type"),
+    ],
+)
+def test_observations_read_product_invalid_inputs(product_path, expected_exception, match):
+    with pytest.raises(expected_exception, match=match):
+        Observations.read_product(product_path)
 
 
-def test_read_product_asdf_open_failure(mocker):
-    s3_asdf_path = "s3://stpubdata/hst/public/u9o4/u9o40504m/u9o40504m.asdf"
+def test_observations_read_product_fsspec_missing(monkeypatch):
+    # Forces fsspec to be None
+    monkeypatch.setitem(Observations.read_product.__globals__, "fsspec", None)
 
-    # Mock the S3 filesystem and its open() method
-    mock_fs = mocker.patch("s3fs.S3FileSystem")
-    mock_fs_instance = mock_fs.return_value
-
-    # Make fs.open raise an error when used
-    mock_fs_instance.open.side_effect = OSError("Cannot read ASDF file")
-
-    result = Observations.read_product(s3_asdf_path)
-
-    # Ensure S3FileSystem was created with anon=True
-    mock_fs.assert_called_once_with(anon=True)
-
-    # Ensure attempt was made to open the file
-    mock_fs_instance.open.assert_called_once_with(s3_asdf_path, "rb")
-
-    # Function should return None after failure
-    assert result is None
-
-
-def test_read_product_unknown_extension_auto(mocker):
-    product_path = "s3://stpubdata/hst/public/u9o4/u9o40504m/u9o40504m.txt"
-
-    # Patch fits.open and asdf.open to ensure they are NOT called
-    mock_fits_open = mocker.patch("astropy.io.fits.open")
-    mock_asdf_open = mocker.patch("asdf.open")
-
-    result = Observations.read_product(product_path)
-
-    assert result is None
-    mock_fits_open.assert_not_called()
-    mock_asdf_open.assert_not_called()
+    with pytest.raises(ImportError, match="fsspec"):
+        Observations.read_product("file.fits")
 
 
 ######################

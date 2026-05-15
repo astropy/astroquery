@@ -46,7 +46,7 @@ test = [
    # Temp workaround for https://github.com/RKrahl/pytest-dependency/issues/91
    "pytest-dependency; platform_system != 'Windows'",
    "pytest-rerunfailures",
-   "fsspec[http]",
+   "fsspec[http,s3]",
    "moto[s3]",
    "s3fs",
 ]

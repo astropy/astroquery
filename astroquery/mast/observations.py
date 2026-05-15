@@ -11,6 +11,7 @@ import warnings
 import time
 import os
 from urllib.parse import quote
+import importlib.util
 
 import numpy as np
 import astropy.units as u
@@ -37,6 +38,13 @@ try:
 except ImportError:
     pass
 
+try:
+    import asdf
+    import fsspec
+except ImportError:
+    asdf = None
+    fsspec = None
+
 __all__ = ['Observations', 'ObservationsClass', 'MastClass', 'Mast']
 
 CLOUD_DISABLED_MESSAGE = (
@@ -44,12 +52,6 @@ CLOUD_DISABLED_MESSAGE = (
     'enabled by default in module configuration. To enable, try calling the '
     '`~astroquery.mast.ObservationsClass.enable_cloud_dataset` method.'
 )
-
-try:
-    import asdf
-    import s3fs
-except ImportError:
-    pass
 
 
 @async_to_sync
@@ -1211,7 +1213,7 @@ class ObservationsClass(MastQueryWithLogin):
         return unique_products
 
     # TODO: Need to inlcude way to parse if it is a MAST on prem URL and handle the streaming of that
-    def read_product(self, product_path, read_as="auto", ignore_unrecognized=True):
+    def read_product(self, product_path, ignore_unrecognized=True, **kwargs):
         """
         Read a product from Open S3 bucket to memory. Currently supports FITS and ASDF product types only.
 
@@ -1219,41 +1221,65 @@ class ObservationsClass(MastQueryWithLogin):
         ----------
         product_path: str
             URI to the product in the STScI S3 open data bucket.
-        read_as: str, optional
-            How to read the file. Currently only FITS and ASDF file types are supported by "auto". Default is "auto".
         ignore_unrecognized: bool
             Tells asdf.open() to include or ignore warnings from unrecognized asdf tags. Defaults to True
+        **kwargs
+            Additional keyword arguments passed to the underlying file reader:
+            - For FITS files: forwarded to ``astropy.io.fits.open``.
+            Common options include ``memmap``, ``mode``, etc.
+            - Ignored for ASDF files (except for future extension if needed).
 
         Returns
         -------
         object
             FITS or ASDF object for the given data product.
         """
-        path_lower = product_path.lower()
+        # Checks if a path is empty or None.
+        if not product_path or not str(product_path).strip():
+            raise ValueError("No product path provided")
 
-        if read_as == "auto":
-            # Read logic for fits data products
-            if path_lower.endswith((".fits", ".fits.gz")):
-                try:
-                    log.info(f"Loaded: {product_path}")
-                    return fits.open(product_path, fsspec_kwargs={"anon": True})
-                except Exception as e:
-                    log.exception(f"Failed to open FITS File: {product_path} {e}")
+        # Forces the path to be lowercase for the extension checks. This is only used for the checks
+        path = str(product_path).lower()
 
-            # Read logic for ASDF
-            elif path_lower.endswith(".asdf"):
-                try:
-                    fs = s3fs.S3FileSystem(anon=True)
-                    with fs.open(product_path, 'rb') as s3_file:
-                        af = asdf.open(s3_file, ignore_unrecognized_tag=ignore_unrecognized)
-                        log.info(f"Loaded: {product_path}")
-                        return af
-                except Exception as e:
-                    log.exception(f"Failed to open ASD File: {product_path} {e}")
+        # Checks users enviornment for fsspec, required for both fits and asdf
+        if fsspec is None:
+            raise ImportError('The "fsspec" package is required to read products directly from a URI. '
+                              'Please install it with `pip install fsspec`.')
+
+        # Logic for reading FITS files
+        if path.endswith((".fits", ".fits.gz")):
+            try:
+                data_product = fits.open(product_path, fsspec_kwargs={"anon": True}, **kwargs)
+                log.info(f"Loaded: {product_path}")
+                return data_product
+            except Exception as e:
+                raise RuntimeError(f"Failed to open FITS File: {product_path} {e}")
+
+        # Logic for reading ASDF files
+        elif path.endswith(".asdf"):
+            # checks for asdf package and will raise and error if not installed as asdf is required
+            for pkg in ["asdf"]:
+                if importlib.util.find_spec(pkg) is None:
+                    raise ImportError(f'The "{pkg}" package is required to read ASDF files containing {pkg} data. '
+                                      f'Please install it with `pip install {pkg}`.')
+
+            # Checks for gwcs and warns the user if it is not installed, this will not stop the function.
+            for pkg in ["gwcs"]:
+                if importlib.util.find_spec(pkg) is None:
+                    warnings.warn(f'The "{pkg}" package is required to read ASDF files containing {pkg} data. '
+                                  f'Please install it with `pip install {pkg}`.')
+
+            # Attempts to open the asdf files
+            try:
+                f = fsspec.open(product_path, "rb", anon=True).open()
+                data_product = asdf.open(f, ignore_unrecognized_tag=ignore_unrecognized)
+                log.info(f"Loaded: {product_path}")
+                return data_product
+            except Exception as e:
+                raise RuntimeError(f"Failed to open ASDF File: {product_path} {e}")
 
         else:
-            log.error("Unsupported extension type")
-            return
+            raise ValueError(f"Unsupported product type: {product_path}")
 
 
 @async_to_sync
