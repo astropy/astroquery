@@ -4,29 +4,55 @@ import json
 import os
 import re
 import warnings
+from pathlib import Path
 from shutil import copyfile
 from unittest.mock import MagicMock, patch
-from pathlib import Path
 
 import astropy.units as u
-import pytest
 import numpy as np
-from astropy.table import Table, unique
+import pytest
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
+from astropy.table import Table, unique
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from requests import HTTPError, Response
 
-from astroquery.mast import (Catalogs, MastMissions, Observations, Tesscut, Zcut, Mast, utils, services,
-                             discovery_portal, auth, core, cloud)
+from astroquery.exceptions import (
+    AuthenticationWarning,
+    BlankResponseWarning,
+    InputWarning,
+    InvalidQueryError,
+    MaxResultsWarning,
+    NoResultsWarning,
+    RemoteServiceError,
+    ResolverError,
+)
+from astroquery.mast import (
+    Catalogs,
+    Mast,
+    MastMissions,
+    Observations,
+    Tesscut,
+    Zcut,
+    auth,
+    cloud,
+    core,
+    discovery_portal,
+    services,
+    utils,
+)
 from astroquery.mast.cloud import CloudAccess
 from astroquery.utils.mocks import MockResponse
-from astroquery.exceptions import (BlankResponseWarning, InvalidQueryError, InputWarning, MaxResultsWarning,
-                                   NoResultsWarning, RemoteServiceError, ResolverError)
 
 try:
     # Optional dependency import for cloud access functionality
     from botocore.exceptions import ClientError
+except ImportError:
+    pass
+
+try:
+    # Optional dependency import for ASDF file handling
+    import asdf
 except ImportError:
     pass
 
@@ -74,23 +100,21 @@ def data_path(filename):
 
 
 @pytest.fixture(autouse=True)
-def patch_post(request):
-    mp = request.getfixturevalue("monkeypatch")
+def patch_post(mocker):
+    mocker.patch.object(utils, '_simple_request', request_mockreturn)
+    mocker.patch.object(discovery_portal.PortalAPI, '_request', post_mockreturn)
+    mocker.patch.object(services.ServiceAPI, '_request', service_mockreturn)
+    mocker.patch.object(auth.MastAuth, 'session_info', session_info_mockreturn)
 
-    mp.setattr(utils, '_simple_request', request_mockreturn)
-    mp.setattr(discovery_portal.PortalAPI, '_request', post_mockreturn)
-    mp.setattr(services.ServiceAPI, '_request', service_mockreturn)
-    mp.setattr(auth.MastAuth, 'session_info', session_info_mockreturn)
+    mocker.patch.object(Tesscut, '_download_file', tesscut_download_mockreturn)
+    mocker.patch.object(Zcut, '_download_file', zcut_download_mockreturn)
+    mocker.patch.object(core.MastQueryWithLogin, '_download_file', download_mockreturn)
 
-    mp.setattr(Tesscut, '_download_file', tesscut_download_mockreturn)
-    mp.setattr(Zcut, '_download_file', zcut_download_mockreturn)
-    mp.setattr(core.MastQueryWithLogin, '_download_file', download_mockreturn)
-
-    return mp
+    return mocker
 
 
 @pytest.fixture()
-def patch_boto3(monkeypatch, reset_cloud_state):
+def patch_boto3(mocker, reset_cloud_state):
     """Fixture to patch boto3 client and resource for cloud access tests."""
     pytest.importorskip('boto3')
     mock_client = MagicMock()
@@ -99,8 +123,8 @@ def patch_boto3(monkeypatch, reset_cloud_state):
     mock_resource = MagicMock()
     mock_resource.Bucket.return_value.download_file.return_value = None
 
-    monkeypatch.setattr('boto3.client', lambda *args, **kwargs: mock_client)
-    monkeypatch.setattr('boto3.resource', lambda *args, **kwargs: mock_resource)
+    mocker.patch("boto3.client", return_value=mock_client)
+    mocker.patch("boto3.resource", return_value=mock_resource)
 
     return mock_client, mock_resource
 
@@ -669,23 +693,24 @@ def test_missions_download_no_auth(caplog):
     # Exclusive access products should not be downloaded if user is not authenticated
     # User is not authenticated
     uri = 'unauthorized.fits'
-    result = MastMissions.download_file(uri)
+    with pytest.warns(AuthenticationWarning) as warn_auth:
+        result = MastMissions.download_file(uri)
+        msg = str(warn_auth[0].message)
     assert result[0] == 'ERROR'
     assert 'HTTPError' in result[1]
-    with caplog.at_level('WARNING', logger='astroquery'):
-        assert 'You are not authorized to download' in caplog.text
-        assert 'Please authenticate yourself' in caplog.text
-    caplog.clear()
+    assert 'You are not authorized' in msg
+    assert 'Please authenticate yourself' in msg
 
     # User is authenticated, but doesn't have proper permissions
     test_token = "56a9cf3df4c04052atest43feb87f282"
     MastMissions.login(token=test_token)
-    result = MastMissions.download_file(uri)
+    with pytest.warns(AuthenticationWarning) as warn_auth:
+        result = MastMissions.download_file(uri)
+        msg = str(warn_auth[0].message)
     assert result[0] == 'ERROR'
     assert 'HTTPError' in result[1]
-    with caplog.at_level('WARNING', logger='astroquery'):
-        assert 'You are not authorized to download' in caplog.text
-        assert 'You do not have access to download this data' in caplog.text
+    assert 'You are not authorized to download' in msg
+    assert 'You do not have access to download this data' in msg
 
 
 def test_missions_get_dataset_kwd(caplog):
@@ -726,6 +751,102 @@ def test_missions_radius_too_large(method, kwargs):
         InvalidQueryError, match='Query radius too large. Must be*'
     ):
         getattr(m, method)(coordinates=coordinates, radius=radius, **kwargs)
+
+
+@pytest.fixture
+def mock_fits_open(mocker):
+    """Mock fits.open to return a valid HDUList without network access."""
+    return mocker.patch("astropy.io.fits.open", return_value=fits.HDUList([fits.PrimaryHDU()]))
+
+
+@pytest.fixture
+def mock_asdf_open(mocker):
+    """Mock asdf.open and fsspec.filesystem for ASDF file reading without network access."""
+    pytest.importorskip("asdf")
+    pytest.importorskip("fsspec")
+
+    # Mock fsspec.filesystem and the file handle
+    mock_fs = MagicMock()
+    mock_file = MagicMock()
+    mock_fs.open.return_value = mock_file
+    mocker.patch("fsspec.filesystem", return_value=mock_fs)
+
+    # Create a mock AsdfFile
+    mock_asdf_file = asdf.AsdfFile()
+
+    return mocker.patch("asdf.open", return_value=mock_asdf_file)
+
+
+def test_missions_read_product_fits(mocker, mock_fits_open):
+    """Test reading a FITS file product."""
+    mocker.patch.object(MastMissions, "_get_download_url", return_value="https://test.url/file.fits")
+    uri = "file.fits"
+    obj = MastMissions.read_product(uri, mission='jwst')
+    assert isinstance(obj, fits.HDUList)
+    assert len(obj) == 1  # Should have at least the primary HDU
+
+    # Call with additional kwargs to ensure they are passed to fits.open
+    obj = MastMissions.read_product(uri, mission='jwst', memmap=False)
+    mock_fits_open.assert_called_with("https://test.url/file.fits", memmap=False)
+    assert isinstance(obj, fits.HDUList)
+
+
+def test_missions_read_product_asdf(mocker, mock_asdf_open):
+    """Test reading an ASDF file product."""
+    # Mock importlib.util.find_spec to always return a spec (all packages present)
+    mocker.patch("importlib.util.find_spec", return_value=MagicMock())
+
+    uri = "file.asdf"
+    obj = MastMissions.read_product(uri, mission='roman')
+    assert isinstance(obj, asdf.AsdfFile)
+
+    # Additional kwargs should be passed to asdf.open
+    obj = MastMissions.read_product(uri, mission='roman', copy_arrays=True)
+    # Verify asdf.open was called with kwargs
+    assert mock_asdf_open.call_args[1]['copy_arrays'] is True
+    assert isinstance(obj, asdf.AsdfFile)
+
+
+def test_missions_read_product_asdf_missing_packages(mocker, mock_asdf_open):
+    """Test that warnings are issued for missing ASDF-related packages."""
+    # Mock importlib.util.find_spec to return None for the packages
+    def mock_find_spec(package_name):
+        if package_name in ["gwcs", "lz4", "roman_datamodels"]:
+            return None  # Simulate missing package
+        return MagicMock()  # Return something for other packages
+
+    mocker.patch("importlib.util.find_spec", side_effect=mock_find_spec)
+
+    # Capture warnings
+    with pytest.warns(ImportWarning) as warning_list:
+        obj = MastMissions.read_product("test_file.asdf", mission='roman')
+
+    # Check that warnings were issued for all three packages
+    assert len(warning_list) == 3
+    warning_messages = [str(w.message) for w in warning_list]
+
+    for package in ["gwcs", "lz4", "roman_datamodels"]:
+        assert any(package in msg and "encouraged" in msg for msg in warning_messages)
+
+    # Verify the object is still returned correctly
+    assert isinstance(obj, asdf.AsdfFile)
+
+
+def test_missions_read_product_unsupported_format():
+    """Test that unsupported file formats raise an InvalidQueryError."""
+    with pytest.raises(InvalidQueryError, match="Unsupported file type"):
+        MastMissions.read_product("unsupported_file.txt")
+
+
+def test_missions_read_product_unauthorized(mocker):
+    """Test that unauthorized file access raises an error."""
+    resp = Response()
+    resp.status_code = 401
+    mocker.patch("astropy.io.fits.open", side_effect=HTTPError(response=resp))
+
+    with pytest.raises(HTTPError):
+        with pytest.warns(AuthenticationWarning, match="You are not authorized"):
+            MastMissions.read_product("file.fits", mission='jwst')
 
 
 ###################
@@ -1063,7 +1184,7 @@ def test_observations_filter_products():
 
 
 @patch.object(Path, "is_file", return_value=True)
-def test_observations_download_products(mock_is_file, patch_boto3, monkeypatch, tmpdir):
+def test_observations_download_products(mock_is_file, patch_boto3, mocker, tmpdir):
     mock_resource = patch_boto3[1]
     obsid = '2003738726'
     data_uri = 'mast:HST/product/u9o40504m_c3m.fits'
@@ -1131,7 +1252,7 @@ def test_observations_download_products(mock_is_file, patch_boto3, monkeypatch, 
     assert result[0]['Status'] == 'SKIPPED'
 
     # Products not found in cloud
-    monkeypatch.setattr(Observations, 'get_cloud_uris', lambda *a, **k: {})
+    mocker.patch.object(Observations, 'get_cloud_uris', lambda *a, **k: {})
     with pytest.warns(NoResultsWarning, match='was not found in the cloud. Skipping download.'):
         result = Observations.download_products(obsid,
                                                 dataURI=data_uri,
@@ -1733,14 +1854,14 @@ def test_tesscut_download_cutouts_mt_no_sector(tmpdir):
     assert os.path.isfile(manifest[0]["Local Path"])
 
 
-def test_tesscut_get_cutouts_mt_no_sector_empty_results(monkeypatch):
+def test_tesscut_get_cutouts_mt_no_sector_empty_results(mocker):
     """Test get_cutouts with moving target when no sectors are available.
 
     When get_sectors returns an empty table, the method should warn and return an empty list.
     """
     # Mock get_sectors to return an empty Table
     empty_sector_table = Table(names=["sectorName", "sector", "camera", "ccd"], dtype=[str, int, int, int])
-    monkeypatch.setattr(Tesscut, "get_sectors", lambda *args, **kwargs: empty_sector_table)
+    mocker.patch.object(Tesscut, "get_sectors", lambda *args, **kwargs: empty_sector_table)
 
     with pytest.warns(NoResultsWarning, match="Coordinates are not in any TESS sector"):
         cutout_hdus_list = Tesscut.get_cutouts(object_name="NonExistentObject", moving_target=True, size=5)
@@ -1748,14 +1869,14 @@ def test_tesscut_get_cutouts_mt_no_sector_empty_results(monkeypatch):
     assert len(cutout_hdus_list) == 0
 
 
-def test_tesscut_download_cutouts_mt_no_sector_empty_results(tmpdir, monkeypatch):
+def test_tesscut_download_cutouts_mt_no_sector_empty_results(tmpdir, mocker):
     """Test download_cutouts with moving target when no sectors are available.
 
     When get_sectors returns an empty table, the method should warn and return an empty Table.
     """
     # Mock get_sectors to return an empty Table
     empty_sector_table = Table(names=["sectorName", "sector", "camera", "ccd"], dtype=[str, int, int, int])
-    monkeypatch.setattr(Tesscut, "get_sectors", lambda *args, **kwargs: empty_sector_table)
+    mocker.patch.object(Tesscut, "get_sectors", lambda *args, **kwargs: empty_sector_table)
 
     with pytest.warns(NoResultsWarning, match="Coordinates are not in any TESS sector"):
         manifest = Tesscut.download_cutouts(
