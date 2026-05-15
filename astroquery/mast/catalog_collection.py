@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Dict, Optional
 
 from astropy.table import Table
-from pyvo.dal import DALQueryError, TAPService
+from pyvo.dal import DALQueryError, DALServiceError, TAPService
 
 from .. import log
 from ..exceptions import InvalidQueryError
@@ -287,7 +287,7 @@ class CatalogCollection:
 
         return default_catalog
 
-    def run_tap_query(self, adql):
+    def run_tap_query(self, adql, *, run_async=False):
         """
         Run a TAP query against the specified catalog.
 
@@ -295,6 +295,9 @@ class CatalogCollection:
         ----------
         adql : str
             The ADQL query string.
+        run_async : bool, optional
+            If True, run the query in asynchronous mode. This mode is more robust and
+            preferable for long-running queries. Default is False (synchronous mode).
 
         Returns
         -------
@@ -303,9 +306,18 @@ class CatalogCollection:
         """
         log.debug(f"Running TAP query on collection '{self.name}': {adql}")
         try:
-            result = self.tap_service.run_sync(adql)
+            if run_async:
+                result = self.tap_service.run_async(adql)
+            else:
+                result = self.tap_service.run_sync(adql)
         except DALQueryError as e:
             raise InvalidQueryError(f"TAP query failed for collection '{self.name}': {e}")
+        except DALServiceError as e:
+            if e.code == 504:
+                raise RuntimeError(
+                    f"TAP query timed out for collection '{self.name}'. This may be due to a long-running query or "
+                    "server issues. Consider setting run_async=True for more robust handling of long queries."
+                )
         return result.to_table()
 
     def _fetch_catalogs(self):
