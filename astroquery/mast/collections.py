@@ -200,25 +200,25 @@ class CatalogsClass(MastQueryWithLogin):
     @deprecated_renamed_argument(
         "version",
         None,
-        since="0.4.12",
+        since="0.4.13",
         message="The `version` argument is deprecated and "
         "will be removed in a future release. Please use `collection` and `catalog` instead.",
     )
     @deprecated_renamed_argument(
         "pagesize",
         None,
-        since="0.4.12",
+        since="0.4.13",
         message="The `pagesize` argument is deprecated "
         "and will be removed in a future release. Please use `limit` instead.",
     )
     @deprecated_renamed_argument(
         "page",
         None,
-        since="0.4.12",
+        since="0.4.13",
         message="The `page` argument is deprecated "
         "and will be removed in a future release. Please use `offset` instead.",
     )
-    @deprecated_renamed_argument("objectname", "object_name", since="0.4.12")
+    @deprecated_renamed_argument("objectname", "object_name", since="0.4.13")
     def query_criteria(
         self,
         collection=None,
@@ -454,21 +454,21 @@ class CatalogsClass(MastQueryWithLogin):
     @deprecated_renamed_argument(
         "version",
         None,
-        since="0.4.12",
+        since="0.4.13",
         message="The `version` argument is deprecated and "
         "will be removed in a future release. Please use `collection` and `catalog` instead.",
     )
     @deprecated_renamed_argument(
         "pagesize",
         None,
-        since="0.4.12",
+        since="0.4.13",
         message="The `pagesize` argument is deprecated "
         "and will be removed in a future release. Please use `limit` instead.",
     )
     @deprecated_renamed_argument(
         "page",
         None,
-        since="0.4.12",
+        since="0.4.13",
         message="The `page` argument is deprecated "
         "and will be removed in a future release. Please use `offset` instead.",
     )
@@ -601,25 +601,25 @@ class CatalogsClass(MastQueryWithLogin):
     @deprecated_renamed_argument(
         "version",
         None,
-        since="0.4.12",
+        since="0.4.13",
         message="The `version` argument is deprecated and "
         "will be removed in a future release. Please use `collection` and `catalog` instead.",
     )
     @deprecated_renamed_argument(
         "pagesize",
         None,
-        since="0.4.12",
+        since="0.4.13",
         message="The `pagesize` argument is deprecated "
         "and will be removed in a future release. Please use `limit` instead.",
     )
     @deprecated_renamed_argument(
         "page",
         None,
-        since="0.4.12",
+        since="0.4.13",
         message="The `page` argument is deprecated "
         "and will be removed in a future release. Please use `offset` instead.",
     )
-    @deprecated_renamed_argument("objectname", "object_name", since="0.4.12")
+    @deprecated_renamed_argument("objectname", "object_name", since="0.4.13")
     def query_object(
         self,
         object_name,
@@ -736,7 +736,7 @@ class CatalogsClass(MastQueryWithLogin):
         )
 
     @class_or_instance
-    @deprecated(since="v0.4.12", message=("This function is deprecated and will be removed in a future release."))
+    @deprecated(since="v0.4.13", message=("This function is deprecated and will be removed in a future release."))
     def query_hsc_matchid_async(self, match, *, version=3, pagesize=None, page=None):
         """
         Returns all the matches for a given Hubble Source Catalog MatchID.
@@ -776,7 +776,7 @@ class CatalogsClass(MastQueryWithLogin):
         return self._current_connection.service_request_async(service, params, pagesize, page)
 
     @class_or_instance
-    @deprecated(since="v0.4.12", message=("This function is deprecated and will be removed in a future release."))
+    @deprecated(since="v0.4.13", message=("This function is deprecated and will be removed in a future release."))
     def get_hsc_spectra_async(self, *, pagesize=None, page=None):
         """
         Returns all Hubble Source Catalog spectra.
@@ -797,7 +797,7 @@ class CatalogsClass(MastQueryWithLogin):
         self._current_connection = self._portal_api_connection
         return self._current_connection.service_request_async("Mast.HscSpectra.Db.All", {}, pagesize, page)
 
-    @deprecated(since="v0.4.12", message=("This function is deprecated and will be removed in a future release."))
+    @deprecated(since="v0.4.13", message=("This function is deprecated and will be removed in a future release."))
     def download_hsc_spectra(self, spectra, *, download_dir=None, cache=True, curl_flag=False):
         """
         Download one or more Hubble Source Catalog spectra.
@@ -928,7 +928,8 @@ class CatalogsClass(MastQueryWithLogin):
             if collection in self._no_longer_supported_collections:
                 error_msg = (
                     f"Collection '{collection}' is no longer supported. To query from this catalog, "
-                    f"please use a version of Astroquery older than 0.4.12."
+                    f"please use a version of Astroquery older than 0.4.13. You can install version 0.4.12 using "
+                    f"`pip install astroquery==0.4.12`"
                 )
             else:
                 closest = difflib.get_close_matches(collection, self.available_collections, n=1)
