@@ -20,6 +20,11 @@ from ..utils import ResolverError
 from ...exceptions import (InputWarning, InvalidQueryError, MaxResultsWarning,
                            NoResultsWarning)
 
+try:
+    import asdf
+except ImportError:
+    asdf = None
+
 
 @pytest.fixture(scope="module")
 def msa_product_table():
@@ -1047,6 +1052,25 @@ class TestMast:
         # Check that only one URI is returned
         uris = Observations.get_cloud_uris(products)
         assert len(uris) == 1
+
+    @pytest.mark.remote_data
+    @pytest.mark.parametrize(
+        "product_path, expected_type",
+        [
+            (
+                "s3://stpubdata/hst/public/u24r/u24r0102t/u24r0102t_c1f.fits",
+                fits.HDUList,
+            ),
+            (
+                "s3://stpubdata/roman/nexus/soc_simulations/tutorial_data/"
+                "r0003201001001001004_0001_wfi01_f106_cal.asdf",
+                asdf.AsdfFile,
+            ),
+        ],
+    )
+    def test_observations_read_product(self, product_path, expected_type):
+        product = Observations.read_product(product_path)
+        assert isinstance(product, expected_type)
 
     ######################
     # CatalogClass tests #

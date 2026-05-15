@@ -149,6 +149,7 @@ mast
   and column descriptions in the column metadata. [#3588]
 - Added ``pass_id`` as an alias for the ``pass`` column in query functions for the Roman mission to avoid conflicts with 
   the reserved Python keyword. [#3588]
+- Adding in ability to read FITS and ASDF data products to memory from STScI's S3 open data bucket using ``Observations.read_product()`` function. [#3561]
 
 
 jplspec

@@ -1372,6 +1372,65 @@ def test_observations_disable_cloud_dataset(patch_boto3):
     assert Observations._cloud_enabled_explicitly is False
 
 
+@pytest.fixture
+def mock_fits_open(mocker):
+    """Mock fits.open to return a valid HDUList without network access."""
+    return mocker.patch("astropy.io.fits.open", return_value=fits.HDUList([fits.PrimaryHDU()]))
+
+
+@pytest.fixture
+def mock_asdf_open(mocker):
+    return mocker.patch(
+        "asdf.open",
+        return_value=MagicMock(name="AsdfFile"),
+    )
+
+
+@pytest.fixture
+def mock_fsspec_open(mocker):
+    fake = mocker.Mock()
+    fake.open.return_value = "mock_asdf_file_object"
+    return mocker.patch("fsspec.open", return_value=fake)
+
+
+def test_observations_read_product_fits(mock_fits_open):
+    s3_fits_path = "s3://mock_fits_path.fits"
+    result = Observations.read_product(s3_fits_path)
+
+    mock_fits_open(s3_fits_path, fsspec_kwargs={"anon": True})
+    assert result is mock_fits_open.return_value
+
+
+def test_observations_read_product_asdf(mock_asdf_open, mock_fsspec_open):
+    s3_asdf_path = "s3://fake_asdf_path.asdf"
+    result = Observations.read_product(s3_asdf_path)
+
+    mock_asdf_open("mock_asdf_file_object")
+    assert result is mock_asdf_open.return_value
+
+
+@pytest.mark.parametrize(
+    "product_path, expected_exception, match",
+    [
+        ("", ValueError, "No product path provided"),
+        ("   ", ValueError, "No product path provided"),
+        (None, ValueError, "No product path provided"),
+        ("unsupported_ex.txt", ValueError, "Unsupported product type"),
+    ],
+)
+def test_observations_read_product_invalid_inputs(product_path, expected_exception, match):
+    with pytest.raises(expected_exception, match=match):
+        Observations.read_product(product_path)
+
+
+def test_observations_read_product_fsspec_missing(monkeypatch):
+    # Forces fsspec to be None
+    monkeypatch.setitem(Observations.read_product.__globals__, "fsspec", None)
+
+    with pytest.raises(ImportError, match="fsspec"):
+        Observations.read_product("file.fits")
+
+
 ######################
 # CatalogClass tests #
 ######################
