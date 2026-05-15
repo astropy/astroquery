@@ -47,8 +47,7 @@ test = [
    "pytest-dependency; platform_system != 'Windows'",
    "pytest-rerunfailures",
    "fsspec[http,s3]",
-   "moto[s3]",
-   "s3fs",
+   "moto[s3]"
 ]
 docs = [
    "sphinx",
