@@ -4,10 +4,10 @@ Catalog Queries
 ***************
 
 `~astroquery.mast.CatalogsClass` is a versatile tool for discovering and querying the wide range of astronomical catalogs hosted by the
-[Mikulski Archive for Space Telescopes (MAST)](https://archive.stsci.edu/). `~astroquery.mast.CatalogsClass` is a Python wrapper
-for our [MAST Table Access Protocol (TAP) Service](https://mast.stsci.edu/vo-tap/), which allows you to query for catalog
+`Mikulski Archive for Space Telescopes (MAST) <https://archive.stsci.edu/>`_. `~astroquery.mast.CatalogsClass` is a Python wrapper
+for our `MAST Table Access Protocol (TAP) Service <https://mast.stsci.edu/vo-tap/>`_, which allows you to query for catalog
 metadata and data. If you were querying the MAST TAP service directly, you would need to write your queries in
-[Astronomical Data Query Language (ADQL)](https://www.ivoa.net/documents/latest/ADQL.html). With `~astroquery.mast.CatalogsClass`,
+`Astronomical Data Query Language (ADQL) <https://www.ivoa.net/documents/latest/ADQL.html>`_. With `~astroquery.mast.CatalogsClass`,
 you can construct and execute these queries using a more intuitive Python interface, without needing to learn ADQL syntax.
 
 The catalogs available through MAST are diverse, covering a wide range of astronomical objects and phenomena.
@@ -17,6 +17,7 @@ The `~astroquery.mast.CatalogsClass` interface is designed for flexible querying
 as well as the ability to filter results based on specific criteria.
 
 At a high level, querying MAST catalogs with `~astroquery.mast.CatalogsClass` involves the following steps:
+
 1. **Discover** available collections and catalogs.
 2. **Inspect** catalog metadata to understand available columns and data types, as well as the capabilities of each catalog.
 3. **Query** the catalog using spatial and/or non-spatial criteria to retrieve relevant data.
@@ -33,7 +34,7 @@ is specified in a query, these attributes will be used as defaults. The ``collec
 representing the current collection, and the ``catalog`` attribute is a string representing the name of the current
 catalog within that collection.
 
-The default value for the ``collection`` attribute is "hsc", referring to the [Hubble Source Catalog version 3](https://archive.stsci.edu/hst/hsc/).
+The default value for the ``collection`` attribute is "hsc", referring to the `Hubble Source Catalog version 3 <https://archive.stsci.edu/hst/hsc/>`_.
 The default value for ``catalog`` is "dbo.SumMagAper2CatView". This is a summary source catalog with data describing sources detected in Hubble images,
 including their positions, magnitudes, and other properties.
 
@@ -55,7 +56,7 @@ at any time after instantiation to set new defaults for subsequent queries. Both
 collection, the catalog will be reset to the default catalog for the new collection.
 
 Here, we'll change the value of ``collection`` to "ullyses", referring to the
-[Hubble Ultraviolet Legacy Library of Young Stars as Essential Standards (ULLYSES)](https://ullyses.stsci.edu/) program. The default catalog
+`Hubble Ultraviolet Legacy Library of Young Stars as Essential Standards (ULLYSES) <https://ullyses.stsci.edu/>`_ program. The default catalog
 for this collection is "sciencemetadata", which contains metadata about the scientific exposures taken as part of the ULLYSES program,
 including their coordinates, observation dates, instruments used, and other properties.
 
@@ -93,9 +94,6 @@ Discovering Available Collections
 To list all of the catalog collections that are accessible via the MAST TAP Service, use the `~astroquery.mast.CatalogsClass.get_collections` method.
 This returns an `~astropy.table.Table` containing the names of all available collections.
 
-Some historical collections are no longer supported for querying, and will not appear in this list. If a collection
-has been renamed or deprecated, Astroquery will issue a warning and suggest the appropriate replacement where possible.
-
 .. doctest-remote-data::
 
    >>> collections = Catalogs.get_collections()
@@ -120,6 +118,12 @@ has been renamed or deprecated, Astroquery will issue a warning and suggest the 
                tic
            tic_v82
            ullyses
+
+.. attention::
+   Some historical collections are no longer supported for querying and will not appear in this list. If a collection
+   has been renamed or deprecated, Astroquery will issue a warning and suggest the appropriate replacement where possible.
+   To query a catalog that is no longer supported, you can install an older version of Astroquery that still supports it.
+   To install the latest version that supports legacy collections, use the following command: ``pip install astroquery==0.4.12``
 
 Discovering Catalogs Within a Collection
 -----------------------------------------
@@ -207,21 +211,21 @@ Shared Query Parameters
 
 The following parameters are shared across all three query methods:
 
-  - ``collection`` : The name of the catalog collection to query. If not specified, the ``collection`` class attribute will be used as the default.
-  - ``collection``: The name of the catalog collection to query. If not specified, the ``collection`` class attribute will be used as the default.
-  - ``catalog``: The name of the catalog to query within the specified collection. If not specified, the ``catalog`` class attribute will be used as the default.
-  - ``limit``: An integer specifying the maximum number of results to return. The default is 5,000.
-  - ``offset``: An integer specifying the number of results to skip before starting to return results. This is useful for paginating through large result sets. Default is 0.
-  - ``count_only``: A boolean indicating whether to return only the count of matching results instead of the results themselves. Default is False.
-  - ``select_cols``: A list of column names to include in the results. If not specified, all columns will be returned.
-  - ``sort_by``: A string or list of strings specifying the column(s) to sort the results by. Default is None (no sorting).
-  - ``sort_desc``: A boolean or list of booleans specifying whether to sort in descending order for each column specified in ``sort_by``.
-    Default is False (ascending order).
-  - ``filters``: Another parameter used to specify criteria filters as a dictionary. Use this option when the name of a column conflicts
-    with a named parameter of this method.
-  - ``run_async``: If True, run the query in asynchronous mode. This mode is more robust and preferable for long-running queries.
-  - ``return_adql``: If True, return the ADQL query string instead of executing the query. This is useful for debugging or for users who want
-    to run the query directly against the TAP service. When False, the ADQL query string is also returned in the metadata of the result table.
+- ``collection`` : The name of the catalog collection to query. If not specified, the ``collection`` class attribute will be used as the default.
+- ``collection``: The name of the catalog collection to query. If not specified, the ``collection`` class attribute will be used as the default.
+- ``catalog``: The name of the catalog to query within the specified collection. If not specified, the ``catalog`` class attribute will be used as the default.
+- ``limit``: An integer specifying the maximum number of results to return. The default is 5,000.
+- ``offset``: An integer specifying the number of results to skip before starting to return results. This is useful for paginating through large result sets. Default is 0.
+- ``count_only``: A boolean indicating whether to return only the count of matching results instead of the results themselves. Default is False.
+- ``select_cols``: A list of column names to include in the results. If not specified, all columns will be returned.
+- ``sort_by``: A string or list of strings specifying the column(s) to sort the results by. Default is None (no sorting).
+- ``sort_desc``: A boolean or list of booleans specifying whether to sort in descending order for each column specified in ``sort_by``.
+   Default is False (ascending order).
+- ``filters``: Another parameter used to specify criteria filters as a dictionary. Use this option when the name of a column conflicts
+   with a named parameter of this method.
+- ``run_async``: If True, run the query in asynchronous mode. This mode is more robust and preferable for long-running queries.
+- ``return_adql``: If True, return the ADQL query string instead of executing the query. This is useful for debugging or for users who want
+   to run the query directly against the TAP service. When False, the ADQL query string is also returned in the metadata of the result table.
 
 These parameters allow users to control the scope and format of their queries consistently across all three methods.
 
@@ -294,7 +298,7 @@ If a catalog supports spatial queries, the following parameters can be used to s
 - ``radius``: The radius of a cone search around ``coordinates`` or ``object_name``. Can be defined as a string with units (e.g., "10 arcsec"),
   a `~astropy.units.Quantity`, or a float in degrees. Default is 0.2 degrees.
 - ``region``: Specifies the spatial region of interest for more complex spatial queries, such as polygon searches.
-  Please see the [Specifying Spatial Regions](#specifying-spatial-regions) section below for details on how to use this parameter.
+   Please see the `Specifying Spatial Regions`_ section below for details on how to use this parameter.
 
 If no spatial parameters are provided, the query is purely column-based and will not filter results based on position. If they are supplied, the
 spatial parameters are combined with any column-based criteria using a logical **AND**, meaning that only results that satisfy both the spatial and
@@ -338,7 +342,7 @@ The `~astroquery.mast.CatalogsClass.query_region` and `~astroquery.mast.Catalogs
 Both methods also support column-based criteria, sorting, and limiting of results, just like `~astroquery.mast.CatalogsClass.query_criteria`.
 
 For these queries, we will use the ``tic_v82`` collection, which refers to the
-[TESS Input Catalog version 8.2](https://ui.adsabs.harvard.edu/abs/2022yCat.4039....0P/abstract). We'll use the `~astroquery.mast.CatalogsClass.query_region`
+`TESS Input Catalog version 8.2 <https://ui.adsabs.harvard.edu/abs/2022yCat.4039....0P/abstract>`_. We'll use the `~astroquery.mast.CatalogsClass.query_region`
 method to perform a simple cone search for sources within 1 arcminute of the coordinates (158.47924, -7.30962).
 
 .. doctest-remote-data::
@@ -359,7 +363,7 @@ method to perform a simple cone search for sources within 1 arcminute of the coo
    841736289 158.475246467012 -7.29984176473098
 
 For this next query, we'll use the `~astroquery.mast.CatalogsClass.query_object` method to search for sources within 0.1 degrees of the object
-["M11"](https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-11/), which is an open star cluster
+`M11 <https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-11/>`_, which is an open star cluster
 also known as the Wild Duck Cluster. We'll also filter for sources that are stars, sort results by the effective temperature of the source, and
 limit the number of results to 10.
 
@@ -409,7 +413,7 @@ Cone searches are the most common type of spatial query, defined by a center pos
   - A Space-Time Coordinate (STC) string in the format ``CIRCLE [frame] <ra> <dec> <radius>``, where ra, dec, and radius are in degrees.
 
 Let's demonstrate this on the ``skymapperdr4`` collection, which contains catalogs from the
-[SkyMapper Southern Survey: Data Release 4](https://skymapper.anu.edu.au/data-release/). The catalog we query will be "dr4.master", which is
+`SkyMapper Southern Survey: Data Release 4 <https://skymapper.anu.edu.au/data-release/>`_. The catalog we query will be "dr4.master", which is
 a master catalog of sources detected in the SkyMapper DR4 survey, containing their positions, magnitudes, and other properties. Our cone
 search will be centered on the coordinate (18.855, -6.945) with a radius of 0.01 degrees.
 
@@ -487,16 +491,14 @@ previous cone search, so the results may look similar!
 Counting Results
 -----------------
 
-All query methods support a ``count_only=True`` option, which returns only the number of matching records:
-
 Each of the three query methods supports a ``count_only`` parameter. When set to ``True``, it returns only the number of matching results.
 This can be useful for quickly assessing the size of a result set without having to retrieve all the data.
 
 Let's demonstrate this on the ``caom`` collection, which refers to the
-[Common Archive Observation Model](https://www.ivoa.net/documents/CAOM/20240927/WD-CAOM-2.5-20240927.pdf), a data model used to
+`Common Archive Observation Model <https://www.ivoa.net/documents/CAOM/20240927/WD-CAOM-2.5-20240927.pdf>`_, a data model used to
 describe astronomical observations. We'll query the ``obspointing`` catalog, which contains metadata about scientific observations at MAST.
 We'll perform a query to count the number of observations that are within 0.2 degrees of the exoplanet
-[WASP-12b](https://science.nasa.gov/exoplanet-catalog/wasp-12-b/). You'll notice that this query takes several seconds to complete.
+`WASP-12b <https://science.nasa.gov/exoplanet-catalog/wasp-12-b/>`_. You'll notice that this query takes several seconds to complete.
 The ``obspointing`` catalog is huge, and if you were to run the same query without the ``count_only`` parameter, it would typically take
 longer to return the full results, especially if there are many matching sources.
 
