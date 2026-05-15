@@ -1083,9 +1083,9 @@ class TestMast:
         assert c.catalog == "dbo.publications"
 
         # Set the collection
-        c.collection = "caom"
-        assert c.collection == "caom"
-        assert c.catalog == "dbo.obspointing"
+        c.collection = "tic_v82"
+        assert c.collection == "tic_v82"
+        assert c.catalog == "tic_v82.source"
 
     def test_catalogs_get_collections(self):
         collections = Catalogs.get_collections()
@@ -1097,6 +1097,7 @@ class TestMast:
         assert isinstance(catalogs, Table)
         assert "catalog_name" in catalogs.colnames
         assert "description" in catalogs.colnames
+        assert not any(catalog.startswith("tap_schema") for catalog in catalogs["catalog_name"])
 
     def test_catalogs_get_column_metadata(self):
         metadata = Catalogs.get_column_metadata("hsc", "dbo.SumMagAper2CatView")
@@ -1143,6 +1144,9 @@ class TestMast:
             for i in range(len(result) - 1)
             if result["numimages"][i] == result["numimages"][i + 1]
         )
+        # Assert that the ADQL query is included in the metadata and contains the correct filters
+        assert "adql_query" in result.meta
+        assert "SELECT" in result.meta["adql_query"]
 
         # Non-positional query with multiple filters and select_cols
         select_cols = [
@@ -1194,6 +1198,17 @@ class TestMast:
         assert isinstance(result_count, (int, np.integer))
         assert result_count > 0
 
+        # Return ADQL
+        result_adql = c.query_criteria(collection="goods", class_star=0.23, return_adql=True)
+        assert isinstance(result_adql, str)
+        assert "SELECT" in result_adql
+
+        # Run async
+        result_async = c.query_criteria(collection="goods", class_star=0.23, run_async=True)
+        assert isinstance(result_async, Table)
+        assert len(result_async) > 0
+        assert all(result_async["class_star"] == 0.23)
+
         # Temporal filters and filter passed in through filters argument
         result = c.query_criteria(collection='caom',
                                   catalog='caommembers',
@@ -1214,17 +1229,17 @@ class TestMast:
 
     def test_catalogs_query_criteria_error(self):
         # No results should warn user
-        # with pytest.warns(NoResultsWarning):
-        #     Catalogs.query_criteria(collection="ps1_dr2", skycellid=-1)
+        with pytest.warns(NoResultsWarning):
+            Catalogs.query_criteria(collection="classy", z="<0")
 
         with pytest.warns(NoResultsWarning):
             Catalogs.query_criteria(collection="classy", target=[])
 
     def test_catalogs_query_region(self):
         # Region search with polygon
-        select_cols = ["target_name", "obs_id", "s_ra", "s_dec", "s_region"]
+        select_cols = ["object_id", "raj2000", "dej2000"]
         result = Catalogs.query_region(
-            collection="caom",
+            collection="skymapperdr4",
             region="POLYGON ICRS 18.85 -6.95 18.86 -6.95 18.86 -6.94 18.85 -6.94",
             limit=5,
             select_cols=select_cols,
@@ -1235,33 +1250,33 @@ class TestMast:
         # Assert that all results are within a radius of the specified polygon
         # We can't just check that the coordinates are within the polygon because
         # they may intersect the polygon without the center being within it
-        coords = SkyCoord(result["s_ra"], result["s_dec"], unit="deg")
+        coords = SkyCoord(result["raj2000"], result["dej2000"], unit="deg")
         polygon = SkyCoord(18.855, -6.945, unit="deg")
         separation = coords.separation(polygon)
         assert all(separation <= 0.1 * u.deg)
 
         # Region search with circle
         result = Catalogs.query_region(
-            collection="caom", region="CIRCLE ICRS 18.85 -6.95 0.01", limit=5, select_cols=select_cols
+            collection="skymapperdr4", region="CIRCLE ICRS 18.85 -6.95 0.01", limit=5, select_cols=select_cols
         )
         assert isinstance(result, Table)
         assert len(result) <= 5
         assert all(c in result.colnames for c in select_cols)
         # Assert that all results are within a radius of the specified circle
-        coords = SkyCoord(result["s_ra"], result["s_dec"], unit="deg")
+        coords = SkyCoord(result["raj2000"], result["dej2000"], unit="deg")
         center = SkyCoord(18.85, -6.95, unit="deg")
         separation = coords.separation(center)
         assert all(separation <= 0.1 * u.deg)
 
     def test_catalogs_query_object(self):
         # Object search
-        select_cols = ["target_name", "obs_id", "s_ra", "s_dec"]
-        result = Catalogs.query_object(collection="caom", object_name="M2", limit=5, select_cols=select_cols)
+        select_cols = ["object_id", "raj2000", "dej2000"]
+        result = Catalogs.query_object(collection="skymapperdr4", object_name="M2", limit=5, select_cols=select_cols)
         assert isinstance(result, Table)
         assert len(result) <= 5
         assert all(c in result.colnames for c in select_cols)
         # Assert that all results are within a radius of the specified object
-        coords = SkyCoord(result["s_ra"], result["s_dec"], unit="deg")
+        coords = SkyCoord(result["raj2000"], result["dej2000"], unit="deg")
         m2_coords = SkyCoord(323.36258, -0.82325, unit="deg")
         separation = coords.separation(m2_coords)
         assert all(separation <= 0.1 * u.deg)
@@ -1332,14 +1347,13 @@ class TestMast:
         assert CatalogCollection._discovered_collections is not None
 
     def test_catalog_collection_get_parent_collection(self):
-        parent = CatalogCollection.get_parent_collection("TIC")
-        assert parent == "tic"
+        parent = CatalogCollection.get_parent_collection("gaiadr3")
+        assert parent == "gaiadr3"
 
-        # parent = CatalogCollection.get_parent_collection("tic_v82")
-        # assert parent == "mast_catalogs"
+        parent = CatalogCollection.get_parent_collection("tic_v82")
+        assert parent == "mast_catalogs"
 
-    @pytest.mark.parametrize("collection", ["caom"])
-    # @pytest.mark.parametrize("collection", ["caom", "tic_v82"])
+    @pytest.mark.parametrize("collection", ["classy", "tic_v82"])
     def test_catalog_collection_get_catalogs(self, collection):
         cc = CatalogCollection(collection)
         catalogs = cc._fetch_catalogs()
@@ -1347,7 +1361,7 @@ class TestMast:
         assert len(catalogs) > 0
         assert catalogs.colnames == ["catalog_name", "description"]
 
-    @pytest.mark.parametrize("collection", ["caom", "ullyses", "tic"])
+    @pytest.mark.parametrize("collection", ["gaiadr3", "ullyses", "tic_v82"])
     def test_catalog_collection_get_catalog_metadata(self, collection):
         cc = CatalogCollection(collection)
         default_catalog = cc.get_default_catalog()
@@ -1370,14 +1384,14 @@ class TestMast:
         assert default_metadata is default_metadata_cached
 
     def test_catalog_collection_invalid_get_catalog_metadata(self):
-        cc = CatalogCollection("TIC")
+        cc = CatalogCollection("tic_v82")
         invalid_catalog = "invalid_catalog"
         with pytest.raises(
             InvalidQueryError, match=f"Catalog '{invalid_catalog}' is not recognized for collection '{cc.name}'."
         ):
             cc.get_catalog_metadata(invalid_catalog)
 
-    @pytest.mark.parametrize("collection", ["tic", "classy", "ullyses"])
+    @pytest.mark.parametrize("collection", ["ps1_dr2", "classy", "ullyses"])
     def test_catalog_collection_get_default_catalog(self, collection):
         cc = CatalogCollection(collection)
         catalogs = cc._fetch_catalogs()
@@ -1405,7 +1419,7 @@ class TestMast:
         assert ((result["dec"] >= 12) & (result["dec"] <= 13)).all()
 
     def test_catalog_collection_verify_criteria(self):
-        cc = CatalogCollection("TIC")
+        cc = CatalogCollection("tic_v82")
         default_catalog = cc.get_default_catalog()
 
         result = cc._verify_criteria(default_catalog)

@@ -14,12 +14,12 @@ import numpy as np
 import pytest
 from astropy.coordinates import Angle, SkyCoord
 from astropy.io import fits
-from astropy.io.votable import parse
+from astropy.io.votable import from_table, parse
 from astropy.table import Table, unique
 from astropy.time import Time
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from pyvo.dal import TAPResults
-from pyvo.dal.exceptions import DALQueryError
+from pyvo.dal.exceptions import DALQueryError, DALServiceError
 from pyvo.io.vosi import parse_capabilities
 from requests import HTTPError, Response
 
@@ -134,6 +134,7 @@ def patch_post(request):
 
 @pytest.fixture
 def patch_tap(request, reset_catalogs_cache):
+    """Fixture to patch the TAPService used in Catalogs queries."""
     mp = request.getfixturevalue("monkeypatch")
 
     mock_tap = vo_tap_mock()
@@ -149,14 +150,9 @@ def patch_tap(request, reset_catalogs_cache):
 
 @pytest.fixture
 def reset_catalogs_cache():
+    """Fixture to clear the collections cache before each test to ensure test isolation."""
     Catalogs._collections_cache.clear()
     yield
-
-
-def get_patch_tap_query(patch_tap):
-    args, _ = patch_tap.run_sync.call_args
-    query = args[0]
-    return query
 
 
 @pytest.fixture()
@@ -309,11 +305,20 @@ def zcut_download_mockreturn(url, file_path):
 
 
 def vo_tap_mock():
+    """Helper function to create a mock TAPService with predefined responses based on the input query."""
     def run_sync_mock(query, **kwargs):
+        """Mock function to simulate TAPService run_sync and run_async methods."""
         if 'invalid' in query:
             # Use this when wanting to simulate a DALQueryError
             # Where it occurs will depend on where you pass it (collection, catalog, parameter, etc.)
             raise DALQueryError('Simulated TAP query error for testing.')
+        elif 'timeout' in query:
+            # Use this when wanting to simulate a timeout error
+            raise DALServiceError('Simulated TAP service timeout for testing.', code=504)
+        elif 'COUNT' in query:
+            # Simulate a query that returns a count
+            votable = from_table(Table({'count_all': [42]}))  # Example count value, can be adjusted as needed for tests
+            return TAPResults(votable)
         elif 'tap_schema.tables' in query:
             # Queries to get catalogs
             filename = data_path(DATA_FILES['tap_catalogs'])
@@ -336,14 +341,26 @@ def vo_tap_mock():
     # Mock TAPService
     mock_tap = MagicMock()
     mock_tap.run_sync.side_effect = run_sync_mock
+    mock_tap.run_async.side_effect = run_sync_mock
 
-    # Capabilities -> Not much to do here
+    # Capabilities parsing
     filename = data_path(DATA_FILES['tap_capabilities'])
     with open(filename, "rb") as f:
         caps = parse_capabilities(f)
     mock_tap.capabilities = caps
 
     return mock_tap
+
+
+def get_patch_tap_query(patch_tap, run_async=False):
+    """Helper function to extract the ADQL query string from the mock TAP service calls."""
+    if run_async:
+        args, _ = patch_tap.run_async.call_args
+    else:
+        args, _ = patch_tap.run_sync.call_args
+    query = args[0]
+    return query
+
 
 ###########################
 # MissionSearchClass Test #
@@ -1502,6 +1519,7 @@ def test_catalogs_attributes(patch_tap):
 def test_catalogs_get_catalogs(patch_tap):
     catalogs = Catalogs.get_catalogs("tic")
     assert isinstance(catalogs, Table)
+    assert not any(catalog.startswith("tap_schema") for catalog in catalogs["catalog_name"])
 
 
 def test_catalogs_get_column_metadata(patch_tap):
@@ -1526,6 +1544,9 @@ def test_catalogs_query_criteria(patch_tap):
     assert "CONTAINS" in query
     assert "CIRCLE" in query
     assert "TOP 2" in query
+    # ADQL should be saved in result meta
+    assert "adql_query" in result.meta
+    assert result.meta["adql_query"] == query
 
     # Region query
     result = Catalogs.query_criteria(
@@ -1559,6 +1580,39 @@ def test_catalogs_query_criteria(patch_tap):
     assert "WHERE" in query
     assert "pmra > -10" in query
     assert "pmra < 10" in query
+
+    # Run with async
+    result = Catalogs.query_criteria(
+        collection="tic",
+        coordinates=regionCoords,
+        radius=0.002 * u.deg,
+        run_async=True
+    )
+    assert isinstance(result, Table)
+    assert len(result) > 0
+    query = get_patch_tap_query(patch_tap, run_async=True)
+    assert "FROM dbo.catalogrecord" in query
+
+    # Count only query
+    result = Catalogs.query_criteria(
+        collection="tic",
+        coordinates=regionCoords,
+        radius=0.002 * u.deg,
+        count_only=True
+    )
+    assert isinstance(result, int)
+    query = get_patch_tap_query(patch_tap)
+    assert "COUNT(*)" in query
+
+    # Only return ADQL
+    result = Catalogs.query_criteria(
+        collection="tic",
+        coordinates=regionCoords,
+        radius=0.002 * u.deg,
+        return_adql=True
+    )
+    assert isinstance(result, str)
+    assert "FROM dbo.catalogrecord" in result
 
 
 def test_catalogs_invalid_query_criteria(patch_tap):
@@ -2224,6 +2278,15 @@ def test_catalogs_invalid_tap_query(patch_tap):
             radius=.001,
             collection="TIC",
             allwise='invalid'
+        )
+
+    # Simulate a timeout
+    with pytest.raises(RuntimeError, match="TAP query timed out for collection 'tic'"):
+        Catalogs.query_criteria(
+            collection="tic",
+            coordinates=regionCoords,
+            radius=0.002 * u.deg,
+            allwise='timeout'
         )
 
 
