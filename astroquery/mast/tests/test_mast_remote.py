@@ -404,6 +404,18 @@ class TestMast:
         result = MastMissions.download_file(uri, local_path=local_path_file)
         check_result(result, local_path_file)
 
+    @pytest.mark.parametrize("uri, mission", [
+        ("OFAE10C3Q/16j1600do_ccd.fits", "hst"),
+        ("jwst_niriss_trappars_0002.fits", "jwst"),
+        ("mast:HLSP/classy/j0021+0052/hlsp_classy_hst_cos_j0021+0052_multi_v1_coadded.fits", "classy"),
+    ])
+    def test_missions_read_product_fits(self, uri, mission):
+        # Test that read_product can read a FITS file from a URI and return an HDUList
+        hdul = MastMissions.read_product(uri, mission=mission)
+        assert isinstance(hdul, fits.HDUList)
+        assert len(hdul) > 1
+        hdul.close()
+
     @pytest.mark.parametrize("mission, query_params", [
         ('jwst', {'fileSetName': 'jw01189001001_02101_00001'}),
         ('classy', {'Target': 'J0021+0052'}),
