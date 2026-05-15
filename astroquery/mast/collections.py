@@ -148,7 +148,13 @@ class CatalogsClass(MastQueryWithLogin):
         """
         # If no collection specified, use the class attribute
         collection_obj = self._get_collection_obj(collection) if collection else self._collection
-        return collection_obj.catalogs
+        catalogs = collection_obj.catalogs
+
+        # Do not expose tap_schema catalogs to users
+        mask = [not str(name).startswith('tap_schema') for name in catalogs['catalog_name']]
+        catalogs = catalogs[mask]
+
+        return catalogs
 
     @class_or_instance
     def get_column_metadata(self, collection=None, catalog=None):
@@ -230,6 +236,8 @@ class CatalogsClass(MastQueryWithLogin):
         sort_by=None,
         sort_desc=False,
         filters=None,
+        run_async=False,
+        return_adql=False,
         version=None,
         pagesize=None,
         page=None,
@@ -274,6 +282,13 @@ class CatalogsClass(MastQueryWithLogin):
         filters : dict, optional
             Another parameter to specify criteria filters as a dictionary. Use this option when the name of a column
             conflicts with a named parameter of this method.
+        run_async : bool, optional
+            If True, run the query in asynchronous mode. This mode is more robust and preferable
+            for long-running queries. If you encounter timeouts or connection issues with large queries,
+            set this to True. Default is False (synchronous mode).
+        return_adql : bool, optional
+            If True, return the ADQL query string instead of executing the query. Default is False.
+            When False, the ADQL query string is also returned in the metadata of the result table.
         version : str, optional
             Deprecated. The version argument is no longer used. Please use ``collection`` and ``catalog`` instead.
         pagesize : int, optional
@@ -283,20 +298,24 @@ class CatalogsClass(MastQueryWithLogin):
         **criteria
             Keyword arguments representing criteria filters to apply.
 
-                Criteria syntax
-                ----------------
-                - Strings support wildcards using '*' (converted to SQL '%') and '%'.
-                - Lists are combined with OR for positive values; empty lists yield no matches.
-                - Numeric columns support comparison operators ('<', '<=', '>', '>=') and inclusive ranges using
-                    the syntax 'low..high' (e.g., '5..10'). Mixed lists of numbers and comparisons are OR-combined.
-                - Negation: Prefix any value with '!' to negate that predicate. For list inputs, all negated values
-                    for the same column are AND-combined, then ANDed with the OR of the positive values:
-                        (neg1 AND neg2 AND ...) AND (pos1 OR pos2 OR ...).
+            Criteria syntax:
 
-                Examples
-                --------
-                - file_suffix=['A', 'B', '!C'] -> (file_suffix != 'C') AND (file_suffix IN ('A', 'B'))
-                - size=['!14400', '<20000'] -> (size != 14400) AND (size < 20000)
+            - Strings support wildcards using '*' (converted to SQL '%') and '%'.
+            - Lists are combined with OR for positive values; empty lists yield no matches.
+            - Numeric columns support comparison operators ('<', '<=', '>', '>=') and inclusive ranges using
+                the syntax 'low..high' (e.g., '5..10'). Mixed lists of numbers and comparisons are OR-combined.
+            - Negation: Prefix any value with '!' to negate that predicate. For list inputs, all negated values
+                for the same column are AND-combined, then ANDed with the OR of the positive values:
+                (neg1 AND neg2 AND ...) AND (pos1 OR pos2 OR ...).
+            - Temporal columns can be specified as strings in a recognized date/time format (e.g., 'YYYY', 'YYYY-MM-DD',
+              'YYYY-MM-DD hh:mm:ss', etc.), `~astropy.time.Time` objects, or `datetime` objects. The same comparison
+              operators and range syntax as numeric columns can be used to filter temporal columns
+              based on date/time values.
+
+            Examples:
+
+            - file_suffix=['A', 'B', '!C'] -> (file_suffix != 'C') AND (file_suffix IN ('A', 'B'))
+            - size=['!14400', '<20000'] -> (size != 14400) AND (size < 20000)
 
         Returns
         -------
@@ -411,14 +430,20 @@ class CatalogsClass(MastQueryWithLogin):
         if offset:
             adql += f" OFFSET {offset}"
 
+        if return_adql:
+            return adql
+
         # Execute the query
-        result_table = collection_obj.run_tap_query(adql)
+        result_table = collection_obj.run_tap_query(adql, run_async=run_async)
+
+        # Add ADQL to table metadata for reference
+        result_table.meta["adql_query"] = adql
 
         if len(result_table) == 0:
             warnings.warn("The query returned no results.", NoResultsWarning)
 
         if count_only:
-            return result_table["count_all"][0]
+            return int(result_table["count_all"][0])
         else:
             # TODO: Add schema browser URL to the result table metadata when available
             result_table.meta["collection"] = collection_obj.name
@@ -462,6 +487,8 @@ class CatalogsClass(MastQueryWithLogin):
         sort_by=None,
         sort_desc=False,
         filters=None,
+        run_async=False,
+        return_adql=False,
         version=None,
         pagesize=None,
         page=None,
@@ -502,6 +529,13 @@ class CatalogsClass(MastQueryWithLogin):
         filters : dict, optional
             Another parameter to specify criteria filters as a dictionary. Use this option when the name of a column
             conflicts with a named parameter of this method.
+        run_async : bool, optional
+            If True, run the query in asynchronous mode. This mode is more robust and preferable
+            for long-running queries. If you encounter timeouts or connection issues with large queries,
+            set this to True. Default is False (synchronous mode).
+        return_adql : bool, optional
+            If True, return the ADQL query string instead of executing the query. Default is False.
+            When False, the ADQL query string is also returned in the metadata of the result table.
         version : str, optional
             Deprecated. The version argument is no longer used. Please use ``collection`` and ``catalog`` instead.
         pagesize : int, optional
@@ -511,20 +545,24 @@ class CatalogsClass(MastQueryWithLogin):
         **criteria
             Keyword arguments representing criteria filters to apply.
 
-                Criteria syntax
-                ----------------
-                - Strings support wildcards using '*' (converted to SQL '%') and '%'.
-                - Lists are combined with OR for positive values; empty lists yield no matches.
-                - Numeric columns support comparison operators ('<', '<=', '>', '>=') and inclusive ranges using
-                    the syntax 'low..high' (e.g., '5..10'). Mixed lists of numbers and comparisons are OR-combined.
-                - Negation: Prefix any value with '!' to negate that predicate. For list inputs, all negated values
-                    for the same column are AND-combined, then ANDed with the OR of the positive values:
-                        (neg1 AND neg2 AND ...) AND (pos1 OR pos2 OR ...).
+            Criteria syntax:
 
-                Examples
-                --------
-                - file_suffix=['A', 'B', '!C'] -> (file_suffix != 'C') AND (file_suffix IN ('A', 'B'))
-                - size=['!14400', '<20000'] -> (size != 14400) AND (size < 20000)
+            - Strings support wildcards using '*' (converted to SQL '%') and '%'.
+            - Lists are combined with OR for positive values; empty lists yield no matches.
+            - Numeric columns support comparison operators ('<', '<=', '>', '>=') and inclusive ranges using
+                the syntax 'low..high' (e.g., '5..10'). Mixed lists of numbers and comparisons are OR-combined.
+            - Negation: Prefix any value with '!' to negate that predicate. For list inputs, all negated values
+                for the same column are AND-combined, then ANDed with the OR of the positive values:
+                (neg1 AND neg2 AND ...) AND (pos1 OR pos2 OR ...).
+            - Temporal columns can be specified as strings in a recognized date/time format (e.g., 'YYYY', 'YYYY-MM-DD',
+              'YYYY-MM-DD hh:mm:ss', etc.), `~astropy.time.Time` objects, or `datetime` objects. The same comparison
+              operators and range syntax as numeric columns can be used to filter temporal columns
+              based on date/time values.
+
+            Examples:
+
+            - file_suffix=['A', 'B', '!C'] -> (file_suffix != 'C') AND (file_suffix IN ('A', 'B'))
+            - size=['!14400', '<20000'] -> (size != 14400) AND (size < 20000)
 
         Returns
         -------
@@ -554,6 +592,8 @@ class CatalogsClass(MastQueryWithLogin):
             sort_by=sort_by,
             sort_desc=sort_desc,
             filters=filters,
+            run_async=run_async,
+            return_adql=return_adql,
             **criteria,
         )
 
@@ -595,6 +635,8 @@ class CatalogsClass(MastQueryWithLogin):
         sort_by=None,
         sort_desc=False,
         filters=None,
+        run_async=False,
+        return_adql=False,
         version=None,
         pagesize=None,
         page=None,
@@ -632,6 +674,13 @@ class CatalogsClass(MastQueryWithLogin):
         filters : dict, optional
             Another parameter to specify criteria filters as a dictionary. Use this option when the name of a column
             conflicts with a named parameter of this method.
+        run_async : bool, optional
+            If True, run the query in asynchronous mode. This mode is more robust and preferable
+            for long-running queries. If you encounter timeouts or connection issues with large queries,
+            set this to True. Default is False (synchronous mode).
+        return_adql : bool, optional
+            If True, return the ADQL query string instead of executing the query. Default is False.
+            When False, the ADQL query string is also returned in the metadata of the result table.
         version : str, optional
             Deprecated. The version argument is no longer used. Please use ``collection`` and ``catalog`` instead.
         pagesize : int, optional
@@ -641,20 +690,24 @@ class CatalogsClass(MastQueryWithLogin):
         **criteria
             Keyword arguments representing criteria filters to apply.
 
-                Criteria syntax
-                ----------------
-                - Strings support wildcards using '*' (converted to SQL '%') and '%'.
-                - Lists are combined with OR for positive values; empty lists yield no matches.
-                - Numeric columns support comparison operators ('<', '<=', '>', '>=') and inclusive ranges using
-                    the syntax 'low..high' (e.g., '5..10'). Mixed lists of numbers and comparisons are OR-combined.
-                - Negation: Prefix any value with '!' to negate that predicate. For list inputs, all negated values
-                    for the same column are AND-combined, then ANDed with the OR of the positive values:
-                        (neg1 AND neg2 AND ...) AND (pos1 OR pos2 OR ...).
+            Criteria syntax:
 
-                Examples
-                --------
-                - file_suffix=['A', 'B', '!C'] -> (file_suffix != 'C') AND (file_suffix IN ('A', 'B'))
-                - size=['!14400', '<20000'] -> (size != 14400) AND (size < 20000)
+            - Strings support wildcards using '*' (converted to SQL '%') and '%'.
+            - Lists are combined with OR for positive values; empty lists yield no matches.
+            - Numeric columns support comparison operators ('<', '<=', '>', '>=') and inclusive ranges using
+                the syntax 'low..high' (e.g., '5..10'). Mixed lists of numbers and comparisons are OR-combined.
+            - Negation: Prefix any value with '!' to negate that predicate. For list inputs, all negated values
+                for the same column are AND-combined, then ANDed with the OR of the positive values:
+                (neg1 AND neg2 AND ...) AND (pos1 OR pos2 OR ...).
+            - Temporal columns can be specified as strings in a recognized date/time format (e.g., 'YYYY', 'YYYY-MM-DD',
+              'YYYY-MM-DD hh:mm:ss', etc.), `~astropy.time.Time` objects, or `datetime` objects. The same comparison
+              operators and range syntax as numeric columns can be used to filter temporal columns
+              based on date/time values.
+
+            Examples:
+
+            - file_suffix=['A', 'B', '!C'] -> (file_suffix != 'C') AND (file_suffix IN ('A', 'B'))
+            - size=['!14400', '<20000'] -> (size != 14400) AND (size < 20000)
 
         Returns
         -------
@@ -677,6 +730,8 @@ class CatalogsClass(MastQueryWithLogin):
             sort_by=sort_by,
             sort_desc=sort_desc,
             filters=filters,
+            run_async=run_async,
+            return_adql=return_adql,
             **criteria,
         )
 
