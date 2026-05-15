@@ -323,8 +323,8 @@ and their sky coverage (in its "fov" field) is queried using ADQL_. Please note:
     * Given the size of the Euclid FITS images (~1.4 GB for the MER images and ~7 GB for calibrated VIS images) downloading individual files is time consuming (depending on the internet bandwith).
     * This step can be skipped if using ESA Datalabs_ (as direct access to the products is possible).
 
-.. Skip testing as the example requires a lot of time to download a huge file
 .. doctest-skip::
+.. Skip testing as the example requires a lot of time to download a huge file
 
     >>> file_name = res['file_name'][0]
     >>> print("Downloading file:", file_name)
@@ -356,6 +356,65 @@ and their sky coverage (in its "fov" field) is queried using ADQL_. Please note:
    :height: 500px
    :scale: 100%
 
+The Euclid archive provides the VO Simple Image Access Protocol (SIAP) v2.0 to access the Euclid Observation Images. This service returns public images from:
+
+1. calibrated and Stacked NISP and VIS images;
+2. MER Mosaics from VIS and NISP.
+
+This service returns the votable that contains all the necessary information to be used by the cutout function: the path to the fits files (file_name), the instrument, and id (obs_id). Note that the votable can also saved for a latter usage.
+
+  >>> from astroquery.esa.euclid import Euclid
+  >>> from astropy.coordinates import SkyCoord
+  >>> import astropy.units as u
+  >>> coords = SkyCoord(267.78, 65.53, frame='icrs', unit="deg") # NGC 6505
+  >>> radius = u.Quantity(0.01, u.deg)
+  >>> table = Euclid.get_sia(ra=coords.ra, dec=coords.dec, radius=radius, calibration=3)
+  >>> print(table.info)
+  <Table length=9>
+  name        dtype
+  ------------------- ------
+    cutout_access_url object
+        facility_name object
+            file_name object
+      instrument_name object
+               filter object
+             s_region object
+                 s_ra object
+                s_dec object
+           tile_index object
+       obs_collection object
+     dataproduct_type object
+  dataproduct_subtype object
+          calib_level object
+
+  >>> print(table)
+                                                                                                                                 cutout_access_url                                                                                                                          ...
+    ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ...
+       https://eas.esac.esa.int/sas-cutout/cutout?filepath=/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/GPC/EUC_MER_BGSUB-MOSAIC-PANSTARRS-I_TILE102158889-5BC663_20241024T203110.498476Z_00.00.fits&collection=GPC&tileindex=102158889&POS=CIRCLE,267.78,65.53,0.01 ...
+          https://eas.esac.esa.int/sas-cutout/cutout?filepath=/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/HSC/EUC_MER_BGSUB-MOSAIC-WISHES-G_TILE102158889-3DC3C3_20241024T205647.635112Z_00.00.fits&collection=HSC&tileindex=102158889&POS=CIRCLE,267.78,65.53,0.01 ...
+          https://eas.esac.esa.int/sas-cutout/cutout?filepath=/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/HSC/EUC_MER_BGSUB-MOSAIC-WISHES-Z_TILE102158889-60A7E6_20241024T204143.931276Z_00.00.fits&collection=HSC&tileindex=102158889&POS=CIRCLE,267.78,65.53,0.01 ...
+    https://eas.esac.esa.int/sas-cutout/cutout?filepath=/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/MEGACAM/EUC_MER_BGSUB-MOSAIC-CFIS-R_TILE102158889-4366B7_20241024T203624.450577Z_00.00.fits&collection=MEGACAM&tileindex=102158889&POS=CIRCLE,267.78,65.53,0.01 ...
+     https://eas.esac.esa.int/sas-cutout/cutout?filepath=/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/MEGACAM/EUC_MER_BGSUB-MOSAIC-CFIS-U_TILE102158889-9E97F_20241024T204431.839748Z_00.00.fits&collection=MEGACAM&tileindex=102158889&POS=CIRCLE,267.78,65.53,0.01 ...
+           https://eas.esac.esa.int/sas-cutout/cutout?filepath=/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/NISP/EUC_MER_BGSUB-MOSAIC-NIR-H_TILE102158889-ED035A_20241024T212936.705156Z_00.00.fits&collection=NISP&tileindex=102158889&POS=CIRCLE,267.78,65.53,0.01 ...
+           https://eas.esac.esa.int/sas-cutout/cutout?filepath=/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/NISP/EUC_MER_BGSUB-MOSAIC-NIR-J_TILE102158889-B8D44B_20241024T215040.579149Z_00.00.fits&collection=NISP&tileindex=102158889&POS=CIRCLE,267.78,65.53,0.01 ...
+           https://eas.esac.esa.int/sas-cutout/cutout?filepath=/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/NISP/EUC_MER_BGSUB-MOSAIC-NIR-Y_TILE102158889-AC6585_20241024T225321.344048Z_00.00.fits&collection=NISP&tileindex=102158889&POS=CIRCLE,267.78,65.53,0.01 ...
+               https://eas.esac.esa.int/sas-cutout/cutout?filepath=/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/VIS/EUC_MER_BGSUB-MOSAIC-VIS_TILE102158889-F95D3B_20241025T024806.508980Z_00.00.fits&collection=VIS&tileindex=102158889&POS=CIRCLE,267.78,65.53,0.01 ...
+
+The path of the fits file can be obtained by a simple regular expression.
+
+  >>> import re
+  >>> p = re.compile(r"filepath=(.*?)&")
+  >>> for i in [(p.search(t["cutout_access_url"]).group(1), t["instrument_name"]) for t in table]:
+  ...     print(i)
+  ('/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/GPC/EUC_MER_BGSUB-MOSAIC-PANSTARRS-I_TILE102158889-5BC663_20241024T203110.498476Z_00.00.fits', 'GPC')
+  ('/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/HSC/EUC_MER_BGSUB-MOSAIC-WISHES-G_TILE102158889-3DC3C3_20241024T205647.635112Z_00.00.fits', 'HSC')
+  ('/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/HSC/EUC_MER_BGSUB-MOSAIC-WISHES-Z_TILE102158889-60A7E6_20241024T204143.931276Z_00.00.fits', 'HSC')
+  ('/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/MEGACAM/EUC_MER_BGSUB-MOSAIC-CFIS-R_TILE102158889-4366B7_20241024T203624.450577Z_00.00.fits', 'MEGACAM')
+  ('/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/MEGACAM/EUC_MER_BGSUB-MOSAIC-CFIS-U_TILE102158889-9E97F_20241024T204431.839748Z_00.00.fits', 'MEGACAM')
+  ('/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/NISP/EUC_MER_BGSUB-MOSAIC-NIR-H_TILE102158889-ED035A_20241024T212936.705156Z_00.00.fits', 'NISP')
+  ('/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/NISP/EUC_MER_BGSUB-MOSAIC-NIR-J_TILE102158889-B8D44B_20241024T215040.579149Z_00.00.fits', 'NISP')
+  ('/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/NISP/EUC_MER_BGSUB-MOSAIC-NIR-Y_TILE102158889-AC6585_20241024T225321.344048Z_00.00.fits', 'NISP')
+  ('/euclid/repository_idr/iqr1/Q1_R1/MER/102158889/VIS/EUC_MER_BGSUB-MOSAIC-VIS_TILE102158889-F95D3B_20241025T024806.508980Z_00.00.fits', 'VIS')
 
 1.7. MER Cutouts
 ^^^^^^^^^^^^^^^^
@@ -371,8 +430,8 @@ It is also possible to download just small portions of the MER (background subtr
 
 Download the cutout...
 
-.. Skip testing as the example requires a lot of time to download a huge file
 .. doctest-skip::
+.. Skip testing as the example requires a lot of time to download a huge file
 
     >>> file_path  = f"{res['file_path'][0]}/{res['file_name'][0]}"
     >>> cutout_out = Euclid.get_cutout(file_path=file_path, coordinate='NGC 6505', radius= 0.1 * u.arcmin, output_file='ngc6505_cutout_mer.fits')
@@ -502,8 +561,8 @@ package will also be available:
 
 There are several ways to log in to the Euclid archive, as detailed below:
 
-.. Skip testing as the example require authentication
 .. doctest-skip::
+.. Skip testing as the example require authentication
 
     >>> from astroquery.esa.euclid import Euclid
     >>> Euclid.login_gui()      # Login via graphic interface (pop-up window)
@@ -518,8 +577,8 @@ There are several ways to log in to the Euclid archive, as detailed below:
 All the asynchronous jobs launched by registered users are stored in the user area, which can store up to 10 GB of jobs. Therefore, it is recommended to remove unnecessary jobs to avoid filling up the user quota.
 The example below shows how to delete all the jobs in the user area using the list_async_jobs and remove_jobs_ methods.
 
-.. Skip testing as the example require authentication
 .. doctest-skip::
+.. Skip testing as the example require authentication
 
     >>> Euclid.login()
     >>> job_ids = [job.jobid for job in Euclid.list_async_jobs()]
@@ -530,8 +589,8 @@ It is also possible to take advantage of the job metadata to delete all the jobs
 
 First, use the load_async_job_ method to download the metadata of the async jobs stored in the user space:
 
-.. Skip testing as the example require authentication
 .. doctest-skip::
+.. Skip testing as the example require authentication
 
     >>> job_obj  = [Euclid.load_async_job(jobid=jobid) for jobid in job_ids]
     >>> job_ids  = [job.jobid        for job in job_obj]
@@ -548,8 +607,8 @@ Second, create a dataframe that contains the jobid and date information:
 
 Finally, extract the job id's included in a given time range (in the example below, all the jobs stored since 2024-10-01 at 7 hours UTC) and delete them:
 
-.. Skip testing as the example require authentication
 .. doctest-skip::
+.. Skip testing as the example require authentication
 
     >>> subset          = df[(df['date'] == datetime.date(2024,10,1)) & (df['hour_UTC'].isin([7]))]
     >>> jobs_to_delete  = subset['job_id'].to_list()

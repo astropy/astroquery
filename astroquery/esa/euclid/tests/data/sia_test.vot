@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.4 http://www.ivoa.net/xml/VOTable/v1.4" xmlns="http://www.ivoa.net/xml/VOTable/v1.4">
+	<RESOURCE type="results">
+		<INFO name="QUERY_STATUS" value="OK" />
+		<INFO name="PROVIDER" value=""></INFO>
+		<TABLE>
+		<FIELD name="cutout_access_url" ucd="meta.ref.url" datatype="char" arraysize="*"/>
+		<FIELD name="facility_name" ucd="meta.id;instr.tel" datatype="char" arraysize="*"/>
+		<FIELD name="file_name" ucd="pos.eq.dec" datatype="char" arraysize="*"/>
+		<FIELD name="instrument_name" ucd="meta.id;instr" datatype="char" arraysize="*"/>
+		<FIELD name="filter" ucd="meta.id;band" datatype="char" arraysize="*"/>
+		<FIELD name="s_region" ucd="phys.angArea;obs" datatype="char" arraysize="*"/>
+		<FIELD name="s_ra" ucd="pos.eq.ra" datatype="char" arraysize="*"/>
+		<FIELD name="s_dec" ucd="pos.eq.dec" datatype="char" arraysize="*"/>
+		<FIELD name="obs_id" ucd="meta.id" datatype="char" arraysize="*"/>
+		<FIELD name="obs_collection" ucd="meta.id" datatype="char" arraysize="*"/>
+		<FIELD name="dataproduct_type" ucd="meta.id" datatype="char" arraysize="*"/>
+		<FIELD name="dataproduct_subtype" ucd="meta.id" datatype="char" arraysize="*"/>
+		<FIELD name="calib_level" ucd="meta.id" datatype="char" arraysize="*"/>
+		<DATA>
+		<TABLEDATA>
+			<TR>
+			<TD><![CDATA[https://easdev.esac.esa.int/sas-cutout/cutout?filepath=/data_03/repository_otf/MER/101007315/VIS/EUC_MER_BGSUB-MOSAIC-VIS_TILE101007315-D84386_20230826T000856.482420Z_00.00.fits.gz&collection=NISP&tileindex=101007315&POS=CIRCLE,89.0,-66.0,1.0]]></TD>
+			<TD></TD>
+			<TD>EUC_MER_BGSUB-MOSAIC-VIS_TILE101007315-D84386_20230826T000856.482420Z_00.00.fits.gz</TD>
+			<TD>NISP</TD>
+			<TD>NIR_J</TD>
+			<TD>{(1.56878970716861 , -1.15654637163971),(1.54566457897093 , -1.15654636650839),(1.54590379663453 , -1.14723910521964),(1.568550514417 , -1.14723911022404)}</TD>
+			<TD>89.2225775443200035</TD>
+			<TD>-66</TD>
+			<TD>null</TD>
+			<TD>sedm</TD>
+			<TD>mosaic</TD>
+			<TD>DpdMerBksMosaic</TD>
+			<TD>3</TD>
+			</TR>
+			<TR>
+			<TD><![CDATA[https://easdev.esac.esa.int/sas-cutout/cutout?filepath=/data_03/repository_otf/NIR/65602/EUC_NIR_W-CAL-IMAGE_H-65602-17_20230906T190444.924367Z.fits&collection=NISP&obsid=65602&POS=CIRCLE,89.0,-66.0,1.0]]></TD>
+			<TD></TD>
+			<TD>EUC_NIR_W-CAL-IMAGE_H-65602-17_20230906T190444.924367Z.fits</TD>
+			<TD>NISP</TD>
+			<TD>NIR_H</TD>
+			<TD>{(1.59364461496529 , -1.16117316244116),(1.5877646080787 , -1.16334176247736),(1.58179954392353 , -1.16549550886951),(1.5757606932609 , -1.16763184447562),(1.57013973108981 , -1.1695759346524),(1.5643381526667 , -1.16701623505239),(1.5587172508289 , -1.1645004743295),(1.55386389053321 , -1.16228607475105),(1.55304135179527 , -1.16190988595972),(1.54825944937331 , -1.15969489664624),(1.57153509266763 , -1.15142605710669)}</TD>
+			<TD>90.0032000000000068</TD>
+			<TD>-66.498500000000007</TD>
+			<TD>65602</TD>
+			<TD>sedm</TD>
+			<TD>image</TD>
+			<TD>DpdNirCalibratedFrame</TD>
+			<TD>2</TD>
+			</TR>
+		</TABLEDATA>
+		</DATA>
+		</TABLE>
+	</RESOURCE>
+</VOTABLE>
