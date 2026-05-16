@@ -162,6 +162,9 @@ linelists.jplspec
 ^^^^^^^^^^^^^^^^^
 
 - New location for jplspec.  astroquery.jplspec is now deprecated in favor of astroquery.linelists.jplspec [#3455]
+- Added ``use_getmolecule`` option to ``query_lines`` to bypass the JPL query
+  service and retrieve full molecule catalogs via ``get_molecule``, and added a
+  configurable ``ftp_cat_server`` with a Wayback Machine fallback. [#3547]
 
 mpc
 ^^^

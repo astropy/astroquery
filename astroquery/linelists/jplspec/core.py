@@ -27,6 +27,7 @@ class JPLSpecClass(BaseQuery):
 
     # use the Configuration Items imported from __init__.py
     URL = conf.server
+    FTP_CAT_URL = conf.ftp_cat_server
     TIMEOUT = conf.timeout
 
     def __init__(self):
@@ -142,6 +143,7 @@ class JPLSpecClass(BaseQuery):
                     parse_name_locally=False,
                     get_query_payload=False,
                     fallback_to_getmolecule=True,
+                    use_getmolecule=True,
                     cache=True):
         """
         Query the JPLSpec service for spectral lines.
@@ -153,7 +155,20 @@ class JPLSpecClass(BaseQuery):
         governs whether `get_molecule` will be used when no results are returned
         by the query service.  This workaround is needed while JPLSpec's query
         tool is broken.
+
+        use_getmolecule is an option to skip the query service entirely and
+        retrieve full molecule catalogs via `get_molecule`. It is needed when
+        the JPL query server is unresponsive. Frequency and strength limits
+        are not applied in this mode.
         """
+        if use_getmolecule:
+            if get_query_payload:
+                return [('Mol', tuple(self._resolve_molecules(molecule, flags=flags,
+                                                              parse_name_locally=parse_name_locally)))]
+            mols = self._resolve_molecules(molecule, flags=flags,
+                                           parse_name_locally=parse_name_locally)
+            return self._build_table_from_get_molecule(mols)
+
         response = self.query_lines_async(min_frequency=min_frequency,
                                           max_frequency=max_frequency,
                                           min_strength=min_strength,
@@ -169,6 +184,45 @@ class JPLSpecClass(BaseQuery):
             return self._parse_result(response, fallback_to_getmolecule=fallback_to_getmolecule)
 
     query_lines.__doc__ = process_asyncs.async_to_sync_docstr(query_lines_async.__doc__)
+
+    def _resolve_molecules(self, molecule, *, flags=0, parse_name_locally=False):
+        """Return a list of molecule identifiers to feed to get_molecule."""
+        if molecule is None or molecule == 'All':
+            raise InvalidQueryError("use_getmolecule requires an explicit molecule "
+                                    "or regex; 'All' is not supported.")
+        if parse_name_locally:
+            self.lookup_ids = build_lookup()
+            mols = list(self.lookup_ids.find(molecule, flags).values())
+            if len(mols) == 0:
+                raise InvalidQueryError('No matching species found.')
+            return mols
+        if isinstance(molecule, (list, tuple)):
+            return list(molecule)
+        return [molecule]
+
+    def _build_table_from_get_molecule(self, mols):
+        """
+        Fetch full catalog tables for each molecule and combine them.
+
+        `mols` should be passed through `_resolve_molecules` before being
+        sent to this function if it is user-specified, but if it comes directly
+        from a query, it should be trusted as-is.
+        """
+        self.lookup_ids = build_lookup()
+        tbs = [self.get_molecule(mol) for mol in mols]
+        if len(tbs) > 1:
+            for tb, mol in zip(tbs, mols):
+                tb['Name'] = self.lookup_ids.find(str(mol), flags=0)
+                for key in list(tb.meta.keys()):
+                    tb.meta[f'{mol}_{key}'] = tb.meta.pop(key)
+            tb = table.vstack(tbs)
+            tb.meta['molecule_list'] = list(mols)
+            return tb
+        else:
+            tb = tbs[0]
+            tb.meta['molecule_id'] = mols[0]
+            tb.meta['molecule_name'] = self.lookup_ids.find(str(mols[0]), flags=0)
+            return tb
 
     def _parse_result(self, response, *, verbose=False, fallback_to_getmolecule=False):
         """
@@ -203,26 +257,12 @@ class JPLSpecClass(BaseQuery):
 
         if 'Zero lines were found' in response.text:
             if fallback_to_getmolecule:
-                self.lookup_ids = build_lookup()
                 payload = parse_qs(response.request.body)
-                tbs = [self.get_molecule(mol) for mol in payload['Mol']]
-                if len(tbs) > 1:
-                    mols = []
-                    for tb, mol in zip(tbs, payload['Mol']):
-                        tb['Name'] = self.lookup_ids.find(mol, flags=0)
-                        for key in list(tb.meta.keys()):
-                            tb.meta[f'{mol}_{key}'] = tb.meta.pop(key)
-                        mols.append(mol)
-                    tb = table.vstack(tbs)
-                    tb.meta['molecule_list'] = mols
-                else:
-                    tb = tbs[0]
-                    tb.meta['molecule_id'] = payload['Mol'][0]
-                    tb.meta['molecule_name'] = self.lookup_ids.find(payload['Mol'][0], flags=0)
-
-                return tb
-            else:
-                raise EmptyResponseError(f"Response was empty; message was '{response.text}'.")
+                return self._build_table_from_get_molecule(
+                    [payload['Mol']]
+                    if isinstance(payload['Mol'], str)
+                    else payload['Mol'])
+            raise EmptyResponseError(f"Response was empty; message was '{response.text}'.")
 
         # data starts at 0 since regex was applied
         # Warning for a result with more than 1000 lines:
@@ -320,7 +360,7 @@ class JPLSpecClass(BaseQuery):
         molecule_str = parse_molid(molecule_id)
 
         # Construct the URL to the catalog file
-        url = f'https://spec.jpl.nasa.gov/ftp/pub/catalog/c{molecule_str}.cat'
+        url = f'{self.FTP_CAT_URL}/c{molecule_str}.cat'
 
         # Request the catalog file
         response = self._request(method='GET', url=url,
