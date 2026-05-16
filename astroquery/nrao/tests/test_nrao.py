@@ -12,7 +12,7 @@ from astropy.coordinates import SkyCoord
 from astropy.time import Time
 
 from astroquery.nrao import Nrao
-from astroquery.nrao.core import _gen_sql, _OBSCORE_TO_nraoRESULT
+from astroquery.nrao.core import _gen_sql
 from astroquery.nrao.tapsql import _val_parse
 
 
