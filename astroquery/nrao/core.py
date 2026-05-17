@@ -123,7 +123,7 @@ def _gen_sql(payload):
 #     pass
 
 
-class NraoClass(BaseQuery):
+class NraoClass(BaseVOQuery):
     TIMEOUT = conf.timeout
     archive_url = conf.archive_url
     USERNAME = conf.username
