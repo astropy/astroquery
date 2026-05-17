@@ -28,16 +28,7 @@ nrao
 ^^^^
 
 - Restored and rewritten ``astroquery.nrao`` module, now backed by the NRAO
-  TAP service at ``data-query.nrao.edu``.  Supports cone search via
-  ``query_region`` (ICRS or galactic ``SkyCoord``) and ``query_object``
-  (with astropy name resolution), plus filtering by project code, telescope/
-  configuration/number of antennas, observation start date, polarization
-  state (Single/Dual/Full circular or linear; Stokes I), receiver band
-  (4m, P, L, S, C, X, U, K, A, Q, W, and ALMA-like bands 1-10), bandwidth,
-  min/max frequency, angular resolution, maximum UV distance, data product
-  type, and public/proprietary status.  Raw ADQL is also exposed via
-  ``query_tap``. [#3015]
-
+  TAP service at ``data-query.nrao.edu``.   [#3015]
 
 
 API changes
