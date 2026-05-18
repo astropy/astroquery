@@ -122,8 +122,8 @@ esa.hubble
 imcce
 ^^^^^
 
-- Change the URL for SkyBot and Miriade Web Services
-- Adapted the ``Miriade`` Class to the new outputs of the Web Service
+- Change the URL for SkyBot and Miriade Web Services [#3282]
+- Adapted the ``Miriade`` Class to the new outputs of the Web Service [#3282]
 
 
 mast
