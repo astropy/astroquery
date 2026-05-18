@@ -1089,7 +1089,7 @@ class MPCClass(BaseQuery):
                 names = ('Date', 'RA', 'Dec', 'Delta',
                          'r', 'Elongation', 'Phase', 'V')
                 col_starts = [0, 18, 29, 39, 47, 56, 62, 69]
-                col_ends = [17, 28, 38, 46, 55, 61, 68, 73]
+                col_ends = [17, 28, 38, 46, 55, 61, 68, 72]
                 units = (None, None, None, 'au', 'au', 'deg', 'deg', 'mag')
 
                 # The column division between Delta and r is variable: the enn
