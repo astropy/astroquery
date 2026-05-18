@@ -32,6 +32,11 @@ from ...exceptions import (
 )
 from ..utils import ResolverError
 
+try:
+    import asdf
+except ImportError:
+    asdf = None
+
 
 @pytest.fixture(scope="module")
 def msa_product_table():
@@ -432,7 +437,7 @@ class TestMast:
         ('jwst', {'fileSetName': 'jw01189001001_02101_00001'}),
         ('classy', {'Target': 'J0021+0052'}),
         ('ullyses', {'host_galaxy_name': 'WLM', 'select_cols': ['observation_id']}),
-        ('roman', {'program': 3, 'pass_id': 1}),
+        ('roman', {'program': 163}),
         ('iue', {'iue_data_id': 'LWR08496'}),
     ])
     def test_missions_workflow(self, tmp_path, mission, query_params):
@@ -460,6 +465,17 @@ class TestMast:
         for row in result:
             if row['Status'] == 'COMPLETE':
                 assert (row['Local Path']).is_file()
+
+        # Read a product
+        product = None
+        for prod in prods:
+            if prod['filename'].endswith(('.fits', '.asdf')):
+                product = prod
+                break
+        obj = m.read_product(product['uri'], mission=mission)
+        if mission == 'roman' and asdf is not None:
+            assert isinstance(obj, asdf.AsdfFile)
+        assert isinstance(obj, fits.HDUList)
 
     ###################
     # MastClass tests #
