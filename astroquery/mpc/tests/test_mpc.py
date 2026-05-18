@@ -409,6 +409,7 @@ def test_get_ephemeris_earth_close_approach(patch_post):
     assert result["Proper motion"].mask.sum() == 4
     assert np.isclose(result["Proper motion"].max(), 871966.5)
 
+
 def test_get_ephemeris_distant_object(patch_post):
     """Distant object / large heliocentric distance test.
 
