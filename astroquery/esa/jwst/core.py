@@ -350,8 +350,7 @@ class JwstClass(EsaTap):
                     background=False,
                     output_file=None,
                     output_format="votable",
-                    verbose=False,
-                    dump_to_file=False):
+                    verbose=False):
         """Cone search sorted by distance in sync/async mode
         TAP & TAP+
 
@@ -400,8 +399,6 @@ class JwstClass(EsaTap):
             'fits': str, FITS format
         verbose : bool, optional, default 'False'
             flag to display information about the process
-        dump_to_file : bool, optional, default 'False'
-            if True, the results are saved in a file instead of using memory
 
         Returns
         -------
