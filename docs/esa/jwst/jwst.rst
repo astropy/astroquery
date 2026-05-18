@@ -333,11 +333,6 @@ To query the data products associated with a certain Proposal ID and filtered by
 
   >>> from astroquery.esa.jwst import Jwst
   >>> observation_list = Jwst.download_files_from_program(proposal_id='1172', product_type='preview')  # doctest: +IGNORE_OUTPUT
-  INFO: Query finished. [astroquery.utils.tap.core]
-  INFO: Downloading products for Observation ID: jw01172001001_02101_00001_mirimage [astroquery.esa.jwst.core]
-
-  >>> print(observation_list) # doctest: +IGNORE_OUTPUT
-  ['jw01172001001_02101_00001_mirimag']
 
 
 1.5 Getting public tables
