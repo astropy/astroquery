@@ -21,6 +21,5 @@ class TestMiriadeClass:
         # the orbit solution change with time, but anything within 10" is enough
         # for this test
         assert u.allclose((res['RA'].quantity, res['DEC'].quantity),
-                         ([188.7032992], [9.0980213]) * u.deg,
-                         atol=10 * u.arcsec)
-    
+                          ([188.7032992], [9.0980213]) * u.deg,
+                          atol=10 * u.arcsec)

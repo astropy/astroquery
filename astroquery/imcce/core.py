@@ -240,8 +240,8 @@ class MiriadeClass(BaseQuery):
         >>> Miriade.get_ephemerides('3552', epoch=epoch)  # doctest: +SKIP
         <Table length=1>
           epoch           RA                DEC        ... RAcosD_rate    DEC_rate   delta_rate
-            d            deg                deg        ... arcsec / min arcsec / min   km / s  
-         float64       float64            float64      ...   float64      float64     float64  
+            d            deg                deg        ... arcsec / min arcsec / min   km / s
+         float64       float64            float64      ...   float64      float64     float64
         --------- ------------------ ----------------- ... ------------ ------------ ----------
         2458484.5 16.105201666666666 45.50291433333334 ...       0.3221      -0.2524   31.47530
 
