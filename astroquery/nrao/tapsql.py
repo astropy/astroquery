@@ -88,7 +88,7 @@ def _gen_pos_sql(field, value):
         return '(' + result + ')'
     else:
         return result
-        
+
 
 def _gen_pub_sql(field, value):
     if value is True:
