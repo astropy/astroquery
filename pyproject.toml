@@ -54,6 +54,7 @@ docs = [
    "sphinx-astropy[confv3]>=1.11",
    "scipy",
    "fsspec[http]",
+   "asdf"
 ]
 all = [
    "mocpy>=0.12",
