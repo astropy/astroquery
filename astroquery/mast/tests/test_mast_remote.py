@@ -18,6 +18,11 @@ from astroquery.mast import (Catalogs, Hapcut, Mast, MastMissions, Observations,
 from ...exceptions import (InputWarning, InvalidQueryError, MaxResultsWarning, NoResultsWarning)
 from ..utils import ResolverError
 
+try:
+    import asdf
+except ImportError:
+    asdf = None
+
 
 @pytest.fixture(scope="module")
 def msa_product_table():
@@ -448,6 +453,17 @@ class TestMast:
         for row in result:
             if row['Status'] == 'COMPLETE':
                 assert (row['Local Path']).is_file()
+
+        # Read a product
+        product = None
+        for prod in prods:
+            if prod['filename'].endswith(('.fits', '.asdf')):
+                product = prod
+                break
+        obj = m.read_product(product['uri'], mission=mission)
+        if mission == 'roman' and asdf is not None:
+            assert isinstance(obj, asdf.AsdfFile)
+        assert isinstance(obj, fits.HDUList)
 
     ###################
     # MastClass tests #
