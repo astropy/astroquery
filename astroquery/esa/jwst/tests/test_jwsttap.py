@@ -1321,3 +1321,51 @@ class TestTap:
         messages = jwst.parse_messages_response(response)
         assert len(messages) == 3
         assert messages == ["msg1", "msg2", "msgn"]
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch.object(JwstClass, 'query_tap')
+    @patch.object(JwstClass, 'upload_table')
+    def test_launch_job_query_and_upload(self, upload_table_mock, mock_query_tap):
+        jwst = JwstClass(show_messages=False)
+
+        mock_query_tap.return_value = Table({"ID": [1, 2, 3]})
+
+            # Act
+        jwst.launch_job(
+            query="SELECT * FROM table",
+            upload_table_name="my_table",
+            async_job=False
+        )
+
+        # Assert
+        mock_query_tap.assert_called_once()
+        upload_table_mock.assert_called_once()
+
+        args, kwargs = upload_table_mock.call_args
+        assert kwargs["table_name"] == "my_table"
+
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch.object(JwstClass, 'query_tap')
+    @patch.object(JwstClass, 'upload_table')
+    def test_launch_job_upload_resource_only(self, upload_table_mock, mock_query_tap):
+
+        # Arrange
+        jwst = JwstClass(show_messages=False)
+        # Act
+        jwst.launch_job(
+            query="",
+            upload_resource="/fake/file.vot",
+            upload_table_name="my_table"
+        )
+
+        # Assert
+        upload_table_mock.assert_called_once_with(
+            conf.JWST_UPLOAD,
+            upload_resource="/fake/file.vot",
+            table_name="my_table",
+            verbose=False
+        )
+
+        mock_query_tap.assert_not_called()
+
