@@ -124,7 +124,7 @@ def _gen_sql(payload):
 #     pass
 
 
-class NraoClass(BaseQuery):
+class NraoClass(BaseVOQuery):
     TIMEOUT = conf.timeout
     archive_url = conf.archive_url
     USERNAME = conf.username
@@ -133,6 +133,7 @@ class NraoClass(BaseQuery):
         # sia service does not need disambiguation but tap does
         super().__init__()
         self._tap = None
+        self._tap_url = None
         # TODO self._auth = NraoAuth()
 
     @property
