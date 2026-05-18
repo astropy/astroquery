@@ -998,8 +998,8 @@ class MastMissionsClass(MastQueryWithLogin):
             The mission to which the file belongs. If not provided, the current value of the ``mission`` attribute
             will be used.
         **kwargs
-            Additional keyword arguments to be passed to the file reading function (e.g., `astropy.io.fits.open`
-            or `asdf.open`).
+            Additional keyword arguments to be passed to the file reading function (e.g., `~astropy.io.fits.open`
+            or `~asdf.open`).
         """
         # Construct the full data URL based on mission
         download_url = self._get_download_url(uri, mission=mission)
