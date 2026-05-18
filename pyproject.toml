@@ -42,9 +42,9 @@ test = [
    # Temp workaround for https://github.com/RKrahl/pytest-dependency/issues/91
    "pytest-dependency; platform_system != 'Windows'",
    "pytest-rerunfailures",
-   "fsspec[http]",
+   "fsspec[http,s3]",
    "moto[s3]",
-   "s3fs",
+   "asdf"
 ]
 docs = [
    "sphinx",
@@ -62,6 +62,11 @@ all = [
    "boto3",
    "botocore",
    "regions>=0.5",
+   "asdf",
+   "lz4",
+   "gwcs",
+   "roman_datamodels",
+   "fsspec[http,s3]"
 ]
 
 [build-system]
