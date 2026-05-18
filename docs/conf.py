@@ -21,6 +21,8 @@ else:
 
 from pathlib import Path
 
+import tomllib
+
 # Load all of the global Astropy configuration
 try:
     from sphinx_astropy.conf.v3 import *  # noqa
@@ -60,6 +62,7 @@ intersphinx_mapping.update({
     'regions': ('https://astropy-regions.readthedocs.io/en/stable', None),
     'mocpy': ('https://cds-astro.github.io/mocpy', None),
     'pyvo': ('https://pyvo.readthedocs.io/en/stable', None),
+    'asdf': ('https://asdf.readthedocs.io/en/stable/', None),
 })
 
 # -- Project information ------------------------------------------------------
