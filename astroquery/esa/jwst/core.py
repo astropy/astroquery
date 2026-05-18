@@ -84,15 +84,10 @@ class JwstClass(EsaTap):
         if show_messages:
             self.get_status_messages()
 
-    def launch_job(self,
-                   query,
-                   *,
-                   name=None,
+    def launch_job(self, query, *,
                    output_file=None,
                    output_format="votable",
                    verbose=False,
-                   dump_to_file=False,
-                   background=False,
                    upload_resource=None,
                    upload_table_name=None,
                    async_job=False):
@@ -115,11 +110,6 @@ class JwstClass(EsaTap):
             'fits': str, FITS format
         verbose : bool, optional, default 'False'
             flag to display information about the process
-        dump_to_file : bool, optional, default 'False'
-            if True, the results are saved in a file instead of using memory
-        background : bool, optional, default 'False'
-            when the job is executed in asynchronous mode, this flag specifies
-            whether the execution will wait until results are available
         upload_resource: str, optional, default None
             resource to be uploaded to UPLOAD_SCHEMA
         upload_table_name: str, required if uploadResource is provided
