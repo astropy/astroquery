@@ -167,6 +167,7 @@ mpc
 ^^^
 
 - Fix bug in queries for interstellar objects with ``MPC.get_observations`` and enable queries for "dead" comets [#3474]
+- Fix ``MPC.get_observations`` column parsing for very close objects, very high proper motions, and objects in the Earth's shadow [#3594]
 
 linelists
 ^^^^^^^^^

@@ -32,6 +32,8 @@ parameters = {
   '2024AA_ephemeris_G37-a-t': ('2024 AA', {'location': 'G37'}),
   'testfail_ephemeris_500-a-t': ('test fail', {}),
   '2008JG_ephemeris_500-a-t': ('2008 JG', {}),
+  '2008TC3_ephemeris_500-a-t': ('2008 TC3', {'start': '2008-10-07', 'step': u.Quantity('10 min'), 'number': 30}),
+  '2018AG37_ephemeris_500-a-t': ('2018 AG37', {}),
 }
 for prefix, (name, kwargs) in parameters.items():
     with open(prefix + '.html', 'w') as outf:
@@ -387,6 +389,37 @@ def test_get_ephemeris_unc_links(unc_links, patch_post):
     assert np.all(result['Uncertainty 3sig'].quantity > 0 * u.arcsec)
     assert ('Unc. map' in result.colnames) == unc_links
     assert ('Unc. offsets' in result.colnames) == unc_links
+
+
+def test_get_ephemeris_earth_close_approach(patch_post):
+    """Low Delta and high rate of motion tests.
+
+    Tests the column splitting between Delta and r for low Delta values.
+
+    Tests the column splitting between V and Sky Motion for high rates of
+    motion.
+
+    Tests the masking of data values for extreme rates of motion.
+
+    """
+
+    result = mpc.core.MPC.get_ephemeris("2008 TC3", start="2008-10-07", step=u.Quantity("10 min"), number=30)
+    assert np.isclose(np.min(result["Delta"]), 0.00004)
+    assert np.allclose(result["r"], 1, rtol=0.002)
+    assert result["Proper motion"].mask.sum() == 4
+    assert np.isclose(result["Proper motion"].max(), 871966.5)
+
+
+def test_get_ephemeris_distant_object(patch_post):
+    """Distant object / large heliocentric distance test.
+
+    Tests the column splitting between Delta and r for high r values.
+
+    """
+
+    result = mpc.core.MPC.get_ephemeris("2018 AG37")
+    assert np.isclose(np.min(result["r"]), 133.016)
+    assert np.isclose(np.min(result["Delta"]), 133.443)
 
 
 def test_get_observatory_codes(patch_get):
