@@ -1,24 +1,17 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import string
 import requests
 import warnings
-import json
-import time
 
 import pyvo
 from urllib.parse import urljoin
 
 from astroquery import log
-from astropy.utils.console import ProgressBar
 from astropy import units as u
-from astropy.time import Time
 
-from ..exceptions import LoginError
 from ..utils import commons
-from ..query import BaseQuery, QueryWithLogin, BaseVOQuery
-from . import conf, auth_urls, tap_urls
-from astroquery.exceptions import CorruptDataWarning
+from ..query import BaseVOQuery
+from . import conf, tap_urls
 from ..alma.tapsql import (_gen_str_sql, _gen_numeric_sql,
                            _gen_datetime_sql)
 from .tapsql import (_gen_pos_sql, _gen_pub_sql, _gen_pol_sql,
@@ -282,120 +275,6 @@ class NraoClass(BaseVOQuery):
             raise RuntimeError('BUG: Unexpected result None')
 
         return result
-
-
-    def _get_data(self, solr_id, email=None, workflow='runBasicMsWorkflow',
-                  apply_flags=True
-                 ):
-        """
-        This private function can, under a very limited set of circumstances,
-        be used to retrieve the data download page from the NRAO data handler.
-        Because the data handler is run through a fairly complex, multi-step,
-        private API, we are not yet ready to make this service public.
-
-        Parameters
-        ----------
-        workflow : 'runBasicMsWorkflow', "runDownloadWorkflow"
-        """
-        url = f'{self.archive_url}/portal/#/subscanViewer/{solr_id}'
-
-        #self._session.headers['User-Agent'] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-
-        resp = self._request('GET', url, cache=False)
-        resp.raise_for_status()
-
-        eb_deets = self._request('GET',
-                                 f'{self.archive_url}/archive-service/restapi_get_full_exec_block_details',
-                                 params={'solr_id': solr_id},
-                                 cache=False
-                                )
-        eb_deets.raise_for_status()
-        assert len(self._session.cookies) > 0
-
-        resp1b = self._request('GET',
-                               f'{self.archive_url}/archive-service/restapi_spw_details_view',
-                               params={'exec_block_id': solr_id.split(":")[-1]},
-                               cache=False
-                              )
-        resp1b.raise_for_status()
-
-        # returned data is doubly json-encoded
-        jd = json.loads(eb_deets.json())
-        locator = jd['curr_eb']['sci_prod_locator']
-        project_code = jd['curr_eb']['project_code']
-
-        instrument = ('VLBA' if 'vlba' in solr_id.lower() else
-                      'VLA' if 'vla' in solr_id.lower() else
-                      'EVLA' if 'nrao' in solr_id.lower() else
-                      'GBT' if 'gbt' in solr_id.lower() else None)
-        if instrument is None:
-            raise ValueError("Invalid instrument")
-
-        if instrument == 'VLBA':
-            downloadDataFormat = "VLBARaw"
-        elif instrument in ('VLA', 'EVLA'):
-            # there are other options!
-            downloadDataFormat = 'MS'
-
-        post_data = {
-                      "emailNotification": email,
-                      "requestDescription": f"{instrument} Download Request",
-                      "archive": "VLA",
-                      "p_telescope": instrument,
-                      "p_project": project_code,
-                      "productLocator": locator,
-                      "requestCommand": "startVlaPPIWorkflow",
-                      "p_workflowEventName": workflow,
-                      "p_downloadDataFormat": downloadDataFormat,
-                      "p_intentsFileName": "intents_hifv.xml",
-                      "p_proceduresFileName": "procedure_hifv.xml"
-                    }
-
-        if instrument in ('VLA', 'EVLA'):
-            post_data['p_applyTelescopeFlags'] = apply_flags
-            casareq = self._request('GET',
-                                    f'{self.archive_url}/archive-service/restapi_get_casa_version_list',
-                                    cache=False
-                                   )
-            casareq.raise_for_status()
-            casavdata = json.loads(casareq.json())
-            for casav in casavdata['casa_version_list']:
-                if 'recommended' in casav['version']:
-                    post_data['p_casaHome'] = casav['path']
-
-        presp = self._request('POST',
-                              f'{self.archive_url}/rh/submission',
-                              data=post_data,
-                              cache=False
-                             )
-        presp.raise_for_status()
-
-        resp2 = self._request('GET', presp.url, cache=False)
-        resp2.raise_for_status()
-
-        for row in resp2.text.split():
-            if 'window.location.href=' in row:
-                subrespurl = row.split("'")[1]
-
-        nextresp = self._request('GET', subrespurl, cache=False)
-        wait_url = nextresp.url
-        nextresp.raise_for_status()
-
-        if f'{self.archive_url}/rh/requests/' not in wait_url:
-            raise ValueError(f"Got wrong URL from post request: {wait_url}")
-
-        # to get the right format of response, you need to specify this:
-        # accept = {"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"}
-
-        while True:
-            time.sleep(1)
-            print(".", end='', flush=True)
-            resp = self._request('GET', wait_url + "/state", cache=False)
-            resp.raise_for_status()
-            if resp.text == 'COMPLETE':
-                break
-
-        return wait_url
 
 
 Nrao = NraoClass()
