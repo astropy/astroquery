@@ -396,9 +396,6 @@ class MiriadeClass(BaseQuery):
         if 'dLONGcosLAT' in data.columns:
             data.rename_column('dLONGcosLAT', 'LONGcosLAT_rate')
 
-        if 'dDEC' in data.columns:
-            data.rename_column('dDEC', 'DEC_rate')
-
         if 'dLAT' in data.columns:
             data.rename_column('dLAT', 'LAT_rate')
 

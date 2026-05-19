@@ -19,8 +19,9 @@ def data_path(filename):
 # monkeypatch replacement request function
 def nonremote_request(self, request_type, url, **kwargs):
 
-    filename = '3552_coordtype{}.dat'.format(
-        kwargs['params']['-tcoor'])
+    filename = '3552_coordtype{}-rplane{}.dat'.format(
+        kwargs['params']['-tcoor'],
+        kwargs['params'].get('-rplane', 1))
     with open(data_path(filename), 'rb') as f:
         response = MockResponse(content=f.read(), url=url)
 
@@ -44,6 +45,18 @@ def test_spherical_coordinates(patch_request):
     eph = Miriade.get_ephemerides('3552', coordtype=1)
     cols = ('epoch', 'RA', 'DEC', 'delta', 'V', 'alpha', 'elong', 'RAcosD_rate',
             'DEC_rate', 'delta_rate', 'rvc', 'berv', 'rvs')
+    units = (u.d, u.deg, u.deg, u.au, u.mag, u.deg, u.deg,
+             u.arcsec / u.minute, u.arcsec / u.minute, u.km / u.s,
+             u.km / u.s, u.km / u.s, u.km / u.s)
+    for i in range(len(cols)):
+        assert cols[i] in eph.columns
+        assert eph[cols[i]].unit == units[i]
+
+
+def test_spherical_coordinates_ecliptic(patch_request):
+    eph = Miriade.get_ephemerides('3552', coordtype=1, refplane="ecliptic")
+    cols = ('epoch', 'LONG', 'LAT', 'delta', 'V', 'alpha', 'elong', 'LONGcosLAT_rate',
+            'LAT_rate', 'delta_rate', 'rvc', 'berv', 'rvs')
     units = (u.d, u.deg, u.deg, u.au, u.mag, u.deg, u.deg,
              u.arcsec / u.minute, u.arcsec / u.minute, u.km / u.s,
              u.km / u.s, u.km / u.s, u.km / u.s)
