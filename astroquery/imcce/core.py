@@ -364,9 +364,6 @@ class MiriadeClass(BaseQuery):
         if 'distance' in data.columns:
             data.rename_column('distance', 'delta')
 
-        if 'dobs' in data.columns:
-            data.rename_column('dobs', 'delta')
-
         if 'dhelio' in data.columns:
             data.rename_column('dhelio', 'heldist')
 
@@ -389,9 +386,6 @@ class MiriadeClass(BaseQuery):
 
         if 'dDEC' in data.columns:
             data.rename_column('dDEC', 'DEC_rate')
-
-        if 'dRAcosDEC' in data.columns:
-            data.rename_column('dRAcosDEC', 'RAcosD_rate')
 
         if 'dLONGcosLAT' in data.columns:
             data.rename_column('dLONGcosLAT', 'LONGcosLAT_rate')
