@@ -71,6 +71,7 @@ NRAO_FORM_KEYS = {
 
 }
 
+
 def _gen_sql(payload):
     sql = 'select * from tap_schema.obscore'
     where = ''
@@ -132,7 +133,6 @@ class NraoClass(BaseVOQuery):
     def auth(self):
         return self._auth
 
-
     @property
     def tap(self):
         if not self._tap:
@@ -184,9 +184,9 @@ class NraoClass(BaseVOQuery):
             payload = {'source_name_resolver': object_name}
         return self.query(payload=payload, **kwargs)
 
-    def query_region(self, coordinate, radius, *,public=None,
-                           get_query_payload=False,
-                           payload=None,  **kwargs):
+    def query_region(self, coordinate, radius, *, public=None,
+            get_query_payload=False,
+            payload=None,  **kwargs):
         """
         Query the NRAO archive with a source name and radius
 
@@ -251,7 +251,7 @@ class NraoClass(BaseVOQuery):
                 payload[arg] = '{} {}'.format(payload[arg], value)
             else:
                 payload[arg] = value
-                
+
         if public is not None:
             if 'public_data' in kwargs:
                 warnings.warn("Both public and public_data are set. "
@@ -259,7 +259,7 @@ class NraoClass(BaseVOQuery):
                               "If you want ``public_data`` to be respected, "
                               "set ``public=None``.")
             payload['public_data'] = public
-                            
+
         query = _gen_sql(payload)
         if get_query_payload:
             # Return the TAP query payload that goes out to the server rather
