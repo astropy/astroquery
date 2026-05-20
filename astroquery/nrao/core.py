@@ -27,7 +27,7 @@ NRAO_FORM_KEYS = {
     # s_resolution not filled in for VLA, thus configuration is also available
     # s_fov is mostly meaningless in NRAO archive, thus removed ability to search
     # on it.
-    
+
     # NRAO archive returns a scan per row and t_exptime is the length of each scan
     # so there is not a simple way to get total integration time on source from TAP
     # returns. Output would need to be manipulated to get the total integration for
@@ -55,7 +55,8 @@ NRAO_FORM_KEYS = {
     'Polarization': {
         'Polarization type (Single-circular/linear, Dual-circular/linear, \
                             Full-circular/linear)': ['polarization_type',
-                                                   'pol_states', _gen_pol_sql]
+                                                     'pol_states',
+                                                     _gen_pol_sql]
     },
     'Energy': {
         'Bandwidth (Hz)': ['bandwidth', 'aggregate_bandwidth', _gen_numeric_sql],
@@ -184,8 +185,8 @@ class NraoClass(BaseVOQuery):
         return self.query(payload=payload, **kwargs)
 
     def query_region(self, coordinate, radius, *, public=None,
-            get_query_payload=False,
-            payload=None,  **kwargs):
+                     get_query_payload=False,
+                     payload=None, **kwargs):
         """
         Query the NRAO archive with a source name and radius
 
@@ -216,10 +217,10 @@ class NraoClass(BaseVOQuery):
         if get_query_payload:
             return payload
 
-        return self.query(public=public,payload=payload, **kwargs)
+        return self.query(public=public, payload=payload, **kwargs)
 
     def query(self, payload, *, public=None, get_query_payload=False,
-                    maxrec=None, **kwargs):
+              maxrec=None, **kwargs):
         """
         Perform a generic query with user-specified payload
 

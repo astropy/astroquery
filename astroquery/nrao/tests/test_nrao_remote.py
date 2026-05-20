@@ -47,7 +47,7 @@ def nrao():
 
 @pytest.mark.remote_data
 @pytest.mark.filterwarnings(
-    "ignore::pyvo.dal.exceptions.DALOverflowWarning")
+    "ignore::DALOverflowWarning")
 class TestNrao:
     """tests for the public NRAO API entrypoints."""
 
@@ -67,7 +67,7 @@ class TestNrao:
 
 @pytest.mark.remote_data
 @pytest.mark.filterwarnings(
-    "ignore::pyvo.dal.exceptions.DALOverflowWarning")
+    "ignore::DALOverflowWarning")
 class TestRemoteAnaloguesOfMockedTests:
     """
     One remote test per mocked unit test in ``test_nrao.py``.  Each one
