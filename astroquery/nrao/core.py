@@ -275,6 +275,35 @@ class NraoClass(BaseVOQuery):
             raise RuntimeError('BUG: Unexpected result None')
 
         return result
+        
+    def help(self, cache=True):
+        """
+        Return the valid query parameters
+        """
+
+        print("\nMost common NRAO query keywords are listed below. These "
+              "keywords are part of the NRAO ObsCore model, an IVOA standard "
+              "for metadata representation (3rd column). They were also "
+              "present in original NRAO Web form and, for backwards "
+              "compatibility can be accessed with their old names (2nd "
+              "column).\n"
+              "More elaborate queries on the ObsCore model "
+              "are possible with `query_tap` methods")
+        print("  {0:33s} {1:35s} {2:35s}".format("Description",
+                                                 "Original NRAO keyword",
+                                                 "ObsCore keyword"))
+        print("-"*103)
+        for title, section in NRAO_FORM_KEYS.items():
+            print()
+            print(title)
+            for row in section.items():
+                print("  {0:33s} {1:35s} {2:35s}".format(row[0], row[1][0], row[1][1]))
+        print('\nExamples of queries:')
+        print("Nrao.query('{project_code':'13B-318')}")
+        print("Nrao.query({'source_name': 'L1157', 'band_list': ['Q', 'K']})")
+        print("Nrao.query({'source_name': 'HOPS-376'})")
+        print("Nrao.query(payload=dict(project_code='13B-318', "
+              "source_name='Per27'))")
 
 
 Nrao = NraoClass()
