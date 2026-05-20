@@ -25,7 +25,7 @@ PG_RECOVERY_SIG = "canceling statement due to conflict with recovery"
 
 def retry_on_pg_recovery(callable, *args, attempts=5, **kwargs):
     """Retry a TAP call that hit the transient Postgres-replica recovery error.
-    
+
     The NRAO TAP backend is a Postgres streaming replica and intermittently
     raises ``canceling statement due to conflict with recovery``; the
     ``retry_on_pg_recovery`` helper retries those transient failures.
@@ -91,15 +91,14 @@ class TestRemoteAnaloguesOfMockedTests:
     def test_pos_cone_decimal(self, nrao):
         """Cone search via decimal RA/Dec payload (test_gen_pos_sql)."""
         result = retry_on_pg_recovery(nrao.query, self._cone_payload(),
-                                       maxrec=self.MAXREC)
+                                      maxrec=self.MAXREC)
         assert len(result) > 0
 
     def test_pos_cone_sexagesimal(self, nrao):
         """Cone search via sexagesimal RA/Dec payload (test_gen_pos_sql)."""
         # 12:29:06.7 +02:03:08.6 ~ 3C273
         payload = {'ra_dec': '12:29:06.7 02:03:08.6, 0.05'}
-        result = retry_on_pg_recovery(nrao.query, payload,
-                                       maxrec=self.MAXREC)
+        result = retry_on_pg_recovery(nrao.query, payload, maxrec=self.MAXREC)
         assert len(result) > 0
 
     def test_pos_cone_galactic(self, nrao):
@@ -140,8 +139,7 @@ class TestRemoteAnaloguesOfMockedTests:
         """Date-range filter on t_min (test_gen_datetime_sql)."""
         payload = self._cone_payload(
             start_date='(01-01-2000 .. 31-12-2020)')
-        result = retry_on_pg_recovery(nrao.query, payload,
-                                       maxrec=self.MAXREC)
+        result = retry_on_pg_recovery(nrao.query, payload, maxrec=self.MAXREC)
         assert len(result) > 0
 
     # --- test_gen_public_sql -----------------------------------------------
@@ -162,8 +160,7 @@ class TestRemoteAnaloguesOfMockedTests:
     def test_pol_dual_circular(self, nrao):
         """Polarization filter for dual-circular feeds (test_pol_sql)."""
         payload = self._cone_payload(polarization_type='Dual-circular')
-        result = retry_on_pg_recovery(nrao.query, payload,
-                                       maxrec=self.MAXREC)
+        result = retry_on_pg_recovery(nrao.query, payload, maxrec=self.MAXREC)
         # Don't require rows: dual-circular is VLA-typical but this exact
         # spatial slice may or may not have a match.  We just need the
         # server to accept the SQL.
@@ -174,8 +171,7 @@ class TestRemoteAnaloguesOfMockedTests:
     def test_band_l(self, nrao):
         """L-band filter via band_list (test_gen_band_sql)."""
         payload = self._cone_payload(band_list=['L'])
-        result = retry_on_pg_recovery(nrao.query, payload,
-                                       maxrec=self.MAXREC)
+        result = retry_on_pg_recovery(nrao.query, payload, maxrec=self.MAXREC)
         assert len(result) >= 0
 
     # --- test_query --------------------------------------------------------
