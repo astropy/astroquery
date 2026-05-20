@@ -102,13 +102,13 @@ def test_get_zeropoint(patch_get):
 
 
 def test_invalid_query(patch_get):
-    msg = 'Invalid value for parameter VERB. Allowed values are {0, 1, 2}'
+    msg = 'Invalid value for parameter verb. Allowed values are {0, 1, 2}'
     with pytest.raises(InvalidQueryError, match=msg):
-        SvoFps.data_from_svo(VERB=5)
+        SvoFps.data_from_svo(verb=5)
     # need this wonky regex b/c {'metadata', None} is a set and the order flips every time
-    msg = r"Invalid value for parameter FORMAT\. Allowed values are \{(?=.*'metadata')(?=.*None).*\}"
+    msg = r"Invalid value for parameter format\. Allowed values are \{(?=.*'metadata')(?=.*None).*\}"
     with pytest.raises(InvalidQueryError, match=msg):
-        SvoFps.data_from_svo(FORMAT='silly_format')
+        SvoFps.data_from_svo(format='silly_format')
 
 
 def test_invalid_get_filter_metadata(patch_get):

@@ -13,20 +13,61 @@ from astroquery.exceptions import InvalidQueryError, TimeoutError
 
 __all__ = ['SvoFpsClass', 'SvoFps']
 
-# Valid query parameters taken from
+
+# Parameters the SVO service accepts as either ``Name`` (base) or as a
+# range pair ``Name_min``/``Name_max``.
+RANGE_BASES = {"wavelength_ref", "wavelength_mean", "wavelength_eff",
+               "wavelength_min", "wavelength_max", "width_eff", "fwhm"}
+
+# Base mapping from public (snake_case, lowercase) keyword names to the
+# CamelCase parameter names the SVO FPS server actually accepts.  The SVO
+# service is case-sensitive: lowercase parameters silently fall through
+# (the server returns the full unfiltered response), so every value sent
+# in a query must come from this mapping.  See
 # https://svo2.cab.inta-csic.es/theory/fps/index.php?mode=voservice
-_params_with_range = {"WavelengthRef", "WavelengthMean", "WavelengthEff",
-                      "WavelengthMin", "WavelengthMax", "WidthEff", "FWHM"}
-QUERY_PARAMETERS = _params_with_range.copy()
-for suffix in ("_min", "_max"):
-    QUERY_PARAMETERS.update(param + suffix for param in _params_with_range)
-QUERY_PARAMETERS.update(("Instrument", "Facility", "PhotSystem", "ID", "PhotCalID",
-                         "FORMAT", "VERB"))
+BASE_PARAM_NAMES = {
+    "wavelength_ref": "WavelengthRef",
+    "wavelength_mean": "WavelengthMean",
+    "wavelength_eff": "WavelengthEff",
+    "wavelength_min": "WavelengthMin",
+    "wavelength_max": "WavelengthMax",
+    "width_eff": "WidthEff",
+    "fwhm": "FWHM",
+    "instrument": "Instrument",
+    "facility": "Facility",
+    "phot_system": "PhotSystem",
+    "id": "ID",
+    "phot_cal_id": "PhotCalID",
+    "format": "FORMAT",
+    "verb": "VERB",
+}
+
+# Full mapping including the range variants, so a single dict lookup
+# resolves any user-facing kwarg.
+SVO_PARAM_NAMES = {
+    **BASE_PARAM_NAMES,
+    **{f"{k}_min": f"{v}_min"
+       for k, v in BASE_PARAM_NAMES.items() if k in RANGE_BASES},
+    **{f"{k}_max": f"{v}_max"
+       for k, v in BASE_PARAM_NAMES.items() if k in RANGE_BASES},
+}
+
+# Set of every valid public keyword name (used to validate **kwargs
+# passed to ``get_filter_metadata``).
+QUERY_PARAMETERS = set(SVO_PARAM_NAMES)
 
 ALLOWED_QUERY_PARAMETERS = {
-    "VERB": {0, 1, 2},
-    "FORMAT": {"metadata", None}
+    "verb": {0, 1, 2},
+    "format": {"metadata", None}
 }
+
+
+def to_svo_query(local_params):
+    """Translate a dict of public (snake_case) kwargs to the SVO native
+    parameter names the server expects.  ``None`` values are dropped so
+    they aren't sent over the wire."""
+    return {SVO_PARAM_NAMES[k]: v for k, v in local_params.items()
+            if v is not None}
 
 
 class SvoFpsClass(BaseQuery):
@@ -38,27 +79,27 @@ class SvoFpsClass(BaseQuery):
 
     def data_from_svo(self,
                       *,
-                      WavelengthRef_min=None,
-                      WavelengthRef_max=None,
-                      WavelengthMean_min=None,
-                      WavelengthMean_max=None,
-                      WavelengthEff_min=None,
-                      WavelengthEff_max=None,
-                      WavelengthMin_min=None,
-                      WavelengthMin_max=None,
-                      WavelengthMax_min=None,
-                      WavelengthMax_max=None,
-                      WidthEff_min=None,
-                      WidthEff_max=None,
-                      FWHM_min=None,
-                      FWHM_max=None,
-                      Instrument=None,
-                      Facility=None,
-                      PhotSystem=None,
-                      ID=None,
-                      PhotCalID=None,
-                      FORMAT=None,
-                      VERB=2,
+                      wavelength_ref_min=None,
+                      wavelength_ref_max=None,
+                      wavelength_mean_min=None,
+                      wavelength_mean_max=None,
+                      wavelength_eff_min=None,
+                      wavelength_eff_max=None,
+                      wavelength_min_min=None,
+                      wavelength_min_max=None,
+                      wavelength_max_min=None,
+                      wavelength_max_max=None,
+                      width_eff_min=None,
+                      width_eff_max=None,
+                      fwhm_min=None,
+                      fwhm_max=None,
+                      instrument=None,
+                      facility=None,
+                      phot_system=None,
+                      id=None,
+                      phot_cal_id=None,
+                      format=None,
+                      verb=2,
                       cache=True, timeout=None,
                       error_msg='No data found for requested query',
                       ):
@@ -74,47 +115,47 @@ class SvoFpsClass(BaseQuery):
 
         Parameters
         ----------
-        WavelengthRef_min : float, optional
+        wavelength_ref_min : float, optional
             Min value for WavelengthRef parameter
-        WavelengthRef_max : float, optional
+        wavelength_ref_max : float, optional
             Max value for WavelengthRef parameter
-        WavelengthMean_min : float, optional
+        wavelength_mean_min : float, optional
             Min value for WavelengthMean parameter
-        WavelengthMean_max : float, optional
+        wavelength_mean_max : float, optional
             Max value for WavelengthMean parameter
-        WavelengthEff_min : float, optional
+        wavelength_eff_min : float, optional
             Min value for WavelengthEff parameter
-        WavelengthEff_max : float, optional
+        wavelength_eff_max : float, optional
             Max value for WavelengthEff parameter
-        WavelengthMin_min : float, optional
+        wavelength_min_min : float, optional
             Min value for WavelengthMin parameter
-        WavelengthMin_max : float, optional
+        wavelength_min_max : float, optional
             Max value for WavelengthMin parameter
-        WavelengthMax_min : float, optional
+        wavelength_max_min : float, optional
             Min value for WavelengthMax parameter
-        WavelengthMax_max : float, optional
+        wavelength_max_max : float, optional
             Max value for WavelengthMax parameter
-        WidthEff_min : float, optional
+        width_eff_min : float, optional
             Min value for WidthEff parameter
-        WidthEff_max : float, optional
+        width_eff_max : float, optional
             Max value for WidthEff parameter
-        FWHM_min : float, optional
+        fwhm_min : float, optional
             Min value for FWHM parameter
-        FWHM_max : float, optional
+        fwhm_max : float, optional
             Max value for FWHM parameter
-        Instrument : str, optional
+        instrument : str, optional
             Instrument for filters (default is None). Leave empty if there are no instruments for specified facility
-        Facility : str, optional
+        facility : str, optional
             Facility for filters (default is None)
-        PhotSystem : str, optional
+        phot_system : str, optional
             Photometric system for filters (default is None)
-        ID : str, optional
+        id : str, optional
             Filter ID (default is None)
-        PhotCalID : str, optional
+        phot_cal_id : str, optional
             Photometric calibration ID (default is None)
-        FORMAT : str, optional
+        format : str, optional
             Format of the output.  Default includes all data, ``metadata`` includes only metadata.
-        VERB : 0, 1, or 2
+        verb : 0, 1, or 2
             0: The resulting VOTable won't include the transmission curve or PARAM descriptions.
             1: The resulting VOTable won't include the transmission curve but it will include PARAM descriptions.
             2: The resulting VOTable will include the transmission curve and PARAM descriptions.
@@ -132,38 +173,39 @@ class SvoFpsClass(BaseQuery):
             Table containing data fetched from SVO (in response to query)
         """
 
-        query = {
-            'WavelengthRef_min': WavelengthRef_min,
-            'WavelengthRef_max': WavelengthRef_max,
-            'WavelengthMean_min': WavelengthMean_min,
-            'WavelengthMean_max': WavelengthMean_max,
-            'WavelengthEff_min': WavelengthEff_min,
-            'WavelengthEff_max': WavelengthEff_max,
-            'WavelengthMin_min': WavelengthMin_min,
-            'WavelengthMin_max': WavelengthMin_max,
-            'WavelengthMax_min': WavelengthMax_min,
-            'WavelengthMax_max': WavelengthMax_max,
-            'WidthEff_min': WidthEff_min,
-            'WidthEff_max': WidthEff_max,
-            'FWHM_min': FWHM_min,
-            'FWHM_max': FWHM_max,
-            'Instrument': Instrument,
-            'Facility': Facility,
-            'PhotSystem': PhotSystem,
-            'ID': ID,
-            'PhotCalID': PhotCalID,
-            'FORMAT': FORMAT,
-            'VERB': VERB
+        local_params = {
+            'wavelength_ref_min': wavelength_ref_min,
+            'wavelength_ref_max': wavelength_ref_max,
+            'wavelength_mean_min': wavelength_mean_min,
+            'wavelength_mean_max': wavelength_mean_max,
+            'wavelength_eff_min': wavelength_eff_min,
+            'wavelength_eff_max': wavelength_eff_max,
+            'wavelength_min_min': wavelength_min_min,
+            'wavelength_min_max': wavelength_min_max,
+            'wavelength_max_min': wavelength_max_min,
+            'wavelength_max_max': wavelength_max_max,
+            'width_eff_min': width_eff_min,
+            'width_eff_max': width_eff_max,
+            'fwhm_min': fwhm_min,
+            'fwhm_max': fwhm_max,
+            'instrument': instrument,
+            'facility': facility,
+            'phot_system': phot_system,
+            'id': id,
+            'phot_cal_id': phot_cal_id,
+            'format': format,
+            'verb': verb,
         }
 
         # check validity of query parameters with limited allowed values
         for key in ALLOWED_QUERY_PARAMETERS:
-            if key in query and query[key] not in ALLOWED_QUERY_PARAMETERS[key]:
+            if key in local_params and local_params[key] not in ALLOWED_QUERY_PARAMETERS[key]:
                 raise InvalidQueryError(
                     f"Invalid value for parameter {key}. Allowed values are "
                     f"{ALLOWED_QUERY_PARAMETERS[key]}"
                 )
 
+        query = to_svo_query(local_params)
         response = self._request("GET", self.SVO_MAIN_URL, params=query,
                                  timeout=timeout or self.TIMEOUT,
                                  cache=cache)
@@ -197,8 +239,8 @@ class SvoFpsClass(BaseQuery):
         error_msg = 'No filter found for requested Wavelength Effective range'
         try:
             return self.data_from_svo(
-                WavelengthEff_min=wavelength_eff_min.to_value(u.angstrom),
-                WavelengthEff_max=wavelength_eff_max.to_value(u.angstrom),
+                wavelength_eff_min=wavelength_eff_min.to_value(u.angstrom),
+                wavelength_eff_max=wavelength_eff_max.to_value(u.angstrom),
                 error_msg=error_msg,
                 **kwargs
             )
@@ -231,10 +273,10 @@ class SvoFpsClass(BaseQuery):
         params : dict
             Dictionary of VOTable PARAM names and values.
         """
-        query = {'ID': filter_id, 'VERB': 0}
-        query.update(kwargs)
+        local_params = {'id': filter_id, 'verb': 0}
+        local_params.update(kwargs)
 
-        bad_params = [param for param in query if param not in QUERY_PARAMETERS]
+        bad_params = [param for param in local_params if param not in QUERY_PARAMETERS]
         if bad_params:
             raise InvalidQueryError(
                 f"parameter{'s' if len(bad_params) > 1 else ''} "
@@ -242,6 +284,7 @@ class SvoFpsClass(BaseQuery):
                 f"invalid. For a description of valid query parameters see the docstring for SvoFps.data_from_svo"
             )
 
+        query = to_svo_query(local_params)
         response = self._request("GET", self.SVO_MAIN_URL, params=query,
                                  timeout=timeout or self.TIMEOUT,
                                  cache=cache)
@@ -284,7 +327,7 @@ class SvoFpsClass(BaseQuery):
          'ZeroPoint': <Quantity 3631. Jy>,
          'ZeroPointUnit': 'Jy',
          'ZeroPointType': 'Pogson'}
-        >>> SvoFps.get_filter_metadata(filter_id='2MASS/2MASS.J', PhotCalID='2MASS/2MASS.J/AB')  # doctest: +REMOTE_DATA
+        >>> SvoFps.get_filter_metadata(filter_id='2MASS/2MASS.J', phot_cal_id='2MASS/2MASS.J/AB')  # doctest: +REMOTE_DATA
         {'FilterProfileService': 'ivo://svo/fps',
          'filterID': '2MASS/2MASS.J',
          ...
@@ -299,7 +342,7 @@ class SvoFpsClass(BaseQuery):
             raise InvalidQueryError("Invalid magnitude system. Allowed values are 'Vega', 'AB', and 'ST'.")
 
         metadata = self.get_filter_metadata(filter_id=filter_id,
-                                            PhotCalID=f'{filter_id}/{mag_system}', **kwargs)
+                                            phot_cal_id=f'{filter_id}/{mag_system}', **kwargs)
 
         zeropoint_keys = ['MagSys', 'ZeroPoint', 'ZeroPointUnit', 'ZeroPointType']
 
@@ -325,7 +368,7 @@ class SvoFpsClass(BaseQuery):
             Table containing data fetched from SVO (in response to query)
         """
         error_msg = 'No filter found for requested Filter ID'
-        return self.data_from_svo(ID=filter_id, error_msg=error_msg, **kwargs)
+        return self.data_from_svo(id=filter_id, error_msg=error_msg, **kwargs)
 
     def get_filter_list(self, facility, *, instrument=None, **kwargs):
         """Get filters data for requested facilty and instrument from SVO
@@ -347,8 +390,8 @@ class SvoFpsClass(BaseQuery):
         """
         error_msg = 'No filter found for requested Facilty (and Instrument)'
         return self.data_from_svo(
-            Facility=facility,
-            Instrument=instrument,
+            facility=facility,
+            instrument=instrument,
             error_msg=error_msg,
             **kwargs
         )
