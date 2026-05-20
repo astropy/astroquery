@@ -15,15 +15,23 @@ from . import conf, tap_urls
 from ..alma.tapsql import (_gen_str_sql, _gen_numeric_sql,
                            _gen_datetime_sql)
 from .tapsql import (_gen_pos_sql, _gen_pub_sql, _gen_pol_sql,
-                     _gen_band_list_nrao_sql, NRAO_BANDS)
+                     _gen_band_list_nrao_sql)
 
-__all__ = {'NraoClass','NRAO_BANDS'}
+__all__ = {'NraoClass', 'NRAO_BANDS'}
 
 __doctest_skip__ = ['NraoClass.*']
 
 TAP_SERVICE_PATH = 'tap'
 
 NRAO_FORM_KEYS = {
+    # s_resolution not filled in for VLA, thus configuration is also available
+    # s_fov is mostly meaningless in NRAO archive, thus removed ability to search
+    # on it.
+    
+    # NRAO archive returns a scan per row and t_exptime is the length of each scan
+    # so there is not a simple way to get total integration time on source from TAP
+    # returns. Output would need to be manipulated to get the total integration for
+    # each observation.
     'Position': {
         'Source name (astropy Resolver)': ['source_name_resolver',
                                            'SkyCoord.from_name', _gen_pos_sql],
@@ -33,9 +41,6 @@ NRAO_FORM_KEYS = {
                                _gen_pos_sql],
         'Angular resolution (arcsec)': ['spatial_resolution',
                                         's_resolution', _gen_numeric_sql],
-         # s_resolution not filled in for VLA, thus configuration is also available
-         # s_fov is mostly meaningless in NRAO archive, thus removed ability to search
-         # on it
         'Maximum UV Distance (meters)': ['max_uv_dist', 'max_uv_dist', _gen_numeric_sql]
     },
     'Project': {
@@ -46,12 +51,6 @@ NRAO_FORM_KEYS = {
     },
     'Time': {
         'Observation start': ['start_date', 't_min', _gen_datetime_sql],
-        #'Integration time (s)': ['integration_time', 't_exptime',
-        #                         _gen_numeric_sql]
-        # NRAO archive returns a scan per row and t_exptime is the length of each scan
-        # so there is not a simple way to get total integration time on source from TAP
-        # returns. Output would need to be manipulated to get the total integration for
-        # each observation.
     },
     'Polarization': {
         'Polarization type (Single-circular/linear, Dual-circular/linear, \
@@ -66,7 +65,7 @@ NRAO_FORM_KEYS = {
     },
     'Options': {
         'Public data only': ['public_data', 'proprietary_status', _gen_pub_sql],
-        'Data Product Type': ['data_type','dataproduct_type', _gen_str_sql],
+        'Data Product Type': ['data_type', 'dataproduct_type', _gen_str_sql],
     }
 
 }

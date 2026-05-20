@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 
-import pytest
 from unittest.mock import patch, Mock
 
 from astropy import units as u

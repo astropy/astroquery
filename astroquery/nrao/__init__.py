@@ -37,7 +37,7 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .core import Nrao, NraoClass, NRAO_BANDS
+from .core import Nrao, NraoClass
 
 __all__ = ['Nrao', 'NraoClass',
            'Conf', 'conf',
