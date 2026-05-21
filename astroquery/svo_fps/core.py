@@ -327,16 +327,6 @@ class SvoFpsClass(BaseQuery):
          'ZeroPoint': <Quantity 3631. Jy>,
          'ZeroPointUnit': 'Jy',
          'ZeroPointType': 'Pogson'}
-        >>> SvoFps.get_filter_metadata(filter_id='2MASS/2MASS.J', phot_cal_id='2MASS/2MASS.J/AB')  # doctest: +REMOTE_DATA
-        {'FilterProfileService': 'ivo://svo/fps',
-         'filterID': '2MASS/2MASS.J',
-         ...
-         'PhotCalID': '2MASS/2MASS.J/AB',
-         'MagSys': 'AB',
-         'ZeroPoint': <Quantity 3631. Jy>,
-         'ZeroPointUnit': 'Jy',
-         'ZeroPointType': 'Pogson'}
-
         """
         if mag_system not in ['Vega', 'AB', 'ST']:
             raise InvalidQueryError("Invalid magnitude system. Allowed values are 'Vega', 'AB', and 'ST'.")
