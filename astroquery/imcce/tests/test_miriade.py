@@ -40,8 +40,10 @@ def patch_request(request):
 
 # --------------------------------- actual test functions
 
-# Older astropy versions issues UnitsWarnings for "u.au", we need to ignore those here. Revisit when we drop __version__ 5.0
-# WARNING: UnitsWarning: The unit 'au' has been deprecated in the VOUnit standard. Suggested: 1.4959787e+11m. [astropy.units.format.utils]
+# Older astropy versions issues UnitsWarnings for "u.au", we need to ignore those here.
+# Revisit when we drop __version__ 5.0
+#
+# WARNING: UnitsWarning: The unit 'au' has been deprecated in the VOUnit standard....
 
 @pytest.mark.filterwarnings("ignore::astropy.units.UnitsWarning")
 def test_spherical_coordinates(patch_request):
