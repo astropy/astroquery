@@ -33,6 +33,10 @@ __all__ = ['BaseVOQuery', 'BaseQuery', 'QueryWithLogin']
 def to_cache(original_response, cache_file):
     log.debug("Caching data to {0}".format(cache_file))
 
+    # Copying a TAPService instance with an auth session produces some warnings
+    # as a side affect. The hooks are not needed in the cache, so we remove
+    # them before caching and restore them afterwards.
+    # Related pyvo issue: https://github.com/astropy/pyvo/issues/755
     hooks = None
     if hasattr(original_response, 'request'):
         hooks = original_response.request.hooks
