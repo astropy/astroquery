@@ -122,6 +122,13 @@ esa.hubble
 - Update ``get_datalabs_path`` method to check for files for new collections (HLSP and HSLA) [#3578]
 
 
+imcce
+^^^^^
+
+- Change the URL for SkyBot and Miriade Web Services [#3595]
+- Adapted the ``Miriade`` Class to the new outputs of the Web Service [#3595]
+
+
 mast
 ^^^^
 
