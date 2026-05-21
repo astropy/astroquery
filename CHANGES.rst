@@ -55,6 +55,13 @@ esa.euclid
 - The ``get_product_list`` method now also returns file_name_list column when the product type belongs to 
   BASIC_DOWNLOAD_DATA_PRODUCTS. [#3562]
 
+esa.esasky
+
+- The argument tap_handler on ESASky has been deprecated. Use the ESASky instance directly for TAP
+  queries (Using esa.utils.EsaTap and PyVO).
+- Attribute urlBase has been deprecated on esasky.conf, use ESASKY_DOMAIN_SERVER instead.
+- Attribute timeout has been deprecated on esasky.conf, use ESASKY_CONNECTION_TIMEOUT instead.
+- Attribute row_limit has been deprecated on esasky.conf, use ESASKY_ROW_LIMIT instead.
 
 vizier
 ^^^^^^

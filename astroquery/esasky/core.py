@@ -82,9 +82,9 @@ class ESASkyClass(EsaTap):
     SSO_TYPES = ['ALL', 'ASTEROID', 'COMET', 'SATELLITE', 'PLANET',
                  'DWARF_PLANET', 'SPACECRAFT', 'SPACEJUNK', 'EXOPLANET', 'STAR']
 
-    @deprecated_renamed_argument('tap_handler', None, since='8.0', message="The 'tap_handler' parameter is deprecated"
-                                 "and will be removed in a future version. Use the ESASky instance directly for TAP"
-                                 "queries (Using esa.utils.EsaTap and PyVO).")
+    @deprecated_renamed_argument('tap_handler', None, since='0.4.12', message="The 'tap_handler' parameter is"
+                                 "deprecated and will be removed in a future version. Use the ESASky instance"
+                                 "directly for TAP queries (Using esa.utils.EsaTap and PyVO).")
     def __init__(self, *, tap_handler=None, show_messages=False, auth_session=None, tap_url=None):
         super().__init__(auth_session=auth_session, tap_url=tap_url)
 

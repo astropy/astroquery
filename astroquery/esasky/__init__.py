@@ -30,9 +30,9 @@ class Conf(_config.ConfigNamespace):
     ESASKY_ROW_LIMIT = _config.ConfigItem(10000, 'Maximum number of rows returned (set to -1 for unlimited).',
                                           aliases=['astroquery.esasky.row_limit'])
 
-    urlBase = deprecated_attribute(name='urlBase', alternative='ESASKY_DOMAIN_SERVER', since='8.0')
-    timeout = deprecated_attribute(name='timeout', alternative='ESASKY_CONNECTION_TIMEOUT', since='8.0')
-    row_limit = deprecated_attribute(name='row_limit', alternative='ESASKY_ROW_LIMIT', since='8.0')
+    urlBase = deprecated_attribute(name='urlBase', alternative='ESASKY_DOMAIN_SERVER', since='0.4.12')
+    timeout = deprecated_attribute(name='timeout', alternative='ESASKY_CONNECTION_TIMEOUT', since='0.4.12')
+    row_limit = deprecated_attribute(name='row_limit', alternative='ESASKY_ROW_LIMIT', since='0.4.12')
 
     cache_location = os.path.join(paths.get_cache_dir(), 'astroquery/esasky', )
 
