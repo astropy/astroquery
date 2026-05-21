@@ -201,6 +201,8 @@ Infrastructure, Utility and Other Changes and Additions
 
 - Fix no expiration case for ``cache_timeout`` config option. [#3579]
 
+- Workaround upstream bug when caching a response using pyvo. [#3586]
+
 utils.tap
 ^^^^^^^^^
 
