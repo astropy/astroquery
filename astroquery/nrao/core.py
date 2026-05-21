@@ -54,11 +54,9 @@ NRAO_FORM_KEYS = {
     },
     'Polarization': {
         'Polarization type:\n\
-         (Single-circular/linear,\n\
-          Dual-circular/linear,\n\
-          Full-circular/linear)': ['polarization_type',
-                                                     'pol_states',
-                                                     _gen_pol_sql]
+        (Single-circular/linear,\n\
+        Dual-circular/linear,\n\
+        Full-circular/linear)': ['polarization_type', 'pol_states', _gen_pol_sql]
     },
     'Energy': {
         'Bandwidth (Hz)': ['bandwidth', 'aggregate_bandwidth', _gen_numeric_sql],
@@ -277,7 +275,7 @@ class NraoClass(BaseVOQuery):
             raise RuntimeError('BUG: Unexpected result None')
 
         return result
-        
+
     def help(self, cache=True):
         """
         Return the valid query parameters
