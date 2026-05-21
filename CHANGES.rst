@@ -118,6 +118,8 @@ esa.hubble
 
 - Update ``get_datalabs_path`` method so an alternative path is checked if the
   file is not in Datalabs yet [#3437]
+- Update ``get_datalabs_path`` method to check for files for new collections (HLSP and HSLA) [#3578]
+
 
 mast
 ^^^^
