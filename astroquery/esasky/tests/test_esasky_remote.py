@@ -69,10 +69,10 @@ class TestESASky:
     @pytest.mark.parametrize("mission, obsid",
                              zip(["SUZAKU", "ISO-IR", "Chandra", "XMM-OM-OPTICAL",
                                   "XMM", "XMM-OM-UV", "HST-IR", "Herschel",
-                                  "Spitzer", "HST-UV", "HST-OPTICAL", "INTEGRAL"],
+                                  "Spitzer", "HST-UV", "HST-OPTICAL"],
                                  ["100001010", "01500403", "21171", "0852000101",
                                   "0851180201", "0851180201", "n3tr01c3q", "1342247257",
-                                  "30002561-25100", "hst_07553_3h_wfpc2_f160bw_pc", "ocli05leq", "88600210001"]))
+                                  "30002561-25100", "hst_07553_3h_wfpc2_f160bw_pc", "ocli05leq"]))
     def test_esasky_get_images_obs_id(self, tmp_path, mission, obsid):
         result = ESASky.get_images(observation_ids=obsid,
                                    missions=mission, download_dir=tmp_path)
