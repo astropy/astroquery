@@ -40,7 +40,12 @@ def patch_request(request):
 
 # --------------------------------- actual test functions
 
+# Older astropy versions issues UnitsWarnings for "u.au", we need to ignore those here.
+# Revisit when we drop __version__ 5.0
+#
+# WARNING: UnitsWarning: The unit 'au' has been deprecated in the VOUnit standard....
 
+@pytest.mark.filterwarnings("ignore::astropy.units.UnitsWarning")
 def test_spherical_coordinates(patch_request):
     eph = Miriade.get_ephemerides('3552', coordtype=1)
     cols = ('epoch', 'RA', 'DEC', 'delta', 'V', 'alpha', 'elong', 'RAcosD_rate',
@@ -53,6 +58,7 @@ def test_spherical_coordinates(patch_request):
         assert eph[cols[i]].unit == units[i]
 
 
+@pytest.mark.filterwarnings("ignore::astropy.units.UnitsWarning")
 def test_spherical_coordinates_ecliptic(patch_request):
     eph = Miriade.get_ephemerides('3552', coordtype=1, refplane="ecliptic")
     cols = ('epoch', 'LONG', 'LAT', 'delta', 'V', 'alpha', 'elong', 'LONGcosLAT_rate',
@@ -65,6 +71,7 @@ def test_spherical_coordinates_ecliptic(patch_request):
         assert eph[cols[i]].unit == units[i]
 
 
+@pytest.mark.filterwarnings("ignore::astropy.units.UnitsWarning")
 def test_rectangular_coordinates(patch_request):
     eph = Miriade.get_ephemerides('3552', coordtype=2)
     cols = ('epoch', 'px', 'py', 'pz', 'delta', 'heldist', 'alpha', 'elong', 'V',
@@ -77,6 +84,7 @@ def test_rectangular_coordinates(patch_request):
         assert eph[cols[i]].unit == units[i]
 
 
+@pytest.mark.filterwarnings("ignore::astropy.units.UnitsWarning")
 def test_local_coordinates(patch_request):
     eph = Miriade.get_ephemerides('3552', coordtype=3)
     cols = ('epoch', 'siderealtime', 'AZ', 'EL', 'delta', 'V',
@@ -89,6 +97,7 @@ def test_local_coordinates(patch_request):
         assert eph[cols[i]].unit == units[i]
 
 
+@pytest.mark.filterwarnings("ignore::astropy.units.UnitsWarning")
 def test_hourangle_coordinates(patch_request):
     eph = Miriade.get_ephemerides('3552', coordtype=4)
     cols = ['epoch', 'siderealtime', 'hourangle', 'dec', 'delta', 'V',
@@ -101,6 +110,7 @@ def test_hourangle_coordinates(patch_request):
         assert eph[cols[i]].unit == units[i]
 
 
+@pytest.mark.filterwarnings("ignore::astropy.units.UnitsWarning")
 def test_observation_coordinates(patch_request):
     eph = Miriade.get_ephemerides('3552', coordtype=5)
     cols = ['epoch', 'siderealtime', 'RA', 'DEC', 'hourangle', 'AZ', 'EL',
