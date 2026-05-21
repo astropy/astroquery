@@ -25,7 +25,7 @@ PG_RECOVERY_SIG = "canceling statement due to conflict with recovery"
 
 def retry_on_pg_recovery(callable, *args, attempts=5, **kwargs):
     """Retry a TAP call that hit the transient Postgres-replica recovery error.
-    
+
     The NRAO TAP backend is a Postgres streaming replica and intermittently
     raises ``canceling statement due to conflict with recovery``; the
     ``retry_on_pg_recovery`` helper retries those transient failures.
