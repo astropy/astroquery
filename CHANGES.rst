@@ -60,6 +60,8 @@ esa.euclid
   BASIC_DOWNLOAD_DATA_PRODUCTS. [#3562]
 - The method ``get_spectrum`` accepts a single source_id or designation or multiple values separated by commas or a
    list. [#3570]
+- Removed unnecessary CAST(... AS text) from array columns in ``get_product_list``, ``get_scientific_product_list`` and 
+  ``__get_tile_catalogue_list``, as TAP 10.x now returns proper arrays. [#]
 
 
 vizier

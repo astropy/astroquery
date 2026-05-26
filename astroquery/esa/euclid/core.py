@@ -1015,10 +1015,10 @@ class EuclidClass(TapPlus):
         if product_type in conf.BASIC_DOWNLOAD_DATA_PRODUCTS:
             query = (
                 f"SELECT basic_download_data.basic_download_data_oid, basic_download_data.product_type, "
-                f"basic_download_data.product_id, CAST(basic_download_data.observation_id_list as text) AS "
-                f"observation_id_list, CAST(basic_download_data.tile_index_list as text) AS tile_index_list, "
-                f"CAST(basic_download_data.patch_id_list as text) AS patch_id_list, "
-                f"CAST(basic_download_data.filter_name as text) AS filter_name, basic_download_data.release_name FROM "
+                f"basic_download_data.product_id, basic_download_data.observation_id_list AS "
+                f"observation_id_list, basic_download_data.tile_index_list AS tile_index_list, "
+                f"basic_download_data.patch_id_list AS patch_id_list, "
+                f"basic_download_data.filter_name AS filter_name, basic_download_data.release_name FROM "
                 f"sedm.basic_download_data WHERE '{tile_index}'=ANY(tile_index_list) AND product_type = '"
                 f"{product_type}' "
                 f"ORDER BY observation_id_list ASC;")
@@ -1036,7 +1036,7 @@ class EuclidClass(TapPlus):
                 f"SELECT mer_segmentation_map.file_name, mer_segmentation_map.segmentation_map_oid, "
                 f"mer_segmentation_map.ra, mer_segmentation_map.dec, mer_segmentation_map.stc_s, "
                 f"mer_segmentation_map.tile_index, "
-                f"CAST(mer_segmentation_map.observation_id_list as TEXT) AS observation_id_list, "
+                f"mer_segmentation_map.observation_id_list AS observation_id_list, "
                 f"mer_segmentation_map.product_type, mer_segmentation_map.product_id FROM sedm.mer_segmentation_map "
                 f"WHERE mer_segmentation_map.tile_index = '{tile_index}' AND "
                 f"mer_segmentation_map.product_type = '{product_type}';")
@@ -1189,12 +1189,12 @@ class EuclidClass(TapPlus):
             extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
 
             query = (
-                f"SELECT CAST(basic_download_data.file_name_list AS text) AS file_name_list, "
+                f"SELECT basic_download_data.file_name_list AS file_name_list, "
                 f"basic_download_data.basic_download_data_oid, basic_download_data.product_type, "
-                f"basic_download_data.product_id, CAST(basic_download_data.observation_id_list as text) AS "
-                f"observation_id_list, CAST(basic_download_data.tile_index_list as text) AS tile_index_list, "
-                f"CAST(basic_download_data.patch_id_list as text) AS patch_id_list, "
-                f"CAST(basic_download_data.filter_name as text) AS filter_name, basic_download_data.release_name, "
+                f"basic_download_data.product_id, basic_download_data.observation_id_list AS "
+                f"observation_id_list, basic_download_data.tile_index_list AS tile_index_list, "
+                f"basic_download_data.patch_id_list AS patch_id_list, "
+                f"basic_download_data.filter_name AS filter_name, basic_download_data.release_name, "
                 f"basic_download_data.{self.dsr_1}, basic_download_data.{self.dsr_2}, basic_download_data.{self.dsr_3} "
                 f"FROM {table} WHERE '{observation_id}'=ANY(observation_id_list) AND product_type = '"
                 f"{product_type}' {extra_condition}"
@@ -1216,7 +1216,7 @@ class EuclidClass(TapPlus):
                 f"mer_segmentation_map.{self.dsr_2}, mer_segmentation_map.{self.dsr_3} FROM {table} "
                 f"WHERE ( observation_id_list = '{observation_id}' OR observation_id_list like '{observation_id},"
                 f"%' OR observation_id_list "
-                f"like '%,{observation_id}' OR CAST(observation_id_list as TEXT) like '%,{observation_id},%' ) AND "
+                f"like '%,{observation_id}' OR observation_id_list like '%,{observation_id},%' ) AND "
                 f"mer_segmentation_map.product_type = '{product_type}' {extra_condition};")
 
         if product_type in conf.RAW_FRAME_PRODUCTS:
@@ -1842,10 +1842,10 @@ class EuclidClass(TapPlus):
         table = 'sedm.basic_download_data'
         query = (
             f"SELECT basic_download_data.basic_download_data_oid, basic_download_data.product_type, "
-            f"basic_download_data.product_id, CAST(basic_download_data.observation_id_list as text) AS "
-            f"observation_id_list, CAST(basic_download_data.tile_index_list as text) AS tile_index_list, "
-            f"CAST(basic_download_data.patch_id_list as text) AS patch_id_list, "
-            f"CAST(basic_download_data.filter_name as text) AS filter_name, "
+            f"basic_download_data.product_id, basic_download_data.observation_id_list AS "
+            f"observation_id_list, basic_download_data.tile_index_list AS tile_index_list, "
+            f"basic_download_data.patch_id_list AS patch_id_list, "
+            f"basic_download_data.filter_name AS filter_name, "
             f"basic_download_data.data_set_release_part1, basic_download_data.data_set_release_part2, "
             f"basic_download_data.data_set_release_part3 FROM {table} WHERE "
             f"release_name='{dataset_release}' {query_extra_condition} {dsr_extra_condition} ORDER BY "
