@@ -17,6 +17,7 @@ from urllib.parse import quote
 
 import astropy.units as u
 import numpy as np
+import requests
 from astropy.coordinates import Angle, BaseCoordinateFrame, SkyCoord
 from astropy.io import fits
 from astropy.table import Column, Row, Table, vstack
@@ -1023,9 +1024,19 @@ class MastMissionsClass(MastQueryWithLogin):
                                       'Roman Space Telescope mission. Please install it with `pip install {package}` '
                                       'or install astroquery with optional dependencies using '
                                       '`pip install astroquery[all]`.', ImportWarning)
-                # Use fsspec to open the file directly from the
+
+                # Make an authenticated request to get the presigned S3 URL for the ASDF file
+                headers = {"Authorization": f"token {self._auth_obj.session.cookies['mast_token']}"}
+                resp = requests.get(
+                    download_url,
+                    headers=headers,
+                    allow_redirects=False,
+                )
+                resp.raise_for_status()
+
+                # Use fsspec to open the file directly from the S3 URL, and then read it with asdf
                 fs = fsspec.filesystem("https")
-                f = fs.open(download_url, "rb")
+                f = fs.open(resp.headers["Location"], "rb")
                 return asdf.open(f, **kwargs)
             else:
                 raise InvalidQueryError(f"Unsupported file type for reading: {uri}. "
