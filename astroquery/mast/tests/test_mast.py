@@ -766,6 +766,16 @@ def mock_asdf_open(mocker):
     pytest.importorskip("asdf")
     pytest.importorskip("fsspec")
 
+    # Mock response from requests.get for the initial URL fetch
+    mock_response = MagicMock()
+    mock_response.status_code = 307
+    mock_response.headers = {
+        "Location": "https://example-bucket.s3.amazonaws.com/test.asdf?signature=abc123"
+    }
+    mock_requests = MagicMock()
+    mock_requests.get.return_value = mock_response
+    mocker.patch("requests.get", mock_requests)
+
     # Mock fsspec.filesystem and the file handle
     mock_fs = MagicMock()
     mock_file = MagicMock()
