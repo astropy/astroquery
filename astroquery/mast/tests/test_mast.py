@@ -709,8 +709,8 @@ def test_missions_download_no_auth(caplog):
         msg = str(warn_auth[0].message)
     assert result[0] == 'ERROR'
     assert 'HTTPError' in result[1]
-    assert 'You are not authorized to download' in msg
-    assert 'You do not have access to download this data' in msg
+    assert 'You are not authorized to access' in msg
+    assert 'You do not have access to this data' in msg
 
 
 def test_missions_get_dataset_kwd(caplog):

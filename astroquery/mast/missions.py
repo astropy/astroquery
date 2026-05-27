@@ -771,9 +771,9 @@ class MastMissionsClass(MastQueryWithLogin):
         download_url : str
             The URL that the user attempted to download from, which requires authentication.
         """
-        no_auth_msg = f'You are not authorized to download from {download_url}.'
+        no_auth_msg = f'You are not authorized to access {download_url}.'
         if self._authenticated:
-            no_auth_msg += ('\nYou do not have access to download this data, or your authentication '
+            no_auth_msg += ('\nYou do not have access to this data, or your authentication '
                             'token may be expired. You can generate a new token at '
                             'https://auth.mast.stsci.edu/token?suggested_name=Astroquery&'
                             'suggested_scope=mast:exclusive_access')
@@ -1026,7 +1026,9 @@ class MastMissionsClass(MastQueryWithLogin):
                                       '`pip install astroquery[all]`.', ImportWarning)
 
                 # Make an authenticated request to get the presigned S3 URL for the ASDF file
-                headers = {"Authorization": f"token {self._auth_obj.session.cookies['mast_token']}"}
+                headers = {}
+                if self._authenticated:
+                    headers["Authorization"] = f"token {self._auth_obj.session.cookies['mast_token']}"
                 resp = requests.get(
                     download_url,
                     headers=headers,
