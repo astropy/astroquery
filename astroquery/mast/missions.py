@@ -990,6 +990,10 @@ class MastMissionsClass(MastQueryWithLogin):
     def read_product(self, uri, *, mission=None, **kwargs):
         """
         Reads a data product file directly from a URI into an appropriate in-memory object based on file type.
+        Supported file types are FITS and ASDF.
+
+        FITS files are opened with `~astropy.io.fits.open` and are downloaded and cached on disk. ASDF files
+        are opened directly from the presigned S3 URL using `fsspec` and `asdf`, without being downloaded to disk.
 
         Parameters
         ----------
