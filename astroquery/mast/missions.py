@@ -993,7 +993,7 @@ class MastMissionsClass(MastQueryWithLogin):
         Supported file types are FITS and ASDF.
 
         FITS files are opened with `~astropy.io.fits.open` and are downloaded and cached on disk. ASDF files
-        are opened directly from the presigned S3 URL using `fsspec` and `asdf`, without being downloaded to disk.
+        are opened directly from the presigned S3 URL using `~fsspec.open` and `~asdf.open`, without being downloaded to disk.
 
         Parameters
         ----------
