@@ -330,13 +330,15 @@ The filter below returns FITS products that are "science" type **and** less than
 Reading Data Products
 ======================
 
-The `~astroquery.mast.MastMissionsClass.read_product` function allows you to read a data product directly into memory as an `~astropy.io.fits.HDUList`
-or an `~asdf.AsdfFile` object. The function accepts a product URI or a direct filename (for certain missions) as input.
+The `~astroquery.mast.MastMissionsClass.read_product` function allows you to read FITS or ASDF data products directly into memory as `~astropy.io.fits.HDUList`
+or `~asdf.AsdfFile` objects, respectively. The function accepts a product URI or a direct filename (for certain missions) as input.
 
-Products from the Roman Space Telescope mission are returned as ASDF files and can be read into memory as `~asdf.AsdfFile` objects.
-This requires the `~asdf` and ``fsspec`` packages to be installed. Other optional packages for reading products may be required depending on the product
-type and file format. These packages are ``gwcs``, ``lz4``, and ``roman_datamodels``. To install astroquery with all optional dependencies,
-use ``pip install astroquery[all]``.
+FITS files are opened with `~astropy.io.fits.open` and are downloaded and cached locally.
+
+ASDF products from the Roman Space Telescope mission are opened directly as `~asdf.AsdfFile` objects from presigned S3 URLs,
+without being downloaded locally. This requires the `~asdf` and `~fsspec` packages to be installed. Other optional packages for
+reading products may be required depending on the product type and file format. These packages are ``gwcs``, ``lz4``, and ``roman_datamodels``.
+To install astroquery with all optional dependencies, use ``pip install astroquery[all]``.
 
 Remember that this method returns an open file object, so it is the user's responsibility to close the file when finished. This can be done
 with a context manager or by calling the ``close()`` method on the returned object.

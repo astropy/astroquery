@@ -783,7 +783,7 @@ def mock_asdf_open(mocker):
     mocker.patch("fsspec.filesystem", return_value=mock_fs)
 
     # Create a mock AsdfFile
-    mock_asdf_file = asdf.AsdfFile()
+    mock_asdf_file = MagicMock(spec=asdf.AsdfFile)
 
     return mocker.patch("asdf.open", return_value=mock_asdf_file)
 
