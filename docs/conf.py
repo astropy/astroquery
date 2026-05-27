@@ -56,7 +56,8 @@ intersphinx_mapping.update({
     'regions': ('https://astropy-regions.readthedocs.io/en/stable', None),
     'mocpy': ('https://cds-astro.github.io/mocpy', None),
     'pyvo': ('https://pyvo.readthedocs.io/en/stable', None),
-    'asdf': ('https://asdf.readthedocs.io/en/stable/', None),
+    'asdf': ('https://asdf.readthedocs.io/en/stable', None),
+    'fsspec': ('https://filesystem-spec.readthedocs.io/en/stable', None),
 })
 
 # -- Project information ------------------------------------------------------
