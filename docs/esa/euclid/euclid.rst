@@ -555,19 +555,6 @@ Finally, extract the job id's included in a given time range (in the example bel
     >>> jobs_to_delete  = subset['job_id'].to_list()
     >>> Euclid.remove_jobs(jobs_to_delete)
 
-.. _appendix:
-
-========
-Appendix
-========
-
-The following table summarises the available values of the parameters of the method get_scientific_product_list.
-
-.. csv-table:: Valid values for the parameters of the method get_scientific_product_list
-    :file: table_values.csv
-    :header-rows: 1
-    :widths: auto
-
 =============
 Reference/API
 =============
