@@ -15,18 +15,19 @@ import zipfile
 from collections.abc import Iterable
 from datetime import datetime
 from datetime import timezone
+from functools import cache
 
 from astropy import units
 from astropy import units as u
 from astropy.coordinates import Angle
 from astropy.units import Quantity
 from astropy.utils import deprecated_renamed_argument
-from requests.exceptions import HTTPError
-
 from astroquery import log
 from astroquery.utils import commons
 from astroquery.utils.tap import TapPlus
 from astroquery.utils.tap import taputils
+from requests.exceptions import HTTPError
+
 from . import conf
 
 
@@ -1307,31 +1308,40 @@ class EuclidClass(TapPlus):
                                  format_with_results_compressed=('votable_gzip',))
         return job.get_results()
 
-    def __get_data_set_release_by_env(self, dsr_1_value=None, dsr_2_value=None, dsr_3_value=None,
-                                      alias=None):
+    def __get_data_set_release_by_env(self, dsr_1_value=None, dsr_2_value=None, dsr_3_value=None, alias=None):
+        """
+        Build a SQL WHERE clause for filtering dataset releases by environment values.
 
-        query = None
+        Parameters:
+            dsr_1_value: Optional value for the first dataset release field.
+            dsr_2_value: Optional value for the second dataset release field.
+            dsr_3_value: Optional value for the third dataset release field.
+                         If set to "latest", the clause filters on latest = true.
+            alias: Optional table alias prepended to field names.
+
+        Returns:
+            A string containing SQL conditions joined with AND, or None if no
+            filter values are provided.
+        """
+
+        clauses = []
+
+        def build_key(field):
+            return ".".join(filter(None, [alias, str(field)]))
+
         if dsr_1_value is not None:
-            dsr_1_key = '.'.join(filter(None, [alias, self.dsr_1]))
-            query = f"{dsr_1_key} = '{dsr_1_value}'"
+            clauses.append(f"{build_key(self.dsr_1)} = '{dsr_1_value}'")
 
         if dsr_2_value is not None:
-            dsr_2_key = '.'.join(filter(None, [alias, self.dsr_2]))
-            subquery = f"{dsr_2_key} = '{dsr_2_value}'"
-            if query is not None:
-                query = f"{query} AND {subquery}"
-            else:
-                query = subquery
+            clauses.append(f"{build_key(self.dsr_2)} = '{dsr_2_value}'")
 
         if dsr_3_value is not None:
-            dsr_3_key = '.'.join(filter(None, [alias, str(self.dsr_3)]))
-            subquery = f"{dsr_3_key} = {dsr_3_value}"
-            if query is not None:
-                query = f"{query} AND {subquery}"
+            if dsr_3_value == "latest":
+                clauses.append("latest = 'true'")
             else:
-                query = subquery
+                clauses.append(f"{build_key(self.dsr_3)} = {dsr_3_value}")
 
-        return query
+        return " AND ".join(clauses) if clauses else None
 
     def get_product(self, *, file_name=None, product_id=None, schema='sedm', output_file=None, dsr_part1=None,
                     dsr_part2=None, dsr_part3=None, verbose=False):
@@ -1662,18 +1672,19 @@ class EuclidClass(TapPlus):
         ids : str, int, list of str or list of int, mandatory
             list of identifiers
         linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID or SOURCEPATCH_ID
-            By default, all the identifiers are considered as source_id
-            SOURCE_ID: the identifiers are considered as source_id
-            SOURCEPATCH_ID: the identifiers are considered as sourcepatch_id
+            Specifies how the identifiers should be interpreted. By default, all the identifiers are considered as source_id
+            ``SOURCE_ID``: The identifiers are interpreted as ``source_id`` values.
+            ``SOURCEPATCH_ID``: The identifiers are interpreted as ``sourcepatch_id`` values.
         extra_options : str, optional, default None, valid values: METADATA
-            To let customize the server behaviour, if present.
-            If provided with value METADATA, the extra fields datalabs_path, file_name & hdu_index will be retrieved.
+            Additional options used to customize server behavior.
+            Valid values are: ``METADATA``: Retrieves the additional fields;``datalabs_path``, ``file_name``, and ``hdu_index``.
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
         Returns
         -------
-        A table object
+        astropy.table.Table
+            Table containing the retrieved datalinks.
 
         """
 
@@ -1689,169 +1700,123 @@ class EuclidClass(TapPlus):
         return self.__eucliddata.get_datalinks(ids=ids, linking_parameter=final_linking_parameter,
                                                extra_options=extra_options, verbose=verbose)
 
+    @cache
+    def get_valid_le3_configuration_values(self):
+        """ Gets the valid LE3 configuration values.
+
+        Returns
+        -------
+        pandas.DataFrame
+            DataFrame containing the valid LE3 configuration values.
+        """
+
+        query = 'select level_3_category, level_3_group, product_type from common.level_3_configuration order by level_3_category, level_3_group, product_type'
+        job = super().launch_job(query=query, format_with_results_compressed=('votable_gzip',))
+
+        return job.get_results().to_pandas()
+
     def get_scientific_product_list(self, *, observation_id=None, tile_index=None, category=None, group=None,
                                     product_type=None, dataset_release='REGREPROC1_R2', dsr_part1=None, dsr_part2=None,
                                     dsr_part3=None, verbose=False):
         """ Gets the LE3 products (the high-level science data products).
 
-        Please note that not all combinations of category, group, and product_type are valid. Check the available values
-        in https://astroquery.readthedocs.io/en/latest/esa/euclid/euclid.html#appendix
+        Please note that not all combinations of ``category``, ``group``, and ``product_type`` are valid. Use the
+        ``get_valid_le3_configuration_values()`` method to retrieve the list of valid values.
 
         Parameters
         ----------
         observation_id: str, optional, default None.
-            It is not compatible with parameter tile_index.
+            Observation identifier. This parameter is not compatible with ``tile_index``.
         tile_index: str, optional, default None.
-            It is not compatible with parameter observation_id.
+            Tile identifier. This parameter is not compatible with ``observation_id``.
         category: str, optional, default None.
+            Product category.
         group : str, optional, default None
+            Product group.
         product_type : str, optional, default None
+            Product type.
         dataset_release : str, mandatory. Default REGREPROC1_R2
-            Data release from which data should be taken.
+            Data release from which the data should be retrieved.
         dsr_part1: str, optional, default None
             the data set release part 1: for OTF environment, the activity code; for REG and IDR, the target environment
         dsr_part2: str, optional, default None
             the data set release part 2: for OTF environment, the patch id (a positive integer); for REG and IDR,
             the activity code
-        dsr_part3: int, optional, default None
-            the data set release part 3: for OTF, REG and IDR environment, the version (an integer greater than 1)
+        dsr_part3: int or str, optional, default None
+            the data set release part 3: for OTF, REG and IDR environment, the version (an integer greater than 1). If
+            the value is ``latest``, the latest available version of each product type will be retrieved. Note that
+            filtering by ``dsr_part1`` and ``dsr_part2`` is compatible with ``dsr_part3="latest"``.
         verbose : bool, optional, default 'False'
-            flag to display information about the process
+            Flag indicating whether to display information about the process.
 
         Returns
         -------
-        The products in an astropy.table.Table
-
+        astropy.table.Table
+            Table containing the retrieved products.
         """
 
-        query_extra_condition = ""
+        if all(v is None for v in (observation_id, tile_index, category, group, product_type,)):
+            raise ValueError("Include at least one parameter to retrieve a LE3 product.")
 
-        if (observation_id is None and tile_index is None and category is None and group is None and product_type is
-                None):
-            raise ValueError("Include a valid parameter to retrieve a LE3 product.")
-
-        if dataset_release is None:
+        if not dataset_release:
             raise ValueError("The release is required.")
 
         if observation_id is not None and tile_index is not None:
             raise ValueError(self.__ERROR_MSG_REQUESTED_OBSERVATION_ID_AND_TILE_ID)
 
-        if tile_index is not None:
-            query_extra_condition = f" AND '{tile_index}' = ANY(tile_index_list) "
+        if dsr_part3 is not None:
+            if not (isinstance(dsr_part3, int) or dsr_part3 == "latest"):
+                raise ValueError(f"No valid dsr_part3 value: {dsr_part3}")
 
-        dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3)
-        dsr_extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
+        le3_df = self.get_valid_le3_configuration_values()
+
+        filtered = le3_df
+
+        filters = {"level_3_category": category, "level_3_group": group, "product_type": product_type, }
+
+        for column, value in filters.items():
+            if value is None:
+                continue
+            filtered = filtered[filtered[column].eq(value)]
+            if filtered.empty:
+                raise ValueError(
+                    (
+                        "Invalid parameter combination:\n"
+                        f"category={category}\n"
+                        f"group={group}\n"
+                        f"product_type={product_type}\n\n"
+                        "Valid values:\n"
+                        f"{pprint.pformat(le3_df)}"
+                    )
+                )
+
+        conditions = [f"release_name='{dataset_release}'"]
+
+        if tile_index is not None:
+            conditions.append(f"'{tile_index}' = ANY(tile_index_list)")
 
         if observation_id is not None:
-            query_extra_condition = f" AND '{observation_id}' = ANY(observation_id_list) "
+            conditions.append(f"'{observation_id}' = ANY(observation_id_list)")
 
-        if category is not None:
+        dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3)
+        if dsr_condition:
+            conditions.append(dsr_condition)
 
-            try:
-                _ = conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[category]
-            except KeyError:
-                raise ValueError(
-                    f"Invalid combination of parameters: category={category}. Valid values:\n "
-                    f"{pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
+        if product_type is not None:
+            conditions.append(f"product_type = '{product_type}'")
+        else:
+            valid_products = (filtered["product_type"].unique().tolist())
 
-            if group is not None:
+            if not valid_products:
+                raise ValueError("No valid product types found.")
 
-                try:
-                    product_type_for_category_group_list = conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[category][
-                        group]
-                except KeyError:
-                    raise ValueError(
-                        f"Invalid combination of parameters: category={category}; group={group}. Valid "
-                        f"values:\n {pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
+            quoted_products = ", ".join(f"'{p}'" for p in valid_products)
+            conditions.append(f"product_type IN ({quoted_products})")
 
-                if product_type is not None:
+        table = "sedm.level_3"
+        query = f" SELECT * FROM {table} WHERE {' AND '.join(conditions)} ORDER BY observation_id_list ASC "
 
-                    if product_type not in product_type_for_category_group_list:
-                        raise ValueError(
-                            f"Invalid combination of parameters: category={category}; group={group}; "
-                            f"product_type={product_type}. Valid values:\n "
-                            f"{pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
-
-                    query_extra_condition = query_extra_condition + f" AND product_type ='{product_type}' "
-                else:
-
-                    final_products = ', '.join(f"'{w}'" for w in product_type_for_category_group_list)
-                    query_extra_condition = query_extra_condition + f" AND product_type IN ({final_products}) "
-            else:  # category is not None and group is None
-
-                product_type_for_category_group_list = [item for row in
-                                                        conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[category]
-                                                        .values() for item in row]
-                if product_type is not None:
-
-                    if product_type not in product_type_for_category_group_list:
-                        raise ValueError(
-                            f"Invalid combination of parameters: category={category}; product_type={product_type}."
-                            f" Valid values:\n {pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
-
-                    query_extra_condition = query_extra_condition + f" AND product_type = '{product_type}' "
-
-                else:  # category is not None and group is None and product_type is None
-                    final_products = ', '.join(f"'{w}'" for w in product_type_for_category_group_list)
-                    query_extra_condition = query_extra_condition + f" AND product_type IN ({final_products}) "
-        else:  # category is None
-
-            all_groups_dict = {}
-            for i in conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS.keys():
-                all_groups_dict.update(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[i])
-
-            if group is not None:
-
-                try:
-                    _ = all_groups_dict[group]
-                except KeyError:
-                    raise ValueError(
-                        f"Invalid combination of parameters: group={group}. Valid values:\n "
-                        f"{pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
-
-                if product_type is not None:
-
-                    if product_type not in all_groups_dict[group]:
-                        raise ValueError(
-                            f"Invalid combination of parameters: group={group}; product_type={product_type}. Valid "
-                            f"values:\n {pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
-
-                    query_extra_condition = query_extra_condition + f" AND product_type = '{product_type}' "
-                else:  # group is not None and product_type is None
-
-                    product_type_for_group_list = all_groups_dict[group]
-                    final_products = ', '.join(f"'{w}'" for w in product_type_for_group_list)
-                    query_extra_condition = query_extra_condition + f" AND product_type IN ({final_products}) "
-
-            else:  # category is None and group is None
-
-                product_type_for_category_group_list = [element for sublist in all_groups_dict.values() for element
-                                                        in sublist]
-
-                if product_type is not None:
-                    if product_type not in product_type_for_category_group_list:
-                        raise ValueError(
-                            f"Invalid combination of parameters: product_type={product_type}. Valid values:\n "
-                            f"{pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
-
-                    query_extra_condition = query_extra_condition + f" AND product_type = '{product_type}' "
-
-                else:
-                    query_extra_condition = query_extra_condition + ""
-
-        table = 'sedm.basic_download_data'
-        query = (
-            f"SELECT basic_download_data.basic_download_data_oid, basic_download_data.product_type, "
-            f"basic_download_data.product_id, CAST(basic_download_data.observation_id_list as text) AS "
-            f"observation_id_list, CAST(basic_download_data.tile_index_list as text) AS tile_index_list, "
-            f"CAST(basic_download_data.patch_id_list as text) AS patch_id_list, "
-            f"CAST(basic_download_data.filter_name as text) AS filter_name, "
-            f"basic_download_data.data_set_release_part1, basic_download_data.data_set_release_part2, "
-            f"basic_download_data.data_set_release_part3 FROM {table} WHERE "
-            f"release_name='{dataset_release}' {query_extra_condition} {dsr_extra_condition} ORDER BY "
-            f"observation_id_list ASC")
-
-        job = super().launch_job(query=query, output_format='votable_plain', verbose=verbose,
+        job = super().launch_job(query=query, output_format='csv', verbose=verbose,
                                  format_with_results_compressed=('votable_gzip',))
 
         return job.get_results()

@@ -69,7 +69,7 @@ class Conf(_config.ConfigNamespace):
 
     SIR_SCIENCE_FRAME_PRODUCTS = ['dpdSirScienceFrame']
 
-    VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS = {
+    __VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS = {
         'Clusters of Galaxies': {
             'GrpCatalog': ['DpdLE3clAMICOModel', 'DpdLE3clDetMergeParams', 'DpdLE3clDetOnMockParams',
                            'DpdLE3clDetInputParams', 'DpdLE3clAmicoAux', 'DpdLE3clAssociations', 'DpdLE3clPzwavAux',
