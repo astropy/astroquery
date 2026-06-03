@@ -20,14 +20,15 @@ from functools import cache
 from astropy import units
 from astropy import units as u
 from astropy.coordinates import Angle
+from astropy.table import unique
 from astropy.units import Quantity
 from astropy.utils import deprecated_renamed_argument
+from requests.exceptions import HTTPError
+
 from astroquery import log
 from astroquery.utils import commons
 from astroquery.utils.tap import TapPlus
 from astroquery.utils.tap import taputils
-from requests.exceptions import HTTPError
-
 from . import conf
 
 
@@ -1672,12 +1673,14 @@ class EuclidClass(TapPlus):
         ids : str, int, list of str or list of int, mandatory
             list of identifiers
         linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID or SOURCEPATCH_ID
-            Specifies how the identifiers should be interpreted. By default, all the identifiers are considered as source_id
+            Specifies how the identifiers should be interpreted. By default, all the identifiers are considered as
+            source_id
             ``SOURCE_ID``: The identifiers are interpreted as ``source_id`` values.
             ``SOURCEPATCH_ID``: The identifiers are interpreted as ``sourcepatch_id`` values.
         extra_options : str, optional, default None, valid values: METADATA
             Additional options used to customize server behavior.
-            Valid values are: ``METADATA``: Retrieves the additional fields;``datalabs_path``, ``file_name``, and ``hdu_index``.
+            Valid values are: ``METADATA``: Retrieves the additional fields;``datalabs_path``, ``file_name``, and
+            ``hdu_index``.
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1706,14 +1709,15 @@ class EuclidClass(TapPlus):
 
         Returns
         -------
-        pandas.DataFrame
-            DataFrame containing the valid LE3 configuration values.
+        astropy.table.Table
+            Table containing the retrieved products.
         """
 
-        query = 'select level_3_category, level_3_group, product_type from common.level_3_configuration order by level_3_category, level_3_group, product_type'
+        query = ('select level_3_category, level_3_group, product_type from common.level_3_configuration order by '
+                 'level_3_category, level_3_group, product_type')
         job = super().launch_job(query=query, format_with_results_compressed=('votable_gzip',))
 
-        return job.get_results().to_pandas()
+        return job.get_results()
 
     def get_scientific_product_list(self, *, observation_id=None, tile_index=None, category=None, group=None,
                                     product_type=None, dataset_release='REGREPROC1_R2', dsr_part1=None, dsr_part2=None,
@@ -1768,17 +1772,17 @@ class EuclidClass(TapPlus):
             if not (isinstance(dsr_part3, int) or dsr_part3 == "latest"):
                 raise ValueError(f"No valid dsr_part3 value: {dsr_part3}")
 
-        le3_df = self.get_valid_le3_configuration_values()
+        le3_table = self.get_valid_le3_configuration_values()
 
-        filtered = le3_df
+        filtered = le3_table
 
         filters = {"level_3_category": category, "level_3_group": group, "product_type": product_type, }
 
         for column, value in filters.items():
             if value is None:
                 continue
-            filtered = filtered[filtered[column].eq(value)]
-            if filtered.empty:
+            filtered = filtered[filtered[column] == value]
+            if filtered is None or not filtered:
                 raise ValueError(
                     (
                         "Invalid parameter combination:\n"
@@ -1786,7 +1790,7 @@ class EuclidClass(TapPlus):
                         f"group={group}\n"
                         f"product_type={product_type}\n\n"
                         "Valid values:\n"
-                        f"{pprint.pformat(le3_df)}"
+                        f"{pprint.pformat(le3_table)}"
                     )
                 )
 
@@ -1805,7 +1809,7 @@ class EuclidClass(TapPlus):
         if product_type is not None:
             conditions.append(f"product_type = '{product_type}'")
         else:
-            valid_products = (filtered["product_type"].unique().tolist())
+            valid_products = unique(filtered, keys="product_type")["product_type"].tolist()
 
             if not valid_products:
                 raise ValueError("No valid product types found.")

@@ -15,13 +15,15 @@ from unittest.mock import patch
 
 import astropy.units as u
 import numpy as np
-import pandas as pd
 import pytest
 from astropy import coordinates
 from astropy.coordinates.sky_coordinate import SkyCoord
+from astropy.io.votable import parse_single_table
 from astropy.table import Column, Table
 from astropy.units import Quantity
 from astropy.utils.data import get_pkg_data_filename
+from requests import HTTPError
+
 from astroquery.esa.euclid.core import EuclidClass
 from astroquery.esa.euclid.core import conf
 from astroquery.utils.commons import ASTROPY_LT_7_1_1
@@ -30,7 +32,6 @@ from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.core import TapPlus, Tap
 from astroquery.utils.tap.model.tapcolumn import TapColumn
 from astroquery.utils.tap.model.taptable import TapTableMeta
-from requests import HTTPError
 
 package = "astroquery.esa.euclid.tests"
 
@@ -52,6 +53,10 @@ TEST_GET_PRODUCT_LIST = Path(PRODUCT_LIST_FILE_NAME).read_text()
 LE3_SCIENTIFIC_PRODUCT_LIST_FILE_NAME = get_pkg_data_filename(
     os.path.join("data", 'test_get_scientific_product_list.csv'), package=package)
 TEST_GET_SCIENTIFIC_PRODUCT_LIST = Path(LE3_SCIENTIFIC_PRODUCT_LIST_FILE_NAME).read_text()
+
+LE3_VALID_CONFIGURATION_FILE_NAME = get_pkg_data_filename(
+    os.path.join("data", 'test_get_valid_le3_configuration.vot'), package=package)
+TEST_GET_LE3_VALID_CONFIGURATION = Path(LE3_VALID_CONFIGURATION_FILE_NAME).read_text()
 
 MULTIPLE_GET_SPECTRUM = get_pkg_data_filename(os.path.join("data", 'get_spectrum_output.zip'), package=package)
 
@@ -1523,18 +1528,29 @@ def test_get_spectrum_exceptions():
                          output_file='fits_file')
 
 
+def test_get_valid_le3_configuration_values():
+    conn_handler = DummyConnHandler()
+
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+    # Launch response: we use default response because the query contains decimals
+    response_launch_job = DummyResponse(200)
+    response_launch_job.set_data(method='POST', context=None, body=TEST_GET_LE3_VALID_CONFIGURATION, headers=None)
+
+    conn_handler.set_default_response(response_launch_job)
+
+    euclid = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+
+    result = euclid.get_valid_le3_configuration_values()
+
+    assert result is not None
+    assert len(result) == 130
+
+
 @patch.object(EuclidClass, 'get_valid_le3_configuration_values')
 def test_get_scientific_data_product_list(mock_get_valid_le3_configuration_values):
-    data = []
-
-    for category, groups in conf._Conf__VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS.items():
-        for group, product_types in groups.items():
-            for product_type in product_types:
-                data.append([category, group, product_type])
-
-    df = pd.DataFrame(data, columns=["level_3_category", "level_3_group", "product_type"])
-
-    mock_get_valid_le3_configuration_values.return_value = df
+    mock_get_valid_le3_configuration_values.return_value = parse_single_table(
+        LE3_VALID_CONFIGURATION_FILE_NAME).to_table()
 
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
@@ -1609,16 +1625,8 @@ def test_get_scientific_data_product_list(mock_get_valid_le3_configuration_value
 
 @patch.object(EuclidClass, 'get_valid_le3_configuration_values')
 def test_get_scientific_data_product_list_exceptions(mock_get_valid_le3_configuration_values):
-    data = []
-
-    for category, groups in conf._Conf__VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS.items():
-        for group, product_types in groups.items():
-            for product_type in product_types:
-                data.append([category, group, product_type])
-
-    df = pd.DataFrame(data, columns=["level_3_category", "level_3_group", "product_type"])
-
-    mock_get_valid_le3_configuration_values.return_value = df
+    mock_get_valid_le3_configuration_values.return_value = parse_single_table(
+        LE3_VALID_CONFIGURATION_FILE_NAME).to_table()
 
     euclid = EuclidClass()
 
@@ -1639,28 +1647,28 @@ def test_get_scientific_data_product_list_exceptions(mock_get_valid_le3_configur
                        match=r"Invalid parameter combination:\ncategory=None\ngroup=not_valid\nproduct_type=None*."):
         euclid.get_scientific_product_list(observation_id=11111, group='not_valid')
 
-    with pytest.raises(ValueError,
-                       match=r"Invalid parameter combination:\ncategory=None\ngroup=None\nproduct_type=not_valid\n\nValid values*."):
+    values__ = r"Invalid parameter combination:\ncategory=None\ngroup=None\nproduct_type=not_valid\n\nValid values*."
+    with pytest.raises(ValueError, match=values__):
         euclid.get_scientific_product_list(observation_id=11111, product_type='not_valid')
 
-    with pytest.raises(ValueError,
-                       match=r"Invalid parameter combination:\ncategory=Clusters of Galaxies\ngroup=not_valid\nproduct_type=None\n\nValid values*."):
+    values__ = r"Invalid parameter combination:\ncategory=Clusters of Galaxies\ngroup=not_valid*."
+    with pytest.raises(ValueError, match=values__):
         euclid.get_scientific_product_list(observation_id=11111, category='Clusters of Galaxies',
                                            group='not_valid')
 
-    with pytest.raises(ValueError,
-                       match=r"Invalid parameter combination:\ncategory=Clusters of Galaxies\ngroup=GrpCatalog\nproduct_type=not_valid\n\nValid values:*."):
+    values__ = r"Invalid parameter combination:\ncategory=Clusters of Galaxies\ngroup=GrpCatalog*."
+    with pytest.raises(ValueError, match=values__):
         euclid.get_scientific_product_list(observation_id=11111, category='Clusters of Galaxies',
                                            group='GrpCatalog',
                                            product_type='not_valid')
 
-    with pytest.raises(ValueError,
-                       match=r"Invalid parameter combination:\ncategory=Clusters of Galaxies\ngroup=None\nproduct_type=not_valid\n\nValid values:*."):
+    values__ = r"Invalid parameter combination:\ncategory=Clusters of Galaxies\ngroup=None\nproduct_type=not_valid*."
+    with pytest.raises(ValueError, match=values__):
         euclid.get_scientific_product_list(observation_id=11111, category='Clusters of Galaxies',
                                            product_type='not_valid')
 
-    with pytest.raises(ValueError,
-                       match=r"Invalid parameter combination:\ncategory=None\ngroup=GrpCatalog\nproduct_type=not_valid\n\nValid values:*."):
+    values__ = r"Invalid parameter combination:\ncategory=None\ngroup=GrpCatalog\nproduct_type=not_valid*."
+    with pytest.raises(ValueError, match=values__):
         euclid.get_scientific_product_list(observation_id=11111, group='GrpCatalog', product_type='not_valid')
 
     with pytest.raises(ValueError,
