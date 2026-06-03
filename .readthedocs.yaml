@@ -6,6 +6,9 @@ build:
     python: "3.11"
   apt_packages:
     - graphviz
+  jobs:
+    post_checkout:
+      - git fetch --unshallow || true
 
 sphinx:
   builder: html
