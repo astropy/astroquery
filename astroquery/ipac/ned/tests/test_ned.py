@@ -13,7 +13,7 @@ from astroquery.utils.mocks import MockResponse
 
 from astroquery.ipac import ned
 from astroquery.utils import commons
-from astroquery.ipac.ned import conf
+
 
 DATA_FILES = {
     'object': 'query_object.xml',
@@ -34,6 +34,7 @@ DATA_FILES = {
     'image': 'query_images.fits',
     'extract_urls': 'image_extract.html'
 }
+
 
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
@@ -81,31 +82,36 @@ def get_mockreturn(method, url, params=None, timeout=10, **kwargs):
 
 
 def test_get_references_async(patch_get):
-    # from_year and to_year are ignored as they are not supported by NED API of N36.1 release
-    response = ned.Ned.get_table_async("m1", table='references',
-                                            from_year=2010,
-                                            to_year=2013,
-                                            get_query_payload=True)
+    # from_year and to_year are ignored as they are not supported
+    # by NED API of N36.1 release
+    response = ned.Ned.get_table_async("m1",
+                                       table='references',
+                                       from_year=2010,
+                                       to_year=2013,
+                                       get_query_payload=True)
     s_type = ned.Ned.SEARCH_TYPE
-    #assert response['objname'] == 'm1'
-    #assert response['ref_extend'] == 'no'
-    #assert response['begin_year'] == 2010
-    #assert response['end_year'] == 2013
-    #assert response['search_type'] == 'Reference'
+    # assert response['objname'] == 'm1'
+    # assert response['ref_extend'] == 'no'
+    # assert response['begin_year'] == 2010
+    # assert response['end_year'] == 2013
+    # assert response['search_type'] == 'Reference'
     assert response[ned.Ned.DBR_TARGET] == 'm1'
     assert s_type == ned.Ned.OBJSEARCH_REFERENCES
 
     response = ned.Ned.get_table_async("m1", table='references')
     assert response is not None
 
+
 def test_get_references(patch_get):
-    # from_year and to_year are ignored as they are not supported by NED API of N36.1 release
+    # from_year and to_year are ignored as they are not supported
+    # by NED API of N36.1 release
     response = ned.Ned.get_table_async(
         "m1", table='references', from_year=2010)
     assert response is not None
     result = ned.Ned.get_table(
         "m1", table='references', to_year=2012, extended_search=True)
     assert isinstance(result, Table)
+
 
 def test_get_crossids_async(patch_get):
     response = ned.Ned.get_table_async(
@@ -116,9 +122,11 @@ def test_get_crossids_async(patch_get):
     response = ned.Ned.get_table_async("3C 273", table='crossids')
     assert response is not None
 
+
 def test_get_crossids(patch_get):
     result = ned.Ned.get_table("3C 273", table='crossids')
     assert isinstance(result, Table)
+
 
 def test_get_diameters_async(patch_get):
     response = ned.Ned.get_table_async(
@@ -129,9 +137,11 @@ def test_get_diameters_async(patch_get):
     response = ned.Ned.get_table_async("m1", table='diameters')
     assert response is not None
 
+
 def test_get_diameters(patch_get):
     result = ned.Ned.get_table("m1", table='diameters')
     assert isinstance(result, Table)
+
 
 def test_get_distances_async(patch_get):
     response = ned.Ned.get_table_async(
@@ -142,9 +152,11 @@ def test_get_distances_async(patch_get):
     response = ned.Ned.get_table_async("3C 273", table='distances')
     assert response is not None
 
+
 def test_get_distances(patch_get):
     result = ned.Ned.get_table("3C 273", table='distances')
     assert isinstance(result, Table)
+
 
 def test_get_extinctions_async(patch_get):
     response = ned.Ned.get_table_async(
@@ -156,9 +168,11 @@ def test_get_extinctions_async(patch_get):
     response = ned.Ned.get_table_async("3C 273", table='extinctions')
     assert response is not None
 
+
 def test_get_extinctions(patch_get):
     result = ned.Ned.get_table("3C 273", table='extinctions')
     assert isinstance(result, Table)
+
 
 def test_get_positions_async(patch_get):
     response = ned.Ned.get_table_async(
@@ -180,12 +194,13 @@ def test_get_redshifts_async(patch_get):
     response = ned.Ned.get_table_async(
         "3c 273", table='redshifts', get_query_payload=True)
     s_type = ned.Ned.SEARCH_TYPE
-    #assert response['objname'] == '3c 273'
-    #assert response['search_type'] == 'Redshifts'
+    # assert response['objname'] == '3c 273'
+    # assert response['search_type'] == 'Redshifts'
     assert response[ned.Ned.DBR_TARGET] == '3c 273'
     assert s_type == ned.Ned.OBJSEARCH_REDSHIFTS
     response = ned.Ned.get_table_async("3c 273", table='redshifts')
     assert response is not None
+
 
 def test_get_redshifts(patch_get):
     result = ned.Ned.get_table("3c 273", table='redshifts')
@@ -197,8 +212,8 @@ def test_get_photometry_async(patch_get):
         "3c 273", table='photometry', get_query_payload=True)
     s_type = ned.Ned.SEARCH_TYPE
     assert response[ned.Ned.DBR_TARGET] == '3c 273'
-    #assert response['meas_type'] == 'bot'
-    #assert response['search_type'] == 'Photometry'
+    # assert response['meas_type'] == 'bot'
+    # assert response['search_type'] == 'Photometry'
     assert s_type == ned.Ned.OBJSEARCH_PHOTOMETRY
     response = ned.Ned.get_table_async("3C 273", table='photometry')
     assert response is not None
@@ -207,6 +222,7 @@ def test_get_photometry_async(patch_get):
 def test_photometry(patch_get):
     result = ned.Ned.get_table("3c 273", table='photometry')
     assert isinstance(result, Table)
+
 
 def test_extract_image_urls():
     with open(data_path(DATA_FILES['extract_urls']), 'r') as infile:
@@ -235,9 +251,10 @@ def test_get_images(patch_get, patch_get_readable_fileobj):
 
 
 def test_query_refcode_async(patch_get):
-    response = ned.Ned.query_refcode_async('1997A&A...323...31K', get_query_payload=True)
+    response = ned.Ned.query_refcode_async('1997A&A...323...31K',
+                                           get_query_payload=True)
     s_type = ned.Ned.SEARCH_TYPE
-    #assert response == {'search_type': 'Search',
+    # assert response == {'search_type': 'Search',
     #                    'refcode': '1997A&A...323...31K',
     #                    'hconst': conf.hubble_constant,
     #                    'omegam': 0.27,
@@ -295,14 +312,16 @@ def test_query_region_async(monkeypatch, patch_get):
     # assert response['search_type'] == "Near Name Search"
     # check with Galactic coordinates
     response = ned.Ned.query_region_async(
-        coord.SkyCoord(l=-67.02084 * u.deg, b=-29.75447 * u.deg, frame="galactic"),
+        coord.SkyCoord(l=-67.02084 * u.deg, b=-29.75447 * u.deg,
+                       frame="galactic"),
         get_query_payload=True)
     s_type = ned.Ned.SEARCH_TYPE
     assert s_type == ned.Ned.CONESEARCH_POSITION
     # assert response['search_type'] == 'Near Position Search'
     npt.assert_approx_equal(
         float(response[ned.Ned.DBR_LON]) % 360, -67.02084 % 360, significant=5)
-    npt.assert_approx_equal(float(response[ned.Ned.DBR_LAT]), -29.75447, significant=5)
+    npt.assert_approx_equal(float(response[ned.Ned.DBR_LAT]), -29.75447,
+                            significant=5)
     response = ned.Ned.query_region_async("05h35m17.3s +22d00m52.2s")
     assert response is not None
 
@@ -349,8 +368,10 @@ def test_parse_result(capsys):
     with pytest.raises(RemoteServiceError) as exinfo:
         ned.Ned._parse_result(response)
 
-    error_message = ("The remote service returned the following message.\nERROR: "
-                     "GeneralFault:\nService could not complete request; Please provide a valid search radius (6)")
+    error_message = (
+        "The remote service returned the following message.\nERROR: "
+        "GeneralFault:\nService could not complete request; Please "
+        "provide a valid search radius (6)")
     if hasattr(exinfo.value, 'message'):
         assert exinfo.value.message == (error_message)
     else:
