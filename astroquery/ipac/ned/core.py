@@ -261,8 +261,8 @@ class NedClass(BaseQuery):
                 c = commons.parse_coordinates(coordinates)
                 ra, dec, equ, frame = get_coord_for_ned(c)
                 frame_name = c.frame.name.lower()
-                if (frame_name == NED_COORD_FRAMES['gal'].lower() or
-                        frame_name == NED_COORD_FRAMES['sgal'].lower()):
+                if (frame_name == NED_COORD_FRAMES['gal'].lower()
+                        or frame_name == NED_COORD_FRAMES['sgal'].lower()):
                     request_payload[self.DBR_CSYS] = frame
                     request_payload[self.DBR_LON] = self._fixed_float(
                         ra, digits=decimal_digits)
@@ -442,7 +442,7 @@ class NedClass(BaseQuery):
             or None if an error occurs.
         """
         response = self.query_refcode_async(
-                        refcode, get_query_payload=get_query_payload, **kwargs)
+            refcode, get_query_payload=get_query_payload, **kwargs)
         if get_query_payload:
             return response
         result = self._parse_result(response, verbose=verbose)
@@ -827,7 +827,7 @@ class NedClass(BaseQuery):
         return response
 
     @staticmethod
-    def _fixed_float(num,  digits=-1, unit=''):
+    def _fixed_float(num, digits=-1, unit=''):
         """
         Form a string containing a float number with specified
         precision and the unit.
