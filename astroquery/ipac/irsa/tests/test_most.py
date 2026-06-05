@@ -6,9 +6,10 @@ import pytest
 
 from astropy.io import votable
 from astropy.table import Table
+from astropy.utils.diff import report_diff_values
+from astropy.utils.exceptions import AstropyDeprecationWarning
 from astroquery.utils.mocks import MockResponse
 from astroquery.ipac.irsa import Most
-from astropy.utils.diff import report_diff_values
 
 
 # each MOST query is given a PID and a temporary directory availible publicly
@@ -248,3 +249,30 @@ def test_gator(patch_requests):
     tbl = Table.read(data_path("most_gator.tbl"), format="ipac")
     silent_stream = io.StringIO()
     assert report_diff_values(tbl, response, silent_stream)
+
+
+def test_naifid_input(patch_requests):
+    """NAIF ID input mode works with the correct 'naifid_input' spelling."""
+    response = Most.query_object(
+        obj_naifid="606",
+        input_mode="naifid_input",
+        output_mode="Brief",
+    )
+    assert len(response) > 0
+
+
+def test_nafid_deprecation(patch_requests):
+    """Deprecated 'obj_nafid' and 'nafid_input' emit AstropyDeprecationWarning."""
+    with pytest.warns(AstropyDeprecationWarning, match="obj_naifid"):
+        Most.query_object(
+            obj_nafid="606",
+            input_mode="naifid_input",
+            output_mode="Brief",
+        )
+
+    with pytest.warns(AstropyDeprecationWarning, match="naifid_input"):
+        Most.query_object(
+            obj_naifid="606",
+            input_mode="nafid_input",
+            output_mode="Brief",
+        )
