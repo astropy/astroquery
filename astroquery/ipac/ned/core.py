@@ -3,11 +3,8 @@
 
 import re
 from io import BytesIO
-from collections import namedtuple
 from xml.dom.minidom import parseString
 from xml.parsers.expat import ExpatError
-
-from datetime import datetime, timezone
 
 import astropy.units as u
 import astropy.coordinates as coord
@@ -17,11 +14,17 @@ from astropy.coordinates import FK5
 from astroquery.query import BaseQuery
 from astroquery.utils import commons
 from astroquery.ipac.ned import conf
-from astroquery.exceptions import TableParseError, RemoteServiceError, InvalidQueryError
+from astroquery.exceptions import (
+    TableParseError,
+    RemoteServiceError,
+    InvalidQueryError
+)
 
 __all__ = ["Ned", "NedClass"]
-NED_COORD_FRAMES = {'equ': 'Equatorial', 'ecl': 'Ecliptic', 'gal': 'Galactic', 'sgal': 'SuperGalactic'}
+NED_COORD_FRAMES = {'equ': 'Equatorial', 'ecl': 'Ecliptic',
+                    'gal': 'Galactic', 'sgal': 'SuperGalactic'}
 NED_COORD_EQUINOX = {'j': 'J2000', 'b': 'B1950'}
+
 
 class NedClass(BaseQuery):
     """
@@ -51,7 +54,6 @@ class NedClass(BaseQuery):
     CONESEARCH_POSITION = "ConeSearchByPosition"
     CONESEARCH_IAU = "ConeSearchByIAUstyle"
 
-
     DBR_TARGET = 'TARGET'
     DBR_LON = 'LON'
     DBR_LAT = 'LAT'
@@ -65,10 +67,11 @@ class NedClass(BaseQuery):
 
     SEARCH_TYPE = ''
 
-    def query_object(self, object_name, *, get_query_payload=False,
-                        verbose=False):
+    def query_object(self, object_name, *,
+                     get_query_payload=False, verbose=False):
         """
-        Query object by name from the NED DBR Service and returns the Main Source Table.
+        Query object by name from the NED DBR Service and returns the Main
+        Source Table.
 
         Parameters
         ----------
@@ -86,11 +89,12 @@ class NedClass(BaseQuery):
         response : dict, if get_query_payload is `True`.
             The service query key/value set.
         result : `~astropy.table.Table`
-            The result of the query as an `~astropy.table.Table` object, or None if an error occurs.
+            The result of the query as an `~astropy.table.Table` object,
+            or None if an error occurs.
         """
         # for NED's object by name
         response = self.query_object_async(object_name,
-                                            get_query_payload=get_query_payload)
+                                           get_query_payload=get_query_payload)
         if get_query_payload:
             return response
         result = self._parse_result(response, verbose=verbose)
@@ -98,9 +102,11 @@ class NedClass(BaseQuery):
 
     def query_object_async(self, object_name, *, get_query_payload=False):
         """
-        Query objects by name from the NED DBR Service and returns the raw HTTP response.
+        Query objects by name from the NED DBR Service and returns the raw
+        HTTP response.
 
-        Serves the same purpose as `~NedClass.query_object` but returns the raw HTTP response
+        Serves the same purpose as `~NedClass.query_object` but returns the
+        raw HTTP response
         rather than the `~astropy.table.Table` object.
 
         Parameters
@@ -122,14 +128,18 @@ class NedClass(BaseQuery):
         request_payload[self.DBR_RADIUS] = 0
         self.SEARCH_TYPE = "object"
 
-        return self.handle_response(get_query_payload, self.DBR_BASE_URL + self.CONESEARCH_TARGET, request_payload)
+        return self.handle_response(get_query_payload,
+                                    self.DBR_BASE_URL + self.CONESEARCH_TARGET,
+                                    request_payload)
 
     def query_region(self, coordinates, *, radius=1 * u.arcmin,
-                         get_query_payload=False, verbose=False, **kwargs):
+                     get_query_payload=False, verbose=False, **kwargs):
         """
-        Query the objects in a region around a known identifier or given coordinates.
+        Query the objects in a region around a known identifier or given
+        coordinates.
 
-        Equivalent to the near position and near name queries from the NED web interface.
+        Equivalent to the near position and near name queries from the NED
+        web interface.
 
         Parameters
         ----------
@@ -143,7 +153,8 @@ class NedClass(BaseQuery):
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `~astropy.units` may also be used. Defaults to 1 arcmin.
-            ex: "3.0 arcmin" (str) or 2.0 * u.arcmin (`~astropy.units.Quantity`)
+            ex: "3.0 arcmin" (str) or
+            2.0 * u.arcmin (`~astropy.units.Quantity`)
         get_query_payload : bool, optional
             If set to `True` then returns the dictionary sent as the HTTP
             request.  Defaults to `False`.
@@ -152,27 +163,32 @@ class NedClass(BaseQuery):
             does not conform to the standard. Defaults to `False`.
         kwargs : Keyword Arguments
             z_constraint: str, optional
-                redshift constraint may be ``Unconstrained``, ``Available``, ``Unavailable``, ``Larger Than``,
-                ``Less Than`` or ``Between``.
+                redshift constraint may be ``Unconstrained``, ``Available``,
+                ``Unavailable``, ``Larger Than``, ``Less Than`` or ``Between``.
             z_value1, z_value2: float, optional.
-                z_value1 is the redshift bound for the constraint ``Larger Than``, ``Less Than``, or
-                the minimum value within a range for ``Between``.
+                z_value1 is the redshift bound for the constraint
+                ``Larger Than``, ``Less Than``, or the minimum value within
+                a range for ``Between``.
                 z_value2 is the maximum value within a range for ``Between``.
             z_unit: str, optional
-                redshift value unit may be ``z`` or ``km/s``. Defaults to ``z``.
+                redshift value unit may be ``z`` or ``km/s``.
+                Defaults to ``z``.
             max_rec: int, optional
-                Maximum records to return from the query. Defaults to all records if not specified.
+                Maximum records to return from the query.
+                Defaults to all records if not specified.
 
         Returns
         -------
         response : dict, if get_query_payload is `True`.
             The service query key/value set, or None if an error occurs.
         result : `~astropy.table.Table`
-            The result of the query as an `~astropy.table.Table` object, or None if an error occurs.
+            The result of the query as an `~astropy.table.Table` object
+            or None if an error occurs.
         """
         # for NED's object near name/ near region
-        response = self.query_region_async(coordinates, radius=radius,
-                                            get_query_payload=get_query_payload, **kwargs)
+        response = self.query_region_async(
+            coordinates, radius=radius, get_query_payload=get_query_payload,
+            **kwargs)
         if get_query_payload:
             return response
         result = self._parse_result(response, verbose=verbose)
@@ -181,7 +197,8 @@ class NedClass(BaseQuery):
     def query_region_async(self, coordinates, *, radius=1 * u.arcmin,
                            get_query_payload=False, **kwargs):
         """
-        Query the objects in a region around a known identifier or given coordinates.
+        Query the objects in a region around a known identifier or given
+        coordinates.
 
         Serves the same purpose as `~NedClass.query_region` but returns the
         raw HTTP response rather than the `~astropy.table.Table` object.
@@ -198,22 +215,26 @@ class NedClass(BaseQuery):
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `~astropy.units` may also be used. Defaults to 1 arcmin.
-            ex: "3.0 arcmin" (str) or 2.0 * u.arcmin (`~astropy.units.Quantity`)
+            ex: "3.0 arcmin" (str) or 2.0 * u.arcmin
+            (`~astropy.units.Quantity`)
         get_query_payload : bool, optional
             If set to `True` then returns the dictionary sent as the HTTP
             request.  Defaults to `False`.
         kwargs : Keyword Arguments
             z_constraint: str, optional
-                redshift constraint may be ``Unconstrained``, ``Available``, ``Unavailable``, ``Larger Than``,
-                ``Less Than`` or ``Between``.
+                redshift constraint may be ``Unconstrained``, ``Available``,
+                ``Unavailable``, ``Larger Than``, ``Less Than`` or ``Between``.
             z_value1, z_value2: float, optional.
-                z_value1 is the redshift bound for the constraint ``Larger Than``, ``Less Than``, or
-                the minimum value within a range for ``Between``.
+                z_value1 is the redshift bound for the constraint
+                ``Larger Than``, ``Less Than``, or the minimum value within
+                a range for ``Between``.
                 z_value2 is the maximum value within a range for ``Between``.
             z_unit: str, optional
-                redshift value unit may be ``z`` or ``km/s``. Defaults to ``z``.
+                redshift value unit may be ``z`` or ``km/s``.
+                Defaults to ``z``.
             max_rec: int, optional
-                Maximum records to return from the query.  Defaults to all records if not specified.
+                Maximum records to return from the query.
+                Defaults to all records if not specified.
 
         Returns
         -------
@@ -228,7 +249,8 @@ class NedClass(BaseQuery):
         InvalidQueryError : if there is error in the redshift constraint.
         """
         decimal_digits = 8
-        request_payload = self._request_payload_init(max_rec=self._get_maxrec(**kwargs))
+        request_payload = self._request_payload_init(
+            max_rec=self._get_maxrec(**kwargs))
 
         # if its a name then query near name
         if not commons._is_coordinate(coordinates):
@@ -239,17 +261,22 @@ class NedClass(BaseQuery):
                 c = commons.parse_coordinates(coordinates)
                 ra, dec, equ, frame = get_coord_for_ned(c)
                 frame_name = c.frame.name.lower()
-                if frame_name == NED_COORD_FRAMES['gal'].lower() or frame_name == NED_COORD_FRAMES['sgal'].lower():
+                if (frame_name == NED_COORD_FRAMES['gal'].lower() or
+                        frame_name == NED_COORD_FRAMES['sgal'].lower()):
                     request_payload[self.DBR_CSYS] = frame
-                    request_payload[self.DBR_LON] = self._fixed_float(ra, digits=decimal_digits)
-                    request_payload[self.DBR_LAT] = self._fixed_float(dec, digits=decimal_digits)
+                    request_payload[self.DBR_LON] = self._fixed_float(
+                        ra, digits=decimal_digits)
+                    request_payload[self.DBR_LAT] = self._fixed_float(
+                        dec, digits=decimal_digits)
                 else:
                     request_payload[self.DBR_CSYS] = frame
                     request_payload[self.DBR_EQUINOX] = equ
-                    request_payload[self.DBR_LON] = self._fixed_float(ra, unit='h', digits=decimal_digits)
-                    request_payload[self.DBR_LAT] = self._fixed_float(dec, unit='d', digits=decimal_digits)
+                    request_payload[self.DBR_LON] = self._fixed_float(
+                        ra, unit='h', digits=decimal_digits)
+                    request_payload[self.DBR_LAT] = self._fixed_float(
+                        dec, unit='d', digits=decimal_digits)
                 self.SEARCH_TYPE = Ned.CONESEARCH_POSITION
-            except (u.UnitsError, TypeError, ValueError) as e:
+            except (u.UnitsError, TypeError, ValueError):
                 raise TypeError("Coordinates not specified correctly")
 
         z_constraint, msg = self._check_redshift_constraints(**kwargs)
@@ -260,12 +287,16 @@ class NedClass(BaseQuery):
                 request_payload[k] = v
 
         request_payload[self.DBR_RADIUS] = coord.Angle(radius).arcmin
-        return self.handle_response(get_query_payload, self.DBR_BASE_URL + self.SEARCH_TYPE, request_payload)
+        return self.handle_response(
+            get_query_payload,
+            self.DBR_BASE_URL + self.SEARCH_TYPE,
+            request_payload)
 
     def query_region_iau(self, iau_name, *, equinox='B1950',
                          get_query_payload=False, verbose=False, **kwargs):
         """
-        Query the Ned service to do cone search via the IAU name in the equatorial coordinate system.
+        Query the Ned service to do cone search via the IAU name in the
+        equatorial coordinate system.
 
         Equivalent to the IAU format queries of the Web interface.
 
@@ -276,7 +307,8 @@ class NedClass(BaseQuery):
             centered. Definition of IAU coordinates at
             https://cds.unistra.fr/Dic/iau-spec.html.
         equinox : str, optional
-            The equinox may be one of ``J2000`` or ``B1950``. Defaults to ``B1950``.
+            The equinox may be one of ``J2000`` or ``B1950``.
+            Defaults to ``B1950``.
         get_query_payload : bool, optional
             If set to `True` then returns the dictionary sent as the HTTP
             request.  Defaults to `False`
@@ -285,13 +317,15 @@ class NedClass(BaseQuery):
             does not conform to the standard. Defaults to `False`.
         kwargs : Keyword Argumants
             z_constraint: str, optional
-                redshift constraint may be ``Unconstrained``, ``Available``, ``Unavailable``, ``Larger Than``,
-                ``Less Than`` or ``Between``.
+                redshift constraint may be ``Unconstrained``, ``Available``,
+                ``Unavailable``, ``Larger Than``, ``Less Than`` or ``Between``.
             z_value1, z_value2: float, optional.
-                z_value1 is for ``Larger Than``, ``Less Than``, or minimum of ``Between``.
-                z_value2 is for maximum of ``Between``.
+                z_value1 is for ``Larger Than``, ``Less Than``, or the minimum
+                of ``Between``.
+                z_value2 is for the maximum of ``Between``.
             z_unit: str, optional
-                redshift value unit may be ``z`` or ``km/s``.  Defaults to ``z``.
+                redshift value unit may be ``z`` or ``km/s``.
+                Defaults to ``z``.
             max_rec: int, optional
                 Maximum records to return from the query.
 
@@ -300,7 +334,8 @@ class NedClass(BaseQuery):
         response : dict, if get_query_payload is `True`.
             The service query key/value set, or None if an error occurs.
         result : `~astropy.table.Table`
-            The result of the query as an `~astropy.table.Table` object, or None if an error occurs.
+            The result of the query as an `~astropy.table.Table` object,
+            or None if an error occurs.
         """
         response = self.query_region_iau_async(
             iau_name, equinox=equinox,
@@ -311,9 +346,11 @@ class NedClass(BaseQuery):
         return result
 
     def query_region_iau_async(self, iau_name, *,
-                                   equinox='B1950', get_query_payload=False, **kwargs):
+                               equinox='B1950',
+                               get_query_payload=False, **kwargs):
         """
-        Query the NED services to do cone search via the IAU name in the equatorial coordinate system.
+        Query the NED services to do cone search via the IAU name in the
+        equatorial coordinate system.
 
         Serves the same purpose as `~NedClass.query_region_iau` but returns
         the raw HTTP response rather than the `~astropy.table.Table` object.
@@ -325,19 +362,22 @@ class NedClass(BaseQuery):
             centered. Definition of IAU coordinates at
             https://cds.unistra.fr/Dic/iau-spec.html.
         equinox : str, optional
-            The equinox may be one of ``J2000`` or ``B1950``. Defaults to ``B1950``.
+            The equinox may be one of ``J2000`` or ``B1950``.
+            Defaults to ``B1950``.
         get_query_payload : bool, optional
             If set to `True` then returns the dictionary sent as the HTTP
             request.  Defaults to `False`
         kwargs : Keyword Arguments
             z_constraint: str, optional
-                redshift constraint may be ``Unconstrained``, ``Available``, ``Unavailable``, ``Larger Than``,
-                ``Less Than`` or ``Between``.
+                redshift constraint may be ``Unconstrained``, ``Available``,
+                ``Unavailable``, ``Larger Than``, ``Less Than`` or ``Between``.
             z_value1, z_value2: float, optional.
-                z_value1 is for ``Larger Than``, ``Less Than``, or minimum of ``Between``.
-                z_value2 is for maximum of ``Between``.
+                z_value1 is for ``Larger Than``, ``Less Than``, or
+                the minimum of ``Between``.
+                z_value2 is for the maximum of ``Between``.
             z_unit: str, optional
-                redshift value unit may be ``z`` or ``km/s``.  Defaults to ``z``.
+                redshift value unit may be ``z`` or ``km/s``.
+                Defaults to ``z``.
             max_rec: int, optional
                 Maximum records to return from the query.
 
@@ -346,13 +386,15 @@ class NedClass(BaseQuery):
         dict, if get_query_payload is `True`.
             The service query key/value set.
         `~requests.models.Response`
-            The HTTP response returned from the service, or None if an error occurs.
+            The HTTP response returned from the service, or None if an error
+            occurs.
 
         Raises
         ------
         InvalidQueryError : if there is error in redshift constraint.
         """
-        request_payload = self._request_payload_init(max_rec=self._get_maxrec(**kwargs))
+        request_payload = self._request_payload_init(
+            max_rec=self._get_maxrec(**kwargs))
         request_payload[self.DBR_IAU] = iau_name
         if equinox:
             request_payload[self.DBR_EQUINOX] = equinox
@@ -365,11 +407,13 @@ class NedClass(BaseQuery):
             for k, v in z_constraint.items():
                 request_payload[k] = v
 
-        return self.handle_response(get_query_payload,
-                                    self.DBR_BASE_URL + self.CONESEARCH_IAU, request_payload)
+        return self.handle_response(
+            get_query_payload,
+            self.DBR_BASE_URL + self.CONESEARCH_IAU,
+            request_payload)
 
-
-    def query_refcode(self, refcode, *, get_query_payload=False, verbose=False, **kwargs):
+    def query_refcode(self, refcode, *, get_query_payload=False,
+                      verbose=False, **kwargs):
         """
         Query to retrieve all objects contained in a particular reference.
 
@@ -394,7 +438,8 @@ class NedClass(BaseQuery):
         response : dict, if get_query_payload is `True`.
             The service query key/value set.
         result : `~astropy.table.Table`
-            The result of the query as an `~astropy.table.Table` object, or None if an error occurs.
+            The result of the query as an `~astropy.table.Table` object,
+            or None if an error occurs.
         """
         response = self.query_refcode_async(
                         refcode, get_query_payload=get_query_payload, **kwargs)
@@ -403,7 +448,8 @@ class NedClass(BaseQuery):
         result = self._parse_result(response, verbose=verbose)
         return result
 
-    def query_refcode_async(self, refcode, *, get_query_payload=False, **kwargs):
+    def query_refcode_async(self, refcode, *,
+                            get_query_payload=False, **kwargs):
         """
         Query to retrieve all objects contained in a particular reference.
 
@@ -428,11 +474,15 @@ class NedClass(BaseQuery):
         `~requests.models.Response`
             The HTTP response returned from the service.
         """
-        request_payload = self._request_payload_init(max_rec=self._get_maxrec(**kwargs))
+        request_payload = self._request_payload_init(
+            max_rec=self._get_maxrec(**kwargs))
         request_payload[self.DBR_REFCODE] = refcode
         self.SEARCH_TYPE = self.OBJSEARCH_INREFCODE
 
-        return self.handle_response(get_query_payload, self.DBR_BASE_URL + self.OBJSEARCH_INREFCODE, request_payload)
+        return self.handle_response(
+            get_query_payload,
+            self.DBR_BASE_URL + self.OBJSEARCH_INREFCODE,
+            request_payload)
 
     def get_images(self, object_name, *, get_query_payload=False,
                    show_progress=True):
@@ -563,13 +613,15 @@ class NedClass(BaseQuery):
         object_name : str
             name of the identifier to query.
         get_query_payload : bool, optional
-            If set to `True` then returns the dictionary sent as the HTTP request.  Defaults to `False`
+            If set to `True` then returns the dictionary sent as the HTTP
+            request.  Defaults to `False`
         item : str, optional
             Can be either ``image`` or ``spectra``. Defaults to ``image``.
             Required to decide the right URL to query.
         file_format : str, optional
             Format of images/spectra to return. Defaults to ``fits``.
-            Other options available: ``author-ascii``, ``NED-ascii``, ``VO-table``.
+            Other options available: ``author-ascii``, ``NED-ascii``,
+            ``VO-table``.
 
         Returns
         -------
@@ -602,7 +654,8 @@ class NedClass(BaseQuery):
 
         format : str, optional
             Format of spectra to return. Defaults to ``fits``.
-            Other options available: ``author-ascii``, ``NED-ascii``, ``VO-table``.
+            Other options available: ``author-ascii``, ``NED-ascii``,
+            ``VO-table``.
 
         Returns
         -------
@@ -623,7 +676,8 @@ class NedClass(BaseQuery):
                  'VO-table': 'VOTable'}
 
         pattern = re.compile(
-            fr'<a\s+href\s*?="?\s*?(.+?{extensions[file_format]})"?\s*?>\s*?(?:Retrieve|{names[file_format]})</a>',
+            fr'<a\s+href\s*?="?\s*?(.+?{extensions[file_format]})'
+            fr'"?\s*?>\s*?(?:Retrieve|{names[file_format]})</a>',
             re.IGNORECASE)
         matched_urls = pattern.findall(html_in)
         url_list = [base_url + img_url for img_url in matched_urls]
@@ -641,10 +695,11 @@ class NedClass(BaseQuery):
         object_name : str
             name of the identifier to query.
         table : str, optional
-            Must be one of ``crossids``, ``positions``, ``redshifts``, ``distances``, ``photometry``,
-            ``extinctions``, ``notes`` (or ``object_notes``), ``diameters``, and ``references``.
-            Specifies the type of data-table that must be fetched for the given object.
-            Defaults to ``photometry``.
+            Must be one of ``crossids``, ``positions``, ``redshifts``,
+            ``distances``, ``photometry``, ``extinctions``, ``notes``
+            (or ``object_notes``), ``diameters``, and ``references``.
+            Specifies the type of data-table that must be fetched for the
+            given object. Defaults to ``photometry``.
         get_query_payload : bool, optional
             If set to `True` then returns the dictionary sent as the HTTP
             request.  Defaults to `False`.
@@ -655,14 +710,16 @@ class NedClass(BaseQuery):
             max_rec: int, optional
                 Maximum records to return from the query.
             is_line: bool, optional for photometry service
-                If set to `True` then gets photometry data of line component. Defaults to `False`.
+                If set to `True` then gets photometry data of line component.
+                Defaults to `False`.
 
         Returns
         -------
         response : dict, if get_query_payload is `True`.
             The service query key/value set.
         result : `~astropy.table.Table`
-            The result of the query as an `~astropy.table.Table` object, or None if an error occurs.
+            The result of the query as an `~astropy.table.Table` object,
+            or None if an error occurs.
         """
         response = self.get_table_async(object_name, table=table,
                                         get_query_payload=get_query_payload,
@@ -686,10 +743,11 @@ class NedClass(BaseQuery):
         object_name : str
             name of the identifier to query.
         table : str, optional
-            Must be one of ``crossids``, ``positions``, ``redshifts``, ``distances``, ``photometry``,
-            ``extinctions``, ``notes`` (or ``object_notes``), ``diameters``, and ``references``.
-            Specifies the type of data-table that must be fetched for the given object.
-            Defaults to ``photometry``.
+            Must be one of ``crossids``, ``positions``, ``redshifts``,
+            ``distances``, ``photometry``, ``extinctions``, ``notes``
+            (or ``object_notes``), ``diameters``, and ``references``.
+            Specifies the type of data-table that must be fetched for the
+            given object. Defaults to ``photometry``.
         get_query_payload : bool, optional
             If set to `True` then returns the dictionary sent as the HTTP
             request.  Defaults to `False`.
@@ -697,7 +755,8 @@ class NedClass(BaseQuery):
             max_rec: int, optional
                 Maximum records to return from the query.
             is_line: bool, optional for photometry service
-                If set to `True` then gets photometry data of line component. Defaults to `False`.
+                If set to `True` then gets photometry data of line component.
+                Defaults to `False`.
 
         Returns
         -------
@@ -710,26 +769,32 @@ class NedClass(BaseQuery):
         ------
         InvalidQueryError : if there is error in the specified table service.
         """
-        _SEARCH_TYPE = dict(crossids=self.OBJSEARCH_CROSSIDS,
-                           positions=self.OBJSEARCH_POSITIONS,
-                           redshifts=self.OBJSEARCH_REDSHIFTS,
-                           distances=self.OBJSEARCH_DISTANCES,
-                           photometry=self.OBJSEARCH_PHOTOMETRY,
-                           diameters=self.OBJSEARCH_DIAMETERS,
-                           extinctions=self.OBJSEARCH_EXTINCTION,
-                           object_notes=self.OBJSEARCH_NOTES,
-                           notes=self.OBJSEARCH_NOTES,
-                           references=self.OBJSEARCH_REFERENCES)
+        _SEARCH_TYPE = dict(
+            crossids=self.OBJSEARCH_CROSSIDS,
+            positions=self.OBJSEARCH_POSITIONS,
+            redshifts=self.OBJSEARCH_REDSHIFTS,
+            distances=self.OBJSEARCH_DISTANCES,
+            photometry=self.OBJSEARCH_PHOTOMETRY,
+            diameters=self.OBJSEARCH_DIAMETERS,
+            extinctions=self.OBJSEARCH_EXTINCTION,
+            object_notes=self.OBJSEARCH_NOTES,
+            notes=self.OBJSEARCH_NOTES,
+            references=self.OBJSEARCH_REFERENCES)
 
         if table not in _SEARCH_TYPE.keys():
-            raise  InvalidQueryError("The get_table service for " + table + " is not supported.")
+            raise InvalidQueryError("The get_table service for "
+                                    + table + " is not supported.")
 
-        request_payload = self._request_payload_init(target_name=object_name, max_rec=self._get_maxrec(**kwargs))
+        request_payload = self._request_payload_init(
+            target_name=object_name,
+            max_rec=self._get_maxrec(**kwargs))
         if table == 'photometry' and "is_line" in kwargs and kwargs['is_line']:
             request_payload[self.DBR_ISLINE] = 'yes'
         self.SEARCH_TYPE = _SEARCH_TYPE[table]
 
-        return self.handle_response(get_query_payload, self.DBR_BASE_URL + _SEARCH_TYPE[table], request_payload)
+        return self.handle_response(get_query_payload,
+                                    self.DBR_BASE_URL + _SEARCH_TYPE[table],
+                                    request_payload)
 
     def handle_response(self, get_query_payload, service_url, request_payload):
         """
@@ -738,7 +803,8 @@ class NedClass(BaseQuery):
         Parameters
         ----------
         get_query_payload : bool, optional
-            If set to `True` then returns the dictionary sent as the HTTP request.  Defaults to `False`.
+            If set to `True` then returns the dictionary sent as
+            the HTTP request.  Defaults to `False`.
         service_url : str
             for the URL part containing the server path and the service name
         request_payload : dict
@@ -752,23 +818,25 @@ class NedClass(BaseQuery):
         if get_query_payload:
             return request_payload
 
-        # query_url = service_url + '?' + urllib.parse.urlencode(request_payload)
+        # query_url = service_url + '?'
+        # + urllib.parse.urlencode(request_payload)
 
         response = self._request("GET", url=service_url,
                                  params=request_payload, timeout=self.TIMEOUT)
         response.raise_for_status()
         return response
 
-
     @staticmethod
     def _fixed_float(num,  digits=-1, unit=''):
         """
-        Form a string containing a float number with specified precision and the unit.
+        Form a string containing a float number with specified
+        precision and the unit.
 
         Parameters
         ----------
         digits : int, optional
-            precision after the floating point.  Defaults to `-1`, meaning no precision specified.
+            precision after the floating point.
+            Defaults to `-1`, meaning no precision specified.
         unit : str
             unit for the number. Default to empty string.
 
@@ -784,7 +852,8 @@ class NedClass(BaseQuery):
     @staticmethod
     def _get_maxrec(**kwargs):
         """
-        Get maximum record specification from a list of keyword arguments if there is.
+        Get maximum record specification from a list of keyword
+        arguments if there is.
 
         Parameters
         ----------
@@ -833,25 +902,32 @@ class NedClass(BaseQuery):
         if key_z_c not in kwargs:
             return None, ""
         caseless_constraint = kwargs[key_z_c].casefold()
-        caseless_set = { item.casefold() for item in [_Z_UC, _Z_AV, _Z_UA, _Z_LA, _Z_LE, _Z_BW] }
+        caseless_set = {t.casefold()
+                        for t in [_Z_UC, _Z_AV, _Z_UA, _Z_LA, _Z_LE, _Z_BW]}
         if caseless_constraint not in caseless_set:
             return None, key_z_c + ' ' + kwargs[key_z_c] + ' is not recognized'
         else:
             z_info[key_z_c] = kwargs[key_z_c]
-            if kwargs[key_z_c].casefold() in { item.casefold() for item in [_Z_UC, _Z_AV, _Z_UA] }:
+            if kwargs[key_z_c].casefold() in {
+                    _Z_UC.casefold(), _Z_AV.casefold(), _Z_UA.casefold()}:
                 return z_info, z_msg
-            if kwargs[key_z_c].casefold() in { item.casefold() for item in [_Z_LA, _Z_LE, _Z_BW] }:
+            if kwargs[key_z_c].casefold() in {
+                    _Z_LA.casefold(), _Z_LE.casefold(), _Z_BW.casefold()}:
                 if key_z_v1 in kwargs:
                     z_info[key_z_v1] = kwargs[key_z_v1]
                 else:
-                    return None, key_z_v1 + " has to be provided for  " + key_z_c + ' ' + kwargs[key_z_c]
+                    return (None,
+                            f"{key_z_v1} has to be provided for "
+                            f"{key_z_c} {kwargs[key_z_c]}")
                 if key_z_u in kwargs and kwargs[key_z_u]:
                     z_info[key_z_u] = kwargs[key_z_u]
-            if kwargs[key_z_c].casefold() in { item.casefold() for item in [_Z_BW] }:
+            if kwargs[key_z_c].casefold() in {item.casefold()
+                                              for item in [_Z_BW]}:
                 if key_z_v2 in kwargs:
                     z_info[key_z_v2] = kwargs[key_z_v2]
                 else:
-                    return None, key_z_v2 + " has to be provided for " + key_z_c + ' ' + kwargs[key_z_c]
+                    return (None, f"{key_z_v2} has to be provided for "
+                            f"{key_z_c} {kwargs[key_z_c]}")
 
             return z_info, z_msg
 
@@ -882,7 +958,7 @@ class NedClass(BaseQuery):
 
     def _parse_result(self, response, *, verbose=False):
         """
-        Parse the raw HTTP response and returns it as an `~astropy.table.Table`.
+        Parse the raw HTTP response and return it as an `~astropy.table.Table`.
 
         Parameters
         ----------
@@ -899,8 +975,8 @@ class NedClass(BaseQuery):
 
         Raises
         ------
-        RemoteServiceError : there is error in the response returned from the service
-        TableParseError : there is error in the return data from the services
+        RemoteServiceError : there is error in the response from the service
+        TableParseError : there is error in the return from the service
         """
         if not verbose:
             commons.suppress_vo_warnings()
@@ -914,7 +990,8 @@ class NedClass(BaseQuery):
                         "The remote service returned the following "
                         "message.\nERROR: {err_msg}".format(err_msg=err_msg))
                 raise RemoteServiceError(
-                    "The remote service returned an error, but with no message.")
+                    "The remote service returned an error with no message."
+                )
 
             self.response = response
             self.table_parse_error = ex
@@ -929,12 +1006,15 @@ class NedClass(BaseQuery):
             first_table = p_table.get_first_table()
             table = first_table.to_table(use_names_over_ids=True)
             return table
-        except (ValueError, TypeError, AttributeError, IndexError, ExpatError) as ex:
+        except (ValueError, TypeError, AttributeError,
+                IndexError, ExpatError) as ex:
             _raise_service_or_parse_error(ex)
         except Exception as ex:
             _raise_service_or_parse_error(ex)
 
+
 Ned = NedClass()
+
 
 def get_value_from_paths(obj, attr_paths):
     for attr_path in attr_paths:
@@ -945,6 +1025,7 @@ def get_value_from_paths(obj, attr_paths):
         except AttributeError:
             continue
     return None
+
 
 def get_coord_for_ned(c):
     frame_name = c.frame.name.lower()
@@ -962,10 +1043,12 @@ def get_coord_for_ned(c):
         frame = NED_COORD_FRAMES['sgal']
     elif frame_name == 'fk4' or frame_name == 'fk5':
         frame = NED_COORD_FRAMES['equ']
-        def_equ = NED_COORD_EQUINOX['b'] if frame_name == 'fk4' else NED_COORD_EQUINOX['j']
+        def_equ = NED_COORD_EQUINOX['b'] \
+            if frame_name == 'fk4' else NED_COORD_EQUINOX['j']
         equ = get_equinox(c, equinox=def_equ)
 
-        if equ is None or def_equ not in equ:  # convert fk4/non B1950 or fk5/non J2000 to fk5/J2000
+        # convert fk4/non B1950 or fk5/non J2000 to fk5/J2000
+        if equ is None or def_equ not in equ:
             c = c.transform_to(FK5(equinox=NED_COORD_EQUINOX['j']))
             equ = NED_COORD_EQUINOX['j']
     else:
@@ -983,6 +1066,7 @@ def get_coord_for_ned(c):
         raise ValueError("The coordinate is not available")
 
     return ra, dec, equ, frame
+
 
 def get_equinox(c, equinox=NED_COORD_EQUINOX['j']):
     """
@@ -1008,6 +1092,7 @@ def get_equinox(c, equinox=NED_COORD_EQUINOX['j']):
     if match:
         return match[1]
     return None
+
 
 def _check_ned_valid(string):
     """
@@ -1036,19 +1121,21 @@ def _check_ned_valid(string):
         info_tags = strdom.getElementsByTagName('INFO')
 
     # find element <INFO name='QUERY_STATUS" velue='ERROR'>error message</INFO>
-    # or <PARAM name='QUERY_STATUS" velue='ERROR'><DESCRIPTION>error message</DESCRIPTION></PARAM>
+    # or <PARAM name='QUERY_STATUS" velue='ERROR'>
+    #   <DESCRIPTION>error message</DESCRIPTION></PARAM>
     for info in info_tags:
-        if 'name' in info.attributes.keys() and info.getAttribute("name") == "QUERY_STATUS":
+        if 'name' in info.attributes.keys() and \
+                info.getAttribute("name") == "QUERY_STATUS":
             status_error = "ERROR"
-            if 'value' in info.attributes.keys() and info.getAttribute("value") == status_error:
+            if 'value' in info.attributes.keys() and \
+                    info.getAttribute("value") == status_error:
                 if is_param:
                     desc_child = info.getElementsByTagName('DESCRIPTION')
                     if desc_child:
                         errmsg = desc_child[0].firstChild.nodeValue.strip()
                 else:
                     errmsg = info.firstChild.nodeValue.strip()
-                retval = False   
+                retval = False
                 return retval, errmsg
 
     return retval, errmsg
-
