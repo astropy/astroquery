@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.4" xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/votable-1.4.xsd">
+<RESOURCE type="results">
+<INFO name="QUERY_STATUS" value="OK"/>
+
+<INFO name="QUERY" value="SELECT * FROM common.level_3_configuration "><![CDATA[SELECT *
+FROM common.level_3_configuration ]]></INFO>
+<INFO name="JOBID" value="c8e64ec9-5f29-11f1-b8de-1423f21597f1-TDEV"><![CDATA[c8e64ec9-5f29-11f1-b8de-1423f21597f1-TDEV]]></INFO>
+
+<TABLE>
+<FIELD arraysize="*" datatype="char" name="level_3_category"/>
+<FIELD arraysize="*" datatype="char" name="level_3_group"/>
+<FIELD arraysize="*" datatype="char" name="product_type"/>
+<DATA>
+<TABLEDATA>
+<TR><TD>Internal Data Products</TD><TD>VMSP Group</TD><TD>DpdLE3IDVMSPConfiguration</TD></TR>
+<TR><TD>Internal Data Products</TD><TD>SEL Config/Stats</TD><TD>DpdLE3IDSELIDStatistics</TD></TR>
+<TR><TD>External Data Products</TD><TD>LE3-ED configuration catalog</TD><TD>DpdLE3edConfigurationFile</TD></TR>
+<TR><TD>External Data Products</TD><TD>LE3-ED match catalog</TD><TD>DpdLE3edMatchedCatalog</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdTwoPCFWLCOSEBIFilter</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>PK</TD><TD>DpdPKWLAlms</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2D-MASS</TD><TD>DpdTwoDMassParamsConvergenceClusters</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>2PCF_PK</TD><TD>DpdLE3gcTwoPointAutoCorr</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>3PCF_BK</TD><TD>DpdLE3gcThreePointAll</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>CM-2PCF</TD><TD>DpdLE3gcCovmatTwoPointCov1D</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>CM-PK</TD><TD>DpdLE3gcCovmatPKCov1D</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCatalog</TD><TD>DpdLE3clAMICOModel</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCOMB</TD><TD>DpdLE3clCombConfigurationSet</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpSEL</TD><TD>DpdLE3clSelRandomParams</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpClustering</TD><TD>DpdLE3clTwoPointAutoCorrPol</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpLMF</TD><TD>DpdLE3clLMFParams</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpTiling</TD><TD>DpdLE3clCLTile</TD></TR>
+<TR><TD>Internal Data Products</TD><TD>VMSP Group</TD><TD>DpdLE3IDVMSPDetectionModel</TD></TR>
+<TR><TD>Internal Data Products</TD><TD>SEL Config/Stats</TD><TD>DpdLE3IDSELConfigurationSet</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdTwoPCFWLParamsCOSEBIShearShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>PK</TD><TD>DpdPKWLCovMatrix2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2D-MASS</TD><TD>DpdTwoDMassParamsConvergencePatch</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>2PCF_PK</TD><TD>DpdLE3gcTwoPointCrossCorr</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>3PCF_BK</TD><TD>DpdLE3gcThreePointSin</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>CM-2PCF</TD><TD>DpdLE3gcCovmatTwoPointCov2Dcart</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>CM-PK</TD><TD>DpdLE3gcCovmatPKCov2Dcart</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCatalog</TD><TD>DpdLE3clDetMergeParams</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCOMB</TD><TD>DpdLE3clCombRedSheProf</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpSEL</TD><TD>DpdLE3clSelSelFuncInputParams</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpClustering</TD><TD>DpdLE3clCovmatTwoPointCov2</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpLMF</TD><TD>DpdLE3clLMFOutput</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpTiling</TD><TD>DpdLE3clCommon</TD></TR>
+<TR><TD>Internal Data Products</TD><TD>VMSP Group</TD><TD>DpdLE3IDVMSPDistModel</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdTwoPCFWLParamsClPosPos2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>PK</TD><TD>DpdPKWLEstimate2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2D-MASS</TD><TD>DpdTwoDMassParamsConvergencePatchesToSphere</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>2PCF_PK</TD><TD>DpdLE3gcTwoPointRecCrossCorr</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>3PCF_BK</TD><TD>DpdLE3gcBkMonopole</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>CM-2PCF</TD><TD>DpdLE3gcCovmatTwoPointCov2Dpol</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>CM-PK</TD><TD>DpdLE3gcCovmatPKCov2Dpol</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCatalog</TD><TD>DpdLE3clDetOnMockParams</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCOMB</TD><TD>DpdLE3clCombUCovRedSheProf</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpSEL</TD><TD>DpdLE3clSelSinfoniaIniClMockInputParams</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpClustering</TD><TD>DpolDpdLE3clCovmatPKCov1</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpTiling</TD><TD>DpdLE3clConfigurationSet</TD></TR>
+<TR><TD>Internal Data Products</TD><TD>VMSP Group</TD><TD>DpdLE3IDVMSPRandomCatalog</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdTwoPCFWLParamsPEBPosShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>PK</TD><TD>DpdPKWLMaps</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2D-MASS</TD><TD>DpdTwoDMassParamsConvergenceSphere</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>2PCF_PK</TD><TD>DpdLE3gcTwoPointRecAutoCorr</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>3PCF_BK</TD><TD>DpdLE3gcBkMultipole</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>CM-2PCF</TD><TD>DpdLE3gcCovmatTwoPointCovMu</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCatalog</TD><TD>DpdLE3clDetInputParams</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCOMB</TD><TD>DpdLE3clCombWLME</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpSEL</TD><TD>DpdLE3clSelSinfoniaMockInputParams</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpClustering</TD><TD>DDpdLE3clPkDOA</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdTwoPCFWLParamsPEBShearShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>PK</TD><TD>DpdPKWLMixingMatrix2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2D-MASS</TD><TD>DpdTwoDMassParamsPeakCatalogConvergence</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>2PCF_PK</TD><TD>DpdLE3gcTwoPointAutoCorrCart</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>CM-2PCF</TD><TD>DpdLE3gcCovmatTwoPointCovPro</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCatalog</TD><TD>DpdLE3clAmicoAux</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCOMB</TD><TD>DpdLE3clCombCovMatDeltaSigmaCosmoDep</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpSEL</TD><TD>DpdLE3clSelSelFunc</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpClustering</TD><TD>DpdLE3clPkYam</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdTwoPCFWLClPosPos2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdTwoPCFWLPEBPosShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdTwoPCFWLPEBShearShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdTwoPCFWLPosPos2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdTwoPCFWLPosShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdTwoPCFWLShearShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdCovarTwoPCFWLParams</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdCovarTwoPCFWLClPosPos2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdCovarTwoPCFWLCOSEBIShearShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdCovarTwoPCFWLPEBPosShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdCovarTwoPCFWLPEBShearShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdCovarTwoPCFWLPosPos2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdCovarTwoPCFWLPosShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdCovarTwoPCFWLShearShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdCovarTwoPCFWLResampleCOSEBIShearShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdCovarTwoPCFWLResampleClPosPos2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdCovarTwoPCFWLResamplePEBPosShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdCovarTwoPCFWLResamplePEBShearShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdCovarTwoPCFWLResamplePosPos2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdCovarTwoPCFWLResamplePosShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdCovarTwoPCFWLResampleShearShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2D-MASS</TD><TD>DpdTwoDMassConvergenceSphere</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2D-MASS</TD><TD>DpdTwoDMassPeakCatalog</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>2PCF_PK</TD><TD>DpdLE3gcTwoPointCrossCorrPol</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>2PCF_PK</TD><TD>DpdLE3gcTwoPointRecAutoCorrPol</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>2PCF_PK</TD><TD>DpdLE3gcTwoPointRecCrossCorrPol</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>2PCF_PK</TD><TD>DpdLE3gcPkCross</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>2PCF_PK</TD><TD>DpdLE3gcPkDOA</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>2PCF_PK</TD><TD>DpdLE3gcPkYam</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCatalog</TD><TD>DpdLE3FullDet</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCatalog</TD><TD>DpdLE3clCatMergeParams</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCatalog</TD><TD>DpdLE3clCcpInputParams</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCatalog</TD><TD>DpdLE3clRichMembers</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCatalog</TD><TD>DpdLE3clZClParams</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCatalog</TD><TD>DpdLE3clGlueMatchParams</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCatalog</TD><TD>DpdLE3clMockGlueMatchParams</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpSEL</TD><TD>DpdLE3clMatchForSelParams</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpSEL</TD><TD>DpdLE3clMockClusters</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdTwoPCFWLCOSEBIShearShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2D-MASS</TD><TD>DpdTwoDMassConvergencePatch</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>2PCF_PK</TD><TD>DpdLE3gcTwoPointAutoCorrPol</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCatalog</TD><TD>DpdLE3clDetClusters</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCOMB</TD><TD>DpdLE3clCombStackingCosmoInd</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpSEL</TD><TD>DpdLE3clSelRandom</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdTwoPCFWLParamsShearShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2D-MASS</TD><TD>DpdTwoDMassConvergencePatchesToSphere</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>2PCF_PK</TD><TD>DpdLE3gcTwoPointRecCrossCorrCart</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCatalog</TD><TD>DpdLE3clPZWAVDensity</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCOMB</TD><TD>DpdLE3clCombStackingCosmoDep</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpSEL</TD><TD>DpdLE3clRedshiftDistrib</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdTwoPCFWLParamsPosShear2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2D-MASS</TD><TD>DpdTwoDMassConvergenceClusters</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>2PCF_PK</TD><TD>DpdLE3gcTwoPointRecAutoCorrCart</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCatalog</TD><TD>DpdLE3clPzwavAux</TD></TR>
+<TR><TD>Internal Data Products</TD><TD>SEL Wide</TD><TD>DpdLE3IDSELIDCatalog</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCOMB</TD><TD>DpdLE3clCombCovMatReducedShearCosmoIndep</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpSEL</TD><TD>DpdLE3clSelSubSample</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2PCF</TD><TD>DpdTwoPCFWLParamsPosPos2D</TD></TR>
+<TR><TD>Weak Lensing Products</TD><TD>2D-MASS</TD><TD>DpdTwoDMassParamsPeakCatalogMassAperture</TD></TR>
+<TR><TD>Galaxy Clustering Products</TD><TD>2PCF_PK</TD><TD>DpdLE3gcTwoPointCrossCorrCart</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCatalog</TD><TD>DpdLE3clAssociations</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpCOMB</TD><TD>DpdLE3clCombCovMatReducedShearCosmoDep</TD></TR>
+<TR><TD>Clusters of Galaxies</TD><TD>GrpSEL</TD><TD>DpdLE3clSinfoniaEllipticity</TD></TR>
+<TR><TD>Internal Data Products</TD><TD>SEL Wide</TD><TD>DpdLE3IDSELIDSubsampledCatalog</TD></TR>
+<TR><TD>Internal Data Products</TD><TD>VisibilityMasksVMPZ</TD><TD>DpdRandomCatalogVMPZ</TD></TR>
+</TABLEDATA>
+</DATA>
+
+</TABLE>
+</RESOURCE>
+</VOTABLE>
