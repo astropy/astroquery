@@ -263,7 +263,7 @@ def test_naifid_input(patch_requests):
 
 def test_nafid_deprecation(patch_requests):
     """Deprecated 'obj_nafid' and 'nafid_input' emit AstropyDeprecationWarning."""
-    with pytest.warns(AstropyDeprecationWarning, match="obj_naifid"):
+    with pytest.warns(AstropyDeprecationWarning, match="obj_nafid"):
         Most.query_object(
             obj_nafid="606",
             input_mode="naifid_input",

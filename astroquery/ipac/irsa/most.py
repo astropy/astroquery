@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 
 from astropy.io import votable, fits
 from astropy.table import Table
+from astropy.utils.decorators import deprecated_renamed_argument
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from astroquery.query import BaseQuery
@@ -230,8 +231,9 @@ class MostClass(BaseQuery):
             catalogs.remove("--- Internal use only:")
         return catalogs
 
+    @deprecated_renamed_argument('obj_nafid', 'obj_naifid', since='0.4.12')
     def get_images(self, catalog="wise_merge", input_mode="name_input", ephem_step=0.25,
-                   obs_begin=None, obs_end=None, obj_name=None, obj_nafid=None, obj_naifid=None, obj_type=None,
+                   obs_begin=None, obs_end=None, obj_name=None, obj_naifid=None, obj_type=None,
                    mpc_data=None, body_designation=None, epoch=None, eccentricity=None,
                    inclination=None, arg_perihelion=None, ascend_node=None, semimajor_axis=None,
                    mean_anomaly=None, perih_dist=None, perih_time=None, get_query_payload=False,
@@ -269,9 +271,11 @@ class MostClass(BaseQuery):
         obj_name : str or None
             Object name.
             Required when input mode is ``"name_input"``.
-        obj_nafid : str or None
-            Object NAIFD.
+        obj_naifid : str or None
+            Object NAIF ID.
             Required when input mode is ``"naifid_input"``.
+        obj_nafid : str or None
+            Deprecated name for ``obj_naifid``.
         obj_type : str or None
             Object type, ``"Asteroid"`` or ``Comet``.
             Required when input mode is ``"mpc_input"`` or ``"manual_input"``.
@@ -329,14 +333,6 @@ class MostClass(BaseQuery):
         images : list
             A list of `~astropy.io.fits.HDUList` objects.
         """
-        # Handle deprecated parameters
-        if obj_nafid is not None and obj_naifid is None:
-            warnings.warn(
-                "'obj_nafid' is deprecated; use 'obj_naifid' instead (the API parameter is 'obj_naifid').",
-                AstropyDeprecationWarning,
-                stacklevel=2,
-            )
-            obj_naifid = obj_nafid
         if input_mode == "nafid_input":
             warnings.warn(
                 "'nafid_input' is deprecated; use 'naifid_input' instead (the API value is 'naifid_input').",
@@ -392,10 +388,11 @@ class MostClass(BaseQuery):
 
         return images
 
+    @deprecated_renamed_argument('obj_nafid', 'obj_naifid', since='0.4.12')
     @class_or_instance
     def query_object(self, catalog="wise_merge", input_mode="name_input", output_mode="Regular",
                      ephem_step=0.25, with_tarballs=False, obs_begin=None, obs_end=None,
-                     obj_name=None, obj_nafid=None, obj_naifid=None, obj_type=None, mpc_data=None,
+                     obj_name=None, obj_naifid=None, obj_type=None, mpc_data=None,
                      body_designation=None, epoch=None, eccentricity=None, inclination=None,
                      arg_perihelion=None, ascend_node=None, semimajor_axis=None, mean_anomaly=None,
                      perih_dist=None, perih_time=None, get_query_payload=False):
@@ -454,9 +451,11 @@ class MostClass(BaseQuery):
         obj_name : str or None
             Object name.
             Required when input mode is ``"name_input"``.
-        obj_nafid : str or None
-            Object NAIFD
+        obj_naifid : str or None
+            Object NAIF ID.
             Required when input mode is ``"naifid_input"``.
+        obj_nafid : str or None
+            Deprecated name for ``obj_naifid``.
         obj_type : str or None
             Object type, ``"Asteroid"`` or ``Comet``
             Required when input mode is ``"mpc_input"`` or ``"manual_input"``.
@@ -515,14 +514,6 @@ class MostClass(BaseQuery):
             in ``"VOTable"`` an `~astropy.io.votable.tree.VOTableFile`. See
             module help for more details on the content of these tables.
         """
-        # Handle deprecated parameters
-        if obj_nafid is not None and obj_naifid is None:
-            warnings.warn(
-                "'obj_nafid' is deprecated; use 'obj_naifid' instead (the API parameter is 'obj_naifid').",
-                AstropyDeprecationWarning,
-                stacklevel=2,
-            )
-            obj_naifid = obj_nafid
         if input_mode == "nafid_input":
             warnings.warn(
                 "'nafid_input' is deprecated; use 'naifid_input' instead (the API value is 'naifid_input').",
