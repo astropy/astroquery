@@ -388,8 +388,8 @@ class MostClass(BaseQuery):
 
         return images
 
-    @deprecated_renamed_argument('obj_nafid', 'obj_naifid', since='0.4.12')
     @class_or_instance
+    @deprecated_renamed_argument('obj_nafid', 'obj_naifid', since='0.4.12')
     def query_object(self, catalog="wise_merge", input_mode="name_input", output_mode="Regular",
                      ephem_step=0.25, with_tarballs=False, obs_begin=None, obs_end=None,
                      obj_name=None, obj_naifid=None, obj_type=None, mpc_data=None,
