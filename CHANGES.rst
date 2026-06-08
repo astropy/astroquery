@@ -169,8 +169,9 @@ mast
   default can be overridden by setting the ``enable_cloud_dataset`` configuration option to False. [#3534]
 - Results returned from ``MastMissions`` metadata query functions now include search parameters in the metadata of the ``astropy.table.Table`` object
   and column descriptions in the column metadata. [#3588]
-- Added ``pass_id`` as an alias for the ``pass`` column in query functions for the Roman mission to avoid conflicts with 
+- Added ``pass_id`` as an alias for the ``pass`` column in query functions for the Roman mission to avoid conflicts with
   the reserved Python keyword. [#3588]
+- Update the cutout format request parameter in ``Zcut.download_cutouts`` to reflect a recent service change. [#3608]
 
 
 jplspec
