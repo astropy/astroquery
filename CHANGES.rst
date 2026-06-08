@@ -132,6 +132,14 @@ imcce
 - Change the URL for SkyBot and Miriade Web Services [#3595]
 - Adapted the ``Miriade`` Class to the new outputs of the Web Service [#3595]
 
+ipac.irsa
+^^^^^^^^^
+
+- Fix NAIF ID input mode in ``Most``: the parameter and value ``nafid``
+  were typos; the API expects ``naifid``. Old ``obj_nafid`` keyword and
+  ``"nafid_input"`` ``input_mode`` still work but emit
+  ``AstropyDeprecationWarning``. [#3607]
+
 
 mast
 ^^^^

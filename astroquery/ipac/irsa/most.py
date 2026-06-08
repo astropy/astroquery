@@ -7,6 +7,8 @@ from bs4 import BeautifulSoup
 
 from astropy.io import votable, fits
 from astropy.table import Table
+from astropy.utils.decorators import deprecated_renamed_argument
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from astroquery.query import BaseQuery
 from astroquery.utils import class_or_instance
@@ -56,8 +58,8 @@ class MostClass(BaseQuery):
             If the input does not have the minimum required parameters set to
             an at least truthy value.
         """
-        if not params.get("obj_nafid", False):
-            raise ValueError("When input type is 'nafid_input' key 'obj_nafid' is required.")
+        if not params.get("obj_naifid", False):
+            raise ValueError("When input type is 'naifid_input' key 'obj_naifid' is required.")
 
     def _validate_mpc_input_type(self, params):
         """
@@ -148,7 +150,7 @@ class MostClass(BaseQuery):
 
         if input_type == "name_input":
             self._validate_name_input_type(params)
-        elif input_type == "nafid_input":
+        elif input_type == "naifid_input":
             self._validate_nafid_input_type(params)
         elif input_type == "mpc_input":
             self._validate_mpc_input_type(params)
@@ -156,7 +158,7 @@ class MostClass(BaseQuery):
             self._validate_manual_input_type(params)
         else:
             raise ValueError(
-                "Unrecognized 'input_type'. Expected `name_input`, `nafid_input` "
+                "Unrecognized 'input_type'. Expected `name_input`, `naifid_input` "
                 f"`mpc_input` or `manual_input`, got {input_type} instead."
             )
 
@@ -229,8 +231,9 @@ class MostClass(BaseQuery):
             catalogs.remove("--- Internal use only:")
         return catalogs
 
+    @deprecated_renamed_argument('obj_nafid', 'obj_naifid', since='0.4.12')
     def get_images(self, catalog="wise_merge", input_mode="name_input", ephem_step=0.25,
-                   obs_begin=None, obs_end=None, obj_name=None, obj_nafid=None, obj_type=None,
+                   obs_begin=None, obs_end=None, obj_name=None, obj_naifid=None, obj_type=None,
                    mpc_data=None, body_designation=None, epoch=None, eccentricity=None,
                    inclination=None, arg_perihelion=None, ascend_node=None, semimajor_axis=None,
                    mean_anomaly=None, perih_dist=None, perih_time=None, get_query_payload=False,
@@ -268,8 +271,8 @@ class MostClass(BaseQuery):
         obj_name : str or None
             Object name.
             Required when input mode is ``"name_input"``.
-        obj_nafid : str or None
-            Object NAIFD.
+        obj_naifid : str or None
+            Object NAIF ID.
             Required when input mode is ``"naifid_input"``.
         obj_type : str or None
             Object type, ``"Asteroid"`` or ``Comet``.
@@ -328,6 +331,14 @@ class MostClass(BaseQuery):
         images : list
             A list of `~astropy.io.fits.HDUList` objects.
         """
+        if input_mode == "nafid_input":
+            warnings.warn(
+                "'nafid_input' is deprecated; use 'naifid_input' instead (the API value is 'naifid_input').",
+                AstropyDeprecationWarning,
+                stacklevel=2,
+            )
+            input_mode = "naifid_input"
+
         # We insist on output_mode being regular so that it executes quicker,
         # and we insist on tarballs so the download is quicker. We ignore
         # whatever else user provides, but leave the parameters as arguments to
@@ -339,7 +350,7 @@ class MostClass(BaseQuery):
             obs_end=obs_end,
             ephem_step=ephem_step,
             obj_name=obj_name,
-            obj_nafid=obj_nafid,
+            obj_naifid=obj_naifid,
             obj_type=obj_type,
             mpc_data=mpc_data,
             body_designation=body_designation,
@@ -376,9 +387,10 @@ class MostClass(BaseQuery):
         return images
 
     @class_or_instance
+    @deprecated_renamed_argument('obj_nafid', 'obj_naifid', since='0.4.12')
     def query_object(self, catalog="wise_merge", input_mode="name_input", output_mode="Regular",
                      ephem_step=0.25, with_tarballs=False, obs_begin=None, obs_end=None,
-                     obj_name=None, obj_nafid=None, obj_type=None, mpc_data=None,
+                     obj_name=None, obj_naifid=None, obj_type=None, mpc_data=None,
                      body_designation=None, epoch=None, eccentricity=None, inclination=None,
                      arg_perihelion=None, ascend_node=None, semimajor_axis=None, mean_anomaly=None,
                      perih_dist=None, perih_time=None, get_query_payload=False):
@@ -437,8 +449,8 @@ class MostClass(BaseQuery):
         obj_name : str or None
             Object name.
             Required when input mode is ``"name_input"``.
-        obj_nafid : str or None
-            Object NAIFD
+        obj_naifid : str or None
+            Object NAIF ID.
             Required when input mode is ``"naifid_input"``.
         obj_type : str or None
             Object type, ``"Asteroid"`` or ``Comet``
@@ -498,6 +510,14 @@ class MostClass(BaseQuery):
             in ``"VOTable"`` an `~astropy.io.votable.tree.VOTableFile`. See
             module help for more details on the content of these tables.
         """
+        if input_mode == "nafid_input":
+            warnings.warn(
+                "'nafid_input' is deprecated; use 'naifid_input' instead (the API value is 'naifid_input').",
+                AstropyDeprecationWarning,
+                stacklevel=2,
+            )
+            input_mode = "naifid_input"
+
         # This is a map between the keyword names used by the MOST cgi-bin
         # service and their more user-friendly names. For example,
         # input_type -> input_mode or fits_region_files --> with tarballs
@@ -510,7 +530,7 @@ class MostClass(BaseQuery):
             "ephem_step": ephem_step,
             "fits_region_files": "on" if with_tarballs else "",
             "obj_name": obj_name,
-            "obj_nafid": obj_nafid,
+            "obj_naifid": obj_naifid,
             "obj_type": obj_type,
             "mpc_data": mpc_data,
             "body_designation": body_designation,
