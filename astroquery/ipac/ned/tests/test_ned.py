@@ -108,6 +108,9 @@ def test_get_references(patch_get):
     result = ned.Ned.get_table(
         "m1", table='references', max_rec=10)
     assert isinstance(result, Table)
+    response = ned.Ned.get_table("m1", table='references', 
+                                 get_query_payload=True)
+    assert response is not None
 
 
 def test_get_crossids_async(patch_get):
@@ -272,6 +275,8 @@ def test_query_refcode_async(patch_get):
 
 
 def test_query_refcode(patch_get):
+    response = ned.Ned.query_refcode('1997A&A...323...31K', get_query_payload=True)
+    assert response is not None
     result = ned.Ned.query_refcode('1997A&A...323...31K')
     assert isinstance(result, Table)
 
@@ -289,12 +294,14 @@ def test_query_region_iau_async(patch_get):
 
 
 def test_query_region_iau(patch_get):
+    response = ned.Ned.query_region_iau('1234-423', get_query_payload=True)
+    assert response is not None
     result = ned.Ned.query_region_iau('1234-423', max_rec=10)
     assert isinstance(result, Table)
 
 
 def mock_check_resolvable(name):
-    if name != 'm1':
+    if name != 'm31':
         raise coord.name_resolve.NameResolveError
 
 
@@ -302,16 +309,21 @@ def test_query_region_async(monkeypatch, patch_get):
     # check with the name
     monkeypatch.setattr(
         coord.name_resolve, 'get_icrs_coordinates', mock_check_resolvable)
-    response = ned.Ned.query_region_async("m1", get_query_payload=True)
+    response = ned.Ned.query_region_async("m31", get_query_payload=True, 
+                                         z_constraint='Between', z_value1=4.2,
+                                         z_value2=96, z_unit='km/s')
     s_type = ned.Ned.SEARCH_TYPE
-    assert response[ned.Ned.DBR_TARGET] == "m1"
+    assert response[ned.Ned.DBR_TARGET] == "m31"
+    assert response['z_constraint'] == 'Between'
+    assert response['z_value1'] == 4.2
+    assert response['z_value2'] == 96
+    assert response['z_unit'] == 'km/s'
     assert s_type == ned.Ned.CONESEARCH_TARGET
     # assert response['search_type'] == "Near Name Search"
     # check with Galactic coordinates
     response = ned.Ned.query_region_async(
         coord.SkyCoord(l=-67.02084 * u.deg, b=-29.75447 * u.deg,
-                       frame="galactic"),
-        get_query_payload=True)
+                       frame="galactic"), get_query_payload=True)
     s_type = ned.Ned.SEARCH_TYPE
     assert s_type == ned.Ned.CONESEARCH_POSITION
     # assert response['search_type'] == 'Near Position Search'
@@ -326,8 +338,13 @@ def test_query_region_async(monkeypatch, patch_get):
 def test_query_region(monkeypatch, patch_get):
     monkeypatch.setattr(
         coord.name_resolve, 'get_icrs_coordinates', mock_check_resolvable)
-    result = ned.Ned.query_region("m1")
+    result = ned.Ned.query_region("m31", z_constraint='Between', 
+                                  z_value1=4.2, z_value2=96, z_unit='km/s')
     assert isinstance(result, Table)
+    response = ned.Ned.query_region(
+        coord.SkyCoord(ra=-10.684793 * u.deg, dec= -41.269065 * u.deg,
+                       frame="fk5"),  get_query_payload=True)
+    assert response is not None
 
 
 def test_query_object_async(patch_get):
@@ -338,6 +355,8 @@ def test_query_object_async(patch_get):
 
 
 def test_query_object(patch_get):
+    response = ned.Ned.query_object('m1', get_query_payload=True)
+    assert response[ned.Ned.DBR_TARGET] == 'm1'
     result = ned.Ned.query_object('m1')
     assert isinstance(result, Table)
 
