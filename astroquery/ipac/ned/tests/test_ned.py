@@ -108,7 +108,7 @@ def test_get_references(patch_get):
     result = ned.Ned.get_table(
         "m1", table='references', max_rec=10)
     assert isinstance(result, Table)
-    response = ned.Ned.get_table("m1", table='references', 
+    response = ned.Ned.get_table("m1", table='references',
                                  get_query_payload=True)
     assert response is not None
 
@@ -309,9 +309,9 @@ def test_query_region_async(monkeypatch, patch_get):
     # check with the name
     monkeypatch.setattr(
         coord.name_resolve, 'get_icrs_coordinates', mock_check_resolvable)
-    response = ned.Ned.query_region_async("m31", get_query_payload=True, 
-                                         z_constraint='Between', z_value1=4.2,
-                                         z_value2=96, z_unit='km/s')
+    response = ned.Ned.query_region_async("m31", get_query_payload=True,
+                                          z_constraint='Between', z_value1=4.2,
+                                          z_value2=96, z_unit='km/s')
     s_type = ned.Ned.SEARCH_TYPE
     assert response[ned.Ned.DBR_TARGET] == "m31"
     assert response['z_constraint'] == 'Between'
@@ -338,12 +338,12 @@ def test_query_region_async(monkeypatch, patch_get):
 def test_query_region(monkeypatch, patch_get):
     monkeypatch.setattr(
         coord.name_resolve, 'get_icrs_coordinates', mock_check_resolvable)
-    result = ned.Ned.query_region("m31", z_constraint='Between', 
+    result = ned.Ned.query_region("m31", z_constraint='Between',
                                   z_value1=4.2, z_value2=96, z_unit='km/s')
     assert isinstance(result, Table)
     response = ned.Ned.query_region(
-        coord.SkyCoord(ra=-10.684793 * u.deg, dec= -41.269065 * u.deg,
-                       frame="fk5"),  get_query_payload=True)
+        coord.SkyCoord(ra=-10.684793 * u.deg, dec=-41.269065 * u.deg,
+                       frame="fk5"), get_query_payload=True)
     assert response is not None
 
 
