@@ -98,18 +98,15 @@ def test_get_references_async(patch_get):
     assert response[ned.Ned.DBR_TARGET] == 'm1'
     assert s_type == ned.Ned.OBJSEARCH_REFERENCES
 
-    response = ned.Ned.get_table_async("m1", table='references')
+    response = ned.Ned.get_table_async("m1", table='references', max_rec=10)
     assert response is not None
 
 
 def test_get_references(patch_get):
     # from_year and to_year are ignored as they are not supported
     # by NED API of N36.1 release
-    response = ned.Ned.get_table_async(
-        "m1", table='references', from_year=2010)
-    assert response is not None
     result = ned.Ned.get_table(
-        "m1", table='references', to_year=2012, extended_search=True)
+        "m1", table='references', max_rec=10)
     assert isinstance(result, Table)
 
 
@@ -215,12 +212,12 @@ def test_get_photometry_async(patch_get):
     # assert response['meas_type'] == 'bot'
     # assert response['search_type'] == 'Photometry'
     assert s_type == ned.Ned.OBJSEARCH_PHOTOMETRY
-    response = ned.Ned.get_table_async("3C 273", table='photometry')
+    response = ned.Ned.get_table_async("3C 273", table='photometry', max_rec=10)
     assert response is not None
 
 
 def test_photometry(patch_get):
-    result = ned.Ned.get_table("3c 273", table='photometry')
+    result = ned.Ned.get_table("3c 273", table='photometry', max_rec=10)
     assert isinstance(result, Table)
 
 
@@ -287,12 +284,12 @@ def test_query_region_iau_async(patch_get):
     assert s_type == ned.Ned.CONESEARCH_IAU
     assert response[ned.Ned.DBR_IAU] == '1234-423'
     assert response[ned.Ned.DBR_EQUINOX] == 'B1950'
-    response = ned.Ned.query_region_iau_async('1234-423')
+    response = ned.Ned.query_region_iau_async('1234-423', max_rec=10)
     assert response is not None
 
 
 def test_query_region_iau(patch_get):
-    result = ned.Ned.query_region_iau('1234-423')
+    result = ned.Ned.query_region_iau('1234-423', max_rec=10)
     assert isinstance(result, Table)
 
 
