@@ -274,8 +274,6 @@ class MostClass(BaseQuery):
         obj_naifid : str or None
             Object NAIF ID.
             Required when input mode is ``"naifid_input"``.
-        obj_nafid : str or None
-            Deprecated name for ``obj_naifid``.
         obj_type : str or None
             Object type, ``"Asteroid"`` or ``Comet``.
             Required when input mode is ``"mpc_input"`` or ``"manual_input"``.
@@ -454,8 +452,6 @@ class MostClass(BaseQuery):
         obj_naifid : str or None
             Object NAIF ID.
             Required when input mode is ``"naifid_input"``.
-        obj_nafid : str or None
-            Deprecated name for ``obj_naifid``.
         obj_type : str or None
             Object type, ``"Asteroid"`` or ``Comet``
             Required when input mode is ``"mpc_input"`` or ``"manual_input"``.
