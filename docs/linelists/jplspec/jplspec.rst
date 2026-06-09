@@ -46,8 +46,8 @@ what each setting yields:
    ...                                molecule="28001 CO",
    ...                                get_query_payload=False)
    >>> response.pprint(max_lines=10)
-       FREQ      ERR    LGINT    DR    ELO     GUP  TAG  QNFMT QN' QN"  Lab 
-       MHz       MHz   nm2 MHz        1 / cm                                
+       FREQ      ERR    LGINT    DR    ELO     GUP  TAG  QNFMT QN' QN"  Lab
+       MHz       MHz   nm2 MHz        1 / cm
    ------------ ------ -------- --- ---------- --- ----- ----- --- --- -----
     115271.2018 0.0005  -5.0105   2        0.0   3 28001   101   1   0  True
        230538.0 0.0005  -4.1197   2      3.845   5 28001   101   2   1  True
@@ -69,7 +69,7 @@ The following example, with ``get_query_payload = True``, returns the payload:
    ...                                   molecule="28001 CO",
    ...                                   get_query_payload=True)
    >>> print(response)
-   [('MinNu', 100.0), ('MaxNu', 1000.0), ('MaxLines', 2000), ('UnitNu', 'GHz'), ('StrLim', -500), ('Mol', '28001 CO')]
+   [('Mol', ('28001 CO',))]
 
 The units of the columns of the query can be displayed by calling
 ``response.info``:
@@ -82,19 +82,19 @@ The units of the columns of the query can be displayed by calling
    ...                                molecule="28001 CO")
    >>> print(response.info)
    <Table length=91>
-    name  dtype    unit 
+    name  dtype    unit
    ----- ------- -------
     FREQ float64     MHz
      ERR float64     MHz
    LGINT float64 nm2 MHz
-      DR   int64        
+      DR   int64
      ELO float64  1 / cm
-     GUP   int64        
-     TAG   int64        
-   QNFMT   int64        
-     QN'   int64        
-     QN"   int64        
-     Lab    bool        
+     GUP   int64
+     TAG   int64
+   QNFMT   int64
+     QN'   int64
+     QN"   int64
+     Lab    bool
    <BLANKLINE>
 
 These come in handy for converting to other units easily, an example using a
@@ -103,8 +103,8 @@ simplified version of the data above is shown below:
 .. doctest-remote-data::
 
    >>> response['FREQ', 'ERR', 'ELO'].pprint(max_lines=10)
-       FREQ      ERR      ELO    
-       MHz       MHz     1 / cm  
+       FREQ      ERR      ELO
+       MHz       MHz     1 / cm
    ------------ ------ ----------
     115271.2018 0.0005        0.0
        230538.0 0.0005      3.845
@@ -226,8 +226,8 @@ to retrieve data from JPLSpec via astroquery.
    >>> print(f"Retrieved {len(table)} lines for CO")
    Retrieved 91 lines for CO
    >>> table[:5].pprint()
-       FREQ     ERR    LGINT   DR   ELO   GUP  TAG  QNFMT QN' QN" Lab 
-       MHz      MHz   nm2 MHz      1 / cm                             
+       FREQ     ERR    LGINT   DR   ELO   GUP  TAG  QNFMT QN' QN" Lab
+       MHz      MHz   nm2 MHz      1 / cm
    ----------- ------ ------- --- ------- --- ----- ----- --- --- ----
    115271.2018 0.0005 -5.0105   2     0.0   3 28001   101   1   0 True
       230538.0 0.0005 -4.1197   2   3.845   5 28001   101   2   1 True
@@ -272,8 +272,8 @@ to query these directly.
    ...                              molecule="H2O",
    ...                              parse_name_locally=True)
    >>> result.pprint(max_lines=10)
-       FREQ      ERR    LGINT    DR    ELO    GUP  TAG  QNFMT QN'1 QN"1 QN'2 QN"2 QN'3 QN"3 QN'4 QN"4  Lab 
-       MHz       MHz   nm2 MHz        1 / cm                                                               
+       FREQ      ERR    LGINT    DR    ELO    GUP  TAG  QNFMT QN'1 QN"1 QN'2 QN"2 QN'3 QN"3 QN'4 QN"4  Lab
+       MHz       MHz   nm2 MHz        1 / cm
    ------------ ------ -------- --- --------- --- ----- ----- ---- ---- ---- ---- ---- ---- ---- ---- -----
       8006.5805  2.851 -18.6204   3 6219.6192  45 18003  1404   22   21    4    7   18   15    0    0 False
      12478.2535 0.2051 -13.1006   3 3623.7652  31 18003  1404   15   16    7    4    9   12    0    0 False
@@ -375,7 +375,7 @@ If you are repeatedly getting failed queries, or bad/out-of-date results, try cl
     >>> from astroquery.linelists.jplspec import JPLSpec
     >>> JPLSpec.clear_cache()
 
-If this function is unavailable, upgrade your version of astroquery. 
+If this function is unavailable, upgrade your version of astroquery.
 The ``clear_cache`` function was introduced in version 0.4.7.dev8479.
 
 
