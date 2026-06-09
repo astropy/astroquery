@@ -204,7 +204,7 @@ class JPLSpecClass(BaseQuery):
         """
         Fetch full catalog tables for each molecule and combine them.
 
-        `mols` should be passed through `_resolve_molecules` before being
+        ``mols`` should be passed through ``_resolve_molecules`` before being
         sent to this function if it is user-specified, but if it comes directly
         from a query, it should be trusted as-is.
         """
