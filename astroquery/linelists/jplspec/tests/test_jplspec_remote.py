@@ -3,16 +3,20 @@ from astropy import units as u
 from astropy.table import Table
 
 from astroquery.linelists.jplspec import JPLSpec
-from astroquery.exceptions import EmptyResponseError
 
 
-@pytest.mark.xfail(reason="2025 server problems", raises=EmptyResponseError)
 @pytest.mark.remote_data
 def test_remote():
+    """
+    In 2025-2026, the JPLSpec server went down and this was marked 'xfail' for a while.
+
+    As of late April 2026, it's back online again.
+    """
     tbl = JPLSpec.query_lines(min_frequency=500 * u.GHz,
                               max_frequency=1000 * u.GHz,
                               min_strength=-500,
                               molecule="18003 H2O",
+                              use_getmolecule=False,
                               fallback_to_getmolecule=False)
     assert isinstance(tbl, Table)
     assert len(tbl) == 36
@@ -36,7 +40,7 @@ def test_remote_regex_fallback():
                               max_frequency=1000 * u.GHz,
                               min_strength=-500,
                               molecule=("28001", "28002", "28003"),
-                              fallback_to_getmolecule=True)
+                              use_getmolecule=True)
     assert isinstance(tbl, Table)
     tbl = tbl[((tbl['FREQ'].quantity > 500*u.GHz) & (tbl['FREQ'].quantity < 1*u.THz))]
     assert len(tbl) == 16
@@ -54,14 +58,13 @@ def test_remote_regex_fallback():
     assert tbl['FREQ'][15] == 946175.3151
 
 
-# Starting in 2025, the JPL CGI server that did search queries broke totally.  See #3363
-@pytest.mark.xfail(reason="2025 server problems", raises=EmptyResponseError)
 @pytest.mark.remote_data
 def test_remote_regex():
     tbl = JPLSpec.query_lines(min_frequency=500 * u.GHz,
                               max_frequency=1000 * u.GHz,
                               min_strength=-500,
                               molecule=("28001", "28002", "28003"),
+                              use_getmolecule=False,
                               fallback_to_getmolecule=False)
     assert isinstance(tbl, Table)
     assert len(tbl) == 16
@@ -130,7 +133,7 @@ def test_remote_fallback():
                               max_frequency=1000 * u.GHz,
                               min_strength=-500,
                               molecule="18003 H2O",
-                              fallback_to_getmolecule=True)
+                              use_getmolecule=True)
     assert isinstance(tbl, Table)
     tbl = tbl[((tbl['FREQ'].quantity > 500*u.GHz) & (tbl['FREQ'].quantity < 1*u.THz))]
     assert len(tbl) == 36

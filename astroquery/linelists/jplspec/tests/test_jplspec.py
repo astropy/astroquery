@@ -290,6 +290,7 @@ def test_query_lines_with_fallback():
                                 max_frequency=200 * u.GHz,
                                 min_strength=-500,
                                 molecule="28001 CO",
+                                use_getmolecule=False,
                                 fallback_to_getmolecule=False)
 
     # Test with fallback enabled - should call get_molecule
@@ -320,6 +321,7 @@ def test_query_lines_with_fallback():
             max_frequency=200 * u.GHz,
             min_strength=-500,
             molecule="28001 CO",
+            use_getmolecule=False,
             fallback_to_getmolecule=True)
 
         mock_get_molecule.assert_called_once_with('28001')
