@@ -272,22 +272,8 @@ used to get photometric data of line component. We look at a simple example:
     190	12h29m06.8017s	+02d03m08.247s ...      1.17525	        0 2012GASC..C...0000S	    --
     Length = 190 rows
 
-All above queries return results in a `~astropy.table.Table` or raise a Exception error (i.e.
-`~astroquery.exceptions.RemoteServiceError`) if the service returns a query error.
-To handle errors gracefully, wrap the query in a ``try/except`` block to catch the exception
-and retrieve the error message. The following example demonstrates this pattern.
-
-.. doctest-remote-data::
-
-    >>> from astroquery.ipac.ned import Ned
-    >>> try:
-    >>>     result_table = Ned.query_object("mm")
-    >>>     print(result_table) 
-    >>> except Exception as e:
-    >>>     print(e)
-    The remote service returned the following message.
-    ERROR: GeneralFault:
-    Service could not complete request; Failed to resolve input object name (6)
+All above queries return results in a `~astropy.table.Table` or raise an Exception error
+if the service returns a query error.
 
 For queries that return results in a `~astropy.table.Table`, you may optionally specify the ``max_rec`` argument to
 limit the number of records returned. If ``max_rec`` is 0, only the table fields are returned. For example:
