@@ -29,6 +29,7 @@ from astroquery import log
 from astroquery.utils import commons
 from astroquery.utils.tap import TapPlus
 from astroquery.utils.tap import taputils
+from ...utils.multicoord import support_multiple_coordinates
 from . import conf
 
 
@@ -385,6 +386,7 @@ class EuclidClass(TapPlus):
             log.error(f'Query failed: {query}, {str(exx)}')
 
     @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
     def query_object(self, coordinates, *, radius=None, width=None, height=None,
                      async_job=False, verbose=False, columns=None):
         """
@@ -393,7 +395,10 @@ class EuclidClass(TapPlus):
         Parameters
         ----------
         coordinates : astropy.coordinate, mandatory
-            coordinates center point
+            coordinates center point. A list of coordinates or a non-scalar
+            `~astropy.coordinates.SkyCoord` runs one query per position and
+            the resulting tables are stacked, with a ``query_index`` column
+            mapping each row back to the input position.
         radius : astropy.units, required if no 'width' nor 'height' are provided
             radius (deg)
         width : astropy.units, required if no 'radius' is provided
@@ -521,6 +526,7 @@ class EuclidClass(TapPlus):
         return job
 
     @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
     def cone_search(self, coordinates, radius, *,
                     table_name=None,
                     ra_column_name=None,
@@ -538,7 +544,10 @@ class EuclidClass(TapPlus):
         Parameters
         ----------
         coordinates : astropy.coordinate, mandatory
-            coordinates center point
+            coordinates center point. A list of coordinates or a non-scalar
+            `~astropy.coordinates.SkyCoord` runs one query per position; since
+            this method returns a job object, a list of jobs (one per position,
+            in input order) is returned when multiple positions are given.
         radius : astropy.units, mandatory
             radius
         table_name : str, optional, default the table defined for the selected environment

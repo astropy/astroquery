@@ -9,6 +9,7 @@ from pathlib import Path
 from astropy import units as u
 from astropy.utils.decorators import deprecated_renamed_argument
 from astroquery.utils import commons
+from astroquery.utils.multicoord import support_multiple_coordinates
 from astroquery import log
 from astroquery.exceptions import LoginError
 from astroquery.query import BaseQuery
@@ -382,6 +383,7 @@ class HSAClass(BaseQuery):
             return columns
 
     @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
     def query_observations(self, coordinates, radius, *, n_obs=10, **kwargs):
         """
         Get the observation IDs from a given region
@@ -389,7 +391,11 @@ class HSAClass(BaseQuery):
         Parameters
         ----------
         coordinates : string / `astropy.coordinates`
-            the identifier or coordinates around which to query
+            the identifier or coordinates around which to query.
+            A list of coordinates or a vector `~astropy.coordinates.SkyCoord`
+            triggers one query per position; the resulting tables are stacked
+            into a single table with a ``query_index`` column mapping each row
+            back to the corresponding input position.
         radius : int / `~astropy.units.Quantity`
             the radius of the region
         n_obs : int, optional
@@ -404,6 +410,7 @@ class HSAClass(BaseQuery):
         return self.query_region(coordinates, radius, n_obs=n_obs, columns="observation_id", **kwargs)
 
     @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
     def query_region(self, coordinates, radius, *, n_obs=10, columns='*', **kwargs):
         """
         Get the observation metadata from a given region
@@ -411,7 +418,11 @@ class HSAClass(BaseQuery):
         Parameters
         ----------
         coordinates : string / `astropy.coordinates`
-            the identifier or coordinates around which to query
+            the identifier or coordinates around which to query.
+            A list of coordinates or a vector `~astropy.coordinates.SkyCoord`
+            triggers one query per position; the resulting tables are stacked
+            into a single table with a ``query_index`` column mapping each row
+            back to the corresponding input position.
         radius : int / `~astropy.units.Quantity`
             the radius of the region
         n_obs : int, optional

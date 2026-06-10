@@ -34,3 +34,21 @@ def test_query_region_deprecated_position(monkeypatch, method_name, descriptor_g
 
     assert result == expected
     assert "QUERY" in result["XMM"]
+
+
+def test_query_region_maps_multiple_coordinates(monkeypatch):
+    # A list of coordinates should run one query per position and, with
+    # get_query_payload=True, return a list of payloads in input order.
+    monkeypatch.setattr(ESASky, "_get_observation_info", lambda: FAKE_DESCRIPTORS)
+    coordinates = [SkyCoord(ra=202.469, dec=47.195, unit="deg"),
+                   SkyCoord(ra=10.684, dec=41.269, unit="deg")]
+
+    result = ESASky.query_region_maps(coordinates=coordinates, radius="5 arcmin",
+                                      missions=["XMM"], get_query_payload=True)
+
+    assert isinstance(result, list)
+    assert len(result) == 2
+    for payload, coord in zip(result, coordinates):
+        query = payload["XMM"]["QUERY"]
+        assert str(coord.ra.deg) in query
+        assert str(coord.dec.deg) in query

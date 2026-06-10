@@ -378,6 +378,19 @@ def test_query_region_coordinate_deprecated():
     assert old_payload == new_payload
 
 
+def test_query_region_multiple_coordinates():
+    # a list of coordinates runs one query per position; with
+    # ``get_query_payload`` a list of per-position payloads is returned
+    alma = Alma()
+    alma._get_dataarchive_url = Mock()
+    payloads = alma.query_region(['1 2', '3 4'], radius=1*u.deg,
+                                 get_query_payload=True)
+    assert isinstance(payloads, list)
+    assert len(payloads) == 2
+    assert "CIRCLE('ICRS',1.0,2.0,1.0)" in payloads[0]
+    assert "CIRCLE('ICRS',3.0,4.0,1.0)" in payloads[1]
+
+
 @pytest.mark.filterwarnings("ignore::astropy.utils.exceptions.AstropyUserWarning")
 def test_enhanced_table():
     pytest.importorskip('regions')

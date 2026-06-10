@@ -125,6 +125,28 @@ def test_query_region_cone(coordinates, radius, offset):
     assert ",0.0333" in query
 
 
+def test_query_region_multiple_coordinates():
+    coordinates = SkyCoord([182.63, 10.68] * u.deg, [39.40, 41.27] * u.deg)
+    queries = Heasarc.query_region(
+        coordinates,
+        catalog="suzamaster",
+        spatial="cone",
+        radius=2 * u.arcmin,
+        columns="*",
+        get_query_payload=True,
+    )
+
+    assert isinstance(queries, list)
+    assert len(queries) == 2
+    assert "CIRCLE('ICRS',182.63" in queries[0]
+    assert ",39.4" in queries[0]
+    assert "CIRCLE('ICRS',10.68" in queries[1]
+    assert ",41.27" in queries[1]
+    for query in queries:
+        assert "SELECT * FROM suzamaster WHERE CONTAINS(POINT('ICRS',ra,dec)," in query
+        assert ",0.0333" in query
+
+
 @pytest.mark.parametrize("coordinates", OBJ_LIST)
 @pytest.mark.parametrize("width", SIZE_LIST)
 def test_query_region_box(coordinates, width):

@@ -14,6 +14,7 @@ import pyvo
 from astroquery import log
 from ..query import BaseQuery, BaseVOQuery
 from ..utils import commons, parse_coordinates
+from ..utils.multicoord import support_multiple_coordinates
 from ..exceptions import InvalidQueryError, NoResultsWarning
 from . import conf
 
@@ -423,6 +424,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                        True, True, True, False)
     )
     @deprecated_renamed_argument("position", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
     def query_region(self, coordinates=None, catalog=None, radius=None, *,
                      spatial='cone', width=None, polygon=None, column_filters=None,
                      add_offset=False, get_query_payload=False, columns=None, cache=False,
@@ -437,6 +439,11 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             Gives the position of the center of the cone or box if performing
             a cone or box search. Required if spatial is ``'cone'`` or
             ``'box'``. Ignored if spatial is ``'polygon'`` or ``'all-sky'``.
+            A list of coordinates or a vector `~astropy.coordinates.SkyCoord`
+            may also be given, in which case one query is run per position
+            and the results are stacked into a single table with a
+            ``query_index`` column mapping each row back to the input
+            position.
         catalog : str
             The catalog to query. To list the available catalogs, use
             :meth:`~astroquery.heasarc.HeasarcClass.list_catalogs`.

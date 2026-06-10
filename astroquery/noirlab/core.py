@@ -9,6 +9,7 @@ import astropy.table
 from astropy.utils.decorators import deprecated_renamed_argument
 from ..query import BaseQuery
 from ..exceptions import RemoteServiceError
+from ..utils.multicoord import support_multiple_coordinates
 from . import conf
 
 
@@ -146,6 +147,7 @@ class NOIRLabClass(BaseQuery):
         return response.json()
 
     @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
     def query_region(self, coordinates, *, radius=0.1, hdu=False, cache=True, async_=False):
         """Query for NOIRLab observations by region of the sky.
 
@@ -157,6 +159,11 @@ class NOIRLabClass(BaseQuery):
         coordinates : :class:`str` or `~astropy.coordinates` object
             The target region which to search. It may be specified as a
             string or as the appropriate `~astropy.coordinates` object.
+            A list of coordinates or a vector `~astropy.coordinates.SkyCoord`
+            may also be given, in which case one query is run per position
+            and the results are stacked into a single table with a
+            ``query_index`` column identifying the input position each row
+            came from.
         radius : :class:`float` or :class:`str` or `~astropy.units.Quantity` object, optional
             Default 0.1 degrees.
             The string must be parsable by `~astropy.coordinates.Angle`. The

@@ -88,6 +88,18 @@ def test_query_region_deprecated_coordinate(patch_request):
     assert exp.query_region_1.issubset(actual)
 
 
+def test_query_region_multiple_coordinates(patch_request):
+    """A vector SkyCoord should run one query per position and stack the results.
+    """
+    c = SkyCoord(ra=[10.625, 20.5]*u.degree, dec=[41.2, -30.0]*u.degree, frame='icrs')
+    r = NOIRLab.query_region(coordinates=c, radius='0.1')
+    assert 'query_index' in r.colnames
+    assert set(r['query_index'].tolist()) == {0, 1}
+    assert len(r) == 2 * len(exp.query_region_1)
+    assert exp.query_region_1.issubset(set(r['md5sum'][r['query_index'] == 0].tolist()))
+    assert exp.query_region_1.issubset(set(r['md5sum'][r['query_index'] == 1].tolist()))
+
+
 @pytest.mark.parametrize('hdu', [(False,), (True,)])
 def test_core_fields(patch_request, hdu):
     """List the available CORE fields.

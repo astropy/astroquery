@@ -98,6 +98,16 @@ def test_ibe_pos_deprecated_coordinate(patch_get):
     assert len(table) == 21
 
 
+def test_ibe_pos_multiple_coordinates(patch_get):
+    coords = [SkyCoord(148.969687 * u.deg, 69.679383 * u.deg),
+              SkyCoord(148.969687 * u.deg, 69.679383 * u.deg)]
+    table = Ibe.query_region(coordinates=coords, where='expid <= 43010')
+    assert isinstance(table, Table)
+    assert 'query_index' in table.colnames
+    assert set(table['query_index']) == {0, 1}
+    assert len(table) == 42
+
+
 def test_ibe_field_id(patch_get):
     table = Ibe.query_region(
         where="ptffield = 4808 and filter='R'")

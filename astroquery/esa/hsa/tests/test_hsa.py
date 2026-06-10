@@ -69,6 +69,18 @@ class TestHSA:
         hsa.query_region(**parameters)
         dummyTapHandler.check_call("query_region", parameters)
 
+    def test_query_region_multiple_coordinates(self):
+        coords = SkyCoord(ra=[100.2417, 101.2417]*u.degree,
+                          dec=[9.895, 10.895]*u.degree, frame='icrs')
+        hsa = HSAClass(self.get_dummy_tap_handler())
+        result = hsa.query_region(coordinates=coords, radius=0.5)
+        # The dummy TAP handler's launch_job returns a Job with no results
+        # and no output file, so each per-position query returns None and
+        # the combined result is a plain list with one entry per position.
+        assert isinstance(result, list)
+        assert len(result) == 2
+        assert all(entry is None for entry in result)
+
     def test_query_region_deprecated_coordinate(self):
         c = SkyCoord(ra=100.2417*u.degree, dec=9.895*u.degree, frame='icrs')
         hsa = HSAClass(self.get_dummy_tap_handler())

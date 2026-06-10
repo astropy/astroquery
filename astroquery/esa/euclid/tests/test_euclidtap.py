@@ -28,6 +28,7 @@ from requests import HTTPError
 from astroquery.esa.euclid.core import EuclidClass
 from astroquery.esa.euclid.core import conf
 from astroquery.utils.commons import ASTROPY_LT_7_1_1
+from astroquery.utils.multicoord import conf as multicoord_conf
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.core import TapPlus, Tap
@@ -262,6 +263,22 @@ def test_query_object_radius(column_attrs, mock_querier):
     assert table is not None
 
     assert len(table) == 3
+    for colname, attrs in column_attrs.items():
+        assert table[colname].attrs_equal(attrs)
+
+
+def test_query_object_multiple_coordinates(column_attrs, mock_querier):
+    coords = SkyCoord(ra=[60.3372780005097, 61.0], dec=[-49.93184727724773, -49.0],
+                      unit=(u.degree, u.degree), frame='icrs')
+    # Serial execution: the dummy connection handler is not thread-safe.
+    with multicoord_conf.set_temp("max_parallel_queries", 1), \
+            multicoord_conf.set_temp("min_request_interval", 0):
+        table = mock_querier.query_object(coordinates=coords, radius=RADIUS)
+
+    assert table is not None
+    # One 3-row mock result per input position, stacked into a single table.
+    assert len(table) == 6
+    assert list(table["query_index"]) == [0, 0, 0, 1, 1, 1]
     for colname, attrs in column_attrs.items():
         assert table[colname].attrs_equal(attrs)
 

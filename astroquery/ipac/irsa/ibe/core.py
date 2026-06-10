@@ -21,6 +21,8 @@ from astroquery.query import BaseQuery
 from astroquery.utils import commons
 from astroquery.ipac.irsa.ibe import conf
 
+from ....utils.multicoord import support_multiple_coordinates
+
 __all__ = ['Ibe', 'IbeClass']
 
 
@@ -32,6 +34,7 @@ class IbeClass(BaseQuery):
     TIMEOUT = conf.timeout
 
     @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
     def query_region(self, *, coordinates=None, where=None, mission=None,
                      dataset=None, table=None, columns=None, width=None,
                      height=None, intersect='OVERLAPS', most_centered=False):
@@ -53,6 +56,11 @@ class IbeClass(BaseQuery):
             Gives the position of the center of the box if performing a box
             search. If it is a string, then it must be a valid argument to
             `~astropy.coordinates.SkyCoord`. Required if ``where`` is absent.
+            A list of coordinates (or coordinate strings), or a vector
+            `~astropy.coordinates.SkyCoord`, may also be given, in which case
+            one query is run per position and the results are stacked into a
+            single table with a ``query_index`` column mapping each row back
+            to the corresponding input position.
         where : str
             SQL-like query string. Required if ``coordinates`` is absent.
         mission : str
@@ -96,7 +104,10 @@ class IbeClass(BaseQuery):
         Returns
         -------
         table : `~astropy.table.Table`
-            A table containing the results of the query
+            A table containing the results of the query. If multiple
+            coordinates were given, the per-position tables are stacked and a
+            ``query_index`` column identifies the input position each row
+            corresponds to.
         """
         response = self.query_region_async(
             coordinates=coordinates, where=where, mission=mission,
@@ -109,6 +120,7 @@ class IbeClass(BaseQuery):
         return Table.read(response.text, format='ipac', guess=False)
 
     @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
     def query_region_sia(self, *, coordinates=None, mission=None,
                          dataset=None, table=None, width=None,
                          height=None, intersect='OVERLAPS',
@@ -116,6 +128,12 @@ class IbeClass(BaseQuery):
         """
         Query using simple image access protocol.  See ``query_region`` for
         details.  The returned table will include a list of URLs.
+
+        As in ``query_region``, ``coordinates`` may be a list of coordinates
+        (or coordinate strings) or a vector `~astropy.coordinates.SkyCoord`,
+        in which case one query is run per position and the results are
+        stacked into a single table with a ``query_index`` column mapping
+        each row back to the corresponding input position.
         """
         response = self.query_region_async(
             coordinates=coordinates, mission=mission,

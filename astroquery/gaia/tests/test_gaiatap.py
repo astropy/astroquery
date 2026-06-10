@@ -578,6 +578,27 @@ def test_cone_search_precision(mock_querier):
     )
 
 
+def test_query_object_multiple_coordinates(mock_querier):
+    coords = SkyCoord(ra=[19, 42] * u.deg, dec=[20, -5] * u.deg, frame="icrs")
+    queries = mock_querier.query_object(coords, width=12 * u.deg, height=10 * u.deg, get_query_payload=True)
+    assert isinstance(queries, list)
+    assert len(queries) == 2
+    assert queries[0] != queries[1]
+    for query, coord in zip(queries, coords):
+        assert query == mock_querier.query_object(coord, width=12 * u.deg, height=10 * u.deg,
+                                                  get_query_payload=True)
+
+
+def test_cone_search_multiple_coordinates(mock_querier):
+    coords = SkyCoord(ra=[19, 42] * u.deg, dec=[20, -5] * u.deg, frame="icrs")
+    queries = mock_querier.cone_search(coords, radius=RADIUS, get_query_payload=True)
+    assert isinstance(queries, list)
+    assert len(queries) == 2
+    assert queries[0] != queries[1]
+    for query, coord in zip(queries, coords):
+        assert query == mock_querier.cone_search(coord, radius=RADIUS, get_query_payload=True)
+
+
 def test_cone_search_sync(column_attrs, mock_querier):
     assert mock_querier.USE_NAMES_OVER_IDS is True
 

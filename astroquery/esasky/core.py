@@ -23,6 +23,7 @@ from ..query import BaseQuery
 from ..utils.tap.core import TapPlus
 from ..utils import commons
 from ..utils import async_to_sync
+from ..utils.multicoord import support_multiple_coordinates
 from . import conf
 from .. import version
 from astropy.coordinates.name_resolve import sesame_database
@@ -645,6 +646,7 @@ class ESASkyClass(BaseQuery):
         return maps
 
     @deprecated_renamed_argument("position", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
     def query_region_maps(self, coordinates, radius, missions=__ALL_STRING, get_query_payload=False, cache=True,
                           row_limit=DEFAULT_ROW_LIMIT, verbose=False):
         """
@@ -656,7 +658,11 @@ class ESASkyClass(BaseQuery):
         ----------
         coordinates : str or `astropy.coordinates` object
             Can either be a string of the location, eg 'M51', or the coordinates
-            of the object.
+            of the object. A list of positions or a vector
+            `~astropy.coordinates.SkyCoord` may also be given, in which case one
+            query is run per position and the per-mission tables are stacked,
+            with a ``query_index`` column identifying the input position each
+            row came from.
         radius : str or `~astropy.units.Quantity`
             The radius of a region.
         missions : str or list, optional
@@ -714,6 +720,7 @@ class ESASkyClass(BaseQuery):
         return commons.TableList(query_result)
 
     @deprecated_renamed_argument("position", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
     def query_region_catalogs(self, coordinates, radius, catalogs=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
                               get_query_payload=False, cache=True, verbose=False):
         """
@@ -725,7 +732,11 @@ class ESASkyClass(BaseQuery):
         ----------
         coordinates : str or `astropy.coordinates` object
             Can either be a string of the location, eg 'M51', or the coordinates
-            of the object.
+            of the object. A list of positions or a vector
+            `~astropy.coordinates.SkyCoord` may also be given, in which case one
+            query is run per position and the per-mission tables are stacked,
+            with a ``query_index`` column identifying the input position each
+            row came from.
         radius : str or `~astropy.units.Quantity`
             The radius of a region.
         catalogs : str or list, optional
@@ -784,6 +795,7 @@ class ESASkyClass(BaseQuery):
         return commons.TableList(query_result)
 
     @deprecated_renamed_argument("position", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
     def query_region_spectra(self, coordinates, radius, missions=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
                              get_query_payload=False, cache=True, verbose=False):
         """
@@ -795,7 +807,11 @@ class ESASkyClass(BaseQuery):
         ----------
         coordinates : str or `astropy.coordinates` object
             Can either be a string of the location, eg 'M51', or the coordinates
-            of the object.
+            of the object. A list of positions or a vector
+            `~astropy.coordinates.SkyCoord` may also be given, in which case one
+            query is run per position and the per-mission tables are stacked,
+            with a ``query_index`` column identifying the input position each
+            row came from.
         radius : str or `~astropy.units.Quantity`
             The radius of a region.
         missions : str or list, optional

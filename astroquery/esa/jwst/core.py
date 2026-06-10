@@ -33,6 +33,7 @@ from astroquery.ipac.ned import Ned
 from astroquery.query import BaseQuery
 from astroquery.simbad import Simbad
 from astroquery.utils import commons
+from astroquery.utils.multicoord import support_multiple_coordinates
 from astroquery.utils.tap import TapPlus
 from astroquery.vizier import Vizier
 from . import conf
@@ -235,6 +236,7 @@ class JwstClass(BaseQuery):
         return self.__jwsttap.list_async_jobs(verbose=verbose)
 
     @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
     def query_region(self, coordinates, *,
                      radius=None,
                      width=None,
@@ -254,7 +256,11 @@ class JwstClass(BaseQuery):
         Parameters
         ----------
         coordinates : astropy.coordinates, mandatory
-            coordinates center point
+            coordinates center point. A list of coordinates or a vector
+            `~astropy.coordinates.SkyCoord` may also be provided, in which
+            case one query is run per position and the resulting tables are
+            stacked, with a ``query_index`` column mapping each row back to
+            the corresponding input position
         radius : astropy.units, required if no 'width' nor 'height'
             are provided
             radius (deg)
@@ -360,6 +366,7 @@ class JwstClass(BaseQuery):
         return job.get_results()
 
     @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
     def cone_search(self, coordinates, radius, *,
                     observation_id=None,
                     cal_level="Top",
@@ -381,7 +388,10 @@ class JwstClass(BaseQuery):
         Parameters
         ----------
         coordinates : astropy.coordinates, mandatory
-            coordinates center point
+            coordinates center point. A list of coordinates or a vector
+            `~astropy.coordinates.SkyCoord` may also be provided, in which
+            case one query is run per position; in that case a list of Job
+            objects is returned, in input order
         radius : astropy.units, mandatory
             radius
         observation_id : str, optional, default None

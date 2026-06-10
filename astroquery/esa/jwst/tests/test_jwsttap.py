@@ -31,6 +31,7 @@ from astroquery.esa.jwst import JwstClass
 from astroquery.esa.jwst.tests.DummyTapHandler import DummyTapHandler
 from astroquery.ipac.ned import Ned
 from astroquery.simbad import SimbadClass
+from astroquery.utils.multicoord import conf as multicoord_conf
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.core import TapPlus
@@ -380,6 +381,30 @@ class TestTap:
                                     'table1_oid',
                                     None,
                                     np.int32)
+
+    def test_query_region_multiple_coordinates(self):
+        connHandler = DummyConnHandler()
+        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
+        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
+
+        # The query contains decimals: force default response
+        responseLaunchJob = DummyResponse(200)
+        responseLaunchJob.set_data(method='POST', body=JOB_DATA)
+        connHandler.set_default_response(responseLaunchJob)
+
+        sc = SkyCoord(ra=[29.0, 30.0], dec=[15.0, 16.0],
+                      unit=(u.degree, u.degree), frame='icrs')
+        radius = Quantity(1, u.deg)
+        with multicoord_conf.set_temp('max_parallel_queries', 1), \
+                multicoord_conf.set_temp('min_request_interval', 0):
+            table = tap.query_region(sc, radius=radius)
+        assert isinstance(table, Table)
+        # The dummy connection handler returns the same 3-row job data for
+        # each of the two per-position queries, so the rows are doubled.
+        assert len(table) == 6, f"Wrong job results (num rows). Expected: {6}, found {len(table)}"
+        assert 'query_index' in table.colnames
+        assert set(table['query_index']) == {0, 1}
+        assert list(table['query_index']) == [0, 0, 0, 1, 1, 1]
 
     def test_query_region_async(self):
         connHandler = DummyConnHandler()
