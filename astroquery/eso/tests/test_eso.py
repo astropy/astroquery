@@ -366,16 +366,25 @@ def test_maxrec():
     assert maxrec == EXPECTED_MAX_ROW_LIMIT
 
 
-def test_retrieve_pyvo_table():
+def test_retrieve_pyvo_table(monkeypatch):
     eso_instance = Eso()
     dal = pyvo.dal.TAPService(eso_instance._tap_url())
 
     q_str = "select * from ivoa.ObsCore"
-    table = None
+
+    # Mock the tap.search method to avoid making remote calls
+    def mock_search(*args, **kwargs):
+        from unittest.mock import MagicMock
+        # Create a mock result that raises DALFormatError
+        mock_result = MagicMock()
+        mock_result.to_table.side_effect = pyvo.dal.exceptions.DALFormatError("Test error")
+        return mock_result
+
+    monkeypatch.setattr(dal, 'search', mock_search)
+
+    # The method should raise DALFormatError as expected
     with pytest.raises(pyvo.dal.exceptions.DALFormatError):
         table = eso_instance._try_retrieve_pyvo_table(q_str, dal)
-
-    assert table is None
 
 
 def test_issue_table_length_warnings():

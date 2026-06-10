@@ -28,7 +28,7 @@ from astropy.table import Table, Column
 from astropy.utils.decorators import deprecated_renamed_argument
 from bs4 import BeautifulSoup
 from pyvo.dal import TAPService
-from pyvo.dal.exceptions import DALQueryError, DALFormatError
+from pyvo.dal.exceptions import DALQueryError, DALFormatError, DALOverflowWarning
 
 from astroquery import log
 from . import conf
@@ -284,20 +284,24 @@ class EsoClass(QueryWithLogin):
                     f"For maximum query freedom use the query_tap method:\n\n"
                     f' >>> Eso().query_tap( "{query_str}", tap_endpoint="{tap_endpoint}")\n\n')
 
-        try:
-            row_limit_plus_one = self.ROW_LIMIT
-            if self.ROW_LIMIT < conf.MAX_ROW_LIMIT:
-                row_limit_plus_one = self.ROW_LIMIT + 1
+        row_limit_plus_one = self.ROW_LIMIT
+        if self.ROW_LIMIT < conf.MAX_ROW_LIMIT:
+            row_limit_plus_one = self.ROW_LIMIT + 1
 
+        try:
             table_with_an_extra_row = tap.search(query=query_str, maxrec=row_limit_plus_one).to_table()
-            self._maybe_warn_about_table_length(table_with_an_extra_row, row_limit_plus_one)
         except DALQueryError:
             log.error(message(query_str))
+        except DALOverflowWarning as ex:
+            # DALOverflowWarning is raised when the result set is incomplete
+            # We handle it silently and let _maybe_warn_about_table_length issue the appropriate warning
+            log.warning(f"Partial result set: {ex}")
         except DALFormatError as e:
             raise DALFormatError(message(query_str) + f"cause: {e.cause}") from e
         except Exception as e:
             raise type(e)(f"{e}\n" + message(query_str)) from e
 
+        self._maybe_warn_about_table_length(table_with_an_extra_row, row_limit_plus_one)
         return table_with_an_extra_row[:self.ROW_LIMIT]
 
     def tap(self, authenticated: bool = False, *, tap_endpoint: str = "tap_obs") -> TAPService:
