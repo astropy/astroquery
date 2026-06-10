@@ -149,17 +149,23 @@ class TestMast:
 
     def test_missions_query_criteria(self):
         # Non-positional search
+        select_cols = ['sci_pep_id', 'sci_obs_type', 'sci_aec']
         with pytest.warns(MaxResultsWarning):
             result = MastMissions.query_criteria(sci_pep_id=12557,
                                                  sci_obs_type='SPECTRUM',
                                                  sci_aec='S',
                                                  limit=3,
-                                                 select_cols=['sci_pep_id', 'sci_obs_type', 'sci_aec'])
+                                                 select_cols=select_cols)
         assert isinstance(result, Table)
         assert len(result) == 3
         assert (result['sci_pep_id'] == 12557).all()
         assert (result['sci_obs_type'] == 'SPECTRUM').all()
         assert (result['sci_aec'] == 'S').all()
+        assert result.meta
+        assert len(result.meta['search_params']['conditions']) == 3
+        for cols in select_cols:
+            assert 'description' in result[cols].meta
+            assert result[cols].meta['description']
 
         # Positional criteria search
         result = MastMissions.query_criteria(object_names='NGC6121',
@@ -318,8 +324,11 @@ class TestMast:
         assert all(filtered['category'] == 'CALIBRATED')
 
     def test_missions_download_products(self, tmp_path):
-        def check_filepath(path):
-            assert path.is_file()
+        def check_filepaths(result):
+            for row in result:
+                if row['Status'] == 'COMPLETE':
+                    path = Path(row['Local Path'])
+                    assert path.is_file()
 
         # Check string input
         test_dataset_id = 'Z14Z0104T'
@@ -327,28 +336,32 @@ class TestMast:
                                                 download_dir=tmp_path)
         for row in result:
             if row['Status'] == 'COMPLETE':
-                check_filepath(row['Local Path'])
+                check_filepaths(result)
 
         # Check Row input
         datasets = MastMissions.query_object("M4", radius=0.1)
         prods = MastMissions.get_product_list(datasets[0])[0]
         result = MastMissions.download_products(prods,
                                                 download_dir=tmp_path)
-        check_filepath(result['Local Path'][0])
+        check_filepaths(result)
 
         # JSON data input
-        json_data = [{'fileset': 'Z14Z0104T',
-                      'filename': 'z14z0104t_pdq.fits'}]
+        json_data = [{'mission': 'hst',
+                      'fileset': 'Z14Z0104T',
+                      'filename': 'z14z0104t_pdq.fits'},
+                     {'mission': 'jwst',
+                      'fileset': 'jw01189001001_02101_00001',
+                      'filename': 'jw01189001001_02101_00001_nrs1_uncal.jpg'}]
         result = MastMissions.download_products(json_data,
                                                 download_dir=tmp_path)
-        check_filepath(result['Local Path'][0])
+        check_filepaths(result)
 
         # JSON file input
         json_file = tmp_path / 'products.json'
         json_file.write_text(json.dumps(json_data))
         result = MastMissions.download_products(json_file,
                                                 download_dir=tmp_path)
-        check_filepath(result['Local Path'][0])
+        check_filepaths(result)
 
         # Warn about no products
         with pytest.warns(NoResultsWarning):
@@ -395,7 +408,7 @@ class TestMast:
         ('jwst', {'fileSetName': 'jw01189001001_02101_00001'}),
         ('classy', {'Target': 'J0021+0052'}),
         ('ullyses', {'host_galaxy_name': 'WLM', 'select_cols': ['observation_id']}),
-        ('roman', {'program': 3}),
+        ('roman', {'program': 3, 'pass_id': 1}),
         ('iue', {'iue_data_id': 'LWR08496'}),
     ])
     def test_missions_workflow(self, tmp_path, mission, query_params):

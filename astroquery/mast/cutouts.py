@@ -8,24 +8,23 @@ Cutout queries on TESS FFIs.
 
 """
 
-import warnings
-import time
 import json
-import zipfile
 import os
+import time
+import warnings
+import zipfile
 from io import BytesIO
 
-import numpy as np
 import astropy.units as u
+import numpy as np
 from astropy.coordinates import Angle
-from astropy.table import Table
 from astropy.io import fits
+from astropy.table import Table
 from astropy.utils.decorators import deprecated_renamed_argument
 
-from ..exceptions import InputWarning, NoResultsWarning, InvalidQueryError
-from .utils import parse_input_location
+from ..exceptions import InputWarning, InvalidQueryError, NoResultsWarning
 from .core import MastQueryWithLogin
-
+from .utils import parse_input_location
 
 __all__ = ["TesscutClass", "Tesscut", "ZcutClass", "Zcut"]
 
@@ -665,7 +664,7 @@ class ZcutClass(MastQueryWithLogin):
         if survey:
             astrocut_request += "&survey={}".format(survey)
 
-        astrocut_request += "&format={}".format(cutout_format)
+        astrocut_request += "&cutout_format={}".format(cutout_format)
 
         for key in img_params:
             if key in self.accepted_img_params:

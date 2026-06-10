@@ -307,6 +307,11 @@ def test_missions_query_criteria():
     )
     assert isinstance(result, Table)
     assert len(result) > 0
+    # Check that metadata for search criteria is included in the result
+    assert result.meta
+    # Check that column metadata is included
+    assert 'description' in result['sci_pep_id'].meta
+    assert 'description' in result['sci_instrume'].meta
 
     # Raise error if invalid criteria is supplied
     with pytest.raises(InvalidQueryError):
@@ -649,6 +654,10 @@ def test_missions_download_file(mock_is_file, tmp_path):
     # Classy HLSP download
     missions.mission = 'Classy'
     result = missions.download_file('mast:HLSP/classy/classy_test_file.fits', local_path=tmp_path)
+    assert result[0] == 'COMPLETE'
+
+    # Provide the mission to the method
+    result = missions.download_file('mast:HLSP/ullyses/ullyses_test_file.fits', local_path=tmp_path, mission='ullyses')
     assert result[0] == 'COMPLETE'
 
     # HLSP downloads should fail without URI
@@ -1054,49 +1063,54 @@ def test_observations_filter_products():
 
 
 @patch.object(Path, "is_file", return_value=True)
-def test_observations_download_products(mock_is_file, patch_boto3, monkeypatch):
+def test_observations_download_products(mock_is_file, patch_boto3, monkeypatch, tmpdir):
     mock_resource = patch_boto3[1]
     obsid = '2003738726'
     data_uri = 'mast:HST/product/u9o40504m_c3m.fits'
 
     # Actually download the products
     result = Observations.download_products(obsid,
-                                            dataURI=data_uri)
+                                            dataURI=data_uri,
+                                            download_dir=tmpdir)
     assert isinstance(result, Table)
 
     # Just get the curl script
     result = Observations.download_products(obsid,
                                             curl_flag=True,
                                             productType=["SCIENCE"],
-                                            mrp_only=False)
+                                            mrp_only=False,
+                                            download_dir=tmpdir)
     assert isinstance(result, Table)
 
     # Without console output, flat
     result = Observations.download_products(obsid,
                                             dataURI=data_uri,
                                             flat=True,
-                                            verbose=False)
+                                            verbose=False,
+                                            download_dir=tmpdir)
     assert isinstance(result, Table)
 
     # Passing row product
     products = Observations.get_product_list(obsid)
-    result1 = Observations.download_products(products[0])
+    result1 = Observations.download_products(products[0], download_dir=tmpdir)
     assert isinstance(result1, Table)
 
     # Warn if no products to download
     with pytest.warns(NoResultsWarning, match='No products to download'):
-        result = Observations.download_products(obsid, productType=["INVALID_TYPE"])
+        result = Observations.download_products(obsid, productType=["INVALID_TYPE"], download_dir=tmpdir)
         assert result is None
 
     # Warn if curl_flag and flags are both set
     with pytest.warns(InputWarning, match='flat=True has no effect on curl downloads.'):
         result = Observations.download_products(obsid,
                                                 curl_flag=True,
-                                                flat=True)
+                                                flat=True,
+                                                download_dir=tmpdir)
         assert isinstance(result, Table)
 
     result = Observations.download_products(obsid,
-                                            dataURI=data_uri)
+                                            dataURI=data_uri,
+                                            download_dir=tmpdir)
     assert isinstance(result, Table)
     assert result[0]['Status'] == 'COMPLETE'
 
@@ -1106,13 +1120,14 @@ def test_observations_download_products(mock_is_file, patch_boto3, monkeypatch):
     mock_resource.Bucket.return_value.download_file.side_effect = client_err
     # Warn and fall back to on-prem download
     with pytest.warns(InputWarning, match='Falling back to MAST download'):
-        result = Observations.download_products(obsid, dataURI=data_uri)
+        result = Observations.download_products(obsid, dataURI=data_uri, download_dir=tmpdir)
     assert result[0]['Status'] == 'COMPLETE'
     # Do not fall back to on-prem download, skip instead
     with pytest.warns(NoResultsWarning, match='Skipping download.'):
         result = Observations.download_products(obsid,
                                                 dataURI=data_uri,
-                                                cloud_only=True)
+                                                cloud_only=True,
+                                                download_dir=tmpdir)
     assert result[0]['Status'] == 'SKIPPED'
 
     # Products not found in cloud
@@ -1120,12 +1135,13 @@ def test_observations_download_products(mock_is_file, patch_boto3, monkeypatch):
     with pytest.warns(NoResultsWarning, match='was not found in the cloud. Skipping download.'):
         result = Observations.download_products(obsid,
                                                 dataURI=data_uri,
-                                                cloud_only=True)
+                                                cloud_only=True,
+                                                download_dir=tmpdir)
     assert result[0]['Status'] == 'SKIPPED'
     assert result[0]['Message'] == 'Product not found in cloud'
     # Warn and fall back to on-prem download if products not found in cloud and cloud_only is False
     with pytest.warns(InputWarning, match='was not found in the cloud. Falling back to MAST download'):
-        result = Observations.download_products(obsid, dataURI=data_uri)
+        result = Observations.download_products(obsid, dataURI=data_uri, download_dir=tmpdir)
     assert result[0]['Status'] == 'COMPLETE'
 
     # Cloud access not enabled, warn if cloud_only is True
@@ -1133,7 +1149,8 @@ def test_observations_download_products(mock_is_file, patch_boto3, monkeypatch):
     with pytest.warns(InputWarning, match='cloud data access is not enabled'):
         result = Observations.download_products('2003738726',
                                                 dataURI='mast:HST/product/u9o40504m_c3m.fits',
-                                                cloud_only=True)
+                                                cloud_only=True,
+                                                download_dir=tmpdir)
     assert result[0]['Status'] == 'COMPLETE'
 
 

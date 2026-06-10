@@ -65,6 +65,10 @@ esa.euclid
   BASIC_DOWNLOAD_DATA_PRODUCTS. [#3562]
 - The method ``get_spectrum`` accepts a single source_id or designation or multiple values separated by commas or a
    list. [#3570]
+- New method, ``get_valid_le3_configuration_values``, to retrieve the valid values for the category, group, and
+   product_type parameters dynamically. [#3601]
+- In the method, ``get_scientific_product_list``, the ``dsr_part3`` parameter now supports the additional value
+   ``latest``. [#3601]
 
 
 vizier
@@ -101,6 +105,7 @@ svo_fps
 ^^^^^^^
 
 - Add ``get_filter_metadata`` to allow retrieval of filter metadata. [#3528]
+- Add ``get_zeropoint`` to allow retrieval of filter zeropoints and allow kwarg passing to ``get_filter_metadata``. [#3545]
 
 heasarc
 ^^^^^^^
@@ -123,6 +128,23 @@ esa.hubble
 
 - Update ``get_datalabs_path`` method so an alternative path is checked if the
   file is not in Datalabs yet [#3437]
+- Update ``get_datalabs_path`` method to check for files for new collections (HLSP and HSLA) [#3578]
+
+
+imcce
+^^^^^
+
+- Change the URL for SkyBot and Miriade Web Services [#3595]
+- Adapted the ``Miriade`` Class to the new outputs of the Web Service [#3595]
+
+ipac.irsa
+^^^^^^^^^
+
+- Fix NAIF ID input mode in ``Most``: the parameter and value ``nafid``
+  were typos; the API expects ``naifid``. Old ``obj_nafid`` keyword and
+  ``"nafid_input"`` ``input_mode`` still work but emit
+  ``AstropyDeprecationWarning``. [#3607]
+
 
 mast
 ^^^^
@@ -148,9 +170,13 @@ mast
   improvements to cloud download handling. [#3488]
 - ``MastMissions`` query functions now support single or multiple targets via ``coordinates`` and
   ``object_names`` (including combined use in ``query_criteria``). [#3540]
-
 - The cloud dataset in ``Observations`` is now enabled by default if the ``boto3`` and ``botocore`` packages are installed. This
   default can be overridden by setting the ``enable_cloud_dataset`` configuration option to False. [#3534]
+- Results returned from ``MastMissions`` metadata query functions now include search parameters in the metadata of the ``astropy.table.Table`` object
+  and column descriptions in the column metadata. [#3588]
+- Added ``pass_id`` as an alias for the ``pass`` column in query functions for the Roman mission to avoid conflicts with
+  the reserved Python keyword. [#3588]
+- Update the cutout format request parameter in ``Zcut.download_cutouts`` to reflect a recent service change. [#3608]
 
 
 jplspec
@@ -164,11 +190,15 @@ linelists.jplspec
 ^^^^^^^^^^^^^^^^^
 
 - New location for jplspec.  astroquery.jplspec is now deprecated in favor of astroquery.linelists.jplspec [#3455]
+- Added ``use_getmolecule`` option to ``query_lines`` to bypass the JPL query
+  service and retrieve full molecule catalogs via ``get_molecule``, and added a
+  configurable ``ftp_cat_server`` with a Wayback Machine fallback. [#3547]
 
 mpc
 ^^^
 
 - Fix bug in queries for interstellar objects with ``MPC.get_observations`` and enable queries for "dead" comets [#3474]
+- Fix ``MPC.get_observations`` column parsing for very close objects, very high proper motions, and objects in the Earth's shadow [#3594]
 
 linelists
 ^^^^^^^^^
@@ -205,6 +235,8 @@ Infrastructure, Utility and Other Changes and Additions
   of user agents on top of astroquery's ones [#3526]
 
 - Fix no expiration case for ``cache_timeout`` config option. [#3579]
+
+- Workaround upstream bug when caching a response using pyvo. [#3586]
 
 utils.tap
 ^^^^^^^^^

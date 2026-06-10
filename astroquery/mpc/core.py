@@ -1088,9 +1088,35 @@ class MPCClass(BaseQuery):
             if SKY:
                 names = ('Date', 'RA', 'Dec', 'Delta',
                          'r', 'Elongation', 'Phase', 'V')
-                col_starts = (0, 18, 29, 39, 47, 56, 62, 69)
-                col_ends = (17, 28, 38, 46, 55, 61, 68, 72)
+                col_starts = [0, 18, 29, 39, 47, 56, 62, 69]
+                col_ends = [17, 28, 38, 46, 55, 61, 68, 72]
                 units = (None, None, None, 'au', 'au', 'deg', 'deg', 'mag')
+
+                # The column division between Delta and r is variable: the enn
+                # column of a very small delta is greater than the start column
+                # of a very large r.
+                #
+                # Also note that high rates of motion will collide with the V mag.
+                #
+                # For examples, compare 2008 TC3 with 2018 AG37:
+                #
+                #      K08T03C       [H=30.72]
+                # Date       UT      R.A. (J2000) Decl.    Delta     r     El.    Ph.   V      Sky Motion   ...
+                #             h m s                                                            "/min    P.A....
+                # 2008 10 07 025000 08 00 22.2 +12 14 07   0.00004 0.999   74.6 105.4  12.426720.01    110.1...
+                #
+                #      K18A37G       [H= 4.22]
+                # Date       UT      R.A. (J2000) Decl.    Delta     r     El.    Ph.   V      Sky Motion   ...
+                #             h m s                                                            "/min    P.A....
+                # 2008 10 07 000000 08 21 45.7 +34 31 18 131.948 131.692   74.9   0.4  25.5    0.0074  063.7...
+                #
+                # It seems that there may always be a space between the Delta
+                # and r columns, so identify the split based on that assumption.
+
+                delta_rh = first_row[col_starts[3]:col_ends[4]]
+                delta_string = delta_rh.strip().split()[0]
+                col_ends[3] = col_starts[3] + delta_rh.index(delta_string) + len(delta_string)
+                col_starts[4] = col_ends[3] + 1
 
                 if 's=t' in result.request.body:    # total motion
                     names += ('Proper motion', 'Direction')
@@ -1102,7 +1128,7 @@ class MPCClass(BaseQuery):
                     names += ('dRA cos(Dec)', 'dDec')
                     units += ('arcsec/h', 'arcsec/h')
                 col_starts += (73, 82)
-                col_ends += (81, 91)
+                col_ends += (81, 90)
 
                 if 'Moon' in columns:
                     # table includes Alt, Az, Sun and Moon geometry
@@ -1143,7 +1169,8 @@ class MPCClass(BaseQuery):
             tab = ascii.read(text_table, format='fixed_width_no_header',
                              names=names, col_starts=col_starts,
                              col_ends=col_ends, data_start=data_start,
-                             fill_values=(('N/A', np.nan),), fast_reader=False)
+                             fill_values=(('N/A', np.nan), ("********", np.nan)),
+                             fast_reader=False)
 
             for col, unit in zip(names, units):
                 tab[col].unit = unit
