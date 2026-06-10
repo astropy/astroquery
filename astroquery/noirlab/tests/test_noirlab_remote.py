@@ -36,7 +36,7 @@ def test_query_region(hdu, radius):
     """
     conf.timeout = 300
     c = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
-    r = NOIRLab().query_region(coordinates=c, radius=radius, hdu=hdu)
+    r = NOIRLab().query_region(c, radius=radius, hdu=hdu)
     actual = set(r['md5sum'].tolist())
     if hdu:
         expected = exp.query_region_2

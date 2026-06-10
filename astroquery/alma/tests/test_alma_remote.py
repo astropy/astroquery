@@ -337,7 +337,7 @@ class TestAlma:
     def test_misc(self, alma):
         # miscellaneous set of common tests
         #
-        # alma.query_region(coordinates=orionkl_coords, radius=4 * u.arcmin,
+        # alma.query_region(coordinate=orionkl_coords, radius=4 * u.arcmin,
         #                  public=False, science=False)
 
         result = alma.query_object('M83', public=True, science=True)

@@ -20,7 +20,6 @@ from astropy.utils.console import ProgressBar
 from astropy import units as u
 from astropy.time import Time
 from astropy.coordinates import SkyCoord
-from astropy.utils.decorators import deprecated_renamed_argument
 
 from pyvo.dal.sia2 import SIA2_PARAMETERS_DESC, SIA2Service
 
@@ -507,8 +506,7 @@ class AlmaClass(QueryWithLogin):
                                 payload=payload, enhanced_results=enhanced_results,
                                 **kwargs)
 
-    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
-    def query_region_async(self, coordinates, radius, *, public=True,
+    def query_region_async(self, coordinate, radius, *, public=True,
                            science=True, payload=None, enhanced_results=False,
                            **kwargs):
         """
@@ -535,7 +533,7 @@ class AlmaClass(QueryWithLogin):
         rad = radius
         if not isinstance(radius, u.Quantity):
             rad = radius*u.deg
-        obj_coord = commons.parse_coordinates(coordinates).icrs
+        obj_coord = commons.parse_coordinates(coordinate).icrs
         ra_dec = '{}, {}'.format(obj_coord.to_string(), rad.to(u.deg).value)
         if payload is None:
             payload = {}

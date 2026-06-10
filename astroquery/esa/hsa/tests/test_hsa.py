@@ -1,11 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 
-import pytest
-
 from astropy import units as u
 from astropy.coordinates import SkyCoord
-from astropy.utils.exceptions import AstropyDeprecationWarning
 from ..core import HSAClass
 from ..tests.dummy_tap_handler import DummyHSATapHandler
 
@@ -53,7 +50,7 @@ class TestHSA:
 
     def test_query_observations(self):
         c = SkyCoord(ra=100.2417*u.degree, dec=9.895*u.degree, frame='icrs')
-        parameters = {'coordinates': c,
+        parameters = {'coordinate': c,
                       'radius': 0.5}
         dummyTapHandler = DummyHSATapHandler("query_observations", parameters)
         hsa = HSAClass(self.get_dummy_tap_handler())
@@ -62,17 +59,9 @@ class TestHSA:
 
     def test_query_region(self):
         c = SkyCoord(ra=100.2417*u.degree, dec=9.895*u.degree, frame='icrs')
-        parameters = {'coordinates': c,
+        parameters = {'coordinate': c,
                       'radius': 0.5}
         dummyTapHandler = DummyHSATapHandler("query_region", parameters)
         hsa = HSAClass(self.get_dummy_tap_handler())
         hsa.query_region(**parameters)
         dummyTapHandler.check_call("query_region", parameters)
-
-    def test_query_region_deprecated_coordinate(self):
-        c = SkyCoord(ra=100.2417*u.degree, dec=9.895*u.degree, frame='icrs')
-        hsa = HSAClass(self.get_dummy_tap_handler())
-        with pytest.warns(AstropyDeprecationWarning, match="coordinate"):
-            hsa.query_region(coordinate=c, radius=0.5)
-        with pytest.warns(AstropyDeprecationWarning, match="coordinate"):
-            hsa.query_observations(coordinate=c, radius=0.5)

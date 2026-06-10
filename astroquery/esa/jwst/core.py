@@ -25,7 +25,6 @@ from astropy import units
 from astropy.coordinates import Angle, SkyCoord
 from astropy.table import vstack
 from astropy.units import Quantity
-from astropy.utils.decorators import deprecated_renamed_argument
 from requests.exceptions import ConnectionError
 
 from astroquery.exceptions import RemoteServiceError
@@ -234,8 +233,7 @@ class JwstClass(BaseQuery):
         """
         return self.__jwsttap.list_async_jobs(verbose=verbose)
 
-    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
-    def query_region(self, coordinates, *,
+    def query_region(self, coordinate, *,
                      radius=None,
                      width=None,
                      height=None,
@@ -253,7 +251,7 @@ class JwstClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : astropy.coordinates, mandatory
+        coordinate : astropy.coordinate, mandatory
             coordinates center point
         radius : astropy.units, required if no 'width' nor 'height'
             are provided
@@ -296,10 +294,10 @@ class JwstClass(BaseQuery):
         -------
         The job results (astropy.table).
         """
-        coord = self.__get_coord_input(value=coordinates, msg="coordinates")
+        coord = self.__get_coord_input(value=coordinate, msg="coordinate")
         job = None
         if radius is not None:
-            job = self.cone_search(coordinates=coord,
+            job = self.cone_search(coordinate=coord,
                                    radius=radius,
                                    only_public=only_public,
                                    observation_id=observation_id,
@@ -359,8 +357,7 @@ class JwstClass(BaseQuery):
                 job = self.__jwsttap.launch_job(query=query, verbose=verbose)
         return job.get_results()
 
-    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
-    def cone_search(self, coordinates, radius, *,
+    def cone_search(self, coordinate, radius, *,
                     observation_id=None,
                     cal_level="Top",
                     prod_type=None,
@@ -380,7 +377,7 @@ class JwstClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : astropy.coordinates, mandatory
+        coordinate : astropy.coordinate, mandatory
             coordinates center point
         radius : astropy.units, mandatory
             radius
@@ -431,7 +428,7 @@ class JwstClass(BaseQuery):
         -------
         A Job object
         """
-        coord = self.__get_coord_input(value=coordinates, msg="coordinates")
+        coord = self.__get_coord_input(value=coordinate, msg="coordinate")
         ra_hours, dec = commons.coord_to_radec(coord)
         ra = ra_hours * 15.0  # Converts to degrees
 
@@ -551,7 +548,7 @@ class JwstClass(BaseQuery):
         """
         coordinates = self.resolve_target_coordinates(target_name=target_name,
                                                       target_resolver=target_resolver)
-        return self.query_region(coordinates=coordinates,
+        return self.query_region(coordinate=coordinates,
                                  radius=radius,
                                  width=width,
                                  height=height,

@@ -6,7 +6,6 @@ This does DB access through web-services.
 """
 import astropy.io.fits as fits
 import astropy.table
-from astropy.utils.decorators import deprecated_renamed_argument
 from ..query import BaseQuery
 from ..exceptions import RemoteServiceError
 from . import conf
@@ -145,8 +144,7 @@ class NOIRLabClass(BaseQuery):
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
         return response.json()
 
-    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
-    def query_region(self, coordinates, *, radius=0.1, hdu=False, cache=True, async_=False):
+    def query_region(self, coordinate, *, radius=0.1, hdu=False, cache=True, async_=False):
         """Query for NOIRLab observations by region of the sky.
 
         Given a sky coordinate and radius, returns a `~astropy.table.Table`
@@ -154,7 +152,7 @@ class NOIRLabClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : :class:`str` or `~astropy.coordinates` object
+        coordinate : :class:`str` or `~astropy.coordinates` object
             The target region which to search. It may be specified as a
             string or as the appropriate `~astropy.coordinates` object.
         radius : :class:`float` or :class:`str` or `~astropy.units.Quantity` object, optional
@@ -175,7 +173,7 @@ class NOIRLabClass(BaseQuery):
             A table containing the results.
         """
         self._validate_version()
-        ra, dec = coordinates.to_string('decimal').split()
+        ra, dec = coordinate.to_string('decimal').split()
         url = f'{self.sia_url(hdu=hdu)}?POS={ra},{dec}&SIZE={radius}&VERB=3&format=json'
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
         if async_:

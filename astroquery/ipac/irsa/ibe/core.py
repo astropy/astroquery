@@ -14,7 +14,6 @@ from bs4 import BeautifulSoup
 
 import astropy.coordinates as coord
 from astropy.table import Table
-from astropy.utils.decorators import deprecated_renamed_argument
 
 from astroquery.exceptions import InvalidQueryError
 from astroquery.query import BaseQuery
@@ -31,8 +30,7 @@ class IbeClass(BaseQuery):
     TABLE = conf.table
     TIMEOUT = conf.timeout
 
-    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
-    def query_region(self, *, coordinates=None, where=None, mission=None,
+    def query_region(self, *, coordinate=None, where=None, mission=None,
                      dataset=None, table=None, columns=None, width=None,
                      height=None, intersect='OVERLAPS', most_centered=False):
         """
@@ -49,7 +47,7 @@ class IbeClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : str, `astropy.coordinates` object
+        coordinate : str, `astropy.coordinates` object
             Gives the position of the center of the box if performing a box
             search. If it is a string, then it must be a valid argument to
             `~astropy.coordinates.SkyCoord`. Required if ``where`` is absent.
@@ -99,7 +97,7 @@ class IbeClass(BaseQuery):
             A table containing the results of the query
         """
         response = self.query_region_async(
-            coordinates=coordinates, where=where, mission=mission,
+            coordinate=coordinate, where=where, mission=mission,
             dataset=dataset, table=table, columns=columns, width=width,
             height=height, intersect=intersect, most_centered=most_centered)
 
@@ -108,8 +106,7 @@ class IbeClass(BaseQuery):
 
         return Table.read(response.text, format='ipac', guess=False)
 
-    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
-    def query_region_sia(self, *, coordinates=None, mission=None,
+    def query_region_sia(self, *, coordinate=None, mission=None,
                          dataset=None, table=None, width=None,
                          height=None, intersect='OVERLAPS',
                          most_centered=False):
@@ -118,7 +115,7 @@ class IbeClass(BaseQuery):
         details.  The returned table will include a list of URLs.
         """
         response = self.query_region_async(
-            coordinates=coordinates, mission=mission,
+            coordinate=coordinate, mission=mission,
             dataset=dataset, table=table, width=width,
             height=height, intersect=intersect, most_centered=most_centered,
             action='sia')
@@ -129,8 +126,7 @@ class IbeClass(BaseQuery):
         return commons.parse_votable(
             response.text).get_first_table().to_table()
 
-    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
-    def query_region_async(self, *, coordinates=None, where=None, mission=None, dataset=None,
+    def query_region_async(self, *, coordinate=None, where=None, mission=None, dataset=None,
                            table=None, columns=None, width=None, height=None,
                            action='search', intersect='OVERLAPS', most_centered=False):
         """
@@ -147,7 +143,7 @@ class IbeClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : str, `astropy.coordinates` object
+        coordinate : str, `astropy.coordinates` object
             Gives the position of the center of the box if performing a box
             search. If it is a string, then it must be a valid argument to
             `~astropy.coordinates.SkyCoord`. Required if ``where`` is absent.
@@ -202,9 +198,9 @@ class IbeClass(BaseQuery):
             The HTTP response returned from the service
         """
 
-        if coordinates is None and where is None:
+        if coordinate is None and where is None:
             raise InvalidQueryError(
-                'At least one of `coordinates` or `where` is required')
+                'At least one of `coordinate` or `where` is required')
 
         intersect = intersect.upper()
         if intersect not in ('COVERS', 'ENCLOSED', 'CENTER', 'OVERLAPS'):
@@ -228,8 +224,8 @@ class IbeClass(BaseQuery):
         if most_centered:
             args['mcen'] = '1'
 
-        if coordinates is not None:
-            c = commons.parse_coordinates(coordinates).transform_to(coord.ICRS)
+        if coordinate is not None:
+            c = commons.parse_coordinates(coordinate).transform_to(coord.ICRS)
             args['POS'] = '{0},{1}'.format(c.ra.deg, c.dec.deg)
             if width and height:
                 args['SIZE'] = '{0},{1}'.format(

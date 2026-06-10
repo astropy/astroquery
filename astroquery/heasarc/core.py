@@ -422,8 +422,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         arg_in_kwargs=(False, True, True, True, True, True,
                        True, True, True, False)
     )
-    @deprecated_renamed_argument("position", "coordinates", since="0.4.12")
-    def query_region(self, coordinates=None, catalog=None, radius=None, *,
+    @deprecated_renamed_argument("position", "coordinate", since="0.4.12")
+    def query_region(self, coordinate=None, catalog=None, radius=None, *,
                      spatial='cone', width=None, polygon=None, column_filters=None,
                      add_offset=False, get_query_payload=False, columns=None, cache=False,
                      verbose=False, maxrec=None,
@@ -433,7 +433,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         Parameters
         ----------
-        coordinates : str, `astropy.coordinates` object
+        coordinate : str, `astropy.coordinates` object
             Gives the position of the center of the cone or box if performing
             a cone or box search. Required if spatial is ``'cone'`` or
             ``'box'``. Ignored if spatial is ``'polygon'`` or ``'all-sky'``.
@@ -500,8 +500,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         table : A `~astropy.table.Table` object.
         """
 
-        # if we have column_filters and no coordinates, assume all-sky search
-        if coordinates is None and column_filters is not None:
+        # if we have column_filters and no coordinate, assume all-sky search
+        if coordinate is None and column_filters is not None:
             spatial = 'all-sky'
 
         if spatial.lower() == 'all-sky':
@@ -528,12 +528,12 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             where = ("WHERE CONTAINS(POINT('ICRS',ra,dec),"
                      f"POLYGON('ICRS',{','.join(coords_str)}))=1")
         else:
-            if coordinates is None:
+            if coordinate is None:
                 raise InvalidQueryError(
-                    "coordinates is required for spatial='cone' (default). "
+                    "coordinate is required for spatial='cone' (default). "
                     "Use spatial='all-sky' For all-sky searches."
                 )
-            coords_icrs = parse_coordinates(coordinates).icrs
+            coords_icrs = parse_coordinates(coordinate).icrs
             ra, dec = coords_icrs.ra.deg, coords_icrs.dec.deg
 
             if spatial.lower() == 'cone':

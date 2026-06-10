@@ -64,8 +64,6 @@ esa.euclid
    product_type parameters dynamically. [#3601]
 - In the method, ``get_scientific_product_list``, the ``dsr_part3`` parameter now supports the additional value
    ``latest``. [#3601]
-- The ``coordinate`` keyword of ``query_object``, ``cone_search``, and ``get_cutout`` is deprecated in
-  favor of ``coordinates`` for consistency with the rest of astroquery. [#3609]
 
 
 vizier
@@ -89,61 +87,24 @@ vo_conesearch
   PyVO Simple Cone Search interface instead. There is no direct replacement
   for server validation. [#3548]
 
-alma
-^^^^
-
-- The ``coordinate`` keyword of ``query_region`` and ``query_region_async`` is deprecated in favor of
-  ``coordinates`` for consistency with the rest of astroquery. [#3609]
-
-esa.hsa
-^^^^^^^
-
-- The ``coordinate`` keyword of ``query_observations`` and ``query_region`` is deprecated in favor of
-  ``coordinates`` for consistency with the rest of astroquery. [#3609]
-
-esa.jwst
-^^^^^^^^
-
-- The ``coordinate`` keyword of ``query_region`` and ``cone_search`` is deprecated in favor of
-  ``coordinates`` for consistency with the rest of astroquery. [#3609]
-
 esasky
 ^^^^^^
 
 - The ``position`` keyword of ``query_region_maps``, ``query_region_catalogs``, and
-  ``query_region_spectra`` is deprecated in favor of ``coordinates`` for consistency with the rest of
-  astroquery. [#3609]
-
-gaia
-^^^^
-
-- The ``coordinate`` keyword of ``query_object``, ``query_object_async``, ``cone_search``, and
-  ``cone_search_async`` is deprecated in favor of ``coordinates`` for consistency with the rest of
-  astroquery. [#3609]
+  ``query_region_spectra`` is deprecated in favor of ``coordinate``; these methods accept a
+  single sky position. [#3609]
 
 heasarc
 ^^^^^^^
 
-- The ``position`` keyword of ``query_region`` is deprecated in favor of ``coordinates`` for
-  consistency with the rest of astroquery. [#3609]
-
-ipac.irsa.ibe
-^^^^^^^^^^^^^
-
-- The ``coordinate`` keyword of ``query_region``, ``query_region_sia``, and ``query_region_async`` is
-  deprecated in favor of ``coordinates`` for consistency with the rest of astroquery. [#3609]
-
-noirlab
-^^^^^^^
-
-- The ``coordinate`` keyword of ``query_region`` is deprecated in favor of ``coordinates`` for
-  consistency with the rest of astroquery. [#3609]
+- The ``position`` keyword of ``query_region`` is deprecated in favor of ``coordinate``; the
+  method accepts a single sky position. [#3609]
 
 ogle
 ^^^^
 
 - The ``coord`` keyword of ``query_region`` and ``query_region_async`` is deprecated in favor of
-  ``coordinates`` for consistency with the rest of astroquery. [#3609]
+  ``coordinates``; the method accepts one or more positions (as a list of coordinates). [#3609]
 
 Service fixes and enhancements
 ------------------------------
