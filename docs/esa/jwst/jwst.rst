@@ -101,7 +101,7 @@ service degradation.
   >>> coord = SkyCoord(ra=53, dec=-27, unit=(u.degree, u.degree), frame='icrs')
   >>> width = u.Quantity(5, u.deg)
   >>> height = u.Quantity(5, u.deg)
-  >>> result = Jwst.query_region(coordinate=coord, width=width, height=height)
+  >>> result = Jwst.query_region(coordinates=coord, width=width, height=height)
   >>> result  # doctest: +IGNORE_OUTPUT
            dist                observationid          ...
     ------------------ ------------------------------ ...
@@ -129,7 +129,7 @@ service degradation.
   >>>
   >>> coord = SkyCoord(ra=53, dec=-27, unit=(u.degree, u.degree), frame='icrs')
   >>> radius = u.Quantity(5.0, u.deg)
-  >>> j = Jwst.cone_search(coordinate=coord, radius=radius, async_job=True)
+  >>> j = Jwst.cone_search(coordinates=coord, radius=radius, async_job=True)
   INFO: Query finished. [astroquery.utils.tap.core]
   >>> result = j.get_results()
   >>> result  # doctest: +IGNORE_OUTPUT

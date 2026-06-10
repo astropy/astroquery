@@ -29,6 +29,7 @@ from astroquery import log
 from astroquery.utils import commons
 from astroquery.utils.tap import TapPlus
 from astroquery.utils.tap import taputils
+from ...utils.multicoord import support_multiple_coordinates
 from . import conf
 
 
@@ -384,15 +385,20 @@ class EuclidClass(TapPlus):
         except Exception as exx:
             log.error(f'Query failed: {query}, {str(exx)}')
 
-    def query_object(self, coordinate, *, radius=None, width=None, height=None,
+    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
+    def query_object(self, coordinates, *, radius=None, width=None, height=None,
                      async_job=False, verbose=False, columns=None):
         """
         Searches for objects around a given position with the default catalog sascat_pvpr01.mer_final_cat_pvpr01
 
         Parameters
         ----------
-        coordinate : astropy.coordinate, mandatory
-            coordinates center point
+        coordinates : astropy.coordinate, mandatory
+            coordinates center point. A list of coordinates or a non-scalar
+            `~astropy.coordinates.SkyCoord` runs one query per position and
+            the resulting tables are stacked, with a ``query_index`` column
+            mapping each row back to the input position.
         radius : astropy.units, required if no 'width' nor 'height' are provided
             radius (deg)
         width : astropy.units, required if no 'radius' is provided
@@ -411,7 +417,7 @@ class EuclidClass(TapPlus):
         -------
         The job results (astropy.table)
         """
-        coord = commons.parse_coordinates(coordinate)
+        coord = commons.parse_coordinates(coordinates)
 
         if radius is not None:
             job = self.__cone_search(coord, radius, async_job=async_job, verbose=verbose, columns=columns)
@@ -437,14 +443,14 @@ class EuclidClass(TapPlus):
                 job = super().launch_job(query, verbose=verbose, format_with_results_compressed=('votable_gzip',))
         return job.get_results()
 
-    def __cone_search(self, coordinate, radius, *, table_name=None, ra_column_name=None, dec_column_name=None,
+    def __cone_search(self, coordinates, radius, *, table_name=None, ra_column_name=None, dec_column_name=None,
                       async_job=False, verbose=False, columns=None):
         """Cone search sorted by distance
         TAP & TAP+
 
         Parameters
         ----------
-        coordinate : astropy.coordinate, mandatory
+        coordinates : astropy.coordinate, mandatory
             coordinates center point
         radius : astropy.units, mandatory
             radius
@@ -478,7 +484,7 @@ class EuclidClass(TapPlus):
             raise ValueError(f"Invalid ra or dec column names: ra, {ra_column_name}, dec, {dec_column_name}")
 
         radius_deg = None
-        coord = commons.parse_coordinates(coordinate)
+        coord = commons.parse_coordinates(coordinates)
         ra_hours, dec = commons.coord_to_radec(coord)
         ra = ra_hours * 15.0  # Converts to degrees
         if radius is not None:
@@ -519,7 +525,9 @@ class EuclidClass(TapPlus):
 
         return job
 
-    def cone_search(self, coordinate, radius, *,
+    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
+    def cone_search(self, coordinates, radius, *,
                     table_name=None,
                     ra_column_name=None,
                     dec_column_name=None,
@@ -535,8 +543,11 @@ class EuclidClass(TapPlus):
 
         Parameters
         ----------
-        coordinate : astropy.coordinate, mandatory
-            coordinates center point
+        coordinates : astropy.coordinate, mandatory
+            coordinates center point. A list of coordinates or a non-scalar
+            `~astropy.coordinates.SkyCoord` runs one query per position; since
+            this method returns a job object, a list of jobs (one per position,
+            in input order) is returned when multiple positions are given.
         radius : astropy.units, mandatory
             radius
         table_name : str, optional, default the table defined for the selected environment
@@ -570,7 +581,7 @@ class EuclidClass(TapPlus):
         """
 
         radius_deg = None
-        coord = commons.parse_coordinates(coordinate)
+        coord = commons.parse_coordinates(coordinates)
         ra_hours, dec = commons.coord_to_radec(coord)
         ra = ra_hours * 15.0  # Converts to degrees
         if radius is not None:
@@ -1453,9 +1464,9 @@ class EuclidClass(TapPlus):
 
         return not isinstance(value, int) and ((isinstance(value, (list, tuple)) and len(value) > 1) or ',' in value)
 
-    @deprecated_renamed_argument(('instrument', 'id'), (None, None), since='0.4.12')
-    def get_cutout(self, *, file_path=None, coordinate, radius, output_file=None, verbose=False, instrument=None,
-                   id=None):
+    @deprecated_renamed_argument(('coordinate', 'instrument', 'id'), ('coordinates', None, None), since='0.4.12')
+    def get_cutout(self, *, file_path=None, coordinates=None, radius=None, output_file=None, verbose=False,
+                   instrument=None, id=None):
         """
         Downloads a cutout from a MER mosaic (background-subtracted image) for a given
         fits file path, centered on a coordinate and with a specified radius.
@@ -1466,7 +1477,7 @@ class EuclidClass(TapPlus):
         ----------
         file_path : str, mandatory, default None
             file path for the product on the server (MER mosaic)
-        coordinate : astropy.coordinate or Simbad/VizieR/NED name (str), mandatory
+        coordinates : astropy.coordinate or Simbad/VizieR/NED name (str), mandatory
             coordinates center point
         radius : astropy.units, mandatory
             the radius of the cutout to generate
@@ -1480,14 +1491,14 @@ class EuclidClass(TapPlus):
         The fits file is downloaded, and the local path where the cutout is saved is returned
         """
 
-        if file_path is None or coordinate is None or radius is None:
+        if file_path is None or coordinates is None or radius is None:
             raise ValueError(self.__ERROR_MSG_REQUESTED_GENERIC)
 
         # Parse POS
         radius_deg = Angle(self.__get_quantity_input(radius, "radius")).to_value(u.deg)
         if radius_deg > 0.5:
             raise ValueError(self.__ERROR_MSG_REQUESTED_RADIUS)
-        coord = commons.parse_coordinates(coordinate)
+        coord = commons.parse_coordinates(coordinates)
         ra_hours, dec = commons.coord_to_radec(coord)
         ra = ra_hours * 15.0  # Converts to degrees
         pos = """CIRCLE,{ra},{dec},{radius}""".format(**{'ra': ra, 'dec': dec, 'radius': radius_deg})

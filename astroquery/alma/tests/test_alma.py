@@ -12,6 +12,7 @@ from astropy.table import Table
 from astropy.io import votable
 from astropy.coordinates import SkyCoord
 from astropy.time import Time
+from astropy.utils.exceptions import AstropyDeprecationWarning
 import pyvo
 
 from astroquery.alma import Alma
@@ -362,6 +363,32 @@ def test_query():
         "AND (INTERSECTS(CIRCLE('ICRS',1.0,2.0,1.0), "
         "s_region) = 1) AND science_observation='T' AND data_rights='Public'",
         language='ADQL', maxrec=None, uploads=None)
+
+
+def test_query_region_coordinate_deprecated():
+    # the old ``coordinate`` keyword should still work but emit a
+    # deprecation warning (renamed to ``coordinates``, issue #2803)
+    alma = Alma()
+    alma._get_dataarchive_url = Mock()
+    new_payload = alma.query_region(coordinates='1 2', radius=1*u.deg,
+                                    get_query_payload=True)
+    with pytest.warns(AstropyDeprecationWarning):
+        old_payload = alma.query_region(coordinate='1 2', radius=1*u.deg,
+                                        get_query_payload=True)
+    assert old_payload == new_payload
+
+
+def test_query_region_multiple_coordinates():
+    # a list of coordinates runs one query per position; with
+    # ``get_query_payload`` a list of per-position payloads is returned
+    alma = Alma()
+    alma._get_dataarchive_url = Mock()
+    payloads = alma.query_region(['1 2', '3 4'], radius=1*u.deg,
+                                 get_query_payload=True)
+    assert isinstance(payloads, list)
+    assert len(payloads) == 2
+    assert "CIRCLE('ICRS',1.0,2.0,1.0)" in payloads[0]
+    assert "CIRCLE('ICRS',3.0,4.0,1.0)" in payloads[1]
 
 
 @pytest.mark.filterwarnings("ignore::astropy.utils.exceptions.AstropyUserWarning")

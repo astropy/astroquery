@@ -20,11 +20,13 @@ from astropy.utils.console import ProgressBar
 from astropy import units as u
 from astropy.time import Time
 from astropy.coordinates import SkyCoord
+from astropy.utils.decorators import deprecated_renamed_argument
 
 from pyvo.dal.sia2 import SIA2_PARAMETERS_DESC, SIA2Service
 
 from ..exceptions import LoginError
 from ..utils import commons
+from ..utils.multicoord import support_multiple_coordinates
 from ..utils.process_asyncs import async_to_sync
 from ..query import BaseQuery, QueryWithLogin, BaseVOQuery
 from .tapsql import (_gen_pos_sql, _gen_str_sql, _gen_numeric_sql,
@@ -506,7 +508,8 @@ class AlmaClass(QueryWithLogin):
                                 payload=payload, enhanced_results=enhanced_results,
                                 **kwargs)
 
-    def query_region_async(self, coordinate, radius, *, public=True,
+    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    def query_region_async(self, coordinates, radius, *, public=True,
                            science=True, payload=None, enhanced_results=False,
                            **kwargs):
         """
@@ -533,7 +536,7 @@ class AlmaClass(QueryWithLogin):
         rad = radius
         if not isinstance(radius, u.Quantity):
             rad = radius*u.deg
-        obj_coord = commons.parse_coordinates(coordinate).icrs
+        obj_coord = commons.parse_coordinates(coordinates).icrs
         ra_dec = '{}, {}'.format(obj_coord.to_string(), rad.to(u.deg).value)
         if payload is None:
             payload = {}
@@ -545,6 +548,61 @@ class AlmaClass(QueryWithLogin):
         return self.query_async(public=public, science=science,
                                 payload=payload, enhanced_results=enhanced_results,
                                 **kwargs)
+
+    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
+    def query_region(self, coordinates, radius, *, public=True,
+                     science=True, payload=None, enhanced_results=False,
+                     verbose=False, **kwargs):
+        """
+        Query the ALMA archive with a source name and radius.
+
+        Multiple positions can be queried at once by passing a list of
+        coordinates (or coordinate strings) or a vector
+        `~astropy.coordinates.SkyCoord`: one query is run per position and
+        the results are stacked into a single table with a ``query_index``
+        column mapping each row back to the input position.
+
+        Parameters
+        ----------
+        coordinates : str / `astropy.coordinates`
+            the identifier or coordinates around which to query.  A list of
+            coordinates or a vector `~astropy.coordinates.SkyCoord` triggers
+            one query per position.
+        radius : str / `~astropy.units.Quantity`, optional
+            the radius of the region
+        public : bool
+            True to return only public datasets, False to return private only,
+            None to return both
+        science : bool
+            True to return only science datasets, False to return only
+            calibration, None to return both
+        payload : dict
+            Dictionary of additional keywords.  See `help`.
+        enhanced_results : bool
+            True to return a table with quantities instead of just values. It
+            also returns the footprints as `regions` objects.
+        verbose : bool
+            Whether to show warnings when parsing the result.
+
+        Returns
+        -------
+        table : A `~astropy.table.Table` object.
+        """
+        if payload is not None:
+            # do not mutate the caller's dict; query_region_async appends the
+            # position to payload['ra_dec'] in place, which would otherwise
+            # accumulate positions across the calls of a multi-coordinate query
+            payload = dict(payload)
+        response = self.query_region_async(coordinates, radius, public=public,
+                                           science=science, payload=payload,
+                                           enhanced_results=enhanced_results,
+                                           **kwargs)
+        if kwargs.get('get_query_payload'):
+            return response
+        result = self._parse_result(response, verbose=verbose)
+        self.table = result
+        return result
 
     def query_async(self, payload, *, public=True, science=True,
                     legacy_columns=False, get_query_payload=False,

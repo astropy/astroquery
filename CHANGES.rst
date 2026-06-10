@@ -64,6 +64,10 @@ esa.euclid
    product_type parameters dynamically. [#3601]
 - In the method, ``get_scientific_product_list``, the ``dsr_part3`` parameter now supports the additional value
    ``latest``. [#3601]
+- The ``coordinate`` keyword of ``query_object``, ``cone_search``, and ``get_cutout`` is deprecated in
+  favor of ``coordinates`` for consistency with the rest of astroquery. [#3609]
+- ``query_object`` and ``cone_search`` now also accept multiple coordinates (a list, or a non-scalar
+  ``SkyCoord``); one query is run per position and the results are combined. [#3609]
 
 
 vizier
@@ -86,6 +90,85 @@ vo_conesearch
 - The whole ``vo_conesearch`` module is deprecated. Queries can be made using
   PyVO Simple Cone Search interface instead. There is no direct replacement
   for server validation. [#3548]
+
+alma
+^^^^
+
+- The ``coordinate`` keyword of ``query_region`` and ``query_region_async`` is deprecated in favor of
+  ``coordinates`` for consistency with the rest of astroquery. [#3609]
+- ``query_region`` now also accepts multiple coordinates (a list, or a non-scalar ``SkyCoord``);
+  one query is run per position and the results are stacked into a single table with a
+  ``query_index`` column. [#3609]
+
+esa.hsa
+^^^^^^^
+
+- The ``coordinate`` keyword of ``query_observations`` and ``query_region`` is deprecated in favor of
+  ``coordinates`` for consistency with the rest of astroquery. [#3609]
+- ``query_observations`` and ``query_region`` now also accept multiple coordinates (a list, or a
+  non-scalar ``SkyCoord``); one query is run per position and the results are combined. [#3609]
+
+esa.jwst
+^^^^^^^^
+
+- The ``coordinate`` keyword of ``query_region`` and ``cone_search`` is deprecated in favor of
+  ``coordinates`` for consistency with the rest of astroquery. [#3609]
+- ``query_region`` and ``cone_search`` now also accept multiple coordinates (a list, or a non-scalar
+  ``SkyCoord``); one query is run per position and the results are combined. [#3609]
+
+esasky
+^^^^^^
+
+- The ``position`` keyword of ``query_region_maps``, ``query_region_catalogs``, and
+  ``query_region_spectra`` is deprecated in favor of ``coordinates`` for consistency with the rest of
+  astroquery. [#3609]
+- ``query_region_maps``, ``query_region_catalogs``, and ``query_region_spectra`` now also accept
+  multiple coordinates (a list, or a non-scalar ``SkyCoord``); one query is run per position and the
+  per-mission tables are stacked with a ``query_index`` column. [#3609]
+
+gaia
+^^^^
+
+- The ``coordinate`` keyword of ``query_object``, ``query_object_async``, ``cone_search``, and
+  ``cone_search_async`` is deprecated in favor of ``coordinates`` for consistency with the rest of
+  astroquery. [#3609]
+- ``query_object``, ``query_object_async``, ``cone_search``, and ``cone_search_async`` now also
+  accept multiple coordinates (a list, or a non-scalar ``SkyCoord``); one query is run per position
+  and the results are combined (stacked tables, or a list of jobs for the cone-search methods).
+  [#3609]
+
+heasarc
+^^^^^^^
+
+- The ``position`` keyword of ``query_region`` is deprecated in favor of ``coordinates`` for
+  consistency with the rest of astroquery. [#3609]
+- ``query_region`` now also accepts multiple coordinates (a list, or a non-scalar ``SkyCoord``);
+  one query is run per position and the results are stacked into a single table with a
+  ``query_index`` column. [#3609]
+
+ipac.irsa.ibe
+^^^^^^^^^^^^^
+
+- The ``coordinate`` keyword of ``query_region``, ``query_region_sia``, and ``query_region_async`` is
+  deprecated in favor of ``coordinates`` for consistency with the rest of astroquery. [#3609]
+- ``query_region`` and ``query_region_sia`` now also accept multiple coordinates (a list, or a
+  non-scalar ``SkyCoord``); one query is run per position and the results are stacked into a single
+  table with a ``query_index`` column. [#3609]
+
+noirlab
+^^^^^^^
+
+- The ``coordinate`` keyword of ``query_region`` is deprecated in favor of ``coordinates`` for
+  consistency with the rest of astroquery. [#3609]
+- ``query_region`` now also accepts multiple coordinates (a list, or a non-scalar ``SkyCoord``);
+  one query is run per position and the results are stacked into a single table with a
+  ``query_index`` column. [#3609]
+
+ogle
+^^^^
+
+- The ``coord`` keyword of ``query_region`` and ``query_region_async`` is deprecated in favor of
+  ``coordinates`` for consistency with the rest of astroquery. [#3609]
 
 Service fixes and enhancements
 ------------------------------
@@ -232,6 +315,13 @@ Infrastructure, Utility and Other Changes and Additions
 - Fix no expiration case for ``cache_timeout`` config option. [#3579]
 
 - Workaround upstream bug when caching a response using pyvo. [#3586]
+
+- New ``astroquery.utils.multicoord.support_multiple_coordinates`` decorator: single-position
+  query methods decorated with it accept a list of coordinates or a non-scalar ``SkyCoord`` and
+  loop over the positions with bounded, rate-limited parallelism. The defaults (3 parallel
+  requests, at least 0.3 s between submissions) are deliberately conservative — none of the
+  affected archives publish request-rate limits — and are configurable via
+  ``astroquery.utils.multicoord.conf``. [#3609]
 
 utils.tap
 ^^^^^^^^^

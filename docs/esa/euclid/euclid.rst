@@ -143,7 +143,7 @@ the "mer_catalogue" and its outcome is restricted to 50 rows.
     >>> import astropy.units as u
     >>> coord  = SkyCoord("17h51m07.4s +65d31m50.8s", frame='icrs')
     >>> radius = u.Quantity(0.5, u.deg)
-    >>> job    = Euclid.cone_search(coordinate=coord, radius=radius, columns="*", async_job=True)  # doctest: +IGNORE_WARNINGS
+    >>> job    = Euclid.cone_search(coordinates=coord, radius=radius, columns="*", async_job=True)  # doctest: +IGNORE_WARNINGS
     INFO: Query finished. [astroquery.utils.tap.core]
     >>> cone_results    = job.get_results()
     >>> print(f"Found {len(cone_results)} results")
@@ -163,7 +163,7 @@ that the name is recognised by the Simbad, VizieR, or NED services.
 
     >>> radius           = u.Quantity(0.2, u.deg)
     >>> Euclid.ROW_LIMIT = -1
-    >>> job              = Euclid.cone_search(coordinate='NGC 6505', radius=radius, table_name="sedm.calibrated_frame", ra_column_name="ra", dec_column_name="dec", async_job=True, columns = ['ra', 'dec', 'datalabs_path', 'file_path', 'file_name', 'observation_id', 'instrument_name'])
+    >>> job              = Euclid.cone_search(coordinates='NGC 6505', radius=radius, table_name="sedm.calibrated_frame", ra_column_name="ra", dec_column_name="dec", async_job=True, columns = ['ra', 'dec', 'datalabs_path', 'file_path', 'file_name', 'observation_id', 'instrument_name'])
     INFO: Query finished. [astroquery.utils.tap.core]
     >>> res              = job.get_results()
     >>> print(f"* Found {len(res)} results")
@@ -375,7 +375,7 @@ Download the cutout...
 .. doctest-skip::
 
     >>> file_path  = f"{res['file_path'][0]}/{res['file_name'][0]}"
-    >>> cutout_out = Euclid.get_cutout(file_path=file_path, coordinate='NGC 6505', radius= 0.1 * u.arcmin, output_file='ngc6505_cutout_mer.fits')
+    >>> cutout_out = Euclid.get_cutout(file_path=file_path, coordinates='NGC 6505', radius= 0.1 * u.arcmin, output_file='ngc6505_cutout_mer.fits')
     >>> cutout_out = cutout_out[0]
 
 ...  and inspect its content:

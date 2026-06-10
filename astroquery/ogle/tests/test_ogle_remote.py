@@ -9,7 +9,7 @@ from .. import Ogle
 @pytest.mark.remote_data
 def test_ogle_single():
     co = SkyCoord(0, 3, unit=(u.degree, u.degree), frame='galactic')
-    response = Ogle.query_region(coord=co)
+    response = Ogle.query_region(coordinates=co)
     assert len(response) == 1
 
 
@@ -17,6 +17,6 @@ def test_ogle_single():
 def test_ogle_list():
     co = SkyCoord(0, 3, unit=(u.degree, u.degree), frame='galactic')
     co_list = [co, co, co]
-    response = Ogle.query_region(coord=co_list)
+    response = Ogle.query_region(coordinates=co_list)
     assert len(response) == 3
     assert response['RA[hr]'][0] == response['RA[hr]'][1] == response['RA[hr]'][2]

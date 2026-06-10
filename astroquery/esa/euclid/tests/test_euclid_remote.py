@@ -21,17 +21,17 @@ def test_query_object_row_limit():
     coord = SkyCoord(ra=265.8, dec=64.1, unit=(u.degree, u.degree), frame='icrs')
     width = u.Quantity(0.1, u.deg)
     height = u.Quantity(0.1, u.deg)
-    r = euclid.query_object(coordinate=coord, width=width, height=height, async_job=True, verbose=True)
+    r = euclid.query_object(coordinates=coord, width=width, height=height, async_job=True, verbose=True)
 
     assert len(r) == 50
 
     euclid.ROW_LIMIT = 10
-    r = euclid.query_object(coordinate=coord, width=width, height=height, async_job=True)
+    r = euclid.query_object(coordinates=coord, width=width, height=height, async_job=True)
 
     assert len(r) == 10 == euclid.ROW_LIMIT
 
     euclid.ROW_LIMIT = -1
-    r = euclid.query_object(coordinate=coord, width=width, height=height, async_job=True, verbose=True)
+    r = euclid.query_object(coordinates=coord, width=width, height=height, async_job=True, verbose=True)
 
     assert len(r) == 1948
 

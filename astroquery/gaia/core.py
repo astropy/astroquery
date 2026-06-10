@@ -28,6 +28,7 @@ from requests import HTTPError
 
 from astroquery import log
 from astroquery.utils import commons
+from astroquery.utils.multicoord import support_multiple_coordinates
 from astroquery.utils.tap import TapPlus
 from astroquery.utils.tap import taputils
 from . import conf
@@ -469,14 +470,14 @@ class GaiaClass(TapPlus):
 
         return self.__gaiadata.get_datalinks(ids=ids, linking_parameter=final_linking_parameter, verbose=verbose)
 
-    def __query_object(self, coordinate, *, radius=None, width=None, height=None,
+    def __query_object(self, coordinates, *, radius=None, width=None, height=None,
                        async_job=False, verbose=False, columns=(), get_query_payload=False):
         """Launches a job
         TAP & TAP+
 
         Parameters
         ----------
-        coordinate : str or astropy.coordinate, mandatory
+        coordinates : str or astropy.coordinate, mandatory
             coordinates center point
         radius : str or astropy.units if no 'width' nor 'height' are provided
             radius (deg)
@@ -499,7 +500,7 @@ class GaiaClass(TapPlus):
         -------
         The job results (astropy.table).
         """
-        coord = self.__getCoordInput(coordinate, "coordinate")
+        coord = self.__getCoordInput(coordinates, "coordinates")
 
         if radius is not None:
             job = self.__cone_search(coord, radius, async_job=async_job, verbose=verbose, columns=columns)
@@ -554,7 +555,9 @@ class GaiaClass(TapPlus):
                 job = self.launch_job(query, verbose=verbose)
         return job.get_results()
 
-    def query_object(self, coordinate, *, radius=None, width=None, height=None, verbose=False, columns=(),
+    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
+    def query_object(self, coordinates, *, radius=None, width=None, height=None, verbose=False, columns=(),
                      get_query_payload=False):
         """Launches a synchronous cone search for the input search radius or the box on the sky, sorted by angular
         separation
@@ -562,8 +565,12 @@ class GaiaClass(TapPlus):
 
         Parameters
         ----------
-        coordinate : str or astropy.coordinates, mandatory
-            coordinates center point
+        coordinates : str or astropy.coordinates, mandatory
+            coordinates center point. A list of coordinates or a non-scalar
+            `~astropy.coordinates.SkyCoord` is also accepted, in which case
+            one query is run per position and the results are stacked into a
+            single table with a ``query_index`` column mapping rows back to
+            the input positions.
         radius : str or astropy.units if no 'width'/'height' are provided
             radius (deg)
         width : str or astropy.units if no 'radius' is provided
@@ -582,18 +589,24 @@ class GaiaClass(TapPlus):
         -------
         The job results (astropy.table).
         """
-        return self.__query_object(coordinate, radius=radius, width=width, height=height, async_job=False,
+        return self.__query_object(coordinates, radius=radius, width=width, height=height, async_job=False,
                                    verbose=verbose, columns=columns, get_query_payload=get_query_payload)
 
-    def query_object_async(self, coordinate, *, radius=None, width=None, height=None, verbose=False, columns=()):
+    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
+    def query_object_async(self, coordinates, *, radius=None, width=None, height=None, verbose=False, columns=()):
         """Launches an asynchronous cone search for the input search radius or the box on the sky, sorted by angular
         separation
         TAP & TAP+
 
         Parameters
         ----------
-        coordinate : str or astropy.coordinates, mandatory
-            coordinates center point
+        coordinates : str or astropy.coordinates, mandatory
+            coordinates center point. A list of coordinates or a non-scalar
+            `~astropy.coordinates.SkyCoord` is also accepted, in which case
+            one query is run per position and the results are stacked into a
+            single table with a ``query_index`` column mapping rows back to
+            the input positions.
         radius : str or astropy.units if no 'width'/'height' are provided
             radius
         width : str or astropy.units if no 'radius' is provided
@@ -609,10 +622,10 @@ class GaiaClass(TapPlus):
         -------
         The job results (astropy.table).
         """
-        return self.__query_object(coordinate, radius=radius, width=width, height=height, async_job=True,
+        return self.__query_object(coordinates, radius=radius, width=width, height=height, async_job=True,
                                    verbose=verbose, columns=columns)
 
-    def __cone_search(self, coordinate, radius, *, table_name=None,
+    def __cone_search(self, coordinates, radius, *, table_name=None,
                       ra_column_name=MAIN_GAIA_TABLE_RA,
                       dec_column_name=MAIN_GAIA_TABLE_DEC,
                       async_job=False,
@@ -626,7 +639,7 @@ class GaiaClass(TapPlus):
 
         Parameters
         ----------
-        coordinate : astropy.coordinate, mandatory
+        coordinates : astropy.coordinate, mandatory
             coordinates center point
         radius : astropy.units, mandatory
             radius
@@ -662,7 +675,7 @@ class GaiaClass(TapPlus):
         A Job object
         """
         radiusDeg = None
-        coord = self.__getCoordInput(coordinate, "coordinate")
+        coord = self.__getCoordInput(coordinates, "coordinates")
         raHours, dec = commons.coord_to_radec(coord)
         ra = raHours * 15.0  # Converts to degrees
         if radius is not None:
@@ -706,7 +719,9 @@ class GaiaClass(TapPlus):
             return self.launch_job(query=query, output_file=output_file, output_format=output_format, verbose=verbose,
                                    dump_to_file=dump_to_file)
 
-    def cone_search(self, coordinate, *, radius=None,
+    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
+    def cone_search(self, coordinates, *, radius=None,
                     table_name=None,
                     ra_column_name=MAIN_GAIA_TABLE_RA,
                     dec_column_name=MAIN_GAIA_TABLE_DEC,
@@ -720,8 +735,11 @@ class GaiaClass(TapPlus):
 
         Parameters
         ----------
-        coordinate : str or astropy.coordinate, mandatory
-            coordinates center point
+        coordinates : str or astropy.coordinate, mandatory
+            coordinates center point. A list of coordinates or a non-scalar
+            `~astropy.coordinates.SkyCoord` is also accepted, in which case
+            one query is run per position and a list of jobs is returned, in
+            input order.
         radius : str or astropy.units, mandatory
             radius
         table_name : str, optional, default main gaia table name doing the cone search against
@@ -749,7 +767,7 @@ class GaiaClass(TapPlus):
         -------
         A Job object
         """
-        return self.__cone_search(coordinate,
+        return self.__cone_search(coordinates,
                                   radius=radius,
                                   table_name=table_name,
                                   ra_column_name=ra_column_name,
@@ -762,7 +780,9 @@ class GaiaClass(TapPlus):
                                   dump_to_file=dump_to_file, columns=columns,
                                   get_query_payload=get_query_payload)
 
-    def cone_search_async(self, coordinate, *, radius=None,
+    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
+    def cone_search_async(self, coordinates, *, radius=None,
                           table_name=None,
                           ra_column_name=MAIN_GAIA_TABLE_RA,
                           dec_column_name=MAIN_GAIA_TABLE_DEC,
@@ -774,8 +794,11 @@ class GaiaClass(TapPlus):
 
         Parameters
         ----------
-        coordinate : str or astropy.coordinate, mandatory
-            coordinates center point
+        coordinates : str or astropy.coordinate, mandatory
+            coordinates center point. A list of coordinates or a non-scalar
+            `~astropy.coordinates.SkyCoord` is also accepted, in which case
+            one query is run per position and a list of jobs is returned, in
+            input order.
         radius : str or astropy.units, mandatory
             radius
         table_name : str, optional, default main gaia table name doing the cone search against
@@ -804,7 +827,7 @@ class GaiaClass(TapPlus):
         -------
         A Job object
         """
-        return self.__cone_search(coordinate,
+        return self.__cone_search(coordinates,
                                   radius=radius,
                                   table_name=table_name,
                                   ra_column_name=ra_column_name,

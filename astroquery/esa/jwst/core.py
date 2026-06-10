@@ -25,6 +25,7 @@ from astropy import units
 from astropy.coordinates import Angle, SkyCoord
 from astropy.table import vstack
 from astropy.units import Quantity
+from astropy.utils.decorators import deprecated_renamed_argument
 from requests.exceptions import ConnectionError
 
 from astroquery.exceptions import RemoteServiceError
@@ -32,6 +33,7 @@ from astroquery.ipac.ned import Ned
 from astroquery.query import BaseQuery
 from astroquery.simbad import Simbad
 from astroquery.utils import commons
+from astroquery.utils.multicoord import support_multiple_coordinates
 from astroquery.utils.tap import TapPlus
 from astroquery.vizier import Vizier
 from . import conf
@@ -233,7 +235,9 @@ class JwstClass(BaseQuery):
         """
         return self.__jwsttap.list_async_jobs(verbose=verbose)
 
-    def query_region(self, coordinate, *,
+    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
+    def query_region(self, coordinates, *,
                      radius=None,
                      width=None,
                      height=None,
@@ -251,8 +255,12 @@ class JwstClass(BaseQuery):
 
         Parameters
         ----------
-        coordinate : astropy.coordinate, mandatory
-            coordinates center point
+        coordinates : astropy.coordinates, mandatory
+            coordinates center point. A list of coordinates or a vector
+            `~astropy.coordinates.SkyCoord` may also be provided, in which
+            case one query is run per position and the resulting tables are
+            stacked, with a ``query_index`` column mapping each row back to
+            the corresponding input position
         radius : astropy.units, required if no 'width' nor 'height'
             are provided
             radius (deg)
@@ -294,10 +302,10 @@ class JwstClass(BaseQuery):
         -------
         The job results (astropy.table).
         """
-        coord = self.__get_coord_input(value=coordinate, msg="coordinate")
+        coord = self.__get_coord_input(value=coordinates, msg="coordinates")
         job = None
         if radius is not None:
-            job = self.cone_search(coordinate=coord,
+            job = self.cone_search(coordinates=coord,
                                    radius=radius,
                                    only_public=only_public,
                                    observation_id=observation_id,
@@ -357,7 +365,9 @@ class JwstClass(BaseQuery):
                 job = self.__jwsttap.launch_job(query=query, verbose=verbose)
         return job.get_results()
 
-    def cone_search(self, coordinate, radius, *,
+    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
+    def cone_search(self, coordinates, radius, *,
                     observation_id=None,
                     cal_level="Top",
                     prod_type=None,
@@ -377,8 +387,11 @@ class JwstClass(BaseQuery):
 
         Parameters
         ----------
-        coordinate : astropy.coordinate, mandatory
-            coordinates center point
+        coordinates : astropy.coordinates, mandatory
+            coordinates center point. A list of coordinates or a vector
+            `~astropy.coordinates.SkyCoord` may also be provided, in which
+            case one query is run per position; in that case a list of Job
+            objects is returned, in input order
         radius : astropy.units, mandatory
             radius
         observation_id : str, optional, default None
@@ -428,7 +441,7 @@ class JwstClass(BaseQuery):
         -------
         A Job object
         """
-        coord = self.__get_coord_input(value=coordinate, msg="coordinate")
+        coord = self.__get_coord_input(value=coordinates, msg="coordinates")
         ra_hours, dec = commons.coord_to_radec(coord)
         ra = ra_hours * 15.0  # Converts to degrees
 
@@ -548,7 +561,7 @@ class JwstClass(BaseQuery):
         """
         coordinates = self.resolve_target_coordinates(target_name=target_name,
                                                       target_resolver=target_resolver)
-        return self.query_region(coordinate=coordinates,
+        return self.query_region(coordinates=coordinates,
                                  radius=radius,
                                  width=width,
                                  height=height,

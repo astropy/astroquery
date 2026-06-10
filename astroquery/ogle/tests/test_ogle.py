@@ -5,6 +5,7 @@ import os
 import pytest
 from astropy.coordinates import SkyCoord
 from astropy import units as u
+from astropy.utils.exceptions import AstropyDeprecationWarning
 
 from astroquery.utils.mocks import MockResponse
 
@@ -40,7 +41,7 @@ def test_ogle_single(patch_post):
     Test a single pointing using an astropy coordinate instance
     """
     co = SkyCoord(0, 3, unit=(u.degree, u.degree), frame='galactic')
-    ogle.core.Ogle.query_region(coord=co)
+    ogle.core.Ogle.query_region(coordinates=co)
 
 
 def test_ogle_list(patch_post):
@@ -49,7 +50,17 @@ def test_ogle_list(patch_post):
     """
     co = SkyCoord(0, 3, unit=(u.degree, u.degree), frame='galactic')
     co_list = [co, co, co]
-    ogle.core.Ogle.query_region(coord=co_list)
+    ogle.core.Ogle.query_region(coordinates=co_list)
+
+
+def test_ogle_deprecated_coord_keyword(patch_post):
+    """
+    Test that the deprecated ``coord`` keyword still works and emits a
+    deprecation warning
+    """
+    co = SkyCoord(0, 3, unit=(u.degree, u.degree), frame='galactic')
+    with pytest.warns(AstropyDeprecationWarning):
+        ogle.core.Ogle.query_region(coord=co)
 
 
 def test_ogle_single_payload():
@@ -57,7 +68,7 @@ def test_ogle_single_payload():
     Test single pointing payload
     """
     co = SkyCoord(0*u.deg, 3*u.deg, frame='galactic')
-    payload = ogle.core.Ogle.query_region(coord=co, get_query_payload=True)
+    payload = ogle.core.Ogle.query_region(coordinates=co, get_query_payload=True)
     fk5 = co.transform_to('fk5')
     ra = fk5.ra.hour
     dec = fk5.dec.degree
@@ -74,7 +85,7 @@ def test_ogle_multipointing_payload():
     co2 = SkyCoord(4*u.deg, 5*u.deg, frame='galactic')
     pointings = [co1, co2]
     payload = ogle.core.Ogle.query_region(
-        coord=pointings,
+        coordinates=pointings,
         get_query_payload=True
     )
     conversions = []

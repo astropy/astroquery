@@ -6,6 +6,7 @@ import json
 import pytest
 from astropy import units as u
 from astropy.coordinates import SkyCoord
+from astropy.utils.exceptions import AstropyDeprecationWarning
 from ...utils.mocks import MockResponse
 from ...exceptions import RemoteServiceError
 from .. import NOIRLab
@@ -68,13 +69,35 @@ def test_query_region(patch_request, hdu, radius):
     It is OK if more files have been added to the remote Archive.
     """
     c = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
-    r = NOIRLab.query_region(c, radius=radius, hdu=hdu)
+    r = NOIRLab.query_region(coordinates=c, radius=radius, hdu=hdu)
     actual = set(r['md5sum'].tolist())
     if hdu:
         expected = exp.query_region_2
     else:
         expected = exp.query_region_1
     assert expected.issubset(actual)
+
+
+def test_query_region_deprecated_coordinate(patch_request):
+    """The old ``coordinate`` keyword should still work but emit a deprecation warning.
+    """
+    c = SkyCoord(ra=10.625*u.degree, dec=41.2*u.degree, frame='icrs')
+    with pytest.warns(AstropyDeprecationWarning):
+        r = NOIRLab.query_region(coordinate=c, radius='0.1')
+    actual = set(r['md5sum'].tolist())
+    assert exp.query_region_1.issubset(actual)
+
+
+def test_query_region_multiple_coordinates(patch_request):
+    """A vector SkyCoord should run one query per position and stack the results.
+    """
+    c = SkyCoord(ra=[10.625, 20.5]*u.degree, dec=[41.2, -30.0]*u.degree, frame='icrs')
+    r = NOIRLab.query_region(coordinates=c, radius='0.1')
+    assert 'query_index' in r.colnames
+    assert set(r['query_index'].tolist()) == {0, 1}
+    assert len(r) == 2 * len(exp.query_region_1)
+    assert exp.query_region_1.issubset(set(r['md5sum'][r['query_index'] == 0].tolist()))
+    assert exp.query_region_1.issubset(set(r['md5sum'][r['query_index'] == 1].tolist()))
 
 
 @pytest.mark.parametrize('hdu', [(False,), (True,)])

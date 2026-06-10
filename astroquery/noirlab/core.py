@@ -6,8 +6,10 @@ This does DB access through web-services.
 """
 import astropy.io.fits as fits
 import astropy.table
+from astropy.utils.decorators import deprecated_renamed_argument
 from ..query import BaseQuery
 from ..exceptions import RemoteServiceError
+from ..utils.multicoord import support_multiple_coordinates
 from . import conf
 
 
@@ -144,7 +146,9 @@ class NOIRLabClass(BaseQuery):
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
         return response.json()
 
-    def query_region(self, coordinate, *, radius=0.1, hdu=False, cache=True, async_=False):
+    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
+    def query_region(self, coordinates, *, radius=0.1, hdu=False, cache=True, async_=False):
         """Query for NOIRLab observations by region of the sky.
 
         Given a sky coordinate and radius, returns a `~astropy.table.Table`
@@ -152,9 +156,14 @@ class NOIRLabClass(BaseQuery):
 
         Parameters
         ----------
-        coordinate : :class:`str` or `~astropy.coordinates` object
+        coordinates : :class:`str` or `~astropy.coordinates` object
             The target region which to search. It may be specified as a
             string or as the appropriate `~astropy.coordinates` object.
+            A list of coordinates or a vector `~astropy.coordinates.SkyCoord`
+            may also be given, in which case one query is run per position
+            and the results are stacked into a single table with a
+            ``query_index`` column identifying the input position each row
+            came from.
         radius : :class:`float` or :class:`str` or `~astropy.units.Quantity` object, optional
             Default 0.1 degrees.
             The string must be parsable by `~astropy.coordinates.Angle`. The
@@ -173,7 +182,7 @@ class NOIRLabClass(BaseQuery):
             A table containing the results.
         """
         self._validate_version()
-        ra, dec = coordinate.to_string('decimal').split()
+        ra, dec = coordinates.to_string('decimal').split()
         url = f'{self.sia_url(hdu=hdu)}?POS={ra},{dec}&SIZE={radius}&VERB=3&format=json'
         response = self._request('GET', url, timeout=self.TIMEOUT, cache=cache)
         if async_:

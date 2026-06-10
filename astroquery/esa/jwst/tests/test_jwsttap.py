@@ -24,12 +24,14 @@ from astropy.coordinates.sky_coordinate import SkyCoord
 from astropy.io.votable import parse_single_table
 from astropy.table import Table
 from astropy.units import Quantity
+from astropy.utils.exceptions import AstropyDeprecationWarning
 from astroquery.exceptions import TableParseError
 
 from astroquery.esa.jwst import JwstClass
 from astroquery.esa.jwst.tests.DummyTapHandler import DummyTapHandler
 from astroquery.ipac.ned import Ned
 from astroquery.simbad import SimbadClass
+from astroquery.utils.multicoord import conf as multicoord_conf
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.core import TapPlus
@@ -239,11 +241,11 @@ class TestTap:
         tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
 
         with pytest.raises(ValueError) as err:
-            tap.query_region(coordinate=123)
-        assert "coordinate must be either a string or astropy.coordinates" in err.value.args[0]
+            tap.query_region(coordinates=123)
+        assert "coordinates must be either a string or astropy.coordinates" in err.value.args[0]
 
         with pytest.raises(NameResolveError) as err:
-            tap.query_region(coordinate='test')
+            tap.query_region(coordinates='test')
         assert ("Unable to find coordinates for name 'test'" in err.value.args[0] or "Unable to retrieve "
                 "coordinates" in err.value.args[0])
 
@@ -379,6 +381,30 @@ class TestTap:
                                     'table1_oid',
                                     None,
                                     np.int32)
+
+    def test_query_region_multiple_coordinates(self):
+        connHandler = DummyConnHandler()
+        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
+        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
+
+        # The query contains decimals: force default response
+        responseLaunchJob = DummyResponse(200)
+        responseLaunchJob.set_data(method='POST', body=JOB_DATA)
+        connHandler.set_default_response(responseLaunchJob)
+
+        sc = SkyCoord(ra=[29.0, 30.0], dec=[15.0, 16.0],
+                      unit=(u.degree, u.degree), frame='icrs')
+        radius = Quantity(1, u.deg)
+        with multicoord_conf.set_temp('max_parallel_queries', 1), \
+                multicoord_conf.set_temp('min_request_interval', 0):
+            table = tap.query_region(sc, radius=radius)
+        assert isinstance(table, Table)
+        # The dummy connection handler returns the same 3-row job data for
+        # each of the two per-position queries, so the rows are doubled.
+        assert len(table) == 6, f"Wrong job results (num rows). Expected: {6}, found {len(table)}"
+        assert 'query_index' in table.colnames
+        assert set(table['query_index']) == {0, 1}
+        assert list(table['query_index']) == [0, 0, 0, 1, 1, 1]
 
     def test_query_region_async(self):
         connHandler = DummyConnHandler()
@@ -536,6 +562,26 @@ class TestTap:
         with pytest.raises(ValueError) as err:
             tap.cone_search(sc, radius, proposal_id=123)
         assert "proposal_id must be string" in err.value.args[0]
+
+    def test_coordinate_deprecated_keyword(self):
+        connHandler = DummyConnHandler()
+        tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
+        tap = JwstClass(tap_plus_handler=tapplus, show_messages=False)
+        responseLaunchJob = DummyResponse(200)
+        responseLaunchJob.set_data(method='POST', body=JOB_DATA)
+        connHandler.set_default_response(responseLaunchJob)
+        sc = SkyCoord(ra=19.0, dec=20.0, unit=(u.degree, u.degree), frame='icrs')
+        radius = Quantity(1.0, u.deg)
+
+        with pytest.warns(AstropyDeprecationWarning,
+                          match='"coordinate" was deprecated in version 0.4.12'):
+            job = tap.cone_search(coordinate=sc, radius=radius)
+        assert job is not None
+
+        with pytest.warns(AstropyDeprecationWarning,
+                          match='"coordinate" was deprecated in version 0.4.12'):
+            results = tap.query_region(coordinate=sc, radius=radius)
+        assert results is not None
 
     def test_cone_search_async(self):
         connHandler = DummyConnHandler()

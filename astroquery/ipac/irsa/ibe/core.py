@@ -14,11 +14,14 @@ from bs4 import BeautifulSoup
 
 import astropy.coordinates as coord
 from astropy.table import Table
+from astropy.utils.decorators import deprecated_renamed_argument
 
 from astroquery.exceptions import InvalidQueryError
 from astroquery.query import BaseQuery
 from astroquery.utils import commons
 from astroquery.ipac.irsa.ibe import conf
+
+from ....utils.multicoord import support_multiple_coordinates
 
 __all__ = ['Ibe', 'IbeClass']
 
@@ -30,7 +33,9 @@ class IbeClass(BaseQuery):
     TABLE = conf.table
     TIMEOUT = conf.timeout
 
-    def query_region(self, *, coordinate=None, where=None, mission=None,
+    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
+    def query_region(self, *, coordinates=None, where=None, mission=None,
                      dataset=None, table=None, columns=None, width=None,
                      height=None, intersect='OVERLAPS', most_centered=False):
         """
@@ -47,10 +52,15 @@ class IbeClass(BaseQuery):
 
         Parameters
         ----------
-        coordinate : str, `astropy.coordinates` object
+        coordinates : str, `astropy.coordinates` object
             Gives the position of the center of the box if performing a box
             search. If it is a string, then it must be a valid argument to
             `~astropy.coordinates.SkyCoord`. Required if ``where`` is absent.
+            A list of coordinates (or coordinate strings), or a vector
+            `~astropy.coordinates.SkyCoord`, may also be given, in which case
+            one query is run per position and the results are stacked into a
+            single table with a ``query_index`` column mapping each row back
+            to the corresponding input position.
         where : str
             SQL-like query string. Required if ``coordinates`` is absent.
         mission : str
@@ -94,10 +104,13 @@ class IbeClass(BaseQuery):
         Returns
         -------
         table : `~astropy.table.Table`
-            A table containing the results of the query
+            A table containing the results of the query. If multiple
+            coordinates were given, the per-position tables are stacked and a
+            ``query_index`` column identifies the input position each row
+            corresponds to.
         """
         response = self.query_region_async(
-            coordinate=coordinate, where=where, mission=mission,
+            coordinates=coordinates, where=where, mission=mission,
             dataset=dataset, table=table, columns=columns, width=width,
             height=height, intersect=intersect, most_centered=most_centered)
 
@@ -106,16 +119,24 @@ class IbeClass(BaseQuery):
 
         return Table.read(response.text, format='ipac', guess=False)
 
-    def query_region_sia(self, *, coordinate=None, mission=None,
+    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    @support_multiple_coordinates()
+    def query_region_sia(self, *, coordinates=None, mission=None,
                          dataset=None, table=None, width=None,
                          height=None, intersect='OVERLAPS',
                          most_centered=False):
         """
         Query using simple image access protocol.  See ``query_region`` for
         details.  The returned table will include a list of URLs.
+
+        As in ``query_region``, ``coordinates`` may be a list of coordinates
+        (or coordinate strings) or a vector `~astropy.coordinates.SkyCoord`,
+        in which case one query is run per position and the results are
+        stacked into a single table with a ``query_index`` column mapping
+        each row back to the corresponding input position.
         """
         response = self.query_region_async(
-            coordinate=coordinate, mission=mission,
+            coordinates=coordinates, mission=mission,
             dataset=dataset, table=table, width=width,
             height=height, intersect=intersect, most_centered=most_centered,
             action='sia')
@@ -126,7 +147,8 @@ class IbeClass(BaseQuery):
         return commons.parse_votable(
             response.text).get_first_table().to_table()
 
-    def query_region_async(self, *, coordinate=None, where=None, mission=None, dataset=None,
+    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    def query_region_async(self, *, coordinates=None, where=None, mission=None, dataset=None,
                            table=None, columns=None, width=None, height=None,
                            action='search', intersect='OVERLAPS', most_centered=False):
         """
@@ -143,7 +165,7 @@ class IbeClass(BaseQuery):
 
         Parameters
         ----------
-        coordinate : str, `astropy.coordinates` object
+        coordinates : str, `astropy.coordinates` object
             Gives the position of the center of the box if performing a box
             search. If it is a string, then it must be a valid argument to
             `~astropy.coordinates.SkyCoord`. Required if ``where`` is absent.
@@ -198,9 +220,9 @@ class IbeClass(BaseQuery):
             The HTTP response returned from the service
         """
 
-        if coordinate is None and where is None:
+        if coordinates is None and where is None:
             raise InvalidQueryError(
-                'At least one of `coordinate` or `where` is required')
+                'At least one of `coordinates` or `where` is required')
 
         intersect = intersect.upper()
         if intersect not in ('COVERS', 'ENCLOSED', 'CENTER', 'OVERLAPS'):
@@ -224,8 +246,8 @@ class IbeClass(BaseQuery):
         if most_centered:
             args['mcen'] = '1'
 
-        if coordinate is not None:
-            c = commons.parse_coordinates(coordinate).transform_to(coord.ICRS)
+        if coordinates is not None:
+            c = commons.parse_coordinates(coordinates).transform_to(coord.ICRS)
             args['POS'] = '{0},{1}'.format(c.ra.deg, c.dec.deg)
             if width and height:
                 args['SIZE'] = '{0},{1}'.format(

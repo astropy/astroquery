@@ -4,6 +4,7 @@
 import functools
 import numpy as np
 from astropy.table import Table
+from astropy.utils.decorators import deprecated_renamed_argument
 
 from ..query import BaseQuery
 from ..utils import commons, async_to_sync
@@ -37,7 +38,7 @@ def _validate_params(func):
 
 class CoordParseError(ValueError):
 
-    def __init__(self, message='Could not parse `coord` argument.', **kwargs):
+    def __init__(self, message='Could not parse `coordinates` argument.', **kwargs):
         super().__init__(message, **kwargs)
 
 
@@ -52,14 +53,15 @@ class OgleClass(BaseQuery):
     coord_systems = ['RD', 'LB']
 
     @_validate_params
-    def query_region_async(self, *, coord=None, algorithm='NG', quality='GOOD',
+    @deprecated_renamed_argument("coord", "coordinates", since="0.4.12")
+    def query_region_async(self, *, coordinates=None, algorithm='NG', quality='GOOD',
                            coord_sys='RD', get_query_payload=False):
         """
         Query the OGLE-III interstellar extinction calculator.
 
         Parameters
         ----------
-        coord : list-like
+        coordinates : list-like
             Pointings to evaluate interstellar extinction. Three forms of
             coordinates may be passed::
 
@@ -80,7 +82,7 @@ class OgleClass(BaseQuery):
                 * 'GOOD': QF=0 as described in Nataf et al. (2012).
 
         coord_sys : string
-            Coordinate system if using lists of RA/Decs in ``coord``.
+            Coordinate system if using lists of RA/Decs in ``coordinates``.
             Valid options::
 
                 * 'RD': equatorial coordinates
@@ -109,14 +111,14 @@ class OgleClass(BaseQuery):
         >>> co = SkyCoord(0.0, 3.0, unit=(u.degree, u.degree),
         ...               frame='galactic')
         >>> from astroquery.ogle import Ogle
-        >>> t = Ogle.query_region(coord=co)
+        >>> t = Ogle.query_region(coordinates=co)
         >>> t.pprint()
         RA/LON   Dec/Lat    A_I  E(V-I) S_E(V-I) R_JKVI   mu    S_mu
         --------- ---------- ----- ------ -------- ------ ------ ----- ...
         17.568157 -27.342475 3.126  2.597    0.126 0.3337 14.581 0.212
         """
-        # Determine the coord object type and generate list of coordinates
-        lon, lat = self._parse_coords(coord, coord_sys)
+        # Determine the coordinates object type and generate list of coordinates
+        lon, lat = self._parse_coords(coordinates, coord_sys)
         # Generate payload
         query_header = '# {0} {1} {2}\n'.format(coord_sys, algorithm, quality)
         sources = '\n'.join(['{0} {1}'.format(lo, la) for lo, la in
@@ -138,14 +140,14 @@ class OgleClass(BaseQuery):
         t = Table.read(response.text.split('\n'), format='ascii')
         return t
 
-    def _parse_coords(self, coord, coord_sys):
+    def _parse_coords(self, coordinates, coord_sys):
         """
         Parse single astropy.coordinates instance, list of astropy.coordinate
         instances, or 2xN list of coordinate values.
 
         Parameters
         ----------
-        coord : list-like
+        coordinates : list-like
         coord_sys : string
 
         Returns
@@ -155,21 +157,21 @@ class OgleClass(BaseQuery):
         lat : list
             Latitude coordinate values
         """
-        if not isinstance(coord, list):
+        if not isinstance(coordinates, list):
             # single astropy coordinate
             try:
-                ra, dec = commons.coord_to_radec(coord)
+                ra, dec = commons.coord_to_radec(coordinates)
                 lon = [ra]
                 lat = [dec]
                 return lon, lat
             except ValueError:
                 raise CoordParseError()
-        elif isinstance(coord, list):
-            shape = np.shape(coord)
+        elif isinstance(coordinates, list):
+            shape = np.shape(coordinates)
             # list of astropy coordinates
             if len(shape) == 1:
                 try:
-                    radec = [commons.coord_to_radec(co) for co in coord]
+                    radec = [commons.coord_to_radec(co) for co in coordinates]
                     lon, lat = list(zip(*radec))
                     return lon, lat
                 except ValueError:

@@ -518,6 +518,20 @@ def test_query_object_async(column_attrs, mock_querier_async, kwargs):
         assert table[colname].attrs_equal(attrs)
 
 
+def test_query_object_deprecated_coordinate_keyword(mock_querier):
+    with pytest.warns(AstropyDeprecationWarning, match='"coordinate" was deprecated'):
+        deprecated_query = mock_querier.query_object(
+            coordinate=SKYCOORD, width=12 * u.deg, height=10 * u.deg, get_query_payload=True)
+    assert deprecated_query == mock_querier.query_object(
+        coordinates=SKYCOORD, width=12 * u.deg, height=10 * u.deg, get_query_payload=True)
+
+    with pytest.warns(AstropyDeprecationWarning, match='"coordinate" was deprecated'):
+        deprecated_query = mock_querier.cone_search(
+            coordinate=SKYCOORD, radius=RADIUS, get_query_payload=True)
+    assert deprecated_query == mock_querier.cone_search(
+        coordinates=SKYCOORD, radius=RADIUS, get_query_payload=True)
+
+
 def test_query_object_precision(mock_querier):
     """
     Verifies that query_object() produces a query where RA, DEC, width and height
@@ -562,6 +576,27 @@ def test_cone_search_precision(mock_querier):
     assert len(matches) == 5, (
         f"Expected 5 float values with 14 decimals, found {len(matches)}.\n{query}"
     )
+
+
+def test_query_object_multiple_coordinates(mock_querier):
+    coords = SkyCoord(ra=[19, 42] * u.deg, dec=[20, -5] * u.deg, frame="icrs")
+    queries = mock_querier.query_object(coords, width=12 * u.deg, height=10 * u.deg, get_query_payload=True)
+    assert isinstance(queries, list)
+    assert len(queries) == 2
+    assert queries[0] != queries[1]
+    for query, coord in zip(queries, coords):
+        assert query == mock_querier.query_object(coord, width=12 * u.deg, height=10 * u.deg,
+                                                  get_query_payload=True)
+
+
+def test_cone_search_multiple_coordinates(mock_querier):
+    coords = SkyCoord(ra=[19, 42] * u.deg, dec=[20, -5] * u.deg, frame="icrs")
+    queries = mock_querier.cone_search(coords, radius=RADIUS, get_query_payload=True)
+    assert isinstance(queries, list)
+    assert len(queries) == 2
+    assert queries[0] != queries[1]
+    for query, coord in zip(queries, coords):
+        assert query == mock_querier.cone_search(coord, radius=RADIUS, get_query_payload=True)
 
 
 def test_cone_search_sync(column_attrs, mock_querier):
