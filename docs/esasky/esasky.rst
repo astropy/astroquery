@@ -182,7 +182,7 @@ value for the radius of the region. For instance to query region around M51 in t
 
     >>> from astroquery.esasky import ESASky
     >>> import astropy.units as u
-    >>> result = ESASky.query_region_catalogs(position="M51", radius=10 * u.arcmin, catalogs=["HSC", "XMM-OM"])
+    >>> result = ESASky.query_region_catalogs(coordinates="M51", radius=10 * u.arcmin, catalogs=["HSC", "XMM-OM"])
 
 To search in all available catalogs you can write ``"all"`` instead of a catalog name. The same thing will happen if you
 don't write any catalog name.
@@ -190,8 +190,8 @@ In the same manner, the radius can be specified with either a string or any `~as
 
 .. doctest-remote-data::
 
-    >>> result = ESASky.query_region_catalogs(position="M51", radius=10 * u.arcmin, catalogs="all")
-    >>> result = ESASky.query_region_catalogs(position="M51", radius="10 arcmin")
+    >>> result = ESASky.query_region_catalogs(coordinates="M51", radius=10 * u.arcmin, catalogs="all")
+    >>> result = ESASky.query_region_catalogs(coordinates="M51", radius="10 arcmin")
 
 To see the result:
 
@@ -228,8 +228,8 @@ you write this:
 
 .. doctest-remote-data::
 
-    >>> result = ESASky.query_region_maps(position="M51", radius=10 * u.arcmin, missions="all")
-    >>> result = ESASky.query_region_spectra(position="M51", radius=10 * u.arcmin, missions="all")
+    >>> result = ESASky.query_region_maps(coordinates="M51", radius=10 * u.arcmin, missions="all")
+    >>> result = ESASky.query_region_spectra(coordinates="M51", radius=10 * u.arcmin, missions="all")
 
 The parameters are interchangeable in the same way as in :meth:`~astroquery.esasky.ESASkyClass.query_region_catalogs`.
 
@@ -306,7 +306,7 @@ position, radius and missions.
 .. Skip testing examples with with hard-wired download dir values
 .. doctest-remote-data::
 
-    >>> table_list = ESASky.query_region_maps(position="V* HT Aqr", radius="15 arcmin", missions=['Herschel', 'ISO-IR'])
+    >>> table_list = ESASky.query_region_maps(coordinates="V* HT Aqr", radius="15 arcmin", missions=['Herschel', 'ISO-IR'])
     >>> images = ESASky.get_maps(query_table_list=table_list, download_dir="/home/user/esasky")  # doctest:  +SKIP
 
 This example is equivalent to:
@@ -341,7 +341,7 @@ or
 
 .. doctest-remote-data::
 
-    >>> table_list = ESASky.query_region_spectra(position="Gaia DR3 4512810408088819712", radius="6.52 arcmin",
+    >>> table_list = ESASky.query_region_spectra(coordinates="Gaia DR3 4512810408088819712", radius="6.52 arcmin",
     ...                                          missions=['Herschel', 'XMM-NEWTON'])
     >>> spectra = ESASky.get_spectra_from_table(query_table_list=table_list, download_dir="/home/user/esasky")  # doctest: +SKIP
     dict: {
@@ -357,7 +357,7 @@ Here is another example for Herschel, since it is a bit special:
 .. doctest-remote-data::
 
     >>> from astroquery.esasky import ESASky
-    >>> result = ESASky.query_region_spectra(position='[SMB88] 6327', radius='1 arcmin', missions=['HERSCHEL'])
+    >>> result = ESASky.query_region_spectra(coordinates='[SMB88] 6327', radius='1 arcmin', missions=['HERSCHEL'])
     >>> herschel_result = result['HERSCHEL']
     >>> herschel_result['observation_id', 'target_name', 'instrument', 'observing_mode_name', 'band', 'duration'].pprint()
     observation_id     target_name      instrument ...      band      duration

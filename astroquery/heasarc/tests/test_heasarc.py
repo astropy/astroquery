@@ -7,6 +7,7 @@ from unittest.mock import patch, PropertyMock
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
 from astropy.io import votable
+from astropy.utils.exceptions import AstropyDeprecationWarning
 from pyvo.dal import TAPResults
 import astropy.units as u
 
@@ -158,7 +159,7 @@ poly2 = [
 
 @pytest.mark.parametrize("polygon", [poly1, poly2])
 def test_query_region_polygon(polygon):
-    # position is not used for polygon
+    # coordinates is not used for polygon
     query1 = Heasarc.query_region(
         catalog="suzamaster",
         spatial="polygon",
@@ -184,7 +185,7 @@ def test_query_region_polygon(polygon):
 
 
 def test_query_region_polygon_no_unit():
-    # position is not used for polygon
+    # coordinates is not used for polygon
     poly = [
         (10.1, 10.1),
         (10.0, 10.1),
@@ -230,9 +231,26 @@ def test_spatial_invalid(spatial):
         )
 
 
-def test_spatial_cone_no_position():
+def test_spatial_cone_no_coordinates():
     with pytest.raises(InvalidQueryError):
         Heasarc.query_region(catalog="xmmmaster", columns="*", spatial="cone")
+
+
+def test_query_region_position_deprecated():
+    # the old `position` keyword still works but emits a deprecation warning
+    with pytest.warns(AstropyDeprecationWarning):
+        query = Heasarc.query_region(
+            position=OBJ_LIST[0],
+            catalog="suzamaster",
+            spatial="cone",
+            radius=2 * u.arcmin,
+            columns="*",
+            get_query_payload=True,
+        )
+    assert (
+        "FROM suzamaster WHERE CONTAINS(POINT('ICRS',ra,dec),"
+        "CIRCLE('ICRS',182.63" in query
+    )
 
 
 def test_no_catalog():

@@ -5,7 +5,7 @@ import tarfile
 import warnings
 import numpy as np
 from astropy.table import Table, Row
-from astropy import coordinates
+from astropy.coordinates import Angle, SkyCoord
 from astropy import units as u
 from astropy.utils.decorators import deprecated, deprecated_renamed_argument
 
@@ -422,7 +422,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         arg_in_kwargs=(False, True, True, True, True, True,
                        True, True, True, False)
     )
-    def query_region(self, position=None, catalog=None, radius=None, *,
+    @deprecated_renamed_argument("position", "coordinates", since="0.4.12")
+    def query_region(self, coordinates=None, catalog=None, radius=None, *,
                      spatial='cone', width=None, polygon=None, column_filters=None,
                      add_offset=False, get_query_payload=False, columns=None, cache=False,
                      verbose=False, maxrec=None,
@@ -432,7 +433,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         Parameters
         ----------
-        position : str, `astropy.coordinates` object
+        coordinates : str, `astropy.coordinates` object
             Gives the position of the center of the cone or box if performing
             a cone or box search. Required if spatial is ``'cone'`` or
             ``'box'``. Ignored if spatial is ``'polygon'`` or ``'all-sky'``.
@@ -499,8 +500,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         table : A `~astropy.table.Table` object.
         """
 
-        # if we have column_filters and no position, assume all-sky search
-        if position is None and column_filters is not None:
+        # if we have column_filters and no coordinates, assume all-sky search
+        if coordinates is None and column_filters is not None:
             spatial = 'all-sky'
 
         if spatial.lower() == 'all-sky':
@@ -511,14 +512,14 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                                for coord in polygon]
             except TypeError:
                 try:
-                    coords_list = [coordinates.SkyCoord(*coord).icrs
+                    coords_list = [SkyCoord(*coord).icrs
                                    for coord in polygon]
                 except u.UnitTypeError:
                     warnings.warn("Polygon endpoints are being interpreted as "
                                   "RA/Dec pairs specified in decimal degree "
                                   "units.")
                     coords_list = [
-                        coordinates.SkyCoord(*coord, unit='deg').icrs
+                        SkyCoord(*coord, unit='deg').icrs
                         for coord in polygon
                     ]
 
@@ -527,19 +528,19 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             where = ("WHERE CONTAINS(POINT('ICRS',ra,dec),"
                      f"POLYGON('ICRS',{','.join(coords_str)}))=1")
         else:
-            if position is None:
+            if coordinates is None:
                 raise InvalidQueryError(
-                    "position is required to for spatial='cone' (default). "
+                    "coordinates is required for spatial='cone' (default). "
                     "Use spatial='all-sky' For all-sky searches."
                 )
-            coords_icrs = parse_coordinates(position).icrs
+            coords_icrs = parse_coordinates(coordinates).icrs
             ra, dec = coords_icrs.ra.deg, coords_icrs.dec.deg
 
             if spatial.lower() == 'cone':
                 if radius is None:
                     radius = self.get_default_radius(catalog)
                 elif isinstance(radius, str):
-                    radius = coordinates.Angle(radius)
+                    radius = Angle(radius)
                 where = ("WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE("
                          f"'ICRS',{ra},{dec},{radius.to(u.deg).value}))=1")
                 # add search_offset for the case of cone
@@ -548,7 +549,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                                 f"POINT('ICRS',{ra},{dec})) as search_offset")
             elif spatial.lower() == 'box':
                 if isinstance(width, str):
-                    width = coordinates.Angle(width)
+                    width = Angle(width)
                 where = ("WHERE CONTAINS(POINT('ICRS',ra,dec),"
                          f"BOX('ICRS',{ra},{dec},{width.to(u.deg).value},"
                          f"{width.to(u.deg).value}))=1")
@@ -608,7 +609,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             of additional parameters that can be used to refine search query.
 
         """
-        pos = coordinates.SkyCoord.from_name(object_name)
+        pos = SkyCoord.from_name(object_name)
         return self.query_region(pos, catalog=mission, spatial='cone',
                                  get_query_payload=get_query_payload)
 

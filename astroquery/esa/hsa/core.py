@@ -7,6 +7,7 @@ from email.message import Message
 from pathlib import Path
 
 from astropy import units as u
+from astropy.utils.decorators import deprecated_renamed_argument
 from astroquery.utils import commons
 from astroquery import log
 from astroquery.exceptions import LoginError
@@ -380,13 +381,14 @@ class HSAClass(BaseQuery):
         else:
             return columns
 
-    def query_observations(self, coordinate, radius, *, n_obs=10, **kwargs):
+    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    def query_observations(self, coordinates, radius, *, n_obs=10, **kwargs):
         """
         Get the observation IDs from a given region
 
         Parameters
         ----------
-        coordinate : string / `astropy.coordinates`
+        coordinates : string / `astropy.coordinates`
             the identifier or coordinates around which to query
         radius : int / `~astropy.units.Quantity`
             the radius of the region
@@ -399,15 +401,16 @@ class HSAClass(BaseQuery):
         -------
         A table object with the list of observations in the region
         """
-        return self.query_region(coordinate, radius, n_obs=n_obs, columns="observation_id", **kwargs)
+        return self.query_region(coordinates, radius, n_obs=n_obs, columns="observation_id", **kwargs)
 
-    def query_region(self, coordinate, radius, *, n_obs=10, columns='*', **kwargs):
+    @deprecated_renamed_argument("coordinate", "coordinates", since="0.4.12")
+    def query_region(self, coordinates, radius, *, n_obs=10, columns='*', **kwargs):
         """
         Get the observation metadata from a given region
 
         Parameters
         ----------
-        coordinate : string / `astropy.coordinates`
+        coordinates : string / `astropy.coordinates`
             the identifier or coordinates around which to query
         radius : int / `~astropy.units.Quantity`
             the radius of the region
@@ -425,7 +428,7 @@ class HSAClass(BaseQuery):
         r = radius
         if not isinstance(radius, u.Quantity):
             r = radius*u.deg
-        coord = commons.parse_coordinates(coordinate).icrs
+        coord = commons.parse_coordinates(coordinates).icrs
 
         query = (f"select top {n_obs} {columns} from hsa.v_active_observation "
                  f"where contains("

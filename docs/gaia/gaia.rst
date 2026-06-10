@@ -102,7 +102,7 @@ degrees around an specific point in RA/Dec coordinates. The results are sorted b
   >>> coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')
   >>> width = u.Quantity(0.1, u.deg)
   >>> height = u.Quantity(0.1, u.deg)
-  >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
+  >>> r = Gaia.query_object_async(coordinates=coord, width=width, height=height)
   INFO: Query finished. [astroquery.utils.tap.core]
   >>> r.pprint(max_lines=12, max_width=130)
            dist             solution_id             designation          ... ebpminrp_gspphot_upper libname_gspphot
@@ -123,7 +123,7 @@ Queries return a limited number of rows controlled by ``Gaia.ROW_LIMIT``. To cha
 .. doctest-remote-data::
 
   >>> Gaia.ROW_LIMIT = 8
-  >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
+  >>> r = Gaia.query_object_async(coordinates=coord, width=width, height=height)
   INFO: Query finished. [astroquery.utils.tap.core]
   >>> r.pprint(max_width=140)
            dist             solution_id             designation          ... ebpminrp_gspphot_lower ebpminrp_gspphot_upper libname_gspphot
@@ -143,7 +143,7 @@ To return an unlimited number of rows set ``Gaia.ROW_LIMIT`` to -1.
 .. doctest-remote-data::
 
   >>> Gaia.ROW_LIMIT = -1
-  >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
+  >>> r = Gaia.query_object_async(coordinates=coord, width=width, height=height)
   INFO: Query finished. [astroquery.utils.tap.core]
   >>> r.pprint(max_lines=12, max_width=140)
            dist             solution_id             designation          ... ebpminrp_gspphot_lower ebpminrp_gspphot_upper libname_gspphot

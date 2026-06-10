@@ -106,7 +106,7 @@ class TestESASky:
             result[mission.upper()][0].close()
 
     def test_esasky_query_region_maps(self):
-        result = ESASky.query_region_maps(position="M51", radius="5 arcmin")
+        result = ESASky.query_region_maps(coordinates="M51", radius="5 arcmin")
         assert isinstance(result, TableList)
 
     def test_esasky_query_object_maps(self):
@@ -150,7 +150,7 @@ class TestESASky:
         assert Path(tmp_path, "HST-UV").exists()
 
     def test_esasky_query_region_catalogs(self):
-        result = ESASky.query_region_catalogs(position="M51", radius="5 arcmin")
+        result = ESASky.query_region_catalogs(coordinates="M51", radius="5 arcmin")
         assert isinstance(result, TableList)
 
     def test_esasky_query_object_catalogs(self):
@@ -177,7 +177,7 @@ class TestESASky:
             hdu_list.close()
 
     def test_esasky_query_region_spectra(self):
-        result = ESASky.query_region_spectra(position="M51", radius="5 arcmin")
+        result = ESASky.query_region_spectra(coordinates="M51", radius="5 arcmin")
         assert isinstance(result, TableList)
 
     def test_esasky_query_object_spectra(self):

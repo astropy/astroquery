@@ -518,6 +518,20 @@ def test_query_object_async(column_attrs, mock_querier_async, kwargs):
         assert table[colname].attrs_equal(attrs)
 
 
+def test_query_object_deprecated_coordinate_keyword(mock_querier):
+    with pytest.warns(AstropyDeprecationWarning, match='"coordinate" was deprecated'):
+        deprecated_query = mock_querier.query_object(
+            coordinate=SKYCOORD, width=12 * u.deg, height=10 * u.deg, get_query_payload=True)
+    assert deprecated_query == mock_querier.query_object(
+        coordinates=SKYCOORD, width=12 * u.deg, height=10 * u.deg, get_query_payload=True)
+
+    with pytest.warns(AstropyDeprecationWarning, match='"coordinate" was deprecated'):
+        deprecated_query = mock_querier.cone_search(
+            coordinate=SKYCOORD, radius=RADIUS, get_query_payload=True)
+    assert deprecated_query == mock_querier.cone_search(
+        coordinates=SKYCOORD, radius=RADIUS, get_query_payload=True)
+
+
 def test_query_object_precision(mock_querier):
     """
     Verifies that query_object() produces a query where RA, DEC, width and height
