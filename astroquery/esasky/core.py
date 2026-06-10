@@ -266,7 +266,7 @@ class ESASkyClass(BaseQuery):
         query_object_maps("265.05, 69.0", "Herschel")
         query_object_maps("265.05, 69.0", ["Herschel", "HST-OPTICAL"])
         """
-        return self.query_region_maps(coordinate=position,
+        return self.query_region_maps(coordinates=position,
                                       radius=self.__ZERO_ARCMIN_STRING,
                                       missions=missions,
                                       get_query_payload=get_query_payload,
@@ -323,7 +323,7 @@ class ESASkyClass(BaseQuery):
         query_object_catalogs("202.469, 47.195", "HSC")
         query_object_catalogs("202.469, 47.195", ["HSC", "XMM-OM"])
         """
-        return self.query_region_catalogs(coordinate=position,
+        return self.query_region_catalogs(coordinates=position,
                                           radius=self.__ZERO_ARCMIN_STRING,
                                           catalogs=catalogs,
                                           row_limit=row_limit,
@@ -379,7 +379,7 @@ class ESASkyClass(BaseQuery):
         query_object_spectra("202.469, 47.195", "Herschel")
         query_object_spectra("202.469, 47.195", ["Herschel", "HST-OPTICAL"])
         """
-        return self.query_region_spectra(coordinate=position,
+        return self.query_region_spectra(coordinates=position,
                                          radius=self.__ZERO_ARCMIN_STRING,
                                          missions=missions,
                                          get_query_payload=get_query_payload,
@@ -644,8 +644,8 @@ class ESASkyClass(BaseQuery):
             log.info("No maps found.")
         return maps
 
-    @deprecated_renamed_argument("position", "coordinate", since="0.4.12")
-    def query_region_maps(self, coordinate, radius, missions=__ALL_STRING, get_query_payload=False, cache=True,
+    @deprecated_renamed_argument("position", "coordinates", since="0.4.12")
+    def query_region_maps(self, coordinates, radius, missions=__ALL_STRING, get_query_payload=False, cache=True,
                           row_limit=DEFAULT_ROW_LIMIT, verbose=False):
         """
         This method queries a chosen region for all available maps and returns a
@@ -654,7 +654,7 @@ class ESASkyClass(BaseQuery):
 
         Parameters
         ----------
-        coordinate : str or `astropy.coordinates` object
+        coordinates : str or `astropy.coordinates` object
             Can either be a string of the location, eg 'M51', or the coordinates
             of the object.
         radius : str or `~astropy.units.Quantity`
@@ -702,7 +702,7 @@ class ESASkyClass(BaseQuery):
         query_result = {}
 
         sesame_database.set('simbad')
-        coordinates = commons.parse_coordinates(coordinate)
+        coordinates = commons.parse_coordinates(coordinates)
 
         self._store_query_result(query_result=query_result, names=sanitized_missions,
                                  descriptors=self._get_observation_info(), coordinates=coordinates,
@@ -713,8 +713,8 @@ class ESASkyClass(BaseQuery):
 
         return commons.TableList(query_result)
 
-    @deprecated_renamed_argument("position", "coordinate", since="0.4.12")
-    def query_region_catalogs(self, coordinate, radius, catalogs=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
+    @deprecated_renamed_argument("position", "coordinates", since="0.4.12")
+    def query_region_catalogs(self, coordinates, radius, catalogs=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
                               get_query_payload=False, cache=True, verbose=False):
         """
         This method queries a chosen region for all available catalogs and
@@ -723,7 +723,7 @@ class ESASkyClass(BaseQuery):
 
         Parameters
         ----------
-        coordinate : str or `astropy.coordinates` object
+        coordinates : str or `astropy.coordinates` object
             Can either be a string of the location, eg 'M51', or the coordinates
             of the object.
         radius : str or `~astropy.units.Quantity`
@@ -769,7 +769,7 @@ class ESASkyClass(BaseQuery):
         sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
 
         sesame_database.set('simbad')
-        coordinates = commons.parse_coordinates(coordinate)
+        coordinates = commons.parse_coordinates(coordinates)
 
         query_result = {}
 
@@ -783,8 +783,8 @@ class ESASkyClass(BaseQuery):
 
         return commons.TableList(query_result)
 
-    @deprecated_renamed_argument("position", "coordinate", since="0.4.12")
-    def query_region_spectra(self, coordinate, radius, missions=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
+    @deprecated_renamed_argument("position", "coordinates", since="0.4.12")
+    def query_region_spectra(self, coordinates, radius, missions=__ALL_STRING, row_limit=DEFAULT_ROW_LIMIT,
                              get_query_payload=False, cache=True, verbose=False):
         """
         This method queries a chosen region for all available spectra and returns a
@@ -793,7 +793,7 @@ class ESASkyClass(BaseQuery):
 
         Parameters
         ----------
-        coordinate : str or `astropy.coordinates` object
+        coordinates : str or `astropy.coordinates` object
             Can either be a string of the location, eg 'M51', or the coordinates
             of the object.
         radius : str or `~astropy.units.Quantity`
@@ -841,7 +841,7 @@ class ESASkyClass(BaseQuery):
         query_result = {}
 
         sesame_database.set('simbad')
-        coordinates = commons.parse_coordinates(coordinate)
+        coordinates = commons.parse_coordinates(coordinates)
 
         self._store_query_result(query_result=query_result, names=sanitized_missions,
                                  descriptors=self._get_spectra_info(), coordinates=coordinates,

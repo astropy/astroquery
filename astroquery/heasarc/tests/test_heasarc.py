@@ -231,7 +231,7 @@ def test_spatial_invalid(spatial):
         )
 
 
-def test_spatial_cone_no_coordinate():
+def test_spatial_cone_no_coordinates():
     with pytest.raises(InvalidQueryError):
         Heasarc.query_region(catalog="xmmmaster", columns="*", spatial="cone")
 

@@ -22,6 +22,7 @@ from astropy.io.votable import parse_single_table
 from astropy.table import Column, Table
 from astropy.units import Quantity
 from astropy.utils.data import get_pkg_data_filename
+from astropy.utils.exceptions import AstropyDeprecationWarning
 from requests import HTTPError
 
 from astroquery.esa.euclid.core import EuclidClass
@@ -198,7 +199,7 @@ def test_load_environments():
 
 def test_query_async_object(column_attrs, mock_querier_async):
     coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
-    table = mock_querier_async.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg),
+    table = mock_querier_async.query_object(coordinates=coord, width=u.Quantity(0.1, u.deg),
                                             height=u.Quantity(0.1, u.deg), async_job=True)
 
     assert table is not None
@@ -210,7 +211,7 @@ def test_query_async_object(column_attrs, mock_querier_async):
 
 def test_query_async_object_columns(column_attrs, mock_querier_async):
     coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
-    table = mock_querier_async.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg),
+    table = mock_querier_async.query_object(coordinates=coord, width=u.Quantity(0.1, u.deg),
                                             height=u.Quantity(0.1, u.deg), columns=("alpha",), async_job=True)
 
     assert table is not None
@@ -222,7 +223,7 @@ def test_query_async_object_columns(column_attrs, mock_querier_async):
 
 def test_query_object(column_attrs, mock_querier):
     coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
-    table = mock_querier.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg),
+    table = mock_querier.query_object(coordinates=coord, width=u.Quantity(0.1, u.deg),
                                       height=u.Quantity(0.1, u.deg))
 
     assert table is not None
@@ -234,7 +235,7 @@ def test_query_object(column_attrs, mock_querier):
 
 def test_query_object_columns(column_attrs, mock_querier):
     coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
-    table = mock_querier.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg),
+    table = mock_querier.query_object(coordinates=coord, width=u.Quantity(0.1, u.deg),
                                       height=u.Quantity(0.1, u.deg), columns=("alpha",))
 
     assert table is not None
@@ -245,7 +246,7 @@ def test_query_object_columns(column_attrs, mock_querier):
 
 def test_query_object_async_radius(column_attrs, mock_querier_async):
     coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
-    table = mock_querier_async.query_object(coordinate=coord, radius=RADIUS, async_job=True)
+    table = mock_querier_async.query_object(coordinates=coord, radius=RADIUS, async_job=True)
 
     assert table is not None
 
@@ -256,7 +257,7 @@ def test_query_object_async_radius(column_attrs, mock_querier_async):
 
 def test_query_object_radius(column_attrs, mock_querier):
     coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
-    table = mock_querier.query_object(coordinate=coord, radius=RADIUS)
+    table = mock_querier.query_object(coordinates=coord, radius=RADIUS)
 
     assert table is not None
 
@@ -265,9 +266,18 @@ def test_query_object_radius(column_attrs, mock_querier):
         assert table[colname].attrs_equal(attrs)
 
 
+def test_query_object_deprecated_coordinate_keyword(mock_querier):
+    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
+    with pytest.warns(AstropyDeprecationWarning, match='"coordinate" was deprecated'):
+        table = mock_querier.query_object(coordinate=coord, radius=RADIUS)
+
+    assert table is not None
+    assert len(table) == 3
+
+
 def test_query_object_async_radius_columns(column_attrs, mock_querier_async):
     coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
-    table = mock_querier_async.query_object(coordinate=coord, radius=RADIUS, columns=("alpha",), async_job=True)
+    table = mock_querier_async.query_object(coordinates=coord, radius=RADIUS, columns=("alpha",), async_job=True)
 
     assert table is not None
 
@@ -277,7 +287,7 @@ def test_query_object_async_radius_columns(column_attrs, mock_querier_async):
 
 def test_query_object_radius_columns(column_attrs, mock_querier):
     coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
-    table = mock_querier.query_object(coordinate=coord, radius=RADIUS, columns=("alpha",))
+    table = mock_querier.query_object(coordinates=coord, radius=RADIUS, columns=("alpha",))
 
     assert table is not None
 
@@ -1205,7 +1215,7 @@ def test_get_cutout(capsys):
 
     result = tap.get_cutout(
         file_path='/data/repository/NIR/19704/EUC_NIR_W-STACK_NIR-J-19704_20190718T001858.5Z_00.00.fits',
-        coordinate=c, radius=r, output_file=None, verbose=True)
+        coordinates=c, radius=r, output_file=None, verbose=True)
 
     assert result is not None
 
@@ -1239,17 +1249,17 @@ def test_get_cutout_exception():
                       show_server_messages=False)
 
     with pytest.raises(ValueError, match="Radius cannot be greater than 30 arcminutes"):
-        tap.get_cutout(file_path=file_path, coordinate=c, radius=100 * u.arcmin,
+        tap.get_cutout(file_path=file_path, coordinates=c, radius=100 * u.arcmin,
                        output_file=None)
 
     with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_cutout(file_path=None, coordinate=c, radius=r, output_file=None)
+        tap.get_cutout(file_path=None, coordinates=c, radius=r, output_file=None)
 
     with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_cutout(file_path=file_path, coordinate=None, radius=r, output_file=None)
+        tap.get_cutout(file_path=file_path, coordinates=None, radius=r, output_file=None)
 
     with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_cutout(file_path=file_path, coordinate=c, radius=None, output_file=None)
+        tap.get_cutout(file_path=file_path, coordinates=c, radius=None, output_file=None)
 
 
 @patch.object(TapPlus, 'load_data')
@@ -1272,7 +1282,7 @@ def test_get_cutout_exceptions_2(mock_load_data, caplog):
 
     mock_load_data.side_effect = HTTPError("launch_job_async HTTPError")
 
-    tap.get_cutout(file_path='hola.fits', coordinate=SKYCOORD, radius=1 * u.arcmin,
+    tap.get_cutout(file_path='hola.fits', coordinates=SKYCOORD, radius=1 * u.arcmin,
                    output_file=None)
 
     mssg = ("Cannot retrieve the product for file_path hola.fits. HTTP error: "
@@ -1281,7 +1291,7 @@ def test_get_cutout_exceptions_2(mock_load_data, caplog):
 
     mock_load_data.side_effect = Exception("launch_job_async Exception")
 
-    tap.get_cutout(file_path='hola.fits', coordinate=SKYCOORD, radius=1 * u.arcmin,
+    tap.get_cutout(file_path='hola.fits', coordinates=SKYCOORD, radius=1 * u.arcmin,
                    output_file=None)
 
     mssg = ("Cannot retrieve the product for file_path hola.fits: launch_job_async "
