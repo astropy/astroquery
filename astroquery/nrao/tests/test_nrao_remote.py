@@ -9,7 +9,7 @@ import pytest
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 
-from pyvo.dal.exceptions import DALOverflowWarning, DALQueryError
+from pyvo.dal.exceptions import DALQueryError
 
 from .. import Nrao
 
