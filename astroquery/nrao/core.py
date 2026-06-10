@@ -17,7 +17,7 @@ from ..alma.tapsql import (_gen_str_sql, _gen_numeric_sql,
 from .tapsql import (_gen_pos_sql, _gen_pub_sql, _gen_pol_sql,
                      _gen_band_list_nrao_sql)
 
-__all__ = {'NraoClass', 'NRAO_BANDS'}
+__all__ = ['Nrao', 'NraoClass']
 
 __doctest_skip__ = ['NraoClass.*']
 
@@ -100,7 +100,7 @@ def _gen_sql(payload):
                         #
                         # Use pop to avoid the slight possibility of trying to remove
                         # an already removed key
-                        unused_payload.pop(constraint)
+                        unused_payload.pop(constraint, None)
 
     if unused_payload:
         # Left over (unused) constraints passed.  Let the user know.
@@ -128,10 +128,6 @@ class NraoClass(BaseVOQuery):
         self._tap = None
         self._tap_url = None
         # TODO self._auth = NraoAuth()
-
-    @property
-    def auth(self):
-        return self._auth
 
     @property
     def tap(self):
@@ -178,13 +174,11 @@ class NraoClass(BaseVOQuery):
         payload : dict
             Dictionary of additional keywords.  See `help`.
         """
-        if payload is not None:
-            payload['source_name_resolver'] = object_name
-        else:
-            payload = {'source_name_resolver': object_name}
+        payload = dict(payload) if payload is not None else {}
+        payload['source_name_resolver'] = object_name
         return self.query(payload=payload, **kwargs)
 
-    def query_region(self, coordinate, radius, *, public=None,
+    def query_region(self, coordinates, radius, *, public=None,
                      get_query_payload=False,
                      payload=None, **kwargs):
         """
@@ -194,7 +188,7 @@ class NraoClass(BaseVOQuery):
         ----------
         coordinates : str / `astropy.coordinates`
             the identifier or coordinates around which to query.
-        radius : str / `~astropy.units.Quantity`, optional
+        radius : str / `~astropy.units.Quantity`
             the radius of the region
         public : bool
             True to return only public datasets, False to return private only,
@@ -205,10 +199,9 @@ class NraoClass(BaseVOQuery):
         rad = radius
         if not isinstance(radius, u.Quantity):
             rad = radius*u.deg
-        obj_coord = commons.parse_coordinates(coordinate).icrs
+        obj_coord = commons.parse_coordinates(coordinates).icrs
         ra_dec = '{}, {}'.format(obj_coord.to_string(), rad.to(u.deg).value)
-        if payload is None:
-            payload = {}
+        payload = dict(payload) if payload is not None else {}
         if 'ra_dec' in payload:
             payload['ra_dec'] += ' | {}'.format(ra_dec)
         else:
@@ -243,8 +236,7 @@ class NraoClass(BaseVOQuery):
         Table with results.
         """
 
-        if payload is None:
-            payload = {}
+        payload = dict(payload) if payload is not None else {}
         for arg in kwargs:
             value = kwargs[arg]
             if arg in payload:
@@ -253,7 +245,7 @@ class NraoClass(BaseVOQuery):
                 payload[arg] = value
 
         if public is not None:
-            if 'public_data' in kwargs:
+            if 'public_data' in payload:
                 warnings.warn("Both public and public_data are set. "
                               "The ``public`` kwarg takes precedence. "
                               "If you want ``public_data`` to be respected, "
@@ -298,7 +290,7 @@ class NraoClass(BaseVOQuery):
             for row in section.items():
                 print("  {0:33s} {1:35s} {2:35s}".format(row[0], row[1][0], row[1][1]))
         print('\nExamples of queries:')
-        print("Nrao.query('{project_code':'21A-409')}")
+        print("Nrao.query({'project_code': '21A-409'})")
         print("Nrao.query({'source_name': 'L1157', 'band_list': ['Q', 'K']})")
         print("Nrao.query({'source_name': 'HOPS-376'})")
         print("Nrao.query({'source_name': 'HOPS-376', 'instrument': 'ALMA'})")
