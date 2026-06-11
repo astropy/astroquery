@@ -281,6 +281,17 @@ def test_tap_endpoint_invalid_url():
         eso_instance._tap_endpoint("https://archive.eso.org/not-a-tap")
 
 
+# This TAP test is deliberately offline. It checks endpoint validation before
+# pyvo could construct a real remote service.
+def test_tap_url_invalid_endpoint():
+    eso_instance = Eso()
+
+    # Unknown endpoint names should fail before constructing a TAP service,
+    # so callers get a local configuration error instead of a remote failure.
+    with pytest.raises(ValueError, match="tap_endpoint must be one of"):
+        eso_instance._tap_url("not-a-tap")
+
+
 @pytest.mark.parametrize("input_val, expected", [
     # Numeric values
     (1, "= 1"),
@@ -366,6 +377,17 @@ def test_maxrec():
     assert maxrec == EXPECTED_MAX_ROW_LIMIT
 
 
+# The next retrieval tests exercise local guardrails and pyvo error handling.
+# Fake TAP objects keep the tests deterministic and document expected fallbacks.
+def test_row_limit_rejects_values_above_service_limit():
+    eso_instance = Eso()
+
+    # The ESO TAP service has a hard maximum; reject larger values immediately
+    # instead of sending impossible maxrec values to pyvo.
+    with pytest.raises(ValueError, match="ROW_LIMIT cannot be higher"):
+        eso_instance.ROW_LIMIT = EXPECTED_MAX_ROW_LIMIT + 1
+
+
 def test_retrieve_pyvo_table(monkeypatch):
     eso_instance = Eso()
     dal = pyvo.dal.TAPService(eso_instance._tap_url())
@@ -387,6 +409,50 @@ def test_retrieve_pyvo_table(monkeypatch):
         table = eso_instance._try_retrieve_pyvo_table(q_str, dal)
 
 
+def test_retrieve_pyvo_table_reports_custom_tap_url_in_errors():
+    eso_instance = Eso()
+    q_str = "select * from custom.Table"
+
+    class FakeResult:
+        def to_table(self):
+            raise pyvo.dal.exceptions.DALFormatError(reason="bad format")
+
+    class FakeTap:
+        baseurl = "https://example.invalid/custom_tap"
+
+        def search(self, **kwargs):
+            return FakeResult()
+
+    # Custom TAP URLs are not one of the configured ESO endpoints, but the error
+    # message should still show the URL so users can tell which service failed.
+    with pytest.raises(pyvo.dal.exceptions.DALFormatError) as exc:
+        eso_instance._try_retrieve_pyvo_table(q_str, FakeTap())
+
+    assert 'tap_endpoint="https://example.invalid/custom_tap"' in str(exc.value)
+
+
+def test_retrieve_pyvo_table_handles_overflow_warning_as_partial_result():
+    eso_instance = Eso()
+
+    class FakeResult:
+        def to_table(self):
+            raise pyvo.dal.exceptions.DALOverflowWarning("overflow")
+
+    class FakeTap:
+        baseurl = eso_instance._tap_url()
+
+        def search(self, **kwargs):
+            return FakeResult()
+
+    # pyvo raises DALOverflowWarning when the TAP result is incomplete. The ESO
+    # wrapper logs that condition and then applies its normal no-result warning.
+    with pytest.warns(NoResultsWarning):
+        result = eso_instance._try_retrieve_pyvo_table("select * from ivoa.ObsCore", FakeTap())
+
+    assert isinstance(result, Table)
+    assert len(result) == 0
+
+
 def test_issue_table_length_warnings():
     eso_instance = Eso()
 
@@ -403,6 +469,30 @@ def test_issue_table_length_warnings():
     # should not warn
     t = Table({"col_name": [i for i in range(51)]})
     eso_instance._maybe_warn_about_table_length(t, EXPECTED_MAXREC+1)
+
+
+# This helper test is observation-TAP specific. It documents the metadata query
+# used for observation table help without touching the catalogue TAP endpoint.
+def test_columns_table_uses_tap_obs_metadata_query(monkeypatch):
+    eso_instance = Eso()
+    calls = []
+
+    def fake_query_tap(query, *, tap_endpoint):
+        calls.append((query, tap_endpoint))
+        return Table({"column_name": ["dp_id"]})
+
+    # Observation TAP exposes xtype, so the help query for tap_obs should use
+    # the observation metadata columns and stay on the observation endpoint.
+    monkeypatch.setattr(eso_instance, "query_tap", fake_query_tap)
+
+    result = eso_instance._columns_table("ivoa.ObsCore", tap_endpoint="tap_obs")
+
+    assert result["column_name"][0] == "dp_id"
+    assert calls == [(
+        "select column_name, datatype, unit, xtype "
+        "from TAP_SCHEMA.columns where table_name = 'ivoa.ObsCore'",
+        "tap_obs",
+    )]
 
 
 def test_reorder_columns(monkeypatch):
