@@ -406,7 +406,7 @@ def test_retrieve_pyvo_table(monkeypatch):
 
     # The method should raise DALFormatError as expected
     with pytest.raises(pyvo.dal.exceptions.DALFormatError):
-        table = eso_instance._try_retrieve_pyvo_table(q_str, dal)
+        _ = eso_instance._try_retrieve_pyvo_table(q_str, dal)  # unused variable
 
 
 def test_retrieve_pyvo_table_reports_custom_tap_url_in_errors():
