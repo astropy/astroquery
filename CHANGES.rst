@@ -65,6 +65,13 @@ esa.euclid
 - In the method, ``get_scientific_product_list``, the ``dsr_part3`` parameter now supports the additional value
    ``latest``. [#3601]
 
+esa.esasky
+
+- The argument tap_handler on ESASky has been deprecated. Use the ESASky instance directly for TAP
+  queries (Using esa.utils.EsaTap and PyVO).
+- Attribute urlBase has been deprecated on esasky.conf, use ESASKY_DOMAIN_SERVER instead.
+- Attribute timeout has been deprecated on esasky.conf, use ESASKY_CONNECTION_TIMEOUT instead.
+- Attribute row_limit has been deprecated on esasky.conf, use ESASKY_ROW_LIMIT instead.
 
 vizier
 ^^^^^^
