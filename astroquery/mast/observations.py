@@ -6,35 +6,40 @@ MAST Observations
 This module contains various methods for querying MAST observations.
 """
 
-from pathlib import Path
-import warnings
-import time
 import os
+import time
+import warnings
+from pathlib import Path
 from urllib.parse import quote
 import importlib.util
 
-import numpy as np
-import astropy.units as u
 from astropy.io import fits
 import astropy.coordinates as coord
-from requests import HTTPError
-from astropy.table import Table, Row, vstack
+import astropy.units as u
+import numpy as np
+from astropy.table import Row, Table, vstack
 from astropy.utils.decorators import deprecated_renamed_argument
+from requests import HTTPError
 
 from astroquery import log
 from astroquery.mast.cloud import CloudAccess
 from astroquery.utils import commons
 
+from ..exceptions import (
+    CloudAccessWarning,
+    InputWarning,
+    InvalidQueryError,
+    NoResultsWarning,
+    RemoteServiceError,
+)
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
-from ..exceptions import (InvalidQueryError, RemoteServiceError, NoResultsWarning, InputWarning, CloudAccessWarning)
-
-from . import utils, conf
+from . import conf, utils
 from .core import MastQueryWithLogin
 
 try:
     # Optional dependency import for cloud access functionality
-    from botocore.exceptions import ClientError, BotoCoreError
+    from botocore.exceptions import BotoCoreError, ClientError
 except ImportError:
     pass
 
@@ -341,13 +346,23 @@ class ObservationsClass(MastQueryWithLogin):
         return self.query_region_async(coordinates, radius=radius, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def query_criteria_async(self, *, pagesize=None, page=None, resolver=None, **criteria):
+    @deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
+    def query_criteria_async(self, *, coordinates=None, object_name=None, radius=0.2*u.deg,
+                             pagesize=None, page=None, resolver=None, **criteria):
         """
         Given an set of criteria, returns a list of MAST observations.
         Valid criteria are returned by ``get_metadata("observations")``
 
         Parameters
         ----------
+        coordinates : str or `~astropy.coordinates` object, optional
+            The target around which to search. It may be specified as a string or as the
+            appropriate `~astropy.coordinates` object.
+        object_name : str, optional
+            The name of the target around which to search.
+        radius : str or `~astropy.units.Quantity` object, optional
+            Default 0.2 degrees. The string must be parsable by `~astropy.coordinates.Angle`.
+            The appropriate `~astropy.units.Quantity` object from `~astropy.units` may also be used.
         pagesize : int, optional
             Can be used to override the default pagesize.
             E.g. when using a slow internet connection.
@@ -375,8 +390,11 @@ class ObservationsClass(MastQueryWithLogin):
         -------
         response : list of `~requests.Response`
         """
-
-        position, mashup_filters = self._parse_caom_criteria(resolver=resolver, **criteria)
+        position, mashup_filters = self._parse_caom_criteria(resolver=resolver,
+                                                             coordinates=coordinates,
+                                                             object_name=object_name,
+                                                             radius=radius,
+                                                             **criteria)
 
         if not mashup_filters:
             raise InvalidQueryError("At least one non-positional criterion must be supplied.")
@@ -468,12 +486,22 @@ class ObservationsClass(MastQueryWithLogin):
 
         return self.query_region_count(coordinates, radius=radius, pagesize=pagesize, page=page)
 
-    def query_criteria_count(self, *, pagesize=None, page=None, resolver=None, **criteria):
+    @deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
+    def query_criteria_count(self, *, coordinates=None, object_name=None, radius=0.2*u.deg, pagesize=None,
+                             page=None, resolver=None, **criteria):
         """
         Given an set of filters, returns the number of MAST observations meeting those criteria.
 
         Parameters
         ----------
+        coordinates : str or `~astropy.coordinates` object, optional
+            The target around which to search. It may be specified as a string or as the appropriate
+            `~astropy.coordinates` object.
+        object_name : str, optional
+            The name of the target around which to search.
+        radius : str or `~astropy.units.Quantity` object, optional
+            Default 0.2 degrees. The string must be parsable by `~astropy.coordinates.Angle`.
+            The appropriate `~astropy.units.Quantity` object from `~astropy.units` may also be used.
         pagesize : int, optional
             Can be used to override the default pagesize.
             E.g. when using a slow internet connection.
@@ -502,7 +530,11 @@ class ObservationsClass(MastQueryWithLogin):
         response : int
         """
 
-        position, mashup_filters = self._parse_caom_criteria(resolver=resolver, **criteria)
+        position, mashup_filters = self._parse_caom_criteria(resolver=resolver,
+                                                             coordinates=coordinates,
+                                                             object_name=object_name,
+                                                             radius=radius,
+                                                             **criteria)
 
         # send query
         if position:

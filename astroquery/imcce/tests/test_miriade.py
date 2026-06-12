@@ -19,8 +19,9 @@ def data_path(filename):
 # monkeypatch replacement request function
 def nonremote_request(self, request_type, url, **kwargs):
 
-    filename = '3552_coordtype{}.dat'.format(
-        kwargs['params']['-tcoor'])
+    filename = '3552_coordtype{}-rplane{}.dat'.format(
+        kwargs['params']['-tcoor'],
+        kwargs['params'].get('-rplane', 1))
     with open(data_path(filename), 'rb') as f:
         response = MockResponse(content=f.read(), url=url)
 
@@ -39,74 +40,86 @@ def patch_request(request):
 
 # --------------------------------- actual test functions
 
+# Older astropy versions issues UnitsWarnings for "u.au", we need to ignore those here.
+# Revisit when we drop __version__ 5.0
+#
+# WARNING: UnitsWarning: The unit 'au' has been deprecated in the VOUnit standard....
 
+@pytest.mark.filterwarnings("ignore::astropy.units.UnitsWarning")
 def test_spherical_coordinates(patch_request):
     eph = Miriade.get_ephemerides('3552', coordtype=1)
-    cols = ('target', 'epoch', 'RA', 'DEC', 'delta', 'V', 'alpha', 'elong',
-            'RAcosD_rate', 'DEC_rate', 'delta_rate')
-    units = (None, u.d, u.deg, u.deg, u.au, u.mag, u.deg, u.deg,
-             u.arcsec / u.minute, u.arcsec / u.minute, u.km / u.s)
+    cols = ('epoch', 'RA', 'DEC', 'delta', 'V', 'alpha', 'elong', 'RAcosD_rate',
+            'DEC_rate', 'delta_rate', 'rvc', 'berv', 'rvs')
+    units = (u.d, u.deg, u.deg, u.au, u.mag, u.deg, u.deg,
+             u.arcsec / u.minute, u.arcsec / u.minute, u.km / u.s,
+             u.km / u.s, u.km / u.s, u.km / u.s)
     for i in range(len(cols)):
         assert cols[i] in eph.columns
         assert eph[cols[i]].unit == units[i]
 
 
+@pytest.mark.filterwarnings("ignore::astropy.units.UnitsWarning")
+def test_spherical_coordinates_ecliptic(patch_request):
+    eph = Miriade.get_ephemerides('3552', coordtype=1, refplane="ecliptic")
+    cols = ('epoch', 'LONG', 'LAT', 'delta', 'V', 'alpha', 'elong', 'LONGcosLAT_rate',
+            'LAT_rate', 'delta_rate', 'rvc', 'berv', 'rvs')
+    units = (u.d, u.deg, u.deg, u.au, u.mag, u.deg, u.deg,
+             u.arcsec / u.minute, u.arcsec / u.minute, u.km / u.s,
+             u.km / u.s, u.km / u.s, u.km / u.s)
+    for i in range(len(cols)):
+        assert cols[i] in eph.columns
+        assert eph[cols[i]].unit == units[i]
+
+
+@pytest.mark.filterwarnings("ignore::astropy.units.UnitsWarning")
 def test_rectangular_coordinates(patch_request):
     eph = Miriade.get_ephemerides('3552', coordtype=2)
-    cols = ('target', 'epoch', 'x', 'y', 'z',
-            'vx', 'vy', 'vz', 'delta', 'V',
-            'alpha', 'elong', 'rv', 'heldist',
-            'x_h', 'y_h', 'z_h',
-            'vx_h', 'vy_h', 'vz_h')
-    units = (None, u.d, u.au, u.au, u.au, u.au/u.day, u.au/u.day,
-             u.au/u.day, u.au, u.mag, u.deg, u.deg, u.km/u.s,
-             u.au, u.au, u.au, u.au, u.au/u.day, u.au/u.day, u.au/u.day)
+    cols = ('epoch', 'px', 'py', 'pz', 'delta', 'heldist', 'alpha', 'elong', 'V',
+            'vx', 'vy', 'vz', 'delta_rate', 'rvc', 'berv', 'rvs')
+    units = (u.d, u.au, u.au, u.au, u.au, u.au, u.deg, u.deg, u.mag,
+             u.au / u.day, u.au / u.day, u.au / u.day,
+             u.km / u.s, u.km / u.s, u.km / u.s, u.km / u.s)
     for i in range(len(cols)):
         assert cols[i] in eph.columns
         assert eph[cols[i]].unit == units[i]
 
 
+@pytest.mark.filterwarnings("ignore::astropy.units.UnitsWarning")
 def test_local_coordinates(patch_request):
     eph = Miriade.get_ephemerides('3552', coordtype=3)
-    cols = ('target', 'epoch', 'AZ', 'EL', 'V', 'delta', 'alpha', 'elong')
-    units = (None, u.day, u.deg, u.deg, u.mag, u.au, u.deg, u.deg)
+    cols = ('epoch', 'siderealtime', 'AZ', 'EL', 'delta', 'V',
+            'alpha', 'elong', 'refrac', 'delta_rate', 'rvc', 'berv', 'rvs')
+    units = (u.d, 'h min s', u.deg, u.deg, u.au, u.mag,
+             u.deg, u.deg, u.arcsec, u.km / u.s, u.km / u.s,
+             u.km / u.s, u.km / u.s)
     for i in range(len(cols)):
         assert cols[i] in eph.columns
         assert eph[cols[i]].unit == units[i]
 
 
+@pytest.mark.filterwarnings("ignore::astropy.units.UnitsWarning")
 def test_hourangle_coordinates(patch_request):
     eph = Miriade.get_ephemerides('3552', coordtype=4)
-    cols = ('target', 'epoch', 'hourangle',
-            'DEC', 'V', 'delta', 'alpha', 'elong')
-    units = (None, u.d, u.deg, u.deg, u.mag, u.au, u.deg, u.deg)
+    cols = ['epoch', 'siderealtime', 'hourangle', 'dec', 'delta', 'V',
+            'alpha', 'elong', 'airmass', 'delta_rate', 'rvc', 'berv', 'rvs']
+    units = (u.d, 'h min s', u.deg, u.deg, u.au, u.mag,
+             u.deg, u.deg, None, u.km / u.s, u.km / u.s,
+             u.km / u.s, u.km / u.s)
     for i in range(len(cols)):
         assert cols[i] in eph.columns
         assert eph[cols[i]].unit == units[i]
 
 
+@pytest.mark.filterwarnings("ignore::astropy.units.UnitsWarning")
 def test_observation_coordinates(patch_request):
     eph = Miriade.get_ephemerides('3552', coordtype=5)
-    cols = ('target', 'epoch', 'siderealtime', 'RAJ2000', 'DECJ2000',
-            'hourangle', 'DEC', 'AZ', 'EL', 'refraction',
-            'V', 'delta', 'heldist', 'alpha', 'elong', 'posunc',
-            'RAcosD_rate', 'DEC_rate', 'delta_rate')
-    units = (None, u.d, u.h, u.deg, u.deg, u.deg, u.deg, u.deg, u.deg,
-             u.arcsec, u.mag, u.au, u.au, u.deg, u.deg, u.arcsec,
-             u.arcsec / u.minute, u.arcsec / u.minute, u.km / u.s)
-    for i in range(len(cols)):
-        assert cols[i] in eph.columns
-        assert eph[cols[i]].unit == units[i]
-
-
-def test_aoobservation_coordinates(patch_request):
-    eph = Miriade.get_ephemerides('3552', coordtype=6)
-    cols = ('target', 'epoch', 'siderealtime', 'RAJ2000', 'DECJ2000',
-            'refraction', 'V', 'delta', 'heldist', 'alpha',
-            'elong', 'posunc', 'RAcosD_rate', 'DEC_rate', 'delta_rate')
-    units = (None, u.d, u.h, u.deg, u.deg, u.arcsec, u.mag,
-             u.au, u.au, u.deg, u.deg, u.arcsec, u.arcsec / u.minute,
-             u.arcsec / u.minute, u.km / u.s)
+    cols = ['epoch', 'siderealtime', 'RA', 'DEC', 'hourangle', 'AZ', 'EL',
+            'delta', 'heldist', 'V', 'alpha', 'elong', 'airmass',
+            'RAcosD_rate', 'DEC_rate', 'delta_rate', 'rvc', 'berv', 'rvs']
+    units = (u.d, "h min s", u.deg, u.deg, u.deg, u.deg, u.deg,
+             u.au, u.au, u.mag, u.deg, u.deg, None,
+             u.arcsec / u.min, u.arcsec / u.min, u.km / u.s, u.km / u.s,
+             u.km / u.s, u.km / u.s)
     for i in range(len(cols)):
         assert cols[i] in eph.columns
         assert eph[cols[i]].unit == units[i]
@@ -115,4 +128,4 @@ def test_aoobservation_coordinates(patch_request):
 def test_get_raw_response(patch_request):
     raw_eph = Miriade.get_ephemerides(
         '3552', coordtype=1, get_raw_response=True)
-    assert "<?xml version='1.0' encoding='UTF-8'?>" in raw_eph
+    assert '<?xml version="1.0" encoding="UTF-8"?>' in raw_eph
