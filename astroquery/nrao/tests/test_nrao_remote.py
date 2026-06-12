@@ -5,13 +5,14 @@ Remote tests for the NRAO archive module.
 import time
 
 import pytest
+import requests.exceptions
 
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 
-from pyvo.dal.exceptions import DALQueryError
+from pyvo.dal.exceptions import DALFormatError, DALQueryError
 
-from .. import Nrao
+from .. import Nrao, conf
 
 
 # Vicinity of 3C273 — a heavily-observed position guaranteed to have NRAO
@@ -22,27 +23,53 @@ KNOWN_RADIUS = 0.05  # degrees
 
 PG_RECOVERY_SIG = "canceling statement due to conflict with recovery"
 
+# Once the backend has been seen persistently down, stop burning the retry
+# budget on every remaining test in the module.
+_BACKEND_DOWN = False
 
-def retry_on_pg_recovery(callable, *args, attempts=5, **kwargs):
-    """Retry a TAP call that hit the transient Postgres-replica recovery error.
 
-    The NRAO TAP backend is a Postgres streaming replica and intermittently
-    raises ``canceling statement due to conflict with recovery``; the
-    ``retry_on_pg_recovery`` helper retries those transient failures.
+def retry_on_pg_recovery(callable, *args, attempts=3, **kwargs):
+    """Run a TAP call, tolerating the NRAO backend's transient failure modes.
+
+    The NRAO TAP backend is a Postgres streaming replica that intermittently
+    cancels queries with ``canceling statement due to conflict with
+    recovery``, and during those episodes can also stall without answering
+    (bounded by the module's session-level ``conf.timeout``). Both are
+    retried; if the backend stays in that state, the test is xfailed: it is
+    a documented server-side condition, not an astroquery bug. Any other
+    error propagates normally.
     """
+    global _BACKEND_DOWN
+    if _BACKEND_DOWN:
+        attempts = 1
+    last_exc = None
     for ii in range(attempts):
+        if ii:
+            time.sleep(2 ** ii)
         try:
             return callable(*args, **kwargs)
         except DALQueryError as exc:
-            if PG_RECOVERY_SIG in str(exc) and ii + 1 < attempts:
-                time.sleep(2 ** ii)
-                continue
-            raise
+            if PG_RECOVERY_SIG not in str(exc):
+                raise
+            last_exc = exc
+        except DALFormatError as exc:
+            # pyvo wraps network errors hit while reading the response
+            # stream (e.g. the session-level ReadTimeout) in DALFormatError
+            if not isinstance(exc.cause, requests.exceptions.RequestException):
+                raise
+            last_exc = exc
+        except (requests.exceptions.Timeout,
+                requests.exceptions.ConnectionError) as exc:
+            last_exc = exc
+    _BACKEND_DOWN = True
+    pytest.xfail(f"NRAO TAP backend persistently unavailable: {last_exc}")
 
 
 @pytest.fixture
 def nrao():
-    return Nrao()
+    # keep each (retried) request comfortably within the pytest timeout
+    with conf.set_temp('timeout', 60):
+        yield Nrao()
 
 
 @pytest.mark.remote_data
