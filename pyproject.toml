@@ -54,6 +54,7 @@ docs = [
    "sphinx-astropy>=1.5",
    "scipy",
    "fsspec[http]",
+   "asdf"
 ]
 all = [
    "mocpy>=0.12",
@@ -61,7 +62,11 @@ all = [
    "boto3",
    "botocore",
    "regions>=0.5",
-   "roman-datamodels"
+   "asdf",
+   "lz4",
+   "gwcs",
+   "roman_datamodels",
+   "fsspec[http,s3]"
 ]
 
 [build-system]
