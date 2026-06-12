@@ -1431,6 +1431,13 @@ def test_observations_read_product_fsspec_missing(monkeypatch):
         Observations.read_product("file.fits")
 
 
+def test_observations_read_product_asdf_missing(monkeypatch):
+    # Forces asdf to be None
+    monkeypatch.setitem(Observations.read_product.__globals__, "asdf", None)
+
+    with pytest.raises(ImportError, match="asdf"):
+        Observations.read_product("file.asdf")
+
 ######################
 # CatalogClass tests #
 ######################
