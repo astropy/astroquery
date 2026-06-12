@@ -705,6 +705,41 @@ def test_get_product_list():
                                        verbose=True)
         assert results is not None, "Expected a valid table"
 
+    # use parameter schema
+    for product_type in conf.SIR_SCIENCE_FRAME_PRODUCTS:
+        results = tap.get_product_list(observation_id='13', product_type=product_type, schema='dr1', dsr_part2='PV-023',
+                                       dsr_part3=1, verbose=True)
+        assert results is not None, "Expected a valid table"
+
+
+def test_not_overlaping_values_in_product_groups():
+    # Test that no product appears in multiple groups
+    product_groups = {
+        "OBSERVATION_STACK_PRODUCTS": conf.OBSERVATION_STACK_PRODUCTS,
+        "BASIC_DOWNLOAD_DATA_PRODUCTS": conf.BASIC_DOWNLOAD_DATA_PRODUCTS,
+        "RAW_FRAME_PRODUCTS": conf.RAW_FRAME_PRODUCTS,
+        "MER_SEGMENTATION_MAP_PRODUCTS": conf.MER_SEGMENTATION_MAP_PRODUCTS,
+        "CALIBRATED_FRAME_PRODUCTS": conf.CALIBRATED_FRAME_PRODUCTS,
+        "FRAME_CATALOG_PRODUCTS": conf.FRAME_CATALOG_PRODUCTS,
+        "COMBINED_SPECTRA_PRODUCTS": conf.COMBINED_SPECTRA_PRODUCTS,
+        "SIR_SCIENCE_FRAME_PRODUCTS": conf.SIR_SCIENCE_FRAME_PRODUCTS,
+        "MOSAIC_PRODUCTS": conf.MOSAIC_PRODUCTS
+    }
+
+    assert len(product_groups) == 9
+
+    seen = {}
+
+    for group_name, products in product_groups.items():
+        for product in products:
+            assert product not in seen, (
+                f"{product} is present in both "
+                f"{seen[product]} and {group_name}"
+            )
+            seen[product] = group_name
+
+    assert len(seen) == 31
+
 
 def test_get_product_list_by_tile_index():
     conn_handler = DummyConnHandler()
@@ -1620,6 +1655,12 @@ def test_get_scientific_data_product_list(mock_get_valid_le3_configuration_value
 
     results = euclid.get_scientific_product_list(product_type='DpdCovarTwoPCFWLClPosPos2D', dsr_part1='CALBLOCK',
                                                  dsr_part2='PV-023', dsr_part3='latest', verbose=True)
+    assert results is not None, "Expected a valid table"
+
+    # use parameter schema
+    results = euclid.get_scientific_product_list(product_type='DpdCovarTwoPCFWLClPosPos2D', schema='dr1',
+                                                 dsr_part1='CALBLOCK', dsr_part2='PV-023', dsr_part3='latest',
+                                                 verbose=True)
     assert results is not None, "Expected a valid table"
 
 
