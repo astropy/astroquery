@@ -117,6 +117,18 @@ def _gen_sql(payload):
 #     pass
 
 
+class _TimeoutSession(requests.Session):
+    """Session that applies ``conf.timeout`` to every request by default.
+
+    pyvo does not expose per-request timeouts, so without this a stalled
+    NRAO TAP server would make queries hang indefinitely.
+    """
+
+    def request(self, *args, **kwargs):
+        kwargs.setdefault('timeout', conf.timeout)
+        return super().request(*args, **kwargs)
+
+
 class NraoClass(BaseVOQuery):
     TIMEOUT = conf.timeout
     archive_url = conf.archive_url
@@ -124,6 +136,9 @@ class NraoClass(BaseVOQuery):
 
     def __init__(self):
         # sia service does not need disambiguation but tap does
+        # set the session before BaseVOQuery.__init__, which keeps a
+        # pre-existing one and only adjusts its headers
+        self._session = _TimeoutSession()
         super().__init__()
         self._tap = None
         self._tap_url = None
