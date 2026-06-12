@@ -14,6 +14,7 @@ from urllib.parse import quote
 
 import astropy.coordinates as coord
 import astropy.units as u
+from astropy.io import fits
 import numpy as np
 from astropy.table import Row, Table, vstack
 from astropy.utils.decorators import deprecated_renamed_argument
@@ -40,6 +41,16 @@ try:
     from botocore.exceptions import BotoCoreError, ClientError
 except ImportError:
     pass
+
+try:
+    import fsspec
+except ImportError:
+    fsspec = None
+
+try:
+    import asdf
+except ImportError:
+    asdf = None
 
 __all__ = ['Observations', 'ObservationsClass', 'MastClass', 'Mast']
 
@@ -1234,6 +1245,72 @@ class ObservationsClass(MastQueryWithLogin):
         if len(unique_products) < len(products):
             log.info("To return all products, use `Observations.get_product_list`")
         return unique_products
+
+    # TODO: Need to inlcude way to parse if it is a MAST on prem URL and handle the streaming of that
+    def read_product(self, product_path, ignore_unrecognized=True, **kwargs):
+        """
+        Read a product from Open S3 bucket to memory. Currently supports FITS and ASDF product types only.
+
+        Parameters
+        ----------
+        product_path: str
+            URI to the product in the STScI S3 open data bucket.
+        ignore_unrecognized: bool
+            Tells asdf.open() to include or ignore warnings from unrecognized asdf tags. Defaults to True
+        **kwargs
+            Additional keyword arguments passed to the underlying file reader:
+            - For FITS files: forwarded to ``astropy.io.fits.open``.
+            Common options include ``memmap``, ``mode``, etc.
+            - Ignored for ASDF files (except for future extension if needed).
+
+        Returns
+        -------
+        object
+            FITS or ASDF object for the given data product.
+        """
+        # Checks if a path is empty or None.
+        if not product_path or not str(product_path).strip():
+            raise ValueError("No product path provided")
+
+        # Forces the path to be lowercase for the extension checks. This is only used for the checks
+        path = str(product_path).lower()
+
+        # Checks users enviornment for fsspec, required for both fits and asdf
+        if fsspec is None:
+            raise ImportError('The "fsspec" package is required to read products directly from a URI. '
+                              'Please install it with `pip install fsspec`.')
+
+        # Logic for reading FITS files
+        if path.endswith((".fits", ".fits.gz")):
+            try:
+                data_product = fits.open(product_path, fsspec_kwargs={"anon": True}, **kwargs)
+                log.info(f"Loaded: {product_path}")
+                return data_product
+            except Exception as e:
+                raise RuntimeError(f"Failed to open FITS File: {product_path} {e}")
+
+        # Logic for reading ASDF files
+        elif path.endswith(".asdf"):
+            if fsspec is None:
+                raise ImportError('The "fsspec" package is required to read products directly from a URI. '
+                                  'Please install it with `pip install fsspec` or install astroquery with '
+                                  'optional dependencies using `pip install astroquery[all]`.')
+            if asdf is None:
+                raise ImportError('The "asdf" package is required to read ASDF files. Please install it with '
+                                  '`pip install asdf` or install astroquery with optional dependencies using '
+                                  '`pip install astroquery[all]`.')
+
+            # Attempts to open the asdf files
+            try:
+                f = fsspec.open(product_path, "rb", anon=True).open()
+                data_product = asdf.open(f, ignore_unrecognized_tag=ignore_unrecognized)
+                log.info(f"Loaded: {product_path}")
+                return data_product
+            except Exception as e:
+                raise RuntimeError(f"Failed to open ASDF File: {product_path} {e}")
+
+        else:
+            raise ValueError(f"Unsupported product type: {product_path}")
 
 
 @async_to_sync
