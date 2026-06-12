@@ -172,7 +172,7 @@ mast
 - Added ``pass_id`` as an alias for the ``pass`` column in query functions for the Roman mission to avoid conflicts with
   the reserved Python keyword. [#3588]
 - Update the cutout format request parameter in ``Zcut.download_cutouts`` to reflect a recent service change. [#3608]
-
+- Adding in function to read FITS and ASDF data products to memory from STScI's S3 open data bucket using ``Observations.read_product()`` function. [#3561]
 
 jplspec
 ^^^^^^^
