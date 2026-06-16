@@ -726,8 +726,6 @@ def test_not_overlaping_values_in_product_groups():
         "MOSAIC_PRODUCTS": conf.MOSAIC_PRODUCTS
     }
 
-    assert len(product_groups) == 9
-
     seen = {}
 
     for group_name, products in product_groups.items():

@@ -64,6 +64,7 @@ esa.euclid
    product_type parameters dynamically. [#3601]
 - In the method, ``get_scientific_product_list``, the ``dsr_part3`` parameter now supports the additional value
    ``latest``. [#3601]
+- The methods ``get_product_list`` and ``get_scientific_product_list`` accept the new parameter ``schema``. [#3611]
 
 
 vizier
