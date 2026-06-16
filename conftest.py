@@ -1,7 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import os
-from pathlib import Path
+# Keep basic config here, so both tox and directly run pytest works as expected.
+# Keep the fixtures one layer down for global fixtures and more layer down
+# for more specific scopes.
+
 import sys
 
 from astropy.utils import minversion
@@ -57,17 +59,6 @@ def pytest_addoption(parser):
         help='ALMA site (almascience.nrao.edu, almascience.eso.org or '
              'almascience.nao.ac.jp for example)'
     )
-
-
-@pytest.fixture(scope='function')
-def tmp_cwd(tmp_path):
-    """Perform test in a pristine temporary working directory."""
-    old_dir = Path.cwd()
-    os.chdir(tmp_path)
-    try:
-        yield tmp_path
-    finally:
-        os.chdir(old_dir)
 
 
 def pytest_runtestloop(session):
