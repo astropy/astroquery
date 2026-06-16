@@ -36,7 +36,7 @@ class TestSkyviewRemote:
 
     @pytest.mark.parametrize(('survey',
                               'survey_data'),
-                             zip(survey_dict.keys(), survey_dict.values()))
+                             list(zip(survey_dict.keys(), survey_dict.values())))
     def test_survey(self, survey, survey_data):
         # The print should help discover changes
         print("Survey: {0} \n Canned reference return: {1} \n"

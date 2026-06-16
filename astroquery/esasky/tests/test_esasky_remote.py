@@ -68,12 +68,12 @@ class TestESASky:
         assert "1342246640" in result["HERSCHEL"].columns["observation_id"]
 
     @pytest.mark.parametrize("mission, obsid",
-                             zip(["SUZAKU", "ISO-IR", "Chandra", "XMM-OM-OPTICAL",
-                                  "XMM", "XMM-OM-UV", "HST-IR", "Herschel",
-                                  "Spitzer", "HST-UV", "HST-OPTICAL", "INTEGRAL"],
-                                 ["100001010", "01500403", "21171", "0852000101",
-                                  "0851180201", "0851180201", "n3tr01c3q", "1342247257",
-                                  "30002561-25100", "hst_07553_3h_wfpc2_f160bw_pc", "ocli05leq", "88600210001"]))
+                             list(zip(["SUZAKU", "ISO-IR", "Chandra", "XMM-OM-OPTICAL",
+                                       "XMM", "XMM-OM-UV", "HST-IR", "Herschel",
+                                       "Spitzer", "HST-UV", "HST-OPTICAL", "INTEGRAL"],
+                                      ["100001010", "01500403", "21171", "0852000101",
+                                       "0851180201", "0851180201", "n3tr01c3q", "1342247257",
+                                       "30002561-25100", "hst_07553_3h_wfpc2_f160bw_pc", "ocli05leq", "88600210001"])))
     def test_esasky_get_images_obs_id(self, tmp_path, mission, obsid):
         result = ESASky.get_images(observation_ids=obsid,
                                    missions=mission, download_dir=tmp_path)
@@ -89,10 +89,10 @@ class TestESASky:
                 hdu_list.close()
 
     @pytest.mark.parametrize("mission, observation_id",
-                             zip(["ISO-IR", "Chandra", "IUE", "XMM-NEWTON",
-                                  "HST-IR", "Herschel", "HST-UV", "HST-OPTICAL"],
-                                 ["02101201", "1005", "LWR13178", "0001730201",
-                                  "ibh706cqq", "1342253595", "z1ax0102t", "oeik2s020"]))
+                             list(zip(["ISO-IR", "Chandra", "IUE", "XMM-NEWTON",
+                                       "HST-IR", "Herschel", "HST-UV", "HST-OPTICAL"],
+                                      ["02101201", "1005", "LWR13178", "0001730201",
+                                       "ibh706cqq", "1342253595", "z1ax0102t", "oeik2s020"])))
     def test_esasky_get_spectra_obs_id(self, tmp_path, mission, observation_id):
         result = ESASky.get_spectra(observation_ids=observation_id,
                                     missions=mission, download_dir=tmp_path)
@@ -135,8 +135,9 @@ class TestESASky:
 
     @pytest.mark.bigdata
     @pytest.mark.parametrize('mission, position',
-                             zip(['JWST-MID-IR', 'JWST-NEAR-IR'],
-                                 ['340.50123388127435 -69.17904779241904', '225.6864099965157 -3.0315781490149467']))
+                             list(zip(['JWST-MID-IR', 'JWST-NEAR-IR'],
+                                      ['340.50123388127435 -69.17904779241904',
+                                       '225.6864099965157 -3.0315781490149467'])))
     def test_esasky_get_images_jwst(self, tmp_path, mission, position):
         result = ESASky.get_images(position=position, missions=mission, download_dir=tmp_path)
         assert tmp_path.stat().st_size
