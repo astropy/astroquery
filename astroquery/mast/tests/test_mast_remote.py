@@ -13,23 +13,9 @@ from astropy.io import fits
 from astropy.table import Table, unique
 from requests.models import Response
 
-from astroquery.mast import (
-    Catalogs,
-    Hapcut,
-    Mast,
-    MastMissions,
-    Observations,
-    Tesscut,
-    Zcut,
-    utils,
-)
+from astroquery.mast import (Catalogs, Hapcut, Mast, MastMissions, Observations, Tesscut, Zcut, utils)
 
-from ...exceptions import (
-    InputWarning,
-    InvalidQueryError,
-    MaxResultsWarning,
-    NoResultsWarning,
-)
+from ...exceptions import (InputWarning, InvalidQueryError, MaxResultsWarning, NoResultsWarning)
 from ..utils import ResolverError
 
 

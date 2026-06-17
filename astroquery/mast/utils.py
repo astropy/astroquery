@@ -20,12 +20,7 @@ from astropy.utils.console import ProgressBarOrSpinner
 from astropy.utils.decorators import deprecated_renamed_argument
 
 from .. import log
-from ..exceptions import (
-    InputWarning,
-    InvalidQueryError,
-    NoResultsWarning,
-    ResolverError,
-)
+from ..exceptions import (InputWarning, InvalidQueryError, NoResultsWarning, ResolverError)
 from ..utils import commons
 from ..version import version
 
