@@ -64,6 +64,8 @@ esa.euclid
    product_type parameters dynamically. [#3601]
 - In the method, ``get_scientific_product_list``, the ``dsr_part3`` parameter now supports the additional value
    ``latest``. [#3601]
+- Removed unnecessary CAST(... AS text) from array columns in ``get_product_list``and 
+  ``__get_tile_catalogue_list``, as TAP 10.x now returns proper arrays. [#3599]
 
 
 vizier
