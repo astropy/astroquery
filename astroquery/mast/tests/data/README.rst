@@ -62,3 +62,13 @@ To generate `~astroquery.mast.tests.data.resolver.json`, use the following:
     ...                              {'name': objects, 'outputFormat': 'json', 'resolveAll': 'true'})
     >>> with open('resolver.json', 'w') as file:
     ...     json.dump(resp.json(), file, indent=4)  # doctest: +SKIP
+
+To generate `~astroquery.mast.tests.data.available_missions.html`, use the following:
+
+.. doctest-remote-data::
+
+    >>> import requests
+    ...
+    >>> html = requests.get(f"https://mast.stsci.edu/search/docs").text
+    >>> with open("available_missions.html", "w") as file:
+    ...     file.write(html)  # doctest: +SKIP
