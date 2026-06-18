@@ -24,6 +24,12 @@ esa.emds.einsteinprobe
 
 - New module to access the ESA Einstein Probe Science Archive. [#3511]
 
+nadc
+^^^^
+
+- New modules to access NADC/China-VO services, including CSTAR, FASHI,
+  Legacy Plate, LAMOST, SAGE, and SCUSS.
+
 
 
 API changes

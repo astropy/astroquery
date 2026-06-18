@@ -1,0 +1,20 @@
+{
+  "obsid": "686112127",
+  "ra": 10.0004738,
+  "dec": 40.9952444,
+  "teff": 5532.0,
+  "logg": 4.12,
+  "feh": -0.23,
+  "snr": 45.2,
+  "mag_u": 16.82,
+  "mag_g": 15.34,
+  "mag_r": 14.91,
+  "mag_i": 14.65,
+  "mag_z": 14.52,
+  "class": "STAR",
+  "subclass": "G5",
+  "z": 0.00012,
+  "z_err": 0.00005,
+  "fits_url": "https://www.lamost.org/dr10/v2.0/lrs/spectrum/fits?obsid=686112127",
+  "png_url": "https://www.lamost.org/dr10/v2.0/lrs/spectrum/png?obsid=686112127"
+}

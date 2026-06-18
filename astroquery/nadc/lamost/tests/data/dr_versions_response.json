@@ -1,0 +1,40 @@
+{
+  "versions": [
+    {
+      "dr_version": "dr10",
+      "sub_version": "v2.0",
+      "public_status": "public",
+      "has_mrs": true,
+      "release_date": "2023-06-01",
+      "base_url": "https://www.lamost.org/openapi/dr10/v2.0",
+      "description": "LAMOST DR10 version 2.0 - Latest public release"
+    },
+    {
+      "dr_version": "dr10",
+      "sub_version": "v1.0",
+      "public_status": "public",
+      "has_mrs": false,
+      "release_date": "2023-01-15",
+      "base_url": "https://www.lamost.org/openapi/dr10/v1.0",
+      "description": "LAMOST DR10 version 1.0"
+    },
+    {
+      "dr_version": "dr9",
+      "sub_version": "v2.0",
+      "public_status": "public",
+      "has_mrs": true,
+      "release_date": "2022-06-01",
+      "base_url": "https://www.lamost.org/openapi/dr9/v2.0",
+      "description": "LAMOST DR9 version 2.0"
+    },
+    {
+      "dr_version": "dr11",
+      "sub_version": "v1.0",
+      "public_status": "internal",
+      "has_mrs": true,
+      "release_date": "2024-01-01",
+      "base_url": "https://www.lamost.org/openapi/dr11/v1.0",
+      "description": "LAMOST DR11 version 1.0 - Internal release"
+    }
+  ]
+}

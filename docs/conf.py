@@ -166,6 +166,7 @@ for mod_name in MOCK_MODULES:
 
 nitpicky = True
 nitpick_ignore = [('py:class', 'astroquery.mast.core.MastQueryWithLogin'),
+                  ('py:class', 'astroquery.nadc._query_data.QueryDataBaseQuery'),
                   # astropy interited type annotations
                   ('py:class', 'ConfigItem')]
 

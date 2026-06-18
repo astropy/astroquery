@@ -1,0 +1,34 @@
+{
+  "tables": {
+    "combined": {
+      "description": "Combined catalog table with all spectroscopic data",
+      "row_count": 10500000,
+      "columns": [
+        {"name": "obsid", "type": "varchar", "unit": "", "description": "Observation ID"},
+        {"name": "ra", "type": "double", "unit": "deg", "description": "Right Ascension (J2000)"},
+        {"name": "dec", "type": "double", "unit": "deg", "description": "Declination (J2000)"},
+        {"name": "teff", "type": "float", "unit": "K", "description": "Effective Temperature"},
+        {"name": "logg", "type": "float", "unit": "dex", "description": "Surface Gravity"},
+        {"name": "feh", "type": "float", "unit": "dex", "description": "Metallicity [Fe/H]"},
+        {"name": "snr", "type": "float", "unit": "", "description": "Signal-to-Noise Ratio"},
+        {"name": "mag_u", "type": "float", "unit": "mag", "description": "u-band magnitude"},
+        {"name": "mag_g", "type": "float", "unit": "mag", "description": "g-band magnitude"},
+        {"name": "mag_r", "type": "float", "unit": "mag", "description": "r-band magnitude"},
+        {"name": "class", "type": "varchar", "unit": "", "description": "Spectral classification"},
+        {"name": "z", "type": "double", "unit": "", "description": "Redshift"},
+        {"name": "z_err", "type": "float", "unit": "", "description": "Redshift error"}
+      ]
+    },
+    "med_combined": {
+      "description": "Medium resolution combined catalog",
+      "row_count": 2500000,
+      "columns": [
+        {"name": "obsid", "type": "varchar", "unit": "", "description": "Observation ID"},
+        {"name": "ra", "type": "double", "unit": "deg", "description": "Right Ascension (J2000)"},
+        {"name": "dec", "type": "double", "unit": "deg", "description": "Declination (J2000)"},
+        {"name": "teff", "type": "float", "unit": "K", "description": "Effective Temperature"},
+        {"name": "rv", "type": "float", "unit": "km/s", "description": "Radial Velocity"}
+      ]
+    }
+  }
+}

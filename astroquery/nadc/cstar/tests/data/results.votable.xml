@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VOTABLE version="1.3" xmlns="http://www.ivoa.net/xml/VOTable/v1.3">
+  <RESOURCE>
+    <TABLE>
+      <FIELD name="ra" datatype="double" unit="deg" />
+      <FIELD name="dec" datatype="double" unit="deg" />
+      <FIELD name="id" datatype="char" arraysize="*" />
+      <DATA>
+        <TABLEDATA>
+          <TR>
+            <TD>1.0</TD>
+            <TD>2.0</TD>
+            <TD>src1</TD>
+          </TR>
+        </TABLEDATA>
+      </DATA>
+    </TABLE>
+  </RESOURCE>
+</VOTABLE>
+

@@ -1,0 +1,39 @@
+{
+  "total": 3,
+  "rows": [
+    {
+      "id": 1,
+      "catname": "cstar",
+      "shortname": "CSTAR",
+      "showname_en": "CSTAR",
+      "showname_zh": "CSTAR",
+      "datatype": "catalog",
+      "cattype": "domestic",
+      "dbname": "cstar",
+      "priority": 0
+    },
+    {
+      "id": 2,
+      "catname": "legacyplate",
+      "shortname": "LEGACYPLATE",
+      "showname_en": "Legacy Plate",
+      "showname_zh": "Legacy Plate",
+      "datatype": "catalog",
+      "cattype": "domestic",
+      "dbname": "legacyplate",
+      "priority": 1
+    },
+    {
+      "id": 3,
+      "catname": "legacyplate_scans",
+      "shortname": "LEGACYPLATE SCANS",
+      "showname_en": "Legacy Plate Scans",
+      "showname_zh": "Legacy Plate Scans",
+      "datatype": "catalog",
+      "cattype": "domestic",
+      "dbname": "legacyplate_scans",
+      "priority": 2
+    }
+  ]
+}
+
