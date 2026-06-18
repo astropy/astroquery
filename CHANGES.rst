@@ -28,7 +28,7 @@ nadc
 ^^^^
 
 - New modules to access NADC/China-VO services, including CSTAR, FASHI,
-  Legacy Plate, LAMOST, SAGE, and SCUSS.
+  Legacy Plate, LAMOST, SAGE, and SCUSS. [#1]
 
 
 
