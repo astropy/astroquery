@@ -19,7 +19,7 @@ from pathlib import Path
 
 # Load all of the global Astropy configuration
 try:
-    from sphinx_astropy.conf.v1 import *  # noqa
+    from sphinx_astropy.conf.v3 import *  # noqa
 except ImportError:
     print('ERROR: the documentation requires the sphinx-astropy package to '
           'be installed')
@@ -80,19 +80,6 @@ release = package.__version__
 
 # -- Options for HTML output ---------------------------------------------------
 
-# A NOTE ON HTML THEMES
-# The global astropy configuration uses a custom theme, 'bootstrap-astropy',
-# which is installed along with astropy. A different theme can be used or
-# the options for this theme can be modified by overriding some of the
-# variables set in the global configuration. The variables set in the
-# global configuration are listed below, commented out.
-
-html_theme_options = {
-    'logotext1': 'astro',  # white,  semi-bold
-    'logotext2': 'query',  # orange, light
-    'logotext3': ':docs',   # white,  light
-}
-
 # Add any paths that contain custom themes here, relative to this directory.
 # To use a different custom theme, add the directory containing the theme.
 # html_theme_path = []
@@ -121,6 +108,12 @@ html_title = '{0} v{1}'.format(project, release)
 # Output file base name for HTML help builder.
 htmlhelp_basename = project + 'doc'
 
+html_theme_options = {
+    "logo": {
+        "image_light": "_static/astroquery_logo_light.svg",
+        "image_dark": "_static/astroquery_logo_dark.svg",
+    }
+}
 
 # -- Options for LaTeX output --------------------------------------------------
 
@@ -140,30 +133,6 @@ man_pages = [('index', project.lower(), project + u' Documentation',
 
 # Setting this URL is requited by sphinx-astropy
 github_issues_url = 'https://github.com/astropy/astroquery/issues/'
-
-
-# read the docs mocks
-class Mock(object):
-    def __init__(self, *args, **kwargs):
-        pass
-
-    def __call__(self, *args, **kwargs):
-        return Mock()
-
-    @classmethod
-    def __getattr__(cls, name):
-        if name in ('__file__', '__path__'):
-            return '/dev/null'
-        elif name[0] == name[0].upper():
-            return type(name, (), {})
-        else:
-            return Mock()
-
-
-MOCK_MODULES = ['atpy', 'beautifulsoup4', 'vo', 'lxml', 'keyring', 'bs4']
-for mod_name in MOCK_MODULES:
-    sys.modules[mod_name] = Mock()
-
 nitpicky = True
 nitpick_ignore = [('py:class', 'astroquery.mast.core.MastQueryWithLogin'),
                   # astropy interited type annotations
