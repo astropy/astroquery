@@ -9,8 +9,6 @@ import numpy as np
 from astropy.io import fits
 from astropy.coordinates import Angle
 import astropy.units as u
-from PIL import Image
-
 from astropy.utils.exceptions import AstropyUserWarning
 
 from ..query import BaseQuery
@@ -325,6 +323,13 @@ class hips2fitsClass(BaseQuery):
                 return hdul
             else:
                 # jpg/png formats
+                try:
+                    from PIL import Image
+                except ImportError:
+                    raise ImportError(
+                        "Pillow is required to decode jpg/png responses from hips2fits. "
+                        "Install it with: pip install Pillow"
+                    )
                 bytes = io.BytesIO(bytes_str)
                 im = Image.open(bytes)
                 data = np.asarray(im)

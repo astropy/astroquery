@@ -1,10 +1,35 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import sys
+from unittest.mock import MagicMock, patch
+
+import pytest
 from astropy import wcs as astropy_wcs
 from matplotlib.colors import Colormap
 from astropy.coordinates import Angle, Longitude, Latitude
 import astropy.units as u
 
 from ..core import hips2fits
+
+
+class TestHips2fits:
+
+    def test_jpg_format_requires_pillow(self):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.content = b'fake_image_bytes'
+
+        with patch.dict(sys.modules, {'PIL': None, 'PIL.Image': None}):
+            with pytest.raises(ImportError, match="Pillow is required"):
+                hips2fits._parse_result(mock_response, verbose=False, format='jpg')
+
+    def test_png_format_requires_pillow(self):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.content = b'fake_image_bytes'
+
+        with patch.dict(sys.modules, {'PIL': None, 'PIL.Image': None}):
+            with pytest.raises(ImportError, match="Pillow is required"):
+                hips2fits._parse_result(mock_response, verbose=False, format='png')
 
 
 class TestHips2fitsRemote:
