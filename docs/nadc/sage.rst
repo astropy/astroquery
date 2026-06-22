@@ -28,7 +28,7 @@ The service endpoint and authentication token are configurable:
   >>> from astroquery.nadc import conf as nadc_conf
   >>> from astroquery.nadc.sage import conf
   >>> conf.server  # doctest: +ELLIPSIS
-  'http://.../'
+  'https://nadc.china-vo.org/'
   >>> nadc_conf.token = ''
   >>> conf.token = ''
   >>> conf.auth_method = 'query'  # or 'bearer'
