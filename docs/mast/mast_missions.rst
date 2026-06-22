@@ -3,9 +3,13 @@
 Mission-Specific Queries
 ************************
 
-The `~astroquery.mast.MastMissionsClass` class allows for search queries based on mission-specific 
-metadata for a given data collection. This metadata includes header keywords, proposal information, and observational parameters.
-The following missions/products are currently available for search:
+The `~astroquery.mast.MastMissionsClass` is a versatile tool for accessing and working with datasets hosted by the
+`Mikulski Archive for Space Telescopes (MAST) <https://archive.stsci.edu/>`_. ``MastMissions`` is a Python wrapper for the
+`MAST Search API <https://mast.stsci.edu/search/docs/>`_, which allows
+users to search for mission-specific metadata and retrieve associated data products. This data is also findable through the `MAST
+Search UI <https://mast.stsci.edu/search/ui/#/>`_.
+
+The following missions/products are currently available for search as of June 2026:
 
 - `Hubble Space Telescope <https://www.stsci.edu/hst>`_ (``'hst'``)
 
@@ -19,42 +23,80 @@ The following missions/products are currently available for search:
 
   - `Hubble UV Legacy Library of Young Stars as Essential Standards <https://archive.stsci.edu/hlsp/ullyses>`_ (``'ullyses'``)
 
-An object of the ``MastMissions`` class is instantiated with a default mission of ``'hst'`` and
-default service set to ``'search'``. The searchable metadata for Hubble encompasses all information that
-was previously accessible through the original HST web search form. The metadata for Hubble and all other
-available missions is also available through the `MAST Search UI <https://mast.stsci.edu/search/ui/#/>`_.
+The basic workflow for using the `~astroquery.mast.MastMissionsClass` is as follows:
+
+1. **Search** for mission datasets.
+2. **Retrieve** a list of associated data products for the datasets.
+3. **Access** the data products by reading them into memory or downloading them to your local machine.
+
+The workflow looks very similar to the `~astroquery.mast.ObservationsClass` workflow, but there are a few key differences to note,
+and you should use the class that is best suited to your unique goals:
+
+- **API**: ``MastMissions`` uses the `MAST Search API <https://mast.stsci.edu/search/docs/>`_ while ``Observations`` uses
+  the `MAST Portal API <https://mast.stsci.edu/api/v0/>`_.
+- **Collection**: ``MastMissions`` can only perform queries on a single collection, or “mission”, at a time.
+  ``Observations`` uses the `Common Archive Observation Model (CAOM) <https://mast.stsci.edu/vo-tap/api/v0.1/caom/>`_ and can
+  run queries across every available observational collection at the same time.
+- **Filter Keywords**: ``MastMissions`` has an extensive selection of mission-specific keywords to use while writing queries.
+  ``Observations`` is limited to the `fields described by the CAOM <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`_ and has
+  no criteria with mission-specific meaning.
+
+In summary, ``MastMissions`` is well-suited for fast, mission-specific queries that might require a more extensive selection
+of filter keywords. ``Observations`` is better for more broad, multi-mission searches.
+
+The Mission Attribute
+=======================
+
+The `~astroquery.mast.MastMissionsClass` is designed to query a single mission at a time. The ``MastMissions`` stores a ``mission`` attribute.
+If no mission is specified in a query, the ``mission`` attribute is used as the default. The ``mission`` attribute is a case-insensitive string
+that corresponds to the mission name. The available missions can be retrieved with the `~astroquery.mast.MastMissionsClass.get_available_missions` method
+or the `~astroquery.mast.MastMissionsClass.available_missions` property, which caches the list of missions after the first retrieval.
 
 .. doctest-remote-data::
 
    >>> from astroquery.mast import MastMissions
-   >>> missions = MastMissions()
-   >>> missions.mission
-   'hst'
-   >>> missions.service
-   'search'
+   >>> MastMissions.get_available_missions()  # doctest: +IGNORE_OUTPUT
+   ['hst', 'jwst', 'classy', 'ullyses', 'iue']
 
-Each ``MastMissions`` object can only make queries and download products from a single mission at a time. This mission can
-be modified with the ``mission`` class attribute. This allows users to make queries to multiple missions with the same object.
-To search for JWST metadata, the ``mission`` attribute is reassigned to ``'JWST'``.
+The default value for the ``mission`` attribute is "hst", referring to the Hubble Space Telescope.
 
 .. doctest-remote-data::
-   >>> m = MastMissions()
-   >>> print(m.mission)
-   hst
-   >>> m.mission = 'JWST'
-   >>> print(m.mission)
-   jwst
+
+   >>> print("Default mission:", MastMissions.mission)
+   Default mission: hst
+
+This attribute can be modified at any time to set a new default, and the mission will be validated when set. This attribute can be set
+when instantiating a ``MastMissions`` object or modified later.
+
+.. doctest-remote-data::
+
+   >>> MastMissions.mission = 'JWST'
+   >>> print("New mission:", MastMissions.mission)
+   New mission: jwst
+
+You can create multiple instances of ``MastMissions`` with a different default mission, which may be useful for comparing results
+across missions or for running multiple queries with different missions in the same script without having to specify the mission each time.
+
+.. doctest-remote-data::
+
+   >>> classy_mission = MastMissions(mission="classy")
+   >>> print("Classy mission:", classy_mission.mission)
+   Classy mission: classy
+   >>>
+   >>> ullyses_mission = MastMissions(mission="ullyses")
+   >>> print("Ullyses mission:", ullyses_mission.mission)
+   Ullyses mission: ullyses
 
 
 Querying Missions
 ==================
 
-The MastMissions interface provides three closely related query methods. All three methods return results as an `~astropy.table.Table` 
-and all three support column-based filtering, sorting, and result limiting. The primary difference between them is how positional 
+The MastMissions interface provides three closely related query methods. All three methods return results as an `~astropy.table.Table`
+and all three support column-based filtering, sorting, and result limiting. The primary difference between them is how positional
 constraints are specified.
 
 At a high level:
-  - `~astroquery.mast.MastMissionsClass.query_criteria` is the most flexible method. It supports purely column-based queries, 
+  - `~astroquery.mast.MastMissionsClass.query_criteria` is the most flexible method. It supports purely column-based queries,
     purely positional queries, or a combination of both.
 
   - `~astroquery.mast.MastMissionsClass.query_region` is a convenience wrapper for positional queries using coordinates.
@@ -64,7 +106,7 @@ At a high level:
 Query Parameters
 ----------------
 
-The ``missions`` object can be used to search mission metadata by sky position,
+The ``MastMissions`` object can be used to search mission metadata by sky position,
 object name, or other criteria. Keyword arguments may be used to specify output
 characteristics and filter on values such as instrument, exposure type, and
 principal investigator. The available column names for a mission can be retrieved
@@ -72,13 +114,14 @@ using the `~astroquery.mast.MastMissionsClass.get_column_list` method.
 
 .. doctest-remote-data::
 
-   >>> from astroquery.mast import MastMissions
-   >>> missions = MastMissions(mission='hst')
+   >>> missions = MastMissions(mission="hst")
    >>> columns = missions.get_column_list()
 
 Keyword arguments can also be used to refine results further. The following parameters are available:
 
-- ``radius``: For positional searches only. Only return results within a certain distance from an object or set of coordinates. 
+- ``mission``: The mission to query. Give this argument to override the default mission specified by the ``mission`` attribute.
+
+- ``radius``: For positional searches only. Only return results within a certain distance from an object or set of coordinates.
   Default is 3 arcminutes.
 
 - ``limit``: The maximum number of results to return. Default is 5000.
@@ -99,29 +142,32 @@ Writing Queries
 ----------------
 
 The `~astroquery.mast.MastMissionsClass.query_criteria` method supports both positional parameters and column-based filters.
-Positional constraints are optional. 
+Positional constraints are optional.
 
 Supported positional parameters include:
 
   - ``coordinates`` : Sky coordinates around which to perform a cone search.
   - ``object_name`` : Name(s) of the object(s) around which to perform a cone search.
   - ``resolver`` : Resolver service to use for object name resolution.
-  - ``radius`` : Radius of the cone searches around the specified coordinates or object names. Can be defined as an `~astropy.units.Quantity`, 
+  - ``radius`` : Radius of the cone searches around the specified coordinates or object names. Can be defined as an `~astropy.units.Quantity`,
     a string with units (e.g., ``"10 arcsec"``), or a numeric value interpreted as degrees.
 
-Multiple coordinates or objects may be queried in a single request. The ``coordinates`` and ``object_names`` parameters 
+Multiple coordinates or objects may be queried in a single request. The ``coordinates`` and ``object_names`` parameters
 accept a single value, an iterable of values, or a comma-separated string. When multiple values are provided for either parameter,
 results matching *any* of the supplied positions are returned.
 
 .. doctest-remote-data::
 
    >>> from astropy.coordinates import SkyCoord
+   >>> MastMissions.mission = "hst"
    >>> select_cols = ["sci_targname", "sci_pep_id", "sci_status"]
-   >>> results = missions.query_criteria(coordinates=[SkyCoord(245.89675, -26.52575, unit='deg'), "205.54842 28.37728"], 
-   ...                                   object_names=["M2", "M9"],
-   ...                                   radius=0.1,
-   ...                                   select_cols=select_cols,
-   ...                                   sort_by='search_pos')
+   >>> results = MastMissions.query_criteria(
+   ...     mission="hst",
+   ...     coordinates=[SkyCoord(245.89675, -26.52575, unit='deg'), "205.54842 28.37728"],
+   ...     object_names=["M2", "M9"],
+   ...     radius=0.1,
+   ...     select_cols=select_cols,
+   ...     sort_by="search_pos")
    >>> results.pprint(max_width=-1)  # doctest: +IGNORE_OUTPUT
         search_pos     sci_data_set_name  sci_targname sci_pep_id       ang_sep        sci_status
    ------------------- ----------------- ------------- ---------- -------------------- ----------
@@ -168,24 +214,25 @@ Criteria syntax supports several operations:
 
 - For numeric or date columns, select an inclusive range with the syntax ``'#..#'``.
 
-- Wildcards are special characters used in search patterns to represent one or more unknown characters, 
+- Wildcards are special characters used in search patterns to represent one or more unknown characters,
   allowing for flexible matching of strings. The wildcard character is ``*`` and it replaces any number
   of characters preceding, following, or in between existing characters, depending on its placement.
 
 .. note::
 
-  For the Roman mission, query methods also support the ``pass_id`` parameter as an alias for the ``pass`` column, 
+  For the Roman mission, query methods also support the ``pass_id`` parameter as an alias for the ``pass`` column,
   which refers to a single iteration of a pass plan. This is to avoid conflicts with the reserved Python keyword.
 
 .. doctest-remote-data::
 
-   >>> results = missions.query_criteria(sci_obs_type="IMAGE",
-   ...                                   sci_instrume="!COS",
-   ...                                   sci_spec_1234=["F150W", "F105W", "F110W"],
-   ...                                   sci_dec=">0",
-   ...                                   sci_actual_duration="1000..2000",
-   ...                                   sci_targname="*GAL*",
-   ...                                   select_cols=["sci_obs_type", "sci_spec_1234"])
+   >>> results = missions.query_criteria(
+   ...     sci_obs_type="IMAGE",
+   ...     sci_instrume="!COS",
+   ...     sci_spec_1234=["F150W", "F105W", "F110W"],
+   ...     sci_dec=">0",
+   ...     sci_actual_duration="1000..2000",
+   ...     sci_targname="*GAL*",
+   ...     select_cols=["sci_obs_type", "sci_spec_1234"])
    >>> results[:5].pprint(max_width=-1)  # doctest: +IGNORE_OUTPUT
    <Table masked=True length=5>
    sci_data_set_name       sci_targname      sci_spec_1234 sci_obs_type
@@ -196,7 +243,7 @@ Criteria syntax supports several operations:
         N4A702010 GAL-CLUS-0026+1653-ARCC         F110W        IMAGE
         N4A705010 GAL-CLUS-0026+1653-ARCC         F110W        IMAGE
 
-The `~astroquery.mast.MastMissionsClass.query_region` and `~astroquery.mast.MastMissionsClass.query_object` methods are 
+The `~astroquery.mast.MastMissionsClass.query_region` and `~astroquery.mast.MastMissionsClass.query_object` methods are
 convenience wrappers around `~astroquery.mast.MastMissionsClass.query_criteria`:
 
   - `~astroquery.mast.MastMissionsClass.query_region` requires ``coordinates``.
@@ -209,11 +256,12 @@ Both methods also accept column-based criteria, which are applied in the same wa
 
    >>> regionCoords = SkyCoord(210.80227, 54.34895, unit=('deg', 'deg'))
    >>> select_cols = ["sci_stop_time", "sci_targname", "sci_start_time", "sci_status"]
-   >>> results = missions.query_region(regionCoords, 
-   ...                                 radius=3,
-   ...                                 sci_pep_id=12556,
-   ...                                 select_cols=select_cols,
-   ...                                 sort_by='sci_targname')
+   >>> results = MastMissions.query_region(
+   ...     regionCoords,
+   ...     radius=3,
+   ...     sci_pep_id=12556,
+   ...     select_cols=select_cols,
+   ...     sort_by="sci_targname")
    >>> results[:5].pprint(max_width=-1)   # doctest: +IGNORE_OUTPUT
    <Table masked=True length=5>
     search_pos     sci_data_set_name   sci_targname         sci_start_time             sci_stop_time              ang_sep        sci_status
@@ -226,10 +274,11 @@ Both methods also accept column-based criteria, which are applied in the same wa
 
 .. doctest-remote-data::
 
-   >>> results = missions.query_object('M101', 
-   ...                                 radius=3, 
-   ...                                 select_cols=select_cols,
-   ...                                 sort_by='sci_targname')
+   >>> results = MastMissions.query_object(
+   ...     "M101",
+   ...     radius=3,
+   ...     select_cols=select_cols,
+   ...     sort_by="sci_targname")
    >>> results[:5]  # doctest: +IGNORE_OUTPUT
    <Table masked=True length=5>
     search_pos     sci_data_set_name sci_targname       sci_start_time             sci_stop_time             ang_sep       sci_status
@@ -248,21 +297,25 @@ Getting Product Lists
 ----------------------
 
 Each observation returned from a MAST query can have one or more associated data products. Given
-one or more datasets or dataset IDs, the `~astroquery.mast.MastMissionsClass.get_product_list` function 
+one or more datasets or dataset IDs, the `~astroquery.mast.MastMissionsClass.get_product_list` function
 will return a `~astropy.table.Table` containing the associated data products.
 
-`~astroquery.mast.MastMissionsClass.get_product_list` also includes an optional ``batch_size`` parameter, 
-which controls how many datasets are sent to the MAST service per request. This can be useful for managing 
+To override the default mission, provide the ``mission`` parameter with the appropriate mission name.
+If the mission is not specified, the default mission stored in the ``mission`` attribute will be used.
+
+`~astroquery.mast.MastMissionsClass.get_product_list` also includes an optional ``batch_size`` parameter,
+which controls how many datasets are sent to the MAST service per request. This can be useful for managing
 memory usage or avoiding timeouts when requesting product lists for large numbers of datasets.
 If not provided, batch_size defaults to 1000.
 
 .. doctest-remote-data::
-   >>> datasets = missions.query_criteria(sci_pep_id=12451,
-   ...                                    sci_instrume='ACS',
-   ...                                    sci_hlsp='>1')
-   >>> products = missions.get_product_list(datasets[:2], batch_size=1000)
+   >>> datasets = MastMissions.query_criteria(
+   ...     sci_pep_id=12451,
+   ...     sci_instrume="ACS",
+   ...     sci_hlsp=">1")
+   >>> products = MastMissions.get_product_list(datasets[:2], batch_size=1000)
    >>> print(products[:5])  # doctest: +IGNORE_OUTPUT
-           product_key          access  dataset  ...  category     size     type 
+           product_key          access  dataset  ...  category     size     type
    ---------------------------- ------ --------- ... ---------- --------- -------
    JBTAA0010_jbtaa0010_asn.fits PUBLIC JBTAA0010 ...        AUX     11520 science
    JBTAA0010_jbtaa0010_drz.fits PUBLIC JBTAA0010 ... CALIBRATED 214655040 science
@@ -274,17 +327,17 @@ The keyword corresponding to the dataset ID varies between missions and can be r
 `~astroquery.mast.MastMissionsClass.get_dataset_kwd` method.
 
 .. doctest-remote-data::
-   >>> dataset_id_kwd = missions.get_dataset_kwd()
+   >>> dataset_id_kwd = MastMissions.get_dataset_kwd()
    >>> print(dataset_id_kwd)
    sci_data_set_name
-   >>> products = missions.get_product_list(datasets[:2][dataset_id_kwd])
+   >>> products = MastMissions.get_product_list(datasets[:2][dataset_id_kwd])
 
 Some products may be associated with multiple datasets, and this table may contain duplicates.
 To return a list of products with unique filenames, use the `~astroquery.mast.MastMissionsClass.get_unique_product_list`
 function.
 
 .. doctest-remote-data::
-   >>> unique_products = missions.get_unique_product_list(datasets[:2])  # doctest: +IGNORE_OUTPUT
+   >>> unique_products = MastMissions.get_unique_product_list(datasets[:2])  # doctest: +IGNORE_OUTPUT
    INFO: 16 of 206 products were duplicates. Only returning 190 unique product(s). [astroquery.mast.utils]
    INFO: To return all products, use `MastMissions.get_product_list` [astroquery.mast.missions]
 
@@ -298,8 +351,8 @@ and any other of the product fields.
 The **AND** operation is applied between filters, and the **OR** operation is applied within each filter set, except in the case of negated values.
 
 A filter value can be negated by prefiing it with ``!``, meaning that rows matching that value will be excluded from the results.
-When any negated value is present in a filter set, any positive values in that set are combined with **OR** logic, and the negated 
-values are combined with **AND** logic against the positives. 
+When any negated value is present in a filter set, any positive values in that set are combined with **OR** logic, and the negated
+values are combined with **AND** logic against the positives.
 
 For example:
   - ``file_suffix=['A', 'B', '!C']`` → (file_suffix != C) AND (file_suffix == A OR file_suffix == B)
@@ -315,13 +368,14 @@ The filter below returns FITS products that are "science" type **and** less than
 **and** have a ``file_suffix`` of "ASN" (association files) **or** "JIF" (job information files).
 
 .. doctest-remote-data::
-   >>> filtered = missions.filter_products(products,
-   ...                                     extension='fits',
-   ...                                     type='science',
-   ...                                     size='<=20000',        
-   ...                                     file_suffix=['ASN', 'JIF'])
+   >>> filtered = MastMissions.filter_products(
+   ...     products,
+   ...     extension="fits",
+   ...     type="science",
+   ...     size="<=20000",
+   ...     file_suffix=["ASN", "JIF"])
    >>> print(filtered)  # doctest: +IGNORE_OUTPUT
-         product_key          access  dataset  ...    category     size   type 
+         product_key          access  dataset  ...    category     size   type
    ---------------------------- ------ --------- ... -------------- ----- -------
    JBTAA0010_jbtaa0010_asn.fits PUBLIC JBTAA0010 ...            AUX 11520 science
    JBTAA0020_jbtaa0020_asn.fits PUBLIC JBTAA0020 ...            AUX 11520 science
@@ -333,36 +387,40 @@ Downloding Data
 Downloading Data Products
 -------------------------
 
-The `~astroquery.mast.MastMissionsClass.download_products` function accepts a table of products like the one above 
-and will download the products to your local machine. Products may also be provided as dataset IDs with product filters, 
+The `~astroquery.mast.MastMissionsClass.download_products` function accepts a table of products like the one above
+and will download the products to your local machine. Products may also be provided as dataset IDs with product filters,
 or as JSON product metadata sent by the MAST subscription service (either as a local JSON file or as in-memory data).
 
 By default, products will be downloaded into the current working directory, in a subdirectory called ``mastDownload``.
-The full local filepaths will have the form ``mastDownload/<mission>/<Dataset ID>/file.`` You can change the download 
-directory using the ``download_dir`` parameter. If ``flat=True`` is specified, all files will be downloaded directly into the 
+The full local filepaths will have the form ``mastDownload/<mission>/<Dataset ID>/file.`` You can change the download
+directory using the ``download_dir`` parameter. If ``flat=True`` is specified, all files will be downloaded directly into the
 ``download_dir`` without any subdirectories.
 
+To override the default mission, provide the ``mission`` parameter with the appropriate mission name.
+If the mission is not specified, the default mission stored in the ``mission`` attribute will be used.
+
 .. doctest-remote-data::
-   >>> manifest = missions.download_products(filtered)  # doctest: +IGNORE_OUTPUT
+   >>> manifest = MastMissions.download_products(filtered)  # doctest: +IGNORE_OUTPUT
    Downloading URL https://mast.stsci.edu/search/hst/api/v0.1/retrieve_product?product_name=JBTAA0010%2Fjbtaa0010_asn.fits to mastDownload/hst/JBTAA0010/jbtaa0010_asn.fits ... [Done]
    Downloading URL https://mast.stsci.edu/search/hst/api/v0.1/retrieve_product?product_name=JBTAA0010%2Fjbtaa0010_jif.fits to mastDownload/hst/JBTAA0010/jbtaa0010_jif.fits ... [Done]
    Downloading URL https://mast.stsci.edu/search/hst/api/v0.1/retrieve_product?product_name=JBTAA0020%2Fjbtaa0020_asn.fits to mastDownload/hst/JBTAA0020/jbtaa0020_asn.fits ... [Done]
    Downloading URL https://mast.stsci.edu/search/hst/api/v0.1/retrieve_product?product_name=JBTAA0020%2Fjbtaa0020_jif.fits to mastDownload/hst/JBTAA0020/jbtaa0020_jif.fits ... [Done]
    >>> print(manifest)  # doctest: +IGNORE_OUTPUT
-                     Local Path                   Status  Message URL 
+                     Local Path                   Status  Message URL
    --------------------------------------------- -------- ------- ----
    mastDownload/hst/JBTAA0010/jbtaa0010_asn.fits COMPLETE    None None
    mastDownload/hst/JBTAA0010/jbtaa0010_jif.fits COMPLETE    None None
    mastDownload/hst/JBTAA0020/jbtaa0020_asn.fits COMPLETE    None None
    mastDownload/hst/JBTAA0020/jbtaa0020_jif.fits COMPLETE    None None
 
-The function also accepts dataset IDs and product filters as input for a more streamlined workflow. 
+The function also accepts dataset IDs and product filters as input for a more streamlined workflow.
 
 .. doctest-remote-data::
-   >>> missions.download_products(['JBTAA0010', 'JBTAA0020'],
-   ...                            extension='fits',
-   ...                            type='science',
-   ...                            file_suffix=['ASN', 'JIF'])  # doctest: +IGNORE_OUTPUT
+   >>> manifest = MastMissions.download_products(
+   ...     ['JBTAA0010', 'JBTAA0020'],
+   ...     extension="fits",
+   ...     type="science",
+   ...     file_suffix=["ASN", "JIF"])  # doctest: +IGNORE_OUTPUT
    Downloading URL https://mast.stsci.edu/search/hst/api/v0.1/retrieve_product?product_name=JBTAA0010%2Fjbtaa0010_asn.fits to mastDownload/hst/JBTAA0010/jbtaa0010_asn.fits ... [Done]
    Downloading URL https://mast.stsci.edu/search/hst/api/v0.1/retrieve_product?product_name=JBTAA0010%2Fjbtaa0010_jif.fits to mastDownload/hst/JBTAA0010/jbtaa0010_jif.fits ... [Done]
    Downloading URL https://mast.stsci.edu/search/hst/api/v0.1/retrieve_product?product_name=JBTAA0020%2Fjbtaa0020_asn.fits to mastDownload/hst/JBTAA0020/jbtaa0020_asn.fits ... [Done]
@@ -374,11 +432,11 @@ Downloading a Single File
 To download a single data product file, use the `~astroquery.mast.MastMissionsClass.download_file` function with
 a MAST URI as input. Some missions (e.g., HST, JWST) accept direct filenames as input, but others require a fully-qualified ``mast:`` URI.
 
-The default is to download the file to the current working directory, but you can specify the download directory or filepath with 
+The default is to download the file to the current working directory, but you can specify the download directory or filepath with
 the ``local_path`` keyword argument.
 
 .. doctest-remote-data::
-   >>> result = missions.download_file('JBTAA0010/jbtaa0010_asn.fits')
+   >>> result = MastMissions.download_file("JBTAA0010/jbtaa0010_asn.fits")
    Downloading URL https://mast.stsci.edu/search/hst/api/v0.1/retrieve_product?product_name=JBTAA0010%2Fjbtaa0010_asn.fits to jbtaa0010_asn.fits ... [Done]
    >>> print(result)
    ('COMPLETE', None, None)

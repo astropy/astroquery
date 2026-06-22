@@ -107,10 +107,10 @@ class MastMissionsClass(MastQueryWithLogin):
     def available_missions(self):
         """Return a list of available missions in the MAST Search API."""
         if self._available_missions is None:
-            self._available_missions = self.get_missions()
+            self._available_missions = self.get_available_missions()
         return self._available_missions
 
-    def get_missions(self):
+    def get_available_missions(self):
         """
         Return a list of available missions in the MAST Search API.
 
