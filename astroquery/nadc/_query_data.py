@@ -28,9 +28,6 @@ from ..query import BaseQuery
 from ..utils import commons
 
 
-_QUERY_DATA_OPENAPI_PREFIX = "/query/openapi"
-
-
 def _drop_none(d: MutableMapping[str, Any]) -> Dict[str, Any]:
     return {k: v for k, v in d.items() if v is not None}
 
@@ -649,12 +646,6 @@ class QueryDataBaseQuery(BaseQuery):
     def _service_url(self, path: str) -> str:
         return f"{str(self.URL).rstrip('/')}/{path.lstrip('/')}"
 
-    def _openapi_path(self, path: str) -> str:
-        return f"{_QUERY_DATA_OPENAPI_PREFIX}/{path.lstrip('/')}"
-
-    def _openapi_url(self, path: str) -> str:
-        return self._service_url(self._openapi_path(path))
-
     def _auth_params_headers(
         self,
         params: Optional[Mapping[str, Any]] = None,
@@ -956,7 +947,7 @@ class QueryDataBaseQuery(BaseQuery):
     # -----------------------------
 
     def _request_ping(self, *, get_query_payload: bool = False, cache: bool = True):
-        url = self._openapi_url("ping")
+        url = self._service_url("/query/openapi/ping")
         if get_query_payload:
             return {"method": "GET", "url": url}
         return self._request_raise("GET", url, cache=cache)
@@ -968,7 +959,7 @@ class QueryDataBaseQuery(BaseQuery):
         return self._parse_table_response(response, verbose=verbose)
 
     def _request_list_catalogs(self, *, get_query_payload: bool = False, cache: bool = True):
-        url = self._openapi_url("get_catalogs")
+        url = self._service_url("/query/openapi/get_catalogs")
         if get_query_payload:
             params, headers = self._auth_params_headers()
             return {"method": "GET", "url": url, "params": params, "headers": headers}
@@ -1022,7 +1013,7 @@ class QueryDataBaseQuery(BaseQuery):
         cache: bool = True,
     ):
         catname = catalog or self.catalog
-        url = self._openapi_url(f"catalogs/{catname}")
+        url = self._service_url(f"/query/openapi/catalogs/{catname}")
         if get_query_payload:
             params, headers = self._auth_params_headers()
             return {"method": "GET", "url": url, "params": params, "headers": headers}
@@ -1134,7 +1125,7 @@ class QueryDataBaseQuery(BaseQuery):
         cache: bool = True,
     ):
         catname = catalog or self.catalog
-        url = self._openapi_url(f"catalogs/{catname}/tables")
+        url = self._service_url(f"/query/openapi/catalogs/{catname}/tables")
         if get_query_payload:
             params, headers = self._auth_params_headers()
             return {"method": "GET", "url": url, "params": params, "headers": headers}
@@ -1166,7 +1157,7 @@ class QueryDataBaseQuery(BaseQuery):
         cache: bool = True,
     ):
         catname = catalog or self.catalog
-        url = self._openapi_url(f"catalogs/{catname}/tables/{table}/columns")
+        url = self._service_url(f"/query/openapi/catalogs/{catname}/tables/{table}/columns")
         if get_query_payload:
             params, headers = self._auth_params_headers()
             return {"method": "GET", "url": url, "params": params, "headers": headers}
@@ -1206,7 +1197,9 @@ class QueryDataBaseQuery(BaseQuery):
         cache: bool = True,
     ):
         catname = catalog or self.catalog
-        url = self._openapi_url(f"catalogs/{catname}/tables/{table}/coordinate_groups")
+        url = self._service_url(
+            f"/query/openapi/catalogs/{catname}/tables/{table}/coordinate_groups"
+        )
         if get_query_payload:
             params, headers = self._auth_params_headers()
             return {"method": "GET", "url": url, "params": params, "headers": headers}
@@ -1273,7 +1266,7 @@ class QueryDataBaseQuery(BaseQuery):
         cache: bool = True,
     ):
         catname = catalog or self.catalog
-        url = self._openapi_url(f"catalogs/{catname}/table_links")
+        url = self._service_url(f"/query/openapi/catalogs/{catname}/table_links")
         if get_query_payload:
             params, headers = self._auth_params_headers()
             return {"method": "GET", "url": url, "params": params, "headers": headers}
@@ -1323,7 +1316,7 @@ class QueryDataBaseQuery(BaseQuery):
         cache: bool = True,
     ):
         catname = catalog or self.catalog
-        url = self._openapi_url(f"catalogs/{catname}/docs")
+        url = self._service_url(f"/query/openapi/catalogs/{catname}/docs")
         if get_query_payload:
             params, headers = self._auth_params_headers()
             return {"method": "GET", "url": url, "params": params, "headers": headers}
@@ -1368,7 +1361,7 @@ class QueryDataBaseQuery(BaseQuery):
         cache: bool = True,
     ):
         catname = catalog or self.catalog
-        url = self._openapi_url(f"catalogs/{catname}/docs/{docid}")
+        url = self._service_url(f"/query/openapi/catalogs/{catname}/docs/{docid}")
         if get_query_payload:
             params, headers = self._auth_params_headers()
             return {"method": "GET", "url": url, "params": params, "headers": headers}
@@ -1415,7 +1408,7 @@ class QueryDataBaseQuery(BaseQuery):
         cache: bool = True,
     ):
         catname = catalog or self.catalog
-        url = self._openapi_url(f"vo/{catname}/conesearch")
+        url = self._service_url(f"/query/openapi/vo/{catname}/conesearch")
 
         output_format = str(output_format).lower()
         if output_format not in {"txt", "csv", "json", "votable"}:
@@ -1486,7 +1479,9 @@ class QueryDataBaseQuery(BaseQuery):
         cache: bool = True,
     ):
         catname = catalog or self.catalog
-        url = self._openapi_url(f"catalogs/{catname}/tables/{table}/vo/conesearch")
+        url = self._service_url(
+            f"/query/openapi/catalogs/{catname}/tables/{table}/vo/conesearch"
+        )
 
         output_format = str(output_format).lower()
         if output_format not in {"txt", "csv", "json", "votable"}:
@@ -1645,7 +1640,7 @@ class QueryDataBaseQuery(BaseQuery):
         cache: bool = True,
     ):
         catname = catalog or self.catalog
-        url = self._openapi_url(f"vo/{catname}/siap")
+        url = self._service_url(f"/query/openapi/vo/{catname}/siap")
         fmt = self._normalize_output_format(output_format)
         size_deg = self._to_degree(size, name="size")
 
@@ -1701,9 +1696,9 @@ class QueryDataBaseQuery(BaseQuery):
     ):
         catname = catalog or self.catalog
         if table is not None:
-            url = self._openapi_url(f"catalogs/{catname}/tables/{table}/query")
+            url = self._service_url(f"/query/openapi/catalogs/{catname}/tables/{table}/query")
         else:
-            url = self._openapi_url(f"catalogs/{catname}/query")
+            url = self._service_url(f"/query/openapi/catalogs/{catname}/query")
         json_payload = dict(payload)
         if get_query_payload:
             params, headers = self._auth_params_headers()
@@ -1775,7 +1770,7 @@ class QueryDataBaseQuery(BaseQuery):
             rows = max_rows
 
         fmt = str(fmt).lower().lstrip(".")
-        url = self._openapi_url(f"sqlid/{sqlid}/results.{fmt}")
+        url = self._service_url(f"/query/openapi/sqlid/{sqlid}/results.{fmt}")
         params: Dict[str, Any] = _drop_none(
             {
                 "page": page,
@@ -1825,7 +1820,7 @@ class QueryDataBaseQuery(BaseQuery):
         get_query_payload: bool = False,
         cache: bool = True,
     ):
-        url = self._openapi_url(f"sqlid/{sqlid}/count")
+        url = self._service_url(f"/query/openapi/sqlid/{sqlid}/count")
         if get_query_payload:
             params, headers = self._auth_params_headers()
             return {"method": "GET", "url": url, "params": params, "headers": headers}
@@ -2073,7 +2068,7 @@ class QueryDataBaseQuery(BaseQuery):
         endpoint = file_download.get("single_file_endpoint")
         url = self._endpoint_from_metadata(
             endpoint,
-            default_path=self._openapi_path(f"catalogs/{catname}/file"),
+            default_path=f"/query/openapi/catalogs/{catname}/file",
         )
         return url, category_params, self._download_id_parameter(file_download)
 
@@ -2095,7 +2090,7 @@ class QueryDataBaseQuery(BaseQuery):
                     "when `category` is set; resolving category metadata requires "
                     "a service request."
                 )
-            url = self._openapi_url(f"catalogs/{catname}/file")
+            url = self._service_url(f"/query/openapi/catalogs/{catname}/file")
             params = _drop_none({"id": file_id, **dict(file_params or {})})
         else:
             url, metadata_params, id_parameter = self._file_download_request_config(
@@ -2160,7 +2155,7 @@ class QueryDataBaseQuery(BaseQuery):
         catname = catalog or self.catalog
         url = self._endpoint_from_metadata(
             endpoint,
-            default_path=self._openapi_path(f"catalogs/{catname}/download"),
+            default_path=f"/query/openapi/catalogs/{catname}/download",
         )
         json_payload = dict(payload)
         if get_query_payload:

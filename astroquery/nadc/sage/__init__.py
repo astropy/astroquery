@@ -12,8 +12,6 @@ SAGE catalog names: ``SAGES-DR1`` and ``SAGES-StellarParameters``.
 
 from astropy import config as _config
 
-from .. import _QUERY_DATA_BASE_URL
-
 
 class Conf(_config.ConfigNamespace):
     """
@@ -21,7 +19,7 @@ class Conf(_config.ConfigNamespace):
     """
 
     server = _config.ConfigItem(
-        _QUERY_DATA_BASE_URL,
+        "http://10.3.10.180:5506/",
         "Base URL for the NADC Query Data Access OpenAPI service.",
     )
 
