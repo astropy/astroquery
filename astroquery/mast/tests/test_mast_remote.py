@@ -94,8 +94,8 @@ class TestMast:
     # MissionSearchClass Test #
     ###########################
 
-    def test_missions_get_missions(self):
-        missions = MastMissions.get_missions()
+    def test_missions_get_available_missions(self):
+        missions = MastMissions.get_available_missions()
         assert isinstance(missions, list)
         assert len(missions) > 5
         assert 'hst' in missions

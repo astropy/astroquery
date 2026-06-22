@@ -244,13 +244,13 @@ def zcut_download_mockreturn(url, file_path):
 ###########################
 
 
-def test_missions_get_missions():
+def test_missions_get_available_missions():
     # Access attribute
     missions = MastMissions.available_missions
     assert isinstance(missions, list)
     assert len(missions) == 9
 
-    result = MastMissions.get_missions()
+    result = MastMissions.get_available_missions()
     assert missions == result
 
 

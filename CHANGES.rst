@@ -173,6 +173,8 @@ mast
 - Added ``pass_id`` as an alias for the ``pass`` column in query functions for the Roman mission to avoid conflicts with
   the reserved Python keyword. [#3588]
 - Update the cutout format request parameter in ``Zcut.download_cutouts`` to reflect a recent service change. [#3608]
+- Added a ``mission`` parameter to methods in ``MastMissions`` to allow overriding the default mission for a query. [#3618]
+- The ``MastMissions.get_available_missions`` method retrieves the list of available missions and caches it for future use. [#3618]
 
 
 jplspec
