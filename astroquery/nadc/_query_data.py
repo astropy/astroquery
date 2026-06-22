@@ -5,7 +5,7 @@ Internal helpers for NADC Query Data Access OpenAPI modules.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from io import BytesIO
 import json
 import os
@@ -2250,7 +2250,11 @@ class QueryDataBaseQuery(BaseQuery):
         id_column: Optional[str] = None,
         file_download: Optional[Mapping[str, Any]] = None,
     ) -> List[str]:
-        id_column_candidates = [id_column] if id_column is not None else self._download_id_column_candidates(file_download)
+        id_column_candidates = (
+            [id_column]
+            if id_column is not None
+            else self._download_id_column_candidates(file_download)
+        )
 
         def select_id_column(available_columns: Iterable[str], *, source: str) -> str:
             available = set(available_columns)

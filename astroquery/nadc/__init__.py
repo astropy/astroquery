@@ -29,7 +29,8 @@ class Conf(_config.ConfigNamespace):
 
     token = _config.ConfigItem(
         "",
-        "Shared authentication token for NADC Query Data Access OpenAPI modules such as cstar, legacyplate, sage, and scuss.",
+        "Shared authentication token for NADC Query Data Access OpenAPI modules "
+        "such as cstar, legacyplate, sage, and scuss.",
     )
 
 

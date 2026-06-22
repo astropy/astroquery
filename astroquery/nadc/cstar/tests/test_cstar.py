@@ -191,6 +191,7 @@ def test_query_region_object_name_uses_parse_coordinates(cstar, monkeypatch):
     assert payload["params"]["RA"] == 11.0
     assert payload["params"]["DEC"] == -3.0
 
+
 def test_query_catalog_payload(cstar):
     c = coord.SkyCoord(ra=1 * u.deg, dec=2 * u.deg, frame="icrs")
     payload = cstar.query_catalog(
@@ -850,7 +851,10 @@ def test_request_raise_surfaces_structured_api_errors(monkeypatch):
 
     monkeypatch.setattr(client, "_request", lambda *args, **kwargs: response)
 
-    with pytest.raises(HTTPError, match=r"CSTAR API error \(404\): not_found: Table 'missing' not found in catalog 'cstar'"):
+    with pytest.raises(
+        HTTPError,
+        match=r"CSTAR API error \(404\): not_found: Table 'missing' not found in catalog 'cstar'",
+    ):
         client._request_raise("GET", response.url)
 
 

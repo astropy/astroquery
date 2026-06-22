@@ -61,7 +61,8 @@ class Conf(_config.ConfigNamespace):
 
     pos_group = _config.ConfigItem(
         "",
-        "Optional default coordinate group used by structured spatial catalog queries. Leave empty to omit pos_group by default.",
+        "Optional default coordinate group used by structured spatial catalog "
+        "queries. Leave empty to omit pos_group by default.",
     )
 
 

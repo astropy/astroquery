@@ -4,12 +4,10 @@ import pytest
 import os
 import json
 from pathlib import Path
-from io import BytesIO
 
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
-from astropy.io import fits
 import numpy as np
 from requests import HTTPError
 
@@ -49,7 +47,7 @@ class TestLamost:
         assert lamost.sub_version == 'v2.0'
         assert lamost.URL == 'https://www.lamost.org/openapi'
         assert lamost.token is None
-        
+
         lamost_dr12 = LamostClass(data_release='dr12', sub_version='v1.0')
         assert lamost_dr12.data_release == 'dr12'
         assert lamost_dr12.sub_version == 'v1.0'
@@ -1656,7 +1654,6 @@ class TestLamostUtilityFunctions:
         """Verify xlabel, ylabel, title"""
         import matplotlib
         matplotlib.use('Agg')
-        import matplotlib.pyplot as plt
 
         fig = plot_spectrum(sample_lrs_fits, resolution='low', show=False)
 

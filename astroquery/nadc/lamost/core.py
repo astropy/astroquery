@@ -22,7 +22,6 @@ import numpy as np
 from .._response_utils import response_looks_like_html, sanitize_votable_content
 from .. import QUERY_DATA_SHARED_TOKEN_ENV_VARS
 from .._query_data import (
-    _append_max_constraint,
     _append_min_constraint,
     _append_range_constraint,
     _configured_token_from_env as _configured_token_from_env_base,
@@ -706,8 +705,9 @@ class LamostClass(BaseQuery):
         )
 
         # Get all results
-        results = self.get_query_result(sqlid, output_format='json',
-                                       page_size=page_size, cache=cache)
+        results = self.get_query_result(
+            sqlid, output_format='json', page_size=page_size, cache=cache
+        )
 
         if output_format == 'csv':
             # Write as CSV
@@ -723,8 +723,9 @@ class LamostClass(BaseQuery):
                 json.dump(results, f, indent=2)
         else:
             # Get as table and write
-            table_result = self.get_query_result(sqlid, output_format=output_format,
-                                                page_size=page_size, cache=cache)
+            table_result = self.get_query_result(
+                sqlid, output_format=output_format, page_size=page_size, cache=cache
+            )
             table_result.write(filename, format=output_format, overwrite=True)
 
         return filename
@@ -857,8 +858,8 @@ class LamostClass(BaseQuery):
         return f"{self.URL}/{self.data_release}/{self.sub_version}/{res_path}/{endpoint}"
 
     def _request_query_region(self, coordinates, radius, *,
-                           resolution='low', output_format='votable', fmt=None,
-                           get_query_payload=False, cache=True):
+                              resolution='low', output_format='votable', fmt=None,
+                              get_query_payload=False, cache=True):
         """
         Query LAMOST catalog using cone search around given coordinates.
         """
@@ -940,10 +941,9 @@ class LamostClass(BaseQuery):
             return response
         return self._parse_table_response(response, verbose=verbose)
 
-
     def _request_query_ssap(self, coordinates, radius, *,
-                          resolution='low', output_format='votable', fmt=None,
-                          get_query_payload=False, cache=True):
+                            resolution='low', output_format='votable', fmt=None,
+                            get_query_payload=False, cache=True):
         """Query LAMOST using IVOA Simple Spectral Access Protocol (SSAP)."""
         if fmt is not None:
             import warnings
@@ -1022,9 +1022,8 @@ class LamostClass(BaseQuery):
             return response
         return self._parse_table_response(response, verbose=verbose)
 
-
     def _request_query_sql(self, sql, *, output_format='json',
-                         get_query_payload=False, cache=True):
+                           get_query_payload=False, cache=True):
         """Execute a raw SQL query on the LAMOST database."""
         output_format = self._normalize_output_format(
             output_format,
@@ -1079,18 +1078,17 @@ class LamostClass(BaseQuery):
             return response
         return self._parse_table_response(response, verbose=verbose)
 
-
     def _request_query_catalog(self, catalog_name, *,
-                             column_constraints=None,
-                             position_constraints=None,
-                             columns=None,
-                             sort_by=None,
-                             sort_order='asc',
-                             max_rows=100,
-                             page=1,
-                             output_format='json',
-                             get_query_payload=False,
-                             cache=True):
+                               column_constraints=None,
+                               position_constraints=None,
+                               columns=None,
+                               sort_by=None,
+                               sort_order='asc',
+                               max_rows=100,
+                               page=1,
+                               output_format='json',
+                               get_query_payload=False,
+                               cache=True):
         """Advanced parametric table query with constraints."""
         output_format = self._normalize_output_format(
             output_format,
@@ -1492,9 +1490,8 @@ class LamostClass(BaseQuery):
             cache=cache,
         )
 
-
     def _request_metadata(self, obsid, *,
-                        resolution='low', get_query_payload=False, cache=True):
+                          resolution='low', get_query_payload=False, cache=True):
         """Get metadata/information for a specific spectrum."""
         resolution = self._normalize_resolution(resolution)
         request_payload = {'obsid': str(obsid)}
@@ -1541,9 +1538,7 @@ class LamostClass(BaseQuery):
             return response
         return self._parse_table_response(response, verbose=verbose)
 
-
     # Data download methods following NED's image pattern
-
     def get_spectra(self, obsid, *, resolution='low', get_query_payload=False):
         """Download spectrum FITS data for an observation ID.
 
@@ -1583,7 +1578,6 @@ class LamostClass(BaseQuery):
             commons.FileContainer(url, encoding='binary', show_progress=True, cache=file_cache)
             for url in url_list
         ]
-
 
     def get_spectrum_list(self, obsid, *, resolution='low', get_query_payload=False):
         """
@@ -1704,7 +1698,6 @@ class LamostClass(BaseQuery):
             for url in url_list
         ]
 
-
     def get_image_list(self, obsid, *, resolution='low', get_query_payload=False):
         """
         Get list of spectrum PNG image URLs without downloading.
@@ -1760,8 +1753,8 @@ class LamostClass(BaseQuery):
         return os.path.join(save_dir, resolved)
 
     def download_catalog(self, catalog_name, *, resolution='low',
-                        save_dir='./', savedir=None, ismed=None,
-                        filename=None, overwrite=True, cache=True):
+                         save_dir='./', savedir=None, ismed=None,
+                         filename=None, overwrite=True, cache=True):
         """
         Download complete catalog FITS.GZ file.
 
@@ -2017,6 +2010,7 @@ class LamostClass(BaseQuery):
                 f"Failed to parse response as plain text: {str(ex)}"
             )
 
+
 # Singleton instance for module-level access
 Lamost: LamostClass = LamostClass()
 
@@ -2172,7 +2166,7 @@ def plot_spectrum(filename, resolution='low', show=True, **kwargs):
         data = parse_mrs_spectrum(filename)
         for band_name, band_data in data.items():
             plt.plot(band_data['wavelength'], band_data['flux'],
-                    label=band_name, **kwargs)
+                     label=band_name, **kwargs)
         if len(data) > 1:
             plt.legend()
 

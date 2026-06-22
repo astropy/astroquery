@@ -61,7 +61,8 @@ class Conf(_config.ConfigNamespace):
 
     pos_group = _config.ConfigItem(
         "",
-        "Optional default coordinate group used by structured spatial queries. Leave empty because FASHI tables expose multiple coordinate groups.",
+        "Optional default coordinate group used by structured spatial queries. "
+        "Leave empty because FASHI tables expose multiple coordinate groups.",
     )
 
 

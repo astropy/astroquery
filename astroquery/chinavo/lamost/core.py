@@ -17,4 +17,3 @@ __all__ = [
     'parse_mrs_spectrum',
     'plot_spectrum',
 ]
-

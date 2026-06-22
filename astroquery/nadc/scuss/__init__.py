@@ -63,7 +63,8 @@ class Conf(_config.ConfigNamespace):
 
     pos_group = _config.ConfigItem(
         "",
-        "Optional default coordinate group used by structured spatial queries. Leave empty because SCUSS catalogs do not share one safe default group.",
+        "Optional default coordinate group used by structured spatial queries. "
+        "Leave empty because SCUSS catalogs do not share one safe default group.",
     )
 
 
