@@ -3,6 +3,8 @@
 from astropy import config as _config
 
 
+_QUERY_DATA_BASE_URL = "https://nadc.china-vo.org/"
+
 QUERY_DATA_SHARED_TOKEN_ENV_VARS = (
     "ASTROQUERY_NADC_TOKEN",
     "NADC_QUERYDATA_TOKEN",

@@ -901,7 +901,7 @@ def test_request_raise_falls_back_to_response_body_preview(monkeypatch):
 def test_ping_payload():
     client = CstarClass(catalog="demo", token="secret", auth_method="query")
     ping = client.ping(get_query_payload=True)
-    assert ping == {"method": "GET", "url": "http://10.3.10.180:5506/query/openapi/ping"}
+    assert ping == {"method": "GET", "url": "https://nadc.china-vo.org/query/openapi/ping"}
 
 
 def test_list_catalogs_payload():
