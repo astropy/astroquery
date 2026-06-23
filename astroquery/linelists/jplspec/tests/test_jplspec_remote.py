@@ -239,7 +239,7 @@ class TestRegressionAllMolecules:
     """Test that we can get each molecule in JPL database"""
     species_table = JPLSpec.get_species_table()
 
-    @pytest.mark.parametrize('row', species_table)
+    @pytest.mark.parametrize('row', list(species_table))
     def test_regression_all_molecules(self, row):
         """
         Expensive test - try all the molecules
@@ -254,5 +254,5 @@ class TestRegressionAllMolecules:
             # N2O = 44009 is just not there
             pytest.skip("Skipping O2 due to masked QNs")
         tbl = JPLSpec.get_molecule(mol_id)
-        assert isinstance(tbl, Table)
+        assert isinstance(tbl, (Table,))
         assert len(tbl) > 0
