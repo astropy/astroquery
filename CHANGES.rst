@@ -24,6 +24,10 @@ esa.emds.einsteinprobe
 
 - New module to access the ESA Einstein Probe Science Archive. [#3511]
 
+esa.neocc
+^^^^^^^^^
+
+- New module to provide access too the ESA near-earth objects coordination centre. [#2254]
 
 
 API changes
