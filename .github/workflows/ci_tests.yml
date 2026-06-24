@@ -42,10 +42,10 @@ jobs:
             toxenv: py310-test-oldestdeps-alldeps
             toxargs: -v
 
-          - name: OSX, py312, all optional dependencies
+          - name: OSX, py313, all optional dependencies
             os: macos-latest
-            python: "3.12"
-            toxenv: py312-test-alldeps
+            python: "3.13"
+            toxenv: py313-test-alldeps
             toxargs: -v
 
           - name: Windows, py313, mandatory dependencies only
