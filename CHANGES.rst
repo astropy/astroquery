@@ -67,6 +67,11 @@ esa.euclid
 - The methods ``get_product_list`` and ``get_scientific_product_list`` accept the new parameter ``schema``. [#3611]
 
 
+gemini
+^^^^^^
+
+- Added ``get_query_payload`` kwarg to allow inspection of the query payload to aid in debugging. [#3568]
+
 vizier
 ^^^^^^
 
