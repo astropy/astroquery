@@ -1,24 +1,38 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import logging
-from pathlib import Path
-import numpy as np
-import os
-import pytest
 import json
+import logging
+import os
+from pathlib import Path
 
-from requests.models import Response
-
-from astropy.table import Table, unique
+import astropy.units as u
+import numpy as np
+import pytest
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
-import astropy.units as u
+from astropy.table import Table, unique
+from astropy.time import Time
+from requests.models import Response
 
-from astroquery.mast import Observations, utils, Mast, Catalogs, Hapcut, Tesscut, Zcut, MastMissions
+from astroquery.mast import (
+    Catalogs,
+    Hapcut,
+    Mast,
+    MastMissions,
+    Observations,
+    Tesscut,
+    Zcut,
+    utils,
+)
 
+from ...exceptions import (
+    InputWarning,
+    InvalidQueryError,
+    MaxResultsWarning,
+    NoResultsWarning,
+)
+from ..catalog_collection import DEFAULT_CATALOGS, CatalogCollection, CatalogMetadata
 from ..utils import ResolverError
-from ...exceptions import (InputWarning, InvalidQueryError, MaxResultsWarning,
-                           NoResultsWarning)
 
 
 @pytest.fixture(scope="module")
@@ -1052,388 +1066,386 @@ class TestMast:
     # CatalogClass tests #
     ######################
 
-    # query functions
-    def test_catalogs_query_region_async(self):
-        in_rad = 0.001 * u.deg
-        responses = Catalogs.query_region_async("158.47924 -7.30962",
-                                                radius=in_rad,
-                                                catalog="Galex")
-        assert isinstance(responses, list)
+    def test_catalogs_collection(self):
+        # Default collection should be HSC
+        c = Catalogs()
+        assert c.collection == "hsc"
+        assert c.catalog == "dbo.SumMagAper2CatView"
 
-        # Default catalog is HSC
-        responses = Catalogs.query_region_async("322.49324 12.16683",
-                                                radius=in_rad)
-        assert isinstance(responses, list)
+        # Initialize with a different collection
+        c = Catalogs(collection="gaiadr3")
+        assert c.collection == "gaiadr3"
+        assert c.catalog == "dbo.gaia_source"
 
-        responses = Catalogs.query_region_async("322.49324 12.16683",
-                                                radius=in_rad,
-                                                catalog="panstarrs",
-                                                table="mean")
-        assert isinstance(responses, Response)
+        # Initialize with a different collection and catalog
+        c = Catalogs(collection="ullyses", catalog="publications")
+        assert c.collection == "ullyses"
+        assert c.catalog == "dbo.publications"
 
-    def test_catalogs_query_region(self):
-        def check_result(result, row, exp_values):
-            assert isinstance(result, Table)
-            for k, v in exp_values.items():
-                assert result[row][k] == v
+        # Set the collection
+        c.collection = "tic_v82"
+        assert c.collection == "tic_v82"
+        assert c.catalog == "tic_v82.source"
 
-        in_radius = 0.1 * u.deg
-        result = Catalogs.query_region("158.47924 -7.30962",
-                                       radius=in_radius,
-                                       catalog="Gaia")
-        row = np.where(result['source_id'] == '3774902350511581696')
-        check_result(result, row, {'solution_id': '1635721458409799680'})
+    def test_catalogs_get_collections(self):
+        collections = Catalogs.get_collections()
+        assert isinstance(collections, Table)
+        assert "collection_name" in collections.colnames
 
-        result = Catalogs.query_region("322.49324 12.16683",
-                                       radius=0.001*u.deg,
-                                       catalog="HSC",
-                                       magtype=2)
-        row = np.where(result['MatchID'] == '8150896')
+    def test_catalogs_get_catalogs(self):
+        catalogs = Catalogs.get_catalogs()
+        assert isinstance(catalogs, Table)
+        assert "catalog_name" in catalogs.colnames
+        assert "description" in catalogs.colnames
+        assert not any(catalog.startswith("tap_schema") for catalog in catalogs["catalog_name"])
 
-        with pytest.warns(MaxResultsWarning):
-            result = Catalogs.query_region("322.49324 12.16683", catalog="HSC", magtype=2, nr=5)
+    def test_catalogs_get_column_metadata(self):
+        metadata = Catalogs.get_column_metadata("hsc", "dbo.SumMagAper2CatView")
+        assert isinstance(metadata, Table)
+        assert len(metadata) > 0
+        assert "column_name" in metadata.colnames
+        assert "datatype" in metadata.colnames
+        assert "unit" in metadata.colnames
+        assert "ucd" in metadata.colnames
+        assert "description" in metadata.colnames
 
-        check_result(result, row, {'NumImages': 14, 'TargetName': 'M15'})
-
-        result = Catalogs.query_region("322.49324 12.16683",
-                                       radius=0.001*u.deg,
-                                       catalog="HSC",
-                                       version=2,
-                                       magtype=2)
-        row = np.where(result['MatchID'] == '82361658')
-        check_result(result, row, {'NumImages': 11, 'TargetName': 'NGC7078'})
-
-        result = Catalogs.query_region("322.49324 12.16683",
-                                       radius=in_radius,
-                                       catalog="Gaia",
-                                       version=1)
-        row = np.where(result['source_id'] == '1745948323734098688')
-        check_result(result, row, {'solution_id': '1635378410781933568'})
-        result = Catalogs.query_region("322.49324 12.16683",
-                                       radius=0.01*u.deg,
-                                       catalog="Gaia",
-                                       version=2)
-
-        row = np.where(result['source_id'] == '1745947739618544000')
-        check_result(result, row, {'solution_id': '1635721458409799680'})
-
-        result = Catalogs.query_region("322.49324 12.16683",
-                                       radius=0.01*u.deg, catalog="panstarrs",
-                                       table="mean",
-                                       columns=['objName', 'objID', 'yFlags', 'distance'])
-        row = np.where((result['objName'] == 'PSO J322.4622+12.1920') & (result['yFlags'] == 16777496))
-        assert isinstance(result, Table)
-        np.testing.assert_allclose(result[row]['distance'], 0.039381703406789904)
-
-        result = Catalogs.query_region("158.47924 -7.30962",
-                                       radius=in_radius,
-                                       catalog="Galex")
-        in_radius_arcmin = 0.1*u.deg.to(u.arcmin)
-        distances = list(result['distance_arcmin'])
-        assert isinstance(result, Table)
-        assert max(distances) <= in_radius_arcmin
-
-        result = Catalogs.query_region("158.47924 -7.30962",
-                                       radius=in_radius,
-                                       catalog="tic")
-        row = np.where(result['ID'] == '841736289')
-        second_id = result[1]['ID']
-        check_result(result, row, {'gaiaqflag': 1})
-        np.testing.assert_allclose(result[row]['RA_orig'], 158.475246786483)
-
-        result = Catalogs.query_region("158.47924 -7.30962",
-                                       radius=in_radius,
-                                       catalog="tic",
-                                       pagesize=1,
-                                       page=2)
-        assert isinstance(result, Table)
-        assert len(result) == 1
-        assert second_id == result[0]['ID']
-
-        result = Catalogs.query_region("158.47924 -7.30962",
-                                       radius=in_radius,
-                                       catalog="ctl")
-        row = np.where(result['ID'] == '56662064')
-        check_result(result, row, {'TYC': '4918-01335-1'})
-
-        result = Catalogs.query_region("210.80227 54.34895",
-                                       radius=1*u.deg,
-                                       catalog="diskdetective")
-        row = np.where(result['designation'] == 'J140544.95+535941.1')
-        check_result(result, row, {'ZooniverseID': 'AWI0000r57'})
-
-    def test_catalogs_query_object_async(self):
-        responses = Catalogs.query_object_async("M10",
-                                                radius=.02,
-                                                catalog="TIC")
-        assert isinstance(responses, list)
-
-    def test_catalogs_query_object(self):
-        def check_result(result, exp_values):
-            assert isinstance(result, Table)
-            for k, v in exp_values.items():
-                assert v in result[k]
-
-        result = Catalogs.query_object("M10",
-                                       radius=.001,
-                                       catalog="TIC")
-        check_result(result, {'ID': '1305764225'})
-        second_id = result[1]['ID']
-
-        result = Catalogs.query_object("M10",
-                                       radius=.001,
-                                       catalog="TIC",
-                                       pagesize=1,
-                                       page=2)
-        assert isinstance(result, Table)
-        assert len(result) == 1
-        assert second_id == result[0]['ID']
-
-        result = Catalogs.query_object("M10",
-                                       radius=.001,
-                                       catalog="HSC",
-                                       magtype=1)
-        check_result(result, {'MatchID': '667727'})
-
-        result = Catalogs.query_object("M10",
-                                       radius=.001,
-                                       catalog="panstarrs",
-                                       table="mean",
-                                       columns=['objName', 'objID'])
-        check_result(result, {'objName': 'PSO J254.2873-04.1006'})
-
-        result = Catalogs.query_object("M10",
-                                       radius=0.18,
-                                       catalog="diskdetective")
-        check_result(result, {'designation': 'J165749.79-040315.1'})
-
-        result = Catalogs.query_object("M10",
-                                       radius=0.001,
-                                       catalog="Gaia",
-                                       version=1)
-        distances = list(result['distance'])
-        radius_arcmin = 0.01 * u.deg.to(u.arcmin)
-        assert isinstance(result, Table)
-        assert max(distances) < radius_arcmin
-
-        result = Catalogs.query_object("TIC 441662144",
-                                       radius=0.001,
-                                       catalog="ctl")
-        check_result(result, {'ID': '441662144'})
-
-        result = Catalogs.query_object('M10',
-                                       radius=0.08,
-                                       catalog='plato')
-        assert 'PICidDR1' in result.colnames
-
-    def test_catalogs_query_criteria_async(self):
-        # without position
-        responses = Catalogs.query_criteria_async(catalog="Tic",
-                                                  Bmag=[30, 50],
-                                                  objType="STAR")
-        assert isinstance(responses, list)
-
-        responses = Catalogs.query_criteria_async(catalog="ctl",
-                                                  Bmag=[30, 50],
-                                                  objType="STAR")
-        assert isinstance(responses, list)
-
-        responses = Catalogs.query_criteria_async(catalog="DiskDetective",
-                                                  state=["inactive", "disabled"],
-                                                  oval=[8, 10],
-                                                  multi=[3, 7])
-        assert isinstance(responses, list)
-
-        # with position
-        responses = Catalogs.query_criteria_async(catalog="Tic",
-                                                  object_name="M10",
-                                                  objType="EXTENDED")
-        assert isinstance(responses, list)
-
-        responses = Catalogs.query_criteria_async(catalog="CTL",
-                                                  object_name="M10",
-                                                  objType="EXTENDED")
-        assert isinstance(responses, list)
-
-        responses = Catalogs.query_criteria_async(catalog="DiskDetective",
-                                                  object_name="M10",
-                                                  radius=2,
-                                                  state="complete")
-        assert isinstance(responses, list)
-
-        responses = Catalogs.query_criteria_async(catalog="panstarrs",
-                                                  table="mean",
-                                                  object_name="M10",
-                                                  radius=.02,
-                                                  qualityFlag=48)
-        assert isinstance(responses, Response)
+    def test_catalogs_supports_spatial_queries(self):
+        assert Catalogs.supports_spatial_queries("hsc", "dbo.SumMagAper2CatView")
+        assert not Catalogs.supports_spatial_queries("ullyses", "dbo.publications")
 
     def test_catalogs_query_criteria(self):
-        def check_result(result, exp_vals):
-            assert isinstance(result, Table)
-            for k, v in exp_vals.items():
-                assert v in result[k]
-
-        # without position
-        result = Catalogs.query_criteria(catalog="Tic",
-                                         Bmag=[30, 50],
-                                         objType="STAR")
-        check_result(result, {'ID': '81609218'})
-        second_id = result[1]['ID']
-
-        result = Catalogs.query_criteria(catalog="Tic",
-                                         Bmag=[30, 50],
-                                         objType="STAR",
-                                         pagesize=1,
-                                         page=2)
+        # Positional query with multiple filters
+        c = Catalogs()
+        search_coord = SkyCoord(322.49324, 12.16683, unit="deg")
+        select_cols = ["matchid", "matchra", "matchdec", "numimages", "starttime", "targetname"]
+        result = c.query_criteria(
+            coordinates=search_coord,
+            radius="2 arcsec",
+            sort_by=["numimages", "starttime"],
+            sort_desc=[False, True],
+            targetname=["M-15", "NGC*"],
+            starttime=">2010",
+            limit=5,
+            select_cols=select_cols,
+        )
         assert isinstance(result, Table)
-        assert len(result) == 1
-        assert second_id == result[0]['ID']
+        assert len(result) == 5
+        assert all(c in result.colnames for c in select_cols)
+        assert all(val == "M-15" or str(val).startswith("NGC") for val in result["targetname"])
+        assert all(result["starttime"] > Time("2010-01-01T00:00:00"))
+        # Assert that all results are within 2 arcsec of the specified coordinates
+        coords = SkyCoord(result["matchra"], result["matchdec"], unit="deg")
+        separation = coords.separation(search_coord)
+        assert all(separation <= 2 * u.arcsec)
+        # Assert that results are sorted by numimages ascending and then starttime descending
+        assert all(result["numimages"][i] <= result["numimages"][i + 1] for i in range(len(result) - 1))
+        assert all(
+            result["starttime"][i] >= result["starttime"][i + 1]
+            for i in range(len(result) - 1)
+            if result["numimages"][i] == result["numimages"][i + 1]
+        )
+        # Assert that the ADQL query is included in the metadata and contains the correct filters
+        assert "adql_query" in result.meta
+        assert "SELECT" in result.meta["adql_query"]
 
-        result = Catalogs.query_criteria(catalog="ctl",
-                                         Tmag=[10.5, 11],
-                                         POSflag="2mass")
-        check_result(result, {'ID': '291067184'})
-
-        result = Catalogs.query_criteria(catalog="DiskDetective",
-                                         state=["inactive", "disabled"],
-                                         oval=[8, 10],
-                                         multi=[3, 7])
-        check_result(result, {'designation': 'J003920.04-300132.4'})
-
-        # with position
-        result = Catalogs.query_criteria(catalog="Tic",
-                                         object_name="M10", objType="EXTENDED")
-        check_result(result, {'ID': '10000732589'})
-
-        result = Catalogs.query_criteria(object_name='TIC 291067184',
-                                         catalog="ctl",
-                                         Tmag=[10.5, 11],
-                                         POSflag="2mass")
-        check_result(result, {'Tmag': 10.893})
-
-        result = Catalogs.query_criteria(catalog="DiskDetective",
-                                         object_name="M10",
-                                         radius=2,
-                                         state="complete")
-        check_result(result, {'designation': 'J165628.40-054630.8'})
-
-        result = Catalogs.query_criteria(catalog="panstarrs",
-                                         object_name="M10",
-                                         radius=.01,
-                                         qualityFlag=32,
-                                         zoneID=10306,
-                                         columns=['objName', 'objID'])
-        check_result(result, {'objName': 'PSO J254.2861-04.1091'})
-
-        result = Catalogs.query_criteria(coordinates="158.47924 -7.30962",
-                                         radius=0.01,
-                                         catalog="PANSTARRS",
-                                         table="mean",
-                                         data_release="dr2",
-                                         nStackDetections=[("gte", "1")],
-                                         columns=["objName", "distance"],
-                                         sort_by=[("asc", "distance")])
+        # Non-positional query with multiple filters and select_cols
+        select_cols = [
+            "target_name_ullyses",
+            "target_classification",
+            "known_binary",
+            "sp_class",
+            "gaia_parallax",
+            "star_teff",
+            "coordinate_epoch",
+            "spectral_type_ref",
+        ]
+        result = c.query_criteria(
+            collection="ullyses",
+            catalog="sciencemetadata",
+            target_name_ullyses="NGC*",
+            target_classification=["!Galaxy", "!Late O Dwarf"],
+            known_binary=False,
+            sp_class=["O", "B"],
+            gaia_parallax=["<-0.01", ">=0", "!<-0.3"],
+            star_teff="30000..50000",
+            coordinate_epoch=2016,
+            spectral_type_ref=[51, 18, 59],
+            select_cols=select_cols,
+        )
         assert isinstance(result, Table)
-        assert result['distance'][0] <= result['distance'][1]
+        assert len(result) > 0
+        assert all(str(val).startswith("NGC") for val in result["target_name_ullyses"])
+        assert all(result["target_classification"] != "Galaxy")
+        assert all(result["target_classification"] != "Late O Dwarf")
+        assert not any(result["known_binary"])
+        assert all(np.isin(result["sp_class"], ["O", "B"]))
+        assert all(
+            ((result["gaia_parallax"] < -0.01) | (result["gaia_parallax"] >= 0))
+            & ~(result["gaia_parallax"] < -0.3)
+        )
+        assert all((result["star_teff"] >= 30000) & (result["star_teff"] <= 50000))
+        assert all(result["coordinate_epoch"] == 2016)
+        assert all(np.isin(result["spectral_type_ref"], [51, 18, 59]))
+        assert all(c in result.colnames for c in select_cols)
 
-        # with case-insensitive keyword arguments
-        result = Catalogs.query_criteria(catalog="Tic",
-                                         bMAG=[30, 50],
-                                         objtype="STAR")
-        check_result(result, {'ID': '81609218'})
+        # Test offset
+        result = c.query_criteria(collection="hsc", numimages=8, sort_by="matchid", limit=5)
+        result_offset = c.query_criteria(collection="hsc", numimages=8, sort_by="matchid", limit=5, offset=2)
+        assert result_offset["matchid"][0] == result["matchid"][2]
 
-        result = Catalogs.query_criteria(catalog="DiskDetective",
-                                         STATE=["inactive", "disabled"],
-                                         oVaL=[8, 10],
-                                         Multi=[3, 7])
-        check_result(result, {'designation': 'J003920.04-300132.4'})
+        # Count only
+        result_count = c.query_criteria(collection="goods", class_star=0.23, count_only=True)
+        assert isinstance(result_count, (int, np.integer))
+        assert result_count > 0
 
-    def test_catalogs_query_criteria_invalid_keyword(self):
-        # attempt to make a criteria query with invalid keyword
-        with pytest.raises(InvalidQueryError) as err_no_alt:
-            Catalogs.query_criteria(catalog='tic', not_a_keyword='TESS')
-        assert "Filter 'not_a_keyword' does not exist." in str(err_no_alt.value)
+        # Return ADQL
+        result_adql = c.query_criteria(collection="goods", class_star=0.23, return_adql=True)
+        assert isinstance(result_adql, str)
+        assert "SELECT" in result_adql
 
-        # keyword is close enough for difflib to offer alternative
-        with pytest.raises(InvalidQueryError) as err_with_alt:
-            Catalogs.query_criteria(catalog='ctl', objectType="STAR")
-        assert 'objType' in str(err_with_alt.value)
+        # Run async
+        result_async = c.query_criteria(collection="goods", class_star=0.23, run_async=True)
+        assert isinstance(result_async, Table)
+        assert len(result_async) > 0
+        assert all(result_async["class_star"] == 0.23)
 
-        # region query with invalid keyword
-        with pytest.raises(InvalidQueryError) as err_region:
-            Catalogs.query_region('322.49324 12.16683',
-                                  radius=0.001*u.deg,
-                                  catalog='HSC',
-                                  invalid=2)
-        assert "Filter 'invalid' does not exist for catalog HSC." in str(err_region.value)
+        # Temporal filters and filter passed in through filters argument
+        result = c.query_criteria(collection='caom',
+                                  catalog='caommembers',
+                                  limit=10,
+                                  recordcreated=['>2014-01-01T00:00:00', '<2000'],
+                                  recordmodified='2021-03-01..2021-03-31',
+                                  filters={'collection': 'GALEX'})
+        assert isinstance(result, Table)
+        assert len(result) <= 10
+        assert all(c in result.colnames for c in ['recordcreated', 'collection'])
+        assert all(
+            (result['recordcreated'] > Time('2014-01-01T00:00:00'))
+            | (result['recordcreated'] < Time('2000-01-01T00:00:00'))
+        )
+        assert all((result['recordmodified'] >= Time('2021-03-01T00:00:00'))
+                   & (result['recordmodified'] <= Time('2021-03-31T23:59:59')))
+        assert all(result['collection'] == 'GALEX')
 
-        # panstarrs criteria query with invalid keyword
-        with pytest.raises(InvalidQueryError) as err_ps_criteria:
-            Catalogs.query_criteria(coordinates="158.47924 -7.30962",
-                                    catalog="PANSTARRS",
-                                    table="mean",
-                                    data_release="dr2",
-                                    columns=["objName", "distance"],
-                                    sort_by=[("asc", "distance")],
-                                    obj_name='invalid')
-        assert 'objName' in str(err_ps_criteria.value)
+    def test_catalogs_query_criteria_error(self):
+        # No results should warn user
+        with pytest.warns(NoResultsWarning):
+            Catalogs.query_criteria(collection="classy", z="<0")
 
+        with pytest.warns(NoResultsWarning):
+            Catalogs.query_criteria(collection="classy", target=[])
+
+    def test_catalogs_query_region(self):
+        # Region search with polygon
+        select_cols = ["object_id", "raj2000", "dej2000"]
+        result = Catalogs.query_region(
+            collection="skymapperdr4",
+            region="POLYGON ICRS 18.85 -6.95 18.86 -6.95 18.86 -6.94 18.85 -6.94",
+            limit=5,
+            select_cols=select_cols,
+        )
+        assert isinstance(result, Table)
+        assert len(result) <= 5
+        assert all(c in result.colnames for c in select_cols)
+        # Assert that all results are within a radius of the specified polygon
+        # We can't just check that the coordinates are within the polygon because
+        # they may intersect the polygon without the center being within it
+        coords = SkyCoord(result["raj2000"], result["dej2000"], unit="deg")
+        polygon = SkyCoord(18.855, -6.945, unit="deg")
+        separation = coords.separation(polygon)
+        assert all(separation <= 0.1 * u.deg)
+
+        # Region search with circle
+        result = Catalogs.query_region(
+            collection="skymapperdr4", region="CIRCLE ICRS 18.85 -6.95 0.01", limit=5, select_cols=select_cols
+        )
+        assert isinstance(result, Table)
+        assert len(result) <= 5
+        assert all(c in result.colnames for c in select_cols)
+        # Assert that all results are within a radius of the specified circle
+        coords = SkyCoord(result["raj2000"], result["dej2000"], unit="deg")
+        center = SkyCoord(18.85, -6.95, unit="deg")
+        separation = coords.separation(center)
+        assert all(separation <= 0.1 * u.deg)
+
+    def test_catalogs_query_object(self):
+        # Object search
+        select_cols = ["object_id", "raj2000", "dej2000"]
+        result = Catalogs.query_object(collection="skymapperdr4", object_name="M2", limit=5, select_cols=select_cols)
+        assert isinstance(result, Table)
+        assert len(result) <= 5
+        assert all(c in result.colnames for c in select_cols)
+        # Assert that all results are within a radius of the specified object
+        coords = SkyCoord(result["raj2000"], result["dej2000"], unit="deg")
+        m2_coords = SkyCoord(323.36258, -0.82325, unit="deg")
+        separation = coords.separation(m2_coords)
+        assert all(separation <= 0.1 * u.deg)
+
+    @pytest.mark.filterwarnings("ignore::astropy.utils.exceptions.AstropyDeprecationWarning")
     def test_catalogs_query_hsc_matchid_async(self):
-        catalogData = Catalogs.query_object("M10",
-                                            radius=.001,
-                                            catalog="HSC",
-                                            magtype=1)
+        catalogData = Catalogs.query_object("M10", radius=0.001, collection="HSC")
 
         responses = Catalogs.query_hsc_matchid_async(catalogData[0])
         assert isinstance(responses, list)
 
-        responses = Catalogs.query_hsc_matchid_async(catalogData[0]["MatchID"])
+        responses = Catalogs.query_hsc_matchid_async(catalogData[0]["matchid"])
         assert isinstance(responses, list)
 
+    @pytest.mark.filterwarnings("ignore::astropy.utils.exceptions.AstropyDeprecationWarning")
     def test_catalogs_query_hsc_matchid(self):
-        catalogData = Catalogs.query_object("M10",
-                                            radius=.001,
-                                            catalog="HSC",
-                                            magtype=1)
-        matchid = catalogData[0]["MatchID"]
+        catalogData = Catalogs.query_object("M10", radius=0.001, collection="HSC")
+        matchid = str(catalogData[0]["matchid"])
 
         result = Catalogs.query_hsc_matchid(catalogData[0])
         assert isinstance(result, Table)
-        assert (result['MatchID'] == matchid).all()
+        assert (result["MatchID"].value == matchid).all()
 
         result2 = Catalogs.query_hsc_matchid(matchid)
         assert isinstance(result2, Table)
         assert len(result2) == len(result)
-        assert (result2['MatchID'] == matchid).all()
+        assert (result2["MatchID"] == matchid).all()
 
+    @pytest.mark.filterwarnings("ignore::astropy.utils.exceptions.AstropyDeprecationWarning")
     def test_catalogs_get_hsc_spectra_async(self):
         responses = Catalogs.get_hsc_spectra_async()
         assert isinstance(responses, list)
 
+    @pytest.mark.filterwarnings("ignore::astropy.utils.exceptions.AstropyDeprecationWarning")
     def test_catalogs_get_hsc_spectra(self):
         result = Catalogs.get_hsc_spectra()
         assert isinstance(result, Table)
-        assert result[np.where(result['MatchID'] == '19657846')]
-        assert result[np.where(result['DatasetName'] == 'HAG_J072657.06+691415.5_J8HPAXAEQ_V01.SPEC1D')]
+        assert result[np.where(result["MatchID"] == "19657846")]
+        assert result[np.where(result["DatasetName"] == "HAG_J072657.06+691415.5_J8HPAXAEQ_V01.SPEC1D")]
 
+    @pytest.mark.filterwarnings("ignore::astropy.utils.exceptions.AstropyDeprecationWarning")
     def test_catalogs_download_hsc_spectra(self, tmpdir):
         allSpectra = Catalogs.get_hsc_spectra()
 
         # actually download the products
-        result = Catalogs.download_hsc_spectra(allSpectra[10],
-                                               download_dir=str(tmpdir))
+        result = Catalogs.download_hsc_spectra(allSpectra[10], download_dir=str(tmpdir))
         assert isinstance(result, Table)
 
         for row in result:
-            if row['Status'] == 'COMPLETE':
-                assert os.path.isfile(row['Local Path'])
+            if row["Status"] == "COMPLETE":
+                assert os.path.isfile(row["Local Path"])
 
         # just get the curl script
-        result = Catalogs.download_hsc_spectra(allSpectra[20:24],
-                                               download_dir=str(tmpdir), curl_flag=True)
+        result = Catalogs.download_hsc_spectra(allSpectra[20:24], download_dir=str(tmpdir), curl_flag=True)
         assert isinstance(result, Table)
-        assert os.path.isfile(result['Local Path'][0])
+        assert os.path.isfile(result["Local Path"][0])
+
+    ###########################
+    # CatalogCollection tests #
+    ###########################
+
+    def test_catalog_collection_discover_collections(self):
+        collections = CatalogCollection.discover_collections()
+        assert isinstance(collections, Table)
+        assert len(collections) > 0
+        assert "collection_name" in collections.colnames
+        assert "parent_collection" in collections.colnames
+        assert CatalogCollection._discovered_collections is not None
+
+    def test_catalog_collection_get_parent_collection(self):
+        parent = CatalogCollection.get_parent_collection("gaiadr3")
+        assert parent == "gaiadr3"
+
+        parent = CatalogCollection.get_parent_collection("tic_v82")
+        assert parent == "mast_catalogs"
+
+    @pytest.mark.parametrize("collection", ["classy", "tic_v82"])
+    def test_catalog_collection_get_catalogs(self, collection):
+        cc = CatalogCollection(collection)
+        catalogs = cc._fetch_catalogs()
+        assert isinstance(catalogs, Table)
+        assert len(catalogs) > 0
+        assert catalogs.colnames == ["catalog_name", "description"]
+
+    @pytest.mark.parametrize("collection", ["gaiadr3", "ullyses", "tic_v82"])
+    def test_catalog_collection_get_catalog_metadata(self, collection):
+        cc = CatalogCollection(collection)
+        default_catalog = cc.get_default_catalog()
+        default_metadata = cc.get_catalog_metadata(default_catalog)
+        assert isinstance(default_metadata, CatalogMetadata)
+        assert isinstance(default_metadata.column_metadata, Table)
+        assert isinstance(default_metadata.ra_column, str)
+        assert isinstance(default_metadata.dec_column, str)
+        assert isinstance(default_metadata.supports_spatial_queries, bool)
+
+        assert len(default_metadata.column_metadata) > 1
+        assert default_metadata.ra_column in default_metadata.column_metadata["column_name"]
+        assert default_metadata.dec_column in default_metadata.column_metadata["column_name"]
+        if collection != "ullyses":
+            assert default_metadata.supports_spatial_queries
+
+        metadata_cache = cc._catalog_metadata_cache
+        assert default_catalog.casefold() in metadata_cache
+        default_metadata_cached = cc.get_catalog_metadata(default_catalog)
+        assert default_metadata is default_metadata_cached
+
+    def test_catalog_collection_invalid_get_catalog_metadata(self):
+        cc = CatalogCollection("tic_v82")
+        invalid_catalog = "invalid_catalog"
+        with pytest.raises(
+            InvalidQueryError, match=f"Catalog '{invalid_catalog}' is not recognized for collection '{cc.name}'."
+        ):
+            cc.get_catalog_metadata(invalid_catalog)
+
+    @pytest.mark.parametrize("collection", ["ps1_dr2", "classy", "ullyses"])
+    def test_catalog_collection_get_default_catalog(self, collection):
+        cc = CatalogCollection(collection)
+        catalogs = cc._fetch_catalogs()
+        default = cc.get_default_catalog()
+
+        assert len(catalogs) > 1
+        assert isinstance(catalogs, Table)
+        assert catalogs.colnames == ["catalog_name", "description"]
+
+        assert not default.startswith("tap_schema")
+        assert default.casefold() in [name.casefold() for name in catalogs["catalog_name"]]
+        assert DEFAULT_CATALOGS[collection] == default
+
+    def test_catalog_collection_run_tap_query(self):
+        cc = CatalogCollection("GAIADR3")
+        adql_str = (
+            "SELECT TOP 10 solution_id, designation, source_id, ra, dec FROM gaia_source WHERE "
+            "ra BETWEEN 10 AND 11 AND dec BETWEEN 12 AND 13"
+        )
+        result = cc.run_tap_query(adql_str)
+
+        assert isinstance(result, Table)
+        assert result.colnames == ["solution_id", "designation", "source_id", "ra", "dec"]
+        assert ((result["ra"] >= 10) & (result["ra"] <= 11)).all()
+        assert ((result["dec"] >= 12) & (result["dec"] <= 13)).all()
+
+    def test_catalog_collection_verify_criteria(self):
+        cc = CatalogCollection("tic_v82")
+        default_catalog = cc.get_default_catalog()
+
+        result = cc._verify_criteria(default_catalog)
+        assert result is None
+
+        result = cc._verify_criteria(default_catalog, gaiabp=1)
+        assert result is None
+
+        result = cc._verify_criteria(default_catalog, gaiabp=1, teff=1, e_gaiabp=1)
+        assert result is None
+
+        close_match_col = "gaiagaiabp"
+        with pytest.raises(
+            InvalidQueryError,
+            match=f"Filter '{close_match_col}' is not recognized for collection "
+            f"'{cc.name}' and catalog '{default_catalog}'. Did you mean 'gaiabp'?",
+        ):
+            cc._verify_criteria(default_catalog, gaiagaiabp=1)
+
+        invalid_col = "fake_column"
+        with pytest.raises(
+            InvalidQueryError,
+            match=f"Filter '{invalid_col}' is not recognized for collection "
+            f"'{cc.name}' and catalog '{default_catalog}'.",
+        ):
+            cc._verify_criteria(default_catalog, fake_column=1)
 
     ######################
     # TesscutClass tests #
