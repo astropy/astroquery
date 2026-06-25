@@ -1,0 +1,1 @@
+{"coadds": [[8523, "5,5", "HSC-R", 34.027445442503904, -5.019872175442273, "2013-01-01T00:00:00", 0.0, 0.0, 0.0, 0.0]], "frameColumns": [], "frames": [], "sizeLimit": 1099511627776.0, "coaddColumns": ["tract", "patch", "filter", "ra", "dec", "date", "exptime", "seeing", "ellipticity", "transparency"], "id": "ee19921c55d443dd854fe5335b238335", "size": 123496882.722}
