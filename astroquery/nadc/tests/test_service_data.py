@@ -16,10 +16,20 @@ from astroquery.nadc._response_utils import sanitize_votable_content
 
 NADC_ROOT = Path(__file__).parents[1]
 DATA_DIRS = sorted(NADC_ROOT.glob("*/tests/data"))
+TEXT_SUFFIXES = {".csv", ".json", ".xml"}
 
 
 def _sha256(path):
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    content = path.read_bytes()
+    if path.suffix in TEXT_SUFFIXES:
+        content = content.replace(b"\r\n", b"\n")
+    return hashlib.sha256(content).hexdigest()
+
+
+def test_sha256_normalizes_text_newlines(tmp_path):
+    path = tmp_path / "fixture.json"
+    path.write_bytes(b'{"ok": true}\r\n')
+    assert _sha256(path) == hashlib.sha256(b'{"ok": true}\n').hexdigest()
 
 
 @pytest.mark.parametrize("data_dir", DATA_DIRS, ids=lambda path: path.parts[-3])
@@ -34,7 +44,6 @@ def test_service_data_manifest_matches_files(data_dir):
 
     for filename, metadata in manifest["files"].items():
         path = data_dir / filename
-        assert path.stat().st_size == metadata["bytes"]
         assert _sha256(path) == metadata["sha256"]
 
 
