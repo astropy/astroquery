@@ -281,6 +281,7 @@ class SplatalogueClass(BaseQuery):
 
         """
 
+
         payload = {"searchSpecies": "",
                    "speciesSelectBox": [],
                    "dataVersion": "v3.0",
