@@ -187,6 +187,16 @@ def test_list_columns_auto_detects_single_table(scuss):
     assert list(columns["colname"]) == ["id", "filename", "cra"]
 
 
+def test_list_schema_flattens_scuss_tables(scuss):
+    schema = scuss.list_schema(catalog="scuss")
+
+    assert isinstance(schema, Table)
+    assert schema.meta["catalog"] == "scuss"
+    assert schema.meta["tables"] == ["catalogue", "sdss10"]
+    assert set(schema["table"]) == {"catalogue", "sdss10"}
+    assert set(schema["column"]) == {"id", "ra", "dec", "sdssobjid", "psfmag_u"}
+
+
 def test_get_catalog_metadata_returns_file_download_mapping(scuss):
     metadata = scuss.get_catalog_metadata(catalog="scuss-image")
 
@@ -323,6 +333,8 @@ def test_query_images_builds_science_payload_with_json_default(scuss):
 
     assert payload["submit"]["url"].endswith("/query/openapi/catalogs/scuss-image/tables/image/query")
     assert payload["results"]["url"].endswith("/query/openapi/sqlid/<sqlid>/results.json")
+    assert payload["max_rows"] == 3
+    assert payload["page_size"] == 3
     assert payload["submit"]["json"]["showcol"] == ["filename", "seeing"]
     assert payload["submit"]["json"]["column_constraints"] == [
         {"column_name": "seeing", "operation": "lessequal", "constraint": "2.0"},
@@ -369,6 +381,15 @@ def test_query_sdss_matches_builds_science_payload(scuss):
     ]
 
 
-def test_science_query_rejects_bad_range(scuss):
-    with pytest.raises(InvalidQueryError, match="psfmag range"):
-        scuss.query_sources(mag_range=(14,), get_query_payload=True)
+@pytest.mark.parametrize(
+    ("method_name", "kwargs", "match"),
+    [
+        ("query_sources", {"mag_range": (14,)}, "psfmag range"),
+        ("query_proper_motions", {"pmra_range": (-50,)}, "pmra range"),
+        ("query_proper_motions", {"pmdec_range": (-25,)}, "pmdec range"),
+        ("query_proper_motions", {"mag_range": (14,)}, "mag range"),
+    ],
+)
+def test_science_queries_reject_bad_ranges(scuss, method_name, kwargs, match):
+    with pytest.raises(InvalidQueryError, match=match):
+        getattr(scuss, method_name)(**kwargs, get_query_payload=True)

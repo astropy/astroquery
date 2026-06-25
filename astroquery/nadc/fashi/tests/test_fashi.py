@@ -185,6 +185,17 @@ def test_list_columns_requires_explicit_table_for_fashi(fashi):
     assert list(columns["colname"])[:3] == ["id_fashi", "ra", "dec"]
 
 
+def test_list_schema_flattens_fashi_table(fashi):
+    schema = fashi.list_schema(catalog="FASHI")
+
+    assert isinstance(schema, Table)
+    assert schema.meta["catalog"] == "FASHI"
+    assert schema.meta["tables"] == ["extragalactic_hi_source_catalog"]
+    assert list(schema["column"])[:3] == ["id_fashi", "ra", "dec"]
+    assert schema["table"][0] == "extragalactic_hi_source_catalog"
+    assert schema["table_records"][0] == 41741
+
+
 def test_init_reads_shared_token_from_environment(monkeypatch):
     _clear_token_env(monkeypatch)
 
@@ -284,6 +295,8 @@ def test_query_table_supports_child_catalog(fashi):
     assert payload["submit"]["url"].endswith(
         "/query/openapi/catalogs/alfalfa_crossmatch/tables/alfalfa_crossmatch/query"
     )
+    assert payload["max_rows"] == 5
+    assert payload["page_size"] == 5
     assert payload["submit"]["json"]["showcol"] == ["id_fashi", "agcnr_alfalfa"]
 
 
@@ -342,6 +355,20 @@ def test_query_sga_counterparts_builds_payload(fashi):
     ]
 
 
-def test_science_query_rejects_bad_range(fashi):
-    with pytest.raises(InvalidQueryError, match="cz range"):
-        fashi.query_hi_sources(cz_range=(1000,), get_query_payload=True)
+@pytest.mark.parametrize(
+    ("method_name", "kwargs", "match"),
+    [
+        ("query_hi_sources", {"cz_range": (1000,)}, "cz range"),
+        ("query_hi_sources", {"z_range": (0.01,)}, "z range"),
+        ("query_hi_sources", {"distance_range": (10,)}, "distance range"),
+        ("query_hi_sources", {"log10mass_range": (8,)}, "log10mass range"),
+        ("query_alfalfa_matches", {"cz_fashi_range": (1000,)}, "cz_fashi range"),
+        ("query_alfalfa_matches", {"cz_alfalfa_range": (1000,)}, "cz_alfalfa range"),
+        ("query_sdss_phot_counterparts", {"z_fashi_range": (0.01,)}, "z_fashi range"),
+        ("query_sdss_spec_counterparts", {"z_sdss_range": (0.01,)}, "z_sdss range"),
+        ("query_sga_counterparts", {"z_sga_range": (0.01,)}, "z_sga range"),
+    ],
+)
+def test_science_queries_reject_bad_ranges(fashi, method_name, kwargs, match):
+    with pytest.raises(InvalidQueryError, match=match):
+        getattr(fashi, method_name)(**kwargs, get_query_payload=True)

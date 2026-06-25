@@ -1,0 +1,29 @@
+{
+  "is_single_table": true,
+  "tables": [
+    {
+      "avrprec": 0.0,
+      "coltype": 7,
+      "comment": "",
+      "cooframe": "",
+      "datatype": "image",
+      "dbname": "astrodata3",
+      "epoch": "",
+      "equinox": "",
+      "explain": "",
+      "filename": "",
+      "id": 326,
+      "loaddate": null,
+      "pos_group": null,
+      "query_form_notice": null,
+      "records": 0,
+      "releasedate": null,
+      "samplecoord": "10.750106,38.935293,2",
+      "scname": "legacyplate_2023",
+      "service_config": null,
+      "status": 0,
+      "tblname": "image",
+      "tbltype": "BASE TABLE"
+    }
+  ]
+}

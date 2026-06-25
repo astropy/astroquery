@@ -1,0 +1,53 @@
+{
+  "is_single_table": false,
+  "tables": [
+    {
+      "avrprec": 0.0,
+      "coltype": 7,
+      "comment": null,
+      "cooframe": null,
+      "datatype": null,
+      "dbname": "astrodata5",
+      "epoch": null,
+      "equinox": null,
+      "explain": null,
+      "filename": null,
+      "id": 106,
+      "loaddate": null,
+      "pos_group": "ra,dec;ra2000,dec2000",
+      "query_form_notice": null,
+      "records": null,
+      "releasedate": null,
+      "samplecoord": "341.94336667,-1.21827778,2\n20:52:07.477,-09:23:31.08,2",
+      "scname": "scuss",
+      "service_config": null,
+      "status": 0,
+      "tblname": "catalogue",
+      "tbltype": "BASE TABLE"
+    },
+    {
+      "avrprec": 0.0,
+      "coltype": 7,
+      "comment": null,
+      "cooframe": null,
+      "datatype": null,
+      "dbname": "astrodata5",
+      "epoch": null,
+      "equinox": null,
+      "explain": null,
+      "filename": null,
+      "id": 81,
+      "loaddate": null,
+      "pos_group": null,
+      "query_form_notice": null,
+      "records": null,
+      "releasedate": null,
+      "samplecoord": null,
+      "scname": "scuss",
+      "service_config": null,
+      "status": 0,
+      "tblname": "sdss10",
+      "tbltype": "BASE TABLE"
+    }
+  ]
+}

@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import json
-import os
 
 import pytest
 
@@ -26,11 +25,69 @@ from .. import conf
 from ..core import CstarClass, _configured_token_from_env
 
 
-DATA_FILES = {
-    "submit": "submit_sqlid.json",
-    "results": "results.votable.xml",
-    "catalogs": "catalogs.json",
+SUBMIT_SQLID = {"sqlid": 123}
+
+
+CATALOGS_PAYLOAD = {
+    "total": 3,
+    "rows": [
+        {
+            "id": 1,
+            "catname": "cstar",
+            "shortname": "CSTAR",
+            "showname_en": "CSTAR",
+            "showname_zh": "CSTAR",
+            "datatype": "catalog",
+            "cattype": "domestic",
+            "dbname": "cstar",
+            "priority": 0,
+        },
+        {
+            "id": 2,
+            "catname": "legacyplate",
+            "shortname": "LEGACYPLATE",
+            "showname_en": "Legacy Plate",
+            "showname_zh": "Legacy Plate",
+            "datatype": "catalog",
+            "cattype": "domestic",
+            "dbname": "legacyplate",
+            "priority": 1,
+        },
+        {
+            "id": 3,
+            "catname": "legacyplate_scans",
+            "shortname": "LEGACYPLATE SCANS",
+            "showname_en": "Legacy Plate Scans",
+            "showname_zh": "Legacy Plate Scans",
+            "datatype": "catalog",
+            "cattype": "domestic",
+            "dbname": "legacyplate_scans",
+            "priority": 2,
+        },
+    ],
 }
+
+
+RESULTS_VOTABLE = b"""<?xml version="1.0" encoding="utf-8"?>
+<VOTABLE version="1.3" xmlns="http://www.ivoa.net/xml/VOTable/v1.3">
+  <RESOURCE>
+    <TABLE>
+      <FIELD name="ra" datatype="double" unit="deg" />
+      <FIELD name="dec" datatype="double" unit="deg" />
+      <FIELD name="id" datatype="char" arraysize="*" />
+      <DATA>
+        <TABLEDATA>
+          <TR>
+            <TD>1.0</TD>
+            <TD>2.0</TD>
+            <TD>src1</TD>
+          </TR>
+        </TABLEDATA>
+      </DATA>
+    </TABLE>
+  </RESOURCE>
+</VOTABLE>
+"""
 
 
 MALFORMED_VOTABLE = b"""<?xml version="1.0" encoding="UTF-8"?>
@@ -92,11 +149,6 @@ BROKEN_MALFORMED_VOTABLE = b"""<?xml version="1.0" encoding="UTF-8"?>
 """
 
 
-def data_path(filename):
-    data_dir = os.path.join(os.path.dirname(__file__), "data")
-    return os.path.join(data_dir, filename)
-
-
 def json_response(data, *, url="http://dummy.example/query/openapi/json"):
     return MockResponse(
         json.dumps(data).encode("utf-8"),
@@ -108,20 +160,15 @@ def json_response(data, *, url="http://dummy.example/query/openapi/json"):
 def nonremote_request(self, request_type, url, **kwargs):
     self._nreq = getattr(self, "_nreq", 0) + 1
     if url.endswith("/query/openapi/vo/cstar/conesearch"):
-        with open(data_path(DATA_FILES["results"]), "rb") as fh:
-            return MockResponse(fh.read(), url=url, content_type="application/x-votable+xml")
+        return MockResponse(RESULTS_VOTABLE, url=url, content_type="application/x-votable+xml")
     if url.endswith("/query/openapi/catalogs/cstar/tables/catalog/query"):
-        with open(data_path(DATA_FILES["submit"]), "rb") as fh:
-            return MockResponse(fh.read(), url=url, content_type="application/json")
+        return json_response(SUBMIT_SQLID, url=url)
     if url.endswith("/query/openapi/catalogs/cstar/query"):
-        with open(data_path(DATA_FILES["submit"]), "rb") as fh:
-            return MockResponse(fh.read(), url=url, content_type="application/json")
+        return json_response(SUBMIT_SQLID, url=url)
     if "/query/openapi/sqlid/" in url and "results.votable" in url:
-        with open(data_path(DATA_FILES["results"]), "rb") as fh:
-            return MockResponse(fh.read(), url=url, content_type="application/x-votable+xml")
+        return MockResponse(RESULTS_VOTABLE, url=url, content_type="application/x-votable+xml")
     if url.endswith("/query/openapi/get_catalogs"):
-        with open(data_path(DATA_FILES["catalogs"]), "rb") as fh:
-            return MockResponse(fh.read(), url=url, content_type="application/json")
+        return json_response(CATALOGS_PAYLOAD, url=url)
     if url.endswith("/query/openapi/catalogs/cstar"):
         return json_response(
             {
@@ -901,7 +948,7 @@ def test_request_raise_falls_back_to_response_body_preview(monkeypatch):
 def test_ping_payload():
     client = CstarClass(catalog="demo", token="secret", auth_method="query")
     ping = client.ping(get_query_payload=True)
-    assert ping == {"method": "GET", "url": "https://nadc.china-vo.org/query/openapi/ping"}
+    assert ping == {"method": "GET", "url": client._service_url("/query/openapi/ping")}
 
 
 def test_list_catalogs_payload():

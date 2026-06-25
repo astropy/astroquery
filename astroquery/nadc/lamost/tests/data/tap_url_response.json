@@ -1,7 +1,1 @@
-{
-  "tap_url": "https://www.lamost.org/dr10/v2.0/tap",
-  "tap_version": "1.1",
-  "supported_formats": ["votable", "csv", "json", "fits"],
-  "max_rows": 10000000,
-  "description": "IVOA Table Access Protocol (TAP) service for LAMOST DR10"
-}
+{"url":"https://www.lamost.org/dr10/v2.0/voservice/tap"}

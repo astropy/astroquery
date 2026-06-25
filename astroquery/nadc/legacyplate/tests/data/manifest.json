@@ -1,0 +1,74 @@
+{
+  "captured_at_utc": "2026-06-22T06:53:00.848520+00:00",
+  "client_class": "LegacyplateClass",
+  "errors": {},
+  "files": {
+    "catalog_metadata.json": {
+      "bytes": 1339,
+      "content_type": "application/json",
+      "sha256": "ec80c7e774e64c1162b119fef4383c15931667413a58044ee13b4759a6c119b4",
+      "status_code": 200
+    },
+    "catalogs.json": {
+      "bytes": 65840,
+      "content_type": "application/json",
+      "sha256": "a7ca5ccefd673f344557c4f97fcdfea1df70bee9889a724474719647ac137bdb",
+      "status_code": 200
+    },
+    "columns.json": {
+      "bytes": 50773,
+      "content_type": "application/json",
+      "sha256": "348279badf893019075966345ade596d74b8d0e31a7f70b1e2ded68fe81085da",
+      "status_code": 200
+    },
+    "query_results.json": {
+      "bytes": 72,
+      "content_type": "text/json; charset=utf-8",
+      "sha256": "065c6991b35f51bc82d6232103f1bfd8bbca146b8451051f2f54cf51c435af11",
+      "status_code": 200
+    },
+    "query_submit.json": {
+      "bytes": 2136,
+      "content_type": "application/json",
+      "sha256": "193e5fbf79bd09127f12b277c20ad69176561508eb46e085587cbc6d42491503",
+      "status_code": 200
+    },
+    "tables.json": {
+      "bytes": 619,
+      "content_type": "application/json",
+      "sha256": "e128049477a0232dec95259236d8ac13f49efc993c242a5586f50b34d5f2dc22",
+      "status_code": 200
+    }
+  },
+  "module": "legacyplate",
+  "query_payload": {
+    "max_rows": 1,
+    "page_size": 1,
+    "results": {
+      "method": "GET",
+      "params": {
+        "page": 1,
+        "rows": 1
+      },
+      "url": "https://nadc.china-vo.org/query/openapi/sqlid/<sqlid>/results.json"
+    },
+    "submit": {
+      "json": {
+        "output.fmt": "html",
+        "showcol": [
+          "id",
+          "filename",
+          "ra",
+          "dec"
+        ]
+      },
+      "method": "POST",
+      "params": {},
+      "url": "https://nadc.china-vo.org/query/openapi/catalogs/legacyplate-image/query"
+    }
+  },
+  "query_sqlid_type": "int",
+  "representative_catalog": "legacyplate-image",
+  "representative_table": "image",
+  "server": "https://nadc.china-vo.org/"
+}

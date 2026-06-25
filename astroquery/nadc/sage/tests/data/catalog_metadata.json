@@ -1,0 +1,37 @@
+{
+  "capabilities": {
+    "catalog_query": true,
+    "conesearch": true,
+    "docs": true,
+    "file_download": false,
+    "queryable": true,
+    "siap": false,
+    "ssap": true,
+    "table_metadata_available": true,
+    "table_query": true
+  },
+  "catname": "SAGES-DR1",
+  "datatype": "catalog",
+  "description_en": null,
+  "description_zh": null,
+  "downloadlink": "https://casdc.china-vo.org/archive/SAGES-DR1/",
+  "file_download": {
+    "batch_download_endpoint": null,
+    "categories": [],
+    "id_source": null,
+    "single_file_endpoint": null,
+    "single_file_query_by_category": {},
+    "supported": false
+  },
+  "intro_en": null,
+  "intro_zh": null,
+  "officiallink": "https://nadc.china-vo.org/res/r100876/",
+  "parent_catname": null,
+  "query_status": {
+    "code": "ok",
+    "reason": "Catalog table metadata is configured and query endpoints are available."
+  },
+  "shortname": "SAGES-DR1",
+  "showname_en": "SAGES-DR1",
+  "showname_zh": "SAGES\u5de1\u5929\u7b2c\u4e00\u6b21\u6570\u636e\u53d1\u5e03\u53ca\u5176\u589e\u8865"
+}

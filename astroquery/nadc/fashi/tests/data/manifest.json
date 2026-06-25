@@ -1,0 +1,68 @@
+{
+  "captured_at_utc": "2026-06-22T06:52:49.541824+00:00",
+  "client_class": "FashiClass",
+  "errors": {},
+  "files": {
+    "catalog_metadata.json": {
+      "bytes": 1006,
+      "content_type": "application/json",
+      "sha256": "1baad5f90b166b1e3eb81d0ccec89a4333f513b0d905bed2a61529a8e1c321da",
+      "status_code": 200
+    },
+    "catalogs.json": {
+      "bytes": 65840,
+      "content_type": "application/json",
+      "sha256": "a7ca5ccefd673f344557c4f97fcdfea1df70bee9889a724474719647ac137bdb",
+      "status_code": 200
+    },
+    "columns.json": {
+      "bytes": 22071,
+      "content_type": "application/json",
+      "sha256": "a2c9941b5437e75d04c7a0bc9ccb3c0094e5fe95fe1ff9356aefa23e260b49e4",
+      "status_code": 200
+    },
+    "query_results.json": {
+      "bytes": 624,
+      "content_type": "text/json; charset=utf-8",
+      "sha256": "db09dfecc003249c544e8b8fa974f3e16885d6cfc4c32d7709049619b1eceac6",
+      "status_code": 200
+    },
+    "query_submit.json": {
+      "bytes": 22162,
+      "content_type": "application/json",
+      "sha256": "766999b9e17406726238a27ee7d0fa6490f016601344a5318d7895b3285f5fee",
+      "status_code": 200
+    },
+    "tables.json": {
+      "bytes": 666,
+      "content_type": "application/json",
+      "sha256": "bf88c009320d2b2ca9f4360b2ac97ab7efa2bf286a3cb9ae2a9fe05495933cb8",
+      "status_code": 200
+    }
+  },
+  "module": "fashi",
+  "query_payload": {
+    "max_rows": 1,
+    "page_size": 1,
+    "results": {
+      "method": "GET",
+      "params": {
+        "page": 1,
+        "rows": 1
+      },
+      "url": "https://nadc.china-vo.org/query/openapi/sqlid/<sqlid>/results.json"
+    },
+    "submit": {
+      "json": {
+        "output.fmt": "html"
+      },
+      "method": "POST",
+      "params": {},
+      "url": "https://nadc.china-vo.org/query/openapi/catalogs/FASHI/tables/extragalactic_hi_source_catalog/query"
+    }
+  },
+  "query_sqlid_type": "int",
+  "representative_catalog": "FASHI",
+  "representative_table": "extragalactic_hi_source_catalog",
+  "server": "https://nadc.china-vo.org/"
+}

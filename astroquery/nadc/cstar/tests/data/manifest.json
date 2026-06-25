@@ -1,0 +1,68 @@
+{
+  "captured_at_utc": "2026-06-22T06:52:47.965531+00:00",
+  "client_class": "CstarClass",
+  "errors": {},
+  "files": {
+    "catalog_metadata.json": {
+      "bytes": 1692,
+      "content_type": "application/json",
+      "sha256": "b1a590298655553ef6e612c3301e170d5681573fda38b5358524f3290f0f5d5b",
+      "status_code": 200
+    },
+    "catalogs.json": {
+      "bytes": 65840,
+      "content_type": "application/json",
+      "sha256": "a7ca5ccefd673f344557c4f97fcdfea1df70bee9889a724474719647ac137bdb",
+      "status_code": 200
+    },
+    "columns.json": {
+      "bytes": 6536,
+      "content_type": "application/json",
+      "sha256": "b98db48652f0394c536561a1f3868f77de1c192ef933dec77a57bce4df72d798",
+      "status_code": 200
+    },
+    "query_results.json": {
+      "bytes": 217,
+      "content_type": "text/json; charset=utf-8",
+      "sha256": "68589a81574a7c2d32f7a00cc058f4d8f00d412ea46ec60e39b046f00f6a193a",
+      "status_code": 200
+    },
+    "query_submit.json": {
+      "bytes": 6627,
+      "content_type": "application/json",
+      "sha256": "1f2766986c907e6887b495bccc540918c706ea6093d5898d3724bacdb534fae4",
+      "status_code": 200
+    },
+    "tables.json": {
+      "bytes": 631,
+      "content_type": "application/json",
+      "sha256": "645f19963c369373431384f2b9f98e4f4bb3c71afa41b48fde7b74d28f962090",
+      "status_code": 200
+    }
+  },
+  "module": "cstar",
+  "query_payload": {
+    "max_rows": 1,
+    "page_size": 1,
+    "results": {
+      "method": "GET",
+      "params": {
+        "page": 1,
+        "rows": 1
+      },
+      "url": "https://nadc.china-vo.org/query/openapi/sqlid/<sqlid>/results.json"
+    },
+    "submit": {
+      "json": {
+        "output.fmt": "html"
+      },
+      "method": "POST",
+      "params": {},
+      "url": "https://nadc.china-vo.org/query/openapi/catalogs/cstar/query"
+    }
+  },
+  "query_sqlid_type": "int",
+  "representative_catalog": "cstar",
+  "representative_table": "catalog",
+  "server": "https://nadc.china-vo.org/"
+}

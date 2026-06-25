@@ -1,0 +1,53 @@
+{
+  "is_single_table": false,
+  "tables": [
+    {
+      "avrprec": 0.0,
+      "coltype": 7,
+      "comment": null,
+      "cooframe": null,
+      "datatype": null,
+      "dbname": "astrodata7",
+      "epoch": null,
+      "equinox": null,
+      "explain": null,
+      "filename": null,
+      "id": 329,
+      "loaddate": null,
+      "pos_group": "ra,dec",
+      "query_form_notice": null,
+      "records": null,
+      "releasedate": null,
+      "samplecoord": null,
+      "scname": "sages_dr1",
+      "service_config": null,
+      "status": 0,
+      "tblname": "dr1_uv",
+      "tbltype": "BASE TABLE"
+    },
+    {
+      "avrprec": 0.0,
+      "coltype": 7,
+      "comment": null,
+      "cooframe": null,
+      "datatype": null,
+      "dbname": "astrodata7",
+      "epoch": null,
+      "equinox": null,
+      "explain": null,
+      "filename": null,
+      "id": 330,
+      "loaddate": null,
+      "pos_group": "ra,dec",
+      "query_form_notice": null,
+      "records": null,
+      "releasedate": null,
+      "samplecoord": null,
+      "scname": "sages_dr1",
+      "service_config": null,
+      "status": 0,
+      "tblname": "dr1s_gri",
+      "tbltype": "BASE TABLE"
+    }
+  ]
+}

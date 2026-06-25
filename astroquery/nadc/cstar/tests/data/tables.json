@@ -1,0 +1,29 @@
+{
+  "is_single_table": true,
+  "tables": [
+    {
+      "avrprec": 0.0,
+      "coltype": 7,
+      "comment": null,
+      "cooframe": null,
+      "datatype": null,
+      "dbname": "astrodata5",
+      "epoch": null,
+      "equinox": null,
+      "explain": null,
+      "filename": null,
+      "id": 101,
+      "loaddate": null,
+      "pos_group": "ra,dec",
+      "query_form_notice": null,
+      "records": null,
+      "releasedate": null,
+      "samplecoord": "19.07925000,-87.35715556,2",
+      "scname": "cstar",
+      "service_config": null,
+      "status": 0,
+      "tblname": "catalog",
+      "tbltype": "BASE TABLE"
+    }
+  ]
+}

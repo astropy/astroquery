@@ -1,0 +1,211 @@
+{
+  "captured_at_utc": "2026-06-22T07:02:43.667888+00:00",
+  "files": {
+    "catalog_query_response.json": {
+      "bytes": 310,
+      "content_type": "application/json",
+      "json": {
+        "order": "asc",
+        "output.fmt": "json",
+        "page": 1,
+        "rows": 3,
+        "showcol": [
+          "obsid",
+          "ra",
+          "dec",
+          "teff",
+          "class"
+        ]
+      },
+      "method": "POST",
+      "params": null,
+      "sha256": "ce4889415558a84e2ef3d9ee90798152447102db5c145906bbb03f864b668fa0",
+      "status_code": 200,
+      "url": "https://www.lamost.org/openapi/dr10/v2.0/query/combined"
+    },
+    "conesearch_response.xml": {
+      "bytes": 628028,
+      "content_type": "application/xml-votable",
+      "json": null,
+      "method": "GET",
+      "params": {
+        "dec": 40.9952444,
+        "output.fmt": "votable",
+        "ra": 10.0004738,
+        "sr": 0.2
+      },
+      "sha256": "6bdbf863170c293aeaaa187f4a876bf06e09dd8933afec438d2fefe0e3f557c5",
+      "status_code": 200,
+      "url": "https://www.lamost.org/openapi/dr10/v2.0/lrs/voservice/conesearch"
+    },
+    "dr_versions_response.json": {
+      "bytes": 4994,
+      "content_type": "application/json",
+      "json": null,
+      "method": "GET",
+      "params": null,
+      "sha256": "9f41887992d1df8f8465d6eee5bcdebb4275e4c9c17d8bcf6353c12e9213d93f",
+      "status_code": 200,
+      "url": "https://www.lamost.org/openapi/dr_versions"
+    },
+    "footprint_image.png": {
+      "bytes": 830975,
+      "content_type": "image/png",
+      "json": null,
+      "method": "GET",
+      "params": null,
+      "sha256": "62887a0db2c1096548c2a88a11052b9eca9d210d0c91def4ff3ee9640619ec04",
+      "status_code": 200,
+      "url": "https://www.lamost.org/openapi/dr10/v2.0/lrs/footprint"
+    },
+    "metadata_response.json": {
+      "bytes": 9661,
+      "content_type": "application/json",
+      "json": null,
+      "method": "GET",
+      "params": {
+        "obsid": "686112127"
+      },
+      "sha256": "cd8939847580f53d129c4876dce056459e26526197cf16a76dd7a3d121f6ab1b",
+      "status_code": 200,
+      "url": "https://www.lamost.org/openapi/dr10/v2.0/lrs/spectrum/info"
+    },
+    "query_result_count.json": {
+      "bytes": 13,
+      "content_type": "application/json",
+      "json": null,
+      "method": "GET",
+      "params": {
+        "sqlid": 12345
+      },
+      "sha256": "5f3ed68ee24f8a61448a33ad3424d415dcfa1aba6124e3e1b3e92c87c483c5bb",
+      "status_code": 200,
+      "url": "https://www.lamost.org/openapi/dr10/v2.0/get_query_result_count"
+    },
+    "query_result_page1.json": {
+      "bytes": 326,
+      "content_type": "application/json",
+      "json": null,
+      "method": "GET",
+      "params": {
+        "output.fmt": "json",
+        "page": 1,
+        "rows": 5,
+        "sqlid": 12345
+      },
+      "sha256": "cc3c6afeeabe1e2569edaa85e801a0671c161bd50e227ee97adf6060101d8b07",
+      "status_code": 200,
+      "url": "https://www.lamost.org/openapi/dr10/v2.0/get_query_result"
+    },
+    "query_result_page2.json": {
+      "bytes": 328,
+      "content_type": "application/json",
+      "json": null,
+      "method": "GET",
+      "params": {
+        "output.fmt": "json",
+        "page": 2,
+        "rows": 5,
+        "sqlid": 12345
+      },
+      "sha256": "74d970e3445a4dfec5e3a4ce4c111c3e66214a86035759ec2f8808f23245bb27",
+      "status_code": 200,
+      "url": "https://www.lamost.org/openapi/dr10/v2.0/get_query_result"
+    },
+    "spec-57278-EG224429N215706B01_sp01-001.fits.gz": {
+      "bytes": 58242,
+      "content_type": "application/gzip",
+      "method": "GET",
+      "note": "Previously verified byte-for-byte against public LAMOST download.",
+      "sha256": "9ec98370db4b73d2c17200a6cc17c87e0e01fb9a2e27f40e326357a13d9eb6ac",
+      "status_code": 200,
+      "url": "https://www.lamost.org/dr10/v2.0/spectrum/fits/353301001"
+    },
+    "sql_response_csv.csv": {
+      "bytes": 5806,
+      "content_type": "text/csv; charset=utf-8",
+      "json": null,
+      "method": "GET",
+      "params": {
+        "output.fmt": "csv",
+        "sql": "SELECT * FROM combined LIMIT 3"
+      },
+      "sha256": "f295f79a980feb18cde31190117bde6223a76f28abea631511bdb1dc56644cbd",
+      "status_code": 200,
+      "url": "https://www.lamost.org/openapi/dr10/v2.0/sql"
+    },
+    "sql_response_json.json": {
+      "bytes": 18739,
+      "content_type": "application/json",
+      "json": null,
+      "method": "GET",
+      "params": {
+        "output.fmt": "json",
+        "sql": "SELECT * FROM combined LIMIT 3"
+      },
+      "sha256": "5c420959d208bc05f017229ef3f6661a72b47666c5e8c3926aa9ec3a654f45e0",
+      "status_code": 200,
+      "url": "https://www.lamost.org/openapi/dr10/v2.0/sql"
+    },
+    "sql_response_votable.xml": {
+      "bytes": 26047,
+      "content_type": "application/xml-votable",
+      "json": null,
+      "method": "GET",
+      "params": {
+        "output.fmt": "votable",
+        "sql": "SELECT * FROM combined LIMIT 3"
+      },
+      "sha256": "eb5ecc3efe56d437fb3afc9da27591246f79d1a1756cc7c9f78f6245866393e7",
+      "status_code": 200,
+      "url": "https://www.lamost.org/openapi/dr10/v2.0/sql"
+    },
+    "ssap_response.xml": {
+      "bytes": 775628,
+      "content_type": "application/xml-votable",
+      "json": null,
+      "method": "GET",
+      "params": {
+        "output.fmt": "votable",
+        "pos": "10.0,40.0",
+        "size": 0.2
+      },
+      "sha256": "ef69bf1f846d9f56ad5bbe7393f59014babc9bdf2942f5eabd0e82c080158666",
+      "status_code": 200,
+      "url": "https://www.lamost.org/openapi/dr10/v2.0/lrs/voservice/ssap"
+    },
+    "tables_metadata_response.json": {
+      "bytes": 142314,
+      "content_type": "application/json",
+      "json": null,
+      "method": "GET",
+      "params": null,
+      "sha256": "2440d44126dd29b1a27f5911cb6e79d4dd56b766d5cf1ab9fa70b6a26c2e9bca",
+      "status_code": 200,
+      "url": "https://www.lamost.org/openapi/dr10/v2.0/tables"
+    },
+    "tap_url_response.json": {
+      "bytes": 57,
+      "content_type": "application/json",
+      "json": null,
+      "method": "GET",
+      "params": null,
+      "sha256": "4ea05a01a03f3a12c6050de877ed1a24cefc9039385d180801960e7fa490d475",
+      "status_code": 200,
+      "url": "https://www.lamost.org/openapi/dr10/v2.0/voservice/tap_url"
+    },
+    "unique_id_response.json": {
+      "bytes": 317,
+      "content_type": "application/json",
+      "json": null,
+      "method": "GET",
+      "params": {
+        "obsid": "686112127"
+      },
+      "sha256": "dbc3c910ee95ec9cf89b9ec5abc42eadd0c6f937b5451d3415bd5aaccefc9e7a",
+      "status_code": 200,
+      "url": "https://www.lamost.org/openapi/dr10/v2.0/get_unique_id_and_related_obsids"
+    }
+  },
+  "server": "https://www.lamost.org/openapi"
+}

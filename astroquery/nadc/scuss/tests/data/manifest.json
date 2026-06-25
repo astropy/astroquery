@@ -1,0 +1,68 @@
+{
+  "captured_at_utc": "2026-06-22T06:52:54.010505+00:00",
+  "client_class": "ScussClass",
+  "errors": {},
+  "files": {
+    "catalog_metadata.json": {
+      "bytes": 1284,
+      "content_type": "application/json",
+      "sha256": "6aa163597901364b60de2e6a0869f7d28c02a1b090324604eaf3dec36f9b720e",
+      "status_code": 200
+    },
+    "catalogs.json": {
+      "bytes": 65840,
+      "content_type": "application/json",
+      "sha256": "a7ca5ccefd673f344557c4f97fcdfea1df70bee9889a724474719647ac137bdb",
+      "status_code": 200
+    },
+    "columns.json": {
+      "bytes": 96600,
+      "content_type": "application/json",
+      "sha256": "c59c8b9448fbf5f76acb08e5406dffb668b9756c4746f2c1e54bfbc344ec1ca0",
+      "status_code": 200
+    },
+    "query_results.json": {
+      "bytes": 3047,
+      "content_type": "text/json; charset=utf-8",
+      "sha256": "331e92a8417ecc087d3e9a3554929020ab4e932059ed3cb409b5866754a440ab",
+      "status_code": 200
+    },
+    "query_submit.json": {
+      "bytes": 96691,
+      "content_type": "application/json",
+      "sha256": "e777f229ac24e356aae2682c7db68e42508424de5796c37a7fa0fcab10ab2015",
+      "status_code": 200
+    },
+    "tables.json": {
+      "bytes": 1231,
+      "content_type": "application/json",
+      "sha256": "94b027b094a0849626df3da8537c7398b959840ace058fd54ded6cf1b9822433",
+      "status_code": 200
+    }
+  },
+  "module": "scuss",
+  "query_payload": {
+    "max_rows": 1,
+    "page_size": 1,
+    "results": {
+      "method": "GET",
+      "params": {
+        "page": 1,
+        "rows": 1
+      },
+      "url": "https://nadc.china-vo.org/query/openapi/sqlid/<sqlid>/results.json"
+    },
+    "submit": {
+      "json": {
+        "output.fmt": "html"
+      },
+      "method": "POST",
+      "params": {},
+      "url": "https://nadc.china-vo.org/query/openapi/catalogs/scuss/tables/catalogue/query"
+    }
+  },
+  "query_sqlid_type": "int",
+  "representative_catalog": "scuss",
+  "representative_table": "catalogue",
+  "server": "https://nadc.china-vo.org/"
+}

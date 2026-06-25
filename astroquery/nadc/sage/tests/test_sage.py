@@ -6,6 +6,7 @@ from astropy.coordinates import SkyCoord
 from astropy.table import Table
 import astropy.units as u
 import pytest
+from astroquery.exceptions import InvalidQueryError
 from astroquery.nadc import conf as nadc_conf
 from astroquery.nadc.tests.helpers import (
     assert_task_columns,
@@ -117,6 +118,16 @@ def test_list_columns_auto_detects_single_table(sage):
     assert list(columns["colname"]) == ["source_id", "teff", "logg"]
 
 
+def test_list_schema_flattens_catalog_columns(sage):
+    schema = sage.list_schema(catalog="SAGES-StellarParameters")
+
+    assert isinstance(schema, Table)
+    assert schema.meta["catalog"] == "SAGES-StellarParameters"
+    assert schema.meta["tables"] == ["sages_param"]
+    assert list(schema["table"]) == ["sages_param", "sages_param", "sages_param"]
+    assert list(schema["column"]) == ["source_id", "teff", "logg"]
+
+
 def test_init_reads_shared_token_from_environment(monkeypatch):
     for env_name in (
         "ASTROQUERY_SAGE_TOKEN",
@@ -197,6 +208,8 @@ def test_query_uv_sources_builds_photometry_payload(sage):
         submit_url_suffix="/query/openapi/catalogs/SAGES-DR1/tables/dr1_uv/query",
         result_format="json",
     )
+    assert payload["max_rows"] == 15
+    assert payload["page_size"] == 15
     assert_task_cone(payload, radius_arcsec=2.0, nearest_only=True)
     assert_task_columns(payload, ["sage_id", "ra", "dec", "mag_u", "err_u"])
     assert_task_constraints(
@@ -207,6 +220,19 @@ def test_query_uv_sources_builds_photometry_payload(sage):
             {"column_name": "flag_u", "operation": "equal", "constraint": "0"},
         ],
     )
+
+
+@pytest.mark.parametrize(
+    ("method_name", "kwargs", "match"),
+    [
+        ("query_uv_sources", {"mag_u_range": (14,)}, "mag_u range"),
+        ("query_gri_sources", {"mag_g_range": (14,)}, "mag_g range"),
+        ("query_stellar_parameters", {"teff_range": (4500,)}, "teff range"),
+    ],
+)
+def test_science_queries_reject_bad_ranges(sage, method_name, kwargs, match):
+    with pytest.raises(InvalidQueryError, match=match):
+        getattr(sage, method_name)(**kwargs, get_query_payload=True)
 
 
 def test_query_gri_sources_builds_photometry_payload(sage):

@@ -515,7 +515,10 @@ class LamostClass(BaseQuery):
         # Build URL
         url = f"{self.URL}/{self.data_release}/{self.sub_version}/get_query_result_count"
         response = self._request_raise('GET', url, params=request_payload, cache=cache)
-        return response.json()
+        data = response.json()
+        if isinstance(data, dict) and 'total' in data:
+            return int(data['total'])
+        return data
 
     def get_query_result_by_page(self, sqlid, count, *, rows=10000, page=1,
                                  output_format='json', fmt=None, cache=True):

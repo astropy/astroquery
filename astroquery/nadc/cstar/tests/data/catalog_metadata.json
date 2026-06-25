@@ -1,0 +1,68 @@
+{
+  "capabilities": {
+    "catalog_query": true,
+    "conesearch": true,
+    "docs": true,
+    "file_download": true,
+    "queryable": true,
+    "siap": false,
+    "ssap": true,
+    "table_metadata_available": true,
+    "table_query": true
+  },
+  "catname": "cstar",
+  "datatype": "catalog,image,lightcurve",
+  "description_en": null,
+  "description_zh": null,
+  "downloadlink": null,
+  "file_download": {
+    "batch_download_endpoint": "/query/openapi/catalogs/cstar/download",
+    "categories": [
+      "fits",
+      "fig",
+      "ghost-fits",
+      "ghost-fig",
+      "diurnal-fits",
+      "diurnal-fig"
+    ],
+    "id_source": {
+      "column": null,
+      "parameter": "id",
+      "result_field": null,
+      "table": null
+    },
+    "single_file_endpoint": "/query/openapi/catalogs/cstar/file",
+    "single_file_query_by_category": {
+      "diurnal-fig": {
+        "category": "diurnal-fig"
+      },
+      "diurnal-fits": {
+        "category": "diurnal-fits"
+      },
+      "fig": {
+        "category": "fig"
+      },
+      "fits": {
+        "category": "fits"
+      },
+      "ghost-fig": {
+        "category": "ghost-fig"
+      },
+      "ghost-fits": {
+        "category": "ghost-fits"
+      }
+    },
+    "supported": true
+  },
+  "intro_en": "/article/20150915131657",
+  "intro_zh": "/article/20150915131447",
+  "officiallink": null,
+  "parent_catname": null,
+  "query_status": {
+    "code": "ok",
+    "reason": "Catalog table metadata is configured and query endpoints are available."
+  },
+  "shortname": "CSTAR",
+  "showname_en": "Chinese Small Telescope ARray Catalog",
+  "showname_zh": "\u4e2d\u56fd\u4e4b\u661f\u5c0f\u671b\u8fdc\u955c\u9635\u5929\u4f53\u6d4b\u5149\u661f\u8868"
+}

@@ -1,0 +1,52 @@
+{
+  "capabilities": {
+    "catalog_query": true,
+    "conesearch": true,
+    "docs": true,
+    "file_download": true,
+    "queryable": true,
+    "siap": true,
+    "ssap": false,
+    "table_metadata_available": true,
+    "table_query": true
+  },
+  "catname": "legacyplate-image",
+  "datatype": "image",
+  "description_en": null,
+  "description_zh": null,
+  "downloadlink": null,
+  "file_download": {
+    "batch_download_endpoint": "/query/openapi/catalogs/legacyplate-image/download",
+    "categories": [
+      "fits",
+      "out"
+    ],
+    "id_source": {
+      "column": "filename",
+      "parameter": "id",
+      "result_field": "image_filename",
+      "table": "legacyplate_2023.image"
+    },
+    "single_file_endpoint": "/query/openapi/catalogs/legacyplate-image/file",
+    "single_file_query_by_category": {
+      "fits": {
+        "category": "fits"
+      },
+      "out": {
+        "category": "out"
+      }
+    },
+    "supported": true
+  },
+  "intro_en": "/article/20210126183718",
+  "intro_zh": "/article/20210126183718",
+  "officiallink": null,
+  "parent_catname": "legacyplate",
+  "query_status": {
+    "code": "ok",
+    "reason": "Catalog table metadata is configured and query endpoints are available."
+  },
+  "shortname": "Legacy Plate Images",
+  "showname_en": "Legacy Plate Images",
+  "showname_zh": "Legacy Plate Images"
+}

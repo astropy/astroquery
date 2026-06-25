@@ -1,0 +1,37 @@
+{
+  "capabilities": {
+    "catalog_query": true,
+    "conesearch": true,
+    "docs": true,
+    "file_download": false,
+    "queryable": true,
+    "siap": false,
+    "ssap": true,
+    "table_metadata_available": true,
+    "table_query": true
+  },
+  "catname": "scuss",
+  "datatype": "catalog,image",
+  "description_en": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=home\">Official Site</a>",
+  "description_zh": "&gt;&gt;&gt;  <a href=\"http://batc.bao.ac.cn/BASS/doku.php?id=home\">Official Site</a>",
+  "downloadlink": "https://casdc.china-vo.org/archive/SCUSS/dr/images/",
+  "file_download": {
+    "batch_download_endpoint": null,
+    "categories": [],
+    "id_source": null,
+    "single_file_endpoint": null,
+    "single_file_query_by_category": {},
+    "supported": false
+  },
+  "intro_en": "/article/20150915101104",
+  "intro_zh": "/article/20150915130618",
+  "officiallink": "http://batc.bao.ac.cn/BASS/doku.php?id=scuss:scuss",
+  "parent_catname": null,
+  "query_status": {
+    "code": "ok",
+    "reason": "Catalog table metadata is configured and query endpoints are available."
+  },
+  "shortname": "SCUSS",
+  "showname_en": "The South Galactic Cap u-Band Sky Survey Data",
+  "showname_zh": "\u5357\u94f6\u51a0u\u6ce2\u6bb5\u5de1\u5929\u6570\u636e\u96c6"
+}

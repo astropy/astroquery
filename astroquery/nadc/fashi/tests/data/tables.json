@@ -1,0 +1,29 @@
+{
+  "is_single_table": true,
+  "tables": [
+    {
+      "avrprec": null,
+      "coltype": null,
+      "comment": "FASHI extragalactic HI source catalog",
+      "cooframe": null,
+      "datatype": null,
+      "dbname": "astrodata7",
+      "epoch": null,
+      "equinox": null,
+      "explain": null,
+      "filename": null,
+      "id": 334,
+      "loaddate": null,
+      "pos_group": "ra,dec",
+      "query_form_notice": null,
+      "records": 41741,
+      "releasedate": null,
+      "samplecoord": null,
+      "scname": "fashi",
+      "service_config": null,
+      "status": null,
+      "tblname": "extragalactic_hi_source_catalog",
+      "tbltype": null
+    }
+  ]
+}
