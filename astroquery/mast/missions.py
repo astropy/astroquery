@@ -7,6 +7,7 @@ This module contains methods for searching MAST missions.
 """
 
 import difflib
+import importlib
 import json
 import warnings
 from collections.abc import Iterable
@@ -16,13 +17,16 @@ from urllib.parse import quote
 
 import astropy.units as u
 import numpy as np
+import requests
 from astropy.coordinates import Angle, BaseCoordinateFrame, SkyCoord
+from astropy.io import fits
 from astropy.table import Column, Row, Table, vstack
 from astropy.utils.decorators import deprecated_renamed_argument
 from requests import HTTPError, RequestException
 
 from astroquery import log
 from astroquery.exceptions import (
+    AuthenticationWarning,
     InputWarning,
     InvalidQueryError,
     MaxResultsWarning,
@@ -34,6 +38,16 @@ from astroquery.utils import async_to_sync, commons
 from astroquery.utils.class_or_instance import class_or_instance
 
 from . import conf
+
+try:
+    import fsspec
+except ImportError:
+    fsspec = None
+
+try:
+    import asdf
+except ImportError:
+    asdf = None
 
 __all__ = ['MastMissionsClass', 'MastMissions']
 
@@ -713,6 +727,62 @@ class MastMissionsClass(MastQueryWithLogin):
 
         return products[filter_mask]
 
+    def _get_download_url(self, uri, mission=None):
+        """
+        Construct the full download URL for a given data URI based on the mission.
+
+        Parameters
+        ----------
+        uri : str
+            The product filename or URI for which to construct the download URL.
+        mission : str, optional
+            The mission to which the file belongs. If not provided, the current value of the ``mission`` attribute
+            will be used.
+
+        Returns
+        -------
+        url : str
+            The full URL download path.
+        """
+        current_mission = mission.lower() if mission else self.mission
+
+        if current_mission in ['hst', 'jwst', 'roman', 'roman_spectra', 'roman_cgi']:
+            # HST, JWST, and RST have a dedicated endpoint for retrieving products
+            base_url = (f"{self._service_api_connection.MISSIONS_DOWNLOAD_URL}{current_mission}"
+                        "/api/v0.1/retrieve_product")
+            keyword = 'product_name'
+        else:
+            # HLSPs use MAST download URL
+            base_url = self._service_api_connection.MAST_DOWNLOAD_URL
+            keyword = 'uri'
+            # These files require a MAST URI and not just a filename
+            if not uri.startswith('mast'):
+                raise InvalidQueryError(f'For mission "{current_mission}", a full MAST URI is required '
+                                        f'for downloading. Got "{uri}".')
+
+        return base_url + f'?{keyword}=' + quote(uri, safe='')
+
+    def _warn_no_auth(self, download_url):
+        """
+        Warn the user that they are not authenticated to download the file, and provide guidance on how to authenticate.
+
+        Parameters
+        ----------
+        download_url : str
+            The URL that the user attempted to download from, which requires authentication.
+        """
+        no_auth_msg = f'You are not authorized to access {download_url}.'
+        if self._authenticated:
+            no_auth_msg += ('\nYou do not have access to this data, or your authentication '
+                            'token may be expired. You can generate a new token at '
+                            'https://auth.mast.stsci.edu/token?suggested_name=Astroquery&'
+                            'suggested_scope=mast:exclusive_access')
+        else:
+            no_auth_msg += ('\nPlease authenticate yourself using the `~astroquery.mast.MastMissions.login` '
+                            'function or initialize `~astroquery.mast.MastMissions` with an authentication '
+                            'token.')
+        warnings.warn(no_auth_msg, AuthenticationWarning)
+
     def download_file(self, uri, *, local_path=None, cache=True, mission=None, verbose=True):
         """
         Downloads a single file based on the data URI.
@@ -740,25 +810,8 @@ class MastMissionsClass(MastQueryWithLogin):
         url : str
             The full URL download path.
         """
-
         # Construct the full data URL based on mission
-        current_mission = mission.lower() if mission else self.mission
-
-        if current_mission in ['hst', 'jwst', 'roman', 'roman_spectra', 'roman_cgi']:
-            # HST, JWST, and RST have a dedicated endpoint for retrieving products
-            base_url = (f"{self._service_api_connection.MISSIONS_DOWNLOAD_URL}{current_mission}"
-                        "/api/v0.1/retrieve_product")
-            keyword = 'product_name'
-        else:
-            # HLSPs use MAST download URL
-            base_url = self._service_api_connection.MAST_DOWNLOAD_URL
-            keyword = 'uri'
-            # These files require a MAST URI and not just a filename
-            if not uri.startswith('mast:'):
-                raise InvalidQueryError(f'For mission "{current_mission}", a full MAST URI is required '
-                                        f'for downloading. Got "{uri}".')
-        data_url = base_url + f'?{keyword}=' + uri
-        escaped_url = base_url + f'?{keyword}=' + quote(uri, safe='')
+        download_url = self._get_download_url(uri, mission=mission)
 
         # Determine local file path. Use current directory as default.
         filename = Path(uri).name
@@ -773,30 +826,20 @@ class MastMissionsClass(MastQueryWithLogin):
 
         try:
             # Attempt file download
-            self._download_file(escaped_url, local_path, cache=cache, verbose=verbose)
+            self._download_file(download_url, local_path, cache=cache, verbose=verbose)
 
             # Check if file exists
             if not local_path.is_file() and status != 'SKIPPED':
                 status = 'ERROR'
                 msg = 'File was not downloaded'
-                url = data_url
+                url = download_url
 
         except HTTPError as err:
             if err.response.status_code == 401:
-                no_auth_msg = f'You are not authorized to download from {data_url}.'
-                if self._authenticated:
-                    no_auth_msg += ('\nYou do not have access to download this data, or your authentication '
-                                    'token may be expired. You can generate a new token at '
-                                    'https://auth.mast.stsci.edu/token?suggested_name=Astroquery&'
-                                    'suggested_scope=mast:exclusive_access')
-                else:
-                    no_auth_msg += ('\nPlease authenticate yourself using the `~astroquery.mast.MastMissions.login` '
-                                    'function or initialize `~astroquery.mast.MastMissions` with an authentication '
-                                    'token.')
-                log.warning(no_auth_msg)
+                self._warn_no_auth(download_url)
             status = 'ERROR'
             msg = f'HTTPError: {err}'
-            url = data_url
+            url = download_url
 
         return status, msg, url
 
@@ -823,7 +866,6 @@ class MastMissionsClass(MastQueryWithLogin):
         response : `~astropy.table.Table`
             Table containing download results for each data product file.
         """
-
         manifest_entries = []
         base_dir = Path(base_dir)
 
@@ -944,6 +986,72 @@ class MastMissionsClass(MastQueryWithLogin):
                                         verbose=verbose)
 
         return manifest
+
+    def read_product(self, uri, *, mission=None, **kwargs):
+        """
+        Reads a data product file directly from a URI into an appropriate in-memory object based on file type.
+        Supported file types are FITS and ASDF.
+
+        FITS files are opened with `~astropy.io.fits.open` and are downloaded and cached on disk. ASDF files
+        are opened directly from the presigned S3 URL using `~fsspec.open` and `~asdf.open`, without being
+        downloaded to disk.
+
+        Parameters
+        ----------
+        uri : str
+            The product filename or URI to be read.
+        mission : str, optional
+            The mission to which the file belongs. If not provided, the current value of the ``mission`` attribute
+            will be used.
+        **kwargs
+            Additional keyword arguments to be passed to the file reading function (e.g., `~astropy.io.fits.open`
+            or `~asdf.open`).
+        """
+        # Construct the full data URL based on mission
+        download_url = self._get_download_url(uri, mission=mission)
+
+        try:
+            if uri.endswith((".fits", ".fits.gz")):
+                # Read in a
+                return fits.open(download_url, **kwargs)
+            elif uri.endswith(".asdf"):
+                if fsspec is None:
+                    raise ImportError('The "fsspec" package is required to read products directly from a URI. '
+                                      'Please install it with `pip install fsspec` or install astroquery with '
+                                      'optional dependencies using `pip install astroquery[all]`.')
+                if asdf is None:
+                    raise ImportError('The "asdf" package is required to read ASDF files. Please install it with '
+                                      '`pip install asdf` or install astroquery with optional dependencies using '
+                                      '`pip install astroquery[all]`.')
+                for package in ["gwcs", "lz4", "roman_datamodels"]:
+                    if importlib.util.find_spec(package) is None:
+                        warnings.warn(f'The "{package}" package is encouraged when reading ASDF files from the '
+                                      'Roman Space Telescope mission. Please install it with `pip install {package}` '
+                                      'or install astroquery with optional dependencies using '
+                                      '`pip install astroquery[all]`.', ImportWarning)
+
+                # Make an authenticated request to get the presigned S3 URL for the ASDF file
+                headers = {}
+                if self._authenticated:
+                    headers["Authorization"] = f"token {self._auth_obj.session.cookies['mast_token']}"
+                resp = requests.get(
+                    download_url,
+                    headers=headers,
+                    allow_redirects=False,
+                )
+                resp.raise_for_status()
+
+                # Use fsspec to open the file directly from the S3 URL, and then read it with asdf
+                fs = fsspec.filesystem("https")
+                f = fs.open(resp.headers["Location"], "rb")
+                return asdf.open(f, **kwargs)
+            else:
+                raise InvalidQueryError(f"Unsupported file type for reading: {uri}. "
+                                        "Supported types are .fits and .asdf.")
+        except HTTPError as err:
+            if err.response.status_code == 401:
+                self._warn_no_auth(download_url)
+            raise
 
     @class_or_instance
     def get_column_list(self):
