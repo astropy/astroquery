@@ -94,6 +94,13 @@ class TestMast:
     # MissionSearchClass Test #
     ###########################
 
+    def test_missions_get_available_missions(self):
+        missions = MastMissions.get_available_missions()
+        assert isinstance(missions, list)
+        assert len(missions) > 5
+        assert 'hst' in missions
+        assert 'jwst' in missions
+
     def test_missions_get_column_list(self):
         columns = MastMissions().get_column_list()
         assert len(columns) > 1
@@ -168,7 +175,7 @@ class TestMast:
             assert result[cols].meta['description']
 
         # Positional criteria search
-        result = MastMissions.query_criteria(object_names='NGC6121',
+        result = MastMissions.query_criteria(coordinates="245.89675 -26.52575",
                                              radius=0.1,
                                              sci_start_time='<2012',
                                              sci_actual_duration='0..200',
@@ -179,11 +186,12 @@ class TestMast:
         assert (result['sci_start_time'] < '2012').all()
         assert ((result['sci_actual_duration'] >= 0) & (result['sci_actual_duration'] <= 200)).all()
 
-        # Search with multiple positional inputs
-        coord = SkyCoord(245.89675, -26.52575, unit='deg')
-        result = MastMissions.query_criteria(coordinates=[coord, "205.54842 28.37728"],
-                                             object_names=["M2", "M9"],
-                                             radius=0.1)
+        # Search with multiple positional inputs and a mission specified
+        coord = SkyCoord(9.242667, -73.3925521, unit='deg')
+        result = MastMissions.query_criteria(coordinates=[coord, "16.8094764 -72.2298700"],
+                                             object_names=["AA Tau", "AK Sco"],
+                                             radius=0.01,
+                                             mission="ullyses")
         assert len(set(result['search_pos'])) == 4  # Should have four different search positions
 
         # Raise error if invalid input is given
@@ -408,7 +416,7 @@ class TestMast:
         ('jwst', {'fileSetName': 'jw01189001001_02101_00001'}),
         ('classy', {'Target': 'J0021+0052'}),
         ('ullyses', {'host_galaxy_name': 'WLM', 'select_cols': ['observation_id']}),
-        ('roman', {'program': 3, 'pass_id': 1}),
+        ('roman', {'program': 163, 'pass_id': 1}),
         ('iue', {'iue_data_id': 'LWR08496'}),
     ])
     def test_missions_workflow(self, tmp_path, mission, query_params):
@@ -417,8 +425,7 @@ class TestMast:
 
         # Roman requires extra setup to point towards the test server
         if mission == 'roman':
-            m._service_api_connection.SERVICE_URL = 'https://masttest.stsci.edu'
-            m._service_api_connection.REQUEST_URL = 'https://masttest.stsci.edu/search/roman/api/v0.1/'
+            m._service_api_connection.MISSIONS_URL = "https://masttest.stsci.edu/search/"
 
         # Criteria query
         datasets = m.query_criteria(**query_params)
@@ -431,7 +438,7 @@ class TestMast:
         assert len(prods)
 
         # Download products
-        result = m.download_products(prods[:3],
+        result = m.download_products(prods[:2],
                                      download_dir=tmp_path)
         for row in result:
             if row['Status'] == 'COMPLETE':
@@ -555,7 +562,7 @@ class TestMast:
 
         # with position
         responses = Observations.query_criteria_async(filters=["NUV", "FUV"],
-                                                      object_name="M10")
+                                                      coordinates="254.28771 -4.10031")
         assert isinstance(responses, list)
 
     def test_observations_query_criteria(self):
@@ -569,7 +576,7 @@ class TestMast:
         assert ((result['obs_collection'] == 'HST') | (result['obs_collection'] == 'HLA')).all()
 
         # with position
-        result = Observations.query_criteria(object_name="M10",
+        result = Observations.query_criteria(coordinates="254.28771 -4.10031",
                                              filters=["NUV", "FUV"],
                                              obs_collection="GALEX")
         assert isinstance(result, Table)
@@ -577,7 +584,7 @@ class TestMast:
         assert (result['obs_collection'] == 'GALEX').all()
         assert sum(result['filters'] == 'NUV') == 4
 
-        result = Observations.query_criteria(object_name="M10",
+        result = Observations.query_criteria(coordinates="254.28771 -4.10031",
                                              dataproduct_type="IMAGE",
                                              intentType="calibration")
         assert (result["intentType"] == "calibration").all()
@@ -626,7 +633,7 @@ class TestMast:
     # product functions
     def test_observations_get_product_list_async(self):
 
-        test_obs = Observations.query_criteria(filters=["NUV", "FUV"], object_name="M10")
+        test_obs = Observations.query_criteria(filters=["NUV", "FUV"], coordinates="254.28771 -4.10031")
 
         responses = Observations.get_product_list_async(test_obs[0]["obsid"])
         assert isinstance(responses, list)
@@ -634,7 +641,7 @@ class TestMast:
         responses = Observations.get_product_list_async(test_obs[2:3])
         assert isinstance(responses, list)
 
-        observations = Observations.query_criteria(object_name="M8", obs_collection=["K2", "IUE"])
+        observations = Observations.query_criteria(coordinates="270.904 -24.387", obs_collection=["K2", "IUE"])
         responses = Observations.get_product_list_async(observations[0])
         assert isinstance(responses, list)
 
@@ -646,7 +653,7 @@ class TestMast:
         assert isinstance(responses, list)
 
     def test_observations_get_product_list(self, capsys):
-        observations = Observations.query_criteria(object_name='M8', obs_collection=['K2', 'IUE'])
+        observations = Observations.query_criteria(coordinates="270.904 -24.387", obs_collection=['K2', 'IUE'])
         test_obs_id = str(observations[0]['obsid'])
         mult_obs_ids = str(observations[0]['obsid']) + ',' + str(observations[1]['obsid'])
 
@@ -852,7 +859,7 @@ class TestMast:
             assert os.path.exists(path)
 
         # get observations from GALEX instrument with query_criteria
-        observations = Observations.query_criteria(object_name='M10',
+        observations = Observations.query_criteria(coordinates="254.28771 -4.10031",
                                                    radius=0.001,
                                                    instrument_name='GALEX')
 
@@ -1246,24 +1253,24 @@ class TestMast:
 
         # with position
         responses = Catalogs.query_criteria_async(catalog="Tic",
-                                                  object_name="M10",
+                                                  coordinates="254.28771 -4.10031",
                                                   objType="EXTENDED")
         assert isinstance(responses, list)
 
         responses = Catalogs.query_criteria_async(catalog="CTL",
-                                                  object_name="M10",
+                                                  coordinates="254.28771 -4.10031",
                                                   objType="EXTENDED")
         assert isinstance(responses, list)
 
         responses = Catalogs.query_criteria_async(catalog="DiskDetective",
-                                                  object_name="M10",
+                                                  coordinates="254.28771 -4.10031",
                                                   radius=2,
                                                   state="complete")
         assert isinstance(responses, list)
 
         responses = Catalogs.query_criteria_async(catalog="panstarrs",
                                                   table="mean",
-                                                  object_name="M10",
+                                                  coordinates="254.28771 -4.10031",
                                                   radius=.02,
                                                   qualityFlag=48)
         assert isinstance(responses, Response)
@@ -1303,23 +1310,24 @@ class TestMast:
 
         # with position
         result = Catalogs.query_criteria(catalog="Tic",
-                                         object_name="M10", objType="EXTENDED")
+                                         coordinates="254.28771 -4.10031",
+                                         objType="EXTENDED")
         check_result(result, {'ID': '10000732589'})
 
-        result = Catalogs.query_criteria(object_name='TIC 291067184',
+        result = Catalogs.query_criteria(coordinates="177.72837 6.26003",
                                          catalog="ctl",
                                          Tmag=[10.5, 11],
                                          POSflag="2mass")
         check_result(result, {'Tmag': 10.893})
 
         result = Catalogs.query_criteria(catalog="DiskDetective",
-                                         object_name="M10",
+                                         coordinates="254.28771 -4.10031",
                                          radius=2,
                                          state="complete")
         check_result(result, {'designation': 'J165628.40-054630.8'})
 
         result = Catalogs.query_criteria(catalog="panstarrs",
-                                         object_name="M10",
+                                         coordinates="254.28771 -4.10031",
                                          radius=.01,
                                          qualityFlag=32,
                                          zoneID=10306,
@@ -1452,7 +1460,7 @@ class TestMast:
         sector_table = Tesscut.get_sectors(coordinates=coord)
         check_sector_table(sector_table)
 
-        sector_table = Tesscut.get_sectors(object_name="M104")
+        sector_table = Tesscut.get_sectors(coordinates="189.99763 -11.62305")
         check_sector_table(sector_table)
 
     def test_tesscut_get_sectors_mt(self):
@@ -1497,7 +1505,7 @@ class TestMast:
                                             path=str(tmpdir), inflate=False)
         check_manifest(manifest, ".zip")
 
-        manifest = Tesscut.download_cutouts(object_name="TIC 32449963", size=1, path=str(tmpdir))
+        manifest = Tesscut.download_cutouts(coordinates="189.93837 -11.64712", size=1, path=str(tmpdir))
         check_manifest(manifest, "fits")
 
     def test_tesscut_download_cutouts_mt(self, tmpdir):
@@ -1538,7 +1546,7 @@ class TestMast:
                                                sector=[28, 68])
         check_cutout_hdu(cutout_hdus_list)
 
-        cutout_hdus_list = Tesscut.get_cutouts(object_name="TIC 32449963",
+        cutout_hdus_list = Tesscut.get_cutouts(coordinates="189.93837 -11.64712",
                                                size=1,
                                                sector=37)
         check_cutout_hdu(cutout_hdus_list)
