@@ -6,24 +6,23 @@ MAST Utils
 Miscellaneous functions used throughout the MAST module.
 """
 
+import platform
 import re
 import warnings
 
 import numpy as np
 import requests
-import platform
+from astropy import units as u
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
 from astropy.utils import deprecated
 from astropy.utils.console import ProgressBarOrSpinner
 from astropy.utils.decorators import deprecated_renamed_argument
-from astropy import units as u
 
 from .. import log
-from ..version import version
-from ..exceptions import InputWarning, NoResultsWarning, ResolverError, InvalidQueryError
+from ..exceptions import (InputWarning, InvalidQueryError, NoResultsWarning, ResolverError)
 from ..utils import commons
-
+from ..version import version
 
 __all__ = []
 
@@ -227,10 +226,9 @@ def resolve_object(object_name, *, resolver=None, resolve_all=False, batch_size=
                     break
 
     # Send request to STScI Archive Name Translation Application (SANTA)
-    params = {'outputFormat': 'json',
-              'resolveAll': resolve_all or is_catalog}  # Always set resolveAll to True for MAST catalogs
+    params = {'outputFormat': 'json', 'resolveAll': resolve_all}  # Always set resolveAll to True for MAST catalogs
     if resolver and not params['resolveAll']:
-        params['resolver'] = resolver
+        params['resolver'] = [resolver, catalog] if is_catalog else [resolver]
 
     # Fetch results (batching if necessary)
     results = _batched_request(
