@@ -25,7 +25,6 @@ esa.emds.einsteinprobe
 - New module to access the ESA Einstein Probe Science Archive. [#3511]
 
 
-
 API changes
 -----------
 
@@ -91,6 +90,11 @@ vo_conesearch
 
 Service fixes and enhancements
 ------------------------------
+
+esa.jwst
+^^^^^^^^^^^^^^
+
+- Refactored to use PyVo instead of deprecated TapPlus class [#3592]
 
 esa.xmm_newton
 ^^^^^^^^^^^^^^
