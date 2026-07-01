@@ -229,6 +229,36 @@ class Conf(_config.ConfigNamespace):
                    'VX': ('vx', 'AU/d'),
                    'VY': ('vy', 'AU/d'),
                    'VZ': ('vz', 'AU/d'),
+
+                   'X_s': ('x_s', 'AU'),
+                   'Y_s': ('y_s', 'AU'),
+                   'Z_s': ('z_s', 'AU'),
+                   'VX_s': ('vx_s', 'AU/d'),
+                   'VY_s': ('vy_s', 'AU/d'),
+                   'VZ_s': ('vz_s', 'AU/d'),
+
+                   'A_s': ('a_s', 'AU'),
+                   'C_s': ('c_s', 'AU'),
+                   'N_s': ('n_s', 'AU'),
+                   'VA_s': ('va_s', 'AU/d'),
+                   'VC_s': ('vc_s', 'AU/d'),
+                   'VN_s': ('vn_s', 'AU/d'),
+
+                   'R_s': ('r_s', 'AU'),
+                   'T_s': ('t_s', 'AU'),
+                   # N_s is repeated here.
+                   'VR_s': ('vr_s', 'AU/d'),
+                   'VT_s': ('vt_s', 'AU/d'),
+                   # VN_s is repeated here.
+
+                   # Note: A_s is duplicated for POS (p) and ACN (a) uncertainties. It 
+                   # is up to the user to differentiate them! (They have the same units.)
+                   'D_s': ('d_s', 'AU'),
+                   # R_s is repeated here.
+                   'VA_RA_s': ('va_ra_s', 'AU/d'),
+                   'VD_DEC_s': ('va_dec_s', 'AU/d'),
+                   # VR_s is repeated here.
+
                    'LT': ('lighttime', 'd'),
                    'RG': ('range', 'AU'),
                    'RR': ('range_rate',
