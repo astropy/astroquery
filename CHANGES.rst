@@ -24,7 +24,10 @@ esa.emds.einsteinprobe
 
 - New module to access the ESA Einstein Probe Science Archive. [#3511]
 
+eso
+^^^
 
+- Add functionality to list and query ESO catalogues. [#3531]
 
 API changes
 -----------
