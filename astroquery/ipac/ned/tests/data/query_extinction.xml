@@ -1,0 +1,768 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.5" xmlns="http://www.ivoa.net/xml/VOTable/v1.3"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3  https://www.ivoa.net/xml/VOTable/VOTable-1.5.xsd">
+<RESOURCE type="results">
+<LINK content-role="query" href="/NED::API/ExtinctionAtTarget?TARGET=3C 273"/>
+<TABLE ID="extinction" name="ExtinctionCalculation" nrows="102">
+<GROUP  ID="QUERY" name="QUERY">
+<PARAM name="TARGET" datatype="char" arraysize="*" value="3C 273"/>
+</GROUP>
+<GROUP ID="RESPONSE"  name="RESPONSE">
+<PARAM name="QUERY_STATUS" datatype="char" arraysize="*" value="OK"/>
+<PARAM name="QUERY_TIME" datatype="char" arraysize="*" xtype="timestamp" value="20260604T061423Z"/>
+<PARAM name="RECORDS_AVAILABLE" datatype="int" value="102"/>
+<PARAM name="RECORDS_RETURNED" datatype="int" value="102"/>
+</GROUP>
+<GROUP ID="Curation" name="Curation">
+<PARAM ID="Publisher" datatype="char" name="Publisher" ucd="meta.curation" value="NASA/IPAC Extragalactic Database (NED)" arraysize="*">
+<DESCRIPTION>
+Copyright 2019-2026 Caltech, Support from NASA is acknowledged.
+This information is taken from a collection created and curated by
+the NASA/IPAC Extragalactic Database (NED), operated by the California Institute of Technology (Caltech).
+If your research benefits from the use of NED, the following acknowledgement in your paper would be appreciated:
+
+"This research has made use of the NASA/IPAC Extragalactic Database (NED), which is funded by the National Aeronautics and Space Administration and operated by the California Institute of Technology."
+
+See: https://ned.ipac.caltech.edu/Documents/Overview/Acknowledgments 
+</DESCRIPTION>
+</PARAM>
+<PARAM name="queryEngineInfo" datatype="char" arraysize="*" value="https://ned.ipac.caltech.edu/NED::API/ExtinctionAtTarget"/>
+</GROUP>
+<FIELD ID="row" name="No." ucd="meta.number" datatype="int" >
+<DESCRIPTION>A row number applicable to this list only</DESCRIPTION>
+</FIELD>
+<FIELD ID="ext_bandpass" name="Bandpass" ucd="instr.bandpass" datatype="char" arraysize="*" >
+<DESCRIPTION>Bandpass at which extinction is calculated</DESCRIPTION>
+</FIELD>
+<FIELD ID="ext_lambda_eff" name="Central Wavelength" ucd="em.wl.effective" datatype="double" unit="um" precision="4" >
+<DESCRIPTION>Throughput weighted wavelength in the bandpass</DESCRIPTION>
+</FIELD>
+<FIELD ID="a_lambda" name="Galactic Extinction" ucd="phys.absorption.gal" datatype="double" unit="mag" precision="3" >
+<DESCRIPTION>Foreground Galactic extinction at the coordinates</DESCRIPTION>
+</FIELD>
+<FIELD ID="refcode" name="Reference" ucd="meta.bib.bibcode" datatype="char" arraysize="*" >
+<DESCRIPTION>Bibliographic reference code</DESCRIPTION>
+<LINK content-role="query;encode:values" content-type="text/xml" href="/reflookup?refcode=" />
+</FIELD>
+<DATA>
+<TABLEDATA>
+<TR>
+<TD>1</TD>
+<TD>Landolt U</TD>
+<TD>0.350820</TD>
+<TD>0.090007</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>2</TD>
+<TD>Landolt B</TD>
+<TD>0.432900</TD>
+<TD>0.075303</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>3</TD>
+<TD>Landolt V</TD>
+<TD>0.542170</TD>
+<TD>0.056945</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>4</TD>
+<TD>Landolt R</TD>
+<TD>0.642780</TD>
+<TD>0.045045</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>5</TD>
+<TD>Landolt I</TD>
+<TD>0.804840</TD>
+<TD>0.031255</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>6</TD>
+<TD>CTIO U</TD>
+<TD>0.373390</TD>
+<TD>0.085293</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>7</TD>
+<TD>CTIO B</TD>
+<TD>0.430890</TD>
+<TD>0.075615</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>8</TD>
+<TD>CTIO V</TD>
+<TD>0.551660</TD>
+<TD>0.055699</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>9</TD>
+<TD>CTIO R</TD>
+<TD>0.652020</TD>
+<TD>0.044007</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>10</TD>
+<TD>CTIO I</TD>
+<TD>0.800690</TD>
+<TD>0.031484</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>11</TD>
+<TD>UKIRT J</TD>
+<TD>1.248290</TD>
+<TD>0.014724</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>12</TD>
+<TD>UKIRT H</TD>
+<TD>1.658840</TD>
+<TD>0.009325</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>13</TD>
+<TD>UKIRT K</TD>
+<TD>2.189770</TD>
+<TD>0.006272</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>14</TD>
+<TD>UKIRT L'</TD>
+<TD>3.777250</TD>
+<TD>0.003177</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>15</TD>
+<TD>Gunn g</TD>
+<TD>0.520000</TD>
+<TD>0.060517</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>16</TD>
+<TD>Gunn r</TD>
+<TD>0.662850</TD>
+<TD>0.042677</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>17</TD>
+<TD>Gunn i</TD>
+<TD>0.789860</TD>
+<TD>0.032294</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>18</TD>
+<TD>Gunn z</TD>
+<TD>0.905010</TD>
+<TD>0.025627</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>19</TD>
+<TD>Spinrad R_S</TD>
+<TD>0.692730</TD>
+<TD>0.039895</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>20</TD>
+<TD>Stromgren u</TD>
+<TD>0.351000</TD>
+<TD>0.089405</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>21</TD>
+<TD>Stromgren b</TD>
+<TD>0.467050</TD>
+<TD>0.069571</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>22</TD>
+<TD>Stromgren v</TD>
+<TD>0.411920</TD>
+<TD>0.078772</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>23</TD>
+<TD>Stromgren beta</TD>
+<TD>0.486130</TD>
+<TD>0.066103</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>24</TD>
+<TD>Stromgren y</TD>
+<TD>0.547890</TD>
+<TD>0.055782</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>25</TD>
+<TD>SDSS u</TD>
+<TD>0.358680</TD>
+<TD>0.088034</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>26</TD>
+<TD>SDSS g</TD>
+<TD>0.471670</TD>
+<TD>0.068595</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>27</TD>
+<TD>SDSS r</TD>
+<TD>0.616510</TD>
+<TD>0.047454</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>28</TD>
+<TD>SDSS i</TD>
+<TD>0.747590</TD>
+<TD>0.035263</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>29</TD>
+<TD>SDSS z</TD>
+<TD>0.892290</TD>
+<TD>0.026229</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>30</TD>
+<TD>DSS-II g</TD>
+<TD>0.462060</TD>
+<TD>0.070215</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>31</TD>
+<TD>DSS-II r</TD>
+<TD>0.654550</TD>
+<TD>0.043363</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>32</TD>
+<TD>DSS-II i</TD>
+<TD>0.811100</TD>
+<TD>0.030881</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>33</TD>
+<TD>PS1 g</TD>
+<TD>0.487670</TD>
+<TD>0.065875</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>34</TD>
+<TD>PS1 r</TD>
+<TD>0.620010</TD>
+<TD>0.047163</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>35</TD>
+<TD>PS1 i</TD>
+<TD>0.752080</TD>
+<TD>0.034931</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>36</TD>
+<TD>PS1 z</TD>
+<TD>0.866530</TD>
+<TD>0.027455</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>37</TD>
+<TD>PS1 y</TD>
+<TD>0.970630</TD>
+<TD>0.022574</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>38</TD>
+<TD>PS1 w</TD>
+<TD>0.624080</TD>
+<TD>0.048617</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>39</TD>
+<TD>LSST u</TD>
+<TD>0.369320</TD>
+<TD>0.086082</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>40</TD>
+<TD>LSST g</TD>
+<TD>0.479730</TD>
+<TD>0.067225</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>41</TD>
+<TD>LSST r</TD>
+<TD>0.619580</TD>
+<TD>0.047205</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>42</TD>
+<TD>LSST i</TD>
+<TD>0.751530</TD>
+<TD>0.034973</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>43</TD>
+<TD>LSST z</TD>
+<TD>0.866440</TD>
+<TD>0.027476</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>44</TD>
+<TD>LSST y</TD>
+<TD>0.971030</TD>
+<TD>0.022595</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>45</TD>
+<TD>WFPC2 F300W</TD>
+<TD>0.308760</TD>
+<TD>0.101803</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>46</TD>
+<TD>WFPC2 F450W</TD>
+<TD>0.458700</TD>
+<TD>0.070818</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>47</TD>
+<TD>WFPC2 F555W</TD>
+<TD>0.543940</TD>
+<TD>0.057215</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>48</TD>
+<TD>WFPC2 F606W</TD>
+<TD>0.598480</TD>
+<TD>0.050154</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>49</TD>
+<TD>WFPC2 F702W</TD>
+<TD>0.688790</TD>
+<TD>0.040455</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>50</TD>
+<TD>WFPC2 F814W</TD>
+<TD>0.794000</TD>
+<TD>0.032169</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>51</TD>
+<TD>WFC3 F105W</TD>
+<TD>1.043890</TD>
+<TD>0.020124</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>52</TD>
+<TD>WFC3 F110W</TD>
+<TD>1.116970</TD>
+<TD>0.018296</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>53</TD>
+<TD>WFC3 F125W</TD>
+<TD>1.233550</TD>
+<TD>0.015077</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>54</TD>
+<TD>WFC3 F140W</TD>
+<TD>1.369230</TD>
+<TD>0.012731</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>55</TD>
+<TD>WFC3 F160W</TD>
+<TD>1.525830</TD>
+<TD>0.010633</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>56</TD>
+<TD>WFC3 F200LP</TD>
+<TD>0.551520</TD>
+<TD>0.061431</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>57</TD>
+<TD>WFC3 F218W</TD>
+<TD>0.224830</TD>
+<TD>0.161157</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>58</TD>
+<TD>WFC3 F225W</TD>
+<TD>0.239400</TD>
+<TD>0.145145</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>59</TD>
+<TD>WFC3 F275W</TD>
+<TD>0.274250</TD>
+<TD>0.113952</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>60</TD>
+<TD>WFC3 F300X</TD>
+<TD>0.293450</TD>
+<TD>0.108573</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>61</TD>
+<TD>WFC3 F336W</TD>
+<TD>0.336640</TD>
+<TD>0.092478</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>62</TD>
+<TD>WFC3 F350LP</TD>
+<TD>0.587710</TD>
+<TD>0.054494</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>63</TD>
+<TD>WFC3 F390W</TD>
+<TD>0.399480</TD>
+<TD>0.080911</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>64</TD>
+<TD>WFC3 F438W</TD>
+<TD>0.433530</TD>
+<TD>0.075241</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>65</TD>
+<TD>WFC3 F475W</TD>
+<TD>0.478500</TD>
+<TD>0.067453</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>66</TD>
+<TD>WFC3 F475X</TD>
+<TD>0.496970</TD>
+<TD>0.064712</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>67</TD>
+<TD>WFC3 F555W</TD>
+<TD>0.530280</TD>
+<TD>0.059292</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>68</TD>
+<TD>WFC3 F600LP</TD>
+<TD>0.736230</TD>
+<TD>0.036987</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>69</TD>
+<TD>WFC3 F606W</TD>
+<TD>0.586850</TD>
+<TD>0.051670</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>70</TD>
+<TD>WFC3 F625W</TD>
+<TD>0.622580</TD>
+<TD>0.046914</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>71</TD>
+<TD>WFC3 F775W</TD>
+<TD>0.763090</TD>
+<TD>0.034121</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>72</TD>
+<TD>WFC3 F814W</TD>
+<TD>0.798310</TD>
+<TD>0.031899</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>73</TD>
+<TD>WFC3 F850LP</TD>
+<TD>0.914970</TD>
+<TD>0.025087</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>74</TD>
+<TD>ACS clear</TD>
+<TD>0.621110</TD>
+<TD>0.050590</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>75</TD>
+<TD>ACS F435W</TD>
+<TD>0.434830</TD>
+<TD>0.074971</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>76</TD>
+<TD>ACS F475W</TD>
+<TD>0.476030</TD>
+<TD>0.067869</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>77</TD>
+<TD>ACS F550M</TD>
+<TD>0.558100</TD>
+<TD>0.054411</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>78</TD>
+<TD>ACS F555W</TD>
+<TD>0.536130</TD>
+<TD>0.057983</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>79</TD>
+<TD>ACS F606W</TD>
+<TD>0.590100</TD>
+<TD>0.051317</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>80</TD>
+<TD>ACS F625W</TD>
+<TD>0.629810</TD>
+<TD>0.046083</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>81</TD>
+<TD>ACS F775W</TD>
+<TD>0.767350</TD>
+<TD>0.033830</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>82</TD>
+<TD>ACS F814W</TD>
+<TD>0.801240</TD>
+<TD>0.031691</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>83</TD>
+<TD>ACS F850LP</TD>
+<TD>0.900750</TD>
+<TD>0.025814</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>84</TD>
+<TD>DES g</TD>
+<TD>0.479660</TD>
+<TD>0.067225</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>85</TD>
+<TD>DES r</TD>
+<TD>0.638260</TD>
+<TD>0.045190</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>86</TD>
+<TD>DES i</TD>
+<TD>0.776900</TD>
+<TD>0.033124</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>87</TD>
+<TD>DES z</TD>
+<TD>0.910820</TD>
+<TD>0.025274</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>88</TD>
+<TD>DES Y</TD>
+<TD>0.985040</TD>
+<TD>0.021972</TD>
+<TD>2011ApJ...737..103S</TD>
+</TR>
+<TR>
+<TD>89</TD>
+<TD>Landolt U</TD>
+<TD>0.337200</TD>
+<TD>0.112851</TD>
+<TD>1998ApJ...500..525S</TD>
+</TR>
+<TR>
+<TD>90</TD>
+<TD>Landolt B</TD>
+<TD>0.440400</TD>
+<TD>0.089612</TD>
+<TD>1998ApJ...500..525S</TD>
+</TR>
+<TR>
+<TD>91</TD>
+<TD>Landolt V</TD>
+<TD>0.542800</TD>
+<TD>0.068845</TD>
+<TD>1998ApJ...500..525S</TD>
+</TR>
+<TR>
+<TD>92</TD>
+<TD>Landolt R</TD>
+<TD>0.650900</TD>
+<TD>0.055512</TD>
+<TD>1998ApJ...500..525S</TD>
+</TR>
+<TR>
+<TD>93</TD>
+<TD>Landolt I</TD>
+<TD>0.809000</TD>
+<TD>0.040289</TD>
+<TD>1998ApJ...500..525S</TD>
+</TR>
+<TR>
+<TD>94</TD>
+<TD>Sloan u'</TD>
+<TD>0.354600</TD>
+<TD>0.107057</TD>
+<TD>1998ApJ...500..525S</TD>
+</TR>
+<TR>
+<TD>95</TD>
+<TD>Sloan g'</TD>
+<TD>0.492500</TD>
+<TD>0.078772</TD>
+<TD>1998ApJ...500..525S</TD>
+</TR>
+<TR>
+<TD>96</TD>
+<TD>Sloan r'</TD>
+<TD>0.633500</TD>
+<TD>0.057132</TD>
+<TD>1998ApJ...500..525S</TD>
+</TR>
+<TR>
+<TD>97</TD>
+<TD>Sloan i'</TD>
+<TD>0.779900</TD>
+<TD>0.043321</TD>
+<TD>1998ApJ...500..525S</TD>
+</TR>
+<TR>
+<TD>98</TD>
+<TD>Sloan z'</TD>
+<TD>0.929400</TD>
+<TD>0.030715</TD>
+<TD>1998ApJ...500..525S</TD>
+</TR>
+<TR>
+<TD>99</TD>
+<TD>UKIRT J</TD>
+<TD>1.266000</TD>
+<TD>0.018732</TD>
+<TD>1998ApJ...500..525S</TD>
+</TR>
+<TR>
+<TD>100</TD>
+<TD>UKIRT H</TD>
+<TD>1.673200</TD>
+<TD>0.011962</TD>
+<TD>1998ApJ...500..525S</TD>
+</TR>
+<TR>
+<TD>101</TD>
+<TD>UKIRT K</TD>
+<TD>2.215200</TD>
+<TD>0.007622</TD>
+<TD>1998ApJ...500..525S</TD>
+</TR>
+<TR>
+<TD>102</TD>
+<TD>UKIRT L'</TD>
+<TD>3.807900</TD>
+<TD>0.003177</TD>
+<TD>1998ApJ...500..525S</TD>
+</TR>
+</TABLEDATA>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
