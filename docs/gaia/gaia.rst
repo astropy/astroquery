@@ -909,7 +909,7 @@ The following example shows how to retrieve the DataLink products associated wit
 .. doctest-remote-data::
 
   >>> retrieval_type = 'ALL'          # Options are: 'EPOCH_PHOTOMETRY', 'MCMC_GSPPHOT', 'MCMC_MSC', 'XP_SAMPLED', 'XP_CONTINUOUS', 'RVS', 'ALL'
-  >>> data_structure = 'INDIVIDUAL'     # Options are: 'INDIVIDUAL' or 'RAW'
+  >>> data_structure = 'DATAMODEL_STANDARD'     # Options are: 'DATAMODEL_STANDARD' or 'DATAMODEL_GAIA'
   >>> data_release   = 'Gaia DR3'     # Options are: 'Gaia DR3' (default), 'Gaia DR2'
   >>> datalink = Gaia.load_data(ids=[2263166706630078848, 2263178457660566784, 2268372099615724288],
   ...                           data_release=data_release, retrieval_type=retrieval_type, data_structure=data_structure)
