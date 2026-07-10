@@ -416,7 +416,7 @@ class TestMast:
         ('jwst', {'fileSetName': 'jw01189001001_02101_00001'}),
         ('classy', {'Target': 'J0021+0052'}),
         ('ullyses', {'host_galaxy_name': 'WLM', 'select_cols': ['observation_id']}),
-        ('roman', {'program': 163, 'pass_id': 1}),
+        ('roman', {'productLevel': 4, 'dataset_category': 'spectra'}),
         ('iue', {'iue_data_id': 'LWR08496'}),
     ])
     def test_missions_workflow(self, tmp_path, mission, query_params):
