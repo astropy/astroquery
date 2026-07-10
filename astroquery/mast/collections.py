@@ -264,10 +264,12 @@ class CatalogsClass(MastQueryWithLogin):
             elif catalog.lower() == "gaia":
                 if version == 1:
                     service = "Mast.Catalogs.GaiaDR1.Cone"
-                else:
-                    if version not in (None, 2):
-                        warnings.warn("Invalid Gaia version number, defaulting to DR2.", InputWarning)
+                elif version == 2:
                     service = "Mast.Catalogs.GaiaDR2.Cone"
+                else:
+                    if version not in (None, 3):
+                        warnings.warn("Invalid Gaia version number, defaulting to DR3.", InputWarning)
+                    service = "Mast.Catalogs.GaiaDR3.Cone"
 
             elif catalog.lower() == 'plato':
                 if version in (None, 1):
