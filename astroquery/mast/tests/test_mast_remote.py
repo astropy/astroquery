@@ -464,6 +464,7 @@ class TestMast:
         if mission == 'roman' and asdf is not None:
             assert isinstance(obj, asdf.AsdfFile)
         assert isinstance(obj, fits.HDUList)
+        obj.close()
 
     ###################
     # MastClass tests #
