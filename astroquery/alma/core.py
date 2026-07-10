@@ -210,14 +210,14 @@ def _gen_sql(payload):
 def get_enhanced_table(result):
     """
     Returns an enhanced table with quantities instead of values and regions for footprints.
-    Note that this function is dependent on the ``astropy`` - affiliated `regions`_ package.
+    Note that this function is dependent on the ``astropy`` - affiliated ``regions`` package.
     """
     try:
         import regions
     except ImportError:
         print(
             "Could not import astropy-regions, which is a requirement for get_enhanced_table function in alma."
-            "Please refer to the `regions`_ documentation for installation instructions.")
+            "Please refer to the ``regions`` documentation for installation instructions.")
         raise
 
     def _parse_stcs_string(input):
@@ -494,7 +494,7 @@ class AlmaClass(QueryWithLogin):
             calibration, None to return both
         enhanced_results : bool
             True to return a table with quantities instead of just values. It
-            also returns the footprint as `regions`_ objects.
+            also returns the footprint as ``regions`` objects.
         payload : dict
             Dictionary of additional keywords.  See `help`.
         """
@@ -528,7 +528,7 @@ class AlmaClass(QueryWithLogin):
             Dictionary of additional keywords.  See `help`.
         enhanced_results : bool
             True to return a table with quantities instead of just values. It
-            also returns the footprints as `regions`_ objects.
+            also returns the footprints as ``regions`` objects.
         """
         rad = radius
         if not isinstance(radius, u.Quantity):
@@ -571,7 +571,7 @@ class AlmaClass(QueryWithLogin):
             Cap on the amount of records returned.  Default is no limit.
         enhanced_results : bool
             True to return a table with quantities instead of just values. It
-            also returns the footprints as `regions`_ objects.
+            also returns the footprints as ``regions`` objects.
 
         Returns
         -------
