@@ -53,7 +53,7 @@ docs = [
    "matplotlib",
    "sphinx-astropy>=1.5",
    "scipy",
-   "fsspec[http]"
+   "fsspec[http]",
 ]
 all = [
    "mocpy>=0.12",
@@ -61,11 +61,7 @@ all = [
    "boto3",
    "botocore",
    "regions>=0.5",
-   "asdf",
-   "lz4",
-   "gwcs",
    "roman_datamodels",
-   "fsspec[http,s3]"
 ]
 
 [build-system]
