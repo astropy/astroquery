@@ -42,9 +42,9 @@ test = [
    # Temp workaround for https://github.com/RKrahl/pytest-dependency/issues/91
    "pytest-dependency; platform_system != 'Windows'",
    "pytest-rerunfailures",
-   "fsspec[http,s3]",
+   "fsspec[http]",
    "moto[s3]",
-   "asdf"
+   "s3fs"
 ]
 docs = [
    "sphinx",
@@ -54,7 +54,6 @@ docs = [
    "sphinx-astropy>=1.5",
    "scipy",
    "fsspec[http]",
-   "asdf"
 ]
 all = [
    "mocpy>=0.12",
