@@ -30,6 +30,12 @@ try:
 except ImportError:
     pass
 
+try:
+    # Optional dependency import for ASDF file handling
+    import asdf
+except ImportError:
+    pass
+
 DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Name.Lookup': 'resolver.json',
               'mission_search_results': 'mission_results.json',
@@ -1388,10 +1394,13 @@ def mock_asdf_open(mocker):
     fake.open.return_value = "mock_asdf_file_object"
     mocker.patch("fsspec.open", return_value=fake)
 
-    return mocker.patch(
-        "asdf.open",
-        return_value=MagicMock(name="AsdfFile"),
-    )
+    # Create a mock AsdfFile
+    if asdf is not None:
+        mock_asdf_file = MagicMock(spec=asdf.AsdfFile)
+    else:
+        mock_asdf_file = MagicMock()
+
+    return mocker.patch("asdf.open", return_value=mock_asdf_file)
 
 
 @pytest.mark.parametrize(
