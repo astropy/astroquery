@@ -1,24 +1,22 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import logging
-from pathlib import Path
-import numpy as np
-import os
-import pytest
 import json
+import logging
+import os
+from pathlib import Path
 
-from requests.models import Response
-
-from astropy.table import Table, unique
+import astropy.units as u
+import numpy as np
+import pytest
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
-import astropy.units as u
+from astropy.table import Table, unique
+from requests.models import Response
 
-from astroquery.mast import Observations, utils, Mast, Catalogs, Hapcut, Tesscut, Zcut, MastMissions
+from astroquery.mast import (Catalogs, Hapcut, Mast, MastMissions, Observations, Tesscut, Zcut, utils)
 
+from ...exceptions import (InputWarning, InvalidQueryError, MaxResultsWarning, NoResultsWarning)
 from ..utils import ResolverError
-from ...exceptions import (InputWarning, InvalidQueryError, MaxResultsWarning,
-                           NoResultsWarning)
 
 try:
     import asdf
@@ -71,8 +69,10 @@ class TestMast:
 
         # Try the same object with different resolvers
         # The position of objects can change with different resolvers
-        ned_loc = utils.resolve_object("jw100", resolver="NED")
-        assert round(ned_loc.separation(SkyCoord("354.10436 21.15083", unit='deg')).value, 4) == 0
+        # TODO: Commenting out NED resolver test for now since we've been having issues with NED service availability.
+        # Re-enable this test once the service is stable.
+        # ned_loc = utils.resolve_object("jw100", resolver="NED")
+        # assert round(ned_loc.separation(SkyCoord("354.10436 21.15083", unit='deg')).value, 4) == 0
 
         simbad_loc = utils.resolve_object("jw100", resolver="simbad")
         assert round(simbad_loc.separation(SkyCoord("83.70341477 -5.55918309", unit="deg")).value, 4) == 0
@@ -84,7 +84,7 @@ class TestMast:
         # Use resolve_all to get all resolvers
         loc_dict = utils.resolve_object("jw100", resolve_all=True)
         assert isinstance(loc_dict, dict)
-        assert loc_dict['NED'] == ned_loc
+        # assert loc_dict['NED'] == ned_loc
         assert loc_dict['SIMBAD'] == simbad_loc
 
         # Error if coordinates cannot be resolved
@@ -92,8 +92,8 @@ class TestMast:
             utils.resolve_object("invalid")
 
         # Error if coordinates cannot be resolved with a specific resolver
-        with pytest.raises(ResolverError, match='Could not resolve "invalid" to a sky position using resolver "NED"'):
-            utils.resolve_object("invalid", resolver="NED")
+        with pytest.raises(ResolverError, match='not resolve "invalid" to a sky position using resolver "SIMBAD"'):
+            utils.resolve_object("invalid", resolver="SIMBAD")
 
     ###########################
     # MissionSearchClass Test #

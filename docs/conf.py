@@ -12,7 +12,6 @@
 # See astropy.sphinx.conf for which values are set there.
 
 import datetime
-import os
 import sys
 import tomllib
 from pathlib import Path
