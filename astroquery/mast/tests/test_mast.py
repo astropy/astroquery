@@ -1381,33 +1381,17 @@ def mock_fits_open(mocker):
 
 @pytest.fixture
 def mock_asdf_open(mocker):
+    pytest.importorskip("asdf")
+    pytest.importorskip("fsspec")
+
+    fake = mocker.Mock()
+    fake.open.return_value = "mock_asdf_file_object"
+    mocker.patch("fsspec.open", return_value=fake)
+
     return mocker.patch(
         "asdf.open",
         return_value=MagicMock(name="AsdfFile"),
     )
-
-
-@pytest.fixture
-def mock_fsspec_open(mocker):
-    fake = mocker.Mock()
-    fake.open.return_value = "mock_asdf_file_object"
-    return mocker.patch("fsspec.open", return_value=fake)
-
-
-def test_observations_read_product_fits(mock_fits_open):
-    s3_fits_path = "s3://mock_fits_path.fits"
-    result = Observations.read_product(s3_fits_path)
-
-    mock_fits_open(s3_fits_path, fsspec_kwargs={"anon": True})
-    assert result is mock_fits_open.return_value
-
-
-def test_observations_read_product_asdf(mock_asdf_open, mock_fsspec_open):
-    s3_asdf_path = "s3://fake_asdf_path.asdf"
-    result = Observations.read_product(s3_asdf_path)
-
-    mock_asdf_open("mock_asdf_file_object")
-    assert result is mock_asdf_open.return_value
 
 
 @pytest.mark.parametrize(
@@ -1424,20 +1408,63 @@ def test_observations_read_product_invalid_inputs(product_path, expected_excepti
         Observations.read_product(product_path)
 
 
-def test_observations_read_product_fsspec_missing(monkeypatch):
-    # Forces fsspec to be None
-    monkeypatch.setitem(Observations.read_product.__globals__, "fsspec", None)
+@pytest.mark.parametrize(
+    ("module_name", "filename"),
+    [
+        ("fsspec", "file.fits"),
+        ("asdf", "file.asdf"),
+    ],
+)
+def test_observations_read_product_dependency_missing(monkeypatch, module_name, filename):
+    monkeypatch.setitem(Observations.read_product.__globals__, module_name, None)
 
-    with pytest.raises(ImportError, match="fsspec"):
-        Observations.read_product("file.fits")
+    with pytest.raises(ImportError, match=module_name):
+        Observations.read_product(filename)
 
 
-def test_observations_read_product_asdf_missing(monkeypatch):
-    # Forces asdf to be None
-    monkeypatch.setitem(Observations.read_product.__globals__, "asdf", None)
+def test_observations_read_product_fits(mock_fits_open):
+    s3_fits_path = "s3://mock_fits_path.fits"
+    result = Observations.read_product(s3_fits_path)
 
-    with pytest.raises(ImportError, match="asdf"):
-        Observations.read_product("file.asdf")
+    mock_fits_open(s3_fits_path, fsspec_kwargs={"anon": True})
+    assert result is mock_fits_open.return_value
+
+
+def test_observations_read_product_asdf(mocker, mock_asdf_open):
+    # Mock importlib.util.find_spec to always return a spec (all packages present)
+    mocker.patch("importlib.util.find_spec", return_value=MagicMock())
+
+    s3_asdf_path = "s3://fake_asdf_path.asdf"
+    result = Observations.read_product(s3_asdf_path)
+
+    mock_asdf_open("mock_asdf_file_object")
+    assert result is mock_asdf_open.return_value
+
+
+def test_observations_read_product_asdf_missing_packages(mocker, mock_asdf_open):
+    """Test that warnings are issued for missing ASDF-related packages."""
+    # Mock importlib.util.find_spec to return None for the packages
+    def mock_find_spec(package_name):
+        if package_name in ["gwcs", "lz4", "roman_datamodels"]:
+            return None  # Simulate missing package
+        return MagicMock()  # Return something for other packages
+
+    mocker.patch("importlib.util.find_spec", side_effect=mock_find_spec)
+
+    # Capture warnings
+    with pytest.warns(ImportWarning) as warning_list:
+        obj = Observations.read_product("s3://fake_asdf_path.asdf")
+
+    # Check that warnings were issued for all three packages
+    assert len(warning_list) == 3
+    warning_messages = [str(w.message) for w in warning_list]
+
+    for package in ["gwcs", "lz4", "roman_datamodels"]:
+        assert any(package in msg and "encouraged" in msg for msg in warning_messages)
+
+    # Verify the object is still returned correctly
+    assert obj == mock_asdf_open.return_value
+
 
 ######################
 # CatalogClass tests #

@@ -11,6 +11,7 @@ import time
 import warnings
 from pathlib import Path
 from urllib.parse import quote
+import importlib
 
 import astropy.coordinates as coord
 import astropy.units as u
@@ -1275,7 +1276,7 @@ class ObservationsClass(MastQueryWithLogin):
         # Forces the path to be lowercase for the extension checks. This is only used for the checks
         path = str(product_path).lower()
 
-        # Checks users enviornment for fsspec, required for both fits and asdf
+        # Checks users environment for fsspec, required for both fits and asdf
         if fsspec is None:
             raise ImportError('The "fsspec" package is required to read products directly from a URI. '
                               'Please install it with `pip install fsspec`.')
@@ -1291,14 +1292,17 @@ class ObservationsClass(MastQueryWithLogin):
 
         # Logic for reading ASDF files
         elif path.endswith(".asdf"):
-            if fsspec is None:
-                raise ImportError('The "fsspec" package is required to read products directly from a URI. '
-                                  'Please install it with `pip install fsspec` or install astroquery with '
-                                  'optional dependencies using `pip install astroquery[all]`.')
             if asdf is None:
                 raise ImportError('The "asdf" package is required to read ASDF files. Please install it with '
                                   '`pip install asdf` or install astroquery with optional dependencies using '
                                   '`pip install astroquery[all]`.')
+
+            for package in ["gwcs", "lz4", "roman_datamodels"]:
+                if importlib.util.find_spec(package) is None:
+                    warnings.warn(f'The "{package}" package is encouraged when reading ASDF files from the '
+                                  f'Roman Space Telescope mission. Please install it with `pip install {package}` '
+                                  f'or install astroquery with optional dependencies using '
+                                  f'`pip install astroquery[all]`.', ImportWarning)
 
             # Attempts to open the asdf files
             try:
