@@ -622,12 +622,16 @@ def test_download_data__sciserver():
 
 
 def test_download_data__outside_sciserver():
+    link = 'some-link'
     with pytest.raises(
-        FileNotFoundError,
-        match="No data archive found. This should be run on Sciserver",
+        ValueError,
+        match=(
+            f'No data found in {link}. '
+            'Make sure you are running this on Sciserver. '
+        ),
     ):
         Heasarc.download_data(
-            Table({"sciserver": ["some-link"]}), host="sciserver"
+            Table({"sciserver": [link]}), host="sciserver"
         )
 
 
