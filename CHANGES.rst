@@ -110,8 +110,8 @@ heasarc
 - Add support for uploading tables when using TAP directly through ``query_tap``. [#3403]
 - Add automatic guessing for the data host in ``download_data``. [#3403]
 - Include method to count the number of rows in a specified table. [#3549]
-- Fix ``query_region`` for catalog=None. It should fail early. []
-- Fix ``query_region`` when passing ``add_offset`` along with ``columns=None``. []
+- Fix ``query_region`` for catalog=None. It should fail early. [#3630]
+- Fix ``query_region`` when passing ``add_offset`` along with ``columns=None``. [#3630]
 
 gaia
 ^^^^
