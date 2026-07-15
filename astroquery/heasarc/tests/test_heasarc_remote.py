@@ -139,10 +139,12 @@ class TestHeasarc:
         assert "swiftmastr" in catalogs
 
     def test_list_catalogs__keywords(self):
-        catalogs = list(Heasarc.list_catalogs(keywords="nustar", master=True)["name"])
+        catalogs = list(
+            Heasarc.list_catalogs(keywords="nustar", master=True)["name"])
         assert len(catalogs) == 1 and "numaster" in catalogs
 
-        catalogs = list(Heasarc.list_catalogs(keywords="xmm", master=True)["name"])
+        catalogs = list(
+            Heasarc.list_catalogs(keywords="xmm", master=True)["name"])
         assert len(catalogs) == 1 and "xmmmaster" in catalogs
 
         catalogs = list(Heasarc.list_catalogs(keywords=["swift", "rosat"],
@@ -150,7 +152,6 @@ class TestHeasarc:
         assert "swiftmastr" in catalogs
         assert "rosmaster" in catalogs
         assert "rassmaster" in catalogs
-
 
     @pytest.mark.parametrize("tdefault", DEFAULT_COLS)
     def test__get_default_columns(self, tdefault):
@@ -195,9 +196,12 @@ class TestHeasarc:
         with tempfile.TemporaryDirectory() as tmpdir:
             Heasarc.download_data(tab, host="heasarc", location=tmpdir)
             assert os.path.exists(f"{tmpdir}/stdprod")
-            assert os.path.exists(f"{tmpdir}/stdprod/FHed_1791a7b9-1791a931.gz")
-            assert os.path.exists(f"{tmpdir}/stdprod/FHee_1791a7b9-1791a92f.gz")
-            assert os.path.exists(f"{tmpdir}/stdprod/FHef_1791a7b9-1791a92f.gz")
+            assert os.path.exists(
+                f"{tmpdir}/stdprod/FHed_1791a7b9-1791a931.gz")
+            assert os.path.exists(
+                f"{tmpdir}/stdprod/FHee_1791a7b9-1791a92f.gz")
+            assert os.path.exists(
+                f"{tmpdir}/stdprod/FHef_1791a7b9-1791a92f.gz")
 
     def test_download_data__s3_file(self):
         filename = "00README"
@@ -223,9 +227,12 @@ class TestHeasarc:
             Heasarc.enable_cloud(provider='aws', profile=None)
             Heasarc.download_data(tab, host="aws", location=tmpdir)
             assert os.path.exists(f"{tmpdir}/stdprod")
-            assert os.path.exists(f"{tmpdir}/stdprod/FHed_1791a7b9-1791a931.gz")
-            assert os.path.exists(f"{tmpdir}/stdprod/FHee_1791a7b9-1791a92f.gz")
-            assert os.path.exists(f"{tmpdir}/stdprod/FHef_1791a7b9-1791a92f.gz")
+            assert os.path.exists(
+                f"{tmpdir}/stdprod/FHed_1791a7b9-1791a931.gz")
+            assert os.path.exists(
+                f"{tmpdir}/stdprod/FHee_1791a7b9-1791a92f.gz")
+            assert os.path.exists(
+                f"{tmpdir}/stdprod/FHef_1791a7b9-1791a92f.gz")
 
     def test_query_mission_columns(self):
         with pytest.warns(AstropyDeprecationWarning):
@@ -268,10 +275,10 @@ class TestHeasarc:
         """
         cat = "suzamaster"
         assert Heasarc.count_rows(cat) == 3055
-    
+
     def test_query_region_offset_with_no_column(self):
         # use columns='*' to avoid remote call to obtain the default columns
-        query = Heasarc.query_region(
+        _ = Heasarc.query_region(
             OBJ_LIST[0],
             catalog="suzamaster",
             spatial="cone",

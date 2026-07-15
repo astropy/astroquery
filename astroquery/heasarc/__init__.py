@@ -40,7 +40,7 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .core import Heasarc, HeasarcClass
+from .core import Heasarc, HeasarcClass  # noqa E402
 
 __all__ = ['Heasarc', 'HeasarcClass',
            'Conf', 'conf',

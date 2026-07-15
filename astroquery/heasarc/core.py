@@ -21,9 +21,8 @@ __all__ = ['Heasarc', 'HeasarcClass']
 
 
 class HeasarcClass(BaseVOQuery, BaseQuery):
-    """Class for accessing HEASARC data with VO protocol using the Xamin backend.
-
-
+    """Class for accessing HEASARC data with VO protocol using
+    the Xamin backend.
     """
 
     # we can move url to Config later
@@ -40,8 +39,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         self._meta_info = None
         self._catalog_msg = (
             "catalog name is required! "
-            "Use 'xray' to search the master X-ray catalog. Or list catalogs by"
-            "calling :meth:`~astroquery.heasarc.HeasarcClass.list_catalogs`"
+            "Use 'xray' to search the master X-ray catalog. Or list catalogs "
+            "by calling :meth:`~astroquery.heasarc.HeasarcClass.list_catalogs`"
         )
 
     @property
@@ -61,8 +60,9 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         This is a table that holds useful information such as
         the list of default columns per catalog, the reasonable default
         search radius per table that is appropriate for a mission etc.
-        Instead of making a server call for each catalog for that type information,
-        we do a single one and then post-process the resulting table.
+        Instead of making a server call for each catalog for that type
+        information, we do a single one and then post-process the resulting
+        table.
 
         These are not meant to be used directly by the user.
         """
@@ -350,7 +350,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         if columns is None:
             columns = ', '.join(self._get_default_columns(catalog))
-        
+
         if offset_column is not None:
             columns += offset_column
 
@@ -433,8 +433,9 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                        True, True, True, False)
     )
     def query_region(self, position=None, catalog=None, radius=None, *,
-                     spatial='cone', width=None, polygon=None, column_filters=None,
-                     add_offset=False, get_query_payload=False, columns=None, cache=False,
+                     spatial='cone', width=None, polygon=None,
+                     column_filters=None, add_offset=False,
+                     get_query_payload=False, columns=None, cache=False,
                      verbose=False, maxrec=None,
                      **kwargs):
         """Queries the HEASARC TAP server around a coordinate and returns a
@@ -490,7 +491,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         add_offset: bool
             If True and spatial=='cone', add a search_offset column that
             indicates the separation (in arcmin) between the requested
-            coordinate and the entry coordinates in the catalog. Default is False.
+            coordinate and the entry coordinates in the catalog.
+            Default is False.
         get_query_payload : bool, optional
             If `True` then returns the generated ADQL query as str.
             Defaults to `False`.
@@ -512,15 +514,15 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         # if we have column_filters and no position, assume all-sky search
         if position is None and column_filters is not None:
             spatial = 'all-sky'
-        
+
         # check for a valid catalog name
         if catalog is None:
             raise InvalidQueryError(self._catalog_msg)
-        
+
         # add_offset is valid only with cone searches
         if spatial != 'cone' and add_offset:
             raise InvalidQueryError("add_offset is valid only spatial=='cone'")
-        
+
         # to hold the offset columns, if needed
         offset_column = None
 
@@ -682,8 +684,9 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         if catalog_name is None:
             if not hasattr(self, '_last_catalog_name'):
-                raise ValueError('locate_data needs a catalog_name, and none '
-                                 'found from a previous search. Please provide one.')
+                raise ValueError(
+                    'locate_data needs a catalog_name, and none '
+                    'found from a previous search. Please provide one.')
             catalog_name = self._last_catalog_name
         if not (
             isinstance(catalog_name, str)
@@ -712,7 +715,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             dl_result['error_message'] != '',
             shrink=False
         )]
-        dl_result = dl_result[['ID', 'access_url', 'content_length', 'error_message']]
+        dl_result = dl_result[
+            ['ID', 'access_url', 'content_length', 'error_message']]
 
         # add sciserver and s3 columns
         newcol = [
@@ -810,9 +814,11 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         Parameters
         ----------
         links : `astropy.table.Table` or `astropy.table.Row`
-            A table (or row) of data links, typically the result of locate_data.
+            A table (or row) of data links, typically the result of
+            locate_data.
         host : str or None
-            The data host. The options are: None (default), heasarc, sciserver, aws.
+            The data host. The options are: None (default), heasarc,
+            sciserver, aws.
             If None, the host is guessed based on the environment.
             If host == 'sciserver', data is copied from the local mounted
             data drive.
@@ -990,8 +996,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         Parameters
         ----------
         catalog : str
-            The name of the catalog to query for a total number of rows. To list
-            the available catalogs, use
+            The name of the catalog to query for a total number of rows.
+            To list the available catalogs, use
             :meth:`~astroquery.heasarc.HeasarcClass.list_catalogs`.
 
         Returns
