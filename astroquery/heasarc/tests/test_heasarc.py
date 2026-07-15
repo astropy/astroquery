@@ -239,13 +239,11 @@ def test_no_catalog():
     with pytest.raises(InvalidQueryError):
         # OBJ_LIST[0] and radius added to avoid a remote call
         Heasarc.query_region(
-            OBJ_LIST[0], spatial="cone", columns="*", radius="2arcmin")
-
+            OBJ_LIST[0], catalog=None, spatial="cone")
 
 def test__query_execute_no_catalog():
     with pytest.raises(InvalidQueryError):
-        # OBJ_LIST[0] and radius added to avoid a remote call
-        Heasarc._query_execute(None)
+        Heasarc._query_execute(catalog=None)
 
 
 def test_parse_constraints_no_filter():

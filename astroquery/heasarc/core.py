@@ -38,6 +38,11 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         self._tap = None
         self._datalink = None
         self._meta_info = None
+        self._catalog_msg = (
+            "catalog name is required! "
+            "Use 'xray' to search the master X-ray catalog. Or list catalogs by"
+            "calling :meth:`~astroquery.heasarc.HeasarcClass.list_catalogs`"
+        )
 
     @property
     def tap(self):
@@ -326,8 +331,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             commons.suppress_vo_warnings()
 
         if catalog is None:
-            raise InvalidQueryError("catalog name is required! Use 'xray' "
-                                    "to search the master X-ray catalog")
+            raise InvalidQueryError(self._catalog_msg)
 
         if where is None:
             where = ''
@@ -501,6 +505,9 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         # if we have column_filters and no position, assume all-sky search
         if position is None and column_filters is not None:
             spatial = 'all-sky'
+        
+        if catalog is None:
+            raise InvalidQueryError(self._catalog_msg)
 
         if spatial.lower() == 'all-sky':
             where = ''
