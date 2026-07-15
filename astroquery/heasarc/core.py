@@ -933,7 +933,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         Users should be using `~self.download_data` instead
 
         """
-        if not os.path.exists('/FTP/'):
+        if not os.path.exists('/FTP/nusatr'):
             raise FileNotFoundError(
                 'No data archive found. This should be run on Sciserver '
                 'with the data drive mounted.'
