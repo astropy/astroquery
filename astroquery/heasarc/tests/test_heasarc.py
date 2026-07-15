@@ -241,6 +241,7 @@ def test_no_catalog():
         Heasarc.query_region(
             OBJ_LIST[0], catalog=None, spatial="cone")
 
+
 def test__query_execute_no_catalog():
     with pytest.raises(InvalidQueryError):
         Heasarc._query_execute(catalog=None)
@@ -620,16 +621,12 @@ def test_download_data__sciserver():
 
 
 def test_download_data__outside_sciserver():
-    link = 'some-link'
     with pytest.raises(
-        ValueError,
-        match=(
-            f'No data found in {link}. '
-            'Make sure you are running this on Sciserver. '
-        ),
+        FileNotFoundError,
+        match="No data archive found. This should be run on Sciserver",
     ):
         Heasarc.download_data(
-            Table({"sciserver": [link]}), host="sciserver"
+            Table({"sciserver": ["some-link"]}), host="sciserver"
         )
 
 
@@ -732,3 +729,17 @@ def test_s3_mock_directory(s3_mock):
 def test_row_count(mock_tap, mock_default_cols):
     cat = "name-1"
     assert Heasarc.count_rows(cat) == 3055
+
+
+def test_query_region_offset_with_no_column():
+    # use columns='*' to avoid remote call to obtain the default columns
+    query = Heasarc.query_region(
+        OBJ_LIST[0],
+        catalog="suzamaster",
+        spatial="cone",
+        radius="2arcmin",
+        columns='*',
+        get_query_payload=True,
+        add_offset=True,
+    )
+    assert ',DISTANCE(POINT(' in query

@@ -311,7 +311,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             The WHERE condition to be used in the query. It must
             include the 'WHERE' keyword or be empty.
         offset_column: str or None
-            If add_offset is True in query_regoni, this contains the
+            If add_offset is True in query_region, this contains the
             the string that addes that to the query.
         get_query_payload : bool, optional
             If `True` then returns the generated ADQL query as str.
@@ -350,7 +350,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         if columns is None:
             columns = ', '.join(self._get_default_columns(catalog))
-        
+
         if offset_column is not None:
             columns += offset_column
 
@@ -512,16 +512,16 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         # if we have column_filters and no position, assume all-sky search
         if position is None and column_filters is not None:
             spatial = 'all-sky'
-        
+
         # check for a valid catalog name
         if catalog is None:
             raise InvalidQueryError(self._catalog_msg)
-        
+
         # add_offset is valid only with cone searches
-        if spatial != 'cone' and add_offset:
+        if add_offset and spatial != 'cone':
             raise InvalidQueryError("add_offset is valid only spatial=='cone'")
-        
-        # to hold the offset columns, if needed
+
+        # to hold the offset column, if needed
         offset_column = None
 
         if spatial.lower() == 'all-sky':
@@ -927,7 +927,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         Users should be using `~self.download_data` instead
 
         """
-        if not os.path.exists('/FTP/'):
+        if not os.path.exists('/FTP/nusatr'):
             raise FileNotFoundError(
                 'No data archive found. This should be run on Sciserver '
                 'with the data drive mounted.'
