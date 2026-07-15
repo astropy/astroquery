@@ -296,6 +296,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             query, language='ADQL', maxrec=maxrec, uploads=uploads)
 
     def _query_execute(self, catalog=None, where=None, *,
+                       offset_column=None,
                        get_query_payload=False, columns=None,
                        verbose=False, maxrec=None):
         """Queries some catalog using the HEASARC TAP server based on the
@@ -309,6 +310,9 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         where : str
             The WHERE condition to be used in the query. It must
             include the 'WHERE' keyword or be empty.
+        offset_column: str or None
+            If add_offset is True in query_regoni, this contains the
+            the string that addes that to the query.
         get_query_payload : bool, optional
             If `True` then returns the generated ADQL query as str.
             Defaults to `False`.
@@ -346,6 +350,9 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         if columns is None:
             columns = ', '.join(self._get_default_columns(catalog))
+        
+        if offset_column is not None:
+            columns += offset_column
 
         if '__row' not in columns and columns != '*':
             columns += ', __row'
@@ -506,8 +513,16 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         if position is None and column_filters is not None:
             spatial = 'all-sky'
         
+        # check for a valid catalog name
         if catalog is None:
             raise InvalidQueryError(self._catalog_msg)
+        
+        # add_offset is valid only with cone searches
+        if spatial != 'cone' and add_offset:
+            raise InvalidQueryError("add_offset is valid only spatial=='cone'")
+        
+        # to hold the offset columns, if needed
+        offset_column = None
 
         if spatial.lower() == 'all-sky':
             where = ''
@@ -550,8 +565,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                          f"'ICRS',{ra},{dec},{radius.to(u.deg).value}))=1")
                 # add search_offset for the case of cone
                 if add_offset:
-                    columns += (",DISTANCE(POINT('ICRS',ra,dec), "
-                                f"POINT('ICRS',{ra},{dec})) as search_offset")
+                    offset_column = (
+                        ",DISTANCE(POINT('ICRS',ra,dec), "
+                        f"POINT('ICRS',{ra},{dec})) as search_offset"
+                    )
             elif spatial.lower() == 'box':
                 if isinstance(width, str):
                     width = coordinates.Angle(width)
@@ -574,6 +591,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         table_or_query = self._query_execute(
             catalog=catalog, where=where,
+            offset_column=offset_column,
             get_query_payload=get_query_payload,
             columns=columns, verbose=verbose,
             maxrec=maxrec
