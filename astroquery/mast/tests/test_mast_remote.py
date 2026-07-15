@@ -1069,6 +1069,9 @@ class TestMast:
         ],
     )
     def test_observations_read_product(self, product_path, expected_type):
+        pytest.importorskip("asdf")
+        pytest.importorskip("fsspec")
+
         product = Observations.read_product(product_path)
         assert isinstance(product, expected_type)
 
