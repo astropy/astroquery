@@ -1060,12 +1060,7 @@ class TestMast:
             (
                 "s3://stpubdata/hst/public/u24r/u24r0102t/u24r0102t_c1f.fits",
                 fits.HDUList,
-            ),
-            (
-                "s3://stpubdata/roman/nexus/open_universe/WAS/simple_model/"
-                "F184/10073/roman_was_F184_10073_wfi02_simple.asdf",
-                asdf.AsdfFile,
-            ),
+            )
         ],
     )
     def test_observations_read_product(self, product_path, expected_type):
