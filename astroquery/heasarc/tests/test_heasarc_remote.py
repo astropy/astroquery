@@ -268,6 +268,18 @@ class TestHeasarc:
         """
         cat = "suzamaster"
         assert Heasarc.count_rows(cat) == 3055
+    
+    def test_query_region_offset_with_no_column(self):
+        # use columns='*' to avoid remote call to obtain the default columns
+        query = Heasarc.query_region(
+            OBJ_LIST[0],
+            catalog="suzamaster",
+            spatial="cone",
+            radius="2arcmin",
+            columns=None,
+            get_query_payload=True,
+            add_offset=True,
+        )
 
 
 @pytest.mark.remote_data
