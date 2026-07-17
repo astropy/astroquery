@@ -785,6 +785,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             # we are on idies, so we can use sciserver
             return 'sciserver'
 
+        # Check for the mounted S3 bucket and the current Fornax build version
+        if os.path.exists("/opt/build-fornax-jupyter") and os.path.exists('/archive-data/nasa-heasarc/'):
+            return 'fornax'
+
         for var in ['AWS_REGION', 'AWS_DEFAULT_REGION', 'AWS_ROLE_ARN']:
             if var in os.environ:
                 return 'aws'
