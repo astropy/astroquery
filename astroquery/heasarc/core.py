@@ -700,7 +700,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         # Construct S3 URIs
         s3_new_col = [f"s3://{self.S3_BUCKET}/{row[5:]}" if row != '' else ''
-                  for row in dl_result['sciserver']]
+                      for row in dl_result['sciserver']]
         dl_result.add_column(s3_new_col, name='aws', index=3)
 
         # Construct Fornax paths (very similar to SciServer)
@@ -939,17 +939,16 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         # Check that the input host is valid for this method.
         valid_hosts = {"fornax": "Fornax", "sciserver": "SciServer"}
         if host not in valid_hosts:
-            raise ValueError(
-                f'`host` must be either "sciserver" or "fornax".')
+            raise ValueError('`host` must be either "sciserver" or "fornax".')
 
         # Check that data are mounted where we expect them to be for SciServer
         #  and Fornax
-        if ((host == 'sciserver' and not os.path.exists('/FTP/')) or
-                (host == 'fornax' and not os.path.exists('/archive-data/nasa-heasarc/'))):
+        if ((host == 'sciserver' and not os.path.exists('/FTP/'))
+                or (host == 'fornax' and not os.path.exists('/archive-data/nasa-heasarc/'))):
 
             raise FileNotFoundError(
-                f'No data archive found. This should be run on {valid_hosts[host]}'
-                 'with the data drive mounted.'
+                f'No data archive found. This should be run on {valid_hosts[host]} '
+                f'with the data drive mounted.'
             )
 
         # If we've got to this point, we are going to be able to copy some data, so
