@@ -51,7 +51,7 @@ docs = [
    # https://github.com/astropy/astroquery/issues/3102
    "sphinx-automodapi",
    "matplotlib",
-   "sphinx-astropy>=1.5",
+   "sphinx-astropy[confv3]>=1.11",
    "scipy",
    "fsspec[http]",
 ]
