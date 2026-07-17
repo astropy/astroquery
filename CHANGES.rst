@@ -143,7 +143,7 @@ ipac.irsa
   ``AstropyDeprecationWarning``. [#3607]
 - ``query_sia`` and ``query_ssa`` now raise ``InvalidQueryError`` for a
   collection that doesn't exist, rather than silently returning an empty
-  table. The valid collection names are cached on the instance. [#XXXX]
+  table. The valid collection names are cached on the instance. [#3631]
 
 
 mast
