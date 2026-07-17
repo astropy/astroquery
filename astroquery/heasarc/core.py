@@ -796,7 +796,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
     def download_data(self, links, *, host=None, location='.'):
         """Download data products in links with a choice of getting the
-        data from either the heasarc server, sciserver, or the cloud in AWS.
+        data from either the HEASARC FTP server, SciServer, Fornax, or the cloud in AWS.
 
 
         Parameters
@@ -844,17 +844,22 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         if host == 'heasarc':
 
-            log.info('Downloading data from the HEASARC ...')
+            log.info('Downloading data from the HEASARC FTP ...')
             self._download_heasarc(links, location)
 
         elif host == 'sciserver':
 
-            log.info('Copying data on Sciserver ...')
-            self._copy_sciserver(links, location)
+            log.info('Copying data on SciServer ...')
+            self._copy_locally_mounted(links, location)
+
+        elif host == 'fornax':
+
+            log.info('Copying data on Fornax ...')
+            self._copy_locally_mounted(links, location)
 
         elif host == 'aws':
 
-            log.info('Downloading data AWS S3 ...')
+            log.info('Downloading data from the HEASARC AWS S3 ...')
             self._download_s3(links, location)
 
     def _download_heasarc(self, links, location='.'):
@@ -869,7 +874,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             The result from locate_data
         location : str
             local folder where the downloaded file will be saved.
-            Default is current working directory
+            Default is the current working directory
 
         """
         # The limit comes from the size of the string in the POST request
@@ -914,29 +919,51 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                 'An error occurred when downloading the data. Retry again.'
             )
 
-    def _copy_sciserver(self, links, location='.'):
-        """Copy data from the local archive on sciserver
+    @staticmethod
+    def _copy_locally_mounted(links, location, host):
+        """Copy data from a locally mounted HEASARC, either on SciServer or Fornax.
 
         Do not call directly.
-        Users should be using `~self.download_data` instead
+        Users should be calling `~self.download_data` instead.
 
+        Parameters
+        ----------
+        links : `astropy.table.Table`
+            The result from locate_data
+        location : str
+            local folder where the downloaded file will be saved.
+            Default is the current working directory
+        host : str
+            Name of the host system. Either 'sciserver' or 'fornax'.
         """
-        if not os.path.exists('/FTP/'):
+        # Check that the input host is valid for this method.
+        valid_hosts = {"fornax": "Fornax", "sciserver": "SciServer"}
+        if host not in valid_hosts:
+            raise ValueError(
+                f'`host` must be either "sciserver" or "fornax".')
+
+        # Check that data are mounted where we expect them to be for SciServer
+        #  and Fornax
+        if ((host == 'sciserver' and not os.path.exists('/FTP/')) or
+                (host == 'fornax' and not os.path.exists('/archive-data/nasa-heasarc/'))):
+
             raise FileNotFoundError(
-                'No data archive found. This should be run on Sciserver '
+                f'No data archive found. This should be run on {valid_hosts[host]}'
                 'with the data drive mounted.'
             )
 
-        # make sure the output folder exits
+        # If we've got to this point, we are going to be able to copy some data, so
+        #  we make sure that the user-specified 'download' output location exists
         os.makedirs(location, exist_ok=True)
 
-        for link in links['sciserver']:
+        # Now we iterate through the data links and copy the data
+        for link in links[host]:
             link = str(link)
-            log.info(f'Copying to {link} from the data drive ...')
+            log.info(f'Copying {link} from the data drive ...')
             if not os.path.exists(link):
                 raise ValueError(
                     f'No data found in {link}. '
-                    'Make sure you are running this on Sciserver. '
+                    f'Make sure you are running this on {valid_hosts[host]}. '
                     'If you think data is missing, please contact the '
                     'Heasarc Help desk'
                 )
