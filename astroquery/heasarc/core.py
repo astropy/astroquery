@@ -850,12 +850,12 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         elif host == 'sciserver':
 
             log.info('Copying data on SciServer ...')
-            self._copy_locally_mounted(links, location)
+            self._copy_locally_mounted(links, location, host)
 
         elif host == 'fornax':
 
             log.info('Copying data on Fornax ...')
-            self._copy_locally_mounted(links, location)
+            self._copy_locally_mounted(links, location, host)
 
         elif host == 'aws':
 
