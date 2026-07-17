@@ -689,16 +689,27 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         )]
         dl_result = dl_result[['ID', 'access_url', 'content_length', 'error_message']]
 
-        # add sciserver and s3 columns
-        newcol = [
+        # add sciserver, s3, and Fornax columns
+        # Construct SciServer paths
+        sci_new_col = [
             f"/FTP/{row.split('FTP/')[1]}".replace('//', '/')
             if 'FTP' in row else ''
             for row in dl_result['access_url']
         ]
-        dl_result.add_column(newcol, name='sciserver', index=2)
-        newcol = [f"s3://{self.S3_BUCKET}/{row[5:]}" if row != '' else ''
+        dl_result.add_column(sci_new_col, name='sciserver', index=2)
+
+        # Construct S3 URIs
+        s3_new_col = [f"s3://{self.S3_BUCKET}/{row[5:]}" if row != '' else ''
                   for row in dl_result['sciserver']]
-        dl_result.add_column(newcol, name='aws', index=3)
+        dl_result.add_column(s3_new_col, name='aws', index=3)
+
+        # Construct Fornax paths (very similar to SciServer)
+        fornax_new_col = [
+            f"/archive-data/nasa-heasarc/{row.split('FTP/')[1]}".replace('//', '/')
+            if 'FTP' in row else ''
+            for row in dl_result['access_url']
+        ]
+        dl_result.add_column(fornax_new_col, name='fornax', index=2)
 
         return dl_result
 
