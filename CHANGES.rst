@@ -215,6 +215,13 @@ simbad
 - Add the possibility to declare more information in the HTTP User-Agent header
   in ``SimbadClass`` [#3529]
 
+vizier
+~~~~~~
+
+- When server-side errors occur (ex: VizieR is overloaded), the response is not kept in
+  astroquery's cache anymore, and a Python error is raised instead of returning a
+  misleading empty ``TableList`` [#3632]
+
 xmatch
 ^^^^^^
 
