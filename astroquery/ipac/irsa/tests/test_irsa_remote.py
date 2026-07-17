@@ -6,6 +6,7 @@ from astropy.table import Table
 from astropy.coordinates import SkyCoord
 from astropy.utils.exceptions import AstropyDeprecationWarning
 
+from astroquery.exceptions import InvalidQueryError
 from astroquery.ipac.irsa import Irsa
 
 
@@ -116,6 +117,17 @@ class TestIrsa:
         spitzer_collections = Irsa.list_collections(filter='spitzer')
 
         assert len(spitzer_collections) == 47
+
+    @pytest.mark.parametrize('servicetype', ('SIA', 'SSA'))
+    def test_query_invalid_collection(self, servicetype):
+        query = getattr(Irsa, f'query_{servicetype.lower()}')
+        with pytest.raises(InvalidQueryError,
+                           match=f"'foobar' is not a valid {servicetype} collection."):
+            query(collection='foobar')
+
+    def test_query_invalid_collection_close_match(self):
+        with pytest.raises(InvalidQueryError, match="Did you mean 'wise_allwise'\\?"):
+            Irsa.query_sia(collection='wise_allwize')
 
     def test_tap(self):
         query = "SELECT TOP 5 ra,dec FROM cosmos2015"

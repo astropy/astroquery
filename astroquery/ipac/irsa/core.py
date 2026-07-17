@@ -7,6 +7,7 @@ IRSA
 Module to query the IRSA archive.
 """
 
+import difflib
 import warnings
 from astropy.coordinates import SkyCoord, Angle
 from astropy import units as u
@@ -34,6 +35,7 @@ class IrsaClass(BaseVOQuery):
         self._sia = None
         self._ssa = None
         self._tap = None
+        self._collections_cache = {}
 
     @property
     def sia(self):
@@ -105,6 +107,8 @@ class IrsaClass(BaseVOQuery):
         Results in `~astropy.table.Table` format.
 
         """
+        self._validate_collection(collection=collection, servicetype='SIA')
+
         results = self.sia.search(
             pos=pos,
             band=band,
@@ -155,6 +159,7 @@ class IrsaClass(BaseVOQuery):
         -------
         Results in `~astropy.table.Table` format.
         """
+        self._validate_collection(collection=collection, servicetype='SSA')
 
         if radius is None:
             diameter = None
@@ -207,6 +212,36 @@ class IrsaClass(BaseVOQuery):
             mask = [filter in collection for collection in collections['collection']]
             collections = collections[mask]
         return collections
+
+    def _validate_collection(self, *, collection, servicetype):
+        """
+        Raise `~astroquery.exceptions.InvalidQueryError` if ``collection`` is not
+        available for ``servicetype``. Both a single collection name and a list of
+        them are accepted, ``None`` is a no-op.
+
+        The valid collection names are cached on the instance, as looking them up
+        requires a TAP query.
+        """
+        if collection is None:
+            return
+
+        if servicetype not in self._collections_cache:
+            self._collections_cache[servicetype] = sorted(
+                self.list_collections(servicetype=servicetype)['collection'])
+        valid_collections = self._collections_cache[servicetype]
+
+        if isinstance(collection, str):
+            collection = [collection]
+
+        for coll in collection:
+            if coll not in valid_collections:
+                error_msg = f"'{coll}' is not a valid {servicetype} collection. "
+                closest_match = difflib.get_close_matches(coll, valid_collections, n=1)
+                if closest_match:
+                    error_msg += f"Did you mean '{closest_match[0]}'? "
+                error_msg += ("To list the available collections, use "
+                              f"Irsa.list_collections(servicetype='{servicetype}').")
+                raise InvalidQueryError(error_msg)
 
     @deprecated_renamed_argument(("selcols", "cache", "verbose"), ("columns", None, None), since="0.4.7")
     def query_region(self, coordinates=None, *, catalog=None, spatial='Cone',

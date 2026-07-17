@@ -413,6 +413,18 @@ or spectral collectionsn, using ``'SSA'``.
    side, and therefore should return quickly with results.
    If you experience query timeout, please open an IRSA helpdesk ticket.
 
+Querying a collection that doesn't exist raises an
+`~astroquery.exceptions.InvalidQueryError` rather than returning an empty
+table, and suggests a close match when there is one:
+
+.. doctest-remote-data::
+
+   >>> from astroquery.ipac.irsa import Irsa
+   >>> Irsa.query_sia(collection='wise_allwize')  # doctest: +IGNORE_EXCEPTION_DETAIL
+   Traceback (most recent call last):
+   ...
+   astroquery.exceptions.InvalidQueryError: 'wise_allwize' is not a valid SIA collection. Did you mean 'wise_allwise'? To list the available collections, use Irsa.list_collections(servicetype='SIA').
+
 .. doctest-remote-data::
 
    >>> from astroquery.ipac.irsa import Irsa
