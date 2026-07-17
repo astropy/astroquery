@@ -563,7 +563,7 @@ def test__guess_host_default():
     assert Heasarc._guess_host(host=None) == 'heasarc'
 
 
-@pytest.mark.parametrize("host", ["heasarc", "sciserver", "aws"])
+@pytest.mark.parametrize("host", ["heasarc", "sciserver", "aws", "fornax"])
 def test__guess_host_know(host):
     # Use a new HeasarcClass object
     assert Heasarc._guess_host(host=host) == host
@@ -588,12 +588,12 @@ def test_download_data__empty():
 
 def test_download_data__wronghost():
     with pytest.raises(
-        ValueError, match="host has to be one of heasarc, sciserver, aws"
+        ValueError, match="`host` must be one of the following; heasarc/sciserver/aws/fornax/None."
     ):
         Heasarc.download_data(Table({"id": [1]}), host="nohost")
 
 
-@pytest.mark.parametrize("host", ["heasarc", "sciserver", "aws"])
+@pytest.mark.parametrize("host", ["heasarc", "sciserver", "aws", "fornax"])
 def test_download_data__missingcolumn(host):
     host_col = "access_url" if host == "heasarc" else host
     with pytest.raises(
@@ -603,7 +603,8 @@ def test_download_data__missingcolumn(host):
         Heasarc.download_data(Table({"id": [1]}), host=host)
 
 
-def test_download_data__sciserver():
+@pytest.mark.parametrize("host", ["sciserver", "fornax"])
+def test_download_data__local_mount(host):
     with tempfile.TemporaryDirectory() as tmpdir:
         datadir = f'{tmpdir}/data'
         downloaddir = f'{tmpdir}/download'
@@ -611,11 +612,11 @@ def test_download_data__sciserver():
         with open(f'{datadir}/file.txt', 'w') as fp:
             fp.write('data')
         # include both a file and a directory
-        tab = Table({'sciserver': [f'{tmpdir}/data/file.txt', f'{tmpdir}/data']})
+        tab = Table({host: [f'{tmpdir}/data/file.txt', f'{tmpdir}/data']})
         # The patch is to avoid the test that we are on sciserver
         with patch('os.path.exists') as exists:
             exists.return_value = True
-            Heasarc.download_data(tab, host="sciserver", location=downloaddir)
+            Heasarc.download_data(tab, host=host, location=downloaddir)
         assert os.path.exists(f'{downloaddir}/file.txt')
         assert os.path.exists(f'{downloaddir}/data')
         assert os.path.exists(f'{downloaddir}/data/file.txt')
@@ -624,10 +625,20 @@ def test_download_data__sciserver():
 def test_download_data__outside_sciserver():
     with pytest.raises(
         FileNotFoundError,
-        match="No data archive found. This should be run on Sciserver",
+        match="No data archive found. This should be run on SciServer with the data drive mounted.",
     ):
         Heasarc.download_data(
             Table({"sciserver": ["some-link"]}), host="sciserver"
+        )
+
+
+def test_download_data__outside_fornax():
+    with pytest.raises(
+        FileNotFoundError,
+        match="No data archive found. This should be run on Fornax with the data drive mounted.",
+    ):
+        Heasarc.download_data(
+            Table({"fornax": ["some-link"]}), host="fornax"
         )
 
 

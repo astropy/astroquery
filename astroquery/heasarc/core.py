@@ -949,7 +949,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
             raise FileNotFoundError(
                 f'No data archive found. This should be run on {valid_hosts[host]}'
-                'with the data drive mounted.'
+                 'with the data drive mounted.'
             )
 
         # If we've got to this point, we are going to be able to copy some data, so
