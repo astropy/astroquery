@@ -754,12 +754,13 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         self.s3_client = self.s3_resource.meta.client
 
-    def _guess_host(self, host):
+    @staticmethod
+    def _guess_host(host):
         """Guess the host to use for downloading data
 
         Parameters
         ----------
-        host : str
+        host : str or None
             The host provided by the user
 
         Returns
@@ -768,11 +769,12 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             The guessed host
 
         """
-        if host in ['heasarc', 'sciserver', 'aws']:
+        all_hosts = ['heasarc', 'sciserver', 'aws', 'fornax']
+        if host in all_hosts:
             return host
         elif host is not None:
             raise ValueError(
-                'host has to be one of heasarc, sciserver, aws or None')
+                f'`host` must be one of the following; {"/".join(all_hosts)}/None.')
 
         # host is None, so we guess
         if (
@@ -798,24 +800,26 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         links : `astropy.table.Table` or `astropy.table.Row`
             A table (or row) of data links, typically the result of locate_data.
         host : str or None
-            The data host. The options are: None (default), heasarc, sciserver, aws.
+            The data host. The options are: None (default), heasarc, sciserver, aws, and fornax.
             If None, the host is guessed based on the environment.
             If host == 'sciserver', data is copied from the local mounted
             data drive.
             If host == 'aws', data is downloaded from Amazon S3 Open
             Data Repository.
+            If host == 'fornax', the data is copied from the mounted HEASARC
+            S3 bucket.
         location : str
             local folder where the downloaded file will be saved.
-            Default is current working directory
+            Default is the current working directory
 
-        Note that ff you are downloading large datasets (more 10 10GB),
-        from the main heasarc server, it is recommended that you split
-        it up, so that if the downloaded is interrupted, you do not need
+        Note that if you are downloading large datasets (more than 10GB),
+        from the HEASARC FTP server, it is recommended that you split
+        the download up so that if it is interrupted, you do not need
         to start again.
         """
 
         if len(links) == 0:
-            raise ValueError('Input links table is empty')
+            raise ValueError('Input links table is empty.')
 
         if isinstance(links, Row):
             links = links.table[[links.index]]
