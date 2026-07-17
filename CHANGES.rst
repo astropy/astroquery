@@ -72,6 +72,28 @@ vizier
 
 - Methods ``get_catalog``, ``get_catalog_async`` and ``query_*`` now always return UCD1+ instead of UCD1. [#3458]
 
+fermi
+^^^^^
+
+- The module now uses the new Fermi LAT Data Query REST API
+  (``/ssc/data/access/lat/query/api/v1``), which replaces the retired
+  ``LATDataQuery.cgi`` endpoint whose HTML responses were previously scraped
+  with regular expressions. The user-facing ``FermiLAT.query_object()``
+  signature is unchanged. [#XXXX]
+- ``FermiLAT.query_object_async()`` now returns the server-assigned
+  ``query_id`` instead of the URL of an HTML results page. [#XXXX]
+- New methods ``FermiLAT.get_status()``, ``FermiLAT.list_results()``,
+  ``FermiLAT.wait_for_completion()`` and ``FermiLAT.get_file_urls()`` expose
+  the individual steps of the asynchronous query workflow. [#XXXX]
+- New keyword arguments: ``zenithangle`` (maximum zenith angle in degrees) and
+  ``coordsystem`` (``'J2000'``, ``'B1950'`` or ``'Galactic'``). All-sky
+  queries (radius > 60 deg, observation window <= 24 h) are now supported. [#XXXX]
+- ``GetFermilatDatafile`` and ``get_fermilat_datafile`` are deprecated; they
+  now delegate to ``FermiLAT.get_file_urls()`` and take a ``query_id`` rather
+  than a results-page URL. [#XXXX]
+- The module no longer emits an "Experimental" warning on import. [#XXXX]
+
+
 mast
 ^^^^
 - ``utils.mast_relative_path`` is now deprecated in favor of ``utils.get_cloud_paths``. [#3488]
