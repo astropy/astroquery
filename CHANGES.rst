@@ -110,6 +110,7 @@ heasarc
 - Add support for uploading tables when using TAP directly through ``query_tap``. [#3403]
 - Add automatic guessing for the data host in ``download_data``. [#3403]
 - Include method to count the number of rows in a specified table. [#3549]
+- Add 'fornax' column to the datalinks tables produced by ``locate_data``, and support for copying from Fornax to the ``download_data`` function. [#3633]
 
 gaia
 ^^^^
@@ -334,7 +335,7 @@ heasarc
   if there are no data associated with that row rather than filtering it
   out. [#3275]
 
-- ``locate_data`` changed to use POST request instead of GET to accomodate
+- ``locate_data`` changed to use POST request instead of GET to accommodate
   large requests. [#3356]
 
 - Preserve size of mask when all values are False in ``locate_data``. [#3411]
