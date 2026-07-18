@@ -414,7 +414,7 @@ or spectral collectionsn, using ``'SSA'``.
    If you experience query timeout, please open an IRSA helpdesk ticket.
 
 Querying a collection that doesn't exist raises an
-`~astroquery.exceptions.InvalidQueryError` rather than returning an empty
+``InvalidQueryError`` rather than returning an empty
 table, and suggests a close match when there is one:
 
 .. doctest-remote-data::
