@@ -66,6 +66,11 @@ esa.euclid
    ``latest``. [#3601]
 - The methods ``get_product_list`` and ``get_scientific_product_list`` accept the new parameter ``schema``. [#3611]
 
+gaia
+^^^^
+
+- The values that the ``data_structure parameter`` can accept have been changed from RAW to DATAMODEL_GAIA, and from
+INDIVIDUAL to DATAMODEL_STANDARD. [#3629]
 
 vizier
 ^^^^^^
