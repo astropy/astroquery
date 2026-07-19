@@ -70,7 +70,7 @@ gaia
 ^^^^
 
 - The values that the ``data_structure parameter`` can accept have been changed from RAW to DATAMODEL_GAIA, and from
-INDIVIDUAL to DATAMODEL_STANDARD. [#3629]
+  INDIVIDUAL to DATAMODEL_STANDARD. [#3629]
 
 vizier
 ^^^^^^
