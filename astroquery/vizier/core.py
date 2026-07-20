@@ -790,12 +790,21 @@ class VizierClass(BaseQuery):
         return self._valid_keyword_dict
 
     def _raise_error_on_server_error(self, vo_tree):
-        query_status = next(vo_tree.get_infos_by_name("QUERY_STATUS"), None)
+        if not commons.ASTROPY_LT_5_3:
+            query_status = next(vo_tree.get_infos_by_name("QUERY_STATUS"), None)
+        else:  # remove when support for astropy older than 5.3 is dropped
+            query_status = [info for info in vo_tree.infos if info.name == "QUERY_STATUS"]
+            query_status = None if query_status == [] else query_status[0]
+
         if query_status is not None and query_status.value == "ERROR":
             # remove failed query from cache
             if self._last_query is not None:
                 self._last_query.remove_cache_file(self.cache_location)
-            message = "".join(line.value for line in vo_tree.get_infos_by_name("Error"))
+            # display error message
+            if not commons.ASTROPY_LT_5_3:
+                message = "".join(line.value for line in vo_tree.get_infos_by_name("Error"))
+            else:  # remove when support for astropy older than 5.3 is dropped
+                message = "".join(line.value for line in vo_tree.infos if line.name == "Error")
             raise RemoteServiceError(message)
 
     def _parse_vizier_votable(self, data, *, verbose=False, invalid='warn',
