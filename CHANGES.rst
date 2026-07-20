@@ -106,8 +106,7 @@ svo_fps
 hips2fits
 ^^^^^^^^^
 
-- ``Pillow`` is now an optional dependency: importing ``astroquery.hips2fits`` no
-  longer crashes when Pillow is not installed. A clear ``ImportError`` is raised
+- Fix the import error for not available optional dependency Pillow. A clear ``ImportError`` is raised
   only when a jpg/png response is actually decoded. [#3619]
 
 heasarc
