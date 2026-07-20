@@ -760,7 +760,7 @@ class VizierClass(BaseQuery):
                 return self._parse_vizier_votable(
                     response.content, verbose=verbose, invalid=invalid,
                     get_catalog_names=get_catalog_names)
-            except Exception as ex:
+            except ValueError as ex:
                 self.response = response
                 self.table_parse_error = ex
                 raise TableParseError("Failed to parse VIZIER result! The "
