@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import sys
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 from astropy import wcs as astropy_wcs
@@ -10,26 +9,24 @@ import astropy.units as u
 
 from ..core import hips2fits
 
+try:
+    from PIL import Image  # noqa: F401
+    HAS_PILLOW = True
+except ImportError:
+    HAS_PILLOW = False
+
 
 class TestHips2fits:
 
-    def test_jpg_format_requires_pillow(self):
+    @pytest.mark.skipif(HAS_PILLOW, reason="Pillow is installed; the missing-Pillow path cannot be exercised")
+    @pytest.mark.parametrize("image_format", ["jpg", "png"])
+    def test_image_format_requires_pillow(self, image_format):
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.content = b'fake_image_bytes'
 
-        with patch.dict(sys.modules, {'PIL': None, 'PIL.Image': None}):
-            with pytest.raises(ImportError, match="Pillow is required"):
-                hips2fits._parse_result(mock_response, verbose=False, format='jpg')
-
-    def test_png_format_requires_pillow(self):
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.content = b'fake_image_bytes'
-
-        with patch.dict(sys.modules, {'PIL': None, 'PIL.Image': None}):
-            with pytest.raises(ImportError, match="Pillow is required"):
-                hips2fits._parse_result(mock_response, verbose=False, format='png')
+        with pytest.raises(ImportError, match="Pillow is required"):
+            hips2fits._parse_result(mock_response, verbose=False, format=image_format)
 
 
 class TestHips2fitsRemote:
