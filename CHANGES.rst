@@ -76,7 +76,7 @@ fermi
 ^^^^^
 
 - The module now uses the new Fermi LAT Data Query REST API
-  (``/ssc/data/access/lat/query/api/v1``), which replaces the retired
+  (``https://fermi.gsfc.nasa.gov/ssc/data/access/lat/query/api/v1``), which replaces the retired
   ``LATDataQuery.cgi`` endpoint whose HTML responses were previously scraped
   with regular expressions. The user-facing ``FermiLAT.query_object()``
   signature is unchanged. [#XXXX]
