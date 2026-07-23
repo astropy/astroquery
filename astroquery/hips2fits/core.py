@@ -325,7 +325,7 @@ class hips2fitsClass(BaseQuery):
                 # jpg/png formats
                 try:
                     from PIL import Image
-                except ImportError:
+                except ImportError:  # pragma: no cover
                     raise ImportError(
                         "Pillow is required to decode jpg/png responses from hips2fits. "
                         "Install it with: pip install Pillow"
