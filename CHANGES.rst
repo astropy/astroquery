@@ -178,6 +178,8 @@ mast
   and column descriptions in the column metadata. [#3588]
 - Added ``pass_id`` as an alias for the ``pass`` column in query functions for the Roman mission to avoid conflicts with
   the reserved Python keyword. [#3588]
+- Added the ``MastMissions.read_product`` method to read data products directly into memory as an `~astropy.io.fits.HDUList`
+  or an `~asdf.AsdfFile` object. [#3593]
 - Update the cutout format request parameter in ``Zcut.download_cutouts`` to reflect a recent service change. [#3608]
 
 
