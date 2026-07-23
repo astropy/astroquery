@@ -267,10 +267,9 @@ To see the result:
 .. doctest-remote-data::
 
     >>> print(result)
-    TableList with 5 tables:
+    TableList with 4 tables:
        '0:I/254/out' with 10 column(s) and 17 row(s) 
        '1:I/255/out' with 9 column(s) and 17 row(s) 
-       '2:I/271/out' with 11 column(s) and 50 row(s) 
        '3:I/305/out' with 11 column(s) and 50 row(s) 
        '4:I/353/gsc242' with 35 column(s) and 50 row(s) 
 

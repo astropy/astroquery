@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns0:VOTABLE xmlns:ns0="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/v1.3">
+  <ns0:DESCRIPTION>
+   VizieR Astronomical Server vizier.cds.unistra.fr
+    Date: 2026-07-05T21:24:43 [V7.5.6]
+   Explanations and Statistics of UCDs:			See LINK below
+   In case of problem, please report to:	cds-question@unistra.fr
+ </ns0:DESCRIPTION>
+  <ns0:INFO ID="Error" name="Error" value="The database is not currently reachable." />
+  <ns0:INFO name="Error" value=" " />
+  <ns0:INFO name="Error" value=" -- no connection" />
+  <ns0:INFO name="Error" value=" Report from: stdb_pg,     Status: STDB_ERR " />
+  <ns0:INFO name="Error" value="Postgres connect error" />
+  <ns0:INFO name="Error" value=" " />
+  <ns0:INFO name="Error" value=" -- no connection" />
+  <ns0:INFO name="Error" value=" Report from: stdb_pg_conn,     Status: STDB_ERR " />
+  <ns0:INFO name="Error" value="Couldn't connect with server" />
+  <ns0:INFO name="Error" value=" " />
+  <ns0:INFO name="Error" value=" -- no connection" />
+  <ns0:INFO name="Error" value=" Report from: stdb_pg,     Status: STDB_ERR " />
+  <ns0:INFO name="Error" value="Postgres connect error" />
+  <ns0:INFO name="Error" value=" " />
+  <ns0:INFO name="Error" value=" -- no connection" />
+  <ns0:INFO name="Error" value=" Report from: stdb_pg_conn,     Status: STDB_ERR " />
+  <ns0:INFO name="Error" value="Couldn't connect with server" />
+  <ns0:INFO name="Error" value=" " />
+  <ns0:INFO name="Error" value=" -- no connection" />
+  <ns0:INFO name="Error" value=" Report from: stdb_pg,     Status: STDB_ERR " />
+  <ns0:INFO name="Error" value="Postgres connect error" />
+  <ns0:INFO name="Error" value=" " />
+  <ns0:INFO name="Error" value=" -- no connection" />
+  <ns0:INFO name="Error" value=" Report from: stdb_pg_conn,     Status: STDB_ERR " />
+  <ns0:INFO name="Error" value="Couldn't connect with server" />
+  <ns0:INFO name="Error" value=" " />
+  <ns0:INFO name="Error" value=" -- no connection" />
+  <ns0:INFO name="Error" value=" Report from: stdb_conn_dbms,     Status: STDB_ERR " />
+  <ns0:INFO name="Error" value="No server is available for connection" />
+  <ns0:INFO name="Error" value="Can't connect to ReferenceDirectory 'metaviz@PCDSPOOL'" />
+  <ns0:INFO name="QUERY_STATUS" value="ERROR">
+
+ -- no connection
+ Report from: stdb_pg,     Status: STDB_ERR
+Postgres connect error
+
+ -- no connection
+ Report from: stdb_pg_conn,     Status: STDB_ERR
+Couldn't connect with server
+
+ -- no connection
+ Report from: stdb_pg,     Status: STDB_ERR
+Postgres connect error
+
+ -- no connection
+ Report from: stdb_pg_conn,     Status: STDB_ERR
+Couldn't connect with server
+
+ -- no connection
+ Report from: stdb_pg,     Status: STDB_ERR
+Postgres connect error
+
+ -- no connection
+ Report from: stdb_pg_conn,     Status: STDB_ERR
+Couldn't connect with server
+
+ -- no connection
+ Report from: stdb_conn_dbms,     Status: STDB_ERR
+No server is available for connection
+Can't connect to ReferenceDirectory 'metaviz@PCDSPOOL'
+</ns0:INFO>
+  <ns0:RESOURCE>
+</ns0:RESOURCE>
+</ns0:VOTABLE>
