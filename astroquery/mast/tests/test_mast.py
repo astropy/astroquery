@@ -4,16 +4,16 @@ import json
 import os
 import re
 import warnings
+from pathlib import Path
 from shutil import copyfile
 from unittest.mock import MagicMock, patch
-from pathlib import Path
 
 import astropy.units as u
-import pytest
 import numpy as np
-from astropy.table import Table, unique
+import pytest
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
+from astropy.table import Table, unique
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from requests import HTTPError, Response
 
@@ -35,6 +35,7 @@ DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'mission_search_results': 'mission_results.json',
               'mission_columns': 'mission_columns.json',
               'mission_products': 'mission_products.json',
+              'available_missions': 'available_missions.html',
               'columnsconfig': 'columnsconfig.json',
               'ticcolumns': 'ticcolumns.json',
               'ticcol_filtered': 'ticcolumns_filtered.json',
@@ -179,6 +180,8 @@ def request_mockreturn(url, params={}):
         filename = data_path(DATA_FILES['panstarrs_columns'])
     elif 'path_lookup' in url:
         filename = data_path(DATA_FILES['get_cloud_paths'])
+    elif 'search/docs' in url:
+        filename = data_path(DATA_FILES['available_missions'])
     with open(filename, 'rb') as infile:
         content = infile.read()
     return MockResponse(content)
@@ -240,6 +243,30 @@ def zcut_download_mockreturn(url, file_path):
 ###########################
 # MissionSearchClass Test #
 ###########################
+
+
+def test_missions_get_available_missions():
+    # Access attribute
+    missions = MastMissions.available_missions
+    assert isinstance(missions, list)
+    assert len(missions) == 9
+
+    result = MastMissions.get_available_missions()
+    assert missions == result
+
+
+def test_missions_verify_mission():
+    MastMissions._verify_mission("hst")
+
+    # Invalid mission with a possible match
+    with pytest.raises(InvalidQueryError, match="Did you mean 'hst'?"):
+        MastMissions._verify_mission("hsp")
+
+    # Invalid mission with no match
+    with pytest.raises(InvalidQueryError) as err:
+        MastMissions._verify_mission("invalid")
+        assert "Did you mean" not in str(err.value)
+        assert "Mission 'invalid' is not available" in str(err.value)
 
 
 def test_missions_query_region_async():
@@ -332,50 +359,50 @@ def test_missions_query_criteria():
 
 def test_missions_parse_select_cols():
     # Default columns
-    cols = MastMissions._parse_select_cols(None)  # Default columns for HST
-    assert cols is None
+    cols = MastMissions._parse_select_cols(None, mission='hst')  # Default columns for HST
+    assert cols == []
 
     # All columns
-    all_cols = MastMissions._parse_select_cols('all')
-    assert all_cols == MastMissions.get_column_list()['name'].value.tolist()
+    all_cols = MastMissions._parse_select_cols('all', mission='hst')
+    assert all_cols == MastMissions.get_column_list(mission='hst')['name'].value.tolist()
 
     # Comma-separated string
-    string_cols = MastMissions._parse_select_cols('sci_pep_id, sci_instrume')
+    string_cols = MastMissions._parse_select_cols('sci_pep_id, sci_instrume', mission='hst')
     for col in ['sci_pep_id', 'sci_instrume', 'sci_data_set_name']:
         assert col in string_cols
 
     # List of columns
-    list_cols = MastMissions._parse_select_cols(['sci_pep_id', 'sci_instrume'])
+    list_cols = MastMissions._parse_select_cols(['sci_pep_id', 'sci_instrume'], mission='hst')
     for col in ['sci_pep_id', 'sci_instrume', 'sci_data_set_name']:
         assert col in list_cols
 
     # Tuple of columns
-    tuple_cols = MastMissions._parse_select_cols(('sci_pep_id', 'sci_instrume'))
+    tuple_cols = MastMissions._parse_select_cols(('sci_pep_id', 'sci_instrume'), mission='hst')
     for col in ['sci_pep_id', 'sci_instrume', 'sci_data_set_name']:
         assert col in tuple_cols
 
     # Generator of columns
-    gen_cols = MastMissions._parse_select_cols(col for col in ['sci_pep_id', 'sci_instrume'])
+    gen_cols = MastMissions._parse_select_cols((col for col in ['sci_pep_id', 'sci_instrume']), mission='hst')
     for col in ['sci_pep_id', 'sci_instrume', 'sci_data_set_name']:
         assert col in gen_cols
 
     # Error if invalid type
     with pytest.raises(InvalidQueryError, match="`select_cols` must be an iterable of column names"):
-        MastMissions._parse_select_cols(123)
+        MastMissions._parse_select_cols(123, mission='hst')
 
     # Error if an individual column is not a string
     with pytest.raises(InvalidQueryError, match="`select_cols` must contain only strings"):
-        MastMissions._parse_select_cols(['sci_pep_id', 123])
+        MastMissions._parse_select_cols(['sci_pep_id', 123], mission='hst')
 
     # Warning for invalid column names
     with pytest.warns(InputWarning, match="Column 'invalid_column' not found."):
-        valid_cols = MastMissions._parse_select_cols(['sci_pep_id', 'invalid_column'])
+        valid_cols = MastMissions._parse_select_cols(['sci_pep_id', 'invalid_column'], mission='hst')
     assert 'sci_pep_id' in valid_cols
     assert 'invalid_column' not in valid_cols
 
     # Workaround for Ullyses mission default columns
     ullyses_mission = MastMissions(mission='ullyses')
-    ullyses_cols = ullyses_mission._parse_select_cols(None)
+    ullyses_cols = ullyses_mission._parse_select_cols(None, mission='ullyses')
     for col in MastMissions._default_ullyses_cols:
         assert col in ullyses_cols
 
@@ -469,8 +496,8 @@ def test_missions_get_product_list_async():
     assert 'Dataset list is empty' in str(err_empty.value)
 
     # No dataset keyword
-    with pytest.raises(InvalidQueryError, match='Dataset keyword not found for mission "invalid"'):
-        missions = MastMissions(mission='invalid')
+    with pytest.raises(InvalidQueryError, match='Dataset keyword not found for mission "roman_spectra".'):
+        missions = MastMissions(mission='roman_spectra')
         missions.get_product_list_async(Table({'a': [1, 2, 3]}))
 
 
@@ -487,6 +514,10 @@ def test_missions_get_product_list():
     # Row input
     datasets = MastMissions.query_object("M101", radius=".002 deg")
     result = MastMissions.get_product_list(datasets[:3])
+    assert isinstance(result, Table)
+
+    # Column input
+    result = MastMissions.get_product_list(datasets['sci_data_set_name'])
     assert isinstance(result, Table)
 
     # Table input
@@ -707,11 +738,11 @@ def test_missions_get_dataset_kwd(caplog):
     assert m.get_dataset_kwd() == 'Target'
 
     # Switch to an unknown
-    m.mission = 'Unknown'
-    assert m.mission == 'unknown'
+    m.mission = 'roman_spectra'
+    assert m.mission == 'roman_spectra'
     assert m.get_dataset_kwd() is None
     with caplog.at_level('WARNING', logger='astroquery'):
-        assert 'The mission "unknown" does not have a known dataset ID keyword' in caplog.text
+        assert 'The mission "roman_spectra" does not have a known dataset ID keyword' in caplog.text
 
 
 @pytest.mark.parametrize(
