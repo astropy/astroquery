@@ -165,7 +165,7 @@ class GaiaClass(TapPlus):
             log.error("Error logging out data server")
 
     @deprecated_renamed_argument(("output_file", "band"), (None, None), since=("0.4.8", "0.4.11"))
-    def load_data(self, ids, *, data_release=None, data_structure='INDIVIDUAL', retrieval_type="ALL",
+    def load_data(self, ids, *, data_release=None, data_structure='DATAMODEL_STANDARD', retrieval_type="ALL",
                   linking_parameter='SOURCE_ID', valid_data=False, band=None, avoid_datatype_check=False,
                   format="votable", dump_to_file=False, overwrite_output_file=False, verbose=False,
                   output_file=None):
@@ -178,10 +178,10 @@ class GaiaClass(TapPlus):
             List of identifiers
         data_release: str, optional, default None
             Data release from which data should be taken. E.g. 'Gaia DR3'. By default, it takes the current default one.
-        data_structure: str, optional, default 'INDIVIDUAL'
-            It can be 'INDIVIDUAL' or 'RAW':
-            'INDIVIDUAL' means products are provided in separate files for each sourceId. All files are zipped
-            in a single bundle, even if only one source/file is considered 'RAW' means products are provided
+        data_structure: str, optional, default 'DATAMODEL_STANDARD'
+            It can be 'DATAMODEL_STANDARD' or 'DATAMODEL_GAIA':
+            'DATAMODEL_STANDARD' means products are provided in separate files for each sourceId. All files are zipped
+            in a single bundle, even if only one source/file is considered 'DATAMODEL_GAIA' means products are provided
             following a Data Model similar to that used in the MDB, meaning in particular that parameters stored as
             arrays will remain as such. A single file is provided for the data of all sourceIds together, but in this
             case there will be always be one row per sourceId.
