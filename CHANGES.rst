@@ -81,6 +81,7 @@ mast
 - The ``objectname`` keyword is deprecated in ``MastMissions`` in favor of ``object_names``. [#3540]
 - The ``objectname`` parameter in ``Catalogs``, ``Observations``, ``Tesscut``, and ``utils`` is deprecated
   in favor of ``object_name``. [#3567]
+- Gaia cone search now defaults to DR3. Previously, DR3 was not supported and the default was DR2. [#3622]
 
 vo_conesearch
 ^^^^^^^^^^^^^

@@ -38,7 +38,6 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         self._tap = None
         self._datalink = None
         self._meta_info = None
-        self._session = None
 
     @property
     def tap(self):
