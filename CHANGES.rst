@@ -72,6 +72,11 @@ gaia
 - The values that the ``data_structure parameter`` can accept have been changed from RAW to DATAMODEL_GAIA, and from
   INDIVIDUAL to DATAMODEL_STANDARD. [#3629]
 
+gemini
+^^^^^^
+
+- Added ``get_query_payload`` kwarg to allow inspection of the query payload to aid in debugging. [#3568]
+
 vizier
 ^^^^^^
 

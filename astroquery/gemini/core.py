@@ -132,7 +132,7 @@ class ObservationsClass(QueryWithLogin):
         return True
 
     @class_or_instance
-    def query_region(self, coordinates, *, radius=0.3*units.deg):
+    def query_region(self, coordinates, *, radius=0.3*units.deg, get_query_payload=False):
         """
         search for Gemini observations by target on the sky.
 
@@ -148,15 +148,20 @@ class ObservationsClass(QueryWithLogin):
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `~astropy.units` may also be used. Defaults to 0.3 deg.
+        get_query_payload : bool, optional
+            If set to `True` then returns the URL and method that would be used for the
+            request.  Defaults to `False`.
 
         Returns
         -------
-        response : `~astropy.table.Table`
+        response : `~astropy.table.Table` or dict
+            The response from the query as an `~astropy.table.Table`, or if get_query_payload
+            is True, a dictionary containing the URL and HTTP method that would be used.
         """
-        return self.query_criteria(coordinates=coordinates, radius=radius)
+        return self.query_criteria(coordinates=coordinates, radius=radius, get_query_payload=get_query_payload)
 
     @class_or_instance
-    def query_object(self, objectname, *, radius=0.3*units.deg):
+    def query_object(self, objectname, *, radius=0.3*units.deg, get_query_payload=False):
         """
         search for Gemini observations by target on the sky.
 
@@ -173,18 +178,23 @@ class ObservationsClass(QueryWithLogin):
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `~astropy.units` may also be used. Defaults to 0.3 deg.
+        get_query_payload : bool, optional
+            If set to `True` then returns the URL and method that would be used for the
+            request.  Defaults to `False`.
 
         Returns
         -------
-        response : `~astropy.table.Table`
+        response : `~astropy.table.Table` or dict
+            The response from the query as an `~astropy.table.Table`, or if get_query_payload
+            is True, a dictionary containing the URL and HTTP method that would be used.
         """
-        return self.query_criteria(objectname=objectname, radius=radius)
+        return self.query_criteria(objectname=objectname, radius=radius, get_query_payload=get_query_payload)
 
     @class_or_instance
     def query_criteria(self, *rawqueryargs, coordinates=None, radius=None, pi_name=None, program_id=None, utc_date=None,
                        instrument=None, observation_class=None, observation_type=None, mode=None,
                        adaptive_optics=None, program_text=None, objectname=None, raw_reduced=None,
-                       orderby=None, **rawquerykwargs):
+                       orderby=None, get_query_payload=False, **rawquerykwargs):
         """
         search a variety of known parameters against the Gemini observations.
 
@@ -294,7 +304,9 @@ class ObservationsClass(QueryWithLogin):
 
         Returns
         -------
-        response : `~astropy.table.Table`
+        response : `~astropy.table.Table` or dict
+            The response from the query as an `~astropy.table.Table`, or if get_query_payload
+            is True, a dictionary containing the URL and HTTP method that would be used.
 
         Raises
         ------
@@ -316,7 +328,8 @@ class ObservationsClass(QueryWithLogin):
                 args.append(arg)
         if rawquerykwargs:
             for (k, v) in rawquerykwargs.items():
-                kwargs[k] = v
+                if k != 'get_query_payload':
+                    kwargs[k] = v
 
         # If coordinates is set but we have no radius, set a default
         if (coordinates or objectname) and radius is None:
@@ -370,6 +383,8 @@ class ObservationsClass(QueryWithLogin):
         if orderby is not None:
             kwargs["orderby"] = orderby
 
+        if get_query_payload:
+            kwargs['get_query_payload'] = get_query_payload
         return self.query_raw(*args, **kwargs)
 
     @class_or_instance
@@ -380,7 +395,7 @@ class ObservationsClass(QueryWithLogin):
         This is a more flexible query method.  This method will do special handling for
         coordinates and radius if present in kwargs.  However, for the remaining arguments
         it assumes all of args are useable as query path elements.  For kwargs, it assumes
-        all of the elements can be passed as name=value within the query path to Gemini.
+        all of the elements can be passed as name=value within the query path to the webserver.
 
         This method does not do any validation checking or attempt to interperet the
         values being passed, aside from coordinates and radius.
@@ -406,11 +421,24 @@ class ObservationsClass(QueryWithLogin):
             path to the webserver.  The ``orderby`` key value pair has a special
             intepretation and is appended as a query parameter like the one used
             in the archive website for sorting results.
+        get_query_payload : bool, optional
+            If set to `True` then returns the URL and method that would be used for the
+            request.  Defaults to `False`.
 
         Returns
         -------
-        response : `~astropy.table.Table`
+        response : `~astropy.table.Table` or dict
+            The response from the query as an `~astropy.table.Table`, or if get_query_payload
+            is True, a dictionary containing the URL and HTTP method that would be used.
         """
+        if kwargs.pop('get_query_payload', False):
+            url = self.url_helper.build_url(*args, **kwargs)
+            return {
+                'url': url,
+                'method': 'GET',
+                'data': {}
+            }
+
         url = self.url_helper.build_url(*args, **kwargs)
 
         response = self._request(method="GET", url=url, data={}, timeout=180, cache=False)
