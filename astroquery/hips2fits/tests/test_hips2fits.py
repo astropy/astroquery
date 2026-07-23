@@ -1,6 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import io
 from unittest.mock import MagicMock
 
+import numpy as np
 import pytest
 from astropy import wcs as astropy_wcs
 from matplotlib.colors import Colormap
@@ -27,6 +29,22 @@ class TestHips2fits:
 
         with pytest.raises(ImportError, match="Pillow is required"):
             hips2fits._parse_result(mock_response, verbose=False, format=image_format)
+
+    @pytest.mark.skipif(not HAS_PILLOW, reason="Pillow is required to decode jpg/png responses")
+    @pytest.mark.parametrize("image_format", ["jpg", "png"])
+    def test_image_format_decoded_with_pillow(self, image_format):
+        buffer = io.BytesIO()
+        Image.new('RGB', (4, 3), color=(255, 0, 0)).save(
+            buffer, format='JPEG' if image_format == 'jpg' else 'PNG')
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.content = buffer.getvalue()
+
+        data = hips2fits._parse_result(mock_response, verbose=False, format=image_format)
+
+        assert isinstance(data, np.ndarray)
+        assert data.shape == (3, 4, 3)
 
 
 class TestHips2fitsRemote:
