@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Check change log entry
-      uses: scientific-python/action-check-changelogfile@1fc669db9618167166d5a16c10282044f51805c0  # 0.3
+      uses: scientific-python/action-check-changelogfile@92735146b118b1dd2951cb4a45d60c2d8b47a153  # 0.5
       env:
         CHANGELOG_FILENAME: CHANGES.rst
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
