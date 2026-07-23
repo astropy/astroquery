@@ -109,6 +109,12 @@ svo_fps
 - Add ``get_filter_metadata`` to allow retrieval of filter metadata. [#3528]
 - Add ``get_zeropoint`` to allow retrieval of filter zeropoints and allow kwarg passing to ``get_filter_metadata``. [#3545]
 
+hips2fits
+^^^^^^^^^
+
+- Fix the import error for not available optional dependency Pillow. A clear ``ImportError`` is raised
+  only when a jpg/png response is actually decoded. [#3619]
+
 heasarc
 ^^^^^^^
 - Add ``query_constraints`` to allow querying of different catalog columns. [#3403]
