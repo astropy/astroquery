@@ -6,6 +6,7 @@ import pytest
 import requests
 import os
 import keyring
+from urllib.parse import urlparse
 
 from astropy.coordinates import SkyCoord
 import astropy.units as u
@@ -337,8 +338,25 @@ def test_stage_data(patch_get):
     casda.POLL_INTERVAL = 1
     with pytest.warns(W50, match="Invalid unit string 'pixels'"):
         urls = casda.stage_data(table, verbose=True)
+    presigned_url = ('https://ingest.pawsey.org.au/casda-prd-as201-03/sb85679/catalogues/selavy.components.xml?'
+                     'response-content-disposition=attachment%3B%20filename%3D%22selavy.components.xml%22'
+                     '&X-Amz-Algorithm=AWS4-HMAC-SHA256'
+                     '&X-Amz-Credential=abc123%2F20260722%2Fpawsey%2Fs3%2Faws4_request'
+                     '&X-Amz-Signature=deadbeef1234567890')
     assert urls == ['http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits.checksum',
-                    'http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits']
+                    'http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits',
+                    presigned_url]
+
+    # The pre-signed S3 URL must keep its percent-encoding intact (it is part of the AWS signature)
+    # and must not contain characters that are illegal in a URL such as spaces, ';' or '"'.
+    assert '%3B' in presigned_url and '%20' in presigned_url and '%2F' in presigned_url
+    assert ' ' not in presigned_url
+    assert ';' not in presigned_url
+    assert '"' not in presigned_url
+    # urllib must be able to parse it without raising
+    parsed = urlparse(presigned_url)
+    assert parsed.scheme == 'https'
+    assert parsed.netloc == 'ingest.pawsey.org.au'
 
 
 def test_cutout(patch_get):

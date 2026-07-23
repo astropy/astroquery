@@ -17,8 +17,8 @@
         </uws:parameter>
     </uws:parameters>
     <uws:results>
-        <uws:result id="cutout-1234-cube-244.checksum" xlink:type="simple" xlink:href="http%3A%2F%2Fcasda.csiro.au%2Fdownload%2Fweb%2F111-000-111-000%2Fcutout.fits.checksum" />
-        <uws:result id="cutout-1234-cube-244" xlink:type="simple" xlink:href="http%3A%2F%2Fcasda.csiro.au%2Fdownload%2Fweb%2F111-000-111-000%2Fcutout.fits" />
+        <uws:result id="cutout-1234-cube-244.checksum" xlink:type="simple" xlink:href="http://casda.csiro.au/download/web/111-000-111-000/cutout.fits.checksum" />
+        <uws:result id="cutout-1234-cube-244" xlink:type="simple" xlink:href="http://casda.csiro.au/download/web/111-000-111-000/cutout.fits" />
     </uws:results>
     <uws:errorSummary xsi:nil="true" />
 </uws:job>

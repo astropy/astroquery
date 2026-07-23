@@ -25,7 +25,6 @@ esa.emds.einsteinprobe
 - New module to access the ESA Einstein Probe Science Archive. [#3511]
 
 
-
 API changes
 -----------
 
@@ -146,6 +145,13 @@ ipac.irsa
   were typos; the API expects ``naifid``. Old ``obj_nafid`` keyword and
   ``"nafid_input"`` ``input_mode`` still work but emit
   ``AstropyDeprecationWarning``. [#3607]
+
+casda
+^^^^^
+
+- Preserve the percent-encoding of staged file URLs so that pre-signed S3
+  download URLs remain valid. Previously the URLs were unquoted, which corrupted
+  pre-signed URLs and could raise errors when parsed by ``urllib``. [#3636]
 
 
 mast
