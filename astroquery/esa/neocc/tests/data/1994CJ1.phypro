@@ -1,0 +1,24 @@
+Rotation Period,30.0,h,[2]
+Quality,1,B,R,-,[2]
+Amplitude,0.8,mag,[2]
+Rotation Direction,-,-,[-]
+Spinvector L,-,deg,[-]
+Spinvector B,-,deg,[-]
+Taxonomy,A,-,[1]
+Taxonomy (all),A,-,[1]
+Absolute Magnitude (H),21.539,mag,[3]
+Slope Parameter (G),0.15**,mag,[4]
+Slope Parameter (G),0.15**,mag,[3]
+Albedo,-,-,[-]
+Diameter,170*,m,[5]
+Color Index Information,-,mag,[-]
+Sightings,Radar R,-,[6]
+
+REFERENCES
+
+[1],EARN,1.) Ieva, S. et al. (2018) Astron. Astrophys. 615, A127. (Photometric survey of 67 near-Earth objects)
+[2],EARN,1.) Warner, B.D. (2015) MPB 42, 41-53. (NEAR-EARTH ASTEROID LIGHTCURVE ANALYSIS AT CS3-PALMER DIVIDE STATION: 2014 JUNE-OCTOBER) (45 NEAs) 2.) <a href="http://echo.jpl.nasa.gov/asteroids/index.html">JPL's NEO Radar Detection Program Webpage</A>
+[3],ESA ODIM,ESA orbit determination and impact monitoring system
+[4],NEODyS,NEO Dynamic Site: https://newton.spacedys.com/neodys2
+[5],Estimation,Estimated from absolute magnitude
+[6],EARN,1.) <a href="http://echo.jpl.nasa.gov/asteroids/index.html">JPL's NEO Radar Detection Program Webpage</A>

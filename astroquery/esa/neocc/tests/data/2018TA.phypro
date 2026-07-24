@@ -1,0 +1,21 @@
+Rotation Period,-,h,[-]
+Quality,-,-,[-]
+Amplitude,-,mag,[-]
+Rotation Direction,-,-,[-]
+Spinvector L,-,deg,[-]
+Spinvector B,-,deg,[-]
+Taxonomy,-,-,[-]
+Taxonomy (all),-,-,[-]
+Absolute Magnitude (H),24.873,mag,[1]
+Slope Parameter (G),0.15**,mag,[2]
+Slope Parameter (G),0.15**,mag,[1]
+Albedo,-,-,[-]
+Diameter,40*,m,[3]
+Color Index Information,-,mag,[-]
+Sightings,-,-,[-]
+
+REFERENCES
+
+[1],ESA ODIM,ESA orbit determination and impact monitoring system
+[2],NEODyS,NEO Dynamic Site: https://newton.spacedys.com/neodys2
+[3],Estimation,Estimated from absolute magnitude

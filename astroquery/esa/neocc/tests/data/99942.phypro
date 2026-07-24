@@ -1,0 +1,35 @@
+Rotation Period,30.56,h,[4]
+Quality,3,-,[4]
+Amplitude,1.0,mag,[4]
+Rotation Direction,RETRO,-,[1]
+Spinvector L,250,deg,[1]
+Spinvector B,-7.50E1,deg,[1]
+Taxonomy,S/Sq,-,[2]
+Taxonomy (all),Sq,Scomp,-,[3]
+Absolute Magnitude (H),18.937,mag,[5]
+Absolute Magnitude (H),19.09,mag,[6]
+Slope Parameter (G),0.15**,mag,[7]
+Slope Parameter (G),0.24,mag,[1]
+Slope Parameter (G),0.15**,mag,[5]
+Albedo,0.285,-,[8]
+Diameter,375,m,[9]
+Color Index Information,0.846,B-V,[10]
+Color Index Information,0.451,V-R,[10]
+Color Index Information,0.362,R-I,[10]
+Sightings,Radar R,-,[11]
+Sightings,Visual S,-,[12]
+
+REFERENCES
+
+[1],EARN,1.) Pravec, P. et al (2014) Icarus 233,48-60. (The tumbling spin state of (99942) Apophis)
+[2],EARN,1.) Perna, D. et al. (2016) Astron. J. 151, 11(14p). (GRASPING THE NATURE OF POTENTIALLY HAZARDOUS ASTEROIDS) (spectra of 14 PHAs)
+[3],EARN,1.) Binzel, R.P. et al. (2009) Icarus 200, 480-485. (Spectral properties and composition of potentially hazardous Asteroid (99942) Apophis) 2.) DeMeo, F.E. et al. (2014) Icarus 227, 112-122. (Mars encounters cause fresh surfaces on some near-Earth asteroids) (contains taxonomic classification of 249 NEAs) 3.) Perna, D. et al. (2016) Astron. J. 151, 11(14p). (GRASPING THE NATURE OF POTENTIALLY HAZARDOUS ASTEROIDS) (spectra of 14 PHAs)
+[4],EARN,1.) Pravec, P. et al (2014) Icarus 233,48-60. (The tumbling spin state of (99942) Apophis) 2.) <a href="http://obswww.unige.ch/~behrend/page_cou.html"> R. Behrend Courbes des lumiere, Observatoire de Geneve website</A> 3.) Oey, J. (2014) MPB 41, 276-280. (LIGHTCURVE ANALYSIS OF ASTEROIDS FROM BLUE MOUNTAINS OBSERVATORY IN 2013) (99942,163364,285263)
+[5],ESA ODIM,ESA orbit determination and impact monitoring system
+[6],EARN,1.) Pravec, P. et al (2014) Icarus 233,48-60. (The tumbling spin state of (99942) Apophis) 2.) Delbo, M. et al. (2007) Icarus 188,266-269. (Albedo and size determination of potentially hazardous asteroids: (99942) Apophis)
+[7],NEODyS,NEO Dynamic Site: https://newton.spacedys.com/neodys2
+[8],EARN,1.) Licandro, J. et al. (2016) Astron. Astrophys. 585, A10. (GTC/CanariCam observations of (99942) Apophis) 2.) Mueller, T.G. et al. (2014) Astron. Astrophys. 566, A22. (Thermal Infrared Observations of Asteroid (99942) Apophis with Herschel) 3.) Mueller, T. et al. (2013) <a href="http://www.esa.int/Our_Activities/Space_Science/Herschel_intercepts_asteroid_Apophis"> New Size and Albedo for Apophis from IR Data obtained with Herschel Space Telescope</A> 4.) Delbo, M. et al. (2007) Icarus 188,266-269. (Albedo and size determination of potentially hazardous asteroids: (99942) Apophis) 5.) Licandro, J. et al. (2016) Astron. Astrophys. 585, A10. (GTC/CanariCam observations of (99942) Apophis)
+[9],EARN,1.) Licandro, J. et al. (2016) Astron. Astrophys. 585, A10. (GTC/CanariCam observations of (99942) Apophis) 2.) Mueller, T.G. et al. (2014) Astron. Astrophys. 566, A22. (Thermal Infrared Observations of Asteroid (99942) Apophis with Herschel) 3.) Mueller, T. et al. (2013) <a href="http://www.esa.int/Our_Activities/Space_Science/Herschel_intercepts_asteroid_Apophis"> New Size and Albedo for Apophis from IR Data obtained with Herschel Space Telescope</A> 4.) Delbo, M. et al. (2007) Icarus 188,266-269. (Albedo and size determination of potentially hazardous asteroids: (99942) Apophis)
+[10],EARN,1.) Lin, C-H. et al. (2018) P&SS 152, 116-135. (Photometric survey and taxonomic identifications of 92 near-Earth asteroids)
+[11],EARN,1.) <a href="http://echo.jpl.nasa.gov/asteroids/index.html">JPL's NEO Radar Detection Program Webpage</A> 2.) Ostro, S.J. et al. (2005) I.A.U. Circ. <A HREF="http://www.cbat.eps.harvard.edu/iauc/08400/08477.html"><B> 8477.</B></A> (2004 MN_4) Radar observations) 3.) Giorgini, J.D. et al. (2005) I.A.U. Circ. <A HREF="http://www.cbat.eps.harvard.edu/iauc/08500/08593.html"><B> 8593.</B></A> (99942 Apophis) (radar observations and orbital improvement) 4.) Benner, L.A.M. et al. (2006) I.A.U. Circ.  <A HREF="http://www.cbat.eps.harvard.edu/iauc/08700/08711.html"><B> 8711.</B></A> ((99942) APOPHIS) (radar observations and orbital improvement)
+[12],EARN,1.) Binzel, R.P. et al. (2004) Meteorit. Planet. Sci. 39, 351-366. (Dynamical and compositional assessment of near-Earth object mission targets) (new spectra and taxonomy of 22 NEOs) 2.) Binzel, R.P. et al. (2006) LPSC 37, 1491. (The MIT-Hawaii-IRTF joint campaign for NEO spectral reconnaissance.) 3.) Binzel, R.P. et al. <a href="http://smass.mit.edu/minus.html"> Webpage</A> 4.) Binzel, R.P. et al. (2009) Icarus 200, 480-485. (Spectral properties and composition of potentially hazardous Asteroid (99942) Apophis) 5.) Perna, D. et al. (2016) Astron. J. 151, 11(14p). (GRASPING THE NATURE OF POTENTIALLY HAZARDOUS ASTEROIDS) (spectra of 14 PHAs)

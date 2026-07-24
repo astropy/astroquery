@@ -1,0 +1,18 @@
+Rotation Period,-,h,[-]
+Quality,-,-,[-]
+Amplitude,-,mag,[-]
+Rotation Direction,-,-,[-]
+Spinvector L,-,deg,[-]
+Spinvector B,-,deg,[-]
+Taxonomy,-,-,[-]
+Taxonomy (all),-,-,[-]
+Absolute Magnitude (H),-,mag,[-]
+Slope Parameter (G),-,mag,[-]
+Albedo,-,-,[-]
+Diameter,-,m,[1]
+Color Index Information,-,mag,[-]
+Sightings,-,-,[-]
+
+REFERENCES
+
+[1],Estimation,Estimated from absolute magnitude
