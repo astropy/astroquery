@@ -58,8 +58,8 @@ class MockTap:
 
     def search(self, query, language='ADQL', maxrec=1000, uploads=None):
         if "SELECT COUNT(*) FROM" in query:
-            return TAPResults(votable.from_table(Table([[3055]], names=['count'],
-                                                       dtype=['int64'])))
+            return TAPResults(votable.from_table(
+                Table([[3055]], names=['count'], dtype=['int64'])))
         else:
             return MockResult()
 
@@ -71,21 +71,22 @@ class MockResult:
 
 @pytest.fixture
 def mock_tap():
-    with patch('astroquery.heasarc.core.HeasarcClass.tap', new_callable=PropertyMock) as tap:
+    with patch('astroquery.heasarc.core.HeasarcClass.tap',
+               new_callable=PropertyMock) as tap:
         tap.return_value = MockTap()
         yield tap
 
 
 @pytest.fixture
 def mock_default_cols():
-    with patch('astroquery.heasarc.core.HeasarcClass._get_default_columns') as get_cols:
+    with patch('astroquery.heasarc.core.HeasarcClass._get_default_columns') as get_cols:  # noqa
         get_cols.return_value = ['col-3', 'col-2']
         yield get_cols
 
 
 @pytest.fixture
 def mock_meta():
-    with patch('astroquery.heasarc.core.HeasarcClass._meta', new_callable=PropertyMock) as meta:
+    with patch('astroquery.heasarc.core.HeasarcClass._meta', new_callable=PropertyMock) as meta:  # noqa
         meta.return_value = Table(dict(
             table=['tab1', 'tab2', 'tab1', 'tab1'],
             par=['p1', 'p2', 'p3', ''],
@@ -190,7 +191,8 @@ def test_query_region_polygon_no_unit():
         (10.0, 10.1),
         (10.0, 10.0),
     ]
-    with pytest.warns(UserWarning, match="Polygon endpoints are being interpreted as"):
+    with pytest.warns(UserWarning,
+                      match="Polygon endpoints are being interpreted as"):
         query = Heasarc.query_region(
             catalog="suzamaster",
             spatial="polygon",
@@ -226,7 +228,8 @@ def test_query_allsky():
 def test_spatial_invalid(spatial):
     with pytest.raises(ValueError):
         Heasarc.query_region(
-            OBJ_LIST[0], catalog="invalid_spatial", columns="*", spatial=spatial
+            OBJ_LIST[0], catalog="invalid_spatial", columns="*",
+            spatial=spatial
         )
 
 
@@ -239,13 +242,12 @@ def test_no_catalog():
     with pytest.raises(InvalidQueryError):
         # OBJ_LIST[0] and radius added to avoid a remote call
         Heasarc.query_region(
-            OBJ_LIST[0], spatial="cone", columns="*", radius="2arcmin")
+            OBJ_LIST[0], catalog=None, spatial="cone")
 
 
 def test__query_execute_no_catalog():
     with pytest.raises(InvalidQueryError):
-        # OBJ_LIST[0] and radius added to avoid a remote call
-        Heasarc._query_execute(None)
+        Heasarc._query_execute(catalog=None)
 
 
 def test_parse_constraints_no_filter():
@@ -254,7 +256,8 @@ def test_parse_constraints_no_filter():
 
 
 def test_parse_constraints_range():
-    constraints = Heasarc._parse_constraints(column_filters={"flux": (1e-12, 1e-10)})
+    constraints = Heasarc._parse_constraints(
+        column_filters={"flux": (1e-12, 1e-10)})
     assert constraints == ["flux BETWEEN 1e-12 AND 1e-10"]
 
 
@@ -269,17 +272,20 @@ def test_parse_constraints_eq_str():
 
 
 def test_parse_constraints_cmp_float():
-    constraints = Heasarc._parse_constraints(column_filters={"flux": ('>', 1.2)})
+    constraints = Heasarc._parse_constraints(
+        column_filters={"flux": ('>', 1.2)})
     assert constraints == ["flux > 1.2"]
 
 
 def test_parse_constraints_cmp_float_2():
-    constraints = Heasarc._parse_constraints(column_filters={"flux": ('>', 1.2), "magnitude": ('<=', 15)})
+    constraints = Heasarc._parse_constraints(
+        column_filters={"flux": ('>', 1.2), "magnitude": ('<=', 15)})
     assert constraints == ["flux > 1.2", "magnitude <= 15"]
 
 
 def test_parse_constraints_list():
-    constraints = Heasarc._parse_constraints(column_filters={"flux": [1.2, 2.3, 3.4]})
+    constraints = Heasarc._parse_constraints(
+        column_filters={"flux": [1.2, 2.3, 3.4]})
     assert constraints == ["flux IN (1.2, 2.3, 3.4)"]
 
 
@@ -302,7 +308,7 @@ def test_query_region_filter_range():
         columns="*",
         get_query_payload=True,
     )
-    assert query == "SELECT * FROM suzamaster WHERE flux BETWEEN 1e-12 AND 1e-10"
+    assert query == "SELECT * FROM suzamaster WHERE flux BETWEEN 1e-12 AND 1e-10"  # noqa
 
 
 def test_query_region_filter_eq_float():
@@ -468,7 +474,7 @@ def test_meta_def():
     # Use a new HeasarcClass object
     Heasarc = HeasarcClass()
     assert Heasarc._meta_info is None
-    with patch('astroquery.heasarc.core.HeasarcClass.query_tap') as mock_query_tap:
+    with patch('astroquery.heasarc.core.HeasarcClass.query_tap') as mock_query_tap:  # noqa
         mock_query_tap.return_value = MockResult()
         meta = Heasarc._meta
         assert meta['value'][0] == 1.5
@@ -499,7 +505,8 @@ def test__list_catalogs(mock_tap):
         lab for lab in MockTap().tables.keys() if 'TAP' not in lab
     ]
     assert list(catalogs['description']) == [
-        desc.description for lab, desc in MockTap().tables.items() if 'TAP' not in lab
+        desc.description for lab, desc in MockTap().tables.items()
+        if 'TAP' not in lab
     ]
 
 
@@ -516,7 +523,8 @@ def test_list_catalogs_keywords_list_non_str():
 def test__list_catalogs_keywords(mock_tap):
     catalogs = Heasarc.list_catalogs(keywords=['xmm'])
     assert list(catalogs['name']) == [
-        lab for lab, desc in MockTap().tables.items() if 'TAP' not in lab and 'xmm' in desc.description.lower()
+        lab for lab, desc in MockTap().tables.items()
+        if 'TAP' not in lab and 'xmm' in desc.description.lower()
     ]
 
 
@@ -537,7 +545,7 @@ def test_locate_data():
 
     with pytest.raises(
         TypeError, match=(
-            "query_result need to be an astropy.table.Table or astropy.table.Row"
+            "query_result need to be an astropy.table.Table or astropy.table.Row"  # noqa
         )
     ):
         Heasarc.locate_data([1, 2])
@@ -575,7 +583,8 @@ def test__guess_host_sciserver(monkeypatch):
     assert Heasarc._guess_host(host=None) == 'sciserver'
 
 
-@pytest.mark.parametrize("var", ["AWS_REGION", "AWS_REGION_DEFAULT", "AWS_ROLE_ARN"])
+@pytest.mark.parametrize(
+    "var", ["AWS_REGION", "AWS_REGION_DEFAULT", "AWS_ROLE_ARN"])
 def test__guess_host_aws(monkeypatch, var):
     monkeypatch.setenv("AWS_REGION", var)
     assert Heasarc._guess_host(host=None) == 'aws'
@@ -598,7 +607,7 @@ def test_download_data__missingcolumn(host):
     host_col = "access_url" if host == "heasarc" else host
     with pytest.raises(
         ValueError,
-        match=f"No {host_col} column found in the table. Call `~locate_data` first"
+        match=f"No {host_col} column found in the table. Call `~locate_data` first"  # noqa
     ):
         Heasarc.download_data(Table({"id": [1]}), host=host)
 
@@ -611,7 +620,8 @@ def test_download_data__sciserver():
         with open(f'{datadir}/file.txt', 'w') as fp:
             fp.write('data')
         # include both a file and a directory
-        tab = Table({'sciserver': [f'{tmpdir}/data/file.txt', f'{tmpdir}/data']})
+        tab = Table(
+            {'sciserver': [f'{tmpdir}/data/file.txt', f'{tmpdir}/data']})
         # The patch is to avoid the test that we are on sciserver
         with patch('os.path.exists') as exists:
             exists.return_value = True
@@ -639,12 +649,15 @@ def test_download_data__table_row():
         with open(f'{datadir}/file.txt', 'w') as fp:
             fp.write('data')
         # include both a file and a directory
-        tab = Table({'sciserver': [f'{tmpdir}/data/file.txt', f'{tmpdir}/data']})
+        tab = Table(
+            {'sciserver': [f'{tmpdir}/data/file.txt', f'{tmpdir}/data']})
         # The patch is to avoid the test that we are on sciserver
         with patch('os.path.exists') as exists:
             exists.return_value = True
-            Heasarc.download_data(tab[0], host="sciserver", location=downloaddir)
-            Heasarc.download_data(tab[1], host="sciserver", location=downloaddir)
+            Heasarc.download_data(
+                tab[0], host="sciserver", location=downloaddir)
+            Heasarc.download_data(
+                tab[1], host="sciserver", location=downloaddir)
         assert os.path.exists(f'{downloaddir}/file.txt')
         assert os.path.exists(f'{downloaddir}/data')
         assert os.path.exists(f'{downloaddir}/data/file.txt')
