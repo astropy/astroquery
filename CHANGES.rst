@@ -145,6 +145,9 @@ ipac.irsa
   were typos; the API expects ``naifid``. Old ``obj_nafid`` keyword and
   ``"nafid_input"`` ``input_mode`` still work but emit
   ``AstropyDeprecationWarning``. [#3607]
+- ``query_sia`` and ``query_ssa`` now raise ``InvalidQueryError`` for a
+  collection that doesn't exist, rather than silently returning an empty
+  table. The valid collection names are cached on the instance. [#3631]
 
 casda
 ^^^^^
