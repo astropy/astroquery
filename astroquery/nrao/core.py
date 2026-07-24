@@ -110,13 +110,6 @@ def _gen_sql(payload):
     return sql + where
 
 
-# class NraoAuth(BaseVOQuery, BaseQuery):
-#     """
-#     TODO: this needs to be implemented
-#     """
-#     pass
-
-
 class _TimeoutSession(requests.Session):
     """Session that applies ``conf.timeout`` to every request by default.
 
@@ -142,7 +135,6 @@ class NraoClass(BaseVOQuery):
         super().__init__()
         self._tap = None
         self._tap_url = None
-        # TODO self._auth = NraoAuth()
 
     @property
     def tap(self):
@@ -161,7 +153,7 @@ class NraoClass(BaseVOQuery):
                 raise err
         return self._tap_url
 
-    def query_tap(self, query, maxrec=None):
+    def query_tap(self, query, *, maxrec=None):
         """
         Send query to the NRAO TAP. Results in pyvo.dal.TapResult format.
         result.table in Astropy table format
@@ -203,6 +195,7 @@ class NraoClass(BaseVOQuery):
         ----------
         coordinates : str / `astropy.coordinates`
             the identifier or coordinates around which to query.
+            (vector queries are not supported)
         radius : str / `~astropy.units.Quantity`
             the radius of the region
         public : bool
@@ -283,7 +276,7 @@ class NraoClass(BaseVOQuery):
 
         return result
 
-    def help(self, cache=True):
+    def help(self):
         """
         Return the valid query parameters
         """

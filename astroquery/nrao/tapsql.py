@@ -65,6 +65,10 @@ def _gen_pos_sql(field, value):
         ras = _val_parse(ra, val_type=str)
         decs = _val_parse(dec, val_type=str)
 
+    if len(ras) > 1:
+        raise ValueError("There is a logical error (a bug) for multiple RA, Decs passed to _gen_pos_sql. "
+                         "If you encounter this issue, please raise it as a bug report on astroquery.")
+
     for ra in ras:
         for dec in decs:
             if result:
