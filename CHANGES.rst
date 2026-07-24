@@ -115,6 +115,10 @@ heasarc
 - Add automatic guessing for the data host in ``download_data``. [#3403]
 - Include method to count the number of rows in a specified table. [#3549]
 
+hitran
+^^^^^^
+- File parser is exposed as a user-facing function ``hitran.read`` [#3589]
+
 gaia
 ^^^^
 
