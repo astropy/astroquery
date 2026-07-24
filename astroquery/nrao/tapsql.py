@@ -65,7 +65,6 @@ def _gen_pos_sql(field, value):
         ras = _val_parse(ra, val_type=str)
         decs = _val_parse(dec, val_type=str)
 
-    # NOTE: there's a logical error here
     for ra in ras:
         for dec in decs:
             if result:
