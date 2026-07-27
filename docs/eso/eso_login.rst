@@ -86,7 +86,7 @@ As shown above, your password can be stored securely using the `keyring <https:/
 
    When using the ``store_password=True`` option, your password is stored in your system’s keyring. This provides secure local storage, but only do this on machines you fully trust.
 
-**Note:** You can delete your stored password at any time using `keyring.delete_password`. 
+**Note:** You can delete your stored password at any time using ``keyring.delete_password``. 
 In this example, the call is wrapped in a helper that checks for the credential’s existence before attempting deletion: 
 
 .. doctest-skip::
