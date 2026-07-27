@@ -169,22 +169,26 @@ class GaiaClass(TapPlus):
                   linking_parameter='SOURCE_ID', valid_data=False, band=None, avoid_datatype_check=False,
                   format="votable", dump_to_file=False, overwrite_output_file=False, verbose=False,
                   output_file=None):
-        """Loads the specified table
-        TAP+ only
+        """Load DataLink products for the specified identifiers.
 
         Parameters
         ----------
-        ids :  str, int, str list or int list, mandatory
-            List of identifiers
+        ids :  str, int, or sequence of str or int, mandatory
+             One or more identifiers.
         data_release: str, optional, default None
-            Data release from which data should be taken. E.g. 'Gaia DR3'. By default, it takes the current default one.
+            Data release from which the products are retrieved (for example, ``'Gaia DR3'``). If not specified, the
+            current default data release is used.
         data_structure: str, optional, default 'DATAMODEL_STANDARD'
-            It can be 'DATAMODEL_STANDARD' or 'DATAMODEL_GAIA':
-            'DATAMODEL_STANDARD' means products are provided in separate files for each sourceId. All files are zipped
-            in a single bundle, even if only one source/file is considered 'DATAMODEL_GAIA' means products are provided
-            following a Data Model similar to that used in the MDB, meaning in particular that parameters stored as
-            arrays will remain as such. A single file is provided for the data of all sourceIds together, but in this
-            case there will be always be one row per sourceId.
+            It can be:
+
+            - ``DATAMODEL_STANDARD``
+              Products are provided in separate files for each sourceId. All files are zipped in a single bundle, even
+              if nly one source/file is considered
+
+            - ``DATAMODEL_GAIA``
+              Products are provided following a Data Model similar to that used in the MDB, meaning in particular that
+              parameters stored as arrays will remain as such. A single file is provided for the data of all sourceIds
+              together, but in this case there will always be one row per sourceId.
         retrieval_type : str, optional, default ‘ALL’ to retrieve all data from the list of sources
             Retrieval type identifier:
             For Gaia DR2, the only possible values is ['EPOCH_PHOTOMETRY']
@@ -195,43 +199,57 @@ class GaiaClass(TapPlus):
             'EPOCH_PHOTOMETRY_CROWDED_FIELD', 'EPOCH_IMAGE', 'EPOCH_PHOTOMETRY_CCD', 'EPOCH_SPECTRUM_XP_SSO',
             'EPOCH_SPECTRUM_XP_CROWDING', 'MEAN_SPECTRUM_XP', 'EPOCH_SPECTRUM_XP', 'CROWDED_FIELD_IMAGE',
             'EPOCH_ASTROMETRY_BRIGHT', 'MEAN_SPECTRUM_XP_GRAVLENS', 'EPOCH_FLAGS_NSS', 'EPOCH_PARAMETERS_RVS_SINGLE',
-            'EPOCH_PARAMETERS_RVS_DOUBLE', 'EPOCH_FLAGS_VARI', 'RESIDUAL_IMAGE']. Note that for 'CROWDED_FIELD_IMAGE',
-            only the format 'fits' can be used, and its image, in the principal header, will not be available in the
-            returned dictionary. Set 'output_file' to retrieve all data: image + tables. Note that for 'RESIDUAL_IMAGE',
-            only the format 'fits' can be used. Since the fits files only contain images, the returned table will be
-            empty. Therefore, set 'output_file' to save the files to get access to their content.
+            'EPOCH_PARAMETERS_RVS_DOUBLE', 'EPOCH_FLAGS_VARI', 'RESIDUAL_IMAGE'].
+
+            Notes
+            -----
+            - ``CROWDED_FIELD_IMAGE`` supports only the ``'fits'`` format. The principal image is not included in the
+            returned dictionary. To retrieve both the image and the associated tables, inspect each individual fits
+            file.
+
+            - ``RESIDUAL_IMAGE`` also supports only the ``'fits'`` format. Since the FITS files contain images only, the
+            returned table is empty. Inspect each individual file to access their contents.
         linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID, TRANSIT_ID, IMAGE_ID
-            By default, all the identifiers are considered as source_id
-            SOURCE_ID: the identifiers are considered as source_id
-            TRANSIT_ID: the identifiers are considered as transit_id
-            IMAGE_ID: the identifiers are considered as sif_observation_id
+            By default, all the identifiers are considered as source_id.
+
+            - ``SOURCE_ID``: identifiers are interpreted as Gaia source IDs.
+            - ``TRANSIT_ID``: identifiers are interpreted as transit IDs.
+            - ``IMAGE_ID``: identifiers are interpreted as SIF observation IDs.
         valid_data : bool, optional, default False
             By default, the epoch photometry service returns all available data, including data rows where flux is
             null and/or the rejected_by_photometry flag is set to True. In order to retrieve only valid data (data
-            rows where flux is not null and/or the rejected_by_photometry flag is set to False) this request
+            rows where flux is not null and rejected_by_photometry is False) this request
             parameter should be included with valid_data=True.
         avoid_datatype_check: boolean, optional, default False.
-            By default, this value will be set to False. If it is set to 'true' the Datalink items tags will not be
-            checked.
+            By default, this value will be set to False .If set to True, the DataLink item tags are not validated.
         format : str, optional, default 'votable'
-            Loading format. Other available formats are 'csv', 'ecsv','votable_plain', 'json' and 'fits'
+            Loading format. Supported values are  'csv', 'ecsv','votable_plain', 'json' and 'fits'
         dump_to_file: boolean, optional, default False.
-            If it is true, a compressed directory named "datalink_output_<time_stamp>.zip" with all the DataLink
+            If True, a ZIP archive named "datalink_output_<time_stamp>.zip" is created  with all the DataLink
             files is made in the current working directory. The <time_stamp> format follows the ISO 8601 standard:
             "YYYYMMDD_HHMMSS.mmmmmm".
         overwrite_output_file : boolean, optional, default False
-            To overwrite the output file ("datalink_output.zip") if it already exists.
+            To overwrite the output file ("datalink_output_<time_stamp>.zip") if it already exists.
         verbose : bool, optional, default 'False'
             Flag to display information about the process
 
         Returns
         -------
-        A dictionary where the keys are the file names and its value is a list of astropy.table.table.Table objects
+        tuple
+            Tuple ``(tables, output_file)`` where:
+
+            tables : dict[str, list[astropy.table.Table]]
+                Mapping from output file names to the corresponding tables.
+
+            output_file : str or None
+                Path to the generated archive if ``dump_to_file=True``;
+                otherwise ``None``.
         """
 
         output_file_specified = False
 
         now = datetime.datetime.now(datetime.timezone.utc)
+        return_output_file_path = None
         if not dump_to_file:
             now_formatted = now.strftime("%Y%m%d_%H%M%S.%f")
             temp_dirname = "temp_" + now_formatted
@@ -239,14 +257,16 @@ class GaiaClass(TapPlus):
             output_file = os.path.join(os.getcwd(), temp_dirname, downloadname_formated)
 
         else:
-            output_file = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S.%f") + '.zip'
+            now_formatted = 'datalink_output_' + now.strftime("%Y%m%dT%H%M%S.%f") + '.zip'
             output_file_specified = True
-            output_file = os.path.abspath(output_file)
-            log.info(f"DataLink products will be stored in the {output_file} file")
+            output_file = os.path.abspath(now_formatted)
+            return_output_file_path = output_file
 
             if not overwrite_output_file and os.path.exists(output_file):
                 raise ValueError(f"{output_file} file already exists. Please use overwrite_output_file='True' to "
                                  f"overwrite output file.")
+
+            log.info(f"DataLink products will be stored in the {output_file} file")
 
         path = os.path.dirname(output_file)
 
@@ -322,7 +342,7 @@ class GaiaClass(TapPlus):
             for item in sorted([key for key in files.keys()]):
                 log.debug("Product = " + item)
 
-        return files
+        return files, return_output_file_path
 
     @staticmethod
     def __get_data_files(output_file, path):
