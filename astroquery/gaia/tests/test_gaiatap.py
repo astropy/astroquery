@@ -925,7 +925,7 @@ def test_datalink_querier_load_data_vot_exception(mock_datalink_querier, overwri
 
 
 def test_datalink_querier_load_data_vot(mock_datalink_querier):
-    result_dict = mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
+    result_dict, file_path = mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
                                                   data_structure='DATAMODEL_STANDARD',
                                                   retrieval_type="ALL",
                                                   linking_parameter='SOURCE_ID', valid_data=False,
@@ -940,6 +940,8 @@ def test_datalink_querier_load_data_vot(mock_datalink_querier):
              Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
 
     assert len(files) == 1
+    assert files[0] == file_path
+
     datalink_output = files[0]
 
     extracted_files = []
@@ -961,9 +963,21 @@ def test_datalink_querier_load_data_vot(mock_datalink_querier):
 
     assert not os.path.exists(os.path.join(os.getcwd(), datalink_output))
 
+    # check the returned output file path
+
+    result_dict, file_path = mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
+                                                  data_structure='DATAMODEL_STANDARD',
+                                                  retrieval_type="ALL",
+                                                  linking_parameter='SOURCE_ID', valid_data=False,
+                                                  avoid_datatype_check=False,
+                                                  format="votable", dump_to_file=False, overwrite_output_file=True,
+                                                  verbose=False)
+
+    assert file_path is None
+
 
 def test_datalink_querier_load_data_ecsv(mock_datalink_querier_ecsv):
-    result_dict = mock_datalink_querier_ecsv.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
+    result_dict, file_path = mock_datalink_querier_ecsv.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
                                                        data_structure='DATAMODEL_STANDARD',
                                                        retrieval_type="ALL",
                                                        linking_parameter='SOURCE_ID', valid_data=False,
@@ -978,6 +992,8 @@ def test_datalink_querier_load_data_ecsv(mock_datalink_querier_ecsv):
              Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
 
     assert len(files) == 1
+    assert files[0] == file_path
+
     datalink_output = files[0]
 
     extracted_files = []
@@ -1004,7 +1020,7 @@ def test_datalink_querier_load_data_ecsv(mock_datalink_querier_ecsv):
 
 
 def test_datalink_querier_load_data_csv(mock_datalink_querier_csv):
-    result_dict = mock_datalink_querier_csv.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
+    result_dict, file_path = mock_datalink_querier_csv.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
                                                       data_structure='DATAMODEL_STANDARD',
                                                       retrieval_type="ALL",
                                                       linking_parameter='SOURCE_ID', valid_data=False,
@@ -1019,6 +1035,8 @@ def test_datalink_querier_load_data_csv(mock_datalink_querier_csv):
              Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
 
     assert len(files) == 1
+    assert files[0] == file_path
+
     datalink_output = files[0]
 
     extracted_files = []
@@ -1046,7 +1064,7 @@ def test_datalink_querier_load_data_csv(mock_datalink_querier_csv):
 
 @pytest.mark.filterwarnings("ignore:")
 def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
-    result_dict = mock_datalink_querier_fits.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
+    result_dict, file_path = mock_datalink_querier_fits.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
                                                        data_structure='DATAMODEL_STANDARD',
                                                        retrieval_type="ALL",
                                                        linking_parameter='SOURCE_ID', valid_data=False,
@@ -1061,6 +1079,8 @@ def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
              Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
 
     assert len(files) == 1
+    assert files[0] == file_path
+
     datalink_output = files[0]
 
     extracted_files = []
