@@ -1,7 +1,5 @@
 """
 Search functionality for the Gemini archive of observations.
-
-For questions, contact ooberdorf@gemini.edu
 """
 
 import os
