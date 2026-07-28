@@ -85,7 +85,7 @@ class FermiLATClass(BaseQuery):
         response = self._request(
             "POST", url=f"{self.base_url}/query", json=payload,
             timeout=self.TIMEOUT, cache=False)
-        response.raise_for_status()
+        _raise_for_status(response, context="Fermi LAT query submission")
 
         result = response.json()
 
@@ -177,7 +177,7 @@ class FermiLATClass(BaseQuery):
         response = self._request(
             "GET", url=f"{self.base_url}/query/{query_id}/status",
             timeout=self.TIMEOUT, cache=False)
-        response.raise_for_status()
+        _raise_for_status(response, context=f"Fermi LAT status ({query_id})")
         return response.json()
 
     def list_results(self, query_id):
@@ -192,7 +192,7 @@ class FermiLATClass(BaseQuery):
         response = self._request(
             "GET", url=f"{self.base_url}/query/{query_id}/results",
             timeout=self.RETRIEVAL_TIMEOUT, cache=False)
-        response.raise_for_status()
+        _raise_for_status(response, context=f"Fermi LAT results ({query_id})")
         return response.json().get('files', [])
 
     def wait_for_completion(self, query_id, *, check_frequency=None,
@@ -264,6 +264,39 @@ class FermiLATClass(BaseQuery):
 
 
 FermiLAT = FermiLATClass()
+
+
+def _raise_for_status(response, *, context):
+    """
+    Raise a `RemoteServiceError` carrying the server's error message.
+
+    The Fermi API signals bad requests with an HTTP error status and a JSON
+    body of the form ``{"error": "..."}``.  ``requests.raise_for_status`` only
+    reports the status code, so this helper pulls the message out of the body
+    (trying the ``error``, ``detail`` and ``message`` keys, then falling back
+    to the raw text) and surfaces it, as recommended by the astroquery API
+    specification.
+    """
+    status_code = getattr(response, 'status_code', None)
+    if status_code is None or status_code < 400:
+        return
+
+    message = None
+    try:
+        body = response.json()
+    except ValueError:
+        body = None
+
+    if isinstance(body, dict):
+        for key in ('error', 'detail', 'message'):
+            if body.get(key):
+                message = body[key]
+                break
+    if message is None:
+        text = getattr(response, 'text', '') or ''
+        message = text.strip() or f"HTTP {status_code}"
+
+    raise RemoteServiceError(f"{context} failed ({status_code}): {message}")
 
 
 def _file_url(entry):

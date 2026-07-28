@@ -184,3 +184,16 @@ def test_file_url_prefers_absolute_url_from_server():
     entry = {'name': 'x_PH00.fits',
              'url': 'https://example.org/somewhere/x_PH00.fits'}
     assert fermi.core._file_url(entry) == 'https://example.org/somewhere/x_PH00.fits'
+
+
+def test_bad_input_surfaces_server_error_message(request):
+    """A 400 with {"error": ...} is reported, not swallowed into a bare status."""
+    mp = request.getfixturevalue("monkeypatch")
+    body = json.dumps({'error': 'Invalid query parameters'}).encode()
+    mp.setattr(fermi.FermiLAT, '_request',
+               lambda *a, **kw: MockResponse(body, status_code=400))
+
+    with pytest.raises(RemoteServiceError,
+                       match='Invalid query parameters'):
+        fermi.core.FermiLAT.query_object_async(
+            FK5_COORDINATES, energyrange_MeV='999999,1')
