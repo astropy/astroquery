@@ -290,6 +290,7 @@ The following modules have been completed using a common API:
   ipac/ned/ned.rst
   nist/nist.rst
   noirlab/noirlab.rst
+  nrao/nrao.rst
   nvas/nvas.rst
   simbad/simbad.rst
   skyview/skyview.rst
@@ -399,6 +400,7 @@ generally return a table listing the available data first.
   magpis/magpis.rst
   mast/mast.rst
   ipac/ned/ned.rst
+  nrao/nrao.rst
   nvas/nvas.rst
   sdss/sdss.rst
   skyview/skyview.rst

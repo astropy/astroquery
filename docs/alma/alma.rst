@@ -350,7 +350,7 @@ Query Results
 Results of queries are returned in tabular format. For convenience,
 the `~astroquery.alma.get_enhanced_table` function can be used to have the initial result
 in a more useful format, i.e., turn values into quantities, footprint into
-shape, etc. (Note: this require the `regions` Python package to be installed.
+shape, etc. (Note: this require the `regions`_ Python package to be installed.)
 
 
 .. doctest-remote-data::
@@ -400,7 +400,7 @@ To further draw the footprint:
 
 The above footprint could be transformed into a pixel region and have the mask
 extracted or combined with other regions. Refer to the Astropy affiliated
-''regions'' package for more details.
+`regions`_ package for more details.
 
 
 Downloading Data
@@ -521,3 +521,6 @@ Reference/API
 
 .. automodapi:: astroquery.alma.utils
     :no-inheritance-diagram:
+
+
+.. _regions: https://astropy-regions.readthedocs.io
