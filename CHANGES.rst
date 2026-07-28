@@ -92,6 +92,10 @@ fermi
   now delegate to ``FermiLAT.get_file_urls()`` and take a ``query_id`` rather
   than a results-page URL. [#XXXX]
 - The module no longer emits an "Experimental" warning on import. [#XXXX]
+- Failed queries now surface the server's error message: an HTTP error
+  response with a JSON body such as ``{"error": "..."}`` is raised as a
+  ``RemoteServiceError`` carrying that message, rather than a bare status
+  code. [#XXXX]
 
 
 mast
