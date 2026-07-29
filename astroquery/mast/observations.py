@@ -1086,7 +1086,7 @@ class ObservationsClass(MastQueryWithLogin):
         """
         Get URLs for data products.
         If cloud access is enabled, cloud locations will be returned. By default these are S3
-        URIs. If `full_url=True`, downloadable URLs are returned instead.
+        URIs. If ``full_url`` is True, downloadable URLs are returned instead.
 
         Parameters
         ----------
