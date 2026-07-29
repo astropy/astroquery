@@ -29,7 +29,7 @@ nrao
 
 - Restored and rewritten ``astroquery.nrao`` module, now backed by the NRAO
   TAP service at ``data-query.nrao.edu``. [#3015]
-  
+
 eso
 ^^^
 
@@ -42,11 +42,6 @@ esa.utils
 ^^^^^^^^^^
 
 - Class EsaTap created as abstract class to extend all ESA modules based on PyVO. [#3511]
-
-eso
-^^^
-
-- Add functionality to list and query ESO catalogues. [#3531]
 
 esa.euclid
 ^^^^^^^^^^

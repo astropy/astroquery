@@ -439,7 +439,7 @@ class EsoClass(QueryWithLogin):
                      f"\nNumber of records present in the table {table_name}:\n{num_records}\n")
 
     @unlimited_maxrec
-    def list_catalogs(self, *, all_versions: bool = False, cache: bool = True) -> List[str]:
+    def list_catalogs(self, *, all_versions: bool = False) -> List[str]:
         """
         List available catalogue tables offered by the ESO archive.
 
@@ -449,15 +449,12 @@ class EsoClass(QueryWithLogin):
             If True, list all versions of each catalogue table. If False (default),
             return only the latest version of each catalogue (as determined by the
             TAP_CAT metadata query).
-        cache : bool, optional
-            Deprecated and unused. Retained for backwards compatibility.
 
         Returns
         -------
         list[str]
             List of catalogue table names.
         """
-        _ = cache  # We're aware about disregarding the argument
         schema = _EsoNames.catalog_schema
 
         query_str = (f"SELECT table_name FROM TAP_SCHEMA.tables "
@@ -1153,8 +1150,6 @@ class EsoClass(QueryWithLogin):
                       get_query_payload: bool = False,
                       help: bool = False,
                       authenticated: bool = False,
-                      open_form: bool = False,
-                      cache: bool = False,
                       ) -> Union[Table, int, str]:
         """
         Query catalogue data contained in the ESO archive.
@@ -1196,10 +1191,6 @@ class EsoClass(QueryWithLogin):
             Constraints applied to the query in ADQL syntax,
             e.g., ``{"mag": "< 20"}``.
             Default is ``None``.
-        open_form : bool, optional
-            **Deprecated** - unused.
-        cache : bool, optional
-            **Deprecated** - unused.
 
         Returns
         -------
@@ -1211,7 +1202,6 @@ class EsoClass(QueryWithLogin):
             - When ``get_query_payload`` is ``True``, returns the query string that
               would be issued to the TAP service given the specified arguments.
         """
-        _ = (open_form, cache,)  # make explicit that we are aware these arguments are unused
         column_filters = column_filters if column_filters else {}
 
         schema = _EsoNames.catalog_schema
