@@ -128,6 +128,10 @@ gaia
 - Fixed decimal precision for query_object and cone_search to use 14 decimal places [#3539].
 - Added ``get_query_payload`` kwarg to return the ADQL query string. [#3539]
 
+gemini
+^^^^^^
+
+- Add support for newer instruments (GHOST, IGRINS, IGRINS-2, MAROON-X, ALOPEKE, ZORRO) [#3638]
 
 esa.hubble
 ^^^^^^^^^^
