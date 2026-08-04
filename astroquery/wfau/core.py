@@ -329,8 +329,6 @@ class BaseWFAUClass(QueryWithLogin):
             `list_catalogs`.
         database : str
             The WFAU database to use.
-        verbose : bool
-            Defaults to `True`. When `True` prints additional messages.
         get_query_payload : bool, optional
             If `True` then returns the dictionary sent as the HTTP request.
             Defaults to `False`.

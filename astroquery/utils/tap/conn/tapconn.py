@@ -349,8 +349,6 @@ class TapConn:
         ----------
         data : str, mandatory
             POST data
-        content_type: str, optional, default: application/x-www-form-urlencoded
-            HTTP(s) content-type header value
         verbose : bool, optional, default 'False'
             flag to display information about the process
 

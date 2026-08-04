@@ -59,7 +59,7 @@ def minimize_table(table, *, columns=['name', 'chemical_name',
         A list of column names to keep before merging and cleaning
     merge : bool
         Run merge_frequencies to get a single reported frequency for each line?
-    clean_column_headings : bool
+    clean : bool
         Run clean_column_headings to shorted the headers?
     """
     from .core import colname_mapping_feb2024

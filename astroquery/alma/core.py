@@ -514,7 +514,7 @@ class AlmaClass(QueryWithLogin):
 
         Parameters
         ----------
-        coordinates : str / `astropy.coordinates`
+        coordinate : str / `astropy.coordinates`
             the identifier or coordinates around which to query.
         radius : str / `~astropy.units.Quantity`, optional
             the radius of the region

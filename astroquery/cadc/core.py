@@ -641,8 +641,6 @@ class CadcClass(BaseVOQuery, BaseQuery):
             the maximum records to return. defaults to the service default
         uploads:
             Temporary tables to upload and run with the queries
-        output_file: str or file handler:
-            File to save the results to
 
         Returns
         -------

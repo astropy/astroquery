@@ -617,7 +617,7 @@ class Lookuptable(dict):
 
         Parameters
         ----------
-        s : str
+        st : str
             String to compile as a regular expression
             Can be entered non-specific for broader results
             ('H2O' yields 'H2O' but will also yield 'HCCCH2OD')

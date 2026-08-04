@@ -508,8 +508,8 @@ class EsaTap(BaseVOQuery, BaseQuery):
 
         Parameters
         ----------
-        query_criteria : str, mandatory
-            table name where the query will be executed
+        filters : dict, mandatory
+            column name to value mapping the query will be filtered with
         Returns
         -------
         A string containing the list of SQL filters

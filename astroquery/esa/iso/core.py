@@ -154,13 +154,6 @@ class ISOClass(BaseQuery):
           downloaded, mandatory
           The identifier of the observation we want to retrieve, 8 digits
           example: 40001501
-        product_level : string
-            level to download, optional, by default everything is selected
-            values: DEFAULT_DATA_SET, FULLY_PROC, RAW_DATA, BASIC_SCIENCE,
-            QUICK_LOOK, DEFAULT_DATA_SET, HPDP, ALL
-        retrieval_type : string
-            type of retrieval: OBSERVATION for full observation or STANDALONE
-            for single files
         filename : string
             file name to be used to store the file
         verbose : bool

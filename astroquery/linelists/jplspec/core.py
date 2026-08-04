@@ -397,8 +397,8 @@ class JPLSpecClass(BaseQuery):
 
         Parameters
         ----------
-        text : str
-            The catalog file text content.
+        response : `~requests.Response`
+            The response whose text is the catalog file content.
         verbose : bool, optional
             Not used currently.
 

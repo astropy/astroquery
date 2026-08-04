@@ -164,7 +164,7 @@ class HSAClass(BaseQuery):
             flag to display information about the process
         observation_oid : string, optional
             Observation internal identifies. This is the database identifier
-        istrument_oid : string, optional
+        instrument_oid : string, optional
             The database identifies of the instrument
             values: 1, 2, 3
         product_level : string, optional
@@ -246,7 +246,7 @@ class HSAClass(BaseQuery):
             flag to display information about the process
         observation_oid : string, optional
             Observation internal identifies. This is the database identifier
-        istrument_oid : string, optional
+        instrument_oid : string, optional
             The database identifies of the instrument
             values: 1, 2, 3
         product_level : string, optional

@@ -166,9 +166,6 @@ class IrsaDustClass(BaseQuery):
         timeout : int, optional
             Time limit for establishing successful connection with remote
             server. Defaults to `~astroquery.ipac.irsa.irsa_dust.IrsaDustClass.TIMEOUT`.
-        get_query_payload : bool
-            If `True` then returns the dictionary of query parameters, posted
-            to remote server. Defaults to `False`.
 
         Returns
         -------
@@ -418,7 +415,7 @@ class SingleDustResult:
         """
         Parameters
         ----------
-        xml_root : `xml.etree.ElementTree`
+        xml_tree : `xml.etree.ElementTree`
             the xml tree representing the response to the query
         query_loc : str
             the location string specified in the query

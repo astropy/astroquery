@@ -707,8 +707,8 @@ class CosmoSimClass(QueryWithLogin):
         jobid : string
             The jobid of the sql query. If no jobid is given, it attempts to
             use the most recent job (if it exists in this session).
-        output : bool
-            Print output of response(s) to the terminal
+        squash : bool
+            If left as `None`, a warning naming the deleted job is issued.
 
         Returns
         -------

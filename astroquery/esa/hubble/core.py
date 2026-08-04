@@ -596,7 +596,7 @@ class ESAHubbleClass(EsaTap):
         intent : str, optional
             The intent of the original observer in acquiring this observation.
             SCIENCE or CALIBRATION
-        collection : list of str, optional
+        obs_collection : list of str, optional
             List of collections that are available in eHST catalogue.
             HLA, HST
         instrument_name : list of str, optional

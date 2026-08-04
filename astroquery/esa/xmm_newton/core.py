@@ -379,7 +379,7 @@ class XMMNewtonClass(BaseQuery):
             The name of the tarfile to be processed
         source_number : integer, mandatory
             The source number, in decimal, in the observation
-        instruments : array of strings, optional, default []
+        instrument : array of strings, optional, default []
             An array of strings indicating the desired instruments
         path: string, optional
             If set, extracts the EPIC images in the indicated path
@@ -520,7 +520,7 @@ class XMMNewtonClass(BaseQuery):
             The name of the tarfile to be proccessed
         band : array of integers, optional, default []
             An array of intergers indicating the desired bands
-        instruments : array of strings, optional, default []
+        instrument : array of strings, optional, default []
             An array of strings indicating the desired instruments
         get_detmask : bool, optional
             If True, also extracts the detector masks
@@ -708,7 +708,7 @@ class XMMNewtonClass(BaseQuery):
             The name of the tarfile to be proccessed
         source_number : integer, mandatory
             The source number, in decimal, in the observation
-        instruments : array of strings, optional, default []
+        instrument : array of strings, optional, default []
             An array of strings indicating the desired instruments
         path: string, optional
             If set, extracts the EPIC images in the indicated path
