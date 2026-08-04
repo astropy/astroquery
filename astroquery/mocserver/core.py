@@ -375,7 +375,6 @@ class MOCServerClass(BaseQuery):
             Example: 's3 t45'
         get_query_payload : bool, optional
             If True, returns a dictionary of the query payload instead of the response.
-        verbose : bool, optional
         cache: bool, optional
             Whether the response should be cached.
 

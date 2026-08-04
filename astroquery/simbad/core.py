@@ -1289,9 +1289,6 @@ class SimbadClass(BaseVOQuery):
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
             Defaults to `False`.
-        get_adql : bool, optional
-            Deprecated since '0.4.8'. This is replaced by get_query_payload that contain
-            more information than just the ADQL string
 
         Returns
         -------
@@ -1323,9 +1320,6 @@ class SimbadClass(BaseVOQuery):
             When set to `True` the method returns the HTTP request parameters without
             querying SIMBAD. The ADQL string is in the 'QUERY' key of the payload.
             Defaults to `False`.
-        get_adql : bool, optional
-            Deprecated since '0.4.8'. This is replaced by get_query_payload that contain
-            more information than just the ADQL string
 
         Returns
         -------
