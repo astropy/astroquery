@@ -530,7 +530,7 @@ def parse_numeric_product_filter(vals):
 
     Parameters
     ----------
-    val : str or list of str
+    vals : str or list of str
         The filter value(s). Each entry can be:
         - A single number (e.g., "100")
         - A range in the form "start..end" (e.g., "100..200")

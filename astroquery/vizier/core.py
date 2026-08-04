@@ -371,7 +371,7 @@ class VizierClass(BaseQuery):
             If not specified, all matching catalogs will be searched.
         radius : `~astropy.units.Quantity` or None
             A degree-equivalent radius (optional). It defaults to 2 arcmins.
-        coordinate_system : str or None
+        coordinate_frame : str or None
             If the object name is given as a coordinate, you *should* use
             `~astroquery.vizier.VizierClass.query_region`, but you can
             specify a coordinate frame here instead (today, J2000, B1975,

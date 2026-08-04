@@ -140,7 +140,7 @@ class CadcClass(BaseVOQuery, BaseQuery):
             username to login with
         password : str, required if user is set
             password to login with
-        certificate : str, required if user is None
+        certificate_file : str, required if user is None
             path to certificate to use with logging in
 
         """

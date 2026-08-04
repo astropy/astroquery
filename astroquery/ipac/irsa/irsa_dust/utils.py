@@ -78,7 +78,7 @@ def find_result_node(desc, xml_tree):
 
     Parameters
     -----
-    xmlTree : `xml.etree.ElementTree`
+    xml_tree : `xml.etree.ElementTree`
         the xml tree to search for the <result> node
     desc : string
         the text contained in the desc node
