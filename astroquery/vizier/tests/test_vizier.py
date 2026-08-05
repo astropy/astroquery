@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
+
 import requests
 from numpy import testing as npt
 import pytest
@@ -10,7 +11,7 @@ from astropy.table import Table
 import astropy.units as u
 
 from ... import vizier
-from ...exceptions import EmptyResponseError
+from ...exceptions import EmptyResponseError, RemoteServiceError, TableParseError
 from ...utils import commons
 from astroquery.utils.mocks import MockResponse
 from .conftest import scalar_skycoord, vector_skycoord
@@ -102,6 +103,19 @@ def test_parse_result_verbose(filepath, capsys):
     vizier.core.Vizier._parse_result(response)
     out, err = capsys.readouterr()
     assert out == ''
+
+
+def test_parse_result_invalid_votable():
+    # this doesn't parse as it's missing </ns0:VOTABLE> in the end
+    mock_invalid_votable = MockResponse(
+        b'<?xml version="1.0" encoding="UTF-8"?>\n'
+        b'<ns0:VOTABLE xmlns:ns0="http://www.ivoa.net/xml/VOTable/v1.3" '
+        b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        b'version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 '
+        b'http://www.ivoa.net/xml/VOTable/v1.3">'
+    )
+    with pytest.raises(TableParseError, match="Failed to parse"):
+        vizier.VizierClass()._parse_result(mock_invalid_votable, invalid="exception")
 
 
 @pytest.mark.parametrize(('filepath', 'objlen'),
@@ -290,3 +304,20 @@ class TestVizierClass:
                             return_empty_votable)
         with pytest.raises(EmptyResponseError, match="'*' was not found in VizieR*"):
             v.get_catalog_metadata()
+
+
+def test_query_error_response(monkeypatch):
+    """Checks that an error response from the server raises an error."""
+    with open(data_path("no_server_error.xml"), 'rb') as f:
+        error_content = f.read()
+
+    def mock_request(method, url, req_data=None, timeout=10, files=None,
+                     params=None, headers=None, **kwargs):
+        return MockResponse(error_content)
+
+    monkeypatch.setattr(requests.Session, 'request', mock_request)
+
+    v = vizier.core.Vizier()
+    with pytest.raises(RemoteServiceError,
+                       match="The database is not currently reachable"):
+        v.query_region(scalar_skycoord, radius=5 * u.deg)

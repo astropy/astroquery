@@ -209,7 +209,7 @@ def mock_datalink_querier(patch_datetime_now):
     # The query contains decimals: default response is more robust.
     conn_handler.set_default_response(launch_response)
     conn_handler.set_response(
-        '?DATA_STRUCTURE=INDIVIDUAL&FORMAT=votable&ID=5937083312263887616&RELEASE=Gaia+DR3&RETRIEVAL_TYPE=ALL'
+        '?DATA_STRUCTURE=DATAMODEL_STANDARD&FORMAT=votable&ID=5937083312263887616&RELEASE=Gaia+DR3&RETRIEVAL_TYPE=ALL'
         '&USE_ZIP_ALWAYS=true&VALID_DATA=false',
         launch_response)
 
@@ -226,7 +226,7 @@ def mock_datalink_querier_ecsv():
     # The query contains decimals: default response is more robust.
     conn_handler.set_default_response(launch_response)
     conn_handler.set_response(
-        '?DATA_STRUCTURE=INDIVIDUAL&FORMAT=ecsv&ID=5937083312263887616&RELEASE=Gaia+DR3&RETRIEVAL_TYPE=ALL'
+        '?DATA_STRUCTURE=DATAMODEL_STANDARD&FORMAT=ecsv&ID=5937083312263887616&RELEASE=Gaia+DR3&RETRIEVAL_TYPE=ALL'
         '&USE_ZIP_ALWAYS=true&VALID_DATA=false',
         launch_response)
 
@@ -243,7 +243,7 @@ def mock_datalink_querier_csv():
     # The query contains decimals: default response is more robust.
     conn_handler.set_default_response(launch_response)
     conn_handler.set_response(
-        '?DATA_STRUCTURE=INDIVIDUAL&FORMAT=csv&ID=5937083312263887616&RELEASE=Gaia+DR3&RETRIEVAL_TYPE=ALL'
+        '?DATA_STRUCTURE=DATAMODEL_STANDARD&FORMAT=csv&ID=5937083312263887616&RELEASE=Gaia+DR3&RETRIEVAL_TYPE=ALL'
         '&USE_ZIP_ALWAYS=true&VALID_DATA=false',
         launch_response)
 
@@ -260,7 +260,7 @@ def mock_datalink_querier_fits():
     # The query contains decimals: default response is more robust.
     conn_handler.set_default_response(launch_response)
     conn_handler.set_response(
-        '?DATA_STRUCTURE=INDIVIDUAL&FORMAT=fits&ID=5937083312263887616&RELEASE=Gaia+DR3&RETRIEVAL_TYPE=ALL'
+        '?DATA_STRUCTURE=DATAMODEL_STANDARD&FORMAT=fits&ID=5937083312263887616&RELEASE=Gaia+DR3&RETRIEVAL_TYPE=ALL'
         '&USE_ZIP_ALWAYS=true&VALID_DATA=false',
         launch_response)
 
@@ -898,7 +898,7 @@ def test_datalink_querier_load_data_vot_exception(mock_datalink_querier, overwri
 
         with pytest.raises(ValueError) as excinfo:
             mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
-                                            data_structure='INDIVIDUAL',
+                                            data_structure='DATAMODEL_STANDARD',
                                             retrieval_type="ALL",
                                             linking_parameter='SOURCE_ID', valid_data=False,
                                             avoid_datatype_check=False,
@@ -911,7 +911,7 @@ def test_datalink_querier_load_data_vot_exception(mock_datalink_querier, overwri
 
     else:
         mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
-                                        data_structure='INDIVIDUAL',
+                                        data_structure='DATAMODEL_STANDARD',
                                         retrieval_type="ALL",
                                         linking_parameter='SOURCE_ID', valid_data=False,
                                         avoid_datatype_check=False,
@@ -926,7 +926,7 @@ def test_datalink_querier_load_data_vot_exception(mock_datalink_querier, overwri
 
 def test_datalink_querier_load_data_vot(mock_datalink_querier):
     result_dict = mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
-                                                  data_structure='INDIVIDUAL',
+                                                  data_structure='DATAMODEL_STANDARD',
                                                   retrieval_type="ALL",
                                                   linking_parameter='SOURCE_ID', valid_data=False,
                                                   avoid_datatype_check=False,
@@ -964,7 +964,7 @@ def test_datalink_querier_load_data_vot(mock_datalink_querier):
 
 def test_datalink_querier_load_data_ecsv(mock_datalink_querier_ecsv):
     result_dict = mock_datalink_querier_ecsv.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
-                                                       data_structure='INDIVIDUAL',
+                                                       data_structure='DATAMODEL_STANDARD',
                                                        retrieval_type="ALL",
                                                        linking_parameter='SOURCE_ID', valid_data=False,
                                                        avoid_datatype_check=False,
@@ -1005,7 +1005,7 @@ def test_datalink_querier_load_data_ecsv(mock_datalink_querier_ecsv):
 
 def test_datalink_querier_load_data_csv(mock_datalink_querier_csv):
     result_dict = mock_datalink_querier_csv.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
-                                                      data_structure='INDIVIDUAL',
+                                                      data_structure='DATAMODEL_STANDARD',
                                                       retrieval_type="ALL",
                                                       linking_parameter='SOURCE_ID', valid_data=False,
                                                       avoid_datatype_check=False,
@@ -1047,7 +1047,7 @@ def test_datalink_querier_load_data_csv(mock_datalink_querier_csv):
 @pytest.mark.filterwarnings("ignore:")
 def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
     result_dict = mock_datalink_querier_fits.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
-                                                       data_structure='INDIVIDUAL',
+                                                       data_structure='DATAMODEL_STANDARD',
                                                        retrieval_type="ALL",
                                                        linking_parameter='SOURCE_ID', valid_data=False,
                                                        avoid_datatype_check=False,
@@ -1105,7 +1105,7 @@ def test_load_data_vot(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_n
             "ID": "1,2,3,4",
             "FORMAT": "votable",
             "RETRIEVAL_TYPE": "epoch_photometry",
-            "DATA_STRUCTURE": "INDIVIDUAL",
+            "DATA_STRUCTURE": "DATAMODEL_STANDARD",
             "USE_ZIP_ALWAYS": "true"}
         assert str(path) == output_file
         assert verbose is True
@@ -1148,7 +1148,7 @@ def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_
             "ID": "1,2,3,4",
             "FORMAT": "fits",
             "RETRIEVAL_TYPE": "epoch_photometry",
-            "DATA_STRUCTURE": "INDIVIDUAL",
+            "DATA_STRUCTURE": "DATAMODEL_STANDARD",
             "USE_ZIP_ALWAYS": "true"}
         assert str(path) == output_file
         assert verbose is True
@@ -1186,7 +1186,7 @@ def test_load_data_csv(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_n
             "ID": "1,2,3,4",
             "FORMAT": "csv",
             "RETRIEVAL_TYPE": "epoch_photometry",
-            "DATA_STRUCTURE": "INDIVIDUAL",
+            "DATA_STRUCTURE": "DATAMODEL_STANDARD",
             "USE_ZIP_ALWAYS": "true"}
         assert str(path) == output_file
         assert verbose is True
@@ -1224,7 +1224,7 @@ def test_load_data_ecsv(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_
             "ID": "1,2,3,4",
             "FORMAT": "ecsv",
             "RETRIEVAL_TYPE": "epoch_photometry",
-            "DATA_STRUCTURE": "INDIVIDUAL",
+            "DATA_STRUCTURE": "DATAMODEL_STANDARD",
             "USE_ZIP_ALWAYS": "true"}
         assert str(path) == output_file
         assert verbose is True
@@ -1262,7 +1262,7 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path, patch_datetime_now):
             "ID": "1,2,3,4",
             "FORMAT": "votable",
             "RETRIEVAL_TYPE": "epoch_photometry",
-            "DATA_STRUCTURE": "INDIVIDUAL",
+            "DATA_STRUCTURE": "DATAMODEL_STANDARD",
             "USE_ZIP_ALWAYS": "true"}
         assert str(path) == output_file
         assert verbose is True
@@ -1310,7 +1310,7 @@ def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_
             "ID": "1,2,3,4",
             "FORMAT": "votable",
             "RETRIEVAL_TYPE": "epoch_photometry",
-            "DATA_STRUCTURE": "INDIVIDUAL",
+            "DATA_STRUCTURE": "DATAMODEL_STANDARD",
             "LINKING_PARAMETER": linking_param,
             "USE_ZIP_ALWAYS": "true", }
         assert output_file == str(Path(os.getcwd(), datalink_output))

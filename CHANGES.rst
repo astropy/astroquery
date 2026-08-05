@@ -24,7 +24,16 @@ esa.emds.einsteinprobe
 
 - New module to access the ESA Einstein Probe Science Archive. [#3511]
 
+nrao
+^^^^
 
+- Restored and rewritten ``astroquery.nrao`` module, now backed by the NRAO
+  TAP service at ``data-query.nrao.edu``. [#3015]
+
+eso
+^^^
+
+- Add functionality to list and query ESO catalogues. [#3531]
 
 API changes
 -----------
@@ -66,6 +75,11 @@ esa.euclid
    ``latest``. [#3601]
 - The methods ``get_product_list`` and ``get_scientific_product_list`` accept the new parameter ``schema``. [#3611]
 
+gaia
+^^^^
+
+- The values that the ``data_structure parameter`` can accept have been changed from RAW to DATAMODEL_GAIA, and from
+  INDIVIDUAL to DATAMODEL_STANDARD. [#3629]
 
 vizier
 ^^^^^^
@@ -119,6 +133,10 @@ gaia
 - Fixed decimal precision for query_object and cone_search to use 14 decimal places [#3539].
 - Added ``get_query_payload`` kwarg to return the ADQL query string. [#3539]
 
+gemini
+^^^^^^
+
+- Add support for newer instruments (GHOST, IGRINS, IGRINS-2, MAROON-X, ALOPEKE, ZORRO) [#3638]
 
 esa.hubble
 ^^^^^^^^^^
@@ -141,6 +159,13 @@ ipac.irsa
   were typos; the API expects ``naifid``. Old ``obj_nafid`` keyword and
   ``"nafid_input"`` ``input_mode`` still work but emit
   ``AstropyDeprecationWarning``. [#3607]
+
+casda
+^^^^^
+
+- Preserve the percent-encoding of staged file URLs so that pre-signed S3
+  download URLs remain valid. Previously the URLs were unquoted, which corrupted
+  pre-signed URLs and could raise errors when parsed by ``urllib``. [#3636]
 
 
 mast
@@ -214,6 +239,13 @@ simbad
 
 - Add the possibility to declare more information in the HTTP User-Agent header
   in ``SimbadClass`` [#3529]
+
+vizier
+~~~~~~
+
+- When server-side errors occur (ex: VizieR is overloaded), the response is not kept in
+  astroquery's cache anymore, and a Python error is raised instead of returning a
+  misleading empty ``TableList`` [#3632]
 
 xmatch
 ^^^^^^

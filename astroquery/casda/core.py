@@ -280,7 +280,7 @@ class CasdaClass(QueryWithLogin):
         job_details = self._get_job_details_xml(job_url)
         fileurls = []
         for result in job_details.find("uws:results", self._uws_ns).findall("uws:result", self._uws_ns):
-            file_location = unquote(result.get("{http://www.w3.org/1999/xlink}href"))
+            file_location = result.get("{http://www.w3.org/1999/xlink}href")
             fileurls.append(file_location)
 
         return fileurls
