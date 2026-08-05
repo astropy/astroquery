@@ -249,7 +249,7 @@ class ServiceAPI(BaseQuery):
 
         Parameters
         ----------
-        responses : `~requests.Response`
+        response : `~requests.Response`
             The restponse from a self._request call.
         verbose : bool
             (presently does nothing - there is no output with verbose set to

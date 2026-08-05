@@ -139,7 +139,7 @@ class IrsaClass(BaseVOQuery):
         pos : `~astropy.coordinates.SkyCoord` class or sequence of two floats
             the position of the center of the circular search region.
             assuming icrs decimal degrees if unit is not specified.
-        raidus : `~astropy.units.Quantity` class or scalar float
+        radius : `~astropy.units.Quantity` class or scalar float
             the radius of the circular region around pos in which to search.
             assuming icrs decimal degrees if unit is not specified.
         band : `~astropy.units.Quantity` class or sequence of two floats

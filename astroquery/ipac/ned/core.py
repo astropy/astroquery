@@ -503,7 +503,7 @@ class NedClass(BaseQuery):
         html_in : str
             source from which the urls are to be extracted
 
-        format : str, optional
+        file_format : str, optional
             Format of spectra to return. Defaults to 'fits'.
             Other options available: 'author-ascii', 'NED-ascii', 'VO-table'.
 
