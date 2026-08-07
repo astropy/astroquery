@@ -94,7 +94,7 @@ class TestHeasarc:
         assert isinstance(result, Table)
         assert len(result) == 3
         # assert all columns are returned
-        assert len(result.colnames) == 53
+        assert len(result.colnames) == 54
 
     def test_query_columns_radius(self):
         """
