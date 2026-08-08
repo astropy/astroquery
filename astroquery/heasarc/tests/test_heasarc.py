@@ -239,13 +239,12 @@ def test_no_catalog():
     with pytest.raises(InvalidQueryError):
         # OBJ_LIST[0] and radius added to avoid a remote call
         Heasarc.query_region(
-            OBJ_LIST[0], spatial="cone", columns="*", radius="2arcmin")
+            OBJ_LIST[0], catalog=None, spatial="cone")
 
 
 def test__query_execute_no_catalog():
     with pytest.raises(InvalidQueryError):
-        # OBJ_LIST[0] and radius added to avoid a remote call
-        Heasarc._query_execute(None)
+        Heasarc._query_execute(catalog=None)
 
 
 def test_parse_constraints_no_filter():
@@ -730,3 +729,17 @@ def test_s3_mock_directory(s3_mock):
 def test_row_count(mock_tap, mock_default_cols):
     cat = "name-1"
     assert Heasarc.count_rows(cat) == 3055
+
+
+def test_query_region_offset_with_no_column():
+    # use columns='*' to avoid remote call to obtain the default columns
+    query = Heasarc.query_region(
+        OBJ_LIST[0],
+        catalog="suzamaster",
+        spatial="cone",
+        radius="2arcmin",
+        columns='*',
+        get_query_payload=True,
+        add_offset=True,
+    )
+    assert ',DISTANCE(POINT(' in query
