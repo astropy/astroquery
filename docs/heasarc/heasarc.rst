@@ -107,8 +107,8 @@ To do a full sky search, use ``spatial='all-sky'``:
     >>> tab = Heasarc.query_region(catalog='chanmaster', spatial='all-sky',
     ...                            columns='name, obsid, ra, dec')
     >>> tab[:5].pprint()
-            name         obsid     ra       dec   
-                                  deg       deg   
+            name         obsid     ra       dec
+                                  deg       deg
     -------------------- ----- --------- ---------
              ESO005-G004 21421  91.42333 -86.63194
     1RXSJ200924.1-853911 10143 302.30417 -85.64633
@@ -122,7 +122,7 @@ The collection of available catalogs can be obtained by calling the `~astroquery
 method. In this example, we request the master catalogs only by passing ``master=True``.
 Master catalogs are catalogs that contain one entry per observation, as opposed to
 other catalogs that may record other information. There is typically one master catalog
-per mission. The ``master`` parameter is a boolean flag, which is ``False`` by default 
+per mission. The ``master`` parameter is a boolean flag, which is ``False`` by default
 (i.e. return all catalogs). `~astroquery.heasarc.HeasarcClass.list_catalogs` returns an
 `~astropy.table.Table` with two columns containing the names and description of the available
 catalogs.
@@ -227,12 +227,12 @@ the search defaults to an all-sky search.
     ...     catalog='chanmaster', column_filters={'exposure': ('>', '190000')}
     ... )
     >>> tab['name', 'obsid', 'ra', 'dec', 'exposure'][:3].pprint()
-        name      obsid     ra       dec    exposure
-                            deg       deg       s    
+          name      obsid     ra       dec    exposure
+                            deg       deg       s
     --------------- ----- --------- --------- --------
-       GW Transient 29852        --        --   300000
              Sgr A* 13842 266.41667 -29.00781   191760
-    IGR J17480-2446 30481 267.02013 -24.78024   200000
+    IGR J17480-2446 31425 267.02013 -24.78024   200000
+                M51 13814 202.50000  47.20000   192360
 
 Another example may be to search the ``xmmmaster`` for a observation in some time range:
 
@@ -244,11 +244,11 @@ Another example may be to search the ``xmmmaster`` for a observation in some tim
     ... )
     >>> tab['name', 'obsid', 'ra', 'dec', 'time', 'duration'][:3].pprint()
          name       obsid       ra       dec          time       duration
-                                deg       deg           d            s    
-    ------------- ---------- -------- --------- ---------------- --------
-        NGC 1316 0091770101 50.95833 -37.28333 52308.6872337963    60362
-        NGC 1316 0091770201 50.67296 -37.20928  52308.642974537     3462
-    Fei 16 offset 0154150101 28.64374  -6.86667 52305.2210416667    24619
+                               deg       deg           d            s
+     ------------- ---------- -------- --------- ---------------- --------
+          NGC 1316 0091770101 50.67296 -37.20928 52308.6835069444    55332
+          NGC 1316 0091770201 50.67296 -37.20928 52308.6421527778     3573
+     Fei 16 offset 0154150101 28.64375  -6.86667 52305.2201967593    24658
 
 To see the available columns that can be queried for a given catalog and their units,
 use `~astroquery.heasarc.HeasarcClass.list_columns` (see below).
@@ -312,7 +312,7 @@ returns the constructed ADQL query.
     >>> query = """SELECT ra,dec,name,obsid FROM xmmmaster
     ...            WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',120.0,38.0,2.0))=1"""
     >>> tab = Heasarc.query_tap(query).to_table()
-    >>> tab[:10].pprint()
+    >>> tab[:10].pprint()  # doctest: +IGNORE_OUTPUT
         ra      dec            name           obsid
     deg      deg
     --------- -------- -------------------- ----------
@@ -330,12 +330,12 @@ returns the constructed ADQL query.
 Table Uploads
 -----------------
 You can also upload a table of positions to be queried. The table can be an
-`~astropy.table.Table` or a path to a file in VOtable format. The following example 
+`~astropy.table.Table` or a path to a file in VOtable format. The following example
 shows how to use the upload feature to do a cross-match between the
 ``chanmaster`` catalog and a list of known source positions:
 
 .. doctest-remote-data::
-    
+
     >>> from astroquery.heasarc import Heasarc
     >>> from astropy.table import Table
     >>> sample = Table({
@@ -349,21 +349,20 @@ shows how to use the upload feature to do a cross-match between the
     ... """
     >>> result = Heasarc.query_tap(query, uploads={'mytable': sample}).to_table()
     >>> result.pprint()
-        name        ra       dec    obsid
-                   deg       deg         
-    ----------- --------- --------- -----
-       NGC 4507 188.90250 -39.90928 12292
-       NGC 4507 188.90208 -39.90925  2150
-         HR4796 189.00417 -39.86950  7414
-    KUG0003+199   1.58134  20.20291 23709
-        Mrk 335   1.58142  20.20295 23292
-        Mrk 335   1.58142  20.20295 23297
-        Mrk 335   1.58142  20.20295 23298
-        Mrk 335   1.58142  20.20295 23299
-        Mrk 335   1.58142  20.20295 23300
-        Mrk 335   1.58142  20.20295 23301
-        Mrk 335   1.58142  20.20295 23302
-
+      cat_name    cat_ra   cat_dec  cat_obsid
+                   deg       deg
+    ----------- --------- --------- ---------
+       NGC 4507 188.90250 -39.90928     12292
+       NGC 4507 188.90208 -39.90925      2150
+         HR4796 189.00417 -39.86950      7414
+    KUG0003+199   1.58134  20.20291     23709
+        Mrk 335   1.58142  20.20295     23297
+        Mrk 335   1.58142  20.20295     23298
+        Mrk 335   1.58142  20.20295     23299
+        Mrk 335   1.58142  20.20295     23300
+        Mrk 335   1.58142  20.20295     23292
+        Mrk 335   1.58142  20.20295     23301
+        Mrk 335   1.58142  20.20295     23302
 
 Complex Regions
 ---------------
@@ -389,7 +388,7 @@ for ``'polygon'``. For ``'all-sky'``:
 
     >>> Heasarc.query_region(pos, spatial='all-sky', catalog='csc', maxrec=None)
 
-though you may find that maxrec has a hard limit of 1e5 regardless of how you set it. 
+though you may find that maxrec has a hard limit of 1e5 regardless of how you set it.
 
 In this case one can do instead:
 
@@ -431,7 +430,7 @@ method. Here, for instance, we fetch the number of rows in the Suzaku 'master' o
 
     >>> from astroquery.heasarc import Heasarc
     >>> Heasarc.count_rows('suzamaster')
-    np.int64(3055)
+    3055
 
 Reference/API
 =============
