@@ -29,15 +29,15 @@ and show how to download the corresponding data products.
 
 .. doctest-remote-data::
 
-    >>> from astropy.coordinates import SkyCoord   # doctest: +SKIP
+    >>> from astropy.coordinates import SkyCoord
     >>> import astropy.units as u  
-    >>> coords = SkyCoord.from_name("HD 37903")  # doctest: +SKIP
-    >>> ra = coords.ra.value  # doctest: +SKIP
-    >>> dec = coords.dec.value  # doctest: +SKIP
-    >>> r = (1*u.arcsec).to(u.deg).value  # doctest: +SKIP
+    >>> coords = SkyCoord.from_name("HD 37903")
+    >>> ra = coords.ra.value
+    >>> dec = coords.dec.value
+    >>> r = (1*u.arcsec).to(u.deg).value
 
-    >>> table_raw = eso.query_main("ESPRESSO", cone_ra=ra, cone_dec=dec, cone_radius=r)  # doctest: +SKIP
-    >>> table_reduced = eso.query_surveys("ESPRESSO", cone_ra=ra, cone_dec=dec, cone_radius=r)  # doctest: +SKIP
+    >>> table_raw = eso.query_main("ESPRESSO", cone_ra=ra, cone_dec=dec, cone_radius=r)  # doctest: +REMOTE_DATA
+    >>> table_reduced = eso.query_surveys("ESPRESSO", cone_ra=ra, cone_dec=dec, cone_radius=r)  # doctest: +REMOTE_DATA
     
     >>> eso.retrieve_data(table_raw["dp_id"])  # doctest: +SKIP
     >>> eso.retrieve_data(table_reduced["dp_id"])  # doctest: +SKIP
@@ -53,7 +53,7 @@ catalogue and inspect a small subset of rows:
 .. doctest-remote-data::
 
     >>> eso.ROW_LIMIT = 5
-    >>> table_cat = eso.query_catalog("KiDS_DR4_1_ugriZYJHKs_cat_fits")
+    >>> table_cat = eso.query_catalog("KiDS_DR4_1_ugriZYJHKs_cat_fits")  # doctest: +IGNORE_WARNINGS
 
 By default, queries are limited to returning a maximum of 1000 rows. This limit
 can be modified by setting ``eso.ROW_LIMIT``. To disable truncation

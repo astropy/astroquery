@@ -69,7 +69,7 @@ Cone search for raw data products can be performed using the instrument-specific
     ...             cone_ra=ra.value,
     ...             cone_dec=dec.value,
     ...             cone_radius=radius.to(u.deg).value
-    ...                           )
+    ...                           )  # doctest: +IGNORE_WARNINGS
 
 Generic Cone Search
 -------------------
@@ -83,7 +83,7 @@ Cone search for raw data products can also be performed using the more generic m
     ...             cone_ra=ra.value,
     ...             cone_dec=dec.value,
     ...             cone_radius=radius.to(u.deg).value
-    ...                           )
+    ...                           )  # doctest: +IGNORE_WARNINGS
 
 Download Data
 =============

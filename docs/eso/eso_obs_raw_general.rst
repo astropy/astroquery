@@ -68,7 +68,7 @@ time constraint specified down to the second.
 
 .. doctest-remote-data::
 
-    >>> coords = SkyCoord.from_name("SN2013am")  # doctest: +SKIP
+    >>> coords = SkyCoord.from_name("SN2013am")
     >>> ra = coords.ra.value
     >>> dec = coords.dec.value
     >>> r = (30 * u.arcsec).to(u.deg).value
@@ -83,8 +83,8 @@ time constraint specified down to the second.
     ...                  "exp_start": "between '2013-04-12' and '2013-04-12T04:52:06'"
     ...              },
     ...              columns=["object", "ra", "dec", "date_obs", "instrument", "prog_id"],
-    ...              )  # doctest: +SKIP
-    >>> table # doctest: +SKIP
+    ...              )
+    >>> table # doctest: +IGNORE_OUTPUT
     <Table length=13>
     object      ra      dec            date_obs            prog_id    instrument
                 deg      deg                                                     
@@ -183,10 +183,10 @@ from the interferometric instruments ``MIDI``, ``GRAVITY``, and ``PIONIER`` with
 
 .. doctest-remote-data::
 
-    >>> coords = SkyCoord.from_name("ETA CAR")  # doctest: +SKIP
+    >>> coords = SkyCoord.from_name("ETA CAR")
     >>> ra = coords.ra.value
     >>> dec = coords.dec.value
-    >>> r = (10 * u.arcsec).to(u.deg).value 
+    >>> r = (10 * u.arcsec).to(u.deg).value
 
 .. doctest-remote-data::
 
@@ -195,12 +195,11 @@ from the interferometric instruments ``MIDI``, ``GRAVITY``, and ``PIONIER`` with
     ...              cone_dec=dec,
     ...              cone_radius=r,
     ...              instruments=["midi", "gravity", "pionier"],
-    ...              column_filters={
     ...              columns=["instrument", "object", "ra", "dec", "date_obs", "prog_id"]
-    ...              )  # doctest: +SKIP
-    >>> print(len(table)) # doctest: +SKIP
+    ...              )
+    >>> print(len(table)) # doctest: +IGNORE_OUTPUT
     622
-    >>> table[["object", "ra", "dec", "date_obs", "prog_id"]] # doctest: +SKIP
+    >>> table[["object", "ra", "dec", "date_obs", "prog_id"]] # doctest: +IGNORE_OUTPUT
     <Table length=622>
     object         ra         dec            date_obs            prog_id    instrument
                     deg         deg                                                     
@@ -233,7 +232,7 @@ from the interferometric instruments ``MIDI``, ``GRAVITY``, and ``PIONIER`` with
         ...     "night_flag": "night",         # Nighttime observations only
         ...     "moon_illu": "< 0",            # No moon (below horizon)
         ...     "lst": "between 0 and 6"}      # Local sidereal time early in the night
-        >>> table = eso.query_instrument("midi", column_filters=column_filters) # doctest: +SKIP
+        >>> table = eso.query_instrument("midi", column_filters=column_filters) # doctest: +IGNORE_WARNINGS, +REMOTE_DATA
 
 Download Data
 =============

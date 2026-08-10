@@ -293,10 +293,10 @@ This can also be done using a name resolver for the target coordinates, as previ
     >>> import astropy.units as u
     >>> from astropy.coordinates import SkyCoord
 
-    >>> target = SkyCoord.from_name("ESO 154-10") # doctest: +SKIP
-    >>> ra_deg = target.icrs.ra.to_value(u.deg) # doctest: +SKIP
-    >>> dec_deg = target.icrs.dec.to_value(u.deg) # doctest: +SKIP
-    >>> radius_deg = (3 * u.arcmin).to_value(u.deg)  # doctest: +SKIP
+    >>> target = SkyCoord.from_name("ESO 154-10")  # doctest: +REMOTE_DATA
+    >>> ra_deg = target.icrs.ra.to_value(u.deg)  # doctest: +REMOTE_DATA
+    >>> dec_deg = target.icrs.dec.to_value(u.deg)  # doctest: +REMOTE_DATA
+    >>> radius_deg = (3 * u.arcmin).to_value(u.deg)  # doctest: +REMOTE_DATA
 
 .. doctest-remote-data::
 
@@ -313,4 +313,4 @@ This can also be done using a name resolver for the target coordinates, as previ
     ... ) = 1
     ... ORDER BY transient_id
     ... """
-    >>> table = eso.query_tap(query, tap_endpoint="tap_cat") # doctest: +SKIP
+    >>> table = eso.query_tap(query, tap_endpoint="tap_cat")  # doctest: +REMOTE_DATA

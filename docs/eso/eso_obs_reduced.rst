@@ -40,7 +40,7 @@ As before, list the possible columns in :meth:`~astroquery.eso.EsoClass.query_su
 
 .. doctest-remote-data::
 
-    >>> eso.query_surveys(help=True) # get help on the ESO query
+    >>> eso.query_surveys(help=True) # doctest: +IGNORE_OUTPUT
     INFO: 
     Columns present in the table ivoa.ObsCore:
         column_name     datatype    xtype     unit 
@@ -74,7 +74,7 @@ Let's assume that we work with the `HARPS survey <https://www.eso.org/rm/api/v1/
 
 .. doctest-remote-data::
 
-    >>> table = eso.query_surveys(surveys="HARPS")
+    >>> table = eso.query_surveys(surveys="HARPS")  # doctest: +IGNORE_WARNINGS
     >>> table # doctest: +IGNORE_OUTPUT
     <Table length=1000>
     target_name     s_ra     s_dec              dp_id             proposal_id  abmaglim access_estsize ...   snr    strehl t_exptime     t_max          t_min      t_resolution t_xel
@@ -91,7 +91,7 @@ Suppose we want both `HARPS survey <https://www.eso.org/rm/api/v1/public/release
 
 .. doctest-remote-data::
 
-    >>> table = eso.query_surveys(surveys=["HARPS", "NIRPS"])
+    >>> table = eso.query_surveys(surveys=["HARPS", "NIRPS"])  # doctest: +IGNORE_WARNINGS
     >>> table # doctest: +IGNORE_OUTPUT
     <Table length=1000>
     target_name     s_ra     s_dec              dp_id             proposal_id  abmaglim access_estsize ...   snr    strehl t_exptime     t_max          t_min      t_resolution t_xel
@@ -142,8 +142,8 @@ More details about this method are in the following section.
         ... WHERE release_description IS NOT NULL
         ... ORDER BY obs_collection, release_description
         ... """
-        >>> table = eso.query_tap(query) # doctest: +SKIP
-        >>> print(table[:5]) # doctest: +SKIP
+        >>> table = eso.query_tap(query)  # doctest: +REMOTE_DATA
+        >>> print(table[:5]) # doctest: +IGNORE_OUTPUT, +REMOTE_DATA
         obs_collection                     release_description                    
         -------------- -----------------------------------------------------------
             081.C-0827 http://www.eso.org/rm/api/v1/public/releaseDescriptions/160

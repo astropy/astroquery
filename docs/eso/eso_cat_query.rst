@@ -106,8 +106,8 @@ table. To see more infomation on this specific version of the Kilo-Degree Survey
         ... WHERE schema_name = 'safcat' AND cat_id IS NOT NULL
         ... ORDER BY cat_id
         ... """
-        >>> tbl = eso.query_tap(query, tap_endpoint="tap_cat") # doctest: +SKIP
-        >>> print(tbl[:5]) # doctest: +SKIP
+        >>> tbl = eso.query_tap(query, tap_endpoint="tap_cat")  # doctest: +REMOTE_DATA
+        >>> print(tbl[:5]) # doctest: +IGNORE_OUTPUT, +REMOTE_DATA
         table_name       cat_id                  release_documentation_url                 
         ---------------- ------ -----------------------------------------------------------
         AMBRE_V1             13 https://www.eso.org/rm/api/v1/public/releaseDescriptions/7
@@ -126,7 +126,7 @@ small row limit, which can be set with e.g. ``eso.ROW_LIMIT = 5``:
 .. doctest-remote-data::
 
     >>> eso.ROW_LIMIT = 5
-    >>> table = eso.query_catalog(catalog='KiDS_DR4_1_ugriZYJHKs_cat_fits')
+    >>> table = eso.query_catalog(catalog='KiDS_DR4_1_ugriZYJHKs_cat_fits')  # doctest: +IGNORE_WARNINGS
     >>> table # doctest: +IGNORE_OUTPUT
     WARNING: MaxResultsWarning: Results truncated to 5. To retrieve all the records set to None the ROW_LIMIT attribute [astroquery.eso.core]
     <Table length=5>
@@ -154,7 +154,7 @@ the available columns, you can do:
     ...     catalog='KiDS_DR4_1_ugriZYJHKs_cat_fits',
     ...     columns=["ID", "RAJ2000", "DECJ2000", "KIDS_TILE", "MAG_AUTO", "MAGERR_AUTO"],
     ...     column_filters={"MAG_AUTO": "<10"}
-    ... )
+    ... )  # doctest: +IGNORE_WARNINGS
     >>> table # doctest: +IGNORE_OUTPUT
     <Table length=38>
                   ID                   RAJ2000             DECJ2000      ... MAG_AUTO MAGERR_AUTO

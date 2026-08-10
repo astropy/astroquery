@@ -44,9 +44,9 @@ The following example demonstrates how to query the ``dbo.raw`` table for raw da
     >>> query = """
     ...         SELECT *
     ...         FROM dbo.raw
-    ...             AND instrument = 'MUSE'
+    ...         WHERE instrument = 'MUSE'
     ...          """
-    >>> table = eso.query_tap(query)
+    >>> table = eso.query_tap(query)  # doctest: +IGNORE_WARNINGS
 
 Query for Raw Data (Instrument-Specific)
 ========================================
@@ -169,7 +169,7 @@ column, which represents the sky footprint of each dataset.
 .. doctest-remote-data::
 
     >>> table = eso.query_tap(query=query)
-    >>> print("Num matching datasets: %d" % (len(table)))
+    >>> print("Num matching datasets: %d" % (len(table)))  # doctest: +IGNORE_OUTPUT
     Num matching datasets: 219
 
 .. note::
@@ -306,7 +306,7 @@ returns matching datasets ordered by ``t_min``.
     ...             ))=1
     ...             ORDER BY t_min ASC
     ...      """
-    >>> table = eso.query_tap(query=query)
+    >>> table = eso.query_tap(query=query)  # doctest: +IGNORE_WARNINGS
     >>> table # doctest: +IGNORE_OUTPUT
     <Table length=1415>
         t_min        snr   abmaglim     type                dp_id           
@@ -353,7 +353,7 @@ join to find HAWKI source tables:
     ...             WHERE INTERSECTS(J.s_region, H.s_region)=1
     ...             AND ESO_INTERSECTION(J.s_region, H.s_region) > 0.8 * AREA(J.s_region)
     ...         """
-    >>> table = eso.query_tap(query=query)
+    >>> table = eso.query_tap(query=query)  # doctest: +IGNORE_WARNINGS
     >>> table # doctest: +IGNORE_OUTPUT
     <Table length=4224>
     abmaglim access_estsize               access_format                ... t_resolution t_xel target_name
@@ -466,7 +466,7 @@ Download Data
 As with the other functionality, to download the data returned by the above data queries (i.e. not the stats queries), you can use the :meth:`~astroquery.eso.EsoClass.retrieve_data` method. This method takes a list of data product IDs (``dp_id``) and downloads the corresponding files from the ESO archive.
 
 .. doctest-remote-data::
-    >>> eso.retrieve_data(table["dp_id"])
+    >>> eso.retrieve_data(table["dp_id"])  # doctest: +SKIP
 
 The ``data_files`` list points to the decompressed dataset filenames that have been locally downloaded. The default location of the decompressed datasets can be adjusted by providing a ``destination`` keyword in the call to :meth:`~astroquery.eso.EsoClass.retrieve_data`.
 

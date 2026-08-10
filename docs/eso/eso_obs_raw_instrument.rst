@@ -105,7 +105,7 @@ The ``columns`` argument controls which fields are returned in the results table
     ...             column_filters={
     ...                 "exp_start": "between '2008-01-01' and '2009-05-12'"},
     ...             columns=["object", "date_obs"]
-    ...                             )
+    ...                             )  # doctest: +IGNORE_WARNINGS
     >>> table # doctest: +IGNORE_OUTPUT
     <Table length=1000>
                 object                     date_obs       
@@ -130,8 +130,8 @@ The ``columns`` argument controls which fields are returned in the results table
         ...     "night_flag": "night",         # Nighttime observations only
         ...     "moon_illu": "< 0",            # No moon (below horizon)
         ...     "lst": "between 0 and 6"       # Local sidereal time early in the night
-        ... } # doctest: +SKIP
-        >>> table = eso.query_instrument("midi", column_filters=column_filters) # doctest: +SKIP
+        ... }
+        >>> table = eso.query_instrument("midi", column_filters=column_filters) # doctest: +IGNORE_WARNINGS, +REMOTE_DATA
 
 
 Download Data

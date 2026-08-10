@@ -93,7 +93,7 @@ Define target of interest and search radius:
 .. doctest-remote-data::
 
     >>> table_name = "KiDS_DR4_1_ugriZYJHKs_cat_fits"
-    >>> coords = SkyCoord.from_name("NGC1097")  # doctest: +SKIP
+    >>> coords = SkyCoord.from_name("NGC1097")
     >>> radius = 3 * u.arcmin
 
 Helper functions to identify the main ``id``, ``ra``, and ``dec`` columns
@@ -199,15 +199,15 @@ Run search with cone filter:
     ...     dec=coords.dec,
     ...     radius=radius,
     ...     table_name=table_name,
-    ... )  # doctest: +SKIP
+    ... )
 
 .. doctest-remote-data::
 
     >>> table = eso.query_catalog(
     ...     catalog=table_name,
     ...     column_filters=column_filters,
-    ... )  # doctest: +SKIP
-    >>> table # doctest: +SKIP
+    ... )
+    >>> table # doctest: +IGNORE_OUTPUT
     <Table length=55>
     Level    ALPHA_J2000      A_IMAGE         A_WORLD    ...      Z_B_MAX             Z_B_MIN               Z_ML       
     count        deg           pixel            deg      ...                                                           
@@ -238,7 +238,8 @@ normal dictionary updates.
     >>> table = eso.query_catalog(
     ...     catalog="KiDS_DR4_1_ugriZYJHKs_cat_fits",
     ...     column_filters=column_filters,
-    ... )  # doctest: +SKIP
+    ... )  # doctest: +REMOTE_DATA
+    >>> table # doctest: +IGNORE_OUTPUT, +REMOTE_DATA
     <Table length=6>
     Level    ALPHA_J2000      A_IMAGE         A_WORLD     Agaper ...   Ypos     Z_B   Z_B_MAX       Z_B_MIN              Z_ML       
     count        deg           pixel            deg       arcsec ...  pixel                                                         
