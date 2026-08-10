@@ -75,7 +75,7 @@ def test_payload_field_names():
 
     assert payload == {'coordfield': '10.68472,41.26875',
                        'coordsystem': 'J2000',
-                       'radius': 15,
+                       'shapefield': 15,
                        'timefield': '772109936,787661936',
                        'timetype': 'MET',
                        'energyfield': '100,300000',
@@ -86,7 +86,7 @@ def test_payload_field_names():
 def test_payload_defaults_radius_to_one_degree():
     payload = fermi.core.FermiLAT.query_object_async(
         FK5_COORDINATES, get_query_payload=True)
-    assert payload['radius'] == 1
+    assert payload['shapefield'] == 1
 
 
 def test_payload_zenithangle_only_when_given():
@@ -106,7 +106,7 @@ def test_payload_allsky_coordinates_pass_through():
         obsdates='2008-08-04 15:43:36,2008-08-05 09:14:33',
         get_query_payload=True)
     assert payload['coordfield'] == '0.0,0.0'
-    assert payload['radius'] == 180
+    assert payload['shapefield'] == 180
 
 
 def test_payload_galactic_coordsystem():

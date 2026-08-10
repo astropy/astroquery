@@ -147,7 +147,8 @@ class FermiLATClass(BaseQuery):
             'coordfield': _parse_coordinates(name_or_coords,
                                              coordsystem=coordsystem),
             'coordsystem': coordsystem,
-            'radius': searchradius,
+            # the API kept the legacy CGI-form name for the search radius
+            'shapefield': searchradius,
             'timefield': obsdates,
             'timetype': timesys,
             'energyfield': energyrange_MeV,
