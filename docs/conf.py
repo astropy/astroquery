@@ -13,7 +13,12 @@
 
 import datetime
 import sys
-import tomllib
+
+if sys.version_info < (3, 11):
+    import tomli as tomllib
+else:
+    import tomllib
+
 from pathlib import Path
 
 # Load all of the global Astropy configuration
