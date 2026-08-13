@@ -31,6 +31,13 @@ class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.ipac.ned`.
     """
+
+    # NED DBR server
+    server_dbr = _config.ConfigItem(
+        ['https://ned.ipac.caltech.edu/NED::API/'],
+        'NED DBR server'
+    )
+
     server = _config.ConfigItem(
         ['https://ned.ipac.caltech.edu/cgi-bin/'],
         'Name of the NED server to use.')
@@ -81,6 +88,6 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .core import Ned, NedClass
+from .core import Ned, NedClass     # noqa: E402
 
 __all__ = ['Ned', 'NedClass', 'Conf', 'conf']

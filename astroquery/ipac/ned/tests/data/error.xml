@@ -1,20 +1,12 @@
-<?xml version="1.0"?>
-<VOTABLE version="1.1">
-<DEFINITIONS>
-<COOSYS ID="J2000" equinox="2000." epoch="2000." system="eq_FK5" />
-</DEFINITIONS>
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.5" xmlns="http://www.ivoa.net/xml/VOTable/v1.3"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3  https://www.ivoa.net/xml/VOTable/VOTable-1.5.xsd">
 <RESOURCE type="results">
+<PARAM name="QUERY_STATUS" datatype='char' arraysize='*' value="ERROR">
 <DESCRIPTION>
-Results from query to  NASA/IPAC Extragalactic Database (NED),
-which is operated by the Jet Propulsion Laboratory, California Institute of
-Technology, under contract with the National Aeronautics and Space Administration.
-This work was (partially) supported by the US National Virtual Observatory
-development project, which is funded by the National Science Foundation
-under cooperative agreement AST0122449 with The Johns Hopkins University.
+GeneralFault:
+Service could not complete request; Please provide a valid search radius (6)
 </DESCRIPTION>
-<INFO name="QUERY_STATUS" value="OK"/>
-<PARAM name="queryDateTime"  ucd="time.creation" datatype="char" arraysize="*" value="2013-07-18T05:08:36PDT"/>
-<PARAM name="Error" value=" No note found."/>
+</PARAM>
 </RESOURCE>
 </VOTABLE>
-
