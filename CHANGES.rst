@@ -201,6 +201,7 @@ mast
 - Added ``pass_id`` as an alias for the ``pass`` column in query functions for the Roman mission to avoid conflicts with
   the reserved Python keyword. [#3588]
 - Update the cutout format request parameter in ``Zcut.download_cutouts`` to reflect a recent service change. [#3608]
+- Introduces ``Observations.get_product_urls``, which returns a list of URLs for products without downloading them. [#3639]
 
 
 jplspec

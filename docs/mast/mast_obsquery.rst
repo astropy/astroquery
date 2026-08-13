@@ -459,6 +459,29 @@ methods serve different purposes and are not interchangeable:
 
 Using the incorrect method for a given input type will result in an error.
 
+Retrieving Data Product URLs
+----------------------------
+
+To retrieve URLs for data products, use the `~astroquery.mast.ObservationsClass.get_product_urls` method.
+This method accepts a table of data products, a single or list of observation IDs, or a single or list of MAST data URIs and
+returns a list of the URLs for the requested products. Depending on the options passed in, users can retrieve S3 URIs, download URLs for S3 data,
+or MAST URLs based on their preference.
+
+For convenience, `~astroquery.mast.ObservationsClass.get_product_urls` supports the same filtering options as
+`~astroquery.mast.ObservationsClass.filter_products`, allowing users to retrieve URLs for only a selected subset of products.
+
+.. doctest-skip::
+
+   >>> from astroquery.mast import Observations
+   ...
+   >>> product_urls = Observations.get_product_urls(products='107604081')
+   >>> print(product_urls)
+   ['s3://stpubdata/mast/hlsp/tglc/s0001/cam1-ccd2/0065/9614/6245/6085/hlsp_tglc_tess_ffi_gaiaid-6596146245608594560-s0001-cam1-ccd2_tess_v1_llc.fits']
+   ...
+   >>> product_urls = Observations.get_product_urls(products='mast:HST/product/u9o40504m_c3m.fits', include_bucket=False, full_url=True)
+   >>> print(product_urls)
+   ['http://s3.amazonaws.com/stpubdata/hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits']
+
 
 Cloud Data Access
 ==================
