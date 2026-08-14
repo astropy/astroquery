@@ -1,83 +1,5 @@
 {
   "messages": [],
-   "info": [
-  {
-    "name": "sci_release_date",
-    "type": "DATETIME"
-  },
-  {
-    "name": "sci_actual_duration",
-    "type": "FLOAT"
-  },
-  {
-    "name": "sci_dec",
-    "type": "FLOAT"
-  },
-  {
-    "name": "sci_pep_id",
-    "type": "INTEGER"
-  },
-  {
-    "name": "sci_spec_1234",
-    "type": "VARCHAR"
-  },
-  {
-    "name": "sci_aper_1234",
-    "type": "VARCHAR"
-  },
-  {
-    "name": "sci_data_set_name",
-    "type": "VARCHAR"
-  },
-  {
-    "name": "sci_preview_name",
-    "type": "VARCHAR"
-  },
-  {
-    "name": "sci_targname",
-    "type": "VARCHAR"
-  },
-  {
-    "name": "sci_instrume",
-    "type": "VARCHAR"
-  },
-  {
-    "name": "search_key",
-    "type": "VARCHAR"
-  },
-  {
-    "name": "sci_central_wavelength",
-    "type": "FLOAT"
-  },
-  {
-    "name": "sci_status",
-    "type": "VARCHAR"
-  },
-  {
-    "name": "sci_stop_time",
-    "type": "DATETIME"
-  },
-  {
-    "name": "scp_scan_type",
-    "type": "VARCHAR"
-  },
-  {
-    "name": "sci_hlsp",
-    "type": "INTEGER"
-  },
-  {
-    "name": "sci_refnum",
-    "type": "INTEGER"
-  },
-  {
-    "name": "sci_start_time",
-    "type": "DATETIME"
-  },
-  {
-    "name": "sci_ra",
-    "type": "FLOAT"
-  }
-],
   "search_params": {
     "target": [
       "40.66963 -0.01328"
@@ -85,7 +7,7 @@
     "radius": 3,
     "radius_units": "arcminutes",
     "offset": 0,
-    "limit": 5000,
+    "limit": 10,
     "sort_by": [
       "ang_sep",
       "sci_targname",
@@ -97,32 +19,34 @@
       false
     ],
     "skip_count": false,
+    "count_only": false,
     "select_cols": [
       "sci_data_set_name",
       "sci_targname",
-      "sci_ra",
-      "sci_dec",
-      "sci_refnum",
-      "sci_start_time",
-      "sci_stop_time",
-      "sci_actual_duration",
+      "sci_hapnum",
+      "sci_haspnum",
+      "sci_hslanum",
       "sci_instrume",
       "sci_aper_1234",
       "sci_spec_1234",
-      "sci_central_wavelength",
+      "sci_actual_duration",
+      "sci_start_time",
       "sci_pep_id",
+      "sci_pi_last_name",
+      "sci_ra",
+      "sci_dec",
+      "sci_refnum",
+      "sci_central_wavelength",
       "sci_release_date",
+      "sci_stop_time",
       "sci_preview_name",
       "scp_scan_type",
       "sci_hlsp",
-      "sci_status"
+      "ang_sep"
     ],
     "search_key": [],
     "user_fields": [],
     "conditions": [
-      {
-        "sci_obs_type": ""
-      },
       {
         "sci_aec": "S"
       },
@@ -131,76 +55,374 @@
       }
     ]
   },
-  "totalResults": 3,
+  "totalResults": 193,
+  "info": [
+    {
+      "name": "search_pos",
+      "type": "VARCHAR(255)",
+      "sortable": true
+    },
+    {
+      "name": "sci_data_set_name",
+      "type": "VARCHAR",
+      "sortable": true
+    },
+    {
+      "name": "sci_targname",
+      "type": "VARCHAR",
+      "sortable": true
+    },
+    {
+      "name": "sci_hapnum",
+      "type": "INTEGER",
+      "sortable": true
+    },
+    {
+      "name": "sci_haspnum",
+      "type": "INTEGER",
+      "sortable": true
+    },
+    {
+      "name": "sci_hslanum",
+      "type": "INTEGER",
+      "sortable": true
+    },
+    {
+      "name": "sci_instrume",
+      "type": "VARCHAR",
+      "sortable": true
+    },
+    {
+      "name": "sci_aper_1234",
+      "type": "VARCHAR",
+      "sortable": true
+    },
+    {
+      "name": "sci_spec_1234",
+      "type": "VARCHAR",
+      "sortable": true
+    },
+    {
+      "name": "sci_actual_duration",
+      "type": "FLOAT",
+      "sortable": true
+    },
+    {
+      "name": "sci_start_time",
+      "type": "DATETIME",
+      "sortable": true
+    },
+    {
+      "name": "sci_pep_id",
+      "type": "INTEGER",
+      "sortable": true
+    },
+    {
+      "name": "sci_pi_last_name",
+      "type": "VARCHAR",
+      "sortable": true
+    },
+    {
+      "name": "sci_ra",
+      "type": "FLOAT",
+      "sortable": true
+    },
+    {
+      "name": "sci_dec",
+      "type": "FLOAT",
+      "sortable": true
+    },
+    {
+      "name": "sci_refnum",
+      "type": "INTEGER",
+      "sortable": true
+    },
+    {
+      "name": "sci_central_wavelength",
+      "type": "FLOAT",
+      "sortable": true
+    },
+    {
+      "name": "sci_release_date",
+      "type": "DATETIME",
+      "sortable": true
+    },
+    {
+      "name": "sci_stop_time",
+      "type": "DATETIME",
+      "sortable": true
+    },
+    {
+      "name": "sci_preview_name",
+      "type": "VARCHAR",
+      "sortable": true
+    },
+    {
+      "name": "scp_scan_type",
+      "type": "VARCHAR",
+      "sortable": true
+    },
+    {
+      "name": "sci_hlsp",
+      "type": "INTEGER",
+      "sortable": true
+    },
+    {
+      "name": "ang_sep",
+      "type": "NULL",
+      "sortable": true
+    }
+  ],
   "results": [
     {
-      "sci_data_set_name": "W1DG8D06T",
-      "sci_targname": "HI-LAT",
-      "sci_ra": 40.68202694444444,
-      "sci_dec": -0.03533861111111111,
-      "sci_refnum": 18,
-      "sci_start_time": "1993-09-24T21:00:16.633000",
-      "sci_stop_time": "1993-09-24T21:35:16.633000",
-      "sci_actual_duration": 2100,
-      "sci_instrume": "WFPC  ",
-      "sci_aper_1234": "ALL",
-      "sci_spec_1234": "F785LP",
-      "sci_central_wavelength": 8958,
-      "sci_pep_id": 4381,
-      "sci_release_date": "1994-09-24T23:03:09",
-      "sci_preview_name": "W1DG8D06T",
-      "scp_scan_type": null,
+      "sci_data_set_name": "X2JM010BT",
+      "sci_targname": "NGC1068",
+      "sci_hapnum": 0,
+      "sci_haspnum": 0,
+      "sci_hslanum": 0,
+      "sci_instrume": "FOC   ",
+      "sci_aper_1234": "256X1024-SLIT",
+      "sci_spec_1234": "CLEAR1;F130LP",
+      "sci_actual_duration": 627.625,
+      "sci_start_time": "1994-10-31T12:38:22.300000",
+      "sci_pep_id": 5763,
+      "sci_pi_last_name": "NOTA",
+      "sci_ra": 40.6696110934285,
+      "sci_dec": -0.0132734328786483,
+      "sci_refnum": 0,
+      "sci_central_wavelength": 3400,
+      "sci_release_date": "1994-11-16T23:02:06",
+      "sci_stop_time": "1994-10-31T12:48:49.923000",
+      "sci_preview_name": "X2JM010BT",
+      "scp_scan_type": "D                 ",
       "sci_hlsp": null,
-      "sci_status": "PUBLIC",
-      "search_key": "40.66963 -0.01328W1DG8D06T",
       "search_pos": "40.66963 -0.01328",
-      "ang_sep": 1.5182093051117103
+      "ang_sep": 0.000020014632389090548
     },
     {
-      "sci_data_set_name": "W1DG9S01T",
-      "sci_targname": "HI-LAT",
-      "sci_ra": 40.68202694444444,
-      "sci_dec": -0.03533861111111111,
-      "sci_refnum": 18,
-      "sci_start_time": "1993-09-24T22:57:16.633000",
-      "sci_stop_time": "1993-09-24T23:17:16.633000",
-      "sci_actual_duration": 1200,
-      "sci_instrume": "WFPC  ",
-      "sci_aper_1234": "ALL",
-      "sci_spec_1234": "F785LP",
-      "sci_central_wavelength": 8958,
-      "sci_pep_id": 4381,
-      "sci_release_date": "1994-09-24T23:51:35",
-      "sci_preview_name": "W1DG9S01T",
-      "scp_scan_type": null,
+      "sci_data_set_name": "Y0MW0803T",
+      "sci_targname": "NGC1068",
+      "sci_hapnum": 0,
+      "sci_haspnum": 0,
+      "sci_hslanum": 0,
+      "sci_instrume": "FOS   ",
+      "sci_aper_1234": "0.5",
+      "sci_spec_1234": "G270H",
+      "sci_actual_duration": 80,
+      "sci_start_time": "1991-06-25T19:14:31.147000",
+      "sci_pep_id": 1036,
+      "sci_pi_last_name": "FORD",
+      "sci_ra": 40.66962014399,
+      "sci_dec": -0.01331737850565,
+      "sci_refnum": 19,
+      "sci_central_wavelength": 2650,
+      "sci_release_date": "1992-06-25T00:02:53",
+      "sci_stop_time": "1991-06-25T19:25:42.777000",
+      "sci_preview_name": null,
+      "scp_scan_type": "D                 ",
       "sci_hlsp": null,
-      "sci_status": "PUBLIC",
-      "search_key": "40.66963 -0.01328W1DG9S01T",
       "search_pos": "40.66963 -0.01328",
-      "ang_sep": 1.5182093051117103
+      "ang_sep": 0.00003865609411740929
     },
     {
-      "sci_data_set_name": "J8DM01ELQ",
-      "sci_targname": "NGC1068-OFF",
-      "sci_ra": 40.71020833333,
-      "sci_dec": -0.02798888888889,
-      "sci_refnum": 8,
-      "sci_start_time": "2003-01-08T19:00:35.987000",
-      "sci_stop_time": "2003-01-08T19:00:37.833000",
-      "sci_actual_duration": 0.7955,
-      "sci_instrume": "ACS   ",
-      "sci_aper_1234": "WFC2-FIX",
-      "sci_spec_1234": "F550M;CLEAR2L",
-      "sci_central_wavelength": 5581.3379,
-      "sci_pep_id": 9503,
-      "sci_release_date": "2003-07-11T06:24:30",
-      "sci_preview_name": "J8DM01ELQ",
+      "sci_data_set_name": "X2JM010CT",
+      "sci_targname": "NGC1068",
+      "sci_hapnum": 0,
+      "sci_haspnum": 0,
+      "sci_hslanum": 0,
+      "sci_instrume": "FOC   ",
+      "sci_aper_1234": "256X1024-SLIT",
+      "sci_spec_1234": "CLEAR1;F130LP",
+      "sci_actual_duration": 627.625,
+      "sci_start_time": "1994-10-31T12:53:24.300000",
+      "sci_pep_id": 5763,
+      "sci_pi_last_name": "NOTA",
+      "sci_ra": 40.6696805201903,
+      "sci_dec": -0.0132718657572788,
+      "sci_refnum": 0,
+      "sci_central_wavelength": 3400,
+      "sci_release_date": "1994-11-16T23:04:58",
+      "sci_stop_time": "1994-10-31T13:03:51.927000",
+      "sci_preview_name": "X2JM010CT",
+      "scp_scan_type": "D                 ",
+      "sci_hlsp": null,
+      "search_pos": "40.66963 -0.01328",
+      "ang_sep": 0.00005117084517889686
+    },
+    {
+      "sci_data_set_name": "X24E0101R",
+      "sci_targname": "NGC1068",
+      "sci_hapnum": 0,
+      "sci_haspnum": 0,
+      "sci_hslanum": 0,
+      "sci_instrume": "FOC   ",
+      "sci_aper_1234": "512X1024",
+      "sci_spec_1234": "CLEAR1;F501N;CLEAR3;CLEAR4",
+      "sci_actual_duration": 296,
+      "sci_start_time": "1994-01-10T02:16:49.773000",
+      "sci_pep_id": 5578,
+      "sci_pi_last_name": "SPARKS",
+      "sci_ra": 40.66957270132,
+      "sci_dec": -0.01327774696891,
+      "sci_refnum": 13,
+      "sci_central_wavelength": 5010,
+      "sci_release_date": "1995-01-10T02:41:48",
+      "sci_stop_time": "1994-01-10T02:21:45.773000",
+      "sci_preview_name": "X24E0101R",
       "scp_scan_type": null,
       "sci_hlsp": null,
-      "sci_status": "PUBLIC",
-      "search_key": "40.66963 -0.01328J8DM01ELQ",
       "search_pos": "40.66963 -0.01328",
-      "ang_sep": 2.589715886363766
+      "ang_sep": 0.000057342956865123236
+    },
+    {
+      "sci_data_set_name": "X24E0102T",
+      "sci_targname": "NGC1068",
+      "sci_hapnum": 0,
+      "sci_haspnum": 0,
+      "sci_hslanum": 0,
+      "sci_instrume": "FOC   ",
+      "sci_aper_1234": "512X512",
+      "sci_spec_1234": "CLEAR1;F501N;CLEAR3;CLEAR4",
+      "sci_actual_duration": 1196,
+      "sci_start_time": "1994-01-10T03:53:43.773000",
+      "sci_pep_id": 5578,
+      "sci_pi_last_name": "SPARKS",
+      "sci_ra": 40.66957270132,
+      "sci_dec": -0.01327774696891,
+      "sci_refnum": 13,
+      "sci_central_wavelength": 5010,
+      "sci_release_date": "1995-01-10T23:53:07",
+      "sci_stop_time": "1994-01-10T04:13:39.773000",
+      "sci_preview_name": "X24E0102T",
+      "scp_scan_type": null,
+      "sci_hlsp": null,
+      "search_pos": "40.66963 -0.01328",
+      "ang_sep": 0.000057342956865123236
+    },
+    {
+      "sci_data_set_name": "X24E0103T",
+      "sci_targname": "NGC1068",
+      "sci_hapnum": 0,
+      "sci_haspnum": 0,
+      "sci_hslanum": 0,
+      "sci_instrume": "FOC   ",
+      "sci_aper_1234": "512X512",
+      "sci_spec_1234": "F4ND;F501N;CLEAR3;CLEAR4",
+      "sci_actual_duration": 1196,
+      "sci_start_time": "1994-01-10T05:22:37.773000",
+      "sci_pep_id": 5578,
+      "sci_pi_last_name": "SPARKS",
+      "sci_ra": 40.66957270132,
+      "sci_dec": -0.01327774696891,
+      "sci_refnum": 13,
+      "sci_central_wavelength": 5010,
+      "sci_release_date": "1995-01-11T00:02:34",
+      "sci_stop_time": "1994-01-10T05:42:33.773000",
+      "sci_preview_name": "X24E0103T",
+      "scp_scan_type": null,
+      "sci_hlsp": null,
+      "search_pos": "40.66963 -0.01328",
+      "ang_sep": 0.000057342956865123236
+    },
+    {
+      "sci_data_set_name": "X24E0104T",
+      "sci_targname": "NGC1068",
+      "sci_hapnum": 0,
+      "sci_haspnum": 0,
+      "sci_hslanum": 0,
+      "sci_instrume": "FOC   ",
+      "sci_aper_1234": "512X512",
+      "sci_spec_1234": "CLEAR1;CLEAR2;CLEAR3;F372M",
+      "sci_actual_duration": 1196,
+      "sci_start_time": "1994-01-10T07:00:02.773000",
+      "sci_pep_id": 5578,
+      "sci_pi_last_name": "SPARKS",
+      "sci_ra": 40.66957270132,
+      "sci_dec": -0.01327774696891,
+      "sci_refnum": 13,
+      "sci_central_wavelength": 3700,
+      "sci_release_date": "1995-01-11T00:13:19",
+      "sci_stop_time": "1994-01-10T07:19:58.773000",
+      "sci_preview_name": "X24E0104T",
+      "scp_scan_type": null,
+      "sci_hlsp": null,
+      "search_pos": "40.66963 -0.01328",
+      "ang_sep": 0.000057342956865123236
+    },
+    {
+      "sci_data_set_name": "X24E0105T",
+      "sci_targname": "NGC1068",
+      "sci_hapnum": 0,
+      "sci_haspnum": 0,
+      "sci_hslanum": 0,
+      "sci_instrume": "FOC   ",
+      "sci_aper_1234": "512X512",
+      "sci_spec_1234": "F4ND;CLEAR2;CLEAR3;F372M",
+      "sci_actual_duration": 1196,
+      "sci_start_time": "1994-01-10T08:35:41.773000",
+      "sci_pep_id": 5578,
+      "sci_pi_last_name": "SPARKS",
+      "sci_ra": 40.66957270132,
+      "sci_dec": -0.01327774696891,
+      "sci_refnum": 13,
+      "sci_central_wavelength": 3700,
+      "sci_release_date": "1995-01-11T00:24:29",
+      "sci_stop_time": "1994-01-10T08:55:37.773000",
+      "sci_preview_name": "X24E0105T",
+      "scp_scan_type": null,
+      "sci_hlsp": null,
+      "search_pos": "40.66963 -0.01328",
+      "ang_sep": 0.000057342956865123236
+    },
+    {
+      "sci_data_set_name": "X24E0106T",
+      "sci_targname": "NGC1068",
+      "sci_hapnum": 0,
+      "sci_haspnum": 0,
+      "sci_hslanum": 0,
+      "sci_instrume": "FOC   ",
+      "sci_aper_1234": "512X512",
+      "sci_spec_1234": "CLEAR1;CLEAR2;CLEAR3;F253M",
+      "sci_actual_duration": 1196,
+      "sci_start_time": "1994-01-10T10:12:41.773000",
+      "sci_pep_id": 5578,
+      "sci_pi_last_name": "SPARKS",
+      "sci_ra": 40.66957270132,
+      "sci_dec": -0.01327774696891,
+      "sci_refnum": 13,
+      "sci_central_wavelength": 2550,
+      "sci_release_date": "1995-01-11T00:36:41",
+      "sci_stop_time": "1994-01-10T10:32:37.773000",
+      "sci_preview_name": "X24E0106T",
+      "scp_scan_type": null,
+      "sci_hlsp": null,
+      "search_pos": "40.66963 -0.01328",
+      "ang_sep": 0.000057342956865123236
+    },
+    {
+      "sci_data_set_name": "X2740201T",
+      "sci_targname": "NGC1068",
+      "sci_hapnum": 0,
+      "sci_haspnum": 0,
+      "sci_hslanum": 0,
+      "sci_instrume": "FOC   ",
+      "sci_aper_1234": "512X512",
+      "sci_spec_1234": "CLEAR1;F501N;CLEAR3;CLEAR4",
+      "sci_actual_duration": 1995.625,
+      "sci_start_time": "1995-02-27T21:39:06.303000",
+      "sci_pep_id": 5144,
+      "sci_pi_last_name": "MACCHETTO",
+      "sci_ra": 40.66957270132,
+      "sci_dec": -0.01327774696891,
+      "sci_refnum": 16,
+      "sci_central_wavelength": 5010,
+      "sci_release_date": "1996-02-28T01:47:21",
+      "sci_stop_time": "1995-02-27T22:12:21.927000",
+      "sci_preview_name": "X2740201T",
+      "scp_scan_type": null,
+      "sci_hlsp": null,
+      "search_pos": "40.66963 -0.01328",
+      "ang_sep": 0.000057342956865123236
     }
   ]
 }
