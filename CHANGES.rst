@@ -201,6 +201,8 @@ mast
 - Added ``pass_id`` as an alias for the ``pass`` column in query functions for the Roman mission to avoid conflicts with
   the reserved Python keyword. [#3588]
 - Update the cutout format request parameter in ``Zcut.download_cutouts`` to reflect a recent service change. [#3608]
+- Add a ``count_only`` parameter to ``MastMissions`` query methods to return only the number of matching results,
+  rather than the full result table. [#3645]
 
 
 jplspec

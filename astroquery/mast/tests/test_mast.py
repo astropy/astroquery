@@ -33,6 +33,7 @@ except ImportError:
 DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Name.Lookup': 'resolver.json',
               'mission_search_results': 'mission_results.json',
+              'mission_count_only': 'mission_count_only.json',
               'mission_columns': 'mission_columns.json',
               'mission_products': 'mission_products.json',
               'columnsconfig': 'columnsconfig.json',
@@ -163,6 +164,8 @@ def service_mockreturn(self, method="POST", url=None, data=None, params=None, ti
         filename = data_path(DATA_FILES['mission_products'])
     elif use_json and data['radius'] == 300:
         filename = data_path(DATA_FILES["mission_incorrect_results"])
+    elif use_json and 'count_only' in data and data['count_only']:
+        filename = data_path(DATA_FILES["mission_count_only"])
     elif use_json:
         filename = data_path(DATA_FILES["mission_search_results"])
     with open(filename, 'rb') as infile:
@@ -313,6 +316,11 @@ def test_missions_query_criteria():
     # Check that column metadata is included
     assert 'description' in result['sci_pep_id'].meta
     assert 'description' in result['sci_instrume'].meta
+
+    # Count only query
+    count_result = MastMissions.query_criteria(coordinates=regionCoords, count_only=True)
+    assert isinstance(count_result, int)
+    assert count_result == 1066009
 
     # Raise error if invalid criteria is supplied
     with pytest.raises(InvalidQueryError):
