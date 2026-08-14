@@ -95,6 +95,9 @@ Keyword arguments can also be used to refine results further. The following para
   is returned. This parameter may be given as an iterable of column names, a comma-separated string, or the special
   values ``'all'`` or ``'*'`` to return all available columns.
 
+- ``count_only``: If ``True``, return only the number of results that match the query criteria. Default is ``False``. This is
+  useful for quickly determining how many results would be returned without retrieving the full dataset.
+
 Writing Queries
 ----------------
 
