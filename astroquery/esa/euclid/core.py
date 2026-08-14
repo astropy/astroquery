@@ -7,15 +7,15 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 """
 import binascii
+from collections.abc import Iterable
+from datetime import datetime
+from datetime import timezone
+from functools import cache
 import os
 import pprint
 import re
 import tarfile
 import zipfile
-from collections.abc import Iterable
-from datetime import datetime
-from datetime import timezone
-from functools import cache
 
 from astropy import units
 from astropy import units as u
@@ -26,6 +26,7 @@ from astropy.utils import deprecated_renamed_argument
 from requests.exceptions import HTTPError
 
 from astroquery import log
+import astroquery.esa.utils.utils as esautils
 from astroquery.utils import commons
 from astroquery.utils.tap import TapPlus
 from astroquery.utils.tap import taputils
@@ -52,7 +53,7 @@ class EuclidClass(TapPlus):
     __regex_designation = re.compile(r"\s*(\S+)\s(-?\d+)\s*", flags=re.MULTILINE | re.UNICODE)
 
     def __init__(self, *, environment='PDR', tap_plus_conn_handler=None, datalink_handler=None, cutout_handler=None,
-                 verbose=False, show_server_messages=True):
+                 sia_handler=None, verbose=False, show_server_messages=True):
         """Constructor for EuclidClass.
 
         Parameters
@@ -60,11 +61,13 @@ class EuclidClass(TapPlus):
         environment : str, mandatory if no tap, data or cutout hosts is specified, default 'PDR'
             The Euclid Science Archive environment: 'PDR', 'IDR', 'OTF' and 'REG'
         tap_plus_conn_handler : tap connection handler object, optional, default None
-            HTTP(s) connection hander (creator). If no handler is provided, a new one is created.
-        datalink_handler : dataliink connection handler object, optional, default None
-            HTTP(s) connection hander (creator). If no handler is provided, a new one is created.
+            HTTP(s) connection handler (creator). If no handler is provided, a new one is created.
+        datalink_handler : datalink connection handler object, optional, default None
+            HTTP(s) connection handler (creator). If no handler is provided, a new one is created.
         cutout_handler : cutout connection handler object, optional, default None
-            HTTP(s) connection hander (creator). If no handler is provided, a new one is created.
+            HTTP(s) connection handler (creator). If no handler is provided, a new one is created.
+        sia_handler : siap connection handler object, optional, default None
+            HTTP(s) connection handler (creator). If no handler is provided, a new one is created.
         verbose : bool, optional, default 'True'
             flag to display information about the process
         show_server_messages : bool, optional, default 'True'
@@ -124,6 +127,20 @@ class EuclidClass(TapPlus):
                                           use_names_over_ids=conf.USE_NAMES_OVER_IDS)
         else:
             self.__euclidcutout = cutout_handler
+
+        if sia_handler is None:
+            self.__euclidsia = TapPlus(url=url_server,
+                                       server_context="sas-sia",
+                                       tap_context=None,
+                                       upload_context=None,
+                                       table_edit_context="TableTool",
+                                       data_context="sia2/query",
+                                       datalink_context=None,
+                                       verbose=verbose,
+                                       client_id='ASTROQUERY',
+                                       use_names_over_ids=conf.USE_NAMES_OVER_IDS)
+        else:
+            self.__euclidsia = sia_handler
 
         if show_server_messages:
             self.get_status_messages()
@@ -667,6 +684,8 @@ class EuclidClass(TapPlus):
             self.__eucliddata.login(user=tap_user, password=tap_password, verbose=verbose)
             log.info(f"Login to Euclid cutout service: {self.__euclidcutout._TapPlus__getconnhandler().get_host_url()}")
             self.__euclidcutout.login(user=tap_user, password=tap_password, verbose=verbose)
+            log.info(f"Login to Euclid sia service: {self.__euclidsia._TapPlus__getconnhandler().get_host_url()}")
+            self.__euclidsia.login(user=tap_user, password=tap_password, verbose=verbose)
         except HTTPError as err:
             log.error('Error logging in data or cutout services: %s' % (str(err)))
             log.error("Logging out from TAP server")
@@ -711,6 +730,14 @@ class EuclidClass(TapPlus):
             log.error("Logging out from TAP server")
             TapPlus.logout(self, verbose=verbose)
 
+        try:
+            log.info(f"Login to Euclid sia server: {self.__euclidsia._TapPlus__getconnhandler().get_host_url()}")
+            self.__euclidsia.login(user=tap_user, password=tap_password, verbose=verbose)
+        except HTTPError as err:
+            log.error('Error logging in sia server: %s' % (str(err)))
+            log.error("Logging out from TAP server")
+            TapPlus.logout(self, verbose=verbose)
+
     def logout(self, verbose=False):
         """
         Performs a logout
@@ -745,6 +772,12 @@ class EuclidClass(TapPlus):
             log.info("Euclid cutout server logout OK")
         except HTTPError as err:
             log.error('Error logging out cutout server: %s' % (str(err)))
+
+        try:
+            self.__euclidsia.logout(verbose=verbose)
+            log.info("Euclid sia server logout OK")
+        except HTTPError as err:
+            log.error('Error logging out sia server: %s' % (str(err)))
 
     @staticmethod
     def __get_quantity_input(value, msg):
@@ -1087,7 +1120,7 @@ class EuclidClass(TapPlus):
             observation id for observations. It is not compatible with parameter tile_index.
 
             Searchable products by observation_id: 'dpdVisRawFrame', 'dpdNispRawFrame',
-            ,'DpdVisCalibratedQuadFrame','DpdVisCalibratedFrameCatalog', 'DpdVisStackedFrame',
+            'DpdVisCalibratedQuadFrame','DpdVisCalibratedFrameCatalog', 'DpdVisStackedFrame',
             'DpdVisStackedFrameCatalog',
             'DpdNirCalibratedFrame', 'DpdNirCalibratedFrameCatalog', 'DpdNirStackedFrameCatalog', 'DpdNirStackedFrame',
             'DpdMerSegmentationMap', 'dpdMerFinalCatalog',
@@ -1481,6 +1514,119 @@ class EuclidClass(TapPlus):
     def __is_multiple(self, value):
 
         return not isinstance(value, int) and ((isinstance(value, (list, tuple)) and len(value) > 1) or ',' in value)
+
+    def get_sia(self, *, coordinates, radius=0.1, search_type='CIRCLE', calibration=2, instrument='ALL', band=None,
+                collection='sedm', dsr_part1=None, dsr_part2=None, dsr_part3=None, output_file=None, verbose=False):
+        """
+        Query the Euclid Observation Images service using the IVOA Simple Image Access Protocol (SIAP) 2.0.
+
+        The service provides access to public calibrated and stacked VIS and NISP images, MER mosaics, and Level 1 (raw)
+         VIS and NISP observations.
+
+        Parameters
+        ----------
+        coordinates: str or SkyCoord, mandatory
+            Center of the search region.
+        radius: float or quantity, optional, default value 0.1 degree
+            Radius of the search region. If a numeric value is provided, it is interpreted as degrees.
+            An astropy.units.Quantity may also be supplied. When search_type="BOX", this value specifies the box width.
+        search_type : str, optional, default CIRCLE
+            Shape of the search region. Supported values are "CIRCLE" and "BOX".
+        calibration: int, optional, default 2
+            Calibration level following the ObsCore data model:
+
+            - 1: raw instrumental data
+            - 2: instrumental data in a standard format
+            - 3: science-ready data
+            - 4: enhanced data products
+        instrument: str, optional, default ALL
+            Instrument to query. Supported values are "ALL", "VIS", and "NISP".
+        band: str, optional, default None
+            Instrument filter. This parameter is ignored when instrument="ALL". Valid values are:
+
+            - "VIS" for the VIS instrument
+            - "NIR_Y", "NIR_J", "NIR_H", or "NISP" for the NISP instrument
+        collection : str, optional, default sedm
+            Name of the data collection.
+        dsr_part1: str, optional, default None
+            First component of the dataset release identifier: for OTF environment, the activity code; for REG and IDR,
+            the target environment
+        dsr_part2: str, optional, default None
+            Second component of the dataset release identifier: for OTF environment, the patch id (a positive integer);
+            for REG and IDR, the activity code
+        dsr_part3: str, optional, default None
+            Third component of the dataset release identifier: for OTF, REG and IDR environment, the version
+            (an integer greater than 1)
+        output_file : string, optional, default None
+            Output file where the query results are written.
+        verbose : bool, optional, default False
+            Flag to display information about the process
+
+        Returns
+        -------
+        astropy.table.Table or str
+             Query results. If ``output_file`` is specified, the results are written to the given file in VOTable
+             format.
+        """
+
+        valid_search_types = {'CIRCLE', 'BOX'}
+        valid_calibrations = {0: 'CALIB_ZERO', 1: 'CALIB_ONE', 2: 'CALIB_TWO', 3: 'CALIB_THREE'}
+        valid_instruments = {'ALL', 'VIS', 'NISP'}
+        valid_band_vis = {'VIS'}
+        valid_band_nisp = {'NIR_H', 'NIR_J', 'NIR_Y', 'NISP'}
+
+        if search_type not in valid_search_types:
+            raise ValueError(f"Invalid search tyype {search_type}")
+
+        if calibration is not None and calibration not in valid_calibrations:
+            raise ValueError(f"Invalid calibration {calibration}")
+
+        if instrument not in valid_instruments:
+            raise ValueError(f"Invalid instrument {instrument}")
+
+        if instrument == 'ALL' and band is not None:
+            raise ValueError(f"For instrument {instrument} band must be None")
+
+        if instrument == 'VIS' and band is not None and band not in valid_band_vis:
+            raise ValueError(f"Invalid band {band} for instrument {instrument}")
+
+        if instrument == 'NISP' and band is not None and band not in valid_band_nisp:
+            raise ValueError(f"Invalid band {band} for instrument {instrument}")
+
+        if coordinates is not None and radius is not None:
+            coord = commons.parse_coordinates(coordinates=coordinates)
+            ra_deg = coord.ra.degree
+            dec_deg = coord.dec.degree
+            radius_deg = esautils.get_degree_radius(radius)
+
+            if radius_deg <= 0.0:
+                raise ValueError(f"Search radius is zero or negative: {radius}")
+        else:
+            raise ValueError(f"Invalid coordinates or search radius: {coordinates}, {radius}")
+
+        params_dict = dict()
+        params_dict['TAPCLIENT'] = 'ASTROQUERY'
+        params_dict['POS'] = f"{search_type},{ra_deg},{dec_deg},{radius_deg}"
+        params_dict['INSTRUMENT'] = instrument
+        params_dict['COLLECTION'] = collection
+
+        if calibration is not None:
+            params_dict['CALIB'] = valid_calibrations[calibration]
+
+        if instrument != 'ALL' and band is not None:
+            params_dict['BAND'] = band
+
+        if dsr_part1 is not None:
+            params_dict['DSP1'] = dsr_part1
+
+        if dsr_part2 is not None:
+            params_dict['DSP2'] = dsr_part2
+
+        if dsr_part3 is not None:
+            params_dict['DSP3'] = dsr_part3
+
+        return self.__euclidsia.load_data(params_dict=params_dict, output_file=output_file, http_method='GET',
+                                          verbose=verbose)
 
     @deprecated_renamed_argument(('instrument', 'id'), (None, None), since='0.4.12')
     def get_cutout(self, *, file_path=None, coordinate, radius, output_file=None, verbose=False, instrument=None,

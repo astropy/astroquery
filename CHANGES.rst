@@ -140,6 +140,11 @@ gemini
 
 - Add support for newer instruments (GHOST, IGRINS, IGRINS-2, MAROON-X, ALOPEKE, ZORRO) [#3638]
 
+esa.euclid
+^^^^^^^^^^
+
+- New method get_sia to access the Simple Image Access Protocol (SIAP) v2.0 [#3569]
+
 esa.hubble
 ^^^^^^^^^^
 
