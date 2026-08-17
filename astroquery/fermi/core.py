@@ -7,7 +7,7 @@ This module talks to the Fermi LAT Data Query REST API::
     GET  /query/{id}/status  -> {"state": ...}
     GET  /query/{id}/results -> {"files": [{"name": ...}, ...]}
 
-which replaced the legacy ``LATDataQuery.cgi`` form endpoint whose HTML
+which is replacing the legacy ``LATDataQuery.cgi`` form endpoint whose HTML
 response pages this module used to scrape with regular expressions.
 """
 
