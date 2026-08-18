@@ -14,7 +14,8 @@ from astroquery.utils.mocks import MockResponse
 from ...exceptions import InvalidQueryError
 
 DATA_FILES = {"vo_results": "vo_results.html",
-              "image_results": "image_results.html",
+              "image_results_noradius": "image_results_noradius.html",
+              "image_results_radius": "image_results_radius.html",
               "image": "image.fits",
               "votable": "votable.xml",
               "error": "error.html"
@@ -74,9 +75,12 @@ def patch_parse_coordinates(request):
 
 def get_mockreturn(method='GET', url='default_url',
                    params=None, timeout=10, **kwargs):
-    if "Image" in url:
-        filename = DATA_FILES["image_results"]
-        url = "Image_URL"
+    if "GetImage" in url:
+        filename = DATA_FILES["image_results_noradius"]
+        url = "GetImage"
+    elif "ImageList" in url:
+        filename = DATA_FILES["image_results_radius"]
+        url = "ImageList"
     elif "SQL" in url:
         filename = DATA_FILES["vo_results"]
         url = "SQL_URL"
@@ -114,23 +118,27 @@ def test_get_images_async_1():
 
 def test_get_images_async_2(patch_get, patch_get_readable_fileobj):
 
+    # debug check: get the table first & make sure it has 'deprecated' column as expected
+    tbl = ukidss.core.Ukidss.get_image_table(icrs_skycoord, programme_id="GPS")
+    assert "deprecated" in tbl.colnames
+
     image_urls = ukidss.core.Ukidss.get_images_async(icrs_skycoord, programme_id="GPS")
 
-    assert len(image_urls) == 1
+    assert len(image_urls) == 3
 
 
 def test_get_image_list(patch_get, patch_get_readable_fileobj):
     urls = ukidss.core.Ukidss.get_image_list(
         icrs_skycoord, frame_type="all", waveband="all", programme_id="GPS")
     print(urls)
-    assert len(urls) == 1
+    assert len(urls) == 3
 
 
 def test_extract_urls():
-    with open(data_path(DATA_FILES["image_results"]), 'r') as infile:
+    with open(data_path(DATA_FILES["image_results_radius"]), 'r') as infile:
         html_in = infile.read()
-    urls = ukidss.core.Ukidss.extract_urls(html_in)
-    assert len(urls) == 1
+    urls = ukidss.core.Ukidss._extract_urls(html_in)
+    assert len(urls) == 14
 
 
 def test_query_region(patch_get, patch_get_readable_fileobj):
