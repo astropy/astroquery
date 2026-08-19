@@ -67,3 +67,10 @@ def test_search_async_jobs():
     jobfilter.limit = 10
     jobs = gaia.search_async_jobs(jobfilter=jobfilter, verbose=True)
     assert len(jobs) == 10
+
+
+@pytest.mark.remote_data
+def test_get_status_messages():
+    gaia = GaiaClass(show_server_messages=True)
+    # redundant, but added to be extra-explicit
+    gaia.get_status_messages()
