@@ -36,15 +36,30 @@ __all__ = ['Template', 'TemplateClass']
 @async_to_sync
 class TemplateClass(BaseQuery):
 
+    # `__init__()` allows the user to conveniently set the instance attributes
+    # to override the configuration items. The default attribute values should
+    # be falsy (`x` is called falsy if `bool(x)` is `False`) or `None`.
+    def __init__(self, url='', timeout=None):
+        self.url = url          # A falsy default that cannot be mistaken for a valid value.
+        self.timeout = timeout  # Use `None` as default if the falsy value could be valid.
+
+    # The private properties defined here allow the users to change the
+    # configuration values at runtime if the corresponding instance attributes
+    # have default values.
+
+    @property
+    def _url(self):
+        return self.url or conf.url
+
+    @property
+    def _timeout(self):
+        return conf.timeout if self.timeout is None else self.timeout
+
     """
     Not all the methods below are necessary but these cover most of the common
     cases, new methods may be added if necessary, follow the guidelines at
     <http://astroquery.readthedocs.io/en/latest/api.html>
     """
-    # use the Configuration Items imported from __init__.py to set the URL,
-    # TIMEOUT, etc.
-    URL = conf.server
-    TIMEOUT = conf.timeout
 
     # all query methods are implemented with an "async" method that handles
     # making the actual HTTP request and returns the raw HTTP response, which
@@ -124,8 +139,8 @@ class TemplateClass(BaseQuery):
             return request_payload
         # BaseQuery classes come with a _request method that includes a
         # built-in caching system
-        response = self._request('GET', self.URL, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request('GET', self._url, params=request_payload,
+                                 timeout=self._timeout, cache=cache)
         return response
 
     # For services that can query coordinates, use the query_region method.
@@ -169,8 +184,8 @@ class TemplateClass(BaseQuery):
                                                 width)
         if get_query_payload:
             return request_payload
-        response = self._request('GET', self.URL, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+        response = self._request('GET', self._url, params=request_payload,
+                                 timeout=self._timeout, cache=cache)
         return response
 
     # as we mentioned earlier use various python regular expressions, etc
@@ -294,9 +309,9 @@ class TemplateClass(BaseQuery):
         request_payload = self._args_to_payload(coordinates, radius)
         if get_query_payload:
             return request_payload
-        response = self._request(method="GET", url=self.URL,
+        response = self._request(method="GET", url=self._url,
                                  data=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+                                 timeout=self._timeout, cache=cache)
 
         return self.extract_image_urls(response.text)
 
@@ -322,7 +337,7 @@ class TemplateClass(BaseQuery):
         pass
 
 
-# the default tool for users to interact with is an instance of the Class
+# the default tool for users to interact with is a default instance of the Class
 Template = TemplateClass()
 
 # once your class is done, tests should be written
