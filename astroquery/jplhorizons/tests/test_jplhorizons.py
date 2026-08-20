@@ -268,6 +268,7 @@ def test_vectors_query_payload():
         ('TP_TYPE', 'ABSOLUTE'),
         ('VEC_LABELS', 'YES'),
         ('VEC_CORR', '"NONE"'),
+        ('VEC_TABLE', '3'),
         ('VEC_DELTA_T', 'NO'),
         ('OBJ_DATA', 'YES'),
         ('CENTER', "'500@10'"),

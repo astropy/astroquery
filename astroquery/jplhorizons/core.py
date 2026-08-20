@@ -959,8 +959,8 @@ class HorizonsClass(BaseQuery):
     def vectors_async(self, *, get_query_payload=False,
                       closest_apparition=False, no_fragments=False,
                       get_raw_response=False, cache=True,
-                      refplane='ecliptic', aberrations='geometric',
-                      delta_T=False,):
+                      refplane='ecliptic', vector_table="3", 
+                      aberrations='geometric', delta_T=False,):
         """
         Query JPL Horizons for state vectors.
 
@@ -1057,6 +1057,14 @@ class HorizonsClass(BaseQuery):
 
             See :ref:`Horizons Reference Frames <jpl-horizons-reference-frames>`
             in the astroquery documentation for details.
+        
+        vector_table : string, optional
+            Selects the table of vectors to be returned. Options are numbers 1-6,
+            followed by any string of characters in the list [``'x'``, ``'a'``,
+            ``'r'``, ``'p'``]. Default: ``'3'``.
+
+            See `Horizons User Manual <https://ssd-api.jpl.nasa.gov/doc/horizons.html#vec_table>`_
+            for details.
 
         aberrations : string, optional
             Aberrations to be accounted for: [``'geometric'``,
@@ -1156,6 +1164,7 @@ class HorizonsClass(BaseQuery):
             ('VEC_CORR', {'geometric': '"NONE"',
                           'astrometric': '"LT"',
                           'apparent': '"LT+S"'}[aberrations]),
+            ('VEC_TABLE', vector_table),
             ('VEC_DELTA_T', {True: 'YES', False: 'NO'}[delta_T]),
             ('OBJ_DATA', 'YES')]
         )
@@ -1314,16 +1323,19 @@ class HorizonsClass(BaseQuery):
             elif (self.query_type == 'elements' and "JDTDB," in line):
                 headerline = str(line).split(',')
                 headerline[-1] = '_dump'
-            # read in vectors header line
-            elif (self.query_type == 'vectors' and "JDTDB," in line):
-                headerline = str(line).split(',')
-                headerline[-1] = '_dump'
             # identify end of data block
             if "$$EOE" in line:
                 data_end_idx = idx
             # identify start of data block
             if "$$SOE" in line:
                 data_start_idx = idx + 1
+
+                # read in vectors header line
+                # reading like this helps fix issues with commas after JDTDB
+                if self.query_type == 'vectors':
+                    headerline_raw = str(src[idx - 2]).replace("JDTDB,", "JDTDB")
+                    headerline = ["            JDTDB", *str(headerline_raw).split("JDTDB")[1].split(',')]
+                    headerline[-1] = '_dump'
             # read in targetname
             if "Target body name" in line:
                 targetname = line[18:50].strip()
@@ -1404,6 +1416,20 @@ class HorizonsClass(BaseQuery):
         # strip whitespaces from column labels
         headerline = [h.strip() for h in headerline]
 
+        # add numbers to duplicates
+        headerline_seen = {} # format - column_name: [headerline_idx, count]
+        dup_col_to_orig = {} # format - remapped_column_name: [original_column_name, index], used for later processing
+        for i, col in enumerate(headerline):
+            if col in headerline_seen:
+                headerline_seen[col][1] += 1
+                headerline[headerline_seen[col][0]] = f"{col}_1"
+                dup_col_to_orig[f"{col}_1"] = [col, 1]
+
+                headerline[i] = f"{col}_{headerline_seen[col][1]}"
+                dup_col_to_orig[headerline[i]] = [col, headerline_seen[col][1]]
+            else:
+                headerline_seen[col] = [i, 1]
+
         # remove all 'Cut-off' messages
         raw_data = [line for line in src[data_start_idx:data_end_idx]
                     if 'Cut-off' not in line]
@@ -1469,14 +1495,22 @@ class HorizonsClass(BaseQuery):
         # set column units
         rename = []
         for col in data.columns:
-            data[col].unit = column_defs[col][1]
-            if data[col].name != column_defs[col][0]:
+            # fetch from original definition, not remapped
+            col_unit = column_defs[dup_col_to_orig[col][0] if col in dup_col_to_orig.keys() else col]
+
+            data[col].unit = col_unit[1]
+            if data[col].name != col_unit[0]:
                 rename.append(data[col].name)
 
         # rename columns
         for col in rename:
             try:
-                data.rename_column(data[col].name, column_defs[col][0])
+                if col in dup_col_to_orig.keys(): # preserve index on duplicate columns
+                    to_rename = f"{column_defs[dup_col_to_orig[col][0]][0]}_{dup_col_to_orig[col][1]}"
+                else:
+                    to_rename = column_defs[col][0]
+
+                data.rename_column(data[col].name, to_rename)
             except KeyError:
                 pass
 
