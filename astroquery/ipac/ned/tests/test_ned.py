@@ -8,7 +8,7 @@ import pytest
 from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u
-from astroquery.exceptions import RemoteServiceError
+from astroquery.exceptions import InvalidQueryError, RemoteServiceError, TableParseError
 from astroquery.utils.mocks import MockResponse
 
 from astroquery.ipac import ned
@@ -253,6 +253,16 @@ def test_get_images(patch_get, patch_get_readable_fileobj):
     assert fits_images is not None
 
 
+def test_get_images_payload():
+    fits_images = ned.Ned.get_images('m1', get_query_payload=True)
+    assert fits_images['objname'] == 'm1'
+
+
+def test_get_spectra_payload():
+    fits_spectra = ned.Ned.get_spectra('m1', get_query_payload=True)
+    assert fits_spectra['objname'] == 'm1'
+
+
 def test_query_refcode_async(patch_get):
     response = ned.Ned.query_refcode_async('1997A&A...323...31K',
                                            get_query_payload=True)
@@ -286,12 +296,13 @@ def test_query_refcode(patch_get):
 
 def test_query_region_iau_async(patch_get):
     response = ned.Ned.query_region_iau_async(
-        '1234-423', get_query_payload=True)
+        '1234-423', z_constraint='Unconstrained', get_query_payload=True)
     s_type = ned.Ned.SEARCH_TYPE
     # assert response['search_type'] == 'IAU Search'
     assert s_type == ned.Ned.CONESEARCH_IAU
     assert response[ned.Ned.DBR_IAU] == '1234-423'
     assert response[ned.Ned.DBR_EQUINOX] == 'B1950'
+    assert response['z_constraint'] == 'Unconstrained'
     response = ned.Ned.query_region_iau_async('1234-423', max_rec=10)
     assert response is not None
 
@@ -337,6 +348,18 @@ def test_query_region_async(monkeypatch, patch_get):
     response = ned.Ned.query_region_async("05h35m17.3s +22d00m52.2s")
     assert response is not None
 
+    # check with Super Galactic coordinates
+    response = ned.Ned.query_region_async(
+        coord.SkyCoord(sgl=296.589886 * u.deg, sgb=49.287977 * u.deg,
+                       frame="supergalactic"), get_query_payload=True)
+    s_type = ned.Ned.SEARCH_TYPE
+    assert s_type == ned.Ned.CONESEARCH_POSITION
+    # assert response['search_type'] == 'Near Position Search'
+    npt.assert_approx_equal(
+        float(response[ned.Ned.DBR_LON]) % 360, 296.589886 % 360, significant=5)
+    npt.assert_approx_equal(float(response[ned.Ned.DBR_LAT]), 49.287977,
+                            significant=5)
+
 
 def test_query_region(monkeypatch, patch_get):
     monkeypatch.setattr(
@@ -348,6 +371,41 @@ def test_query_region(monkeypatch, patch_get):
         coord.SkyCoord(ra=-10.684793 * u.deg, dec=-41.269065 * u.deg,
                        frame="fk5"), get_query_payload=True)
     assert response is not None
+
+
+def test_query_region_wrong_zconstraint():
+    with pytest.raises(InvalidQueryError, match="z_constraint WrongConstraint is not recognized"):
+        ned.Ned.query_region("m31", z_constraint='WrongConstraint',
+                             z_value1=4.2, z_value2=96, z_unit='km/s')
+
+
+def test_query_region_wrong_zconstraint_v1():
+    with pytest.raises(InvalidQueryError, match="z_value1 has to be provided"):
+        ned.Ned.query_region("m31", z_constraint='Larger Than')
+
+
+def test_query_region_wrong_zconstraint_v2():
+    with pytest.raises(InvalidQueryError, match="z_value2 has to be provided"):
+        ned.Ned.query_region("m31", z_constraint='Between', z_value1=4.1)
+
+
+def test_query_region_iau_wrong_zconstraint():
+    with pytest.raises(InvalidQueryError, match="z_constraint WrongConstraint is not recognized"):
+        ned.Ned.query_region_iau('1234-423', z_constraint='WrongConstraint',
+                                 z_value1=4.2, z_value2=96, z_unit='km/s')
+
+
+def mock_parse_coordinates_raises(coordinates, *, return_frame=None):
+    raise ValueError("bad coordinate")
+
+
+def test_query_wrong_region_async(monkeypatch):
+    monkeypatch.setattr(commons, 'parse_coordinates', mock_parse_coordinates_raises)
+
+    c = coord.SkyCoord(ra=10 * u.deg, dec=20 * u.deg, frame='icrs')
+
+    with pytest.raises(TypeError, match="Coordinates not specified correctly"):
+        ned.Ned.query_region_async(c)
 
 
 def test_query_object_async(patch_get):
@@ -379,6 +437,11 @@ def test_get_object_notes(patch_get):
     assert isinstance(result, Table)
 
 
+def test_get_object_wrong_table():
+    with pytest.raises(InvalidQueryError, match="wrong_table is not supported"):
+        ned.Ned.get_table('3c 273', table='wrong_table')
+
+
 def test_parse_result(capsys):
     with open(data_path(DATA_FILES['error']), 'rb') as infile:
         content = infile.read()
@@ -395,6 +458,36 @@ def test_parse_result(capsys):
         assert exinfo.value.message == (error_message)
     else:
         assert exinfo.value.args[0] == (error_message)
+
+
+def test_parse_result_error_no_message():
+    # QUERY_STATUS=ERROR with no DESCRIPTION, and no TABLE element, so
+    # votable parsing fails and _check_ned_valid finds an error with no message
+    content = b"""<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.5" xmlns="http://www.ivoa.net/xml/VOTable/v1.3">
+<RESOURCE type="results">
+<PARAM name="QUERY_STATUS" datatype="char" arraysize="*" value="ERROR"/>
+</RESOURCE>
+</VOTABLE>"""
+    response = MockResponse(content)
+
+    with pytest.raises(RemoteServiceError,
+                       match="The remote service returned an error with no message."):
+        ned.Ned._parse_result(response)
+
+
+def test_parse_result_table_parse_error():
+    # no QUERY_STATUS=ERROR, but no TABLE element either, so votable parsing
+    # fails without the response itself reporting an error
+    content = b"""<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.5" xmlns="http://www.ivoa.net/xml/VOTable/v1.3">
+<RESOURCE type="results">
+</RESOURCE>
+</VOTABLE>"""
+    response = MockResponse(content)
+
+    with pytest.raises(TableParseError, match="Failed to parse NED result"):
+        ned.Ned._parse_result(response)
 
 
 def test_deprecated_namespace_import_warning():
