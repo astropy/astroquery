@@ -13,7 +13,7 @@ __all__ = ["CatalogCollection"]
 
 DEFAULT_CATALOGS = {
     "caom": "dbo.obspointing",
-    "gaiadr3": "dbo.gaia_source",
+    "gaiadr3": "gaia_source",
     "hsc": "dbo.SumMagAper2CatView",
     "hscv2": "dbo.SumMagAper2CatView",
     "missionmast": "dbo.hst_science_missionmast",
