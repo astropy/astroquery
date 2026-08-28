@@ -392,7 +392,7 @@ class NedClass(BaseQuery):
         z_value1, z_value2: float, optional.
             The redshift values for the constraint.
             z_value1 is for ``Larger Than``, ``Less Than``, or
-                the minimum of ``Between``.
+            the minimum of ``Between``.
             z_value2 is for the maximum of ``Between``.
         z_unit: str, optional
             The redshift value unit may be ``z`` or ``km/s``.
