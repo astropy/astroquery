@@ -4,12 +4,12 @@
 import re
 from io import BytesIO
 from xml.dom.minidom import parseString
-from xml.parsers.expat import ExpatError
 
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
 from astropy.coordinates import FK5
+from astropy.utils.decorators import deprecated_renamed_argument
 
 from astroquery.query import BaseQuery
 from astroquery.utils import commons
@@ -128,12 +128,14 @@ class NedClass(BaseQuery):
         request_payload[self.DBR_RADIUS] = 0
         self.SEARCH_TYPE = "object"
 
-        return self.handle_response(get_query_payload,
-                                    self.DBR_BASE_URL + self.CONESEARCH_TARGET,
-                                    request_payload)
+        return self._handle_response(get_query_payload,
+                                     self.DBR_BASE_URL + self.CONESEARCH_TARGET,
+                                     request_payload)
 
     def query_region(self, coordinates, *, radius=1 * u.arcmin,
-                     get_query_payload=False, verbose=False, **kwargs):
+                     get_query_payload=False, verbose=False, equinox='J2000.0',
+                     z_constraint=None, z_value1=None,
+                     z_value2=None, z_unit=None, maxrec=None):
         """
         Query the objects in a region around a known identifier or given
         coordinates.
@@ -161,21 +163,23 @@ class NedClass(BaseQuery):
         verbose : bool, optional.
             When set to `True` displays warnings if the returned VOTable
             does not conform to the standard. Defaults to `False`.
-        kwargs : Keyword Arguments
-            z_constraint: str, optional
-                redshift constraint may be ``Unconstrained``, ``Available``,
-                ``Unavailable``, ``Larger Than``, ``Less Than`` or ``Between``.
-            z_value1, z_value2: float, optional.
-                z_value1 is the redshift bound for the constraint
-                ``Larger Than``, ``Less Than``, or the minimum value within
-                a range for ``Between``.
-                z_value2 is the maximum value within a range for ``Between``.
-            z_unit: str, optional
-                redshift value unit may be ``z`` or ``km/s``.
-                Defaults to ``z``.
-            max_rec: int, optional
-                Maximum records to return from the query.
-                Defaults to all records if not specified.
+        equinox : str, optional
+            The equinox may be either ``J2000.0`` or ``B1950.0``.
+            Defaults to ``J2000.0``.
+        z_constraint: str, optional
+            The redshift constraint may be ``Unconstrained``, ``Available``,
+            ``Unavailable``, ``Larger Than``, ``Less Than`` or ``Between``.
+        z_value1, z_value2: float, optional.
+            z_value1 is the redshift bound for the constraint
+            ``Larger Than``, ``Less Than``, or the minimum value within
+            a range for ``Between``.
+            z_value2 is the maximum value within a range for ``Between``.
+        z_unit: str, optional
+            The redshift value unit may be ``z`` or ``km/s``.
+            Defaults to `None`, in which case the NED service treats it as ``z``.
+        maxrec: int, optional
+            Maximum records to return from the query.
+            Defaults to all records if not specified.
 
         Returns
         -------
@@ -188,14 +192,18 @@ class NedClass(BaseQuery):
         # for NED's object near name/ near region
         response = self.query_region_async(
             coordinates, radius=radius, get_query_payload=get_query_payload,
-            **kwargs)
+            equinox=equinox,
+            z_constraint=z_constraint, z_value1=z_value1, z_value2=z_value2,
+            z_unit=z_unit, maxrec=maxrec)
         if get_query_payload:
             return response
         result = self._parse_result(response, verbose=verbose)
         return result
 
     def query_region_async(self, coordinates, *, radius=1 * u.arcmin,
-                           get_query_payload=False, **kwargs):
+                           get_query_payload=False, equinox='J2000.0',
+                           z_constraint=None, z_value1=None, z_value2=None,
+                           z_unit=None, maxrec=None):
         """
         Query the objects in a region around a known identifier or given
         coordinates.
@@ -220,21 +228,23 @@ class NedClass(BaseQuery):
         get_query_payload : bool, optional
             If set to `True` then returns the dictionary sent as the HTTP
             request.  Defaults to `False`.
-        kwargs : Keyword Arguments
-            z_constraint: str, optional
-                redshift constraint may be ``Unconstrained``, ``Available``,
-                ``Unavailable``, ``Larger Than``, ``Less Than`` or ``Between``.
-            z_value1, z_value2: float, optional.
-                z_value1 is the redshift bound for the constraint
-                ``Larger Than``, ``Less Than``, or the minimum value within
-                a range for ``Between``.
-                z_value2 is the maximum value within a range for ``Between``.
-            z_unit: str, optional
-                redshift value unit may be ``z`` or ``km/s``.
-                Defaults to ``z``.
-            max_rec: int, optional
-                Maximum records to return from the query.
-                Defaults to all records if not specified.
+        equinox : str, optional
+            The equinox may be either ``J2000.0`` or ``B1950.0``.
+            Defaults to ``J2000.0``.
+        z_constraint: str, optional
+            The redshift constraint may be ``Unconstrained``, ``Available``,
+            ``Unavailable``, ``Larger Than``, ``Less Than`` or ``Between``.
+        z_value1, z_value2: float, optional.
+            z_value1 is the redshift bound for the constraint
+            ``Larger Than``, ``Less Than``, or the minimum value within
+            a range for ``Between``.
+            z_value2 is the maximum value within a range for ``Between``.
+        z_unit: str, optional
+            The redshift value unit may be ``z`` or ``km/s``.
+            Defaults to `None`, in which case the NED service treats it as ``z``.
+        maxrec: int, optional
+            Maximum records to return from the query.
+            Defaults to all records if not specified.
 
         Returns
         -------
@@ -250,7 +260,7 @@ class NedClass(BaseQuery):
         """
         decimal_digits = 8
         request_payload = self._request_payload_init(
-            max_rec=self._get_maxrec(**kwargs))
+            maxrec=self._get_maxrec(maxrec))
 
         # if its a name then query near name
         if not commons._is_coordinate(coordinates):
@@ -259,7 +269,7 @@ class NedClass(BaseQuery):
         else:
             try:
                 c = commons.parse_coordinates(coordinates)
-                ra, dec, equ, frame = get_coord_for_ned(c)
+                ra, dec, equ, frame = _get_coord_for_ned(c, equinox=equinox)
                 frame_name = c.frame.name.lower()
                 if (frame_name == NED_COORD_FRAMES['gal'].lower()
                         or frame_name == NED_COORD_FRAMES['sgal'].lower()):
@@ -279,21 +289,26 @@ class NedClass(BaseQuery):
             except (u.UnitsError, TypeError, ValueError):
                 raise TypeError("Coordinates not specified correctly")
 
-        z_constraint, msg = self._check_redshift_constraints(**kwargs)
-        if z_constraint is None and msg:
-            raise InvalidQueryError(msg)
-        elif z_constraint:
-            for k, v in z_constraint.items():
+        z_cs, msg = self._check_redshift_constraints(
+            z_constraint=z_constraint, z_value1=z_value1, z_value2=z_value2, z_unit=z_unit)
+        if z_cs is None:
+            if msg:
+                raise InvalidQueryError(msg)
+        elif z_cs:
+            for k, v in z_cs.items():
                 request_payload[k] = v
 
         request_payload[self.DBR_RADIUS] = coord.Angle(radius).arcmin
-        return self.handle_response(
+        return self._handle_response(
             get_query_payload,
             self.DBR_BASE_URL + self.SEARCH_TYPE,
             request_payload)
 
-    def query_region_iau(self, iau_name, *, equinox='B1950',
-                         get_query_payload=False, verbose=False, **kwargs):
+    def query_region_iau(self, iau_name, *, equinox='B1950.0',
+                         get_query_payload=False, verbose=False,
+                         z_constraint=None,
+                         z_value1=None, z_value2=None,
+                         z_unit=None, maxrec=None):
         """
         Query the Ned service to do cone search via the IAU name in the
         equatorial coordinate system.
@@ -307,27 +322,27 @@ class NedClass(BaseQuery):
             centered. Definition of IAU coordinates at
             https://cds.unistra.fr/Dic/iau-spec.html.
         equinox : str, optional
-            The equinox may be one of ``J2000`` or ``B1950``.
-            Defaults to ``B1950``.
+            The equinox may be one of ``J2000.0`` or ``B1950.0``.
+            Defaults to ``B1950.0``.
         get_query_payload : bool, optional
             If set to `True` then returns the dictionary sent as the HTTP
             request.  Defaults to `False`
         verbose : bool, optional.
             When set to `True` displays warnings if the returned VOTable
             does not conform to the standard. Defaults to `False`.
-        kwargs : Keyword Argumants
-            z_constraint: str, optional
-                redshift constraint may be ``Unconstrained``, ``Available``,
-                ``Unavailable``, ``Larger Than``, ``Less Than`` or ``Between``.
-            z_value1, z_value2: float, optional.
-                z_value1 is for ``Larger Than``, ``Less Than``, or the minimum
-                of ``Between``.
-                z_value2 is for the maximum of ``Between``.
-            z_unit: str, optional
-                redshift value unit may be ``z`` or ``km/s``.
-                Defaults to ``z``.
-            max_rec: int, optional
-                Maximum records to return from the query.
+        z_constraint: str, optional
+            redshift constraint may be ``Unconstrained``, ``Available``,
+            ``Unavailable``, ``Larger Than``, ``Less Than`` or ``Between``.
+        z_value1, z_value2: float, optional.
+            The redshift values for the constraint.
+            z_value1 is for ``Larger Than``, ``Less Than``, or the minimum
+            of ``Between``.
+            z_value2 is for the maximum of ``Between``.
+        z_unit: str, optional
+            The redshift value unit may be ``z`` or ``km/s``.
+            Defaults to `None`, in which case the NED service treats it as ``z``.
+        maxrec: int, optional
+            Maximum records to return from the query.
 
         Returns
         -------
@@ -339,15 +354,19 @@ class NedClass(BaseQuery):
         """
         response = self.query_region_iau_async(
             iau_name, equinox=equinox,
-            get_query_payload=get_query_payload, **kwargs)
+            get_query_payload=get_query_payload,
+            z_constraint=z_constraint,
+            z_value1=z_value1, z_value2=z_value2, z_unit=z_unit)
         if get_query_payload:
             return response
         result = self._parse_result(response, verbose=verbose)
         return result
 
-    def query_region_iau_async(self, iau_name, *,
-                               equinox='B1950',
-                               get_query_payload=False, **kwargs):
+    def query_region_iau_async(self, iau_name, *, equinox='B1950.0',
+                               get_query_payload=False,
+                               z_constraint=None,
+                               z_value1=None, z_value2=None,
+                               z_unit=None, maxrec=None):
         """
         Query the NED services to do cone search via the IAU name in the
         equatorial coordinate system.
@@ -362,24 +381,25 @@ class NedClass(BaseQuery):
             centered. Definition of IAU coordinates at
             https://cds.unistra.fr/Dic/iau-spec.html.
         equinox : str, optional
-            The equinox may be one of ``J2000`` or ``B1950``.
-            Defaults to ``B1950``.
+            The equinox may be one of ``J2000.0`` or ``B1950.0``.
+            Defaults to ``B1950.0``.
         get_query_payload : bool, optional
             If set to `True` then returns the dictionary sent as the HTTP
             request.  Defaults to `False`
-        kwargs : Keyword Arguments
-            z_constraint: str, optional
-                redshift constraint may be ``Unconstrained``, ``Available``,
-                ``Unavailable``, ``Larger Than``, ``Less Than`` or ``Between``.
-            z_value1, z_value2: float, optional.
-                z_value1 is for ``Larger Than``, ``Less Than``, or
+        z_constraint: str, optional
+            redshift constraint may be ``Unconstrained``, ``Available``,
+            ``Unavailable``, ``Larger Than``, ``Less Than`` or ``Between``.
+        z_value1, z_value2: float, optional.
+            The redshift values for the constraint.
+            z_value1 is for ``Larger Than``, ``Less Than``, or
                 the minimum of ``Between``.
-                z_value2 is for the maximum of ``Between``.
-            z_unit: str, optional
-                redshift value unit may be ``z`` or ``km/s``.
-                Defaults to ``z``.
-            max_rec: int, optional
-                Maximum records to return from the query.
+            z_value2 is for the maximum of ``Between``.
+        z_unit: str, optional
+            The redshift value unit may be ``z`` or ``km/s``.
+            Defaults to `None`, in which case the NED service treats it as ``z``.
+        maxrec: int, optional
+            Maximum records to return from the query.
+            Defaults to all records if not specified.
 
         Returns
         -------
@@ -394,26 +414,30 @@ class NedClass(BaseQuery):
         InvalidQueryError : if there is error in redshift constraint.
         """
         request_payload = self._request_payload_init(
-            max_rec=self._get_maxrec(**kwargs))
+            maxrec=self._get_maxrec(maxrec))
         request_payload[self.DBR_IAU] = iau_name
         if equinox:
-            request_payload[self.DBR_EQUINOX] = equinox
+            request_payload[self.DBR_EQUINOX] = _find_target_equinox(equinox=equinox)
         self.SEARCH_TYPE = self.CONESEARCH_IAU
 
-        z_constraint, msg = self._check_redshift_constraints(**kwargs)
-        if z_constraint is None and msg:
-            raise InvalidQueryError(msg)
-        elif z_constraint:
-            for k, v in z_constraint.items():
+        z_cs, msg = self._check_redshift_constraints(
+            z_constraint=z_constraint,
+            z_value1=z_value1, z_value2=z_value2,
+            z_unit=z_unit)
+        if z_cs is None:
+            if msg:
+                raise InvalidQueryError(msg)
+        elif z_cs:
+            for k, v in z_cs.items():
                 request_payload[k] = v
 
-        return self.handle_response(
+        return self._handle_response(
             get_query_payload,
             self.DBR_BASE_URL + self.CONESEARCH_IAU,
             request_payload)
 
     def query_refcode(self, refcode, *, get_query_payload=False,
-                      verbose=False, **kwargs):
+                      verbose=False, maxrec=None):
         """
         Query to retrieve all objects contained in a particular reference.
 
@@ -429,9 +453,9 @@ class NedClass(BaseQuery):
         verbose : bool, optional.
             When set to `True` displays warnings if the returned VOTable
             does not conform to the standard. Defaults to `False`.
-        kwargs : Keyword Arguments
-            max_rec: int, optional
-                Maximum records to return from the query.
+        maxrec: int, optional
+            Maximum records to return from the query.
+            Defaults to all records if not specified.
 
         Returns
         -------
@@ -442,14 +466,14 @@ class NedClass(BaseQuery):
             or None if an error occurs.
         """
         response = self.query_refcode_async(
-            refcode, get_query_payload=get_query_payload, **kwargs)
+            refcode, get_query_payload=get_query_payload, maxrec=maxrec)
         if get_query_payload:
             return response
         result = self._parse_result(response, verbose=verbose)
         return result
 
     def query_refcode_async(self, refcode, *,
-                            get_query_payload=False, **kwargs):
+                            get_query_payload=False, maxrec=None):
         """
         Query to retrieve all objects contained in a particular reference.
 
@@ -463,9 +487,9 @@ class NedClass(BaseQuery):
         get_query_payload : bool, optional
             If set to `True` then returns the dictionary sent as the HTTP
             request.  Defaults to `False`.
-        kwargs : Keyword Arguments
-            max_rec: int, optional
-                Maximum records to return from the query.
+        maxrec: int, optional
+            Maximum records to return from the query.
+            Defaults to all records if not specified.
 
         Returns
         -------
@@ -475,11 +499,11 @@ class NedClass(BaseQuery):
             The HTTP response returned from the service.
         """
         request_payload = self._request_payload_init(
-            max_rec=self._get_maxrec(**kwargs))
+            maxrec=self._get_maxrec(maxrec=maxrec))
         request_payload[self.DBR_REFCODE] = refcode
         self.SEARCH_TYPE = self.OBJSEARCH_INREFCODE
 
-        return self.handle_response(
+        return self._handle_response(
             get_query_payload,
             self.DBR_BASE_URL + self.OBJSEARCH_INREFCODE,
             request_payload)
@@ -683,8 +707,15 @@ class NedClass(BaseQuery):
         url_list = [base_url + img_url for img_url in matched_urls]
         return url_list
 
+    @deprecated_renamed_argument(
+        ('output_table_format', 'from_year', 'to_year', 'extended_search'),
+        (None, None, None, None), since='0.4.12',
+        message="The arguments are not supported by NED API since N36.1")
     def get_table(self, object_name, *, table='photometry',
-                  get_query_payload=False, verbose=False, **kwargs):
+                  get_query_payload=False, verbose=False, maxrec=None,
+                  is_line=False,
+                  output_table_format=None, from_year=None, to_year=None,
+                  extended_search=None):
         """
         Fetch the specified data table for the object from NED DBR service.
 
@@ -706,12 +737,11 @@ class NedClass(BaseQuery):
         verbose : bool, optional.
             When set to `True` displays warnings if the returned VOTable
             does not conform to the standard. Defaults to `False`.
-        kwargs : Keyword Arguments
-            max_rec: int, optional
-                Maximum records to return from the query.
-            is_line: bool, optional for photometry service
-                If set to `True` then gets photometry data of line component.
-                Defaults to `False`.
+        maxrec: int, optional
+            Maximum records to return from the query.
+        is_line: bool, optional for photometry service
+            If set to `True` then gets photometry data of line component.
+            Defaults to `False`.
 
         Returns
         -------
@@ -723,15 +753,21 @@ class NedClass(BaseQuery):
         """
         response = self.get_table_async(object_name, table=table,
                                         get_query_payload=get_query_payload,
-                                        **kwargs)
+                                        maxrec=maxrec, is_line=is_line)
         if get_query_payload:
             return response
 
         result = self._parse_result(response, verbose=verbose)
         return result
 
+    @deprecated_renamed_argument(
+        ('output_table_format', 'from_year', 'to_year', 'extended_search'),
+        (None, None, None, None), since='0.4.12',
+        message="The arguments are not supported by NED API since N36.1")
     def get_table_async(self, object_name, *, table='photometry',
-                        get_query_payload=False, **kwargs):
+                        get_query_payload=False, maxrec=None, is_line=False,
+                        output_table_format=None, from_year=None, to_year=None,
+                        extended_search=None):
         """
         Fetch the specified data table for the object from NED DBR service.
 
@@ -751,12 +787,11 @@ class NedClass(BaseQuery):
         get_query_payload : bool, optional
             If set to `True` then returns the dictionary sent as the HTTP
             request.  Defaults to `False`.
-        kwargs : Keyword Arguments
-            max_rec: int, optional
-                Maximum records to return from the query.
-            is_line: bool, optional for photometry service
-                If set to `True` then gets photometry data of line component.
-                Defaults to `False`.
+        maxrec: int, optional
+            Maximum records to return from the query.
+        is_line: bool, optional for photometry service
+            If set to `True` then gets photometry data of line component.
+            Defaults to `False`.
 
         Returns
         -------
@@ -787,16 +822,16 @@ class NedClass(BaseQuery):
 
         request_payload = self._request_payload_init(
             target_name=object_name,
-            max_rec=self._get_maxrec(**kwargs))
-        if table == 'photometry' and "is_line" in kwargs and kwargs['is_line']:
+            maxrec=self._get_maxrec(maxrec=maxrec))
+        if table == 'photometry' and is_line:
             request_payload[self.DBR_ISLINE] = 'yes'
         self.SEARCH_TYPE = _SEARCH_TYPE[table]
 
-        return self.handle_response(get_query_payload,
-                                    self.DBR_BASE_URL + _SEARCH_TYPE[table],
-                                    request_payload)
+        return self._handle_response(get_query_payload,
+                                     self.DBR_BASE_URL + _SEARCH_TYPE[table],
+                                     request_payload)
 
-    def handle_response(self, get_query_payload, service_url, request_payload):
+    def _handle_response(self, get_query_payload, service_url, request_payload):
         """
         Form the URL and parameters to send the http query.
 
@@ -850,35 +885,44 @@ class NedClass(BaseQuery):
             return str(num)+unit
 
     @staticmethod
-    def _get_maxrec(**kwargs):
+    def _get_maxrec(maxrec=None):
         """
         Get maximum record specification from a list of keyword
         arguments if there is.
 
         Parameters
         ----------
-        kwargs : Keyword Arguments
+        maxrec : int, optional
+            Maximum record to retrieve from the table.
+
 
         Returns
         -------
         an integer number or None.
         """
-        if "max_rec" in kwargs:
-            m = int(kwargs["max_rec"])
+        if maxrec is not None:
+            m = int(maxrec)
             m = -1 if m < -1 else m
             return m
         else:
             return None
 
     @staticmethod
-    def _check_redshift_constraints(**kwargs):
+    def _check_redshift_constraints(z_constraint=None, z_value1=None, z_value2=None, z_unit=None):
         """
         Validate redshift constraints from keyword arguments if there is.
 
         Parameters
         ----------
-        kwargs : Keyword Arguments
-
+        z_constraint : str, optional
+            The redshift constraint. Default is None.
+        z_value1 : float, optional
+            The first redshift value. Default is None.
+        z_value2 : float, optional
+            The second redshift value. Default is None.
+        z_unit : str, optional
+            The unit for the redshift values.
+            Default is None, in which case the NED service treats it as ``z``.
         Returns
         -------
         dict : containing data for z_constraint, z_value1, z_value2 and z_unit.
@@ -899,40 +943,40 @@ class NedClass(BaseQuery):
 
         z_msg = ''
 
-        if key_z_c not in kwargs:
+        if z_constraint is None or z_constraint == '':
             return None, ""
-        caseless_constraint = kwargs[key_z_c].casefold()
+        caseless_constraint = z_constraint.casefold()
         caseless_set = {t.casefold()
                         for t in [_Z_UC, _Z_AV, _Z_UA, _Z_LA, _Z_LE, _Z_BW]}
         if caseless_constraint not in caseless_set:
-            return None, key_z_c + ' ' + kwargs[key_z_c] + ' is not recognized'
+            return None, key_z_c + ' ' + z_constraint + ' is not recognized'
         else:
-            z_info[key_z_c] = kwargs[key_z_c]
-            if kwargs[key_z_c].casefold() in {
+            z_info[key_z_c] = z_constraint
+            if z_constraint.casefold() in {
                     _Z_UC.casefold(), _Z_AV.casefold(), _Z_UA.casefold()}:
                 return z_info, z_msg
-            if kwargs[key_z_c].casefold() in {
+            if z_constraint.casefold() in {
                     _Z_LA.casefold(), _Z_LE.casefold(), _Z_BW.casefold()}:
-                if key_z_v1 in kwargs:
-                    z_info[key_z_v1] = kwargs[key_z_v1]
+                if z_value1 is not None:
+                    z_info[key_z_v1] = z_value1
                 else:
                     return (None,
                             f"{key_z_v1} has to be provided for "
-                            f"{key_z_c} {kwargs[key_z_c]}")
-                if key_z_u in kwargs and kwargs[key_z_u]:
-                    z_info[key_z_u] = kwargs[key_z_u]
-            if kwargs[key_z_c].casefold() in {item.casefold()
-                                              for item in [_Z_BW]}:
-                if key_z_v2 in kwargs:
-                    z_info[key_z_v2] = kwargs[key_z_v2]
+                            f"{key_z_c} {z_constraint}")
+                if z_unit is not None and z_unit != '':
+                    z_info[key_z_u] = z_unit
+            if z_constraint.casefold() in {item.casefold()
+                                           for item in [_Z_BW]}:
+                if z_value2 is not None:
+                    z_info[key_z_v2] = z_value2
                 else:
                     return (None, f"{key_z_v2} has to be provided for "
-                            f"{key_z_c} {kwargs[key_z_c]}")
+                            f"{key_z_c} {z_constraint}")
 
             return z_info, z_msg
 
     @staticmethod
-    def _request_payload_init(target_name=None, max_rec=None):
+    def _request_payload_init(target_name=None, maxrec=None):
         """
         Initialize the object to contain the query parameter.
 
@@ -940,7 +984,7 @@ class NedClass(BaseQuery):
         ----------
         target_name: str
             for object query, str, optional
-        max_rec: int, optional
+        maxrec: int, optional
             Maximum record to retrieve from the table.
 
         Returns
@@ -951,8 +995,8 @@ class NedClass(BaseQuery):
         request_payload = dict()
         if target_name is not None:
             request_payload[NedClass.DBR_TARGET] = target_name
-        if max_rec is not None:
-            request_payload[NedClass.DBR_MAXREC] = max_rec
+        if maxrec is not None:
+            request_payload[NedClass.DBR_MAXREC] = maxrec
 
         return request_payload
 
@@ -1006,9 +1050,6 @@ class NedClass(BaseQuery):
             first_table = p_table.get_first_table()
             table = first_table.to_table(use_names_over_ids=True)
             return table
-        except (ValueError, TypeError, AttributeError,
-                IndexError, ExpatError) as ex:
-            _raise_service_or_parse_error(ex)
         except Exception as ex:
             _raise_service_or_parse_error(ex)
 
@@ -1016,7 +1057,7 @@ class NedClass(BaseQuery):
 Ned = NedClass()
 
 
-def get_value_from_paths(obj, attr_paths):
+def _get_value_from_paths(obj, attr_paths):
     for attr_path in attr_paths:
         try:
             for attr in attr_path.split('.'):
@@ -1027,12 +1068,16 @@ def get_value_from_paths(obj, attr_paths):
     return None
 
 
-def get_coord_for_ned(c):
+def _get_coord_for_ned(c, *, equinox=None):
     frame_name = c.frame.name.lower()
     equ = None
 
     ra_attrs = ['ra.hour', 'ra.hourangle']
     dec_attrs = ['dec.degree']
+
+    # frame to coordinate system mapping for NED service
+    # galactic -> galactic, supergalactic -> supergalactic,
+    # other frame-> equatorial
     if frame_name == NED_COORD_FRAMES['gal'].lower():
         ra_attrs = ['l.degree']
         dec_attrs = ['b.degree']
@@ -1041,26 +1086,28 @@ def get_coord_for_ned(c):
         ra_attrs = ['sgl.degree']
         dec_attrs = ['sgb.degree']
         frame = NED_COORD_FRAMES['sgal']
-    elif frame_name == 'fk4' or frame_name == 'fk5':
-        frame = NED_COORD_FRAMES['equ']
-        def_equ = NED_COORD_EQUINOX['b'] \
-            if frame_name == 'fk4' else NED_COORD_EQUINOX['j']
-        equ = get_equinox(c, equinox=def_equ)
-
-        # convert fk4/non B1950 or fk5/non J2000 to fk5/J2000
-        if equ is None or def_equ not in equ:
-            c = c.transform_to(FK5(equinox=NED_COORD_EQUINOX['j']))
-            equ = NED_COORD_EQUINOX['j']
     else:
-        c = c.transform_to(FK5(equinox=NED_COORD_EQUINOX['j']))
         frame = NED_COORD_FRAMES['equ']
-        equ = NED_COORD_EQUINOX['j']
 
-    ra = None
-    dec = None
-    if ra_attrs and dec_attrs:
-        ra = get_value_from_paths(c, ra_attrs)
-        dec = get_value_from_paths(c, dec_attrs)
+        # frame + equinox to csys + equinox mapping for NED service
+        # fk4+B1950 -> equatorial+B1950, fk5+J2000 -> equatorial+J2000,
+        # other -> equatorial+equinox (default to J2000 if not specified)
+        if frame_name in ('fk4', 'fk5'):
+            def_equ = NED_COORD_EQUINOX['b'] \
+                if frame_name == 'fk4' else NED_COORD_EQUINOX['j']
+            equ = _get_equinox(c)
+        else:
+            def_equ = None
+            equ = None
+        # transform fk4/non B1950, fk5/non J2000, or any other frame
+        # to fk5/target_equ based on the input equinox
+        if equ is None or def_equ is None or def_equ not in equ:
+            target_equ = _find_target_equinox(equinox=equinox)
+            c = c.transform_to(FK5(equinox=target_equ))
+            equ = target_equ
+
+    ra = _get_value_from_paths(c, ra_attrs)
+    dec = _get_value_from_paths(c, dec_attrs)
 
     if ra is None or dec is None:
         raise ValueError("The coordinate is not available")
@@ -1068,7 +1115,16 @@ def get_coord_for_ned(c):
     return ra, dec, equ, frame
 
 
-def get_equinox(c, equinox=NED_COORD_EQUINOX['j']):
+def _find_target_equinox(equinox=None):
+    j = NED_COORD_EQUINOX['j']
+    b = NED_COORD_EQUINOX['b']
+    pattern = rf'({j}|{b})(?:\.0)?'
+    equ_input = equinox or j
+    match = re.search(pattern, equ_input)
+    return match[1] if match else j
+
+
+def _get_equinox(c):
     """
     Get the equinox from a coordinate object.
 
@@ -1084,13 +1140,14 @@ def get_equinox(c, equinox=NED_COORD_EQUINOX['j']):
     equ : str or None
         The equinox.
     """
-    equ = c.frame.equinox.value if hasattr(c.frame, 'equinox') else equinox
+    equ = c.frame.equinox.value if hasattr(c.frame, 'equinox') else None
     j = NED_COORD_EQUINOX['j']
     b = NED_COORD_EQUINOX['b']
     pattern = rf'({j}|{b})(?:\.0)?'
-    match = re.search(pattern, equ)
-    if match:
-        return match[1]
+    if equ is not None:
+        match = re.search(pattern, equ)
+        if match:
+            return match[1]
     return None
 
 

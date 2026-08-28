@@ -89,7 +89,7 @@ The redshift constraints can be optionally specified to indicate if the redshift
 Instead of using the name, the target may also be specified via
 coordinates. Any of the coordinate systems available in `~astropy.coordinates`
 may be used (ICRS, Galactic, FK4, FK5). The coordinate system, equinox, and sky position (RA/Dec or longitude/latitude) 
-are all derived directly from the input coordinate object.
+are all derived directly from the input coordinate object and the optional keyword argument ``equinox``.
 
 .. doctest-remote-data::
 
@@ -275,13 +275,13 @@ used to get photometric data of line component. We look at a simple example:
 All above queries return results in a `~astropy.table.Table` or raise an Exception error
 if the service returns a query error.
 
-For queries that return results in a `~astropy.table.Table`, you may optionally specify the ``max_rec`` argument to
-limit the number of records returned. If ``max_rec`` is 0, only the table fields are returned. For example:
+For queries that return results in a `~astropy.table.Table`, you may optionally specify the ``maxrec`` argument to
+limit the number of records returned. If ``maxrec`` is 0, only the table fields are returned. For example:
 
 .. doctest-remote-data::
 
     >>> from astroquery.ipac.ned import Ned
-    >>> result_table = Ned.query_region("3c 273", max_rec=4)
+    >>> result_table = Ned.query_region("3c 273", maxrec=4)
     >>> print(result_table)
     No.        Object Name              RA-s      ... Diameter Distances Classification Images Spectra
                                                   ...

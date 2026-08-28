@@ -82,34 +82,26 @@ def get_mockreturn(method, url, params=None, timeout=10, **kwargs):
 
 
 def test_get_references_async(patch_get):
-    # from_year and to_year are ignored as they are not supported
     # by NED API of N36.1 release
     response = ned.Ned.get_table_async("m1",
                                        table='references',
-                                       from_year=2010,
-                                       to_year=2013,
+                                       maxrec=10,
                                        get_query_payload=True)
     s_type = ned.Ned.SEARCH_TYPE
-    # assert response['objname'] == 'm1'
-    # assert response['ref_extend'] == 'no'
-    # assert response['begin_year'] == 2010
-    # assert response['end_year'] == 2013
-    # assert response['search_type'] == 'Reference'
     assert response[ned.Ned.DBR_TARGET] == 'm1'
     assert s_type == ned.Ned.OBJSEARCH_REFERENCES
 
-    response = ned.Ned.get_table_async("m1", table='references', max_rec=10)
+    response = ned.Ned.get_table_async("m1", table='references', maxrec=10)
     assert response is not None
 
 
 def test_get_references(patch_get):
-    # from_year and to_year are ignored as they are not supported
     # by NED API of N36.1 release
     response = ned.Ned.get_table_async(
         "m1", table='references', from_year=2010)
     assert response is not None
     result = ned.Ned.get_table(
-        "m1", table='references', max_rec=10)
+        "m1", table='references', maxrec=10)
     assert isinstance(result, Table)
     response = ned.Ned.get_table("m1", table='references',
                                  get_query_payload=True)
@@ -181,7 +173,6 @@ def test_get_positions_async(patch_get):
     response = ned.Ned.get_table_async(
         "m1", table='positions', get_query_payload=True)
     s_type = ned.Ned.SEARCH_TYPE
-    # assert response['objname'] == 'm1'
     assert response[ned.Ned.DBR_TARGET] == 'm1'
     assert s_type == ned.Ned.OBJSEARCH_POSITIONS
     response = ned.Ned.get_table_async("m1", table='positions')
@@ -197,8 +188,6 @@ def test_get_redshifts_async(patch_get):
     response = ned.Ned.get_table_async(
         "3c 273", table='redshifts', get_query_payload=True)
     s_type = ned.Ned.SEARCH_TYPE
-    # assert response['objname'] == '3c 273'
-    # assert response['search_type'] == 'Redshifts'
     assert response[ned.Ned.DBR_TARGET] == '3c 273'
     assert s_type == ned.Ned.OBJSEARCH_REDSHIFTS
     response = ned.Ned.get_table_async("3c 273", table='redshifts')
@@ -215,15 +204,13 @@ def test_get_photometry_async(patch_get):
         "3c 273", table='photometry', get_query_payload=True)
     s_type = ned.Ned.SEARCH_TYPE
     assert response[ned.Ned.DBR_TARGET] == '3c 273'
-    # assert response['meas_type'] == 'bot'
-    # assert response['search_type'] == 'Photometry'
     assert s_type == ned.Ned.OBJSEARCH_PHOTOMETRY
-    response = ned.Ned.get_table_async("3C 273", table='photometry', max_rec=10)
+    response = ned.Ned.get_table_async("3C 273", table='photometry', maxrec=10)
     assert response is not None
 
 
 def test_photometry(patch_get):
-    result = ned.Ned.get_table("3c 273", table='photometry', max_rec=10)
+    result = ned.Ned.get_table("3c 273", table='photometry', maxrec=10)
     assert isinstance(result, Table)
 
 
@@ -267,20 +254,7 @@ def test_query_refcode_async(patch_get):
     response = ned.Ned.query_refcode_async('1997A&A...323...31K',
                                            get_query_payload=True)
     s_type = ned.Ned.SEARCH_TYPE
-    # assert response == {'search_type': 'Search',
-    #                    'refcode': '1997A&A...323...31K',
-    #                    'hconst': conf.hubble_constant,
-    #                    'omegam': 0.27,
-    #                    'omegav': 0.73,
-    #                    'corr_z': conf.correct_redshift,
-    #                    'out_csys': conf.output_coordinate_frame,
-    #                    'out_equinox': conf.output_equinox,
-    #                    'obj_sort': conf.sort_output_by,
-    #                    'extend': 'no',
-    #                    'img_stamp': 'NO',
-    #                    'list_limit': 0,
-    #                    'of': 'xml_main'
-    #                    }
+
     assert s_type == ned.Ned.OBJSEARCH_INREFCODE
     assert response[ned.Ned.DBR_REFCODE] == '1997A&A...323...31K'
     response = ned.Ned.query_refcode_async('1997A&A...323...31K')
@@ -303,14 +277,14 @@ def test_query_region_iau_async(patch_get):
     assert response[ned.Ned.DBR_IAU] == '1234-423'
     assert response[ned.Ned.DBR_EQUINOX] == 'B1950'
     assert response['z_constraint'] == 'Unconstrained'
-    response = ned.Ned.query_region_iau_async('1234-423', max_rec=10)
+    response = ned.Ned.query_region_iau_async('1234-423', maxrec=10)
     assert response is not None
 
 
 def test_query_region_iau(patch_get):
     response = ned.Ned.query_region_iau('1234-423', get_query_payload=True)
     assert response is not None
-    result = ned.Ned.query_region_iau('1234-423', max_rec=10)
+    result = ned.Ned.query_region_iau('1234-423', maxrec=10)
     assert isinstance(result, Table)
 
 
