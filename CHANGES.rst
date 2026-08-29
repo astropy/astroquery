@@ -127,6 +127,10 @@ heasarc
 - Fix ``query_region`` for catalog=None. It should fail early. [#3630]
 - Fix ``query_region`` when passing ``add_offset`` along with ``columns=None``. [#3630]
 
+hitran
+^^^^^^
+- File parser is exposed as a user-facing function ``hitran.read`` [#3589]
+
 gaia
 ^^^^
 

@@ -6,7 +6,7 @@ from ..utils import async_to_sync, prepend_docstr_nosections
 from . import conf
 from .utils import parse_readme
 
-__all__ = ['Hitran', 'HitranClass']
+__all__ = ['Hitran', 'HitranClass', 'parse_hitran_text']
 
 
 @async_to_sync
@@ -227,26 +227,71 @@ class HitranClass(BaseQuery):
         """
         Parse a response into an `~astropy.table.Table`
         """
-        formats = parse_readme(self.FORMATFILE)
+        return parse_hitran_text(response.text, formatfile=self.FORMATFILE)
 
-        dtypes = [entry['dtype'] for entry in formats.values()]
+    @staticmethod
+    def read(filename, *, formatfile=None):
+        """
+        Read a HITRAN ``.par`` file from disk into an `~astropy.table.Table`.
 
-        rows = []
-        for line in response.text.split('\n'):
-            if line.strip():
-                row = []
-                start = 0
-                for key, entry in formats.items():
-                    formatter = entry['formatter']
-                    length = entry['length']
-                    value = formatter(line[start:start+length])
-                    row.append(value)
-                    start = start + length
-                rows.append(row)
+        Parameters
+        ----------
+        filename : str
+            Path to a HITRAN ``.par`` (160-column fixed-width) file.
+        formatfile : str, optional
+            Path to a HITRAN format ``readme.txt`` file describing the
+            column layout. Defaults to the bundled HITRAN 2004 format.
 
-        result = Table(rows=rows, names=formats.keys(), dtype=dtypes)
+        Returns
+        -------
+        result : `~astropy.table.Table`
+            Parsed line list.
+        """
+        if formatfile is None:
+            formatfile = HitranClass.FORMATFILE
+        with open(filename, 'r') as fh:
+            text = fh.read()
+        return parse_hitran_text(text, formatfile=formatfile)
 
-        return result
+
+def parse_hitran_text(text, *, formatfile=HitranClass.FORMATFILE):
+    """
+    Parse the text of a HITRAN ``.par`` line list into an `~astropy.table.Table`.
+
+    Parameters
+    ----------
+    text : str
+        Contents of a HITRAN ``.par`` file (160-column fixed-width records,
+        one per line).
+    formatfile : str, optional
+        Path to a HITRAN format ``readme.txt`` file describing the column
+        layout. Defaults to the bundled HITRAN 2004 format.
+
+    Returns
+    -------
+    result : `~astropy.table.Table`
+        Parsed line list.
+    """
+    formats = parse_readme(formatfile)
+
+    dtypes = [entry['dtype'] for entry in formats.values()]
+
+    rows = []
+    for line in text.split('\n'):
+        if line.strip():
+            row = []
+            start = 0
+            for key, entry in formats.items():
+                formatter = entry['formatter']
+                length = entry['length']
+                value = formatter(line[start:start+length])
+                row.append(value)
+                start = start + length
+            rows.append(row)
+
+    result = Table(rows=rows, names=formats.keys(), dtype=dtypes)
+
+    return result
 
 
 Hitran = HitranClass()
