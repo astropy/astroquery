@@ -15,7 +15,6 @@ import shutil
 
 import tarfile as esatar
 import zipfile
-from astropy import log
 from astropy.coordinates import SkyCoord
 from astropy import units as u
 
@@ -26,6 +25,7 @@ import pyvo
 
 import numbers
 
+from astroquery import log
 from astroquery.query import BaseVOQuery, BaseQuery
 
 __all__ = ['ESAAuthSession', 'EsaTap']

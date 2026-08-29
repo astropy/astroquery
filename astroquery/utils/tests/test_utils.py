@@ -13,8 +13,8 @@ import astropy.io.votable as votable
 import astropy.units as u
 from astropy.table import Table
 import astropy.utils.data as aud
-from astropy.logger import log
 
+from astroquery import log
 from ...utils import chunk_read, chunk_report, class_or_instance, commons
 from ...utils.process_asyncs import async_to_sync_docstr, async_to_sync
 from ...utils.docstr_chompers import remove_sections, prepend_docstr_nosections
