@@ -241,6 +241,64 @@ Both methods also accept column-based criteria, which are applied in the same wa
    210.80243 54.34875         JD6V01013          ANY 2017-06-15T19:45:30.023000 2017-06-15T20:08:44.063000   1.15442580192948     PUBLIC
 
 
+Suggested Filter Columns
+------------------------
+
+Each mission exposes a few hundred filterable columns (retrieve the full list with
+`~astroquery.mast.MastMissionsClass.get_column_list`). The column *names* differ between
+missions, but the science-oriented columns below are the ones users most often filter on.
+The names here are for JWST; use ``get_column_list()`` for the equivalents in other missions
+(for example, HST uses ``sci_instrume``, ``sci_pep_id`` and ``sci_targname``).
+
+.. list-table:: Commonly-useful JWST filter columns
+   :header-rows: 1
+   :widths: 28 72
+
+   * - Column
+     - Filter by
+   * - ``instrume``
+     - Instrument (e.g. ``NIRSPEC``, ``NIRCAM``, ``MIRI``)
+   * - ``exp_type``
+     - Observation mode; this is how you select spectroscopy (e.g. ``NRS_MSASPEC``,
+       ``NRS_FIXEDSLIT``, ``NRS_IFU``, ``MIR_MRS``, ``NIS_WFSS``) rather than imaging
+   * - ``opticalElements`` / ``filter``
+     - Filters, gratings and pupils in the optical path
+   * - ``targname`` / ``targcat``
+     - Target name, or target category (e.g. ``GALAXY``)
+   * - ``program`` / ``proposal_cycle``
+     - Observing-program number / proposal cycle
+   * - ``proposal_type`` / ``category``
+     - Program type (GO, ERS, DDT, ...) / proposal category
+   * - ``pi_name``
+     - Principal investigator
+   * - ``productLevel``
+     - Calibration level (``1b``, ``2a``, ``2b``, ``3``)
+   * - ``access``
+     - Data access (``PUBLIC`` or ``EXCLUSIVE_ACCESS``)
+   * - ``date_obs`` / ``duration``
+     - Observation date / exposure time in seconds
+
+The MAST JWST search interface (https://mast.stsci.edu/search/ui/#/jwst) exposes these same
+fields as its search facets, which is a convenient way to discover useful columns and their
+allowed values.
+
+For example, to find JWST spectroscopy within a region, choose the exposure modes with
+``exp_type`` (multiple values comma-separated for a logical OR):
+
+.. doctest-remote-data::
+
+   >>> from astropy.coordinates import SkyCoord
+   >>> from astroquery.mast import MastMissions
+   >>> jwst = MastMissions(mission='jwst')
+   >>> results = jwst.query_region(SkyCoord(80.40, -69.50, unit='deg'),
+   ...                             radius='1 arcmin',
+   ...                             instrume='NIRSPEC',
+   ...                             exp_type='NRS_MSASPEC,NRS_FIXEDSLIT,NRS_IFU',
+   ...                             select_cols=['targname', 'instrume', 'exp_type', 'opticalElements'])
+   >>> len(results) > 0
+   True
+
+
 Retrieving Data Products
 ========================
 
