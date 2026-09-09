@@ -1,0 +1,43 @@
+{
+ "sites": [
+  "bpl",
+  "coj",
+  "cpt",
+  "elp",
+  "lsc"
+ ],
+ "telescopes": [
+  "0m4a",
+  "0m4b",
+  "0m4c",
+  "0m8a",
+  "1m0a"
+ ],
+ "filters": [
+  "150um-Pinhole",
+  "200um-Pinhole",
+  "400um-Pinhole",
+  "<NO FILTER>",
+  "<NO_FILTER>"
+ ],
+ "instruments": [
+  "GHTS_BLUE",
+  "GHTS_BLUE_IMAGER",
+  "GHTS_RED",
+  "GHTS_RED_IMAGER",
+  "Goodman Spectro"
+ ],
+ "obstypes": [
+  "ARC",
+  "BIAS",
+  "BPM",
+  "CATALOG",
+  "DARK"
+ ],
+ "proposals": [
+  "TEST-PROPOSAL-001",
+  "TEST-PROPOSAL-002",
+  "TEST-PROPOSAL-003"
+ ],
+ "generated_at": "2026-09-01T19:45:03.216Z"
+}
