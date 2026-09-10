@@ -276,20 +276,17 @@ Configuration
 The module reads four configuration items, which can be changed at runtime through
 ``astroquery.lco.conf``:
 
-``archive_url``
-    The archive to query. Defaults to ``https://archive-api.lco.global``.
+* ``archive_url``: The archive to query. Defaults to
+  https://archive-api.lco.global.
 
-``token_url``
-    Where a username and password are exchanged for an API token. This is the
-    LCO observing portal rather than the archive, and defaults to
-    ``https://observe.lco.global/api/api-token-auth/``.
+* ``token_url``: Where a username and password are exchanged for an API token.
+  This is the LCO observing portal rather than the archive, and defaults to
+  https://observe.lco.global/api/api-token-auth/.
 
-``timeout``
-    Seconds to wait for the archive to respond. Defaults to ``30``.
+* ``timeout``: Seconds to wait for the archive to respond. Defaults to ``30``.
 
-``row_limit``
-    The default maximum number of frames a query returns. Defaults to ``100``;
-    set it to ``-1`` to retrieve every match for a query.
+* ``row_limit``: The default maximum number of frames a query returns. Defaults
+  to ``100``; set it to ``-1`` to retrieve every match for a query.
 
 .. doctest-skip::
 
