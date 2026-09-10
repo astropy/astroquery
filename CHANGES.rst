@@ -126,6 +126,7 @@ heasarc
 - Include method to count the number of rows in a specified table. [#3549]
 - Fix ``query_region`` for catalog=None. It should fail early. [#3630]
 - Fix ``query_region`` when passing ``add_offset`` along with ``columns=None``. [#3630]
+- Generalize the ``content-type`` filter in ``locate_data`` in anticipation for backend datalink descriptor changes. [#3656]
 
 gaia
 ^^^^
