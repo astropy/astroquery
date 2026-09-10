@@ -163,7 +163,7 @@ class LcoArchiveQuery(QueryWithLogin):
                                  "to log in to the LCO archive.")
             if password is None:
                 password, password_from_keyring = self._get_password(
-                    "astroquery:lco.global", username, reenter=reenter_password)
+                    "astroquery:observe.lco.global", username, reenter=reenter_password)
             else:
                 password_from_keyring = None
 
@@ -183,7 +183,7 @@ class LcoArchiveQuery(QueryWithLogin):
                 return False
 
             if store_password and password_from_keyring is None and password and username:
-                keyring.set_password("astroquery:lco.global", username, password)
+                keyring.set_password("astroquery:observe.lco.global", username, password)
 
         self._session.headers['Authorization'] = f'Token {token}'
 

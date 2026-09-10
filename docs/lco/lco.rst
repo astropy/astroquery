@@ -259,7 +259,7 @@ proprietary frames on your own proposals, log in with the API token from your
 You can log in with your observing portal username instead, which exchanges
 your credentials for a token. The password is read from your system keyring if
 it is stored there, and prompted for otherwise; pass ``store_password=True`` to
-save it for later sessions:
+save it in the system keyring for later sessions:
 
 .. doctest-skip::
 
