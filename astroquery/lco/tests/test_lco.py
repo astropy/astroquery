@@ -224,10 +224,15 @@ def test_empty_result_warns(patch_request, lco, monkeypatch):
     assert 'basename' in result.colnames
 
 
-def test_list_helpers(patch_request, lco):
-    assert lco.list_sites() == sorted(read_data('aggregate')['sites'])
-    assert lco.list_configuration_types() == sorted(
-        read_data('aggregate')['obstypes'])
+@pytest.mark.parametrize('method, key',
+                         [('list_sites', 'sites'),
+                          ('list_telescopes', 'telescopes'),
+                          ('list_instruments', 'instruments'),
+                          ('list_filters', 'filters'),
+                          ('list_configuration_types', 'obstypes'),
+                          ('list_proposals', 'proposals')])
+def test_list_helpers(patch_request, lco, method, key):
+    assert getattr(lco, method)() == sorted(read_data('aggregate')[key])
 
 
 def test_download_drops_the_auth_header(lco, monkeypatch, tmp_path):

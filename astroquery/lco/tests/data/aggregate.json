@@ -14,18 +14,20 @@
   "1m0a"
  ],
  "filters": [
-  "150um-Pinhole",
-  "200um-Pinhole",
-  "400um-Pinhole",
-  "<NO FILTER>",
-  "<NO_FILTER>"
+  "gp",
+  "rp",
+  "up",
+  "ip",
+  "zp",
+  "R",
+  "B"
  ],
  "instruments": [
-  "GHTS_BLUE",
-  "GHTS_BLUE_IMAGER",
-  "GHTS_RED",
-  "GHTS_RED_IMAGER",
-  "Goodman Spectro"
+  "fa16",
+  "kb80",
+  "ep05",
+  "fl08",
+  "ak01"
  ],
  "obstypes": [
   "ARC",
