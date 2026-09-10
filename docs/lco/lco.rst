@@ -7,10 +7,10 @@ LCO Archive Queries (`astroquery.lco`)
 Getting Started
 ===============
 
-This module searches the science archive of `Las Cumbres Observatory
-<https://lco.global>`_, a global network of robotic telescopes. The archive
-holds one record per *frame*: a single exposure from one instrument, either raw
-or reduced.
+This module searches the `science archive <https://archive.lco.global>`_ of
+`Las Cumbres Observatory <https://lco.global>`_, a global network of robotic telescopes.
+The archive holds one record per **frame**: a single exposure from one instrument,
+either raw or reduced.
 
 Anyone can query the archive without logging in, which returns every frame
 whose proprietary period has expired. Logging in with an API token additionally
@@ -19,7 +19,7 @@ returns the proprietary frames belonging to your proposals; see
 
 Every query returns a `~astropy.table.Table` of frame metadata, including a
 download link for each frame. The `Downloading Data`_ section below describes
-how to download the frames from a query.
+how to download the frames from a query. For more information on
 
 
 Positional Queries
@@ -91,8 +91,16 @@ Criteria Queries
 ----------------
 
 `~astroquery.lco.LcoArchiveQuery.query_criteria` searches on any combination of
-frame criteria. ``reduction_level`` is ``0`` for raw data and ``91`` for
-reduced:
+frame criteria. A list of the criteria is available at
+`~astroquery.lco.LcoArchiveQuery.list_criteria`, while a more in depth
+explanation of the available criteria can be found on
+`LCO's Developer Docs <https://developers.lco.global/#data-format-definition37>`_.
+
+.. doctest-remote-data::
+
+    >>> from astroquery.lco import LcoArchive
+    >>> LcoArchive.list_criteria()   # doctest: +ELLIPSIS
+    ['basename', 'basename_exact', 'configuration_type', 'covers', ...]
 
 .. doctest-remote-data::
 
@@ -115,6 +123,8 @@ narrow a positional or name search rather than replacing it.
 `~astropy.time.Time`, or a `~datetime.datetime`. A query should **always** be
 narrowed by ``start`` and ``end`` to reduce load on the database.
 
+``reduction_level`` is ``0`` for raw data and ``91`` for reduced.
+
 Two criteria accept several values at once,
 ``include_configuration_type`` and ``exclude_configuration_type``:
 
@@ -128,19 +138,10 @@ Two criteria accept several values at once,
 All other criteria expect a single value only.
 
 
-Discovering Criteria and Values
+Discovering Criteria Values
 -------------------------------
 
-`~astroquery.lco.LcoArchiveQuery.list_criteria` returns every criterion the
-query methods accept. It needs no request to the archive:
-
-.. doctest-remote-data::
-
-    >>> from astroquery.lco import LcoArchive
-    >>> LcoArchive.list_criteria()   # doctest: +ELLIPSIS
-    ['basename', 'basename_exact', 'configuration_type', 'covers', ...]
-
-The remaining ``list_*`` methods list which sites, telescopes,
+The ``list_*`` methods list which sites, telescopes,
 instruments, filters, configuration types or proposals are available to filter:
 
 .. doctest-remote-data::
@@ -155,18 +156,17 @@ lists the ones that are accepted:
 
 .. doctest-remote-data::
 
-    >>> LcoArchive.query_criteria(instrument="fa16")
+    >>> LcoArchive.query_criteria(not_a_criteria="fa16")
     Traceback (most recent call last):
     ...
-    ValueError: 'instrument' is not a supported LCO archive filter. Supported filters are: basename, ...
+    ValueError: 'not_a_criteria' is not a supported LCO archive filter. Supported filters are: basename, ...
 
 
 How Many Rows You Get
 ---------------------
 
 Queries return at most ``row_limit`` frames, 100 by default. When the archive
-holds more than were returned, a `~astroquery.exceptions.MaxResultsWarning` is
-printed.
+holds more than were returned, a ``MaxResultsWarning`` is printed.
 
 .. doctest-remote-data::
 
