@@ -10,7 +10,8 @@ Getting Started
 This module searches the `science archive <https://archive.lco.global>`_ of
 `Las Cumbres Observatory <https://lco.global>`_, a global network of robotic telescopes.
 The archive holds one record per **frame**: a single exposure from one instrument,
-either raw or reduced.
+either raw or reduced. Full details on the LCO Archive can be found
+`here <https://lco.global/documentation/archive-documentation/>`_.
 
 Anyone can query the archive without logging in, which returns every frame
 whose proprietary period has expired. Logging in with an API token additionally
@@ -95,6 +96,9 @@ frame criteria. A list of the criteria is available at
 `~astroquery.lco.LcoArchiveQuery.list_criteria`, while a more in depth
 explanation of the available criteria can be found on
 `LCO's Developer Docs <https://developers.lco.global/#data-format-definition37>`_.
+Queries should be as constrained as possible to provide results quickly and efficiently.
+Some helpful parameters to constrain a query are date ranges through ``start`` and ``end``,
+or filters on a specific ``proposal_id`` or ``request_id``
 
 .. doctest-remote-data::
 
@@ -120,10 +124,13 @@ The same criteria can be passed to ``query_region`` and ``query_object``, which
 narrow a positional or name search rather than replacing it.
 
 ``start`` and ``end`` bound the observation date and accept a string, an
-`~astropy.time.Time`, or a `~datetime.datetime`. A query should **always** be
-narrowed by ``start`` and ``end`` to reduce load on the database.
+`~astropy.time.Time`, or a `~datetime.datetime`. The LCO Archive is
+very large, so filtering with a date range is **always** a good idea.
 
-``reduction_level`` is ``0`` for raw data and ``91`` for reduced.
+The main ``reduction_level`` values are ``0`` for raw data and ``91`` for
+most reduced data. There are several other more obscure reduction levels
+defined in the
+`Archive Documentation <https://lco.global/documentation/archive-documentation/>`_.
 
 Two criteria accept several values at once,
 ``include_configuration_type`` and ``exclude_configuration_type``:
