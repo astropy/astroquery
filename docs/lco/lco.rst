@@ -182,7 +182,8 @@ holds more than were returned, a ``MaxResultsWarning`` is printed.
     MaxResultsWarning: Results truncated to 3 frames. Pass row_limit=-1 to retrieve every matching frame.
 
 Pass ``row_limit=-1`` to retrieve every match, paging through the archive as
-needed.
+needed. If the rows retrieved from an unbounded query exceed 10,000, a warning
+will be printed.
 
 .. doctest-skip::
 

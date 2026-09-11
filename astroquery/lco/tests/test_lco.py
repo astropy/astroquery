@@ -10,10 +10,11 @@ import requests
 import astropy.units as u
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
+from astropy.utils import console
 
-from astroquery.exceptions import (MaxResultsWarning, NoResultsWarning,
-                                   RemoteServiceError)
-from astroquery.lco import LcoArchiveQuery
+from astroquery.exceptions import (LargeQueryWarning, MaxResultsWarning,
+                                   NoResultsWarning, RemoteServiceError)
+from astroquery.lco import core, LcoArchiveQuery
 from astroquery.utils.mocks import MockResponse
 
 
@@ -391,6 +392,91 @@ def test_no_truncation_warning_when_unlimited(lco, monkeypatch):
     warnings.simplefilter('error')
     result = lco.query_object('TEST-TARGET', row_limit=-1)
     assert len(result) == 4
+
+
+def test_unbounded_query_warns_once_it_is_large(lco, monkeypatch):
+    # An unbounded query should warn if the result is large.
+    monkeypatch.setattr(core, 'LARGE_RESULT_WARNING', 3)
+    row = read_data('frames')['results'][0]
+    pages = [{'results': [row, row], 'next': 'https://a/frames/?cursor=C'},
+             {'results': [row, row], 'next': 'https://a/frames/?cursor=D'},
+             {'results': [row, row], 'next': None}]
+
+    monkeypatch.setattr(LcoArchiveQuery, '_request', paged_request(pages))
+    with pytest.warns(LargeQueryWarning, match='still paging'):
+        result = lco.query_object('TEST-TARGET', row_limit=-1)
+    assert len(result) == 6
+
+
+def test_bounded_query_does_not_warn_about_size(lco, monkeypatch):
+    # A row_limit stops on its own, so a large result set is intentional.
+    monkeypatch.setattr(core, 'LARGE_RESULT_WARNING', 1)
+    row = read_data('frames')['results'][0]
+    monkeypatch.setattr(LcoArchiveQuery, '_request', paged_request(
+        [{'results': [row, row], 'next': None}]))
+
+    warnings.simplefilter('error', LargeQueryWarning)
+    assert len(lco.query_object('TEST-TARGET', row_limit=2)) == 2
+
+
+@pytest.mark.parametrize('show_progress, expect_output', [(True, True),
+                                                          (False, False)])
+def test_show_progress_controls_the_display(lco, monkeypatch, capsys,
+                                            show_progress, expect_output):
+    row = read_data('frames')['results'][0]
+    monkeypatch.setattr(LcoArchiveQuery, '_request', paged_request(
+        [{'results': [row], 'next': 'https://a/frames/?cursor=C'},
+         {'results': [row], 'next': None}]))
+
+    # Two pages, so the display would otherwise be shown.
+    lco.query_object('TEST-TARGET', row_limit=-1, show_progress=show_progress)
+    assert bool(capsys.readouterr().out) is expect_output
+
+
+def test_counting_spinner_reports_the_running_count():
+    # A spinner cannot fill a bar, so an unbounded query reports how many
+    # frames it has instead.
+    progress = core._ProgressBarOrCountingSpinner(None, 'Retrieving')
+    assert progress._is_spinner
+    progress.update(12345)
+    assert progress._obj._msg == 'Retrieving (12,345 so far)'
+
+
+def test_counting_progress_leaves_a_real_bar_alone(monkeypatch, tmp_path):
+    # A known total on a terminal gives a real progress bar, which reports its
+    # own counts; only the spinner needs replacing to change its message.
+    monkeypatch.setattr(console, 'isatty', lambda f: True)
+    with open(tmp_path / 'out', 'w') as stream:
+        progress = core._ProgressBarOrCountingSpinner(500, 'Retrieving', file=stream)
+        assert progress._is_spinner is False
+        bar = progress._obj
+        progress.update(250)
+        assert progress._obj is bar
+
+
+def test_progress_never_reports_more_than_the_row_limit(lco, monkeypatch):
+    # The bar's total is the row limit, so a page that overshoots it must not
+    # be reported as more than 100%.
+    seen = []
+
+    class Recorder:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+        def update(self, value):
+            seen.append(value)
+
+    monkeypatch.setattr(LcoArchiveQuery, '_progress',
+                        lambda self, row_limit, show: Recorder())
+    row = read_data('frames')['results'][0]
+    monkeypatch.setattr(LcoArchiveQuery, '_request', paged_request(
+        [{'results': [row] * 10, 'next': None}]))
+
+    lco.query_object('TEST-TARGET', row_limit=4)
+    assert seen == [4]
 
 
 def test_cursor_pagination_is_requested(lco, monkeypatch):

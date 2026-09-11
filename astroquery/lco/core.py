@@ -5,6 +5,7 @@ Provide astroquery API access to Las Cumbres Observatory (LCO)'s Archive.
 This accesses the LCO's archive web service with or without an API Token.
 """
 
+import contextlib
 import os
 import warnings
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
@@ -17,11 +18,12 @@ import astropy.units as u
 from astropy.coordinates import Angle
 from astropy.table import Table
 from astropy.time import Time
+from astropy.utils.console import ProgressBarOrSpinner, Spinner
 
 from astroquery import cache_conf, log
 
-from ..exceptions import (LoginError, MaxResultsWarning, NoResultsWarning,
-                          RemoteServiceError)
+from ..exceptions import (LargeQueryWarning, LoginError, MaxResultsWarning,
+                          NoResultsWarning, RemoteServiceError)
 from ..query import QueryWithLogin
 from ..utils import async_to_sync, commons
 from . import conf
@@ -94,6 +96,10 @@ THUMBNAIL_SIZES = ('small', 'large')
 #: LCO Archive presigned URLs are only valid for this long, so only
 #: cache responses for this long.
 CACHE_TIMEOUT = 48 * 60 * 60
+
+#: How many frames an unbounded query may collect before it warns that it is
+#: still going.
+LARGE_RESULT_WARNING = 10000
 
 
 @async_to_sync
@@ -206,8 +212,8 @@ class LcoArchiveQuery(QueryWithLogin):
         self._authenticated = False
 
     def query_region_async(self, coordinates, *, radius=None, width=None,
-                           height=None, get_query_payload=False, cache=None,
-                           **criteria):
+                           height=None, show_progress=True,
+                           get_query_payload=False, cache=None, **criteria):
         """
         Query for frames covering, or overlapping, a position on the sky.
 
@@ -227,6 +233,9 @@ class LcoArchiveQuery(QueryWithLogin):
             Width of a box search. Must be given with ``height``.
         height : str or `~astropy.units.Quantity`, optional
             Height of a box search. Must be given with ``width``.
+        show_progress : bool, optional
+            Display progress while retrieving a query that needs more than one
+            request. Default is `True`.
         get_query_payload : bool, optional
             Return the dict of HTTP request parameters without querying.
             Default is `False`.
@@ -239,16 +248,19 @@ class LcoArchiveQuery(QueryWithLogin):
 
         Returns
         -------
-        response : list of `requests.Response`
-            One response per page retrieved.
+        frames : list of dict
+            The frame records the archive returned, one dict per frame.
         """
         criteria.update(self._region_to_criteria(coordinates, radius=radius,
                                                  width=width, height=height))
         return self.query_criteria_async(get_query_payload=get_query_payload,
-                                         cache=cache, **criteria)
+                                         cache=cache,
+                                         show_progress=show_progress,
+                                         **criteria)
 
     def query_object_async(self, object_name, *, exact=True,
-                           get_query_payload=False, cache=None, **criteria):
+                           show_progress=True, get_query_payload=False,
+                           cache=None, **criteria):
         """
         Query for frames whose target name matches ``object_name``.
 
@@ -264,6 +276,9 @@ class LcoArchiveQuery(QueryWithLogin):
         exact : bool, optional
             Require the target name to match exactly. `False` performs case-
             insensitive searches that contain ``object_name``. Default is `True`.
+        show_progress : bool, optional
+            Display progress while retrieving a query that needs more than one
+            request. Default is `True`.
         get_query_payload : bool, optional
             Return the dict of HTTP request parameters without querying.
             Default is `False`.
@@ -276,17 +291,20 @@ class LcoArchiveQuery(QueryWithLogin):
 
         Returns
         -------
-        response : list of `requests.Response`
-            One response per page retrieved.
+        frames : list of dict
+            The frame records the archive returned, one dict per frame.
         """
         name_filter = 'target_name_exact' if exact else 'target_name'
         return self.query_criteria_async(**{name_filter: object_name},
                                          get_query_payload=get_query_payload,
-                                         cache=cache, **criteria)
+                                         cache=cache,
+                                         show_progress=show_progress,
+                                         **criteria)
 
     def query_criteria_async(self, *, get_query_payload=False, cache=None,
                              row_limit=None, include_thumbnails=False,
-                             thumbnail_size='small', **criteria):
+                             thumbnail_size='small', show_progress=True,
+                             **criteria):
         """
         Query the archive on any combination of frame filters.
 
@@ -336,6 +354,9 @@ class LcoArchiveQuery(QueryWithLogin):
         thumbnail_size : str, optional
             Which thumbnail to keep, ``'small'`` or ``'large'``. Only used
             when ``include_thumbnails`` is `True`. Default is ``'small'``.
+        show_progress : bool, optional
+            Display progress while retrieving a query that needs more than one
+            request. Default is `True`.
         get_query_payload : bool, optional
             Return the dict of HTTP request parameters without querying.
             Default is `False`.
@@ -345,8 +366,8 @@ class LcoArchiveQuery(QueryWithLogin):
 
         Returns
         -------
-        response : list of `requests.Response`
-            One response per page retrieved.
+        frames : list of dict
+            The frame records the archive returned, one dict per frame.
         """
         if thumbnail_size not in THUMBNAIL_SIZES:
             raise ValueError(f"'thumbnail_size' must be one of "
@@ -368,7 +389,8 @@ class LcoArchiveQuery(QueryWithLogin):
         if get_query_payload:
             return payload
 
-        return self._fetch_pages(payload, row_limit=row_limit, cache=cache)
+        return self._fetch_pages(payload, row_limit=row_limit, cache=cache,
+                                 show_progress=show_progress)
 
     def _region_to_criteria(self, coordinates, *, radius=None, width=None,
                             height=None):
@@ -428,7 +450,22 @@ class LcoArchiveQuery(QueryWithLogin):
 
         return payload
 
-    def _fetch_pages(self, payload, *, row_limit, cache=None):
+    def _progress(self, row_limit, show_progress):
+        """
+        A progress display for a query that needs more than one request.
+
+        A single-page query is over before any display would be useful, so
+        those get nothing. ``row_limit`` is used to determine if we should
+        show a progress bar, counting spinner, or nothing.
+        """
+        if not show_progress or 0 < row_limit <= self._page_size:
+            return contextlib.nullcontext()
+        return _ProgressBarOrCountingSpinner(
+            row_limit if row_limit > 0 else None,
+            'Retrieving frames from the LCO archive')
+
+    def _fetch_pages(self, payload, *, row_limit, cache=None,
+                     show_progress=True):
         """
         Retrieve as many pages as ``row_limit`` requires.
 
@@ -443,52 +480,72 @@ class LcoArchiveQuery(QueryWithLogin):
 
         params = dict(payload, pagination_style='cursor')
 
-        responses = []
+        rows = []
         remaining = row_limit
         url = self._frames_url
+        warned = False
+        truncated = False
 
-        while url is not None:
-            # Ask for exactly what is still wanted, so the last page does not
-            # fetch rows that would only be thrown away.
-            page_size = (self._page_size if row_limit < 0
-                         else min(remaining, self._page_size))
-            if params is None:
-                # The 'next' link includes the previous limit, so we need to
-                # substitute the value in the url if it has changed.
-                url = _replace_limit(url, page_size)
-            else:
-                params['limit'] = page_size
+        with self._progress(row_limit, show_progress) as progress:
+            while url is not None:
+                # Ask for exactly what is still wanted, so the last page does
+                # not fetch rows that would only be thrown away.
+                page_size = (self._page_size if row_limit < 0
+                             else min(remaining, self._page_size))
+                if params is None:
+                    # The 'next' link includes the previous limit, so we need
+                    # to substitute the value in the url if it has changed.
+                    url = _replace_limit(url, page_size)
+                else:
+                    params['limit'] = page_size
 
-            response = self._request('GET', url, params=params,
-                                     timeout=self.TIMEOUT, cache=cache)
-            response.raise_for_status()
-            responses.append(response)
+                response = self._request('GET', url, params=params,
+                                         timeout=self.TIMEOUT, cache=cache)
+                response.raise_for_status()
 
-            page = response.json()
-            remaining -= len(page['results'])
-            if row_limit > 0 and remaining <= 0:
-                # A 'next' link on the last page we keep means the archive
-                # holds more frames than the caller asked for.
-                if page.get('next'):
+                # Keep the results from the response but drop the response to
+                # save memory on large queries.
+                page = response.json()
+                del response
+                rows.extend(page['results'])
+                if progress is not None:
+                    # Never report more than was asked for: the bar's total is
+                    # the row limit, so going past it would read as over 100%.
+                    progress.update(len(rows) if row_limit < 0
+                                    else min(len(rows), row_limit))
+
+                remaining -= len(page['results'])
+                if row_limit > 0 and remaining <= 0:
+                    # A 'next' link on the last page we keep means the archive
+                    # holds more frames than the caller asked for.
+                    truncated = bool(page.get('next'))
+                    break
+
+                # An unbounded query can page until it exhausts memory, so if
+                # we exceed the LARGE_RESULT_WARNING number of results, report
+                # the potential issue so users can stop it early if they want.
+                if (row_limit < 0 and not warned
+                        and len(rows) >= LARGE_RESULT_WARNING):
                     warnings.warn(
-                        f"Results truncated to {row_limit} frames. Pass "
-                        f"row_limit=-1 to retrieve every matching frame.",
-                        MaxResultsWarning)
-                break
+                        f"This query has returned {len(rows):,} frames so far "
+                        "and is still paging. Narrow it with 'start' and "
+                        "'end', or set 'row_limit', to stop it sooner.",
+                        LargeQueryWarning)
+                    warned = True
 
-            # The 'next' link carries the cursor, so nothing else is needed.
-            url, params = page.get('next'), None
+                # The 'next' link carries the cursor, so nothing else is needed.
+                url, params = page.get('next'), None
 
-        return responses
+        # At the end of the query, report if we truncated the results set.
+        if truncated:
+            warnings.warn(
+                f"Results truncated to {row_limit} frames. Pass row_limit=-1 "
+                "to retrieve every matching frame.", MaxResultsWarning)
 
-    def _parse_result(self, response, *, verbose=False):
-        """Turn one or more pages of frames into a `~astropy.table.Table`."""
-        responses = response if isinstance(response, list) else [response]
+        return rows
 
-        rows = []
-        for page in responses:
-            rows.extend(page.json()['results'])
-
+    def _parse_result(self, rows, *, verbose=False):
+        """Turn the frame records from a query into a `~astropy.table.Table`."""
         if not rows:
             warnings.warn("Query returned no results.", NoResultsWarning)
             return Table(names=RESULT_COLUMNS,
@@ -675,6 +732,28 @@ class LcoArchiveQuery(QueryWithLogin):
     def list_proposals(self):
         """List the proposal ids present in the archive."""
         return self._aggregate('proposals')
+
+
+class _ProgressBarOrCountingSpinner(ProgressBarOrSpinner):
+    """
+    A `~astropy.utils.console.ProgressBarOrSpinner` that keeps a running count
+    in its spinner form.
+
+    This is used on an unbounded query (row_count = -1) so that the current
+    number of rows retrieved is shown instead of just a spinner.
+    """
+
+    def __init__(self, total, msg, **kwargs):
+        self._msg, self._kwargs = msg, kwargs
+        super().__init__(total, msg, **kwargs)
+
+    def update(self, value):
+        if self._is_spinner:
+            # Must instantiate a new spinner to give it an updated message.
+            # Each subsequent message overwrites the previous one.
+            self._obj = Spinner(f'{self._msg} ({value:,} so far)',
+                                **self._kwargs)
+        self._obj.update(value)
 
 
 def _replace_limit(url, limit):
