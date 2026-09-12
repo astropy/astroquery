@@ -219,6 +219,26 @@ class TestAlma:
         mock_calls = download_files_mock.mock_calls[0][1]
         assert mock_calls == trimmed_access_urls
 
+    def test_get_data_urls_cutouts(self, alma):
+        coords = coordinates.SkyCoord('18h12m50.92235s', '-06d48m23.493s',
+                                      frame='icrs')
+        result = alma.query_region(coords, radius=0.001 * u.deg, science=True)
+        assert len(result) > 0
+        if 'spatial_resolution' in result.colnames:
+            filtered = result[result['spatial_resolution'] < 10]
+            if len(filtered) == 0:
+                filtered = result
+        else:
+            filtered = result
+        filtered = filtered[:3]
+        urls = alma.get_data_urls(filtered, coordinates=coords,
+                                  radius=0.01 * u.deg)
+        if not urls:
+            pytest.skip('No SODA cutouts for the selected observations')
+        for url in urls:
+            assert 'POS=' in url
+            assert 'CIRCLE' in url
+
     def test_download_data(self, tmp_path, alma):
         # test only fits files from a program
         alma.cache_location = tmp_path

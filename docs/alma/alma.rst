@@ -475,6 +475,39 @@ download but will return useful information about the state of your downloads:
    >>> myAlma.download_files(link_list, cache=True, verify_only=True)  # doctest: +SKIP
 
 
+Filtering results, downloads, and cutouts
+=========================================
+
+After a TAP query you can filter the table in memory, then resolve
+download URLs or SODA spatial cutouts with DataLink. Identifiers come
+from ``obs_id`` when present (product-level, so resolution filters
+apply), otherwise ``member_ous_uid``.
+
+Unfiltered ALMA cubes can be very large. Filter first, then call
+:meth:`~astroquery.alma.AlmaClass.get_data_urls`. Pass ``coordinates``
+and ``radius`` to request a SODA cutout; omit them for full products.
+
+.. doctest-skip::
+
+    >>> from astroquery.alma import Alma
+    >>> from astropy.coordinates import SkyCoord
+    >>> import astropy.units as u
+    >>> alma = Alma()
+    >>> coords = SkyCoord('18h12m50.92235s', '-06d48m23.493s', frame='icrs')
+    >>> result = alma.query_region(coords, radius=0.001*u.deg)
+    >>> filtered = result[(result['spatial_resolution'] < 1.7) &
+    ...                   (result['velocity_resolution'] > 1000)]
+    >>> urls = alma.get_data_urls(filtered)
+    >>> cutout_urls = alma.get_data_urls(filtered, coordinates=coords,
+    ...                                  radius=0.01*u.deg)
+    >>> alma.download_files(cutout_urls)
+
+:meth:`~astroquery.alma.AlmaClass.get_data` and
+:meth:`~astroquery.alma.AlmaClass.get_data_async` combine a region query
+with download in one call. Set ``cutout=True`` to apply a SODA cutout at
+the query position. Prefer the filter-then-download path above for ALMA.
+
+
 Downloading FITS data
 =====================
 

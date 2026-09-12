@@ -12,9 +12,14 @@ from astropy.table import Table
 from astropy.io import votable
 from astropy.coordinates import SkyCoord
 from astropy.time import Time
+from astropy.io.votable import parse as votableparse
+from urllib.parse import urlsplit, parse_qs
 import pyvo
+from pyvo.dal.adhoc import DatalinkResults, DatalinkResultsMixin
 
 from astroquery.alma import Alma
+from astroquery.alma.core import AlmaClass
+from astroquery.utils.commons import FileContainer
 from astroquery.alma.core import _gen_sql, _OBSCORE_TO_ALMARESULT, get_enhanced_table
 from astroquery.alma.tapsql import _val_parse
 
@@ -560,14 +565,18 @@ def _test_datalink_url(data_archive_url):
     assert alma.datalink_url == f"{data_archive_url}/datalink/sync"
 
 
-def test_get_data_info():
-    class MockDataLinkService:
-        def run_sync(self, uid):
-            return _mocked_datalink_sync(uid)
+def _patch_iter_datalinks(alma, factory):
+    def _iter(query_result):
+        uids = AlmaClass._ids_from_query_result(alma, query_result)
+        for uid in uids:
+            yield factory(uid)
+    alma._iter_datalinks = _iter
 
+
+def test_get_data_info():
     alma = Alma()
     alma._get_dataarchive_url = Mock()
-    alma._datalink = MockDataLinkService()
+    _patch_iter_datalinks(alma, _mocked_datalink_sync)
     result = alma.get_data_info(uids='uid://A001/X12a3/Xe9')
     assert len(result) == 9
 
@@ -597,7 +606,7 @@ def _mocked_datalink_sync(*args, **kwargs):
         adhoc_service_2 = type(
             '', (object, ), {
                 'ID': 'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar', 'params': [
-                    adhoc_service_1_param1, adhoc_service_1_param2]})()
+                    adhoc_service_2_param1, adhoc_service_2_param2]})()
 
         adhoc_services = {
             'DataLink.2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar': adhoc_service_1,
@@ -634,16 +643,153 @@ def _mocked_datalink_sync(*args, **kwargs):
 
 # @patch('pyvo.dal.adhoc.DatalinkService', side_effect=_mocked_datalink_sync)
 def test_get_data_info_expand_tarfiles():
-    class MockDataLinkService:
-        def run_sync(self, uid):
-            return _mocked_datalink_sync(uid)
-
     alma = Alma()
-    alma._datalink = MockDataLinkService()
+    _patch_iter_datalinks(alma, _mocked_datalink_sync)
     result = alma.get_data_info(uids='uid://A001/X12a3/Xe9', expand_tarfiles=True)
 
-    # Entire expanded structure is 19 links long.
-    assert len(result) == 19
+    # Parent tarball/service_def rows are replaced by science + auxiliary contents
+    assert len(result) > 9
+    urls = [str(url) for url in result['access_url']]
+    assert any('50_kms_cloud_sci' in url for url in urls)
+    assert any('calibration' in url for url in urls)
+
+
+def _datalink_from_file(filename):
+    return DatalinkResults(votableparse(data_path(filename)))
+
+
+def _mock_datalink_results(uid):
+    if uid == 'uid://A001/X12a3/Xe9':
+        return _datalink_from_file('alma-datalink.xml')
+    if uid == '2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar':
+        return _datalink_from_file('alma-datalink-recurse-this.xml')
+    if uid == '2017.1.01185.S_uid___A001_X12a3_Xe9_auxiliary.tar':
+        return _datalink_from_file('alma-datalink-recurse-aux.xml')
+    pytest.fail(f'Unexpected datalink id: {uid}')
+
+
+def test_ids_from_query_result():
+    alma = Alma()
+    table = Table({'obs_id': ['id-a', 'id-b', 'id-a'],
+                   'member_ous_uid': ['mous-1', 'mous-2', 'mous-1']})
+    assert alma._ids_from_query_result(table) == ['id-a', 'id-b']
+
+    mous_only = Table({'member_ous_uid': ['mous-1', 'mous-1', 'mous-2']})
+    assert alma._ids_from_query_result(mous_only) == ['mous-1', 'mous-2']
+
+    assert alma._ids_from_query_result(['uid://A001/X1/X2']) == [
+        'uid://A001/X1/X2']
+    assert alma._ids_from_query_result('uid://A001/X1/X2') == [
+        'uid://A001/X1/X2']
+
+    tap_results = Mock()
+    tap_results.to_table.return_value = table
+    assert alma._ids_from_query_result(tap_results) == ['id-a', 'id-b']
+
+    with pytest.raises(AttributeError):
+        alma._ids_from_query_result(None)
+    with pytest.raises(AttributeError):
+        alma._ids_from_query_result(Table())
+    with pytest.raises(AttributeError):
+        alma._ids_from_query_result(Table({'foo': [1]}))
+
+
+def test_get_data_urls():
+    alma = Alma()
+    info = Table({
+        'access_url': [
+            'https://example.com/science.fits',
+            '',
+            'https://example.com/aux.fits',
+            'https://example.com/readme.txt'],
+        'semantics': ['#this', '#this', '#auxiliary', '#documentation']
+    })
+    alma.get_data_info = Mock(return_value=info)
+
+    table = Table({'obs_id': ['uid://A001/X12a3/Xe9']})
+    assert alma.get_data_urls(table) == ['https://example.com/science.fits']
+    alma.get_data_info.assert_called_once_with(
+        ['uid://A001/X12a3/Xe9'], expand_tarfiles=True,
+        with_auxiliary=False, with_rawdata=False)
+
+    urls = alma.get_data_urls(['uid://A001/X12a3/Xe9'],
+                              include_auxiliaries=True)
+    assert urls == [
+        'https://example.com/science.fits',
+        'https://example.com/aux.fits',
+        'https://example.com/readme.txt']
+
+    with pytest.raises(AttributeError):
+        alma.get_data_urls(Table({'foo': [1]}))
+    with pytest.raises(ValueError):
+        alma.get_data_urls(table, coordinates='08h45m07.5s +54d18m00s')
+
+
+def test_get_data_urls_cutout():
+    alma = Alma()
+
+    def _mocked_cutout_urls(uid, cutout_params):
+        return AlmaClass._cutout_urls_from_datalink(
+            alma, _mock_datalink_results(uid), cutout_params)
+
+    alma._cutout_urls_for_id = _mocked_cutout_urls
+
+    coords = SkyCoord(83.0, -5.0, unit=u.deg, frame='icrs')
+    radius = 0.01 * u.deg
+    table = Table({'obs_id': ['2017.1.01185.S_uid___A001_X12a3_Xe9_001_of_001.tar']})
+    urls = alma.get_data_urls(table, coordinates=coords, radius=radius)
+
+    assert len(urls) == 2
+    for url in urls:
+        params = parse_qs(urlsplit(url).query)
+        assert 'ID' in params
+        assert params['POS'][0] == 'CIRCLE 83.0 -5.0 0.01'
+        assert '/soda/sync' in url
+
+    # Member OUS has no #cutout until the tarball DataLink is followed
+    mous_urls = alma.get_data_urls(
+        ['uid://A001/X12a3/Xe9'], coordinates=coords, radius=0.01)
+    assert len(mous_urls) == 2
+    assert all('POS=' in url for url in mous_urls)
+
+    with pytest.raises(AttributeError):
+        alma.get_data_urls(None, coordinates=coords, radius=radius)
+    with pytest.raises(AttributeError):
+        alma.get_data_urls(Table({'foo': [1]}), coordinates=coords, radius=radius)
+
+
+def test_iter_datalinks_uses_existing_descriptor():
+    alma = Alma()
+    dl = _datalink_from_file('alma-datalink-recurse-this.xml')
+
+    class DummyTAPResults(DatalinkResultsMixin):
+        def __init__(self):
+            self._datalink = object()
+
+        def iter_datalinks(self, preserve_order=False):
+            yield dl
+
+    assert list(alma._iter_datalinks(DummyTAPResults())) == [dl]
+
+
+@patch.object(AlmaClass, 'query_region',
+              Mock(return_value=Table({'obs_id': ['id-1']})))
+@patch.object(AlmaClass, 'get_data_urls',
+              Mock(return_value=['https://example.com/data.fits']))
+def test_get_data():
+    alma = Alma()
+    urls = alma.get_data('08h45m07.5s +54d18m00s', 0.01 * u.deg,
+                         get_url_list=True)
+    assert urls == ['https://example.com/data.fits']
+
+    with patch('astroquery.utils.commons.get_readable_fileobj'):
+        readable_objs = alma.get_data_async(
+            '08h45m07.5s +54d18m00s', 0.01 * u.deg)
+        assert isinstance(readable_objs[0], FileContainer)
+
+    urls = alma.get_data('08h45m07.5s +54d18m00s', 0.01 * u.deg,
+                         cutout=True, get_url_list=True)
+    assert urls == ['https://example.com/data.fits']
 
 
 def test_galactic_query():
