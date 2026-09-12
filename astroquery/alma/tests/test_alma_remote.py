@@ -219,6 +219,7 @@ class TestAlma:
         mock_calls = download_files_mock.mock_calls[0][1]
         assert mock_calls == trimmed_access_urls
 
+    @pytest.mark.remote_data
     def test_get_data_urls_cutouts(self, alma):
         coords = coordinates.SkyCoord('18h12m50.92235s', '-06d48m23.493s',
                                       frame='icrs')
