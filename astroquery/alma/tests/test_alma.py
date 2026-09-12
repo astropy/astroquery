@@ -27,6 +27,14 @@ from astroquery.alma.tapsql import _val_parse
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
 
+@pytest.fixture(autouse=True)
+def mock_get_vocabulary():
+    """Avoid IVOA vocabulary downloads when matching DataLink semantics."""
+    with patch('pyvo.utils.vocabularies.get_vocabulary',
+               return_value={'terms': {}}):
+        yield
+
+
 def data_path(filename):
     return os.path.join(DATA_DIR, filename)
 
