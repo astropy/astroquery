@@ -472,8 +472,7 @@ def test_number_retrieval_types():
     assert len(conf.VALID_DATALINK_RETRIEVAL_TYPES) == 26
 
 
-def test_show_message():
-    print(JOB_DATA_FILE_NAME)
+def test_show_message(capsys):
     connHandler = DummyConnHandler()
 
     dummy_response = DummyResponse(200)
@@ -489,6 +488,27 @@ def test_show_message():
 
     tapplus = TapPlus(url="http://test:1111/tap", connhandler=connHandler)
     GaiaClass(tap_plus_conn_handler=connHandler, datalink_handler=tapplus, show_server_messages=True)
+    assert capsys.readouterr().out == "Gaia dev is under maintenance\n"
+
+
+def test_show_message_landing_page_warns_concisely(caplog):
+    conn_handler = DummyConnHandler()
+    response = DummyResponse(200)
+    response.set_data(
+        method='GET',
+        body="<html><title>Gaia archive maintenance</title></html>",
+    )
+    conn_handler.set_default_response(response)
+    conn_handler.set_response('notification?action=GetNotifications', response)
+    tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+
+    GaiaClass(
+        tap_plus_conn_handler=conn_handler,
+        datalink_handler=tapplus,
+        show_server_messages=True,
+    )
+
+    assert "unexpected status response; it may be under maintenance" in caplog.text
 
 
 @pytest.mark.parametrize(

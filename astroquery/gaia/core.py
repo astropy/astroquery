@@ -1209,13 +1209,16 @@ class GaiaClass(TapPlus):
             if response.status == 200:
                 if isinstance(response, Iterable):
                     for line in response:
-
                         try:
-                            print(line.decode("utf-8").split('=', 1)[1])
-                        except ValueError as e:
-                            print(e)
-                        except IndexError:
-                            print("Archive down for maintenance")
+                            message = line.decode("utf-8").split('=', 1)[1]
+                        except (UnicodeDecodeError, IndexError):
+                            log.warning(
+                                "Gaia archive returned an unexpected status "
+                                "response; it may be under maintenance."
+                            )
+                            return
+                        else:
+                            print(message)
 
         except OSError:
             print("Status messages could not be retrieved")
