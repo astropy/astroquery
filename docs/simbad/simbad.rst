@@ -12,6 +12,36 @@ examples that illustrate the different types of queries that can be
 formulated. If successful all the queries will return the results in a
 `~astropy.table.Table`.
 
+Using a SIMBAD mirror
+---------------------
+
+SIMBAD is hosted at CDS Strasbourg and is also available from a CfA / Harvard
+mirror.  The hostnames that ``astroquery.simbad`` currently accepts are those
+listed by ``astroquery.simbad.conf.servers_list`` (the first entry is the
+default):
+
+- ``simbad.cds.unistra.fr`` (CDS Strasbourg)
+- ``simbad.harvard.edu`` (CfA / Harvard)
+
+These names are service configuration, not a catalog measurement.  You can
+switch an existing ``Simbad`` instance at runtime, or set the default in
+``~/.astropy/config/astroquery.cfg`` under ``[simbad]`` with the key
+``server``:
+
+.. code-block:: python
+
+    from astroquery.simbad import Simbad
+    simbad = Simbad()
+    simbad.server = "simbad.harvard.edu"
+
+::
+
+    [simbad]
+    server = simbad.harvard.edu
+
+An unknown hostname raises ``ValueError``.  The accepted list is
+``Simbad.conf.servers_list`` / ``astroquery.simbad.conf.servers_list``.
+
 Good practices
 ==============
 

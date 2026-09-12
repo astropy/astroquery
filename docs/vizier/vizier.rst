@@ -14,6 +14,42 @@ radius. Similar to the VizieR web interface, the queries may be further
 constrained by specifying a choice of catalogs, keywords as well as filters on
 individual columns before retrieving the results.
 
+Using a VizieR mirror
+---------------------
+
+VizieR is hosted at CDS Strasbourg and is also available from public mirrors.
+The hostnames that ``astroquery.vizier`` currently accepts are those listed by
+``astroquery.vizier.conf.server`` (the first entry is the default):
+
+- ``vizier.cds.unistra.fr`` (CDS Strasbourg)
+- ``vizier.cfa.harvard.edu`` (CfA / Harvard)
+- ``vizier.nao.ac.jp``
+- ``vizier.hia.nrc.ca``
+- ``vizier.ast.cam.ac.uk``
+- ``vizier.iucaa.ernet.in``
+- ``vizier.china-vo.org``
+
+These names are service configuration, not a catalog measurement.  Choose a
+mirror that is closer or more responsive for your network.  The constructor
+argument is ``vizier_server``:
+
+.. code-block:: python
+
+    from astroquery.vizier import Vizier
+    vizier = Vizier(vizier_server="vizier.cfa.harvard.edu")
+
+The same hostname can be written in ``~/.astropy/config/astroquery.cfg`` under
+the ``[vizier]`` section.  The configuration key is ``server``, not the older
+``vizier_server`` name that may still appear in long-lived config files::
+
+    [vizier]
+    server = vizier.cfa.harvard.edu
+
+If an existing ``astroquery.cfg`` still has ``vizier_server = ...``, that line
+is ignored.  Regenerating the file with
+``astropy.config.create_config_file('astroquery', overwrite=True)`` writes the
+current key names.
+
 .. note::
     In earlier versions of astroquery (<0.4.8), columns with special characters like 
     ``r'mag`` were renamed into ``r_mag`` and columns starting with a number like
