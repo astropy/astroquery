@@ -479,13 +479,18 @@ Filtering results, downloads, and cutouts
 =========================================
 
 After a TAP query you can filter the table in memory, then resolve
-download URLs or SODA spatial cutouts with DataLink. Identifiers come
-from ``obs_id`` when present (product-level, so resolution filters
-apply), otherwise ``member_ous_uid``.
+download URLs or cutouts. Identifiers come from ``obs_id`` when
+present (product-level, so resolution filters apply), otherwise
+``member_ous_uid``.
 
 Unfiltered ALMA cubes can be very large. Filter first, then call
 :meth:`~astroquery.alma.AlmaClass.get_data_urls`. Pass ``coordinates``
-and ``radius`` to request a SODA cutout; omit them for full products.
+and ``radius`` for a spatial cutout, ``frequency`` for a spectral
+cutout, or both. ``coordinates`` must be a
+`~astropy.coordinates.SkyCoord`, and ``radius`` and ``frequency``
+must be `~astropy.units.Quantity` values (for example
+``0.01 * u.deg`` and ``(221.249, 221.576) * u.GHz``). Omit them for
+full products.
 
 .. doctest-skip::
 
@@ -499,13 +504,15 @@ and ``radius`` to request a SODA cutout; omit them for full products.
     ...                   (result['velocity_resolution'] > 1000)]
     >>> urls = alma.get_data_urls(filtered)
     >>> cutout_urls = alma.get_data_urls(filtered, coordinates=coords,
-    ...                                  radius=0.01*u.deg)
+    ...                                  radius=0.01*u.deg,
+    ...                                  frequency=(221.249, 221.576) * u.GHz)
     >>> alma.download_files(cutout_urls)
 
 :meth:`~astroquery.alma.AlmaClass.get_data` and
 :meth:`~astroquery.alma.AlmaClass.get_data_async` combine a region query
-with download in one call. Set ``cutout=True`` to apply a SODA cutout at
-the query position. Prefer the filter-then-download path above for ALMA.
+with download in one call. Set ``cutout=True`` to apply a spatial cutout
+at the query position, and optionally pass ``frequency`` for a spectral
+cutout. Prefer the filter-then-download path above for ALMA.
 
 
 Downloading FITS data

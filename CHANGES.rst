@@ -122,8 +122,8 @@ alma
 ^^^^
 
 - Add ``get_data_urls``, ``get_data``, and ``get_data_async`` so filtered
-  TAP results can be mapped to DataLink download URLs and optional SODA
-  spatial cutouts.
+  TAP results can be mapped to download URLs and optional spatial and
+  frequency cutouts.
 
 heasarc
 ^^^^^^^

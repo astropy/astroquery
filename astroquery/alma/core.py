@@ -951,56 +951,45 @@ class AlmaClass(QueryWithLogin):
         yield from source.iter_datalinks()
 
     def get_data_urls(self, query_result, *, coordinates=None, radius=None,
-                      include_auxiliaries=False):
+                      frequency=None, include_auxiliaries=False):
         """
-        Map ALMA query results to download or SODA cutout URLs via DataLink.
+        Map ALMA query results to download or cutout URLs.
 
         Works with results from `query_region`, `query_object`, `query`,
         or `query_tap` as long as they contain ``obs_id`` (preferred) or
         ``member_ous_uid``. A sequence of those IDs can also be passed.
 
-        If both ``coordinates`` and ``radius`` are given, SODA ``#cutout``
-        URLs with ``POS=CIRCLE`` are returned. If DataLink returns tarball
-        services rather than ``#cutout`` links (typical for a Member OUS
-        UID), those services are followed the same way as `get_data_info`
-        with ``expand_tarfiles=True``.
+        A cutout is requested when ``coordinates`` and ``radius`` and/or
+        ``frequency`` are given. Tarball products are expanded the same
+        way as `get_data_info` with ``expand_tarfiles=True``.
 
         Parameters
         ----------
         query_result : `~astropy.table.Table`, TAPResults, or sequence
-            Filtered query results or DataLink identifiers.
-        coordinates : str or `astropy.coordinates`, optional
-            Center of the cutout area. Must be passed together with
-            ``radius``.
-        radius : str, float, or `~astropy.units.Quantity`, optional
-            Radius of the cutout area. A bare number is treated as degrees.
-            Must be passed together with ``coordinates``.
+            Filtered query results or dataset identifiers.
+        coordinates : `~astropy.coordinates.SkyCoord`, optional
+            Center of the spatial cutout. Must be a `~astropy.coordinates.SkyCoord`
+            and passed together with ``radius``.
+        radius : `~astropy.units.Quantity`, optional
+            Radius of the spatial cutout. Must be a Quantity with angular
+            units (for example ``0.01 * u.deg``). Must be passed together
+            with ``coordinates``.
+        frequency : `~astropy.units.Quantity`, optional
+            Frequency range to cut out. Must be a 2-element Quantity
+            with spectral units (for example ``(100, 101) * u.GHz``).
         include_auxiliaries : bool
             ``True`` to include auxiliary files, ``False`` for science
-            data only (``#this`` semantics). Ignored for cutouts.
+            data only. Ignored for cutouts.
 
         Returns
         -------
         list of str
-            Download URLs, or SODA cutout URLs when a cutout is requested.
+            Download URLs, or cutout URLs when a cutout is requested.
         """
-        if (coordinates is None) != (radius is None):
-            raise ValueError(
-                'coordinates and radius must both be set to request a cutout')
-
+        cutout_params = self._cutout_params(coordinates, radius, frequency)
         uids = self._ids_from_query_result(query_result)
 
-        if coordinates is not None:
-            parsed_coordinates = commons.parse_coordinates(coordinates).icrs
-            if isinstance(radius, (int, float)):
-                radius = radius * u.deg
-            radius_deg = Angle(radius).to_value(u.deg)
-            cutout_params = {
-                'POS': 'CIRCLE {} {} {}'.format(
-                    parsed_coordinates.ra.degree,
-                    parsed_coordinates.dec.degree,
-                    radius_deg)
-            }
+        if cutout_params:
             result = []
             for uid in uids:
                 result.extend(self._cutout_urls_for_id(uid, cutout_params))
@@ -1025,6 +1014,39 @@ class AlmaClass(QueryWithLogin):
                 continue
             urls.append(str(access_url))
         return urls
+
+    def _cutout_params(self, coordinates, radius, frequency):
+        if (coordinates is None) != (radius is None):
+            raise ValueError(
+                'coordinates and radius must both be set to request a '
+                'spatial cutout. Pass coordinates as a SkyCoord and '
+                'radius as a Quantity with angular units, e.g. '
+                '0.01 * u.deg')
+        params = {}
+        if coordinates is not None:
+            if not isinstance(coordinates, SkyCoord):
+                raise TypeError(
+                    'coordinates must be an astropy SkyCoord, e.g. '
+                    "SkyCoord('18h12m50.9s', '-06d48m23.5s', frame='icrs')")
+            if not isinstance(radius, u.Quantity):
+                raise TypeError(
+                    'radius must be an astropy Quantity with angular '
+                    'units, e.g. 0.01 * u.deg')
+            if not radius.isscalar:
+                raise ValueError(
+                    'radius must be a scalar Quantity with angular '
+                    'units, e.g. 0.01 * u.deg')
+            try:
+                radius_deg = Angle(radius).to_value(u.deg)
+            except (u.UnitsError, ValueError, TypeError) as err:
+                raise ValueError(
+                    'radius must have angular units, e.g. 0.01 * u.deg') from err
+            icrs = coordinates.icrs
+            params['POS'] = 'CIRCLE {} {} {}'.format(
+                icrs.ra.degree, icrs.dec.degree, radius_deg)
+        if frequency is not None:
+            params['BAND'] = _soda_band_from_frequency(frequency)
+        return params
 
     def _cutout_urls_for_id(self, uid, cutout_params):
         res = self.datalink.run_sync(uid)
@@ -1063,7 +1085,7 @@ class AlmaClass(QueryWithLogin):
             result.append('{}{}{}'.format(access_url, sep, pos_query))
         return result
 
-    def get_data(self, coordinates, radius, *, cutout=False,
+    def get_data(self, coordinates, radius, *, cutout=False, frequency=None,
                  get_url_list=False, show_progress=False, public=True,
                  science=True, payload=None, **kwargs):
         """
@@ -1075,14 +1097,19 @@ class AlmaClass(QueryWithLogin):
         Parameters
         ----------
         coordinates : str or `astropy.coordinates`
-            Coordinates around which to query. Also used as the cutout
-            center when ``cutout`` is ``True``.
+            Coordinates around which to query. When ``cutout`` is
+            ``True``, this must be a `~astropy.coordinates.SkyCoord`.
         radius : str, float, or `~astropy.units.Quantity`
-            Radius of the cone search (and of the cutout when ``cutout``
-            is ``True``). A bare number is treated as degrees.
+            Radius of the cone search. When ``cutout`` is ``True``, this
+            must be a Quantity with angular units (for example
+            ``0.01 * u.deg``).
         cutout : bool, optional
-            If ``True``, return SODA spatial cutouts at ``coordinates``
+            If ``True``, return spatial cutouts at ``coordinates``
             with ``radius``. Default is ``False`` (full data products).
+        frequency : `~astropy.units.Quantity`, optional
+            Frequency range to cut out. Must be a 2-element Quantity
+            with spectral units (for example ``(100, 101) * u.GHz``).
+            Implies a cutout even when ``cutout`` is ``False``.
         get_url_list : bool, optional
             If ``True``, return URLs rather than downloaded data.
         show_progress : bool, optional
@@ -1099,17 +1126,17 @@ class AlmaClass(QueryWithLogin):
         Returns
         -------
         list
-            When ``cutout`` is ``True``, `~astropy.io.fits.HDUList` objects
+            When a cutout is requested, `~astropy.io.fits.HDUList` objects
             (HTTP errors from empty cutouts are skipped). Otherwise
             `~astroquery.utils.commons.FileContainer` objects. URLs if
             ``get_url_list`` is ``True``.
         """
         filenames = self.get_data_async(
-            coordinates, radius, cutout=cutout, get_url_list=get_url_list,
-            show_progress=show_progress, public=public, science=science,
-            payload=payload, **kwargs)
+            coordinates, radius, cutout=cutout, frequency=frequency,
+            get_url_list=get_url_list, show_progress=show_progress,
+            public=public, science=science, payload=payload, **kwargs)
 
-        if get_url_list or not cutout:
+        if get_url_list or not (cutout or frequency is not None):
             return filenames
 
         images = []
@@ -1123,8 +1150,8 @@ class AlmaClass(QueryWithLogin):
         return images
 
     def get_data_async(self, coordinates, radius, *, cutout=False,
-                       get_url_list=False, show_progress=False, public=True,
-                       science=True, payload=None, **kwargs):
+                       frequency=None, get_url_list=False, show_progress=False,
+                       public=True, science=True, payload=None, **kwargs):
         """
         Query ALMA around ``coordinates`` and return lazy data downloads.
 
@@ -1134,14 +1161,19 @@ class AlmaClass(QueryWithLogin):
         Parameters
         ----------
         coordinates : str or `astropy.coordinates`
-            Coordinates around which to query. Also used as the cutout
-            center when ``cutout`` is ``True``.
+            Coordinates around which to query. When ``cutout`` is
+            ``True``, this must be a `~astropy.coordinates.SkyCoord`.
         radius : str, float, or `~astropy.units.Quantity`
-            Radius of the cone search (and of the cutout when ``cutout``
-            is ``True``). A bare number is treated as degrees.
+            Radius of the cone search. When ``cutout`` is ``True``, this
+            must be a Quantity with angular units (for example
+            ``0.01 * u.deg``).
         cutout : bool, optional
-            If ``True``, return SODA spatial cutouts at ``coordinates``
+            If ``True``, return spatial cutouts at ``coordinates``
             with ``radius``. Default is ``False`` (full data products).
+        frequency : `~astropy.units.Quantity`, optional
+            Frequency range to cut out. Must be a 2-element Quantity
+            with spectral units (for example ``(100, 101) * u.GHz``).
+            Implies a cutout even when ``cutout`` is ``False``.
         get_url_list : bool, optional
             If ``True``, return URLs rather than file containers.
         show_progress : bool, optional
@@ -1164,9 +1196,12 @@ class AlmaClass(QueryWithLogin):
         query_result = self.query_region(
             coordinates, radius, public=public, science=science,
             payload=payload, **kwargs)
-        if cutout:
+        if cutout or frequency is not None:
             data_urls = self.get_data_urls(
-                query_result, coordinates=coordinates, radius=radius)
+                query_result,
+                coordinates=coordinates if cutout else None,
+                radius=radius if cutout else None,
+                frequency=frequency)
         else:
             data_urls = self.get_data_urls(query_result)
 
@@ -1759,6 +1794,37 @@ class _DatalinkIdSource:
             value='', ref=id_ref))
         resource.groups.append(group)
         return resource
+
+
+def _soda_band_from_frequency(frequency):
+    """
+    Convert a frequency range to a SODA ``BAND`` interval in meters.
+
+    SODA uses wavelength, so the higher frequency becomes the lower
+    bound. The returned interval is increasing.
+    """
+    freq_error = (
+        'frequency must be a 2-element astropy Quantity with spectral '
+        'units, e.g. (100, 101) * u.GHz')
+    if isinstance(frequency, u.Quantity):
+        freq_qty = frequency
+    else:
+        try:
+            values = list(frequency)
+        except TypeError:
+            raise TypeError(freq_error)
+        if len(values) != 2 or not all(
+                isinstance(value, u.Quantity) for value in values):
+            raise TypeError(freq_error)
+        freq_qty = u.Quantity(values)
+    if freq_qty.isscalar or freq_qty.size != 2:
+        raise ValueError(freq_error)
+    try:
+        wavelengths = freq_qty.to(u.m, equivalencies=u.spectral())
+    except (u.UnitsError, ValueError, TypeError) as err:
+        raise ValueError(freq_error) from err
+    low, high = sorted(wavelengths.to_value(u.m))
+    return '{} {}'.format(low, high)
 
 
 def unique(seq):

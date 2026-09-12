@@ -232,12 +232,14 @@ class TestAlma:
             filtered = result
         filtered = filtered[:3]
         urls = alma.get_data_urls(filtered, coordinates=coords,
-                                  radius=0.01 * u.deg)
+                                  radius=0.01 * u.deg,
+                                  frequency=(80, 400) * u.GHz)
         if not urls:
             pytest.skip('No SODA cutouts for the selected observations')
         for url in urls:
             assert 'POS=' in url
             assert 'CIRCLE' in url
+            assert 'BAND=' in url
 
     def test_download_data(self, tmp_path, alma):
         # test only fits files from a program

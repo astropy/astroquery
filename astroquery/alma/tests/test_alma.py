@@ -18,7 +18,7 @@ import pyvo
 from pyvo.dal.adhoc import DatalinkResults, DatalinkResultsMixin
 
 from astroquery.alma import Alma
-from astroquery.alma.core import AlmaClass
+from astroquery.alma.core import AlmaClass, _soda_band_from_frequency
 from astroquery.utils.commons import FileContainer
 from astroquery.alma.core import _gen_sql, _OBSCORE_TO_ALMARESULT, get_enhanced_table
 from astroquery.alma.tapsql import _val_parse
@@ -725,6 +725,38 @@ def test_get_data_urls():
         alma.get_data_urls(table, coordinates='08h45m07.5s +54d18m00s')
 
 
+def test_soda_band_from_frequency():
+    # Higher frequency is shorter wavelength; BAND must increase.
+    # 221.576 GHz -> 0.001353 m, 221.249 GHz -> 0.001355 m
+    band = _soda_band_from_frequency((221.249, 221.576) * u.GHz)
+    low, high = (float(value) for value in band.split())
+    assert low < high
+    assert low == pytest.approx(0.001353, rel=1e-4)
+    assert high == pytest.approx(0.001355, rel=1e-4)
+
+    reversed_band = _soda_band_from_frequency([221.576, 221.249] * u.GHz)
+    assert reversed_band == band
+
+    pair_band = _soda_band_from_frequency(
+        (221.249 * u.GHz, 221.576 * u.GHz))
+    assert pair_band == band
+
+    hz_band = _soda_band_from_frequency(
+        u.Quantity([221.249e9, 221.576e9], u.Hz))
+    hz_low, hz_high = (float(value) for value in hz_band.split())
+    assert hz_low == pytest.approx(low)
+    assert hz_high == pytest.approx(high)
+
+    with pytest.raises(ValueError, match='2-element astropy Quantity'):
+        _soda_band_from_frequency(100 * u.GHz)
+    with pytest.raises(TypeError, match='2-element astropy Quantity'):
+        _soda_band_from_frequency((221.249, 221.576))
+    with pytest.raises(TypeError, match='2-element astropy Quantity'):
+        _soda_band_from_frequency([100])
+    with pytest.raises(ValueError, match='spectral units'):
+        _soda_band_from_frequency((1, 2) * u.deg)
+
+
 def test_get_data_urls_cutout():
     alma = Alma()
 
@@ -748,7 +780,7 @@ def test_get_data_urls_cutout():
 
     # Member OUS has no #cutout until the tarball DataLink is followed
     mous_urls = alma.get_data_urls(
-        ['uid://A001/X12a3/Xe9'], coordinates=coords, radius=0.01)
+        ['uid://A001/X12a3/Xe9'], coordinates=coords, radius=0.01 * u.deg)
     assert len(mous_urls) == 2
     assert all('POS=' in url for url in mous_urls)
 
@@ -756,6 +788,36 @@ def test_get_data_urls_cutout():
         alma.get_data_urls(None, coordinates=coords, radius=radius)
     with pytest.raises(AttributeError):
         alma.get_data_urls(Table({'foo': [1]}), coordinates=coords, radius=radius)
+
+    freq_urls = alma.get_data_urls(
+        table, frequency=(221.249, 221.576) * u.GHz)
+    assert freq_urls
+    for url in freq_urls:
+        params = parse_qs(urlsplit(url).query)
+        assert 'POS' not in params
+        low, high = (float(value) for value in params['BAND'][0].split())
+        assert low < high
+        assert low == pytest.approx(0.001353, rel=1e-4)
+        assert high == pytest.approx(0.001355, rel=1e-4)
+
+    both_urls = alma.get_data_urls(
+        table, coordinates=coords, radius=radius,
+        frequency=(221.249, 221.576) * u.GHz)
+    assert both_urls
+    for url in both_urls:
+        params = parse_qs(urlsplit(url).query)
+        assert params['POS'][0] == 'CIRCLE 83.0 -5.0 0.01'
+        assert 'BAND' in params
+
+    with pytest.raises(TypeError, match='coordinates must be an astropy SkyCoord'):
+        alma.get_data_urls(table, coordinates='08h45m07.5s +54d18m00s',
+                           radius=radius)
+    with pytest.raises(TypeError, match='radius must be an astropy Quantity'):
+        alma.get_data_urls(table, coordinates=coords, radius=0.01)
+    with pytest.raises(ValueError, match='angular units'):
+        alma.get_data_urls(table, coordinates=coords, radius=0.01 * u.m)
+    with pytest.raises(TypeError, match='frequency must be a 2-element'):
+        alma.get_data_urls(table, frequency=(221.249, 221.576))
 
 
 def test_iter_datalinks_uses_existing_descriptor():
