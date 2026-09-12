@@ -131,6 +131,8 @@ heasarc
 gaia
 ^^^^
 
+- When the Gaia status endpoint returns an HTML maintenance landing page,
+  emit a concise warning instead of printing the page body. [#3661]
 - New datalink DR4 retrieval type RESIDUAL_IMAGE. [#3489]
 - The method ``load_data`` parses ecsv files [#3500].
 - Fixed decimal precision for query_object and cone_search to use 14 decimal places [#3539].
