@@ -240,12 +240,15 @@ ogle
 simbad
 ~~~~~~
 
+- Document the public SIMBAD mirrors and the ``server`` configuration key. [#3662]
 - Add the possibility to declare more information in the HTTP User-Agent header
   in ``SimbadClass`` [#3529]
 
 vizier
 ~~~~~~
 
+- Document the public VizieR mirrors and that the config key is ``server``,
+  not the older ``vizier_server`` name. [#3662]
 - When server-side errors occur (ex: VizieR is overloaded), the response is not kept in
   astroquery's cache anymore, and a Python error is raised instead of returning a
   misleading empty ``TableList`` [#3632]
