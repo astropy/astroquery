@@ -30,6 +30,12 @@ try:
 except ImportError:
     pass
 
+try:
+    # Optional dependency import for ASDF file handling
+    import asdf
+except ImportError:
+    pass
+
 DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Name.Lookup': 'resolver.json',
               'mission_search_results': 'mission_results.json',
@@ -1371,6 +1377,102 @@ def test_observations_disable_cloud_dataset(patch_boto3):
     Observations.disable_cloud_dataset()
     assert Observations._cloud_connection is None
     assert Observations._cloud_enabled_explicitly is False
+
+
+@pytest.fixture
+def mock_fits_open(mocker):
+    """Mock fits.open to return a valid HDUList without network access."""
+    return mocker.patch("astropy.io.fits.open", return_value=fits.HDUList([fits.PrimaryHDU()]))
+
+
+@pytest.fixture
+def mock_asdf_open(mocker):
+    pytest.importorskip("asdf")
+    pytest.importorskip("fsspec")
+
+    fake = mocker.Mock()
+    fake.open.return_value = "mock_asdf_file_object"
+    mocker.patch("fsspec.open", return_value=fake)
+
+    # Create a mock AsdfFile
+    if asdf is not None:
+        mock_asdf_file = MagicMock(spec=asdf.AsdfFile)
+    else:
+        mock_asdf_file = MagicMock()
+
+    return mocker.patch("asdf.open", return_value=mock_asdf_file)
+
+
+@pytest.mark.parametrize(
+    "product_path, expected_exception, match",
+    [
+        ("", ValueError, "No product path provided"),
+        ("   ", ValueError, "No product path provided"),
+        (None, ValueError, "No product path provided"),
+        ("unsupported_ex.txt", ValueError, "Unsupported product type"),
+    ],
+)
+def test_observations_read_product_invalid_inputs(product_path, expected_exception, match):
+    with pytest.raises(expected_exception, match=match):
+        Observations.read_product(product_path)
+
+
+@pytest.mark.parametrize(
+    ("module_name", "filename"),
+    [
+        ("fsspec", "file.fits"),
+        ("asdf", "file.asdf"),
+    ],
+)
+def test_observations_read_product_dependency_missing(monkeypatch, module_name, filename):
+    monkeypatch.setitem(Observations.read_product.__globals__, module_name, None)
+
+    with pytest.raises(ImportError, match=module_name):
+        Observations.read_product(filename)
+
+
+def test_observations_read_product_fits(mock_fits_open):
+    s3_fits_path = "s3://mock_fits_path.fits"
+    result = Observations.read_product(s3_fits_path)
+
+    mock_fits_open(s3_fits_path, fsspec_kwargs={"anon": True})
+    assert result is mock_fits_open.return_value
+
+
+def test_observations_read_product_asdf(mocker, mock_asdf_open):
+    # Mock importlib.util.find_spec to always return a spec (all packages present)
+    mocker.patch("importlib.util.find_spec", return_value=MagicMock())
+
+    s3_asdf_path = "s3://fake_asdf_path.asdf"
+    result = Observations.read_product(s3_asdf_path)
+
+    mock_asdf_open("mock_asdf_file_object")
+    assert result is mock_asdf_open.return_value
+
+
+def test_observations_read_product_asdf_missing_packages(mocker, mock_asdf_open):
+    """Test that warnings are issued for missing ASDF-related packages."""
+    # Mock importlib.util.find_spec to return None for the packages
+    def mock_find_spec(package_name):
+        if package_name in ["gwcs", "lz4", "roman_datamodels"]:
+            return None  # Simulate missing package
+        return MagicMock()  # Return something for other packages
+
+    mocker.patch("importlib.util.find_spec", side_effect=mock_find_spec)
+
+    # Capture warnings
+    with pytest.warns(ImportWarning) as warning_list:
+        obj = Observations.read_product("s3://fake_asdf_path.asdf")
+
+    # Check that warnings were issued for all three packages
+    assert len(warning_list) == 3
+    warning_messages = [str(w.message) for w in warning_list]
+
+    for package in ["gwcs", "lz4", "roman_datamodels"]:
+        assert any(package in msg and "encouraged" in msg for msg in warning_messages)
+
+    # Verify the object is still returned correctly
+    assert obj == mock_asdf_open.return_value
 
 
 ######################
