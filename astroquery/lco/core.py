@@ -227,8 +227,8 @@ class LcoArchiveQuery(QueryWithLogin):
             The single position to search around.
         radius : str or `~astropy.units.Quantity`, optional
             Radius of a cone search. The circle is sent to the archive as a
-            polygon with 32 vertices, so the match is approximate at the
-            sub-arcsecond level.
+            32-vertex polygon inscribed in it, so the region searched is
+            accurate to 0.5% of the radius specified.
         width : str or `~astropy.units.Quantity`, optional
             Width of a box search. Must be given with ``height``.
         height : str or `~astropy.units.Quantity`, optional
@@ -323,7 +323,9 @@ class LcoArchiveQuery(QueryWithLogin):
                 Bounds on the observation date. Accepts a string, an
                 `~astropy.time.Time`, or a `~datetime.datetime`.
             ``covers``, ``intersects``
-                A WKT region the frame footprint must contain, or overlap.
+                A `Well-Known Text (WKT)
+                <https://libgeos.org/specifications/wkt/>`_ region the frame
+                footprint must contain, or overlap.
                 :meth:`~astroquery.lco.LcoArchiveQuery.query_region` builds
                 these for you from a position and an optional extent.
             ``exposure_time``

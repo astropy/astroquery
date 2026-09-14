@@ -59,8 +59,8 @@ by passing ``width`` and ``height`` together:
     ...                                  reduction_level=91,
     ...                                  start="2024-03-01", end="2024-03-08")
 
-A cone is sent to the archive as a 32-vertex polygon, so the match is
-approximate at the sub-arcsecond level.
+A cone is sent to the archive as a 32-vertex polygon inscribed in the circle,
+so the region searched is accurate to 0.5% of the radius specified.
 
 
 Object Name Queries
