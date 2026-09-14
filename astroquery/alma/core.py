@@ -1128,8 +1128,7 @@ class AlmaClass(QueryWithLogin):
         list
             When a cutout is requested, `~astropy.io.fits.HDUList` objects
             (HTTP errors from empty cutouts are skipped). Otherwise
-            `~astroquery.utils.commons.FileContainer` objects. URLs if
-            ``get_url_list`` is ``True``.
+            lazy file containers. URLs if ``get_url_list`` is ``True``.
         """
         filenames = self.get_data_async(
             coordinates, radius, cutout=cutout, frequency=frequency,
@@ -1190,8 +1189,7 @@ class AlmaClass(QueryWithLogin):
         Returns
         -------
         list
-            `~astroquery.utils.commons.FileContainer` objects, or URLs if
-            ``get_url_list`` is ``True``.
+            Lazy file containers, or URLs if ``get_url_list`` is ``True``.
         """
         query_result = self.query_region(
             coordinates, radius, public=public, science=science,
