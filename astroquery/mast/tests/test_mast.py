@@ -845,7 +845,7 @@ def test_missions_read_product_asdf_refreshes_expired_url(mocker):
             self.calls.append((url, kwargs))
             return MockResponse()
 
-    file_object = object.__new__(missions_module._RefreshingHTTPFile)
+    file_object = missions_module._RefreshingHTTPFile.__new__(missions_module._RefreshingHTTPFile)
     file_object.session = MockSession()
     file_object.fs = SimpleNamespace(
         gateway_url="https://mast.example/retrieve_product",
