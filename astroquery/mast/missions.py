@@ -41,6 +41,92 @@ from . import conf
 
 try:
     import fsspec
+    from fsspec.asyn import sync as fsspec_sync
+    from fsspec.implementations.http import HTTPFile, HTTPFileSystem, HTTPStreamFile
+
+    # Custom HTTP file and filesystem classes that automatically refresh the URL if it has expired.
+    class _RefreshingHTTPFile(HTTPFile):
+        async def _refresh_url(self):
+            # Refresh the URL for the HTTP request if it has expired or is invalid.
+            async with self.session.get(
+                self.fs.gateway_url,
+                headers=self.fs.gateway_headers,
+                allow_redirects=False,
+            ) as response:
+                response.raise_for_status()
+                refreshed_url = response.headers.get("Location")
+
+            if not refreshed_url:
+                raise RuntimeError("The MAST response did not include a Location header.")
+
+            self.url = refreshed_url
+
+        async def _async_fetch_range_with_refresh(self, start, end):
+            # Attempt to fetch the specified byte range, refreshing the URL if necessary.
+            try:
+                return await super().async_fetch_range(start, end)
+            except Exception as exc:
+                status = getattr(exc, "status", None)
+                if status not in {400, 403}:
+                    raise
+
+                # If an HTTP error occurs due to an expired or invalid URL, refresh the URL and retry.
+                log.info("Refreshing URL due to HTTP status %s", status)
+                await self._refresh_url()
+                return await super().async_fetch_range(start, end)
+
+        def _fetch_range(self, start, end):
+            # Synchronously fetch the specified byte range, using the async method with URL refresh.
+            return fsspec_sync(
+                self.loop,
+                self._async_fetch_range_with_refresh,
+                start,
+                end,
+            )
+
+    class _RefreshingHTTPFileSystem(HTTPFileSystem):
+        def __init__(self, gateway_url, gateway_headers=None, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.gateway_url = gateway_url
+            self.gateway_headers = gateway_headers or {}
+
+        def _open(self, path, mode="rb", block_size=None, autocommit=None, cache_type=None,
+                  cache_options=None, size=None, **kwargs):
+            # Open the file using the refreshing HTTP file system.
+            if mode != "rb":
+                raise NotImplementedError("Only read-binary mode is supported.")
+
+            block_size = block_size if block_size is not None else self.block_size
+            file_kwargs = self.kwargs.copy()
+            file_kwargs["asynchronous"] = self.asynchronous
+            file_kwargs.update(kwargs)
+
+            info = {}
+            size = size or info.update(self.info(path, **kwargs)) or info["size"]
+            session = fsspec_sync(self.loop, self.set_session)
+
+            if block_size and size and info.get("partial", True):
+                return _RefreshingHTTPFile(
+                    self,
+                    path,
+                    session=session,
+                    block_size=block_size,
+                    mode=mode,
+                    size=size,
+                    cache_type=cache_type or self.cache_type,
+                    cache_options=cache_options or self.cache_options,
+                    loop=self.loop,
+                    **file_kwargs,
+                )
+
+            return HTTPStreamFile(
+                self,
+                path,
+                mode=mode,
+                loop=self.loop,
+                session=session,
+                **file_kwargs,
+            )
 except ImportError:
     fsspec = None
 
@@ -50,6 +136,44 @@ except ImportError:
     asdf = None
 
 __all__ = ['MastMissionsClass', 'MastMissions']
+
+
+def _open_refreshing_asdf(download_url, headers, **kwargs):
+    """
+    Open an ASDF file from an S3 URL that requires refreshing via the HTTP gateway.
+
+    Parameters
+    ----------
+    download_url : str
+        The URL to download the ASDF file from.
+    headers : dict
+        The headers to include in the HTTP request.
+    **kwargs : dict
+        Additional keyword arguments to pass to `asdf.open`.
+
+    Returns
+    -------
+    asdf.AsdfFile
+        The opened ASDF file.
+    """
+    # Perform an initial request to get the S3 URL for the ASDF file
+    response = requests.get(
+        download_url,
+        headers=headers,
+        allow_redirects=False,
+    )
+    response.raise_for_status()
+    s3_url = response.headers["Location"]
+
+    # Open the ASDF file using the refreshing HTTP file system
+    fs = _RefreshingHTTPFileSystem(
+        gateway_url=download_url,
+        gateway_headers=headers,
+        block_size=1 * 1024 * 1024,
+        cache_type="bytes",
+    )
+    file_object = fs.open(s3_url, "rb")
+    return asdf.open(file_object, **kwargs)
 
 
 @async_to_sync
@@ -1045,21 +1169,10 @@ class MastMissionsClass(MastQueryWithLogin):
                                       'or install astroquery with optional dependencies using '
                                       '`pip install astroquery[all]`.', ImportWarning)
 
-                # Make an authenticated request to get the presigned S3 URL for the ASDF file
                 headers = {}
                 if self._authenticated:
                     headers["Authorization"] = f"token {self._auth_obj.session.cookies['mast_token']}"
-                resp = requests.get(
-                    download_url,
-                    headers=headers,
-                    allow_redirects=False,
-                )
-                resp.raise_for_status()
-
-                # Use fsspec to open the file directly from the S3 URL, and then read it with asdf
-                fs = fsspec.filesystem("https")
-                f = fs.open(resp.headers["Location"], "rb")
-                return asdf.open(f, **kwargs)
+                return _open_refreshing_asdf(download_url, headers, **kwargs)
             else:
                 raise InvalidQueryError(f"Unsupported file type for reading: {uri}. "
                                         "Supported types are .fits and .asdf.")

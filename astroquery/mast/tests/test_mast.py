@@ -1,11 +1,13 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+import asyncio
 import json
 import os
 import re
 import warnings
 from pathlib import Path
 from shutil import copyfile
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import astropy.units as u
@@ -22,6 +24,7 @@ from astroquery.exceptions import (AuthenticationWarning, BlankResponseWarning, 
 from astroquery.mast import (Catalogs, MastMissions, Observations, Tesscut, Zcut, Mast, utils, services,
                              discovery_portal, auth, core, cloud)
 from astroquery.mast.cloud import CloudAccess
+from astroquery.mast import missions as missions_module
 from astroquery.utils.mocks import MockResponse
 
 try:
@@ -776,7 +779,12 @@ def mock_asdf_open(mocker):
     else:
         mock_asdf_file = MagicMock()
 
-    return mocker.patch("asdf.open", return_value=mock_asdf_file)
+    mock_asdf_open = mocker.patch("asdf.open", return_value=mock_asdf_file)
+    mocker.patch(
+        "astroquery.mast.missions._open_refreshing_asdf",
+        side_effect=lambda url, headers, **kwargs: mock_asdf_open(mock_file, **kwargs),
+    )
+    return mock_asdf_open
 
 
 def test_missions_read_product_fits(mocker, mock_fits_open):
@@ -807,6 +815,56 @@ def test_missions_read_product_asdf(mocker, mock_asdf_open):
     # Verify asdf.open was called with kwargs
     assert mock_asdf_open.call_args[1]['copy_arrays'] is True
     assert isinstance(obj, asdf.AsdfFile)
+
+
+def test_missions_read_product_asdf_refreshes_expired_url(mocker):
+    """Test that an expired S3 URL is refreshed during a lazy range read."""
+    pytest.importorskip("asdf")
+    pytest.importorskip("fsspec")
+
+    class ExpiredURL(Exception):
+        status = 403
+
+    class MockResponse:
+        headers = {"Location": "https://example-bucket.s3.amazonaws.com/refreshed.asdf"}
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc_value, traceback):
+            return False
+
+        def raise_for_status(self):
+            return None
+
+    class MockSession:
+        def __init__(self):
+            self.calls = []
+
+        def get(self, url, **kwargs):
+            self.calls.append((url, kwargs))
+            return MockResponse()
+
+    file_object = object.__new__(missions_module._RefreshingHTTPFile)
+    file_object.session = MockSession()
+    file_object.fs = SimpleNamespace(
+        gateway_url="https://mast.example/retrieve_product",
+        gateway_headers={"Authorization": "token test"},
+    )
+    file_object.url = "https://example-bucket.s3.amazonaws.com/expired.asdf"
+
+    fetch_range = mocker.patch.object(
+        missions_module.HTTPFile,
+        "async_fetch_range",
+        side_effect=[ExpiredURL(), b"range-data"],
+    )
+
+    result = asyncio.run(file_object._async_fetch_range_with_refresh(10, 20))
+
+    assert result == b"range-data"
+    assert fetch_range.call_count == 2
+    assert file_object.url.endswith("refreshed.asdf")
+    assert file_object.session.calls[0][0] == file_object.fs.gateway_url
 
 
 def test_missions_read_product_asdf_missing_packages(mocker, mock_asdf_open):
