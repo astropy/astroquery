@@ -489,8 +489,10 @@ and ``radius`` for a spatial cutout, ``frequency`` for a spectral
 cutout, or both. ``coordinates`` must be a
 `~astropy.coordinates.SkyCoord`, and ``radius`` and ``frequency``
 must be `~astropy.units.Quantity` values (for example
-``0.01 * u.deg`` and ``(221.249, 221.576) * u.GHz``). Omit them for
-full products.
+``0.01 * u.deg`` and ``(221.249, 221.576) * u.GHz``). Open-ended
+frequency bounds use ``numpy.inf``, e.g. ``(-np.inf, np.inf) * u.GHz``
+or ``(230, np.inf) * u.GHz``; these are sent to SODA as ``-Inf`` /
+``+Inf``. Omit the cutout arguments for full products.
 
 .. doctest-skip::
 

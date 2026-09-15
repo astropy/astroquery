@@ -538,7 +538,11 @@ class AlmaClass(QueryWithLogin):
         if not isinstance(radius, u.Quantity):
             rad = radius*u.deg
         obj_coord = commons.parse_coordinates(coordinate).icrs
-        ra_dec = '{}, {}'.format(obj_coord.to_string(), rad.to(u.deg).value)
+        # Full float precision: SkyCoord.to_string() rounds enough to miss
+        # compact ALMA footprints when the search radius is ~arcseconds.
+        ra_dec = '{} {}, {}'.format(
+            obj_coord.ra.to_value(u.deg), obj_coord.dec.to_value(u.deg),
+            rad.to(u.deg).value)
         if payload is None:
             payload = {}
         if 'ra_dec' in payload:
@@ -977,6 +981,8 @@ class AlmaClass(QueryWithLogin):
         frequency : `~astropy.units.Quantity`, optional
             Frequency range to cut out. Must be a 2-element Quantity
             with spectral units (for example ``(100, 101) * u.GHz``).
+            Open-ended bounds use ``numpy.inf`` (for example
+            ``(-np.inf, np.inf) * u.GHz`` or ``(230, np.inf) * u.GHz``);
         include_auxiliaries : bool
             ``True`` to include auxiliary files, ``False`` for science
             data only. Ignored for cutouts.
@@ -1109,7 +1115,9 @@ class AlmaClass(QueryWithLogin):
         frequency : `~astropy.units.Quantity`, optional
             Frequency range to cut out. Must be a 2-element Quantity
             with spectral units (for example ``(100, 101) * u.GHz``).
-            Implies a cutout even when ``cutout`` is ``False``.
+            Open-ended bounds use ``numpy.inf`` (for example
+            ``(-np.inf, np.inf) * u.GHz``). Implies a cutout even when
+            ``cutout`` is ``False``.
         get_url_list : bool, optional
             If ``True``, return URLs rather than downloaded data.
         show_progress : bool, optional
@@ -1172,7 +1180,9 @@ class AlmaClass(QueryWithLogin):
         frequency : `~astropy.units.Quantity`, optional
             Frequency range to cut out. Must be a 2-element Quantity
             with spectral units (for example ``(100, 101) * u.GHz``).
-            Implies a cutout even when ``cutout`` is ``False``.
+            Open-ended bounds use ``numpy.inf`` (for example
+            ``(-np.inf, np.inf) * u.GHz``). Implies a cutout even when
+            ``cutout`` is ``False``.
         get_url_list : bool, optional
             If ``True``, return URLs rather than file containers.
         show_progress : bool, optional
@@ -1794,12 +1804,27 @@ class _DatalinkIdSource:
         return resource
 
 
+def _soda_interval_bound(value):
+    """Serialize one DALI/SODA interval endpoint (``-Inf`` / ``+Inf`` if open)."""
+    if np.isneginf(value):
+        return '-Inf'
+    if np.isposinf(value):
+        return '+Inf'
+    return '{}'.format(value)
+
+
 def _soda_band_from_frequency(frequency):
     """
     Convert a frequency range to a SODA ``BAND`` interval in meters.
 
     SODA uses wavelength, so the higher frequency becomes the lower
     bound. The returned interval is increasing.
+
+    Open-ended bounds use ``numpy.inf`` in a Quantity (the usual astropy
+    form, e.g. ``(-np.inf, np.inf) * u.GHz``) and are serialized as
+    DALI/SODA ``-Inf`` / ``+Inf``. Infinite frequency bounds are inverted
+    when converting to wavelength; they are not passed through the
+    spectral equivalency (``c / inf`` would collapse to ``0``).
     """
     freq_error = (
         'frequency must be a 2-element astropy Quantity with spectral '
@@ -1817,12 +1842,23 @@ def _soda_band_from_frequency(frequency):
         freq_qty = u.Quantity(values)
     if freq_qty.isscalar or freq_qty.size != 2:
         raise ValueError(freq_error)
+
     try:
-        wavelengths = freq_qty.to(u.m, equivalencies=u.spectral())
+        # Validate spectral units even when both bounds are infinite.
+        (1 * freq_qty.unit).to(u.m, equivalencies=u.spectral())
+        invert_inf = not freq_qty.unit.is_equivalent(u.m)
+        wave = []
+        for bound in freq_qty:
+            if np.isinf(bound.value):
+                val = float(bound.value)
+                wave.append(-val if invert_inf else val)
+            else:
+                wave.append(
+                    bound.to(u.m, equivalencies=u.spectral()).to_value(u.m))
     except (u.UnitsError, ValueError, TypeError) as err:
         raise ValueError(freq_error) from err
-    low, high = sorted(wavelengths.to_value(u.m))
-    return '{} {}'.format(low, high)
+    low, high = sorted(wave)
+    return '{} {}'.format(_soda_interval_bound(low), _soda_interval_bound(high))
 
 
 def unique(seq):

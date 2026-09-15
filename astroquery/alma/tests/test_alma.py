@@ -2,6 +2,7 @@
 from io import StringIO
 import os
 
+import numpy as np
 import pytest
 from unittest.mock import patch, Mock
 
@@ -765,6 +766,34 @@ def test_soda_band_from_frequency():
         _soda_band_from_frequency((1, 2) * u.deg)
 
 
+def test_soda_band_open_interval():
+    # Astropy open intervals are numpy.inf on a Quantity; SODA wants ±Inf.
+    assert _soda_band_from_frequency((-np.inf, np.inf) * u.GHz) == '-Inf +Inf'
+    assert _soda_band_from_frequency((np.inf, -np.inf) * u.GHz) == '-Inf +Inf'
+    assert _soda_band_from_frequency((-np.inf, np.inf) * u.m) == '-Inf +Inf'
+    assert _soda_band_from_frequency(
+        (-np.inf * u.GHz, np.inf * u.GHz)) == '-Inf +Inf'
+
+    wave_100 = (100 * u.GHz).to(u.m, equivalencies=u.spectral()).value
+
+    high_open = _soda_band_from_frequency((100, np.inf) * u.GHz)
+    low, high = high_open.split()
+    assert low == '-Inf'
+    assert float(high) == pytest.approx(wave_100)
+
+    low_open = _soda_band_from_frequency((-np.inf, 100) * u.GHz)
+    low, high = low_open.split()
+    assert float(low) == pytest.approx(wave_100)
+    assert high == '+Inf'
+
+    assert _soda_band_from_frequency((np.inf, 100) * u.GHz) == high_open
+    assert _soda_band_from_frequency(
+        (-np.inf * u.m, wave_100 * u.m)).split()[0] == '-Inf'
+
+    with pytest.raises(ValueError, match='spectral units'):
+        _soda_band_from_frequency((-np.inf, np.inf) * u.deg)
+
+
 def test_get_data_urls_cutout():
     alma = Alma()
 
@@ -816,6 +845,14 @@ def test_get_data_urls_cutout():
         params = parse_qs(urlsplit(url).query)
         assert params['POS'][0] == 'CIRCLE 83.0 -5.0 0.01'
         assert 'BAND' in params
+
+    open_urls = alma.get_data_urls(
+        table, frequency=(-np.inf, np.inf) * u.GHz)
+    assert open_urls
+    for url in open_urls:
+        params = parse_qs(urlsplit(url).query)
+        assert params['BAND'][0] == '-Inf +Inf'
+        assert 'POS' not in params
 
     with pytest.raises(TypeError, match='coordinates must be an astropy SkyCoord'):
         alma.get_data_urls(table, coordinates='08h45m07.5s +54d18m00s',
@@ -878,7 +915,10 @@ def test_galactic_query():
     result = alma.query_region(SkyCoord(0*u.deg, 0*u.deg, frame='galactic'),
                                radius=1*u.deg, get_query_payload=True)
 
-    assert "'ICRS',266.405,-28.9362,1.0" in result
+    assert "CIRCLE('ICRS'," in result
+    assert ",1.0)" in result
+    assert "266.4" in result
+    assert "-28.93" in result
 
 
 def test_download_files():
