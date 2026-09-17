@@ -10,18 +10,15 @@ import time
 import warnings
 
 import numpy as np
-
-from astropy.table import Table, MaskedColumn
+from astropy.table import MaskedColumn, Table
 from astropy.utils.decorators import deprecated_renamed_argument
 
 from .. import log
+from ..exceptions import (BlankResponseWarning, InvalidQueryError, NoResultsWarning, TimeoutError)
 from ..query import BaseQuery
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
-from ..exceptions import BlankResponseWarning, InvalidQueryError, TimeoutError, NoResultsWarning
-
 from . import conf
-
 
 __all__ = ["ServiceAPI"]
 
@@ -149,7 +146,7 @@ class ServiceAPI(BaseQuery):
 
     SERVICE_URL = conf.server
     REQUEST_URL = conf.server + "/api/v0.1/"
-    MISSIONS_DOWNLOAD_URL = conf.server + "/search/"
+    MISSIONS_URL = conf.server + "/search/"
     MAST_DOWNLOAD_URL = conf.server + "/api/v0.1/Download/file"
     SERVICES = {}
 
@@ -366,21 +363,24 @@ class ServiceAPI(BaseQuery):
         return response
 
     @class_or_instance
-    def missions_request_async(self, service, params):
+    def missions_request_async(self, service, params, mission):
         """
         Builds and executes an asynchronous query to the MAST Search API.
         Parameters
         ----------
         service : str
-           The MAST Search API service to query. Should be present in self.SERVICES.
+            The MAST Search API service to query. Should be present in self.SERVICES.
         params : dict
-           JSON object containing service parameters.
+            JSON object containing service parameters.
+        mission : str
+            The mission for which to query.
+
         Returns
         -------
         response : list of `~requests.Response`
         """
         service_config = self.SERVICES.get(service.lower())
-        request_url = self.REQUEST_URL + service_config.get('path')
+        request_url = self.MISSIONS_URL + f"{mission}/api/v0.1/" + f"{service_config.get('path')}"
 
         # Default headers
         headers = {
