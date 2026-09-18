@@ -13,8 +13,9 @@
 
 import datetime
 import sys
-import tomllib
 from pathlib import Path
+
+import tomllib
 
 # Load all of the global Astropy configuration
 try:
@@ -55,6 +56,8 @@ intersphinx_mapping.update({
     'regions': ('https://astropy-regions.readthedocs.io/en/stable', None),
     'mocpy': ('https://cds-astro.github.io/mocpy', None),
     'pyvo': ('https://pyvo.readthedocs.io/en/stable', None),
+    'asdf': ('https://asdf.readthedocs.io/en/stable', None),
+    'fsspec': ('https://filesystem-spec.readthedocs.io/en/stable', None),
 })
 
 # -- Project information ------------------------------------------------------

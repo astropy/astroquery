@@ -327,6 +327,34 @@ The filter below returns FITS products that are "science" type **and** less than
    JBTAA0020_jbtaa0020_asn.fits PUBLIC JBTAA0020 ...            AUX 11520 science
 
 
+Reading Data Products
+======================
+
+The `~astroquery.mast.MastMissionsClass.read_product` function allows you to read FITS or ASDF data products directly into memory as `~astropy.io.fits.HDUList`
+or `~asdf.AsdfFile` objects, respectively. The function accepts a product URI or a direct filename (for certain missions) as input.
+
+FITS files are opened with `~astropy.io.fits.open` and are downloaded and cached locally.
+
+ASDF products from the Roman Space Telescope mission are opened directly with `~fsspec.open` and `~asdf.open`. The products are
+read as `~asdf.AsdfFile` objects from presigned S3 URLs, without being downloaded locally. This requires the ``asdf`` and ``fsspec``
+packages to be installed. Other optional packages for reading products may be required depending on the product type and file format.
+These packages are ``gwcs``, ``lz4``, and ``roman_datamodels``. To install astroquery with all optional dependencies,
+use ``pip install astroquery[all]``.
+
+Remember that this method returns an open file object, so it is the user's responsibility to close the file when finished. This can be done
+with a context manager or by calling the ``close()`` method on the returned object.
+
+.. doctest-remote-data::
+   >>> obj = missions.read_product("jbtaa0010_asn.fits")  # doctest: +IGNORE_OUTPUT
+   >>> print(type(obj))
+   <class 'astropy.io.fits.hdu.hdulist.HDUList'>
+   >>> obj.info()  # doctest: +IGNORE_OUTPUT
+   Filename: /Users/user/.astropy/cache/download/url/6555b8e890752df0de737940d3afb19d/contents
+   No.    Name      Ver    Type      Cards   Dimensions   Format
+     0  PRIMARY       1 PrimaryHDU      44   ()
+     1  ASN           1 BinTableHDU     25   3R x 3C   [14A, 14A, L]
+   >>> obj.close()
+
 Downloding Data
 ===============
 
