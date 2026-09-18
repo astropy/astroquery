@@ -86,6 +86,32 @@ vizier
 
 - Methods ``get_catalog``, ``get_catalog_async`` and ``query_*`` now always return UCD1+ instead of UCD1. [#3458]
 
+fermi
+^^^^^
+
+- The module now uses the new Fermi LAT Data Query REST API
+  (``https://fermi.gsfc.nasa.gov/ssc/data/access/lat/query/api/v1``), which is replacing the
+  ``LATDataQuery.cgi`` endpoint whose HTML responses were previously scraped
+  with regular expressions. The user-facing ``FermiLAT.query_object()``
+  signature is unchanged. [#3647]
+- ``FermiLAT.query_object_async()`` now returns the server-assigned
+  ``query_id`` instead of the URL of an HTML results page. [#3647]
+- New methods ``FermiLAT.get_status()``, ``FermiLAT.list_results()``,
+  ``FermiLAT.wait_for_completion()`` and ``FermiLAT.get_file_urls()`` expose
+  the individual steps of the asynchronous query workflow. [#3647]
+- New keyword arguments: ``zenithangle`` (maximum zenith angle in degrees) and
+  ``coordsystem`` (``'J2000'``, ``'B1950'`` or ``'Galactic'``). All-sky
+  queries (radius > 60 deg, observation window <= 24 h) are now supported. [#3647]
+- ``GetFermilatDatafile`` and ``get_fermilat_datafile`` are deprecated; they
+  now delegate to ``FermiLAT.get_file_urls()`` and take a ``query_id`` rather
+  than a results-page URL. [#3647]
+- The module no longer emits an "Experimental" warning on import. [#3647]
+- Failed queries now surface the server's error message: an HTTP error
+  response with a JSON body such as ``{"error": "..."}`` is raised as a
+  ``RemoteServiceError`` carrying that message, rather than a bare status
+  code. [#3647]
+
+
 mast
 ^^^^
 - ``utils.mast_relative_path`` is now deprecated in favor of ``utils.get_cloud_paths``. [#3488]
