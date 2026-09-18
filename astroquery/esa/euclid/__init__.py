@@ -49,16 +49,16 @@ class Conf(_config.ConfigNamespace):
 
     MOSAIC_PRODUCTS = ['DpdMerBksMosaic']
 
-    BASIC_DOWNLOAD_DATA_PRODUCTS = ['dpdPhzPfOutputForL3', 'dpdPhzPfOutputCatalog', 'dpdMerFinalCatalog',
-                                    'dpdSpePfOutputCatalog', 'dpdSheLensMcChains', 'dpdHealpixBitMaskVMPZ',
-                                    'dpdHealpixFootprintMaskVMPZ', 'dpdHealpixCoverageVMPZ', 'dpdHealpixDepthMapVMPZ',
-                                    'dpdHealpixInfoMapVMPZ', 'dpdSheBiasParams', 'dpdSheLensMcFinalCatalog',
-                                    'dpdSheLensMcRawCatalog', 'dpdSheMetaCalFinalCatalog', 'dpdSheMetaCalRawCatalog',
-                                    'dpdSleDetectionOutput', 'dpdSleModelOutput']
+    BASIC_DOWNLOAD_DATA_PRODUCTS = ['DpdPhzPfOutputForL3', 'DpdPhzPfOutputCatalog', 'DpdPhzDeepOutputCatalog',
+                                    'DpdMerFinalCatalog', 'DpdSpePfOutputCatalog', 'DpdSheLensMcChains',
+                                    'DpdHealpixBitMaskVMPZ', 'DpdHealpixFootprintMaskVMPZ', 'DpdHealpixCoverageVMPZ',
+                                    'DpdHealpixDepthMapVMPZ', 'DpdHealpixInfoMapVMPZ', 'DpdSheBiasParams',
+                                    'DpdSheLensMcFinalCatalog', 'DpdSheLensMcRawCatalog', 'DpdSheMetaCalFinalCatalog',
+                                    'DpdSheMetaCalRawCatalog', 'DpdSleDetectionOutput']
 
     MER_SEGMENTATION_MAP_PRODUCTS = ['DpdMerSegmentationMap']
 
-    RAW_FRAME_PRODUCTS = ['dpdVisRawFrame', 'dpdNispRawFrame']
+    RAW_FRAME_PRODUCTS = ['DpdVisRawFrame', 'DpdNispRawFrame']
 
     CALIBRATED_FRAME_PRODUCTS = ['DpdVisCalibratedQuadFrame', 'DpdNirCalibratedFrame']
 
@@ -67,7 +67,7 @@ class Conf(_config.ConfigNamespace):
 
     COMBINED_SPECTRA_PRODUCTS = ['DpdSirCombinedSpectra']
 
-    SIR_SCIENCE_FRAME_PRODUCTS = ['dpdSirScienceFrame']
+    SIR_SCIENCE_FRAME_PRODUCTS = ['DpdSirScienceFrame']
 
     PRODUCT_TYPES = ['observation', 'mosaic']
 

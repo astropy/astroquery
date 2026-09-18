@@ -153,6 +153,11 @@ esa.hubble
   file is not in Datalabs yet [#3437]
 - Update ``get_datalabs_path`` method to check for files for new collections (HLSP and HSLA) [#3578]
 
+esa.euclid
+^^^^^^^^^^
+
+- Update the list of supported data products used by the ``get_product_list`` method [#3655]
+
 
 imcce
 ^^^^^
