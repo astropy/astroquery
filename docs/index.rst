@@ -281,6 +281,7 @@ The following modules have been completed using a common API:
   ipac/irsa/irsa_dust/irsa_dust.rst
   ipac/irsa/ibe/ibe.rst
   ipac/irsa/irsa.rst
+  lco/lco.rst
   linelists/jplspec/jplspec.rst
   magpis/magpis.rst
   mast/mast.rst
@@ -398,6 +399,7 @@ generally return a table listing the available data first.
   heasarc/heasarc.rst
   ipac/irsa/ibe/ibe.rst
   ipac/irsa/irsa.rst
+  lco/lco.rst
   magpis/magpis.rst
   mast/mast.rst
   ipac/ned/ned.rst
