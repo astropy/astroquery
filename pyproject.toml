@@ -197,6 +197,10 @@ exclude = [
   "astroquery/template_module",
   "astroquery/simbad/criteria_*.py",
 ]
+per-file-ignores = [
+  # ISO table is hand-aligned for readability; keep the padding whitespace
+  "astroquery/hitran/core.py: E201, E202, E241, W291",
+]
 
 [tool.black]
 force-exclude = '''

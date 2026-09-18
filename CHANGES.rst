@@ -154,6 +154,11 @@ heasarc
 - Fix ``query_region`` when passing ``add_offset`` along with ``columns=None``. [#3630]
 - Generalize the ``content-type`` filter in ``locate_data`` in anticipation for backend datalink descriptor changes. [#3656]
 
+hitran
+^^^^^^
+
+- Updated the list of isotopes [#3644]
+
 gaia
 ^^^^
 
@@ -166,6 +171,11 @@ gemini
 ^^^^^^
 
 - Add support for newer instruments (GHOST, IGRINS, IGRINS-2, MAROON-X, ALOPEKE, ZORRO) [#3638]
+
+esa.euclid
+^^^^^^^^^^
+
+- New method query_sia to access the Simple Image Access Protocol (SIAP) v2.0 [#3569]
 
 esa.hubble
 ^^^^^^^^^^
