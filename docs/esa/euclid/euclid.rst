@@ -445,7 +445,7 @@ The VOTable can also be saved for later use.
   >>> import astropy.units as u
   >>> coords = SkyCoord(267.78, 65.53, frame='icrs', unit="deg") # NGC 6505
   >>> radius = u.Quantity(0.01, u.deg)
-  >>> table = Euclid.get_sia(coordinates=coords, radius=radius, calibration=3)
+  >>> table = Euclid.query_sia(coordinates=coords, radius=radius, calibration=3)
   >>> print(table.info)
   <Table length=9>
   name        dtype

@@ -144,7 +144,7 @@ gemini
 esa.euclid
 ^^^^^^^^^^
 
-- New method get_sia to access the Simple Image Access Protocol (SIAP) v2.0 [#3569]
+- New method query_sia to access the Simple Image Access Protocol (SIAP) v2.0 [#3569]
 
 esa.hubble
 ^^^^^^^^^^

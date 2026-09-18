@@ -2000,7 +2000,7 @@ def test_load_async_job(mock_querier_async):
 
 
 @pytest.mark.parametrize("verbose", [False, True])
-def test_get_sia(monkeypatch, verbose):
+def test_query_sia(monkeypatch, verbose):
     def load_data_monkeypatch(self, params_dict, output_file, http_method, verbose):
         return Table.read(TABLE_SIA_FILE_NAME, format='votable')
 
@@ -2046,7 +2046,7 @@ def test_get_sia(monkeypatch, verbose):
     assert table[fn][0] == 'EUC_MER_BGSUB-MOSAIC-VIS_TILE101007315-D84386_20230826T000856.482420Z_00.00.fits.gz'
 
 
-def test_get_sia_exceptions(monkeypatch):
+def test_query_sia_exceptions(monkeypatch):
     def load_data_monkeypatch(self, params_dict, output_file, http_method, verbose):
         return Table()
 

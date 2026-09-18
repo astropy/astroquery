@@ -80,7 +80,7 @@ def test_get_tables():
 
 
 @pytest.mark.remote_data
-def test_get_sia():
+def test_query_sia():
     coords = SkyCoord(267.78, 65.53, frame='icrs', unit="deg")
     radius = u.Quantity(0.01, u.deg)
 
