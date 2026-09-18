@@ -12,16 +12,19 @@ import importlib.resources as importlib_resources
 
 from bs4 import BeautifulSoup
 import pyvo
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlencode
+from urllib.error import HTTPError
 
 from astropy.table import Table, Column, vstack
 from astroquery import log
 from astropy.utils.console import ProgressBar
 from astropy import units as u
 from astropy.time import Time
-from astropy.coordinates import SkyCoord
+from astropy.coordinates import SkyCoord, Angle
 
 from pyvo.dal.sia2 import SIA2_PARAMETERS_DESC, SIA2Service
+from pyvo.dal.adhoc import DatalinkResultsMixin
+from astropy.io.votable.tree import VOTableFile, Resource, Group, Param
 
 from ..exceptions import LoginError
 from ..utils import commons
@@ -428,7 +431,8 @@ class AlmaClass(QueryWithLogin):
     @property
     def datalink(self):
         if not self._datalink:
-            self._datalink = pyvo.dal.adhoc.DatalinkService(self.datalink_url)
+            self._datalink = pyvo.dal.adhoc.DatalinkService(
+                self.datalink_url, session=self._session)
         return self._datalink
 
     @property
@@ -534,7 +538,11 @@ class AlmaClass(QueryWithLogin):
         if not isinstance(radius, u.Quantity):
             rad = radius*u.deg
         obj_coord = commons.parse_coordinates(coordinate).icrs
-        ra_dec = '{}, {}'.format(obj_coord.to_string(), rad.to(u.deg).value)
+        # Full float precision: SkyCoord.to_string() rounds enough to miss
+        # compact ALMA footprints when the search radius is ~arcseconds.
+        ra_dec = '{} {}, {}'.format(
+            obj_coord.ra.to_value(u.deg), obj_coord.dec.to_value(u.deg),
+            rad.to(u.deg).value)
         if payload is None:
             payload = {}
         if 'ra_dec' in payload:
@@ -800,14 +808,13 @@ class AlmaClass(QueryWithLogin):
             uids = [uids]
         if not isinstance(uids, (list, tuple, np.ndarray)):
             raise TypeError("Datasets must be given as a list of strings.")
-        # TODO remove this loop and send uids at once when pyvo fixed
         result = None
         datalink_service_def_dict = {}
-        for uid in uids:
-            res = self.datalink.run_sync(uid)
-            if res.status[0] != 'OK':
-                raise Exception('ERROR {}: {}'.format(res.status[0],
-                                                      res.status[1]))
+        for res in self._iter_datalinks(uids):
+            status = getattr(res, 'status', None)
+            if status and status[0] != 'OK':
+                raise Exception('ERROR {}: {}'.format(status[0],
+                                                      status[1]))
 
             # Collect the ad-hoc DataLink services for later retrieval if expand_tarballs is set
             if expand_tarfiles:
@@ -818,14 +825,16 @@ class AlmaClass(QueryWithLogin):
             temp = res.to_table()
 
             result = temp if result is None else vstack([result, temp])
-            to_delete = []
-            for index, rr in enumerate(result):
-                if rr['error_message'] is not None and \
-                        rr['error_message'].strip():
-                    log.warning('Error accessing info about file {}: {}'.
-                                format(rr['access_url'], rr['error_message']))
-                    # delete from results. Good thing to do?
-                    to_delete.append(index)
+        if result is None:
+            return result
+        to_delete = []
+        for index, rr in enumerate(result):
+            if rr['error_message'] is not None and \
+                    rr['error_message'].strip():
+                log.warning('Error accessing info about file {}: {}'.
+                            format(rr['access_url'], rr['error_message']))
+                # delete from results. Good thing to do?
+                to_delete.append(index)
         result.remove_rows(to_delete)
         if not with_auxiliary:
             result = result[np.core.defchararray.find(
@@ -839,26 +848,27 @@ class AlmaClass(QueryWithLogin):
         expanded_result = None
         to_delete = []
         if expand_tarfiles:
+            nested_ids = []
             for index, row in enumerate(result):
                 service_def_id = row['service_def']
                 # service_def record, so check if it points to a DataLink document
                 if service_def_id and service_def_id in datalink_service_def_dict:
                     # subsequent call to datalink
                     adhoc_service = datalink_service_def_dict[service_def_id]
-                    recursive_access_url = self.get_adhoc_service_access_url(adhoc_service)
+                    recursive_access_url = self.get_adhoc_service_access_url(
+                        adhoc_service)
                     file_id = recursive_access_url.split('ID=')[1]
-                    expanded_tar = self.get_data_info(file_id)
-                    expanded_tar = expanded_tar[
-                        expanded_tar['semantics'] != '#cutout']
-                    if not expanded_result:
-                        expanded_result = expanded_tar
-                    else:
-                        expanded_result = vstack(
-                            [expanded_result, expanded_tar], join_type='exact')
-
+                    if '&' in file_id:
+                        file_id = file_id.split('&', 1)[0]
+                    nested_ids.append(file_id)
                     # These DataLink entries have no access_url and are links to service_def RESOURCEs only,
                     # so they can be removed if expanded.
                     to_delete.append(index)
+            if nested_ids:
+                expanded_tar = self.get_data_info(unique(nested_ids))
+                expanded_tar = expanded_tar[
+                    expanded_tar['semantics'] != '#cutout']
+                expanded_result = expanded_tar
         # cleanup
         result.remove_rows(to_delete)
         # add the extra rows
@@ -866,6 +876,349 @@ class AlmaClass(QueryWithLogin):
             result = vstack([result, expanded_result], join_type='exact')
 
         return result
+
+    def _ids_from_query_result(self, query_result):
+        """
+        Extract unique DataLink identifiers from a query result.
+
+        Prefers ``obs_id`` (product-level) and falls back to
+        ``member_ous_uid``. A TAPResults object, a sequence of IDs, or a
+        single ID string is also accepted.
+        """
+        if query_result is None:
+            raise AttributeError('Missing query_result argument')
+
+        if isinstance(query_result, (str, bytes)):
+            uid = (query_result.decode('utf-8')
+                   if isinstance(query_result, bytes) else query_result)
+            if not uid:
+                raise AttributeError('Missing query_result argument')
+            return [uid]
+
+        if hasattr(query_result, 'to_table') and not isinstance(query_result, Table):
+            query_result = query_result.to_table()
+
+        if isinstance(query_result, Table):
+            if len(query_result) == 0:
+                raise AttributeError('Missing query_result argument')
+            if 'obs_id' in query_result.colnames:
+                values = query_result['obs_id']
+            elif 'member_ous_uid' in query_result.colnames:
+                values = query_result['member_ous_uid']
+            else:
+                raise AttributeError(
+                    'obs_id or member_ous_uid column missing from '
+                    'query_result argument')
+        else:
+            try:
+                values = list(query_result)
+            except TypeError:
+                raise AttributeError('Missing query_result argument')
+            if not values:
+                raise AttributeError('Missing query_result argument')
+
+        ids = []
+        for uid in values:
+            if uid is None:
+                continue
+            try:
+                if np.ma.is_masked(uid):
+                    continue
+            except (TypeError, ValueError):
+                pass
+            if isinstance(uid, bytes):
+                uid = uid.decode('utf-8')
+            uid = str(uid)
+            if uid:
+                ids.append(uid)
+        ids = unique(ids)
+        if not ids:
+            raise AttributeError('Missing query_result argument')
+        return ids
+
+    def _iter_datalinks(self, query_result):
+        """
+        Yield ``DatalinkResults`` using pyvo's batched ``iter_datalinks``.
+
+        TAP/SIA/SSA results that already have a DataLink service descriptor
+        use `~pyvo.dal.adhoc.DatalinkResultsMixin.iter_datalinks` directly.
+        Otherwise unique IDs are extracted and requested in batches against
+        Alma's DataLink endpoint.
+        """
+        if (isinstance(query_result, DatalinkResultsMixin)
+                and getattr(query_result, '_datalink', None) is not None):
+            yield from query_result.iter_datalinks()
+            return
+
+        uids = self._ids_from_query_result(query_result)
+        source = _DatalinkIdSource(uids, self.datalink_url, self._session)
+        yield from source.iter_datalinks()
+
+    def get_data_urls(self, query_result, *, coordinates=None, radius=None,
+                      frequency=None, include_auxiliaries=False):
+        """
+        Map ALMA query results to download or cutout URLs.
+
+        Works with results from `query_region`, `query_object`, `query`,
+        or `query_tap` as long as they contain ``obs_id`` (preferred) or
+        ``member_ous_uid``. A sequence of those IDs can also be passed.
+
+        A cutout is requested when ``coordinates`` and ``radius`` and/or
+        ``frequency`` are given. Tarball products are expanded the same
+        way as `get_data_info` with ``expand_tarfiles=True``.
+
+        Parameters
+        ----------
+        query_result : `~astropy.table.Table`, TAPResults, or sequence
+            Filtered query results or dataset identifiers.
+        coordinates : `~astropy.coordinates.SkyCoord`, optional
+            Center of the spatial cutout. Must be a `~astropy.coordinates.SkyCoord`
+            and passed together with ``radius``.
+        radius : `~astropy.units.Quantity`, optional
+            Radius of the spatial cutout. Must be a Quantity with angular
+            units (for example ``0.01 * u.deg``). Must be passed together
+            with ``coordinates``.
+        frequency : `~astropy.units.Quantity`, optional
+            Frequency range to cut out. Must be a 2-element Quantity
+            with spectral units (for example ``(100, 101) * u.GHz``).
+            Open-ended bounds use ``numpy.inf`` (for example
+            ``(-np.inf, np.inf) * u.GHz`` or ``(230, np.inf) * u.GHz``);
+        include_auxiliaries : bool
+            ``True`` to include auxiliary files, ``False`` for science
+            data only. Ignored for cutouts.
+
+        Returns
+        -------
+        list of str
+            Download URLs, or cutout URLs when a cutout is requested.
+        """
+        cutout_params = self._cutout_params(coordinates, radius, frequency)
+        uids = self._ids_from_query_result(query_result)
+
+        if cutout_params:
+            result = []
+            for uid in uids:
+                result.extend(self._cutout_urls_for_id(uid, cutout_params))
+            return result
+
+        info = self.get_data_info(
+            uids, expand_tarfiles=True,
+            with_auxiliary=include_auxiliaries, with_rawdata=False)
+        if info is None or len(info) == 0:
+            return []
+
+        urls = []
+        for row in info:
+            access_url = row['access_url']
+            if not access_url:
+                continue
+            semantics = row['semantics']
+            if isinstance(semantics, bytes):
+                semantics = semantics.decode('utf-8')
+            semantics = str(semantics)
+            if not include_auxiliaries and semantics != '#this':
+                continue
+            urls.append(str(access_url))
+        return urls
+
+    def _cutout_params(self, coordinates, radius, frequency):
+        if (coordinates is None) != (radius is None):
+            raise ValueError(
+                'coordinates and radius must both be set to request a '
+                'spatial cutout. Pass coordinates as a SkyCoord and '
+                'radius as a Quantity with angular units, e.g. '
+                '0.01 * u.deg')
+        params = {}
+        if coordinates is not None:
+            if not isinstance(coordinates, SkyCoord):
+                raise TypeError(
+                    'coordinates must be an astropy SkyCoord, e.g. '
+                    "SkyCoord('18h12m50.9s', '-06d48m23.5s', frame='icrs')")
+            if not isinstance(radius, u.Quantity):
+                raise TypeError(
+                    'radius must be an astropy Quantity with angular '
+                    'units, e.g. 0.01 * u.deg')
+            if not radius.isscalar:
+                raise ValueError(
+                    'radius must be a scalar Quantity with angular '
+                    'units, e.g. 0.01 * u.deg')
+            try:
+                radius_deg = Angle(radius).to_value(u.deg)
+            except (u.UnitsError, ValueError, TypeError) as err:
+                raise ValueError(
+                    'radius must have angular units, e.g. 0.01 * u.deg') from err
+            icrs = coordinates.icrs
+            params['POS'] = 'CIRCLE {} {} {}'.format(
+                icrs.ra.degree, icrs.dec.degree, radius_deg)
+        if frequency is not None:
+            params['BAND'] = _soda_band_from_frequency(frequency)
+        return params
+
+    def _cutout_urls_for_id(self, uid, cutout_params):
+        res = self.datalink.run_sync(uid)
+        status = getattr(res, 'status', None)
+        if status and status[0] != 'OK':
+            raise Exception('ERROR {}: {}'.format(status[0], status[1]))
+        return self._cutout_urls_from_datalink(res, cutout_params)
+
+    def _cutout_urls_from_datalink(self, datalink_results, cutout_params):
+        cutouts = list(datalink_results.bysemantics('#cutout'))
+        if not cutouts:
+            result = []
+            for adhoc_service in datalink_results.iter_adhocservices():
+                if not self.is_datalink_adhoc_service(adhoc_service):
+                    continue
+                recursive_access_url = self.get_adhoc_service_access_url(
+                    adhoc_service)
+                if not recursive_access_url or 'ID=' not in recursive_access_url:
+                    continue
+                file_id = recursive_access_url.split('ID=', 1)[1]
+                if '&' in file_id:
+                    file_id = file_id.split('&', 1)[0]
+                result.extend(self._cutout_urls_for_id(file_id, cutout_params))
+            return result
+
+        pos_query = urlencode(cutout_params)
+        result = []
+        for cutout in cutouts:
+            error_message = getattr(cutout, 'error_message', None)
+            if error_message:
+                continue
+            access_url = cutout.access_url
+            if not access_url:
+                continue
+            sep = '&' if '?' in access_url else '?'
+            result.append('{}{}{}'.format(access_url, sep, pos_query))
+        return result
+
+    def get_data(self, coordinates, radius, *, cutout=False, frequency=None,
+                 get_url_list=False, show_progress=False, public=True,
+                 science=True, payload=None, **kwargs):
+        """
+        Query ALMA around ``coordinates`` and return the corresponding data.
+
+        Unfiltered ALMA cubes can be very large. Prefer querying, filtering
+        the result table, then calling `get_data_urls` and `download_files`.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates`
+            Coordinates around which to query. When ``cutout`` is
+            ``True``, this must be a `~astropy.coordinates.SkyCoord`.
+        radius : str, float, or `~astropy.units.Quantity`
+            Radius of the cone search. When ``cutout`` is ``True``, this
+            must be a Quantity with angular units (for example
+            ``0.01 * u.deg``).
+        cutout : bool, optional
+            If ``True``, return spatial cutouts at ``coordinates``
+            with ``radius``. Default is ``False`` (full data products).
+        frequency : `~astropy.units.Quantity`, optional
+            Frequency range to cut out. Must be a 2-element Quantity
+            with spectral units (for example ``(100, 101) * u.GHz``).
+            Open-ended bounds use ``numpy.inf`` (for example
+            ``(-np.inf, np.inf) * u.GHz``). Implies a cutout even when
+            ``cutout`` is ``False``.
+        get_url_list : bool, optional
+            If ``True``, return URLs rather than downloaded data.
+        show_progress : bool, optional
+            Display a progress bar for remote downloads.
+        public : bool
+            True to return only public datasets, False to return private only,
+            None to return both.
+        science : bool
+            True to return only science datasets, False to return only
+            calibration, None to return both.
+        payload : dict
+            Dictionary of additional keywords.  See `help`.
+
+        Returns
+        -------
+        list
+            When a cutout is requested, `~astropy.io.fits.HDUList` objects
+            (HTTP errors from empty cutouts are skipped). Otherwise
+            lazy file containers. URLs if ``get_url_list`` is ``True``.
+        """
+        filenames = self.get_data_async(
+            coordinates, radius, cutout=cutout, frequency=frequency,
+            get_url_list=get_url_list, show_progress=show_progress,
+            public=public, science=science, payload=payload, **kwargs)
+
+        if get_url_list or not (cutout or frequency is not None):
+            return filenames
+
+        images = []
+        for fn in filenames:
+            try:
+                images.append(fn.get_fits())
+            except (requests.exceptions.HTTPError, HTTPError) as err:
+                log.debug(
+                    "{} - Problem retrieving the file: {}".
+                    format(str(err), getattr(err, 'url', '')))
+        return images
+
+    def get_data_async(self, coordinates, radius, *, cutout=False,
+                       frequency=None, get_url_list=False, show_progress=False,
+                       public=True, science=True, payload=None, **kwargs):
+        """
+        Query ALMA around ``coordinates`` and return lazy data downloads.
+
+        Unfiltered ALMA cubes can be very large. Prefer querying, filtering
+        the result table, then calling `get_data_urls` and `download_files`.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates`
+            Coordinates around which to query. When ``cutout`` is
+            ``True``, this must be a `~astropy.coordinates.SkyCoord`.
+        radius : str, float, or `~astropy.units.Quantity`
+            Radius of the cone search. When ``cutout`` is ``True``, this
+            must be a Quantity with angular units (for example
+            ``0.01 * u.deg``).
+        cutout : bool, optional
+            If ``True``, return spatial cutouts at ``coordinates``
+            with ``radius``. Default is ``False`` (full data products).
+        frequency : `~astropy.units.Quantity`, optional
+            Frequency range to cut out. Must be a 2-element Quantity
+            with spectral units (for example ``(100, 101) * u.GHz``).
+            Open-ended bounds use ``numpy.inf`` (for example
+            ``(-np.inf, np.inf) * u.GHz``). Implies a cutout even when
+            ``cutout`` is ``False``.
+        get_url_list : bool, optional
+            If ``True``, return URLs rather than file containers.
+        show_progress : bool, optional
+            Display a progress bar for remote downloads.
+        public : bool
+            True to return only public datasets, False to return private only,
+            None to return both.
+        science : bool
+            True to return only science datasets, False to return only
+            calibration, None to return both.
+        payload : dict
+            Dictionary of additional keywords.  See `help`.
+
+        Returns
+        -------
+        list
+            Lazy file containers, or URLs if ``get_url_list`` is ``True``.
+        """
+        query_result = self.query_region(
+            coordinates, radius, public=public, science=science,
+            payload=payload, **kwargs)
+        if cutout or frequency is not None:
+            data_urls = self.get_data_urls(
+                query_result,
+                coordinates=coordinates if cutout else None,
+                radius=radius if cutout else None,
+                frequency=frequency)
+        else:
+            data_urls = self.get_data_urls(query_result)
+
+        if get_url_list:
+            return data_urls
+
+        return [commons.FileContainer(url, encoding='binary',
+                                      show_progress=show_progress)
+                for url in data_urls]
 
     def is_datalink_adhoc_service(self, adhoc_service):
         standard_id = self.get_adhoc_service_parameter(adhoc_service, 'standardID')
@@ -876,7 +1229,7 @@ class AlmaClass(QueryWithLogin):
 
     def get_adhoc_service_parameter(self, adhoc_service, parameter_id):
         for p in adhoc_service.params:
-            if p.ID == parameter_id:
+            if p.ID == parameter_id or getattr(p, 'name', None) == parameter_id:
                 return p.value
 
     def is_proprietary(self, uid):
@@ -1413,6 +1766,99 @@ def reform_uid(uid):
     Convert a uid with underscores to the original format
     """
     return uid[:3] + "://" + "/".join(uid[6:].split("_"))
+
+
+class _DatalinkIdSource:
+    """Minimal row source formatter used by pyvo to batch DataLink requests with ``iter_datalinks``."""
+
+    def __init__(self, uids, datalink_url, session):
+        self._datalink = self._datalink_service_resource(datalink_url)
+        self._session = session
+        self._rows = [{'ID': uid} for uid in uids]
+
+    def __iter__(self):
+        return iter(self._rows)
+
+    def iter_datalinks(self, preserve_order=False):
+        yield from DatalinkResultsMixin._iter_datalinks_from_dlblock(
+            self, preserve_order=preserve_order)
+
+    @staticmethod
+    def _datalink_service_resource(datalink_url, id_ref='ID'):
+        """Adhoc DataLink service descriptor for Alma's DataLink endpoint."""
+        votable = VOTableFile()
+        resource = Resource()
+        resource.type = 'meta'
+        resource.utype = 'adhoc:service'
+        resource.params.append(Param(
+            votable, ID='standardID', name='standardID',
+            datatype='char', arraysize='*', value=DATALINK_STANDARD_ID))
+        resource.params.append(Param(
+            votable, ID='accessURL', name='accessURL',
+            datatype='char', arraysize='*', value=datalink_url))
+        group = Group(resource, name='inputParams')
+        group.entries.append(Param(
+            votable, ID='ID', name='ID', datatype='char', arraysize='*',
+            value='', ref=id_ref))
+        resource.groups.append(group)
+        return resource
+
+
+def _soda_interval_bound(value):
+    """Serialize one DALI/SODA interval endpoint (``-Inf`` / ``+Inf`` if open)."""
+    if np.isneginf(value):
+        return '-Inf'
+    if np.isposinf(value):
+        return '+Inf'
+    return '{}'.format(value)
+
+
+def _soda_band_from_frequency(frequency):
+    """
+    Convert a frequency range to a SODA ``BAND`` interval in meters.
+
+    SODA uses wavelength, so the higher frequency becomes the lower
+    bound. The returned interval is increasing.
+
+    Open-ended bounds use ``numpy.inf`` in a Quantity (the usual astropy
+    form, e.g. ``(-np.inf, np.inf) * u.GHz``) and are serialized as
+    DALI/SODA ``-Inf`` / ``+Inf``. Infinite frequency bounds are inverted
+    when converting to wavelength; they are not passed through the
+    spectral equivalency (``c / inf`` would collapse to ``0``).
+    """
+    freq_error = (
+        'frequency must be a 2-element astropy Quantity with spectral '
+        'units, e.g. (100, 101) * u.GHz')
+    if isinstance(frequency, u.Quantity):
+        freq_qty = frequency
+    else:
+        try:
+            values = list(frequency)
+        except TypeError:
+            raise TypeError(freq_error)
+        if len(values) != 2 or not all(
+                isinstance(value, u.Quantity) for value in values):
+            raise TypeError(freq_error)
+        freq_qty = u.Quantity(values)
+    if freq_qty.isscalar or freq_qty.size != 2:
+        raise ValueError(freq_error)
+
+    try:
+        # Validate spectral units even when both bounds are infinite.
+        (1 * freq_qty.unit).to(u.m, equivalencies=u.spectral())
+        invert_inf = not freq_qty.unit.is_equivalent(u.m)
+        wave = []
+        for bound in freq_qty:
+            if np.isinf(bound.value):
+                val = float(bound.value)
+                wave.append(-val if invert_inf else val)
+            else:
+                wave.append(
+                    bound.to(u.m, equivalencies=u.spectral()).to_value(u.m))
+    except (u.UnitsError, ValueError, TypeError) as err:
+        raise ValueError(freq_error) from err
+    low, high = sorted(wave)
+    return '{} {}'.format(_soda_interval_bound(low), _soda_interval_bound(high))
 
 
 def unique(seq):
