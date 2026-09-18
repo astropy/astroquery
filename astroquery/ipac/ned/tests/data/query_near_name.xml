@@ -1,133 +1,173 @@
-<?xml version="1.0"?>
-<VOTABLE version="1.1">
-<DEFINITIONS>
-<COOSYS ID="J2000" equinox="2000." epoch="2000." system="eq_FK5" />
-</DEFINITIONS>
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.5" xmlns="http://www.ivoa.net/xml/VOTable/v1.3"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3  https://www.ivoa.net/xml/VOTable/VOTable-1.5.xsd">
 <RESOURCE type="results">
+<LINK content-role="query" href="/NED::API/ConeSearchByTarget?TARGET=m31&amp;RADIUS=1.0&amp;Z_CONSTRAINT=Between&amp;Z_VALUE1=4.2&amp;Z_VALUE2=96&amp;Z_UNIT=km/s"/>
+<TABLE ID="conesearch" name="ConeSearch" nrows="7">
+<GROUP  ID="QUERY" name="QUERY">
+<PARAM name="TARGET" datatype="char" arraysize="*" value="m31"/>
+<PARAM name="RADIUS" datatype="char" arraysize="*" value="1.0"/>
+<PARAM name="Z_CONSTRAINT" datatype="char" arraysize="*" value="Between"/>
+<PARAM name="Z_UNIT" datatype="char" arraysize="*" value="km/s"/>
+<PARAM name="Z_VALUE1" datatype="char" arraysize="*" value="4.2"/>
+<PARAM name="Z_VALUE2" datatype="char" arraysize="*" value="96"/>
+</GROUP>
+<GROUP ID="RESPONSE"  name="RESPONSE">
+<PARAM name="QUERY_STATUS" datatype="char" arraysize="*" value="OK"/>
+<PARAM name="QUERY_TIME" datatype="char" arraysize="*" xtype="timestamp" value="20260608T181906Z"/>
+<PARAM name="RECORDS_AVAILABLE" datatype="int" value="7"/>
+<PARAM name="RECORDS_RETURNED" datatype="int" value="7"/>
+</GROUP>
+<GROUP ID="Curation" name="Curation">
+<PARAM ID="Publisher" datatype="char" name="Publisher" ucd="meta.curation" value="NASA/IPAC Extragalactic Database (NED)" arraysize="*">
 <DESCRIPTION>
-Results from query to  NASA/IPAC Extragalactic Database (NED),
-which is operated by the Jet Propulsion Laboratory, California Institute of
-Technology, under contract with the National Aeronautics and Space Administration.
-This work was (partially) supported by the US National Virtual Observatory
-development project, which is funded by the National Science Foundation
-under cooperative agreement AST0122449 with The Johns Hopkins University.
-</DESCRIPTION>
-<INFO name="QUERY_STATUS" value="OK"/>
-<PARAM name="queryDateTime"  ucd="time.creation" datatype="char" arraysize="*" value="2013-07-18T04:13:16PDT"/>
-<INFO name="QUERY_STATUS" value="OK"/>
-<LINK content-role="query" content-type="char" 
-href="http://ned.ipac.caltech.edu/cgi-bin/objsearch?search_type=Near+Name+Search&amp;objname=MESSIER+001&amp;radius=1.0&amp;of=xml_main"/>
-<TABLE ID="NED_MainTable" name="Main Information Table for NED objects within 1.000 arcmin of object MESSIER 001">
-<DESCRIPTION> Main information about object (Cone Search results)</DESCRIPTION>
+Copyright 2019-2026 Caltech, Support from NASA is acknowledged.
+This information is taken from a collection created and curated by
+the NASA/IPAC Extragalactic Database (NED), operated by the California Institute of Technology (Caltech).
+If your research benefits from the use of NED, the following acknowledgement in your paper would be appreciated:
 
-<PARAM name="Equinox" datatype="char" arraysize="*" ucd="time.equinox" value="J2000.0"/>
-<PARAM name="CoordSystem" datatype="char" arraysize="*" ucd="pos.system.coord" value="Equatorial"/>
-<FIELD ID="main_col1" name="No." ucd="meta.number" datatype="int" width="4" type="hidden">
-<DESCRIPTION> A sequential object number applicable to this list only.  </DESCRIPTION>
+"This research has made use of the NASA/IPAC Extragalactic Database (NED), which is funded by the National Aeronautics and Space Administration and operated by the California Institute of Technology."
+
+See: https://ned.ipac.caltech.edu/Documents/Overview/Acknowledgments 
+</DESCRIPTION>
+</PARAM>
+<PARAM name="queryEngineInfo" datatype="char" arraysize="*" value="https://ned.ipac.caltech.edu/NED::API/ConeSearchByTarget"/>
+</GROUP>
+<FIELD ID="row" name="No." ucd="meta.number" datatype="int" >
+<DESCRIPTION>A row number applicable to this list only</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col2" name="Object Name" ucd="meta.id;meta.main" datatype="char" arraysize="30" width="30">
-<DESCRIPTION> NED preferred name for the object </DESCRIPTION>
-<LINK content-role="query" content-type="char" href="http://ned.ipac.caltech.edu/cgi-bin/objsearch?objname=${Object Name}"/>
+<FIELD ID="prefname" name="Object Name" ucd="meta.id.cross" datatype="char" arraysize="*" >
+<DESCRIPTION>Object name in NED standard format</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col3" name="RA(deg)" ucd="pos.eq.ra;meta.main" datatype="double" unit="degrees" width="10">
-<DESCRIPTION> Right Ascension in degrees (Equatorial J2000.0)</DESCRIPTION>
+<FIELD ID="equ_j2000_lon_s" name="RA-s" ucd="pos.eq.ra" datatype="char" arraysize="*" >
+<DESCRIPTION>Right Ascension in sexagesimal (FK5 Equatorial J2000.0)</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col4" name="DEC(deg)" ucd="pos.eq.dec;meta.main" datatype="double" unit="degrees" width="10">
-<DESCRIPTION> Declination in degrees (Equatorial J2000.0)</DESCRIPTION>
+<FIELD ID="equ_j2000_lat_s" name="Dec-s" ucd="pos.eq.dec" datatype="char" arraysize="*" >
+<DESCRIPTION>Declination in sexagesimal (FK5 Equatorial J2000.0)</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col5" name="Type" ucd="src.class" datatype="char" arraysize="*" width="10">
-<DESCRIPTION> NED's Preferred Object Type: G,GPair,GTrpl,GGroup,GClstr,QSO,AbLS,RadioS,IrS,EmLS,UvES,XrayS,SN </DESCRIPTION>
-<LINK content-role="query" content-type="char" href="http://ned.ipac.caltech.edu/help/faq5.html#5k"/>
+<FIELD ID="ra" name="RA" ucd="pos.eq.ra" datatype="double" unit="deg" precision="6" >
+<DESCRIPTION>Right Ascension in degrees (FK5 Equatorial J2000.0)</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col6" name="Velocity" ucd="src.veloc.hc" datatype="double" unit="km/sec" width="10">
-<DESCRIPTION> Velocity in km/sec, based on known heliocentric redshift </DESCRIPTION>
+<FIELD ID="dec" name="Dec" ucd="pos.eq.dec" datatype="double" unit="deg" precision="6" >
+<DESCRIPTION>Declination in degrees (FK5 Equatorial J2000.0)</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col7" name="Redshift" ucd="src.redshift" datatype="double" width="10">
-<DESCRIPTION> Heliocentric redshift for the object, if it exists in NED </DESCRIPTION>
+<FIELD ID="z" name="Redshift (z)" ucd="src.redshift" datatype="double" precision="6" >
+<DESCRIPTION>Fiducial heliocentric redshift</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col8" name="Redshift Flag" ucd="meta.code;src.redshift" datatype="char" arraysize="*" width="5">
-<DESCRIPTION> Quality flag for known heliocentric redshift</DESCRIPTION>
+<FIELD ID="velocity" name="cz" ucd="phys.veloc" datatype="double" unit="km/s" precision="0" >
+<DESCRIPTION>Apparent velocity computed as c*z</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col9" name="Magnitude and Filter" ucd="meta.code;src.magnitude" datatype="char" arraysize="*" width="5">
-<DESCRIPTION>  NED's Basic Data magnitude and filter, generally in an optical band.</DESCRIPTION>
+<FIELD ID="zflag" name="z flag" ucd="meta.code;src.redshift" datatype="char" arraysize="*" >
+<DESCRIPTION>Redshift flags indicating measurement technique (1 char, e.g., S=spec, P=phot), method (2 chars, e.g., SL=single line), and quality (1 char, e.g. blank= reliable, ?=uncertain).</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col10" name="Distance (arcmin)" ucd="pos.distance" datatype="double" unit="arcmin" width="10">
-<DESCRIPTION> Distance of the source from the queried position (arcmin);listed as blank if not applicable. </DESCRIPTION>
+<FIELD ID="ptype" name="Phys Type" ucd="src.class" datatype="char" arraysize="*" >
+<DESCRIPTION>Physical type of the celestial object</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col11" name="References" ucd="meta.bib;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of literature references in NED </DESCRIPTION>
+<FIELD ID="emtype" name="EM Region" ucd="instr;em" datatype="char" arraysize="*" >
+<DESCRIPTION>Region of the electromagnetic spectrum where the object was detected</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col12" name="Notes" ucd="meta.note;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of catalog notes in NED </DESCRIPTION>
+<FIELD ID="sep" name="Separation" ucd="pos.angDistance" datatype="double" unit="arcmin" precision="3" >
+<DESCRIPTION>Angular separation between object and search center</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col13" name="Photometry Points" ucd="phot;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of photometric data points stored by NED for the object </DESCRIPTION>
+<FIELD ID="n_ref" name="Reference" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of references</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col14" name="Positions" ucd="pos;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of position data points stored by NED for the object </DESCRIPTION>
+<FIELD ID="n_notes" name="Note" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of notes</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col15" name="Redshift Points" ucd="src.redshift;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of redshift data points stored by NED for the object. </DESCRIPTION>
+<FIELD ID="n_gphot" name="Photometry" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of photometric data points</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col16" name="Diameter Points" ucd="phys.size.diameter;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of diameter data points stored by NED for the object. </DESCRIPTION>
+<FIELD ID="n_posd" name="Position" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of position data points</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col17" name="Associations" ucd="meta.id.assoc;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of NED associations for the object. </DESCRIPTION>
+<FIELD ID="n_zdf" name="Redshift" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of redshift data points</DESCRIPTION>
+</FIELD>
+<FIELD ID="n_ddf" name="Diameter" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of diameter data points</DESCRIPTION>
+</FIELD>
+<FIELD ID="n_dist" name="Distances" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of redshift independent distances</DESCRIPTION>
+</FIELD>
+<FIELD ID="n_class" name="Classification" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of classifications</DESCRIPTION>
+</FIELD>
+<FIELD ID="n_images" name="Images" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of images</DESCRIPTION>
+</FIELD>
+<FIELD ID="n_spectra" name="Spectra" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of spectra</DESCRIPTION>
 </FIELD>
 <DATA>
 <TABLEDATA>
 <TR>
 <TD>1</TD>
-<TD>MESSIER 001</TD>
-<TD> 83.63321 </TD>
-<TD>  22.01446 </TD>
-<TD>SNR</TD>
-<TD></TD>
-<TD></TD>
-<TD></TD>
-<TD><![CDATA[     ]]></TD>
-<TD>  0.000</TD>
-<TD>75</TD>
+<TD>MESSIER 031:[DMC2019] 09</TD>
+<TD>00h42m44.5600s</TD>
+<TD>+41d15m58.400s</TD>
+<TD>10.6856666666667</TD>
+<TD>41.2662222222222</TD>
+<TD>1.43432560935205e-05</TD>
+<TD>4.29999999999999</TD>
+<TD>MUN</TD>
+<TD>MCld</TD>
+<TD/>
+<TD>0.175059156684177</TD>
+<TD>1</TD>
 <TD>0</TD>
-<TD>44</TD>
-<TD>4</TD>
 <TD>0</TD>
-<TD>2</TD>
+<TD>1</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
 <TD>0</TD>
 </TR>
 <TR>
 <TD>2</TD>
-<TD>2MASX J05343184+2201158</TD>
-<TD> 83.63271 </TD>
-<TD>  22.02106 </TD>
-<TD>IrS</TD>
-<TD></TD>
-<TD></TD>
-<TD></TD>
-<TD><![CDATA[ 6.8J]]></TD>
-<TD>  0.397</TD>
+<TD>MESSIER 031:[DMC2019] 07</TD>
+<TD>00h42m46.1300s</TD>
+<TD>+41d16m14.200s</TD>
+<TD>10.6922083333333</TD>
+<TD>41.2706111111111</TD>
+<TD>0.000219485174640384</TD>
+<TD>65.8</TD>
+<TD>MUN</TD>
+<TD>MCld</TD>
+<TD/>
+<TD>0.347039176714264</TD>
+<TD>1</TD>
 <TD>0</TD>
 <TD>0</TD>
-<TD>9</TD>
+<TD>1</TD>
+<TD>1</TD>
 <TD>0</TD>
 <TD>0</TD>
-<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
 <TD>0</TD>
 </TR>
 <TR>
 <TD>3</TD>
-<TD>2MASXi J0534296+220050</TD>
-<TD> 83.62371 </TD>
-<TD>  22.01391 </TD>
-<TD>IrS</TD>
-<TD></TD>
-<TD></TD>
-<TD></TD>
-<TD><![CDATA[     ]]></TD>
-<TD>  0.530</TD>
+<TD>MESSIER 031:[DMC2019] 10</TD>
+<TD>00h42m45.0400s</TD>
+<TD>+41d15m44.300s</TD>
+<TD>10.6876666666667</TD>
+<TD>41.2623055555556</TD>
+<TD>0.00031955440319983</TD>
+<TD>95.8000000000001</TD>
+<TD>MUN</TD>
+<TD>MCld</TD>
+<TD/>
+<TD>0.425771929207378</TD>
+<TD>1</TD>
 <TD>0</TD>
 <TD>0</TD>
+<TD>1</TD>
+<TD>1</TD>
 <TD>0</TD>
 <TD>0</TD>
 <TD>0</TD>
@@ -136,17 +176,22 @@ href="http://ned.ipac.caltech.edu/cgi-bin/objsearch?search_type=Near+Name+Search
 </TR>
 <TR>
 <TD>4</TD>
-<TD>NVSS J053435+220034</TD>
-<TD> 83.64708 </TD>
-<TD>  22.00953 </TD>
-<TD>RadioS</TD>
-<TD></TD>
-<TD></TD>
-<TD></TD>
-<TD><![CDATA[     ]]></TD>
-<TD>  0.826</TD>
+<TD>MESSIER 031:[DMC2019] 04</TD>
+<TD>00h42m46.9300s</TD>
+<TD>+41d16m19.100s</TD>
+<TD>10.6955416666667</TD>
+<TD>41.2719722222222</TD>
+<TD>0.000255510096921784</TD>
+<TD>76.5999999999999</TD>
+<TD>MUN</TD>
+<TD>MCld</TD>
+<TD/>
+<TD>0.515158416583761</TD>
+<TD>1</TD>
 <TD>0</TD>
 <TD>0</TD>
+<TD>1</TD>
+<TD>1</TD>
 <TD>0</TD>
 <TD>0</TD>
 <TD>0</TD>
@@ -155,37 +200,71 @@ href="http://ned.ipac.caltech.edu/cgi-bin/objsearch?search_type=Near+Name+Search
 </TR>
 <TR>
 <TD>5</TD>
-<TD>2MASX J05343558+2200368</TD>
-<TD> 83.64829 </TD>
-<TD>  22.01028 </TD>
-<TD>IrS</TD>
-<TD></TD>
-<TD></TD>
-<TD></TD>
-<TD><![CDATA[10.4J]]></TD>
-<TD>  0.876</TD>
-<TD>2</TD>
+<TD>MESSIER 031:[DMC2019] 01</TD>
+<TD>00h42m43.9100s</TD>
+<TD>+41d15m35.800s</TD>
+<TD>10.6829583333333</TD>
+<TD>41.2599444444444</TD>
+<TD>0.000150437406934367</TD>
+<TD>45.1000000000001</TD>
+<TD>MUN</TD>
+<TD>MCld</TD>
+<TD/>
+<TD>0.553453064412212</TD>
+<TD>1</TD>
 <TD>0</TD>
-<TD>9</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>1</TD>
 <TD>0</TD>
 <TD>0</TD>
-<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
 <TD>0</TD>
 </TR>
 <TR>
 <TD>6</TD>
-<TD>NVSS J053428+220019</TD>
-<TD> 83.62013 </TD>
-<TD>  22.00536 </TD>
-<TD>RadioS</TD>
-<TD></TD>
-<TD></TD>
-<TD></TD>
-<TD><![CDATA[     ]]></TD>
-<TD>  0.910</TD>
+<TD>2MASS J00424695+4116546</TD>
+<TD>00h42m46.9586s</TD>
+<TD>+41d16m54.670s</TD>
+<TD>10.695661</TD>
+<TD>41.281853</TD>
+<TD>0.00032</TD>
+<TD>95.93358656</TD>
+<TD>S1L</TD>
+<TD>Neb</TD>
+<TD>IR</TD>
+<TD>0.910433699146283</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>9</TD>
+<TD>4</TD>
+<TD>1</TD>
 <TD>0</TD>
 <TD>0</TD>
 <TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>7</TD>
+<TD>2MASS J00424144+4115236</TD>
+<TD>00h42m41.4350s</TD>
+<TD>+41d15m23.803s</TD>
+<TD>10.672646</TD>
+<TD>41.256612</TD>
+<TD>0.000233</TD>
+<TD>69.851642714</TD>
+<TD>UUN</TD>
+<TD>*Cl</TD>
+<TD>IR,X-ray</TD>
+<TD>0.926504978641057</TD>
+<TD>62</TD>
+<TD>0</TD>
+<TD>74</TD>
+<TD>14</TD>
+<TD>1</TD>
+<TD>5</TD>
 <TD>0</TD>
 <TD>0</TD>
 <TD>0</TD>
@@ -196,4 +275,3 @@ href="http://ned.ipac.caltech.edu/cgi-bin/objsearch?search_type=Near+Name+Search
 </TABLE>
 </RESOURCE>
 </VOTABLE>
-

@@ -260,6 +260,12 @@ xmatch
 
 - change url of xmatch to use the new CDS domain name [#3465]
 
+ipac.ned
+^^^^^^^^
+
+- Updated NED queries to match the NED N36.1 API release, with
+  corresponding documentation and test updates. [#3606]
+
 
 Infrastructure, Utility and Other Changes and Additions
 -------------------------------------------------------

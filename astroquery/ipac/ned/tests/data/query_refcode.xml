@@ -1,764 +1,925 @@
-<?xml version="1.0"?>
-<VOTABLE version="1.1">
-<DEFINITIONS>
-<COOSYS ID="J2000" equinox="2000." epoch="2000." system="eq_FK5" />
-</DEFINITIONS>
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.5" xmlns="http://www.ivoa.net/xml/VOTable/v1.3"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3  https://www.ivoa.net/xml/VOTable/VOTable-1.5.xsd">
 <RESOURCE type="results">
+	<LINK content-role="query" href="/NED::API/ObjectsInRefcode?refcode=1997A&amp;A...323...31K"/>
+<TABLE ID="conesearch" name="ConeSearch" nrows="36">
+<GROUP  ID="QUERY" name="QUERY">
+<PARAM name="REFCODE" datatype="char" arraysize="*" value="1997A&amp;A...323...31K"/>
+</GROUP>
+<GROUP ID="RESPONSE"  name="RESPONSE">
+<PARAM name="QUERY_STATUS" datatype="char" arraysize="*" value="OK"/>
+<PARAM name="QUERY_TIME" datatype="char" arraysize="*" xtype="timestamp" value="20260604T061352Z"/>
+<PARAM name="RECORDS_AVAILABLE" datatype="int" value="36"/>
+<PARAM name="RECORDS_RETURNED" datatype="int" value="36"/>
+</GROUP>
+<GROUP ID="Curation" name="Curation">
+<PARAM ID="Publisher" datatype="char" name="Publisher" ucd="meta.curation" value="NASA/IPAC Extragalactic Database (NED)" arraysize="*">
 <DESCRIPTION>
-Results from query to  NASA/IPAC Extragalactic Database (NED),
-which is operated by the Jet Propulsion Laboratory, California Institute of
-Technology, under contract with the National Aeronautics and Space Administration.
-This work was (partially) supported by the US National Virtual Observatory
-development project, which is funded by the National Science Foundation
-under cooperative agreement AST0122449 with The Johns Hopkins University.
-</DESCRIPTION>
-<INFO name="QUERY_STATUS" value="OK"/>
-<PARAM name="queryDateTime"  ucd="time.creation" datatype="char" arraysize="*" value="2013-07-18T04:18:20PDT"/>
-<INFO name="QUERY_STATUS" value="OK"/>
-<LINK content-role="query" content-type="char" 
-href="http://ned.ipac.caltech.edu/cgi-bin/objsearch?search_type=Search&amp;refcode=1997A&amp;A...323...31K&amp;of=xml_main"/>
-<TABLE ID="NED_MainTable" name="Main Information Table for object(s) in publication 1997A&amp;A...323...31K">
-<DESCRIPTION> Main information about object (Cone Search results)</DESCRIPTION>
+Copyright 2019-2026 Caltech, Support from NASA is acknowledged.
+This information is taken from a collection created and curated by
+the NASA/IPAC Extragalactic Database (NED), operated by the California Institute of Technology (Caltech).
+If your research benefits from the use of NED, the following acknowledgement in your paper would be appreciated:
 
-<PARAM name="Equinox" datatype="char" arraysize="*" ucd="time.equinox" value="J2000.0"/>
-<PARAM name="CoordSystem" datatype="char" arraysize="*" ucd="pos.system.coord" value="Equatorial"/>
-<FIELD ID="main_col1" name="No." ucd="meta.number" datatype="int" width="4" type="hidden">
-<DESCRIPTION> A sequential object number applicable to this list only.  </DESCRIPTION>
+"This research has made use of the NASA/IPAC Extragalactic Database (NED), which is funded by the National Aeronautics and Space Administration and operated by the California Institute of Technology."
+
+See: https://ned.ipac.caltech.edu/Documents/Overview/Acknowledgments 
+</DESCRIPTION>
+</PARAM>
+<PARAM name="queryEngineInfo" datatype="char" arraysize="*" value="https://ned.ipac.caltech.edu/NED::API/ObjectsInRefcode" />
+</GROUP>
+<FIELD ID="row" name="No." ucd="meta.number" datatype="int" >
+<DESCRIPTION>A row number applicable to this list only</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col2" name="Object Name" ucd="meta.id;meta.main" datatype="char" arraysize="30" width="30">
-<DESCRIPTION> NED preferred name for the object </DESCRIPTION>
-<LINK content-role="query" content-type="char" href="http://ned.ipac.caltech.edu/cgi-bin/objsearch?objname=${Object Name}"/>
+<FIELD ID="prefname" name="Object Name" ucd="meta.id.cross" datatype="char" arraysize="*" >
+<DESCRIPTION>Object name in NED standard format</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col3" name="RA(deg)" ucd="pos.eq.ra;meta.main" datatype="double" unit="degrees" width="10">
-<DESCRIPTION> Right Ascension in degrees (Equatorial J2000.0)</DESCRIPTION>
+<FIELD ID="equ_j2000_lon_s" name="RA-s" ucd="pos.eq.ra" datatype="char" arraysize="*" >
+<DESCRIPTION>Right Ascension in sexagesimal (FK5 Equatorial J2000.0)</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col4" name="DEC(deg)" ucd="pos.eq.dec;meta.main" datatype="double" unit="degrees" width="10">
-<DESCRIPTION> Declination in degrees (Equatorial J2000.0)</DESCRIPTION>
+<FIELD ID="equ_j2000_lat_s" name="Dec-s" ucd="pos.eq.dec" datatype="char" arraysize="*" >
+<DESCRIPTION>Declination in sexagesimal (FK5 Equatorial J2000.0)</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col5" name="Type" ucd="src.class" datatype="char" arraysize="*" width="10">
-<DESCRIPTION> NED's Preferred Object Type: G,GPair,GTrpl,GGroup,GClstr,QSO,AbLS,RadioS,IrS,EmLS,UvES,XrayS,SN </DESCRIPTION>
-<LINK content-role="query" content-type="char" href="http://ned.ipac.caltech.edu/help/faq5.html#5k"/>
+<FIELD ID="ra" name="RA" ucd="pos.eq.ra" datatype="double" unit="deg" precision="6" >
+<DESCRIPTION>Right Ascension in degrees (FK5 Equatorial J2000.0)</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col6" name="Velocity" ucd="src.veloc.hc" datatype="double" unit="km/sec" width="10">
-<DESCRIPTION> Velocity in km/sec, based on known heliocentric redshift </DESCRIPTION>
+<FIELD ID="dec" name="Dec" ucd="pos.eq.dec" datatype="double" unit="deg" precision="6" >
+<DESCRIPTION>Declination in degrees (FK5 Equatorial J2000.0)</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col7" name="Redshift" ucd="src.redshift" datatype="double" width="10">
-<DESCRIPTION> Heliocentric redshift for the object, if it exists in NED </DESCRIPTION>
+<FIELD ID="z" name="Redshift (z)" ucd="src.redshift" datatype="double" precision="6" >
+<DESCRIPTION>Fiducial heliocentric redshift</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col8" name="Redshift Flag" ucd="meta.code;src.redshift" datatype="char" arraysize="*" width="5">
-<DESCRIPTION> Quality flag for known heliocentric redshift</DESCRIPTION>
+<FIELD ID="velocity" name="cz" ucd="phys.veloc" datatype="double" unit="km/s" precision="0" >
+<DESCRIPTION>Apparent velocity computed as c*z</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col9" name="Magnitude and Filter" ucd="meta.code;src.magnitude" datatype="char" arraysize="*" width="5">
-<DESCRIPTION>  NED's Basic Data magnitude and filter, generally in an optical band.</DESCRIPTION>
+<FIELD ID="zflag" name="z flag" ucd="meta.code;src.redshift" datatype="char" arraysize="*" >
+<DESCRIPTION>Redshift flags indicating measurement technique (1 char, e.g., S=spec, P=phot), method (2 chars, e.g., SL=single line), and quality (1 char, e.g. blank= reliable, ?=uncertain).</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col10" name="Distance (arcmin)" ucd="pos.distance" datatype="double" unit="arcmin" width="10">
-<DESCRIPTION> Distance of the source from the queried position (arcmin);listed as blank if not applicable. </DESCRIPTION>
+<FIELD ID="ptype" name="Phys Type" ucd="src.class" datatype="char" arraysize="*" >
+<DESCRIPTION>Physical type of the celestial object</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col11" name="References" ucd="meta.bib;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of literature references in NED </DESCRIPTION>
+<FIELD ID="emtype" name="EM Region" ucd="instr;em" datatype="char" arraysize="*" >
+<DESCRIPTION>Region of the electromagnetic spectrum where the object was detected</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col12" name="Notes" ucd="meta.note;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of catalog notes in NED </DESCRIPTION>
+<FIELD ID="n_ref" name="Reference" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of references</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col13" name="Photometry Points" ucd="phot;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of photometric data points stored by NED for the object </DESCRIPTION>
+<FIELD ID="n_notes" name="Note" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of notes</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col14" name="Positions" ucd="pos;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of position data points stored by NED for the object </DESCRIPTION>
+<FIELD ID="n_gphot" name="Photometry" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of photometric data points</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col15" name="Redshift Points" ucd="src.redshift;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of redshift data points stored by NED for the object. </DESCRIPTION>
+<FIELD ID="n_posd" name="Position" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of position data points</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col16" name="Diameter Points" ucd="phys.size.diameter;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of diameter data points stored by NED for the object. </DESCRIPTION>
+<FIELD ID="n_zdf" name="Redshift" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of redshift data points</DESCRIPTION>
 </FIELD>
-<FIELD ID="main_col17" name="Associations" ucd="meta.id.assoc;meta.number" datatype="int" width="5">
-<DESCRIPTION> Number of NED associations for the object. </DESCRIPTION>
+<FIELD ID="n_ddf" name="Diameter" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of diameter data points</DESCRIPTION>
+</FIELD>
+<FIELD ID="n_dist" name="Distances" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of redshift independent distances</DESCRIPTION>
+</FIELD>
+<FIELD ID="n_class" name="Classification" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of classifications</DESCRIPTION>
+</FIELD>
+<FIELD ID="n_images" name="Images" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of images</DESCRIPTION>
+</FIELD>
+<FIELD ID="n_spectra" name="Spectra" ucd="meta.number" datatype="int" >
+<DESCRIPTION>Number of spectra</DESCRIPTION>
 </FIELD>
 <DATA>
 <TABLEDATA>
 <TR>
 <TD>1</TD>
-<TD>NGC 0262</TD>
-<TD> 12.19642 </TD>
-<TD>  31.95697 </TD>
+<TD>ICRF J004847.1+315725</TD>
+<TD>00h48m47.1414s</TD>
+<TD>+31d57m25.084s</TD>
+<TD>12.196422875</TD>
+<TD>31.9569677652778</TD>
+<TD>0.015034</TD>
+<TD>4507.079813572</TD>
+<TD>SUN</TD>
 <TD>G</TD>
-<TD>  4507</TD>
-<TD> 0.015034 </TD>
-<TD>    </TD>
-<TD><![CDATA[13.90]]></TD>
-<TD></TD>
-<TD>518</TD>
+<TD>Gamma,IR,Radio,UV,X-ray</TD>
+<TD>738</TD>
 <TD>21</TD>
-<TD>219</TD>
-<TD>10</TD>
-<TD>10</TD>
-<TD>8</TD>
-<TD>0</TD>
+<TD>334</TD>
+<TD>98</TD>
+<TD>95</TD>
+<TD>12</TD>
+<TD>1</TD>
+<TD>22</TD>
+<TD>31</TD>
+<TD>12</TD>
 </TR>
 <TR>
 <TD>2</TD>
-<TD>NGC 0449</TD>
-<TD> 19.03020 </TD>
-<TD>  33.08956 </TD>
-<TD>G</TD>
-<TD>  4780</TD>
-<TD> 0.015946 </TD>
-<TD>    </TD>
-<TD><![CDATA[15.01]]></TD>
-<TD></TD>
-<TD>277</TD>
-<TD>7</TD>
-<TD>55</TD>
-<TD>10</TD>
-<TD>12</TD>
-<TD>7</TD>
-<TD>0</TD>
-</TR>
-<TR>
-<TD>3</TD>
 <TD>NGC 0591</TD>
-<TD> 23.38028 </TD>
-<TD>  35.66824 </TD>
+<TD>01h33m31.2375s</TD>
+<TD>+35d40m05.650s</TD>
+<TD>23.3801563</TD>
+<TD>35.6682361</TD>
+<TD>0.0151738306905639</TD>
+<TD>4548.99999999999</TD>
+<TD>UUN</TD>
 <TD>G</TD>
-<TD>  4547</TD>
-<TD> 0.015167 </TD>
-<TD>    </TD>
-<TD><![CDATA[13.89]]></TD>
-<TD></TD>
-<TD>147</TD>
+<TD>IR,Radio,UV,X-ray</TD>
+<TD>219</TD>
 <TD>6</TD>
-<TD>54</TD>
-<TD>7</TD>
-<TD>10</TD>
+<TD>85</TD>
+<TD>31</TD>
+<TD>29</TD>
 <TD>7</TD>
 <TD>0</TD>
-</TR>
-<TR>
+<TD>9</TD>
+<TD>8</TD>
 <TD>4</TD>
-<TD>UGC 01214</TD>
-<TD> 25.99084 </TD>
-<TD>   2.34990 </TD>
-<TD>G</TD>
-<TD>  5150</TD>
-<TD> 0.017179 </TD>
-<TD>    </TD>
-<TD><![CDATA[13.68]]></TD>
-<TD></TD>
-<TD>336</TD>
-<TD>22</TD>
-<TD>160</TD>
-<TD>6</TD>
-<TD>10</TD>
-<TD>7</TD>
-<TD>0</TD>
 </TR>
 <TR>
-<TD>5</TD>
-<TD>2MASX J01500266-0725482</TD>
-<TD> 27.51124 </TD>
-<TD>  -7.43014 </TD>
-<TD>G</TD>
-<TD>  5296</TD>
-<TD> 0.017666 </TD>
-<TD>    </TD>
-<TD><![CDATA[15.5 ]]></TD>
-<TD></TD>
-<TD>107</TD>
 <TD>3</TD>
-<TD>77</TD>
-<TD>5</TD>
-<TD>2</TD>
-<TD>2</TD>
-<TD>0</TD>
-</TR>
-<TR>
-<TD>6</TD>
-<TD>MESSIER 077</TD>
-<TD> 40.66963 </TD>
-<TD>  -0.01328 </TD>
+<TD>UGC 01214</TD>
+<TD>01h43m57.7816s</TD>
+<TD>+02d20m59.485s</TD>
+<TD>25.990757</TD>
+<TD>2.349857</TD>
+<TD>0.017212</TD>
+<TD>5160.027787096</TD>
+<TD>S1L</TD>
 <TD>G</TD>
-<TD>  1137</TD>
-<TD> 0.003793 </TD>
-<TD>    </TD>
-<TD><![CDATA[ 9.61]]></TD>
-<TD></TD>
-<TD>1911</TD>
-<TD>54</TD>
-<TD>433</TD>
-<TD>10</TD>
-<TD>22</TD>
-<TD>8</TD>
+<TD>IR,Radio,UV,X-ray</TD>
+<TD>478</TD>
+<TD>23</TD>
+<TD>219</TD>
+<TD>42</TD>
+<TD>46</TD>
+<TD>12</TD>
 <TD>0</TD>
+<TD>6</TD>
+<TD>13</TD>
+<TD>4</TD>
 </TR>
 <TR>
-<TD>7</TD>
+<TD>4</TD>
 <TD>MRK 0599</TD>
-<TD> 41.94759 </TD>
-<TD>   3.16518 </TD>
+<TD>02h47m47.4056s</TD>
+<TD>+03d09m54.341s</TD>
+<TD>41.9475235</TD>
+<TD>3.1650949</TD>
+<TD>0.022636</TD>
+<TD>6786.102079288</TD>
+<TD>SUN</TD>
 <TD>G</TD>
-<TD>  6786</TD>
-<TD> 0.022636 </TD>
-<TD>    </TD>
-<TD><![CDATA[15.13]]></TD>
-<TD></TD>
-<TD>23</TD>
+<TD>IR,Radio</TD>
+<TD>39</TD>
 <TD>0</TD>
-<TD>20</TD>
+<TD>39</TD>
+<TD>11</TD>
+<TD>10</TD>
+<TD>6</TD>
+<TD>0</TD>
+<TD>3</TD>
+<TD>2</TD>
+<TD>1</TD>
+</TR>
+<TR>
 <TD>5</TD>
-<TD>5</TD>
+<TD>MRK 1058</TD>
+<TD>02h49m51.8307s</TD>
+<TD>+34d59m16.927s</TD>
+<TD>42.4659616</TD>
+<TD>34.9880353</TD>
+<TD>0.017139</TD>
+<TD>5138.142937662</TD>
+<TD>SUN</TD>
+<TD>G</TD>
+<TD>IR,Radio,UV</TD>
+<TD>97</TD>
+<TD>1</TD>
+<TD>45</TD>
+<TD>18</TD>
+<TD>16</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>3</TD>
 <TD>6</TD>
 <TD>0</TD>
 </TR>
 <TR>
-<TD>8</TD>
-<TD>MRK 1058</TD>
-<TD> 42.46596 </TD>
-<TD>  34.98799 </TD>
-<TD>G</TD>
-<TD>  5138</TD>
-<TD> 0.017139 </TD>
-<TD>    </TD>
-<TD><![CDATA[15.38]]></TD>
-<TD></TD>
-<TD>65</TD>
-<TD>1</TD>
-<TD>23</TD>
-<TD>8</TD>
-<TD>7</TD>
-<TD>4</TD>
-<TD>0</TD>
-</TR>
-<TR>
-<TD>9</TD>
+<TD>6</TD>
 <TD>UGC 02456</TD>
-<TD> 44.99413 </TD>
-<TD>  36.82063 </TD>
+<TD>02h59m58.5910s</TD>
+<TD>+36d49m13.794s</TD>
+<TD>44.9941293</TD>
+<TD>36.8204985</TD>
+<TD>0.0123118507537638</TD>
+<TD>3691</TD>
+<TD>SLS</TD>
 <TD>G</TD>
-<TD>  3605</TD>
-<TD> 0.012025 </TD>
-<TD>    </TD>
-<TD><![CDATA[13.64]]></TD>
-<TD></TD>
-<TD>240</TD>
+<TD>IR,Radio,UV,X-ray</TD>
+<TD>355</TD>
 <TD>14</TD>
-<TD>132</TD>
-<TD>9</TD>
+<TD>216</TD>
+<TD>51</TD>
+<TD>46</TD>
 <TD>11</TD>
-<TD>7</TD>
-<TD>0</TD>
-</TR>
-<TR>
-<TD>10</TD>
-<TD>UGC 02608</TD>
-<TD> 48.75594 </TD>
-<TD>  42.03594 </TD>
-<TD>G</TD>
-<TD>  6998</TD>
-<TD> 0.023343 </TD>
-<TD>    </TD>
-<TD><![CDATA[13.7 ]]></TD>
-<TD></TD>
-<TD>171</TD>
-<TD>7</TD>
-<TD>55</TD>
-<TD>10</TD>
-<TD>11</TD>
-<TD>7</TD>
-<TD>0</TD>
-</TR>
-<TR>
-<TD>11</TD>
-<TD>UGC 02821</TD>
-<TD> 55.29428 </TD>
-<TD>  -1.30077 </TD>
-<TD>GPair</TD>
-<TD>  7507</TD>
-<TD> 0.025041 </TD>
-<TD>    </TD>
-<TD><![CDATA[14.7 ]]></TD>
-<TD></TD>
-<TD>58</TD>
-<TD>2</TD>
+<TD>1</TD>
 <TD>8</TD>
+<TD>6</TD>
+<TD>16</TD>
+</TR>
+<TR>
+<TD>7</TD>
+<TD>UGC 02608</TD>
+<TD>03h15m01.4320s</TD>
+<TD>+42d02m08.863s</TD>
+<TD>48.7559668</TD>
+<TD>42.0357953</TD>
+<TD>0.023343</TD>
+<TD>6998.055347094</TD>
+<TD>SUN</TD>
+<TD>G</TD>
+<TD>IR,Radio,UV,Vis</TD>
+<TD>245</TD>
+<TD>7</TD>
+<TD>133</TD>
+<TD>50</TD>
+<TD>38</TD>
+<TD>7</TD>
+<TD>0</TD>
+<TD>15</TD>
+<TD>6</TD>
+<TD>17</TD>
+</TR>
+<TR>
+<TD>8</TD>
+<TD>UGC 03426</TD>
+<TD>06h15m36.3556s</TD>
+<TD>+71d02m14.936s</TD>
+<TD>93.901482</TD>
+<TD>71.0374823</TD>
+<TD>0.013509</TD>
+<TD>4049.896315122</TD>
+<TD>SUN</TD>
+<TD>G</TD>
+<TD>Gamma,IR,Radio,UV,X-ray</TD>
+<TD>782</TD>
+<TD>18</TD>
+<TD>278</TD>
+<TD>88</TD>
+<TD>100</TD>
+<TD>12</TD>
+<TD>2</TD>
+<TD>15</TD>
+<TD>28</TD>
+<TD>26</TD>
+</TR>
+<TR>
+<TD>9</TD>
+<TD>Mrk 0078</TD>
+<TD>07h42m41.7026s</TD>
+<TD>+65d10m37.550s</TD>
+<TD>115.6737612</TD>
+<TD>65.1770973</TD>
+<TD>0.0379829435202136</TD>
+<TD>11387</TD>
+<TD>SLS</TD>
+<TD>G</TD>
+<TD>IR,Radio,UV,X-ray</TD>
+<TD>337</TD>
+<TD>7</TD>
+<TD>89</TD>
+<TD>34</TD>
+<TD>51</TD>
 <TD>4</TD>
 <TD>0</TD>
-<TD>1</TD>
+<TD>3</TD>
+<TD>11</TD>
 <TD>0</TD>
 </TR>
 <TR>
-<TD>12</TD>
-<TD>UGC 03426</TD>
-<TD> 93.90152 </TD>
-<TD>  71.03753 </TD>
+<TD>10</TD>
+<TD>UGC 05165 NOTES03</TD>
+<TD>09h40m44.5080s</TD>
+<TD>+21d14m03.372s</TD>
+<TD>145.18545</TD>
+<TD>21.23427</TD>
+<TD>0.024400158</TD>
+<TD>7314.98334240836</TD>
+<TD>SLS</TD>
 <TD>G</TD>
-<TD>  4050</TD>
-<TD> 0.013509 </TD>
-<TD>    </TD>
-<TD><![CDATA[14.03]]></TD>
-<TD></TD>
-<TD>541</TD>
-<TD>18</TD>
-<TD>151</TD>
-<TD>8</TD>
-<TD>12</TD>
-<TD>7</TD>
+<TD>IR,UV,Vis</TD>
+<TD>97</TD>
+<TD>2</TD>
+<TD>52</TD>
+<TD>16</TD>
+<TD>20</TD>
+<TD>6</TD>
 <TD>0</TD>
+<TD>2</TD>
+<TD>4</TD>
+<TD>3</TD>
+</TR>
+<TR>
+<TD>11</TD>
+<TD>Mrk 0034</TD>
+<TD>10h34m08.5440s</TD>
+<TD>+60d01m49.800s</TD>
+<TD>158.5356</TD>
+<TD>60.0305</TD>
+<TD>0.050952584</TD>
+<TD>15275.2003988115</TD>
+<TD>SLS</TD>
+<TD>G</TD>
+<TD>IR,Radio,UV,Vis,X-ray</TD>
+<TD>285</TD>
+<TD>4</TD>
+<TD>97</TD>
+<TD>45</TD>
+<TD>47</TD>
+<TD>12</TD>
+<TD>0</TD>
+<TD>4</TD>
+<TD>6</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>12</TD>
+<TD>SBS 1125+581</TD>
+<TD>11h28m41.0039s</TD>
+<TD>+57d50m06.496s</TD>
+<TD>172.1708497</TD>
+<TD>57.835138</TD>
+<TD>0.051266212</TD>
+<TD>15369.2237078291</TD>
+<TD>SLS</TD>
+<TD>G</TD>
+<TD>IR,Radio,UV,Vis,X-ray</TD>
+<TD>75</TD>
+<TD>1</TD>
+<TD>76</TD>
+<TD>29</TD>
+<TD>19</TD>
+<TD>12</TD>
+<TD>0</TD>
+<TD>3</TD>
+<TD>2</TD>
+<TD>1</TD>
 </TR>
 <TR>
 <TD>13</TD>
-<TD>MRK 0078</TD>
-<TD>115.67388 </TD>
-<TD>  65.17707 </TD>
+<TD>SBS 1133+572</TD>
+<TD>11h35m49.0927s</TD>
+<TD>+56d57m08.369s</TD>
+<TD>173.9545529</TD>
+<TD>56.9523249</TD>
+<TD>0.05140738</TD>
+<TD>15411.54480954</TD>
+<TD>SLS</TD>
 <TD>G</TD>
-<TD> 11137</TD>
-<TD> 0.037150 </TD>
-<TD>    </TD>
-<TD><![CDATA[15.0 ]]></TD>
-<TD></TD>
-<TD>236</TD>
-<TD>7</TD>
-<TD>50</TD>
-<TD>4</TD>
-<TD>7</TD>
-<TD>4</TD>
+<TD>IR,Radio,UV,Vis,X-ray</TD>
+<TD>119</TD>
+<TD>1</TD>
+<TD>94</TD>
+<TD>40</TD>
+<TD>35</TD>
+<TD>12</TD>
 <TD>0</TD>
+<TD>3</TD>
+<TD>2</TD>
+<TD>1</TD>
 </TR>
 <TR>
 <TD>14</TD>
-<TD>UGC 05165 NOTES03</TD>
-<TD>145.18548 </TD>
-<TD>  21.23436 </TD>
+<TD>Mrk 1457</TD>
+<TD>11h47m21.6208s</TD>
+<TD>+52d26m58.567s</TD>
+<TD>176.840087</TD>
+<TD>52.4496021</TD>
+<TD>0.048669353</TD>
+<TD>14590.7049651397</TD>
+<TD>SLS</TD>
 <TD>G</TD>
-<TD>  7322</TD>
-<TD> 0.024423 </TD>
-<TD>    </TD>
-<TD><![CDATA[15.2g]]></TD>
-<TD></TD>
-<TD>59</TD>
-<TD>2</TD>
-<TD>28</TD>
-<TD>4</TD>
+<TD>IR,Radio,UV,Vis</TD>
+<TD>109</TD>
+<TD>1</TD>
+<TD>85</TD>
+<TD>35</TD>
+<TD>27</TD>
 <TD>12</TD>
-<TD>6</TD>
 <TD>0</TD>
+<TD>3</TD>
+<TD>2</TD>
+<TD>1</TD>
 </TR>
 <TR>
 <TD>15</TD>
-<TD>MRK 0034</TD>
-<TD>158.53580 </TD>
-<TD>  60.03111 </TD>
+<TD>Mrk 0198</TD>
+<TD>12h09m14.1153s</TD>
+<TD>+47d03m30.106s</TD>
+<TD>182.3088139</TD>
+<TD>47.0583628</TD>
+<TD>0.02427534</TD>
+<TD>7277.56384738572</TD>
+<TD>SLS</TD>
 <TD>G</TD>
-<TD> 15140</TD>
-<TD> 0.050500 </TD>
-<TD>    </TD>
-<TD><![CDATA[14.9g]]></TD>
-<TD></TD>
-<TD>171</TD>
-<TD>4</TD>
-<TD>69</TD>
-<TD>5</TD>
-<TD>6</TD>
-<TD>12</TD>
+<TD>IR,Radio,UV,Vis,X-ray</TD>
+<TD>207</TD>
+<TD>1</TD>
+<TD>112</TD>
+<TD>50</TD>
+<TD>49</TD>
+<TD>14</TD>
 <TD>0</TD>
+<TD>6</TD>
+<TD>9</TD>
+<TD>1</TD>
 </TR>
 <TR>
 <TD>16</TD>
-<TD>SBS 1125+581</TD>
-<TD>172.17083 </TD>
-<TD>  57.83514 </TD>
+<TD>RFC J1210+3924</TD>
+<TD>12h10m32.5812s</TD>
+<TD>+39d24m21.056s</TD>
+<TD>182.635755</TD>
+<TD>39.405849</TD>
+<TD>0.00332563402912558</TD>
+<TD>997.000000000001</TD>
+<TD>UUN</TD>
 <TD>G</TD>
-<TD> 15289</TD>
-<TD> 0.050999 </TD>
-<TD>    </TD>
-<TD><![CDATA[15.1g]]></TD>
-<TD></TD>
-<TD>26</TD>
-<TD>1</TD>
+<TD>Gamma,IR,Radio,Vis,X-ray</TD>
+<TD>2727</TD>
 <TD>51</TD>
-<TD>6</TD>
-<TD>3</TD>
-<TD>12</TD>
-<TD>0</TD>
+<TD>558</TD>
+<TD>136</TD>
+<TD>212</TD>
+<TD>18</TD>
+<TD>15</TD>
+<TD>63</TD>
+<TD>98</TD>
+<TD>28</TD>
 </TR>
 <TR>
 <TD>17</TD>
-<TD>UGC 06527</TD>
-<TD>173.15667 </TD>
-<TD>  52.94806 </TD>
-<TD>GTrpl</TD>
-<TD>  8208</TD>
-<TD> 0.027379 </TD>
-<TD>    </TD>
-<TD><![CDATA[14.7 ]]></TD>
-<TD></TD>
-<TD>180</TD>
-<TD>8</TD>
-<TD>37</TD>
-<TD>4</TD>
-<TD>20</TD>
-<TD>3</TD>
-<TD>0</TD>
+<TD>NGC 4388</TD>
+<TD>12h25m46.7813s</TD>
+<TD>+12d39m43.761s</TD>
+<TD>186.444922333333</TD>
+<TD>12.6621558611111</TD>
+<TD>0.008419</TD>
+<TD>2523.952703902</TD>
+<TD>SUN</TD>
+<TD>G</TD>
+<TD>Gamma,IR,Radio,UV,Vis,X-ray</TD>
+<TD>1241</TD>
+<TD>29</TD>
+<TD>382</TD>
+<TD>167</TD>
+<TD>162</TD>
+<TD>16</TD>
+<TD>28</TD>
+<TD>52</TD>
+<TD>76</TD>
+<TD>28</TD>
 </TR>
 <TR>
 <TD>18</TD>
-<TD>SBS 1133+572</TD>
-<TD>173.95448 </TD>
-<TD>  56.95229 </TD>
-<TD>G</TD>
-<TD> 15199</TD>
-<TD> 0.050698 </TD>
-<TD>    </TD>
-<TD><![CDATA[15.5g]]></TD>
-<TD></TD>
-<TD>38</TD>
-<TD>1</TD>
-<TD>54</TD>
-<TD>5</TD>
-<TD>2</TD>
-<TD>12</TD>
+<TD>NGC 5256</TD>
+<TD>13h38m17.7900s</TD>
+<TD>+48d16m35.100s</TD>
+<TD>204.574125</TD>
+<TD>48.27641666667</TD>
+<TD>0.027863</TD>
+<TD>8353.117257254</TD>
+<TD>SUN</TD>
+<TD>GPair</TD>
+<TD>IR,Radio,UV,X-ray</TD>
+<TD>397</TD>
+<TD>15</TD>
+<TD>235</TD>
+<TD>51</TD>
+<TD>47</TD>
+<TD>9</TD>
 <TD>0</TD>
+<TD>8</TD>
+<TD>35</TD>
+<TD>3</TD>
 </TR>
 <TR>
 <TD>19</TD>
-<TD>MRK 1457</TD>
-<TD>176.84005 </TD>
-<TD>  52.44958 </TD>
+<TD>Mrk 0268</TD>
+<TD>13h41m11.1434s</TD>
+<TD>+30d22m41.268s</TD>
+<TD>205.296431</TD>
+<TD>30.37813</TD>
+<TD>0.040354285</TD>
+<TD>12097.9102909825</TD>
+<TD>SLS</TD>
 <TD>G</TD>
-<TD> 14562</TD>
-<TD> 0.048572 </TD>
-<TD>    </TD>
-<TD><![CDATA[15.4g]]></TD>
-<TD></TD>
-<TD>47</TD>
-<TD>1</TD>
-<TD>58</TD>
-<TD>8</TD>
-<TD>5</TD>
-<TD>12</TD>
+<TD>Gamma,IR,Radio,UV,Vis,X-ray</TD>
+<TD>256</TD>
 <TD>0</TD>
+<TD>114</TD>
+<TD>55</TD>
+<TD>55</TD>
+<TD>6</TD>
+<TD>1</TD>
+<TD>5</TD>
+<TD>4</TD>
+<TD>1</TD>
 </TR>
 <TR>
 <TD>20</TD>
-<TD>MRK 0198</TD>
-<TD>182.30880 </TD>
-<TD>  47.05837 </TD>
+<TD>NGC 5283</TD>
+<TD>13h41m05.7549s</TD>
+<TD>+67d40m20.014s</TD>
+<TD>205.2739789</TD>
+<TD>67.6722261</TD>
+<TD>0.0106240164320611</TD>
+<TD>3184.99999999999</TD>
+<TD>SLS</TD>
 <TD>G</TD>
-<TD>  7261</TD>
-<TD> 0.024220 </TD>
-<TD>    </TD>
-<TD><![CDATA[14.6g]]></TD>
-<TD></TD>
-<TD>115</TD>
+<TD>IR,Radio,X-ray</TD>
+<TD>327</TD>
+<TD>10</TD>
+<TD>108</TD>
+<TD>43</TD>
+<TD>44</TD>
+<TD>10</TD>
+<TD>6</TD>
+<TD>10</TD>
+<TD>8</TD>
 <TD>1</TD>
-<TD>64</TD>
-<TD>9</TD>
-<TD>9</TD>
-<TD>14</TD>
-<TD>0</TD>
 </TR>
 <TR>
 <TD>21</TD>
-<TD>NGC 4151</TD>
-<TD>182.63574 </TD>
-<TD>  39.40573 </TD>
+<TD>UGC 08696</TD>
+<TD>13h44m42.1110s</TD>
+<TD>+55d53m12.651s</TD>
+<TD>206.17546255317</TD>
+<TD>55.88684749999</TD>
+<TD>0.03733982</TD>
+<TD>11194.1964190776</TD>
+<TD>SLS</TD>
 <TD>G</TD>
-<TD>   995</TD>
-<TD> 0.003319 </TD>
-<TD>    </TD>
-<TD><![CDATA[11.5 ]]></TD>
-<TD></TD>
-<TD>1909</TD>
-<TD>48</TD>
-<TD>415</TD>
-<TD>12</TD>
+<TD>IR,Radio,UV,Vis,X-ray</TD>
+<TD>850</TD>
 <TD>27</TD>
+<TD>353</TD>
+<TD>126</TD>
+<TD>132</TD>
+<TD>15</TD>
+<TD>0</TD>
 <TD>12</TD>
-<TD>2</TD>
+<TD>45</TD>
+<TD>24</TD>
 </TR>
 <TR>
 <TD>22</TD>
-<TD>NGC 4388</TD>
-<TD>186.44478 </TD>
-<TD>  12.66209 </TD>
+<TD>RFC J1413-0312</TD>
+<TD>14h13m14.8756s</TD>
+<TD>-03d12m27.698s</TD>
+<TD>213.311982</TD>
+<TD>-3.207694</TD>
+<TD>0.006084</TD>
+<TD>1823.937314472</TD>
+<TD>S1L</TD>
 <TD>G</TD>
-<TD>  2524</TD>
-<TD> 0.008419 </TD>
-<TD>    </TD>
-<TD><![CDATA[12.1g]]></TD>
-<TD></TD>
-<TD>719</TD>
+<TD>Gamma,IR,Radio,UV,Vis,X-ray</TD>
+<TD>1063</TD>
+<TD>31</TD>
+<TD>417</TD>
+<TD>144</TD>
+<TD>178</TD>
+<TD>17</TD>
+<TD>7</TD>
+<TD>19</TD>
+<TD>48</TD>
 <TD>26</TD>
-<TD>233</TD>
-<TD>10</TD>
-<TD>12</TD>
-<TD>12</TD>
-<TD>0</TD>
 </TR>
 <TR>
 <TD>23</TD>
-<TD>NGC 5256</TD>
-<TD>204.57292 </TD>
-<TD>  48.27694 </TD>
-<TD>GPair</TD>
-<TD>  8353</TD>
-<TD> 0.027863 </TD>
-<TD>    </TD>
-<TD><![CDATA[14.00]]></TD>
-<TD></TD>
-<TD>270</TD>
-<TD>15</TD>
-<TD>159</TD>
-<TD>9</TD>
-<TD>17</TD>
-<TD>9</TD>
-<TD>3</TD>
+<TD>NGC 5643</TD>
+<TD>14h32m40.7105s</TD>
+<TD>-44d10m27.945s</TD>
+<TD>218.1696274</TD>
+<TD>-44.1744293</TD>
+<TD>0.00399943350142584</TD>
+<TD>1199</TD>
+<TD>UUN</TD>
+<TD>G</TD>
+<TD>Gamma,IR,Radio,X-ray</TD>
+<TD>615</TD>
+<TD>21</TD>
+<TD>174</TD>
+<TD>65</TD>
+<TD>87</TD>
+<TD>18</TD>
+<TD>8</TD>
+<TD>27</TD>
+<TD>23</TD>
+<TD>6</TD>
 </TR>
 <TR>
 <TD>24</TD>
-<TD>NGC 5283</TD>
-<TD>205.27399 </TD>
-<TD>  67.67231 </TD>
-<TD>G</TD>
-<TD>  3119</TD>
-<TD> 0.010404 </TD>
-<TD>    </TD>
-<TD><![CDATA[14.20]]></TD>
-<TD></TD>
-<TD>230</TD>
+<TD>SBS 1439+537</TD>
+<TD>14h40m40.1371s</TD>
+<TD>+53d30m34.167s</TD>
+<TD>220.167237916667</TD>
+<TD>53.5094908333333</TD>
+<TD>0.037956</TD>
+<TD>11378.922535848</TD>
+<TD>SUN</TD>
+<TD>GPair</TD>
+<TD>IR,Radio,X-ray</TD>
+<TD>169</TD>
 <TD>10</TD>
-<TD>46</TD>
+<TD>19</TD>
 <TD>5</TD>
-<TD>6</TD>
-<TD>7</TD>
+<TD>8</TD>
+<TD>2</TD>
 <TD>0</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
 </TR>
 <TR>
 <TD>25</TD>
-<TD>MRK 0268</TD>
-<TD>205.29641 </TD>
-<TD>  30.37812 </TD>
+<TD>Mrk 1388</TD>
+<TD>14h50m37.8476s</TD>
+<TD>+22d44m03.612s</TD>
+<TD>222.6576986</TD>
+<TD>22.7343367</TD>
+<TD>0.020954484</TD>
+<TD>6281.99626448167</TD>
+<TD>SLS</TD>
 <TD>G</TD>
-<TD> 11950</TD>
-<TD> 0.039861 </TD>
-<TD>    </TD>
-<TD><![CDATA[14.7g]]></TD>
-<TD></TD>
-<TD>150</TD>
-<TD>0</TD>
-<TD>49</TD>
-<TD>8</TD>
-<TD>9</TD>
+<TD>IR,Radio,UV,Vis</TD>
+<TD>112</TD>
+<TD>3</TD>
+<TD>63</TD>
+<TD>23</TD>
+<TD>21</TD>
 <TD>6</TD>
 <TD>0</TD>
+<TD>2</TD>
+<TD>2</TD>
+<TD>1</TD>
 </TR>
 <TR>
 <TD>26</TD>
-<TD>MRK 0273</TD>
-<TD>206.17546 </TD>
-<TD>  55.88685 </TD>
+<TD>UGC 12149</TD>
+<TD>22h41m07.5927s</TD>
+<TD>+32d10m11.183s</TD>
+<TD>340.2816366</TD>
+<TD>32.1697731</TD>
+<TD>0.024564</TD>
+<TD>7364.101938312</TD>
+<TD>S1L</TD>
 <TD>G</TD>
-<TD> 11326</TD>
-<TD> 0.037780 </TD>
-<TD>    </TD>
-<TD><![CDATA[14.8g]]></TD>
-<TD></TD>
-<TD>537</TD>
-<TD>25</TD>
-<TD>200</TD>
+<TD>IR,Radio,UV</TD>
+<TD>129</TD>
+<TD>1</TD>
+<TD>62</TD>
+<TD>20</TD>
+<TD>18</TD>
 <TD>8</TD>
-<TD>10</TD>
-<TD>11</TD>
 <TD>0</TD>
+<TD>9</TD>
+<TD>3</TD>
+<TD>3</TD>
 </TR>
 <TR>
 <TD>27</TD>
-<TD>MRK 0463W</TD>
-<TD>209.01087 </TD>
-<TD>  18.37164 </TD>
+<TD>MRK 0522</TD>
+<TD>23h00m19.0986s</TD>
+<TD>+16d22m58.195s</TD>
+<TD>345.0795778</TD>
+<TD>16.3828321</TD>
+<TD>0.032149</TD>
+<TD>9638.027732242</TD>
+<TD>SUN</TD>
 <TD>G</TD>
-<TD> 15289</TD>
-<TD> 0.051000 </TD>
-<TD>    </TD>
-<TD><![CDATA[17.75]]></TD>
-<TD></TD>
-<TD>16</TD>
-<TD>1</TD>
-<TD>3</TD>
-<TD>0</TD>
-<TD>0</TD>
+<TD>IR,UV</TD>
+<TD>40</TD>
+<TD>2</TD>
+<TD>32</TD>
+<TD>7</TD>
+<TD>6</TD>
+<TD>4</TD>
 <TD>0</TD>
 <TD>1</TD>
+<TD>2</TD>
+<TD>0</TD>
 </TR>
 <TR>
 <TD>28</TD>
-<TD>MRK 0463E</TD>
-<TD>209.01203 </TD>
-<TD>  18.37196 </TD>
+<TD>SN 2011ee HOST</TD>
+<TD>23h27m56.7030s</TD>
+<TD>+08d46m44.279s</TD>
+<TD>351.9862628</TD>
+<TD>8.7789664</TD>
+<TD>0.02903</TD>
+<TD>8702.97505574</TD>
+<TD>S1L</TD>
 <TD>G</TD>
-<TD> 14990</TD>
-<TD> 0.050000 </TD>
-<TD>    </TD>
-<TD><![CDATA[17.25]]></TD>
-<TD></TD>
-<TD>86</TD>
-<TD>6</TD>
-<TD>31</TD>
-<TD>0</TD>
-<TD>0</TD>
-<TD>2</TD>
-<TD>2</TD>
+<TD>IR,Radio,UV,X-ray</TD>
+<TD>711</TD>
+<TD>16</TD>
+<TD>306</TD>
+<TD>91</TD>
+<TD>104</TD>
+<TD>8</TD>
+<TD>4</TD>
+<TD>19</TD>
+<TD>56</TD>
+<TD>20</TD>
 </TR>
 <TR>
 <TD>29</TD>
-<TD>NGC 5506</TD>
-<TD>213.31205 </TD>
-<TD>  -3.20758 </TD>
-<TD>G</TD>
-<TD>  1853</TD>
-<TD> 0.006181 </TD>
-<TD>    </TD>
-<TD><![CDATA[12.8g]]></TD>
-<TD></TD>
-<TD>666</TD>
-<TD>26</TD>
-<TD>286</TD>
-<TD>11</TD>
-<TD>22</TD>
-<TD>14</TD>
+<TD>UGC 02821</TD>
+<TD>03h41m10.5381s</TD>
+<TD>-01d18m02.571s</TD>
+<TD>55.29390905277</TD>
+<TD>-1.30071415647</TD>
+<TD>0.0250410009</TD>
+<TD>7507.10321059121</TD>
+<TD>SUN</TD>
+<TD>GPair</TD>
+<TD>IR</TD>
+<TD>66</TD>
+<TD>2</TD>
+<TD>8</TD>
+<TD>5</TD>
+<TD>1</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>3</TD>
+<TD>2</TD>
 <TD>0</TD>
 </TR>
 <TR>
 <TD>30</TD>
-<TD>NGC 5643</TD>
-<TD>218.16977 </TD>
-<TD> -44.17441 </TD>
-<TD>G</TD>
-<TD>  1199</TD>
-<TD> 0.003999 </TD>
-<TD>    </TD>
-<TD><![CDATA[10.74]]></TD>
-<TD></TD>
-<TD>288</TD>
-<TD>21</TD>
-<TD>113</TD>
-<TD>6</TD>
-<TD>13</TD>
+<TD>UGC 06527</TD>
+<TD>11h32m40.0579s</TD>
+<TD>+52d57m01.886s</TD>
+<TD>173.16690816741</TD>
+<TD>52.95052404075</TD>
+<TD>0.027379</TD>
+<TD>8208.017707582</TD>
+<TD>SUN</TD>
+<TD>GTrpl</TD>
+<TD>IR,UV,X-ray</TD>
+<TD>208</TD>
+<TD>9</TD>
+<TD>37</TD>
+<TD>7</TD>
+<TD>25</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>5</TD>
 <TD>18</TD>
 <TD>0</TD>
 </TR>
 <TR>
 <TD>31</TD>
-<TD>SBS 1439+537</TD>
-<TD>220.16720 </TD>
-<TD>  53.50948 </TD>
-<TD>GPair</TD>
-<TD> 11332</TD>
-<TD> 0.037800 </TD>
-<TD>    </TD>
-<TD><![CDATA[15.40]]></TD>
-<TD></TD>
-<TD>148</TD>
-<TD>10</TD>
-<TD>18</TD>
-<TD>3</TD>
-<TD>1</TD>
-<TD>2</TD>
-<TD>3</TD>
+<TD>NGC 0449</TD>
+<TD>01h16m07.2000s</TD>
+<TD>+33d05m21.750s</TD>
+<TD>19.03</TD>
+<TD>33.089375</TD>
+<TD>0.0159460008</TD>
+<TD>4780.49077510197</TD>
+<TD>SUN</TD>
+<TD>G</TD>
+<TD>IR,Radio,UV,X-ray</TD>
+<TD>343</TD>
+<TD>7</TD>
+<TD>60</TD>
+<TD>31</TD>
+<TD>28</TD>
+<TD>7</TD>
+<TD>0</TD>
+<TD>11</TD>
+<TD>6</TD>
+<TD>5</TD>
 </TR>
 <TR>
 <TD>32</TD>
-<TD>MRK 1388</TD>
-<TD>222.65772 </TD>
-<TD>  22.73434 </TD>
+<TD>Messier 077</TD>
+<TD>02h42m40.7040s</TD>
+<TD>-00d00m47.831s</TD>
+<TD>40.6696</TD>
+<TD>-0.0132865</TD>
+<TD>0.003793</TD>
+<TD>1137.112793194</TD>
+<TD>SUN</TD>
 <TD>G</TD>
-<TD>  6386</TD>
-<TD> 0.021300 </TD>
-<TD>    </TD>
-<TD><![CDATA[15.3g]]></TD>
-<TD></TD>
-<TD>59</TD>
-<TD>3</TD>
-<TD>33</TD>
-<TD>5</TD>
-<TD>6</TD>
-<TD>6</TD>
-<TD>0</TD>
+<TD>Gamma,IR,Radio,Vis,X-ray</TD>
+<TD>2942</TD>
+<TD>61</TD>
+<TD>612</TD>
+<TD>177</TD>
+<TD>187</TD>
+<TD>14</TD>
+<TD>11</TD>
+<TD>70</TD>
+<TD>118</TD>
+<TD>37</TD>
 </TR>
 <TR>
 <TD>33</TD>
-<TD>2MASX J20232535+1131352</TD>
-<TD>305.85577 </TD>
-<TD>  11.52631 </TD>
-<TD>GPair</TD>
-<TD> 16905</TD>
-<TD> 0.056389 </TD>
-<TD>    </TD>
-<TD><![CDATA[15.83]]></TD>
-<TD></TD>
-<TD>41</TD>
-<TD>6</TD>
-<TD>29</TD>
+<TD>ICRF J015002.6-072548</TD>
+<TD>01h50m02.6970s</TD>
+<TD>-07d25m48.488s</TD>
+<TD>27.5112375</TD>
+<TD>-7.4301355555</TD>
+<TD>0.0176660009</TD>
+<TD>5296.13383284121</TD>
+<TD>SUN</TD>
+<TD>G</TD>
+<TD>IR,Radio,UV,X-ray</TD>
+<TD>176</TD>
+<TD>5</TD>
+<TD>112</TD>
+<TD>44</TD>
+<TD>28</TD>
 <TD>2</TD>
 <TD>0</TD>
 <TD>2</TD>
-<TD>0</TD>
+<TD>11</TD>
+<TD>1</TD>
 </TR>
 <TR>
 <TD>34</TD>
-<TD>UGC 12149</TD>
-<TD>340.28163 </TD>
-<TD>  32.16985 </TD>
+<TD>WISEA J202325.39+113134.6</TD>
+<TD>20h23m25.3922s</TD>
+<TD>+11d31m34.669s</TD>
+<TD>305.8558009</TD>
+<TD>11.5262972</TD>
+<TD>0.0563890003</TD>
+<TD>16904.9970040997</TD>
+<TD>SUN</TD>
 <TD>G</TD>
-<TD>  7317</TD>
-<TD> 0.024407 </TD>
-<TD>    </TD>
-<TD><![CDATA[14.6 ]]></TD>
-<TD></TD>
-<TD>99</TD>
-<TD>1</TD>
-<TD>39</TD>
-<TD>7</TD>
+<TD>IR,Radio,Vis,X-ray</TD>
+<TD>63</TD>
+<TD>6</TD>
+<TD>47</TD>
 <TD>9</TD>
-<TD>8</TD>
+<TD>3</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>2</TD>
 <TD>0</TD>
 </TR>
 <TR>
 <TD>35</TD>
-<TD>MRK 0522</TD>
-<TD>345.07954 </TD>
-<TD>  16.38276 </TD>
+<TD>Mrk 0463E</TD>
+<TD>13h56m02.8881s</TD>
+<TD>+18d22m19.054s</TD>
+<TD>209.01203373318</TD>
+<TD>18.37195944157</TD>
+<TD>0.051</TD>
+<TD>15289.415358</TD>
+<TD>SUN</TD>
 <TD>G</TD>
-<TD>  9638</TD>
-<TD> 0.032149 </TD>
-<TD>    </TD>
-<TD><![CDATA[17.0 ]]></TD>
-<TD></TD>
-<TD>27</TD>
-<TD>2</TD>
+<TD>IR</TD>
+<TD>119</TD>
+<TD>6</TD>
+<TD>69</TD>
 <TD>14</TD>
-<TD>3</TD>
-<TD>4</TD>
-<TD>4</TD>
+<TD>14</TD>
+<TD>2</TD>
 <TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>21</TD>
 </TR>
 <TR>
 <TD>36</TD>
-<TD>NGC 7674</TD>
-<TD>351.98635 </TD>
-<TD>   8.77904 </TD>
+<TD>Mrk 0463W</TD>
+<TD>13h56m02.6145s</TD>
+<TD>+18d22m18.102s</TD>
+<TD>209.010894</TD>
+<TD>18.371695</TD>
+<TD>0.05059517</TD>
+<TD>15168.0503772279</TD>
+<TD>SLS</TD>
 <TD>G</TD>
-<TD>  8671</TD>
-<TD> 0.028924 </TD>
-<TD>    </TD>
-<TD><![CDATA[13.92]]></TD>
-<TD></TD>
-<TD>487</TD>
-<TD>16</TD>
-<TD>164</TD>
-<TD>11</TD>
-<TD>18</TD>
-<TD>8</TD>
+<TD>IR,Vis,X-ray</TD>
+<TD>52</TD>
+<TD>1</TD>
+<TD>36</TD>
+<TD>13</TD>
+<TD>6</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
 <TD>0</TD>
 </TR>
 </TABLEDATA>
@@ -766,4 +927,3 @@ href="http://ned.ipac.caltech.edu/cgi-bin/objsearch?search_type=Search&amp;refco
 </TABLE>
 </RESOURCE>
 </VOTABLE>
-
