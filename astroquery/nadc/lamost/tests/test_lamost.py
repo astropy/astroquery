@@ -1,17 +1,21 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import pytest
+import gzip
 import importlib
 import os
 import json
+import re
 import traceback
 from unittest.mock import Mock
-from urllib.parse import quote
+from urllib.parse import parse_qs, quote, urlsplit
 
 from astropy import units as u
+from astropy.coordinates import SkyCoord
+from astropy.io import fits
 from astropy.table import Table
 import numpy as np
-from requests import HTTPError, Request, TooManyRedirects
+from requests import HTTPError, Request, Response, TooManyRedirects
 
 from .. import conf
 from ..core import Lamost, LamostClass
@@ -84,6 +88,92 @@ class TestLamost:
         assert request.call_args.kwargs['timeout'] == 7
         assert request.call_args.kwargs['params']['token'] == 'configured-token'
 
+    @pytest.mark.parametrize('method, key, unit', [
+        ('query_region', 'sr', u.deg),
+        ('query_spectra', 'pos', u.arcsec),
+        ('query_stellar_parameters', 'pos', u.arcsec),
+        ('query_repeat_observations', 'radius', u.deg),
+    ])
+    @pytest.mark.parametrize('radius', ['5 arcsec', 5 * u.arcsec])
+    def test_radius_units(self, spectral_schema, method, key, unit, radius):
+        payload = getattr(Lamost, method)(
+            coordinates=SkyCoord(10, 40, unit='deg'),
+            radius=radius,
+            get_query_payload=True,
+        )
+        value = (np.rad2deg(float(re.search(r'VALUES \(0, 10.0, 40.0, ([^)]+)', payload['sql'])[1])) * 3600
+                 if key == 'pos' else payload[key])
+        assert value == pytest.approx((5 * u.arcsec).to_value(unit))
+
+    @pytest.mark.parametrize('method, key, value', [
+        ('query_region', 'sr', 0.25),
+        ('query_spectra', 'pos', 0.25),
+        ('query_stellar_parameters', 'pos', 0.25),
+        ('query_repeat_observations', 'radius', 0.25),
+    ])
+    def test_numeric_radius_uses_documented_unit(self, spectral_schema, method, key, value):
+        payload = getattr(Lamost, method)(
+            coordinates=SkyCoord(10, 40, unit='deg'), radius=value,
+            get_query_payload=True,
+        )
+        actual = (np.rad2deg(float(re.search(r'VALUES \(0, 10.0, 40.0, ([^)]+)', payload['sql'])[1])) * 3600
+                  if key == 'pos' else payload[key])
+        assert actual == pytest.approx(value)
+
+    @pytest.mark.parametrize('method', [
+        'query_region', 'query_spectra',
+        'query_stellar_parameters', 'query_repeat_observations',
+    ])
+    @pytest.mark.parametrize('radius', [
+        -1 * u.arcsec, np.nan * u.deg, np.inf * u.deg,
+        [1, 2] * u.arcsec, 'invalid angle', 5 * u.m,
+    ])
+    def test_invalid_radius_has_parameter_error(self, method, radius):
+        with pytest.raises(InvalidQueryError, match='radius'):
+            getattr(Lamost, method)(
+                coordinates=SkyCoord(10, 40, unit='deg'), radius=radius,
+                get_query_payload=True,
+            )
+
+    @pytest.mark.parametrize('resolution, path', [('low', 'lrs'), ('medium', 'mrs')])
+    def test_build_url(self, resolution, path):
+        assert LamostClass()._build_url('voservice/conesearch', resolution=resolution) == (
+            f'https://www.lamost.org/openapi/dr10/v2.0/{path}/voservice/conesearch'
+        )
+
+    def test_build_url_invalid_resolution(self):
+        """Invalid resolution values should fail instead of silently using LRS."""
+        lamost = LamostClass()
+        with pytest.raises(InvalidQueryError, match="resolution must be one of"):
+            lamost._build_url('voservice/conesearch', resolution='LOWRES')
+
+    def test_query_region_payload(self):
+        """Test cone search query payload construction"""
+        coord = SkyCoord(10.0, 40.0, unit='deg', frame='icrs')
+        payload = Lamost.query_region(
+            coord, radius=0.2*u.deg, get_query_payload=True
+        )
+
+        assert 'ra' in payload
+        assert 'dec' in payload
+        assert 'sr' in payload
+        assert payload['ra'] == 10.0
+        assert payload['dec'] == 40.0
+        assert payload['sr'] == 0.2
+        assert payload['output.fmt'] == 'csv'
+
+        # Test different output formats with new parameter name
+        for fmt in ['json', 'csv', 'votable']:
+            payload_new = Lamost.query_region(
+                coord, radius=0.2*u.deg, output_format=fmt, get_query_payload=True
+            )
+            assert payload_new['output.fmt'] == fmt
+
+    def test_query_region_invalid_output_format(self):
+        coord = SkyCoord(10.0, 40.0, unit='deg', frame='icrs')
+        with pytest.raises(InvalidQueryError, match="output_format must be one of"):
+            Lamost.query_region(coord, radius=0.2*u.deg, output_format='fits', get_query_payload=True)
+
     def test_query_sql_payload(self):
         """Test SQL query payload construction"""
         sql = 'SELECT * FROM combined LIMIT 10'
@@ -102,6 +192,334 @@ class TestLamost:
         with pytest.raises(InvalidQueryError, match="output_format must be one of"):
             Lamost.query_sql('SELECT 1', output_format='fits', get_query_payload=True)
 
+    @pytest.mark.parametrize('method, args', [
+        ('query_catalog', ('combined',)), ('query_spectra', ()), ('query_stellar_parameters', ()),
+    ])
+    def test_structured_query_row_limit(self, method, args):
+        query = getattr(LamostClass(), method)
+        assert query(*args, get_query_payload=True)['rows'] == 100
+        assert query(*args, max_rows=7, get_query_payload=True)['rows'] == 7
+
+    def test_query_catalog_payload_simple(self):
+        """Test catalog query payload construction"""
+        payload = Lamost.query_catalog(
+            'combined',
+            columns=['obsid', 'ra', 'dec'],
+            max_rows=10,
+            get_query_payload=True
+        )
+
+        assert 'rows' in payload
+        assert 'showcol' in payload
+        assert payload['rows'] == 10
+        assert payload['showcol'] == ['obsid', 'ra', 'dec']
+        assert payload['output.fmt'] == 'json'
+
+        # Test different output formats
+        for fmt in ['votable', 'csv', 'txt']:
+            payload_fmt = Lamost.query_catalog(
+                'combined',
+                columns=['obsid', 'ra', 'dec'],
+                max_rows=10,
+                output_format=fmt,
+                get_query_payload=True
+            )
+            assert payload_fmt['output.fmt'] == fmt
+
+    def test_query_catalog_payload_with_constraints(self):
+        """Test catalog query with column constraints"""
+        constraints = [
+            {'column_name': 'teff', 'min': 3500, 'max': 3700, 'operation': 'between'}
+        ]
+        payload = Lamost.query_catalog(
+            'combined',
+            column_constraints=constraints,
+            columns=['obsid', 'teff'],
+            max_rows=100,
+            get_query_payload=True
+        )
+
+        assert 'column_constraints' in payload
+        assert payload['column_constraints'] == constraints
+        assert 'showcol' in payload
+
+    @pytest.mark.parametrize('method', ['query_catalog', 'query_spectra', 'query_stellar_parameters'])
+    def test_query_catalog_all_matches_uses_sql(self, monkeypatch, spectral_schema, method):
+        request = Mock(return_value=create_mock_response(json_data=[]))
+        monkeypatch.setattr(LamostClass, '_request', request)
+        if method == 'query_catalog':
+            args = ('combined',)
+            kwargs = {'position_constraints': {'cone': {
+                'racenter': 10., 'deccenter': 40., 'radius': 5., 'cone_nearestonly': False,
+            }}}
+        else:
+            args = (SkyCoord(10, 40, unit='deg'), 5 * u.arcsec)
+            kwargs = {'nearest_only': False}
+        result = getattr(LamostClass(), method)(*args, columns=['obsid'], max_rows=5, **kwargs)
+        assert len(result) == 0
+        assert result['obsid'].dtype.kind == 'i'
+        sql = request.call_args.kwargs['params']['sql']
+        assert 'LIMIT 1' not in sql
+        assert sql.endswith('LIMIT 5 OFFSET 0')
+        assert request.call_args.args[1].endswith('/sql')
+
+    def test_query_catalog_payload_with_token_separates_body_and_params(self):
+        lamost = LamostClass(token='query-token')
+
+        payload = lamost.query_catalog(
+            'combined',
+            columns=['obsid'],
+            max_rows=1,
+            get_query_payload=True,
+        )
+
+        assert payload['json'] == {
+            'rows': 1,
+            'page': 1,
+            'output.fmt': 'json',
+            'order': 'asc',
+            'showcol': ['obsid'],
+        }
+        assert 'token' in payload['params']
+        assert 'query-token' not in repr(payload)
+
+    def test_query_spectra_builds_quality_payload(self, spectral_schema):
+        coord = SkyCoord(10.0, 40.0, unit='deg', frame='icrs')
+        payload = Lamost.query_spectra(
+            coord,
+            5 * u.arcsec,
+            snr_min=20,
+            teff_range=(4500, 6500),
+            logg_range=(3.5, 5.0),
+            feh_range=(-1.0, 0.5),
+            columns=['obsid', 'ra', 'dec', 'snrg', 'teff', 'logg', 'feh'],
+            nearest_only=True,
+            max_rows=25,
+            get_query_payload=True,
+        )
+
+        sql = payload['sql']
+        assert sql.endswith('LIMIT 25 OFFSET 0')
+        assert sql.index('t."snrg" >= 20') < sql.index('LIMIT 1')
+        assert 't."teff" >= 4500 AND t."teff" <= 6500' in sql
+        assert 't."logg" >= 3.5 AND t."logg" <= 5.0' in sql
+        assert 't."feh" >= -1.0 AND t."feh" <= 0.5' in sql
+        assert 'degrees(spos(' in sql
+
+    def test_query_stellar_parameters_uses_default_columns(self):
+        payload = Lamost.query_stellar_parameters(
+            teff_range=(4500, 6500),
+            snr_min=30,
+            get_query_payload=True,
+        )
+
+        assert payload['showcol'] == ['obsid', 'ra', 'dec', 'teff', 'logg', 'feh', 'snrg']
+        assert payload['column_constraints'] == [
+            {'column_name': 'snrg', 'operation': 'greaterequal', 'constraint': '30'},
+            {'column_name': 'teff', 'operation': 'between', 'min': 4500, 'max': 6500},
+        ]
+
+    def test_query_stellar_parameters_maps_medium_resolution_fields(self):
+        payload = Lamost.query_stellar_parameters(
+            resolution='medium',
+            teff_range=(4500, 6500),
+            logg_range=(3.0, 5.0),
+            feh_range=(-1.0, 0.5),
+            snr_min=30,
+            get_query_payload=True,
+        )
+
+        assert payload['showcol'] == [
+            'obsid', 'ra', 'dec', 'teff_lasp', 'logg_lasp', 'feh_lasp', 'snr',
+        ]
+        assert payload['column_constraints'] == [
+            {'column_name': 'snr', 'operation': 'greaterequal', 'constraint': '30'},
+            {'column_name': 'teff_lasp', 'operation': 'between', 'min': 4500, 'max': 6500},
+            {'column_name': 'logg_lasp', 'operation': 'between', 'min': 3.0, 'max': 5.0},
+            {'column_name': 'feh_lasp', 'operation': 'between', 'min': -1.0, 'max': 0.5},
+        ]
+
+    @pytest.mark.parametrize(
+        'query_kwargs, missing_column',
+        [
+            ({'columns': ['obsid', 'missing']}, 'missing'),
+            ({'column_constraints': [{'column_name': 'bad_filter'}]}, 'bad_filter'),
+            ({'sort_by': 'bad_sort'}, 'bad_sort'),
+        ],
+    )
+    def test_query_catalog_validates_schema_before_query(
+        self, monkeypatch, query_kwargs, missing_column
+    ):
+        metadata_response = create_mock_response(json_data={
+            'tables': {
+                'combined': {
+                    'columns': ['obsid', 'ra', 'dec', 'teff'],
+                },
+            },
+        })
+        requested_urls = []
+
+        def mock_request(self, method, url, **kwargs):
+            requested_urls.append(url)
+            return metadata_response
+
+        monkeypatch.setattr(LamostClass, '_request', mock_request)
+
+        with pytest.raises(InvalidQueryError, match=missing_column):
+            LamostClass().query_catalog('combined', **query_kwargs)
+
+        assert len(requested_urls) == 1
+        assert requested_urls[0].endswith('/tables')
+
+    def test_query_catalog_rejects_missing_returned_columns(self, monkeypatch):
+        metadata_response = create_mock_response(json_data={
+            'tables': {
+                'combined': {
+                    'columns': ['obsid', 'ra'],
+                },
+            },
+        })
+        result_response = create_mock_response(json_data=[{'obsid': '101001'}])
+
+        def mock_request(self, method, url, **kwargs):
+            if url.endswith('/tables'):
+                return metadata_response
+            return result_response
+
+        monkeypatch.setattr(LamostClass, '_request', mock_request)
+
+        with pytest.raises(TableParseError, match='omitted requested column.*ra'):
+            LamostClass().query_catalog(
+                'combined',
+                columns=['obsid', 'ra'],
+                max_rows=1,
+            )
+
+    def test_query_catalog_converts_values_from_live_schema(self, monkeypatch):
+        metadata_response = create_mock_response(json_data={
+            'tables': {
+                'combined': {
+                    'columns': [
+                        {'name': 'obsid', 'datatype': 'char'},
+                        {'name': 'ra', 'datatype': 'double', 'unit': 'deg'},
+                        {'name': 'teff', 'datatype': 'float', 'unit': 'K'},
+                    ],
+                },
+            },
+        })
+        result_response = create_mock_response(json_data=[{
+            'obsid': '00101001',
+            'ra': '10.25',
+            'teff': '5500.0',
+        }])
+
+        def mock_request(self, method, url, **kwargs):
+            if url.endswith('/tables'):
+                return metadata_response
+            return result_response
+
+        monkeypatch.setattr(LamostClass, '_request', mock_request)
+
+        table = LamostClass().query_catalog(
+            'combined',
+            columns=['obsid', 'ra', 'teff'],
+            max_rows=1,
+        )
+
+        assert table.colnames == ['obsid', 'ra', 'teff']
+        assert table['obsid'][0] == '00101001'
+        assert table['ra'].dtype.kind == 'f'
+        assert table['teff'].dtype.kind == 'f'
+        assert table['ra'].unit == u.deg
+        assert table['teff'].unit == u.K
+
+    def test_query_repeat_observations_payload_from_coordinates(self):
+        coord = SkyCoord(10.0, 40.0, unit='deg', frame='icrs')
+        payload = Lamost.query_repeat_observations(
+            coordinates=coord,
+            radius=3 * u.arcsec,
+            get_query_payload=True,
+        )
+
+        assert payload['ra'] == 10.0
+        assert payload['dec'] == 40.0
+        assert payload['radius'] == pytest.approx(3 / 3600)
+
+    def test_query_repeat_observations_rejects_ambiguous_target(self):
+        with pytest.raises(InvalidQueryError, match="either obsid or coordinates"):
+            Lamost.query_repeat_observations(
+                obsid='101001',
+                coordinates=SkyCoord(10.0, 40.0, unit='deg', frame='icrs'),
+                radius=1 * u.arcsec,
+            )
+
+    def test_get_metadata_payload(self):
+        """Test metadata query payload construction"""
+        payload = Lamost.get_metadata(
+            '101001',
+            resolution='low',
+            get_query_payload=True
+        )
+
+        assert 'obsid' in payload
+        assert payload['obsid'] == '101001'
+
+    def test_get_metadata_returns_json(self, patch_request, spectral_schema):
+        response = create_mock_response(
+            json_data=[{'obsid': '101001', 'ra': 10.0, 'dec': 40.0}]
+        )
+        patch_request(response)
+
+        lamost = LamostClass()
+        result = lamost.get_metadata('101001')
+
+        assert isinstance(result, Table)
+        assert result['obsid'][0] == 101001
+        assert result['ra'][0] == 10.0
+
+    @pytest.mark.parametrize('output_format', ['votable', 'json'])
+    def test_request_query_format(self, patch_request, mock_votable_response, mock_json_response,
+                                  output_format):
+        response = (create_mock_response(content=mock_votable_response, content_type='application/x-votable+xml')
+                    if output_format == 'votable' else create_mock_response(json_data=mock_json_response))
+        request = patch_request(response)
+        client = LamostClass(token='query-token')
+        result = client._request_query_region(
+            SkyCoord(10, 40, unit='deg'), radius=.2 * u.deg, output_format=output_format, cache=False,
+        )
+        assert result is response
+        request.assert_called_once_with(
+            'GET', 'https://www.lamost.org/openapi/dr10/v2.0/lrs/voservice/conesearch',
+            params={'ra': 10., 'dec': 40., 'sr': .2, 'output.fmt': output_format, 'token': 'query-token'},
+            json=None, timeout=60, cache=False, stream=False,
+        )
+
+    def test_request_query_region_raises_http_error(self, patch_request):
+        coord = SkyCoord(10.0, 40.0, unit='deg', frame='icrs')
+        response = create_mock_response(
+            json_data={'error': 'boom'},
+            status_code=503,
+        )
+        patch_request(response)
+
+        lamost = LamostClass()
+        with pytest.raises(HTTPError):
+            lamost._request_query_region(coord, radius=0.2*u.deg, output_format='json')
+
+    def test_request_rejects_oauth_redirect(self, patch_request):
+        coord = SkyCoord(10.0, 40.0, unit='deg', frame='icrs')
+        response = create_mock_response(
+            headers={'Location': 'https://oauth.china-vo.org/login?token=secret'},
+        )
+        patch_request(response)
+
+        with pytest.raises(LoginError, match='redirected to an OAuth login page'):
+            LamostClass(token='secret')._request_query_region(
+                coord,
+                radius=0.2*u.deg,
+                output_format='json',
+            )
+
     def test_request_rejects_json_error_with_text_content_type(self, patch_request):
         response = create_mock_response(
             content=json.dumps({
@@ -117,6 +535,24 @@ class TestLamost:
 
 
 class TestLamostDiagnostics:
+
+    @pytest.mark.parametrize('method, args, kwargs', [
+        ('query_region', (), {'coordinates': SkyCoord(10, 40, unit='deg'), 'radius': '5 arcsec'}),
+        ('query_sql', ('SELECT obsid FROM combined LIMIT 1',), {}),
+        ('query_catalog', ('combined',), {'columns': ['obsid']}),
+        ('query_spectra', (), {}),
+        ('query_stellar_parameters', (), {}),
+        ('query_repeat_observations', (), {'obsid': '101001'}),
+        ('get_metadata', ('101001',), {}),
+        ('get_spectra', ('101001',), {}),
+        ('get_spectrum_list', ('101001',), {}),
+    ])
+    def test_query_payload_redacts_token(self, method, args, kwargs):
+        token = 'synthetic-lamost-token+/='
+        payload = getattr(LamostClass(token=token), method)(*args, get_query_payload=True, **kwargs)
+
+        assert token not in repr(payload)
+        assert quote(token, safe='') not in repr(payload)
 
     @pytest.mark.parametrize('status_code, exception', [
         (200, RemoteServiceError), (400, HTTPError), (401, LoginError),
@@ -218,6 +654,33 @@ class TestLamostDiagnostics:
             assert linked is not None
             assert token not in str(linked)
             assert quote(token, safe='') not in linked.request.url
+
+    def test_oauth_stream_diagnostics_do_not_read_body(self, patch_request, tmp_path):
+        from urllib3.exceptions import ReadTimeoutError
+
+        token = 'synthetic-stream-token'
+        response = Response()
+        response.status_code = 302
+        response.request = Request('GET', 'https://example.invalid/catalog', params={'token': token}).prepare()
+        response.url = response.request.url
+        response.headers['Location'] = f'https://oauth.china-vo.org/login?token={token}'
+        response.raw = Mock()
+        response.raw.stream.side_effect = ReadTimeoutError(None, response.url, f'Interrupted token={token}')
+        response.close = Mock(wraps=response.close)
+        patch_request(response)
+        lamost = LamostClass(token=token)
+
+        with pytest.raises(LoginError) as caught:
+            lamost.download_catalog('catalog', save_dir=str(tmp_path))
+
+        response.raw.stream.assert_not_called()
+        response.close.assert_called_once()
+        response.raw.close.assert_called_once()
+        assert token not in ''.join(traceback.format_exception(caught.value))
+        assert token not in lamost.response.url
+        assert token not in lamost.response.request.url
+        assert token not in repr(dict(lamost.response.headers))
+        assert lamost.response.raw is None
 
     def test_redirect_loop_preserves_requests_error(self, monkeypatch):
         from requests.adapters import BaseAdapter
@@ -386,6 +849,61 @@ class TestLamostResultParsing:
     """
     Test response parsing for different formats (VOTable, JSON, CSV, TXT).
     """
+
+    @pytest.mark.parametrize('source', [
+        'json_schema', 'json_explicit', 'csv_explicit', 'csv_catalog', 'csv_region',
+    ])
+    def test_numeric_schema_preserves_identifiers(self, monkeypatch, source):
+        schema = {
+            'obsid': {'datatype': 'long'},
+            'gaia_source_id': {'datatype': 'char'},
+            'ra': {'datatype': 'double', 'unit': 'deg'},
+            'teff': {'datatype': 'float', 'unit': 'K'},
+            'feh': {'datatype': 'float', 'unit': 'dex'},
+        }
+        record = {
+            'obsid': '9007199254740993', 'gaia_source_id': '0000123',
+            'ra': '10.25', 'teff': '5500.0', 'feh': '-0.2',
+        }
+        columns = [dict(name=name, **metadata) for name, metadata in schema.items()]
+        if source.startswith('csv'):
+            content = ','.join(record) + '\n' + ','.join(record.values()) + '\n'
+            response = create_mock_response(content=content.encode(), content_type='text/csv')
+        elif source == 'json_schema':
+            response = create_mock_response(json_data={'columns': columns, 'rows': [record]})
+        else:
+            response = create_mock_response(json_data=[record])
+
+        def mock_request(self, method, url, **kwargs):
+            if url.endswith('/tables'):
+                return create_mock_response(json_data={'tables': {'combined': {'columns': columns}}})
+            return response
+
+        monkeypatch.setattr(LamostClass, '_request', mock_request)
+        lamost = LamostClass()
+        if source == 'csv_catalog':
+            table = lamost.query_catalog('combined', columns=list(schema), output_format='csv')
+            assert table.meta['catalog'] == 'combined'
+        elif source == 'csv_region':
+            table = lamost.query_region(SkyCoord(10, 40, unit='deg'), '5 arcsec', output_format='csv')
+            assert table.meta['catalog'] == 'combined'
+        else:
+            kwargs = {'column_schema': schema} if source.endswith('explicit') else {}
+            table = lamost.query_sql(
+                'SELECT obsid, gaia_source_id, ra, teff, feh FROM combined',
+                output_format='csv' if source.startswith('csv') else 'json',
+                **kwargs,
+            )
+
+        assert table['obsid'].dtype.kind in 'iu'
+        assert table['obsid'][0] == 9007199254740993
+        assert table['gaia_source_id'].dtype.kind in 'SU'
+        assert table['gaia_source_id'][0] == '0000123'
+        assert table['ra'].unit == u.deg
+        assert table['teff'].unit == u.K
+        assert table['feh'].unit == u.dex
+        assert table['teff'][0] > 5000
+        assert table['feh'][0] == pytest.approx(-0.2)
 
     def test_query_sql_without_schema_keeps_source_types(self, patch_request):
         record = {'obsid': '0000123', 'teff': '5500.0', 'feh': '-0.2', 'selected_count': 2}
@@ -633,6 +1151,137 @@ obsid\tra\tdec
             np.testing.assert_allclose(table[name], [row[name] for row in mock_json_response])
 
 
+class TestLamostDataRetrieval:
+    """
+    Test spectrum and catalog downloads.
+    """
+
+    def test_get_spectra_payload(self):
+        """Test get_spectra with get_query_payload=True"""
+        lamost = LamostClass()
+        payload = lamost.get_spectra('101001', resolution='low', get_query_payload=True)
+
+        assert isinstance(payload, dict)
+        assert 'obsid' in payload
+        assert payload['obsid'] == '101001'
+
+    @pytest.mark.parametrize('resolution, path', [('low', 'lrs'), ('medium', 'mrs')])
+    @pytest.mark.parametrize('obsid, token', [('101001', 'test_token'), (686112127, 'synthetic-token+/=')])
+    def test_spectrum_urls(self, resolution, path, obsid, token):
+        client = LamostClass(token=token, data_release='dr8', sub_version='v1.0')
+        urls = client.get_spectrum_list(obsid, resolution=resolution)
+        assert len(urls) == 1
+        parsed = urlsplit(urls[0])
+        assert parsed.scheme == 'https'
+        assert parsed.netloc == 'www.lamost.org'
+        assert parsed.path == f'/openapi/dr8/v1.0/{path}/spectrum/fits'
+        assert parse_qs(parsed.query) == {'obsid': [str(obsid)], 'token': [token]}
+
+    @pytest.mark.parametrize('compressed', [False, True])
+    def test_get_spectra_downloads_fits(self, monkeypatch, mock_fits_content, compressed):
+        content = gzip.compress(mock_fits_content) if compressed else mock_fits_content
+        response = create_mock_response(content=content, content_type='application/fits')
+        request = Mock(return_value=response)
+        monkeypatch.setattr(LamostClass, '_request', request)
+
+        with conf.set_temp('timeout', 7):
+            lamost = LamostClass(token='secret_token')
+        result = lamost.get_spectra('101001', resolution='low')
+
+        assert len(result) == 1
+        with result[0] as hdul:
+            assert isinstance(hdul, fits.HDUList)
+            hdul.verify('exception')
+            np.testing.assert_array_equal(hdul[0].data, [[1, 2], [3, 4]])
+        url = Request('GET', request.call_args.args[1], params=request.call_args.kwargs.get('params')).prepare().url
+        assert urlsplit(url).path.endswith('/lrs/spectrum/fits')
+        assert parse_qs(urlsplit(url).query) == {'obsid': ['101001'], 'token': ['secret_token']}
+        assert request.call_args.kwargs['timeout'] == 7
+        assert request.call_args.kwargs['cache'] is False
+        response.close.assert_called_once()
+
+    @pytest.mark.parametrize('mode', [
+        'success', 'skip', 'http_error', 'oauth', 'iteration_error',
+        'write_error', 'invalid_fits',
+    ])
+    def test_download_catalog_closes_response(
+        self, tmp_path, monkeypatch, mock_fits_content, mode
+    ):
+        destination = tmp_path / 'catalog.fits.gz'
+        destination.write_bytes(b'existing content')
+        existing_temp = tmp_path / 'catalog.fits.gz.temp'
+        existing_temp.write_bytes(b'unrelated existing file')
+        content = gzip.compress(mock_fits_content)
+        token = 'synthetic-download-token'
+        response = create_mock_response(
+            content=b'not fits' if mode == 'invalid_fits' else content,
+            headers={'Content-Disposition': 'filename="catalog.fits.gz"'},
+            status_code=503 if mode == 'http_error' else 200,
+        )
+        if mode == 'oauth':
+            response.headers['Location'] = 'https://oauth.china-vo.org/login'
+        if mode == 'iteration_error':
+            def interrupted_stream(**kwargs):
+                yield b'partial'
+                raise OSError(f'Interrupted download token={token}')
+            response.iter_content = interrupted_stream
+        if mode == 'write_error':
+            monkeypatch.setattr('builtins.open', Mock(side_effect=OSError('Disk full')))
+        monkeypatch.setattr(LamostClass, '_request', Mock(return_value=response))
+        lamost = LamostClass(token=token)
+
+        if mode in {'success', 'skip'}:
+            result = lamost.download_catalog(
+                'catalog', save_dir=str(tmp_path), overwrite=mode != 'skip'
+            )
+            assert result == str(destination)
+        else:
+            exception = {'http_error': HTTPError, 'oauth': LoginError}.get(mode, OSError)
+            with pytest.raises(exception) as caught:
+                lamost.download_catalog('catalog', save_dir=str(tmp_path), overwrite=True)
+            assert token not in str(caught.value)
+
+        response.close.assert_called_once()
+        assert existing_temp.read_bytes() == b'unrelated existing file'
+        assert set(tmp_path.iterdir()) == {destination, existing_temp}
+        if mode == 'success':
+            assert destination.read_bytes() == content
+            with fits.open(destination) as hdul:
+                hdul.verify('exception')
+                np.testing.assert_array_equal(hdul[0].data, [[1, 2], [3, 4]])
+        else:
+            assert destination.read_bytes() == b'existing content'
+
+    @pytest.mark.parametrize('override, expected', [
+        (None, 'header_catalog.fits.gz'), ('custom.fits.gz', 'custom.fits.gz'),
+    ])
+    def test_download_catalog_filename(self, tmp_path, patch_request, mock_fits_content, override, expected):
+        content = gzip.compress(mock_fits_content)
+        response = create_mock_response(content=content, headers={
+            'Content-Disposition': 'attachment; filename="header_catalog.fits.gz"',
+        })
+        patch_request(response)
+        saved = LamostClass().download_catalog('test', save_dir=str(tmp_path), filename=override)
+        assert saved == str(tmp_path / expected)
+        assert (tmp_path / expected).read_bytes() == content
+        assert set(tmp_path.iterdir()) == {tmp_path / expected}
+        response.close.assert_called_once()
+
+    def test_download_catalog_rejects_corrupt_fits(self, tmp_path, monkeypatch):
+        response = create_mock_response(
+            content=b'not a fits product',
+            headers={'Content-Disposition': 'filename="corrupt.fits.gz"'},
+        )
+        monkeypatch.setattr(LamostClass, '_request', Mock(return_value=response))
+
+        with pytest.raises(OSError):
+            LamostClass().download_catalog('corrupt', save_dir=str(tmp_path))
+
+        assert not (tmp_path / 'corrupt.fits.gz').exists()
+        assert not (tmp_path / 'corrupt.fits.gz.temp').exists()
+        response.close.assert_called_once()
+
+
 class TestLamostDataDiscovery:
     """
     Test metadata and discovery methods.
@@ -717,6 +1366,51 @@ class TestLamostDataDiscovery:
         assert result['tables']['combined']['table_name'] == 'combined'
         assert 'med_combined' in result['tables']
 
+    @pytest.mark.parametrize('parameters', [{'obsid': '101001'}, {'ra': 10., 'dec': 40., 'radius': .001}])
+    def test_repeat_observations(self, patch_request, parameters):
+        data = {'uid': 'U_12345', 'obsid-low': ['101001', '101002'], 'obsid-medium': ['101001']}
+        request = patch_request(create_mock_response(json_data=data))
+        result = LamostClass(token='id-token').query_repeat_observations(**parameters, cache=False)
+        assert result['unique_id'] == data['uid']
+        assert result['related_obsids_low'] == data['obsid-low']
+        assert result['related_obsids_medium'] == data['obsid-medium']
+        assert result['related_obsids'] == ['101001', '101002']
+        request.assert_called_once_with(
+            'GET', 'https://www.lamost.org/openapi/dr10/v2.0/get_unique_id_and_related_obsids',
+            params={**parameters, 'token': 'id-token'}, json=None, timeout=60, cache=False, stream=False,
+        )
+
+    def test_repeat_observations_unknown_target(self, patch_request):
+        patch_request(create_mock_response(json_data={}))
+        assert LamostClass().query_repeat_observations(obsid=0) == {
+            'unique_id': None, 'related_obsids': [], 'related_obsids_low': [], 'related_obsids_medium': [],
+        }
+
+    def test_repeat_observations_missing_params(self):
+        """Test ValueError when neither obsid nor coords"""
+        lamost = LamostClass()
+
+        with pytest.raises(ValueError, match="Either 'obsid' OR all of"):
+            lamost.query_repeat_observations()
+
+    def test_repeat_observations_normalizes_alternative_keys(self, patch_request):
+        unique_id_data = {
+            'uid': 'U_ALT',
+            'obsid-low': ['101001', '101002'],
+            'obsid-medium': ['201001'],
+        }
+
+        response = create_mock_response(json_data=unique_id_data)
+        patch_request(response)
+
+        lamost = LamostClass()
+        result = lamost.query_repeat_observations(obsid='101001')
+
+        assert result['unique_id'] == 'U_ALT'
+        assert result['related_obsids'] == ['101001', '101002', '201001']
+        assert result['related_obsids_low'] == ['101001', '101002']
+        assert result['related_obsids_medium'] == ['201001']
+
 
 @pytest.mark.parametrize('token', ['', 'synthetic-rejected-token+/='])
 @pytest.mark.parametrize('body', [
@@ -757,6 +1451,49 @@ def test_authentication_text_in_table_cells_is_data(patch_request):
     value = '<html><meta http-equiv="refresh" content="0;URL=https://oauth.china-vo.org">please check your token'
     patch_request(create_mock_response(json_data=[{'error': value}]))
     assert LamostClass().query_sql('SELECT error FROM sample')['error'][0] == value
+
+
+@pytest.mark.parametrize('body,expected,message', [
+    ((DATA / 'catalog_unknown.json').read_bytes(), RemoteServiceError, 'Not Found'),
+    (b'\xef\xbb\xbf \n{"error":"Bad Request","description":"please check your token=synthetic-download-token"}',
+     LoginError, 'validity'),
+    (b'<html><meta http-equiv="refresh" content="0;URL=https://oauth.china-vo.org/login"></html>',
+     LoginError, 'validity'),
+    (b'{"broken":', TableParseError, 'catalog'),
+    (b'{"data": [1, 2]}', TableParseError, 'catalog'),
+    (b'{' + b' ' * (1024 * 1024), TableParseError, 'limit'),
+    (b'\xef\xbb\xbf \n', TableParseError, 'empty body'),
+], ids=['unknown-product', 'token', 'login-html', 'broken-json', 'json-data', 'oversized-text', 'empty-body'])
+@pytest.mark.parametrize('content_type', ['application/octet-stream', 'application/json'])
+def test_streamed_catalog_error_preserves_destination(tmp_path, patch_request, body, expected, message, content_type):
+    destination = tmp_path / 'catalog.fits.gz'
+    destination.write_bytes(b'original product')
+    response = Response()
+    response.status_code = 200
+    response.url = 'https://example.invalid/catalog'
+    response.headers['Content-Type'] = content_type
+    response.raw = Mock()
+
+    def chunks(*args, **kwargs):
+        # Classification must use the completed temporary file, not network chunks.
+        yield body[:1]
+        yield body[1:7]
+        yield body[7:]
+
+    response.raw.stream.side_effect = chunks
+    response.close = Mock(wraps=response.close)
+    patch_request(response)
+    client = LamostClass(token='synthetic-download-token')
+    with pytest.raises(expected, match=message) as caught:
+        client.download_catalog('catalog', filename=destination.name, save_dir=tmp_path)
+    assert client.token not in ''.join(traceback.format_exception(caught.value))
+    if hasattr(client, 'response'):
+        assert client.token not in client.response.text
+    response.raw.stream.assert_called_once()
+    response.close.assert_called_once()
+    assert response._content is False  # No access to Response.content, even with a JSON content type.
+    assert destination.read_bytes() == b'original product'
+    assert list(tmp_path.iterdir()) == [destination]
 
 
 def test_captured_login_redirect(patch_request):

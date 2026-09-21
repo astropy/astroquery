@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from html.parser import HTMLParser
 import json
 import os
@@ -11,6 +11,7 @@ import re
 from typing import Any, Optional
 from urllib.parse import urlsplit
 
+from ...exceptions import InvalidQueryError
 from ._response_utils import response_looks_like_html
 
 
@@ -154,3 +155,30 @@ def _api_error_summary(response, *, preview_limit: int = 240) -> Optional[str]:
         return preview
 
     return None
+
+
+def _append_range_constraint(constraints, column_name, value_range):
+    if value_range is None:
+        return constraints
+
+    if not isinstance(value_range, Sequence) or isinstance(value_range, (str, bytes)) or len(value_range) != 2:
+        raise InvalidQueryError(f"{column_name} range must be a 2-item sequence.")
+
+    min_value, max_value = value_range
+    constraint = {'column_name': column_name, 'operation': 'between'}
+    if min_value is not None:
+        constraint['min'] = min_value
+    if max_value is not None:
+        constraint['max'] = max_value
+    constraints.append(constraint)
+    return constraints
+
+
+def _append_min_constraint(constraints, column_name, min_value):
+    if min_value is not None:
+        constraints.append({
+            'column_name': column_name,
+            'operation': 'greaterequal',
+            'constraint': str(min_value),
+        })
+    return constraints

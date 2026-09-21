@@ -7,7 +7,10 @@ and test data files used across all LAMOST test modules.
 """
 
 import pytest
+from io import BytesIO
 
+from astropy.io import fits
+import numpy as np
 
 from unittest.mock import Mock
 
@@ -176,6 +179,24 @@ def mock_dr_versions_response():
 
 
 @pytest.fixture
+def mock_fits_content():
+    """
+    Return mock FITS file binary content.
+
+    Returns
+    -------
+    bytes
+        Minimal FITS file binary data.
+    """
+    # Create minimal FITS file in memory
+    hdu = fits.PrimaryHDU(data=np.array([[1, 2], [3, 4]]))
+    bio = BytesIO()
+    hdu.writeto(bio)
+    bio.seek(0)
+    return bio.read()
+
+
+@pytest.fixture
 def patch_request(monkeypatch):
     """Set a response and return a spy for checking the actual request."""
     def setup_mock(response):
@@ -183,3 +204,15 @@ def patch_request(monkeypatch):
         monkeypatch.setattr(LamostClass, '_request', request)
         return request
     return setup_mock
+
+
+@pytest.fixture
+def spectral_schema(monkeypatch):
+    """Supply types for payload tests that now compile SQL from metadata."""
+    schema = {name: {'datatype': 'double'} for name in
+              ('ra', 'dec', 'snrg', 'snr', 'teff', 'logg', 'feh', 'teff_lasp', 'logg_lasp', 'feh_lasp')}
+    schema['obsid'] = {'datatype': 'long'}
+    monkeypatch.setattr(LamostClass, 'get_tables_metadata',
+                        lambda self, **kwargs: {'tables': {
+                            'combined': {'columns': schema}, 'med_combined': {'columns': schema}}})
+    return schema

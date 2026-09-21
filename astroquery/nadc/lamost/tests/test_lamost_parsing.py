@@ -2,12 +2,13 @@
 """Regression cases from historical LAMOST table responses."""
 
 from pathlib import Path
+import json
 
 from astropy import units as u
 import numpy as np
 import pytest
 
-from astroquery.exceptions import TableParseError
+from astroquery.exceptions import LoginError, TableParseError
 from ..core import LamostClass
 from .helpers import create_mock_response
 
@@ -103,6 +104,112 @@ def test_json_nulls_are_masked_without_guessing_types(envelope):
     for name in ('id', 'value'):
         assert np.ma.getmaskarray(table[name]).tolist() == [False, True]
     assert np.ma.getmaskarray(table['empty']).all()
+
+
+@pytest.mark.parametrize('resolution,filename,catalog', [
+    ('low', 'info_lrs_dr10.json', 'combined'), ('medium', 'info_mrs_dr10.json', 'med_combined'),
+])
+def test_metadata_matches_captured_catalog_schema(monkeypatch, patch_request, resolution, filename, catalog):
+    metadata = json.loads((DATA / 'schema_dr10.json').read_bytes())
+    data = json.loads((DATA / filename).read_bytes())
+    schema = metadata['tables'][catalog]['columns']
+    assert set(data['rows'][0]) == set(schema)
+    monkeypatch.setattr(LamostClass, 'get_tables_metadata', lambda self, **kwargs: metadata)
+    patch_request(create_mock_response(json_data=data))
+    table = LamostClass().get_metadata(data['rows'][0]['obsid'], resolution=resolution, cache=False)
+    assert len(table) == len(data['rows'])
+    for name, definition in schema.items():
+        kind = definition['datatype']
+        caster = {'long': int, 'int': int, 'double': float, 'char': str, 'date': str}.get(kind)
+        if caster:
+            assert table[name].dtype.kind in ('iu' if caster is int else 'f' if caster is float else 'SU')
+        for i, row in enumerate(data['rows']):
+            value = row[name]
+            if value in (None, ''):
+                assert np.ma.is_masked(table[name][i])
+            else:
+                assert not np.ma.is_masked(table[name][i])
+                expected = caster(value) if caster else value
+                assert table[name][i] == expected
+
+
+def test_metadata_unknown_release_keeps_raw_types(patch_request):
+    request = patch_request(create_mock_response(json_data=[{'obsid': 1, 'ra': '10.0'}]))
+    table = LamostClass(data_release='future').get_metadata(1)
+    assert table['ra'][0] == '10.0'
+    assert request.call_count == 1
+
+
+def test_captured_dr8_mrs_metadata_records(monkeypatch, patch_request):
+    data = json.loads((DATA / 'info_mrs_dr8.json').read_bytes())
+    schema = {'obsid': {'datatype': 'long'}, 'lmjm': {'datatype': 'long'},
+              'ra': {'datatype': 'double'}, 'band': {'datatype': 'char'}}
+    monkeypatch.setattr(LamostClass, 'get_tables_metadata', lambda self, **kwargs: {
+        'tables': {'med_catalogue': {'columns': schema}}})
+    patch_request(create_mock_response(json_data=data))
+    table = LamostClass(data_release='dr8', sub_version='v1.0').get_metadata(635003103, resolution='medium')
+    assert len(table) == len(data['rows']) == 10
+    assert table.meta['total'] == data['total']
+    for i, row in enumerate(data['rows']):
+        for name, value in row.items():
+            if value is None:
+                assert np.ma.is_masked(table[name][i])
+            else:
+                assert table[name][i] == value
+
+
+@pytest.mark.parametrize('legacy', [False, True])
+def test_metadata_schema_auth_failure_is_not_hidden(monkeypatch, patch_request, legacy):
+    data = {'response': [{'what': 'obsid', 'data': 1}]} if legacy else [{'obsid': 1}]
+    patch_request(create_mock_response(json_data=data))
+
+    def denied(self, **kwargs):
+        raise LoginError('Schema SQL requires authentication')
+
+    monkeypatch.setattr(LamostClass, 'get_tables_metadata', denied)
+    with pytest.raises(LoginError, match='Schema SQL'):
+        LamostClass(data_release='dr7' if legacy else 'dr10').get_metadata(1)
+
+
+def test_preserved_dr8_cone_keeps_rows_and_masks_empty_integers(monkeypatch, patch_request):
+    from xml.etree import ElementTree
+    content = (DATA / 'cone_mrs_dr8.xml').read_bytes()
+    root = ElementTree.fromstring(content)
+    fields = list(root.iterfind('.//{*}FIELD'))
+    rows = list(root.iterfind('.//{*}TR'))
+    # The replay uses only these independently declared catalog types.
+    schema = {'obsid': {'datatype': 'long'}, 'ra': {'datatype': 'double'}}
+    monkeypatch.setattr(LamostClass, '_catalog_schema', lambda self, *args, **kwargs: schema)
+    patch_request(create_mock_response(content=content, content_type='text/csv'))
+    table = LamostClass(data_release='dr8', sub_version='v1.0').query_region(
+        '186.5 0.58', '1 arcmin', resolution='medium')
+    assert len(table) == len(rows)
+    assert table['med_catalogue_obsid'].dtype.kind in 'iu'
+    assert table['med_catalogue_ra'].dtype.kind == 'f'
+    missing = 0
+    for i, field in enumerate(fields):
+        if field.get('datatype') in {'int', 'long', 'short'}:
+            for j, row in enumerate(rows):
+                if not (row[i].text or '').strip():
+                    assert np.ma.is_masked(table.columns[i][j])
+                    missing += 1
+                else:
+                    assert table.columns[i][j] == int(row[i].text)
+    assert missing > 0
+
+
+@pytest.mark.parametrize('prefix,resolution', [('catalogue_', 'low'), ('med_catalogue_', 'medium')])
+def test_cone_schema_prefixes_preserve_exact_matches(monkeypatch, patch_request, prefix, resolution):
+    schema = {'obsid': {'datatype': 'long'}, 'id': {'datatype': 'long'},
+              prefix + 'id': {'datatype': 'char'}}
+    monkeypatch.setattr(LamostClass, '_catalog_schema', lambda self, *args, **kwargs: schema)
+    patch_request(create_mock_response(json_data=[{prefix + 'obsid': '1', prefix + 'id': '0001',
+                                                  'unknown_obsid': '0002'}]))
+    table = LamostClass(data_release='dr8', sub_version='v1.0').query_region(
+        '10 40', '1 arcmin', resolution=resolution)
+    assert table[prefix + 'obsid'][0] == 1
+    assert table[prefix + 'id'][0] == '0001'
+    assert table['unknown_obsid'][0] == '0002'
 
 
 @pytest.mark.parametrize('fields,rows', [

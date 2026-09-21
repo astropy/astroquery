@@ -10,16 +10,20 @@ This module provides the core implementation for querying LAMOST data.
 from collections.abc import Mapping
 from copy import copy
 import csv
+import gzip
 import os
 import re
+import tempfile
 import warnings
 from io import BytesIO, StringIO
-from urllib.parse import quote, quote_plus
+from numbers import Integral
+from urllib.parse import quote, quote_plus, urlencode
 from xml.etree import ElementTree
 
 # Third party
 import astropy.units as u
-from astropy.io import ascii, votable
+import astropy.coordinates as coord
+from astropy.io import ascii, fits, votable
 from astropy.io.votable.exceptions import W46
 from astropy.table import MaskedColumn, Table
 import numpy as np
@@ -28,8 +32,10 @@ from requests.structures import CaseInsensitiveDict
 
 # Local imports
 from ._response_utils import response_looks_like_html, sanitize_votable_content
-from ._sql import uses_legacy_metadata
+from ._sql import EARLY_MRS, MODERN_CATALOGS, catalog_sql, spectral_catalog, uses_legacy_metadata
 from ._utils import (
+    _append_min_constraint,
+    _append_range_constraint,
     _api_error_summary,
     _configured_token_from_env as _configured_token_from_env_base,
     _oauth_redirect_url,
@@ -38,6 +44,7 @@ from ._utils import (
 )
 from ...query import BaseQuery
 from ... import log
+from ...utils import commons
 from ...exceptions import InvalidQueryError, LoginError, RemoteServiceError, TableParseError
 from . import conf
 
@@ -56,6 +63,21 @@ _TOKEN_ENV_VARS = (
     "CHINAVO_LAMOST_ACCESS_TOKEN",
 )
 
+
+_SPECTRAL_FIELDS = {
+    'low': {
+        'snr': 'snrg',
+        'teff': 'teff',
+        'logg': 'logg',
+        'feh': 'feh',
+    },
+    'medium': {
+        'snr': 'snr',
+        'teff': 'teff_lasp',
+        'logg': 'logg_lasp',
+        'feh': 'feh_lasp',
+    },
+}
 
 _SCHEMA_COLUMN_KEYS = ('column_name', 'colname', 'column', 'name')
 _SCHEMA_DATATYPE_KEYS = ('datatype', 'data_type', 'type', 'dbtype', 'dtype')
@@ -291,6 +313,12 @@ class LamostClass(BaseQuery):
             return False
         return cache
 
+    def _normalize_resolution(self, resolution):
+        normalized = str(resolution).strip().lower()
+        if normalized not in {'low', 'medium'}:
+            raise InvalidQueryError("resolution must be one of: low, medium.")
+        return normalized
+
     def _normalize_output_format(self, output_format, *, allowed):
         normalized = str(output_format).strip().lower().lstrip('.')
         if normalized not in allowed:
@@ -346,6 +374,25 @@ class LamostClass(BaseQuery):
             raise LoginError(f'{context}: Authentication failed: {self._redact(detail)}. {advice}')
         if error:
             raise RemoteServiceError(f'{context}: {self._redact(error)}')
+
+    @staticmethod
+    def _radius_in(radius, unit):
+        try:
+            angle = coord.Angle(radius, unit=unit)
+            value = angle.to_value(unit)
+            if not angle.isscalar or not np.isfinite(value) or value <= 0:
+                raise ValueError
+        except (TypeError, ValueError, u.UnitsError) as error:
+            raise InvalidQueryError(
+                f"radius must be a finite positive scalar angle; bare numbers are in {unit}."
+            ) from error
+        return float(value)
+
+    @staticmethod
+    def _page_integer(value, name, *, minimum=1):
+        if isinstance(value, (bool, np.bool_)) or not isinstance(value, Integral) or value < minimum:
+            raise InvalidQueryError(f"{name} must be an integer >= {minimum}.")
+        return int(value)
 
     def _parse_table_response(self, response, *, verbose=False, column_schema=None):
         table = self._parse_result(response, verbose=verbose, column_schema=column_schema)
@@ -468,6 +515,41 @@ class LamostClass(BaseQuery):
 
         return schema
 
+    def _validate_catalog_query(self, catalog_name, *, columns=None,
+                                column_constraints=None,
+                                position_constraints=None,
+                                sort_by=None, cache=True):
+        schema = self._catalog_schema(catalog_name, cache=cache)
+        requested = [columns] if isinstance(columns, str) else list(columns or ())
+        referenced = [str(name) for name in requested]
+
+        constraints = column_constraints or ()
+        if isinstance(constraints, Mapping):
+            constraints = [constraints]
+        for constraint in constraints:
+            if not isinstance(constraint, Mapping):
+                raise InvalidQueryError("Each column constraint must be a mapping.")
+            column_name = constraint.get('column_name')
+            if not column_name:
+                raise InvalidQueryError(
+                    "Each column constraint must specify `column_name`."
+                )
+            referenced.append(str(column_name))
+
+        if position_constraints:
+            referenced.extend(('ra', 'dec'))
+        if sort_by:
+            referenced.append(str(sort_by))
+
+        unknown = list(dict.fromkeys(name for name in referenced if name not in schema))
+        if unknown:
+            raise InvalidQueryError(
+                "Unknown LAMOST catalog column(s): {0}.".format(
+                    ", ".join(unknown)
+                )
+            )
+        return schema
+
     def _apply_catalog_schema(self, table, schema):
         integer_types = {
             'bigint', 'int', 'integer', 'long', 'short', 'smallint', 'tinyint', 'int32', 'int64',
@@ -530,6 +612,81 @@ class LamostClass(BaseQuery):
                     table[name].unit = u.Unit(str(unit))
                 except ValueError:
                     pass
+
+    def _prepare_catalog_result(self, table, *, catalog_name, columns):
+        requested = [columns] if isinstance(columns, str) else list(columns or ())
+        requested = [str(name) for name in requested]
+        if len(table) == 0 and not table.colnames and requested:
+            table = Table(names=requested)
+
+        missing = [name for name in requested if name not in table.colnames]
+        if missing:
+            raise TableParseError(
+                "LAMOST query result omitted requested column(s): {0}.".format(
+                    ", ".join(missing)
+                )
+            )
+
+        if requested:
+            remaining = [name for name in table.colnames if name not in requested]
+            table = table[requested + remaining]
+
+        table.meta['catalog'] = catalog_name
+        table.meta['data_release'] = self.data_release
+        table.meta['sub_version'] = self.sub_version
+        return table
+
+    def _normalize_unique_id_result(self, data):
+        if not isinstance(data, dict):
+            raise TableParseError(
+                "Expected a JSON object for unique-id lookup results."
+            )
+
+        normalized = dict(data)
+        unique_id = normalized.get('unique_id', normalized.get('uid'))
+
+        related_obsids = normalized.get('related_obsids')
+        if related_obsids is None:
+            related_obsids = []
+        elif isinstance(related_obsids, (list, tuple, set)):
+            related_obsids = list(related_obsids)
+        else:
+            related_obsids = [related_obsids]
+
+        low_obsids = normalized.get(
+            'related_obsids_low',
+            normalized.get('obsid-low', normalized.get('obsid_low', [])),
+        )
+        medium_obsids = normalized.get(
+            'related_obsids_medium',
+            normalized.get('obsid-medium', normalized.get('obsid_medium', [])),
+        )
+
+        for key, value in (
+            ('related_obsids_low', low_obsids),
+            ('related_obsids_medium', medium_obsids),
+        ):
+            if isinstance(value, (list, tuple, set)):
+                normalized[key] = list(value)
+            elif value in (None, ''):
+                normalized[key] = []
+            else:
+                normalized[key] = [value]
+
+        if not related_obsids:
+            merged_obsids = []
+            for sequence in (
+                normalized['related_obsids_low'],
+                normalized['related_obsids_medium'],
+            ):
+                for obsid in sequence:
+                    if obsid not in merged_obsids:
+                        merged_obsids.append(obsid)
+            related_obsids = merged_obsids
+
+        normalized['unique_id'] = unique_id
+        normalized['related_obsids'] = related_obsids
+        return normalized
 
     def _detect_token(self, config_file):
         """
@@ -687,6 +844,125 @@ class LamostClass(BaseQuery):
             return 'https://dr3.lamost.org'
         return None
 
+    def _build_url(self, endpoint, resolution='low', *, obsid=None):
+        """
+        Build complete API URL for a given endpoint.
+
+        Parameters
+        ----------
+        endpoint : str
+            API endpoint path (e.g., 'voservice/conesearch', 'spectrum/fits')
+        resolution : str, optional
+            Spectral resolution: 'low' for LRS or 'medium' for MRS.
+            Default is 'low'.
+
+        Returns
+        -------
+        str
+            Complete URL for the API request
+        """
+        resolution = self._normalize_resolution(resolution)
+        if self._dr3_url() and resolution == 'low':
+            if endpoint == 'voservice/conesearch':
+                return f'{self._dr3_url()}/{endpoint}'
+            if endpoint in {'spectrum/fits', 'spectrum/info'}:
+                return f'{self._dr3_url()}/{endpoint}/{quote(str(obsid), safe="")}'
+        res_path = 'mrs' if resolution == 'medium' else 'lrs'
+        return f"{self.URL}/{self.data_release}/{self.sub_version}/{res_path}/{endpoint}"
+
+    def _request_query_region(self, coordinates, radius, *,
+                              resolution='low', output_format='csv',
+                              get_query_payload=False, cache=True):
+        """
+        Query LAMOST catalog using cone search around given coordinates.
+        """
+        resolution = self._normalize_resolution(resolution)
+        output_format = self._normalize_output_format(
+            output_format,
+            allowed=('votable', 'json', 'csv'),
+        )
+
+        c = commons.parse_coordinates(coordinates)
+
+        request_payload = {
+            'ra': c.icrs.ra.deg,
+            'dec': c.icrs.dec.deg,
+            'sr': self._radius_in(radius, u.deg),
+            'output.fmt': output_format
+        }
+
+        if self.token:
+            request_payload['token'] = self.token
+
+        if get_query_payload:
+            return self._redact(request_payload)
+
+        url = self._build_url('voservice/conesearch', resolution=resolution)
+        return self._request_raise('GET', url, params=request_payload, cache=cache)
+
+    def query_region(self, coordinates, radius, *,
+                     resolution='low', output_format='csv',
+                     get_query_payload=False, cache=True, verbose=False):
+        """Query the LAMOST catalog around sky coordinates.
+
+        Parameters
+        ----------
+        coordinates : str or astropy.coordinates object
+            Cone-search center.
+        radius : str, float, or astropy.units.Quantity
+            Positive scalar cone-search radius. Bare numbers are degrees;
+            angle strings such as ``'5 arcsec'`` and angular quantities are accepted.
+        resolution : {"low", "medium"}, optional
+            Spectral-resolution service to query.
+        output_format : {"votable", "json", "csv"}, optional
+            Output format requested from the service. The default is ``'csv'``
+            because some service VOTables declare string
+            fields too short to represent the returned identifiers.
+        get_query_payload : bool, optional
+            Return the request payload instead of executing the request.
+        cache : bool, optional
+            Whether to use astroquery's request cache.
+        verbose : bool, optional
+            Emit parser diagnostics for table responses.
+
+        Returns
+        -------
+        astropy.table.Table or dict
+            Query result table with catalog types and units from metadata,
+            or redacted parameters when ``get_query_payload=True``. Table
+            metadata identifies the catalog, release, and sub-version.
+
+        Raises
+        ------
+        astroquery.exceptions.InvalidQueryError
+            The radius is invalid or the requested format is unsupported.
+        astroquery.exceptions.TableParseError
+            The response is malformed or would truncate string values.
+
+        Notes
+        -----
+        This method retrieves one response; archive row limits still apply.
+        DR3 and DR8 cone services can return VOTable despite a CSV request.
+        Known ``catalogue_``/``med_catalogue_`` prefixes are retained and matched to
+        catalog types. Truncated string values are rejected in every format.
+        """
+        response = self._request_query_region(
+            coordinates,
+            radius,
+            resolution=resolution,
+            output_format=output_format,
+            get_query_payload=get_query_payload,
+            cache=cache,
+        )
+        if get_query_payload:
+            return response
+        catalog_name = self._spectral_catalog_name(resolution, None)
+        schema = self._catalog_schema(catalog_name, cache=cache)
+        prefix = 'med_catalogue_' if self._normalize_resolution(resolution) == 'medium' else 'catalogue_'
+        schema = {**{prefix + name: metadata for name, metadata in schema.items()}, **schema}
+        table = self._parse_table_response(response, verbose=verbose, column_schema=schema)
+        return self._prepare_catalog_result(table, catalog_name=catalog_name, columns=None)
+
     def query_sql_async(self, sql, *, output_format=None,
                         get_query_payload=False, cache=True):
         """Execute SQL and return the unparsed HTTP response.
@@ -795,6 +1071,845 @@ class LamostClass(BaseQuery):
         if missing:
             raise TableParseError(f"LAMOST SQL result omitted schema column(s): {', '.join(sorted(missing))}.")
         return table
+
+    def _request_query_catalog(self, catalog_name, *,
+                               column_constraints=None,
+                               position_constraints=None,
+                               columns=None,
+                               sort_by=None,
+                               sort_order='asc',
+                               max_rows=100,
+                               page=1,
+                               output_format='json',
+                               get_query_payload=False,
+                               cache=True):
+        """Advanced parametric table query with constraints."""
+        output_format = self._normalize_output_format(
+            output_format,
+            allowed=('json', 'csv', 'votable', 'txt'),
+        )
+        request_payload = {
+            'rows': max_rows,
+            'page': page,
+            'output.fmt': output_format,
+            'order': sort_order
+        }
+
+        if column_constraints:
+            request_payload['column_constraints'] = column_constraints
+
+        if position_constraints:
+            request_payload['pos'] = position_constraints
+            request_payload['pos_group'] = 'ra,dec'
+
+        if columns:
+            request_payload['showcol'] = columns
+
+        if sort_by:
+            request_payload['sort'] = sort_by
+
+        if get_query_payload:
+            if self.token:
+                return self._redact({
+                    'json': request_payload,
+                    'params': {'token': self.token},
+                })
+            return self._redact(request_payload)
+
+        url = f"{self.URL}/{self.data_release}/{self.sub_version}/query/{catalog_name}"
+        return self._request_raise(
+            'POST',
+            url,
+            json=request_payload,
+            params={'token': self.token} if self.token else None,
+            cache=cache,
+        )
+
+    def query_catalog(self, catalog_name, *,
+                      column_constraints=None,
+                      position_constraints=None,
+                      columns=None,
+                      sort_by=None,
+                      sort_order='asc',
+                      max_rows=100,
+                      page=1,
+                      output_format=None,
+                      get_query_payload=False,
+                      cache=True,
+                      verbose=False):
+        """Query a LAMOST catalog with structured constraints.
+
+        Parameters
+        ----------
+        catalog_name : str
+            LAMOST catalog endpoint name.
+        column_constraints : list of dict, optional
+            Service-format column constraints.
+        position_constraints : dict, optional
+            Service-format cone, proximity, or rectangle constraint. Cone and
+            proximity queries use SQL to preserve all qualifying matches.
+            Proximity results retain original input line numbers.
+        columns : iterable of str, optional
+            Columns to include in the result.
+        sort_by : str, optional
+            Column used for sorting.
+        sort_order : {"asc", "desc"}, optional
+            Sort order.
+        max_rows : int, optional
+            Maximum rows in this page. Additional pages are not fetched automatically.
+        page : int, optional
+            One-based page number.
+        output_format : {None, "json", "csv", "votable", "txt"}, optional
+            Requested wire format. None selects CSV for legacy configurations
+            and JSON for modern ones. An explicit format is sent unchanged.
+        get_query_payload : bool, optional
+            Return the actual redacted request parameters without executing the
+            data query. SQL compilation can fetch field metadata first.
+        cache : bool, optional
+            Whether to use astroquery's request cache.
+        verbose : bool, optional
+            Emit parser diagnostics for table responses.
+
+        Returns
+        -------
+        astropy.table.Table or dict
+            Query result table, or request payload when
+            ``get_query_payload=True``.
+
+        Raises
+        ------
+        astroquery.exceptions.InvalidQueryError
+            Catalog names or columns disagree with the service metadata.
+        astroquery.exceptions.TableParseError
+            Requested columns are missing or values disagree with their datatypes.
+        """
+        if columns is not None:
+            columns = [columns] if isinstance(columns, str) else list(columns)
+        if column_constraints is not None and not isinstance(column_constraints, Mapping):
+            column_constraints = list(column_constraints)
+
+        if output_format is None:
+            output_format = 'csv' if self._legacy_metadata() else 'json'
+        max_rows = self._page_integer(max_rows, 'max_rows')
+        page = self._page_integer(page, 'page')
+        use_sql = self._legacy_metadata() or bool(position_constraints and (
+            not isinstance(position_constraints, Mapping) or set(position_constraints) != {'rect'}))
+        schema = None
+        if use_sql or not get_query_payload:
+            schema = self._validate_catalog_query(
+                catalog_name,
+                columns=columns,
+                column_constraints=column_constraints,
+                position_constraints=position_constraints,
+                sort_by=sort_by,
+                cache=cache,
+            )
+
+        if use_sql:
+            sql, extras = catalog_sql(
+                catalog_name, schema, constraints=column_constraints, position=position_constraints,
+                columns=columns, sort_by=sort_by, sort_order=sort_order, max_rows=max_rows, page=page,
+            )
+            result_schema = {name: schema[name] for name in (columns or schema)}
+            result_schema.update(extras)
+            response = self.query_sql_async(sql, output_format=output_format,
+                                            get_query_payload=get_query_payload, cache=cache)
+            if get_query_payload:
+                return response
+            if not response.content.removeprefix(b'\xef\xbb\xbf').strip():
+                # Count this page once. Never reinterpret an arbitrary user SQL
+                # query or a failed count as an empty catalog.
+                count = self.query_sql(
+                    f'SELECT COUNT(*) AS n FROM ({sql}) AS page_rows',
+                    output_format='csv', column_schema={'n': {'datatype': 'long'}}, cache=cache,
+                )
+                if len(count) != 1 or np.ma.is_masked(count['n'][0]) or count['n'][0] != 0:
+                    self._validate_data_response(response)
+                if any(not self._schema_value(meta, _SCHEMA_DATATYPE_KEYS) for meta in result_schema.values()):
+                    raise TableParseError('Cannot construct an empty SQL table without reliable column types.')
+                table = Table(names=list(result_schema))
+                self._apply_catalog_schema(table, result_schema)
+            else:
+                table = self._parse_table_response(response, verbose=verbose, column_schema=result_schema)
+            missing = set(result_schema) - set(table.colnames)
+            if missing:
+                raise TableParseError(f'LAMOST SQL result omitted column(s): {", ".join(sorted(missing))}.')
+            table = self._prepare_catalog_result(table, catalog_name=catalog_name, columns=columns)
+            self.table = table
+            return table
+
+        response = self._request_query_catalog(
+            catalog_name,
+            column_constraints=column_constraints,
+            position_constraints=position_constraints,
+            columns=columns,
+            sort_by=sort_by,
+            sort_order=sort_order,
+            max_rows=max_rows,
+            page=page,
+            output_format=output_format,
+            get_query_payload=get_query_payload,
+            cache=cache,
+        )
+        if get_query_payload:
+            return response
+        result_schema = schema if not columns else {name: schema[name] for name in columns}
+        table = self._parse_result(response, verbose=verbose, column_schema=result_schema)
+        table = self._prepare_catalog_result(
+            table,
+            catalog_name=catalog_name,
+            columns=columns,
+        )
+        self.table = table
+        return table
+
+    def _build_structured_cone_constraint(self, coordinates, radius, *, nearest_only=False):
+        c = commons.parse_coordinates(coordinates)
+        if not isinstance(nearest_only, bool):
+            raise InvalidQueryError('nearest_only must be a boolean.')
+
+        return {
+            'cone': {
+                'racenter': float(c.icrs.ra.to_value(u.deg)),
+                'deccenter': float(c.icrs.dec.to_value(u.deg)),
+                'radius': self._radius_in(radius, u.arcsec),
+                'cone_nearestonly': bool(nearest_only),
+            },
+        }
+
+    def _spectral_catalog_name(self, resolution, catalog_name, *, stellar=False):
+        resolution = self._normalize_resolution(resolution)
+        if catalog_name is not None:
+            return catalog_name
+        return spectral_catalog(self.data_release, self.sub_version, resolution, stellar=stellar)
+
+    def _spectral_fields(self, resolution):
+        resolution = self._normalize_resolution(resolution)
+        if resolution == 'medium' and self.sub_version in EARLY_MRS.get(self.data_release, ()):
+            return {'snr': 'snr', 'teff': 'teff', 'logg': 'logg', 'feh': 'feh'}
+        return _SPECTRAL_FIELDS[resolution]
+
+    def _spectral_column_constraints(
+        self,
+        *,
+        resolution='low',
+        snr_min=None,
+        snr_column=None,
+        teff_range=None,
+        logg_range=None,
+        feh_range=None,
+    ):
+        fields = self._spectral_fields(resolution)
+        if snr_column is None:
+            snr_column = fields['snr']
+
+        constraints = []
+        if snr_min is not None:
+            if not snr_column:
+                raise InvalidQueryError("snr_column must be provided when snr_min is set.")
+            _append_min_constraint(constraints, snr_column, snr_min)
+        _append_range_constraint(constraints, fields['teff'], teff_range)
+        _append_range_constraint(constraints, fields['logg'], logg_range)
+        _append_range_constraint(constraints, fields['feh'], feh_range)
+        return constraints or None
+
+    def query_spectra(
+        self,
+        coordinates=None,
+        radius=None,
+        *,
+        resolution='low',
+        catalog_name=None,
+        snr_min=None,
+        snr_column=None,
+        teff_range=None,
+        logg_range=None,
+        feh_range=None,
+        columns=None,
+        nearest_only=False,
+        sort_by=None,
+        sort_order='asc',
+        max_rows=100,
+        page=1,
+        output_format=None,
+        get_query_payload=False,
+        cache=True,
+        verbose=False,
+    ):
+        """Query LAMOST spectral catalog rows with common quality filters.
+
+        Parameters
+        ----------
+        coordinates : str or astropy.coordinates object, optional
+            Center position for a cone search.
+        radius : str, float, or astropy.units.Quantity, optional
+            Positive scalar cone-search radius, required with ``coordinates``.
+            Bare numbers are arcseconds; angle strings and angular quantities are accepted.
+        resolution : {"low", "medium"}, optional
+            Spectral-resolution catalog family.
+        catalog_name : str, optional
+            Explicit catalog endpoint name. Field-name defaults still follow
+            ``resolution``.
+        snr_min : float, optional
+            Minimum signal-to-noise ratio.
+        snr_column : str, optional
+            Column used for the SNR filter. Defaults to ``snrg`` for LRS and
+            ``snr`` for MRS.
+        teff_range, logg_range, feh_range : sequence of float, optional
+            Inclusive stellar-parameter ranges: temperature in kelvin, log10
+            surface gravity in cm/s2, and [Fe/H] in dex, respectively.
+        columns : iterable of str, optional
+            Columns to include in the result.
+        nearest_only : bool, optional
+            Select the nearest row satisfying both position and physical cuts.
+            Requires coordinates and page=1. False (default) returns qualifying
+            matches up to max_rows, ordered by distance unless sort_by is given.
+        sort_by : str, optional
+            Column used for sorting.
+        sort_order : {"asc", "desc"}, optional
+            Sort order.
+        max_rows : int, optional
+            Maximum rows per page.
+        page : int, optional
+            One-based page number.
+        output_format : {None, "json", "csv", "votable", "txt"}, optional
+            Requested wire format. None selects CSV for legacy configurations
+            and JSON for modern ones. An explicit format is sent unchanged.
+        get_query_payload : bool, optional
+            Return the actual redacted request parameters without executing the
+            data query. SQL compilation can fetch field metadata first.
+        cache : bool, optional
+            Whether to use astroquery's request cache.
+        verbose : bool, optional
+            Emit parser diagnostics for table responses.
+
+        Returns
+        -------
+        astropy.table.Table or dict
+            Query result table, or request payload when
+            ``get_query_payload=True``.
+        """
+        if (coordinates is None) ^ (radius is None):
+            raise InvalidQueryError("coordinates and radius must be provided together.")
+        if not isinstance(nearest_only, bool) or (nearest_only and coordinates is None):
+            raise InvalidQueryError('nearest_only must be a boolean and True requires coordinates.')
+
+        position_constraints = None
+        if coordinates is not None:
+            position_constraints = self._build_structured_cone_constraint(
+                coordinates,
+                radius,
+                nearest_only=nearest_only,
+            )
+
+        return self.query_catalog(
+            self._spectral_catalog_name(
+                resolution, catalog_name,
+                stellar=any(value is not None for value in (teff_range, logg_range, feh_range)),
+            ),
+            column_constraints=self._spectral_column_constraints(
+                resolution=resolution,
+                snr_min=snr_min,
+                snr_column=snr_column,
+                teff_range=teff_range,
+                logg_range=logg_range,
+                feh_range=feh_range,
+            ),
+            position_constraints=position_constraints,
+            columns=columns,
+            sort_by=sort_by,
+            sort_order=sort_order,
+            max_rows=max_rows,
+            page=page,
+            output_format=output_format,
+            get_query_payload=get_query_payload,
+            cache=cache,
+            verbose=verbose,
+        )
+
+    def query_stellar_parameters(
+        self,
+        coordinates=None,
+        radius=None,
+        *,
+        resolution='low',
+        catalog_name=None,
+        snr_min=None,
+        snr_column=None,
+        teff_range=None,
+        logg_range=None,
+        feh_range=None,
+        columns=None,
+        nearest_only=False,
+        sort_by=None,
+        sort_order='asc',
+        max_rows=100,
+        page=1,
+        output_format=None,
+        get_query_payload=False,
+        cache=True,
+        verbose=False,
+    ):
+        """Query LAMOST rows focused on stellar atmospheric parameters.
+
+        Parameters
+        ----------
+        coordinates : str or astropy.coordinates object, optional
+            Center position for a cone search.
+        radius : str, float, or astropy.units.Quantity, optional
+            Positive scalar cone-search radius, required with ``coordinates``.
+            Bare numbers are arcseconds; angle strings and angular quantities are accepted.
+        resolution : {"low", "medium"}, optional
+            Spectral-resolution catalog family.
+        catalog_name : str, optional
+            Explicit catalog endpoint name. Field-name defaults still follow
+            ``resolution``.
+        snr_min : float, optional
+            Minimum signal-to-noise ratio.
+        snr_column : str, optional
+            Column used for the SNR filter and included by default. Defaults
+            to ``snrg`` for LRS and ``snr`` for MRS.
+        teff_range, logg_range, feh_range : sequence of float, optional
+            Inclusive stellar-parameter ranges: temperature in kelvin, log10
+            surface gravity in cm/s2, and [Fe/H] in dex, respectively.
+        columns : iterable of str, optional
+            Columns to include in the result. Defaults to core stellar
+            atmospheric-parameter columns.
+        nearest_only : bool, optional
+            Select the nearest row satisfying both position and physical cuts.
+            Requires coordinates and page=1. False (default) returns qualifying
+            matches up to max_rows, ordered by distance unless sort_by is given.
+        sort_by : str, optional
+            Column used for sorting.
+        sort_order : {"asc", "desc"}, optional
+            Sort order.
+        max_rows : int, optional
+            Maximum rows per page.
+        page : int, optional
+            One-based page number.
+        output_format : {None, "json", "csv", "votable", "txt"}, optional
+            Requested wire format. None selects CSV for legacy configurations
+            and JSON for modern ones. An explicit format is sent unchanged.
+        get_query_payload : bool, optional
+            Return the actual redacted request parameters without executing the
+            data query. SQL compilation can fetch field metadata first.
+        cache : bool, optional
+            Whether to use astroquery's request cache.
+        verbose : bool, optional
+            Emit parser diagnostics for table responses.
+
+        Returns
+        -------
+        astropy.table.Table or dict
+            Query result table, or request payload when
+            ``get_query_payload=True``.
+        """
+        fields = self._spectral_fields(resolution)
+        if snr_column is None:
+            snr_column = fields['snr']
+
+        if columns is None:
+            columns = [
+                'obsid',
+                'ra',
+                'dec',
+                fields['teff'],
+                fields['logg'],
+                fields['feh'],
+            ]
+            if snr_column:
+                columns = [*columns, snr_column]
+
+        return self.query_spectra(
+            coordinates=coordinates,
+            radius=radius,
+            resolution=resolution,
+            catalog_name=self._spectral_catalog_name(resolution, catalog_name, stellar=True),
+            snr_min=snr_min,
+            snr_column=snr_column,
+            teff_range=teff_range,
+            logg_range=logg_range,
+            feh_range=feh_range,
+            columns=columns,
+            nearest_only=nearest_only,
+            sort_by=sort_by,
+            sort_order=sort_order,
+            max_rows=max_rows,
+            page=page,
+            output_format=output_format,
+            get_query_payload=get_query_payload,
+            cache=cache,
+            verbose=verbose,
+        )
+
+    def query_repeat_observations(
+        self,
+        *,
+        obsid=None,
+        coordinates=None,
+        radius=None,
+        ra=None,
+        dec=None,
+        get_query_payload=False,
+        cache=True,
+    ):
+        """Query related LAMOST observation IDs for one target.
+
+        Parameters
+        ----------
+        obsid : str or int, optional
+            Observation ID to resolve.
+        coordinates : str or astropy.coordinates object, optional
+            Target position. Mutually exclusive with ``ra`` and ``dec``.
+        radius : str, float, or astropy.units.Quantity, optional
+            Positive scalar search radius. Bare numbers are degrees;
+            angle strings and angular quantities are accepted.
+        ra, dec : float, optional
+            Target coordinates in degrees.
+        get_query_payload : bool, optional
+            Return the request payload instead of executing the request.
+        cache : bool, optional
+            Whether to use astroquery's request cache.
+
+        Returns
+        -------
+        dict
+            Keys ``unique_id`` and ``related_obsids`` identify the service's
+            target (None when absent) and its observations. ``related_obsids``
+            is an unlabelled union across resolutions; it cannot determine
+            the resolution needed for downloads. ``related_obsids_low`` and
+            ``related_obsids_medium`` distinguish the resolution families.
+            With ``get_query_payload=True``, return request parameters instead.
+
+        Notes
+        -----
+        Associations follow the selected release's identity rules, not a
+        client-side coordinate match. The DR3 service does not provide this
+        lookup; external-catalog candidates are not substituted for its UID.
+        """
+        has_coordinate_values = coordinates is not None or ra is not None or dec is not None or radius is not None
+        if obsid is not None and has_coordinate_values:
+            raise InvalidQueryError("Provide either obsid or coordinates/radius, not both.")
+
+        if coordinates is not None:
+            if ra is not None or dec is not None:
+                raise InvalidQueryError("Use coordinates or ra/dec, not both.")
+            c = commons.parse_coordinates(coordinates)
+            ra = float(c.icrs.ra.to_value(u.deg))
+            dec = float(c.icrs.dec.to_value(u.deg))
+
+        if obsid is not None:
+            request_payload = {'obsid': str(obsid)}
+        else:
+            if ra is None or dec is None or radius is None:
+                raise ValueError("Either 'obsid' OR all of ('ra', 'dec', 'radius') must be provided")
+            request_payload = {
+                'ra': float(ra), 'dec': float(dec),
+                'radius': self._radius_in(radius, u.deg),
+            }
+        if self.token:
+            request_payload['token'] = self.token
+        if get_query_payload:
+            return self._redact(request_payload)
+
+        url = f"{self.URL}/{self.data_release}/{self.sub_version}/get_unique_id_and_related_obsids"
+        response = self._request_raise('GET', url, params=request_payload, cache=cache)
+        return self._normalize_unique_id_result(self._response_json(response))
+
+    def _request_metadata(self, obsid, *,
+                          resolution='low', get_query_payload=False, cache=True):
+        """Get metadata/information for a specific spectrum."""
+        resolution = self._normalize_resolution(resolution)
+        request_payload = {'obsid': str(obsid)}
+
+        if self.token:
+            request_payload['token'] = self.token
+
+        if get_query_payload:
+            return self._redact(request_payload)
+
+        url = self._build_url('spectrum/info', resolution=resolution, obsid=obsid)
+        return self._request_raise('GET', url, params=request_payload, cache=cache)
+
+    def get_metadata(self, obsid, *, resolution='low',
+                     get_query_payload=False, cache=True, verbose=False):
+        """Get metadata for a specific LAMOST spectrum.
+
+        Parameters
+        ----------
+        obsid : str or int
+            Observation ID of the spectrum.
+        resolution : {"low", "medium"}, optional
+            Spectral-resolution service to query.
+        get_query_payload : bool, optional
+            Return the request payload instead of executing the request.
+        cache : bool, optional
+            Whether to use astroquery's request cache.
+        verbose : bool, optional
+            Emit parser diagnostics for table responses.
+
+        Returns
+        -------
+        astropy.table.Table or dict
+            Metadata table, or request payload when
+            ``get_query_payload=True``. Legacy field/value records become one
+            row; MRS exposure/band rows remain separate. Known catalog mappings
+            supply column types; other fields retain their service types.
+
+        Notes
+        -----
+        Legacy schema discovery uses SQL, which may require authentication
+        even when spectrum metadata and FITS are public (observed for DR7).
+        Schema failures propagate; unknown default catalog mappings keep the
+        raw parsing path without inferring a catalog or column types.
+        """
+        response = self._request_metadata(
+            obsid,
+            resolution=resolution,
+            get_query_payload=get_query_payload,
+            cache=cache,
+        )
+        if get_query_payload:
+            return response
+        data = self._response_json(response)
+        if isinstance(data, Mapping) and 'response' in data:
+            fields = data['response']
+            if not isinstance(fields, list) or not all(
+                    isinstance(field, Mapping) and isinstance(field.get('what'), str)
+                    and field['what'] and 'data' in field for field in fields):
+                raise TableParseError('Invalid legacy LAMOST spectrum metadata fields.')
+            names = [field['what'] for field in fields]
+            if len(set(names)) != len(names):
+                raise TableParseError('Duplicate legacy LAMOST spectrum metadata fields.')
+            table = Table([{field['what']: field['data'] for field in fields}])
+            metadata = self.get_tables_metadata(cache=cache)['tables']
+            # Physical and observation fields may come from separate old tables.
+            for catalog in ('catalogue', 'stellar'):
+                if catalog in metadata:
+                    self._apply_catalog_schema(table, self._columns_schema(metadata[catalog]['columns']))
+            self.table = table
+            return table
+        schema = None
+        if self._legacy_metadata() or self.sub_version in MODERN_CATALOGS.get(self.data_release, ()):
+            schema = self._catalog_schema(self._spectral_catalog_name(resolution, None), cache=cache)
+        return self._parse_table_response(response, verbose=verbose, column_schema=schema)
+
+    def get_spectra(self, obsid, *, resolution='low', get_query_payload=False,
+                    verify='warn'):
+        """Download spectrum FITS data for an observation ID.
+
+        Parameters
+        ----------
+        obsid : str or int
+            Observation ID of the spectrum.
+        resolution : {"low", "medium"}, optional
+            Spectral-resolution service to query.
+        get_query_payload : bool, optional
+            Return redacted request parameters instead of fetching files.
+        verify : str, optional
+            FITS verification option passed to the ``verify`` method of the
+            `astropy.io.fits.HDUList`. Default is ``"warn"``.
+
+        Returns
+        -------
+        list of astropy.io.fits.HDUList or dict
+            A single-element list of in-memory FITS objects, or redacted parameters when
+            ``get_query_payload=True``. The caller must close the HDU lists.
+            HTTP responses are closed before returning.
+        """
+        url_list = self.get_spectrum_list(obsid, resolution=resolution,
+                                          get_query_payload=get_query_payload)
+        if get_query_payload:
+            return url_list
+
+        with self._request_raise('GET', url_list[0]) as response:
+            with commons.get_readable_fileobj(BytesIO(response.content), encoding='binary') as source:
+                spectrum = fits.HDUList.fromstring(source.read())
+        try:
+            spectrum.verify(verify)
+        except Exception:
+            spectrum.close()
+            raise
+        return [spectrum]
+
+    def get_spectrum_list(self, obsid, *, resolution='low', get_query_payload=False):
+        """
+        Get list of spectrum FITS file URLs without downloading.
+
+        Parameters
+        ----------
+        obsid : str or int
+            Observation ID of the spectrum.
+        resolution : str, optional
+            Spectral resolution: 'low' for LRS (default) or 'medium' for MRS.
+        get_query_payload : bool, optional
+            If True, return the request parameters dict without executing the query.
+
+        Returns
+        -------
+        list of str or dict
+            A single-element list of FITS file URLs, or redacted parameters when
+            ``get_query_payload=True``. Download URLs contain the token for
+            authenticated clients and must not be logged or shared.
+        """
+        resolution = self._normalize_resolution(resolution)
+        request_payload = {'obsid': str(obsid)}
+
+        if self.token:
+            request_payload['token'] = self.token
+
+        if get_query_payload:
+            return self._redact(request_payload)
+
+        # Build URL for FITS download
+        base_url = self._build_url('spectrum/fits', resolution=resolution, obsid=obsid)
+        url = f"{base_url}?{urlencode(request_payload)}"
+
+        return [url]
+
+    def _resolve_download_path(self, response, save_dir, filename, default_name):
+        if filename:
+            if os.path.isabs(filename):
+                return filename
+            return os.path.join(save_dir, filename)
+
+        content_disp = response.headers.get('Content-Disposition', '')
+        filename_match = re.search(r'filename=([^;]+)', content_disp, re.IGNORECASE)
+        if filename_match:
+            resolved = filename_match.group(1).strip(' "\'')
+            resolved = os.path.basename(resolved)
+        else:
+            resolved = default_name
+
+        return os.path.join(save_dir, resolved)
+
+    def _check_download_body(self, response, path):
+        # Inspect completed text candidates, independent of network chunk boundaries.
+        # FITS/gzip products only cost a prefix read; text diagnostics are bounded.
+        with open(path, 'rb') as source:
+            prefix = source.read(8192).removeprefix(b'\xef\xbb\xbf').lstrip()
+            if prefix and not prefix.startswith((b'{', b'[', b'<')):
+                return
+            source.seek(0)
+            content = source.read(1024 * 1024 + 1)
+        if len(content) > 1024 * 1024:
+            raise TableParseError('LAMOST catalog text response exceeds the 1 MiB diagnostic limit.')
+        body_response = self._diagnostic_response(response)
+        body_response._content = content
+        body_response._content_consumed = True
+        try:
+            self._raise_response_error(body_response, 'LAMOST catalog download')
+            kind = 'text' if prefix else 'an empty body'
+            raise TableParseError(f'LAMOST catalog download returned {kind} instead of a FITS/CSV gzip product.')
+        except Exception:
+            self.response = self._diagnostic_response(body_response)
+            raise
+
+    def download_catalog(self, catalog_name, *, resolution='low',
+                         save_dir='./',
+                         filename=None, overwrite=True, cache=True,
+                         verify='exception'):
+        """
+        Download a catalog product (FITS, or the DR3 plan CSV gzip).
+
+        Parameters
+        ----------
+        catalog_name : str
+            File product name from the selected release's download page,
+            for example ``dr10_v2.0_LRS_plan.fits.gz`` for DR10/v2.0 LRS.
+            These names are distinct from SQL relation names in table metadata.
+        resolution : str, optional
+            Spectral resolution: 'low' for LRS (default) or 'medium' for MRS.
+        save_dir : str, optional
+            Directory to save the downloaded file. Default is current directory.
+        filename : str, optional
+            Override the output filename. Relative paths are resolved against
+            save_dir. If None, use server-provided filename and fall back to
+            "{catalog_name}.fits.gz", or "dr3_plan.csv.gz" for the native DR3 plan.
+        overwrite : bool, optional
+            If True, overwrite existing file. Default is True.
+        cache : bool, optional
+            Retained for compatibility. Streaming downloads bypass the cache.
+        verify : str, optional
+            FITS verification option passed to
+            the ``verify`` method of `astropy.io.fits.HDUList`. The default, ``"exception"``,
+            rejects non-compliant FITS products before publication. The native
+            DR3 plan is validated as CSV instead; this option does not apply to it.
+
+        Returns
+        -------
+        str
+            Path to the downloaded catalog file, or the existing file when
+            ``overwrite=False``. Existing files are not revalidated in this case.
+
+        Notes
+        -----
+        The response is closed on success, skip, and failure. A temporary file
+        with a unique name is validated before replacing the destination;
+        a failed write or FITS
+        verification preserves an existing destination.
+
+        Examples
+        --------
+        >>> from astroquery.nadc.lamost import LamostClass
+        >>> client = LamostClass(data_release='dr10', sub_version='v2.0')
+        >>> filepath = client.download_catalog('dr10_v2.0_LRS_plan.fits.gz')  # doctest: +SKIP
+        """
+        resolution = self._normalize_resolution(resolution)
+
+        request_params = {'name': catalog_name}
+        dr3_plan = bool(self._dr3_url() and resolution == 'low')
+        if dr3_plan:
+            if catalog_name not in {'plan', 'dr3_plan', 'dr3_plan.csv.gz'}:
+                raise InvalidQueryError('The verified DR3 catalog download is dr3_plan.csv.gz (catalog_name="plan").')
+            request_params['name'] = 'dr3_plan.csv.gz'
+
+        if self.token:
+            request_params['token'] = self.token
+
+        # Build URL
+        url = f'{self._dr3_url()}/catdl' if dr3_plan else self._build_url('catalog', resolution=resolution)
+
+        # Download file
+        with self._request_raise(
+            'GET',
+            url,
+            params=request_params,
+            cache=cache,
+            stream=True,
+        ) as response:
+            filepath = self._resolve_download_path(
+                response, save_dir, filename, 'dr3_plan.csv.gz' if dr3_plan else f"{catalog_name}.fits.gz"
+            )
+            os.makedirs(os.path.dirname(filepath) or save_dir, exist_ok=True)
+            if os.path.exists(filepath) and not overwrite:
+                return filepath
+
+            try:
+                directory = os.path.dirname(os.path.abspath(filepath))
+                with tempfile.TemporaryDirectory(dir=directory) as temp_dir:
+                    temp_filepath = os.path.join(temp_dir, 'catalog')
+                    with open(temp_filepath, 'wb') as f:
+                        for chunk in response.iter_content(chunk_size=8192):
+                            if chunk:
+                                f.write(chunk)
+                    self._check_download_body(response, temp_filepath)
+                    if dr3_plan:
+                        with gzip.open(temp_filepath, 'rb') as source:
+                            csv_response = Response()
+                            csv_response._content = source.read()
+                        table = self._parse_csv_result(csv_response)
+                        if not {'pid', 'planid', 'ra', 'dec'}.issubset(table.colnames):
+                            raise TableParseError('DR3 plan catalog omitted required fields.')
+                    else:
+                        with fits.open(temp_filepath) as hdul:
+                            hdul.verify(verify)
+                    os.replace(temp_filepath, filepath)
+            except Exception as error:
+                self._sanitize_exception(error)
+                raise
+
+        return filepath
 
     def _parse_result(self, response, *, verbose=False, column_schema=None):
         """
