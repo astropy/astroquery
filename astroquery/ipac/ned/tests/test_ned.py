@@ -214,6 +214,15 @@ def test_photometry(patch_get):
     assert isinstance(result, Table)
 
 
+def test_get_photometry_line_async(patch_get):
+    response = ned.Ned.get_table_async(
+        "3c 273", table='photometry', is_line=True, get_query_payload=True)
+    s_type = ned.Ned.SEARCH_TYPE
+    assert response[ned.Ned.DBR_TARGET] == '3c 273'
+    assert s_type == ned.Ned.OBJSEARCH_PHOTOMETRY
+    assert response[ned.Ned.DBR_ISLINE] == 'yes'
+
+
 def test_extract_image_urls():
     with open(data_path(DATA_FILES['extract_urls']), 'r') as infile:
         html_in = infile.read()
@@ -380,6 +389,34 @@ def test_query_wrong_region_async(monkeypatch):
 
     with pytest.raises(TypeError, match="Coordinates not specified correctly"):
         ned.Ned.query_region_async(c)
+
+
+def test_query_wrong_equinox_region_async(monkeypatch):
+    c = "12h30m00s +12d30m00s"
+    with pytest.raises(TypeError, match="Coordinates not specified correctly"):
+        ned.Ned.query_region_async(c, equinox="J2001")
+
+
+def test_query_any_coordinates_region_async(monkeypatch):
+    c = coord.SkyCoord(ra=10 * u.deg, dec=20 * u.deg, frame='fk5', equinox='B1951')
+    response = ned.Ned.query_region_async(c, get_query_payload=True)
+    s_type = ned.Ned.SEARCH_TYPE
+    assert s_type == ned.Ned.CONESEARCH_POSITION
+    assert response[ned.Ned.DBR_CSYS] == 'Equatorial'
+    assert response[ned.Ned.DBR_EQUINOX] == 'J2000'
+
+
+def test_query_region_icrs_coord_object(patch_get):
+    c = coord.SkyCoord(ra=10 * u.deg, dec=20 * u.deg, frame='icrs')
+    response = ned.Ned.query_region_async(c, get_query_payload=True)
+    s_type = ned.Ned.SEARCH_TYPE
+    assert s_type == ned.Ned.CONESEARCH_POSITION
+    assert response[ned.Ned.DBR_CSYS] == 'Equatorial'
+    assert response[ned.Ned.DBR_EQUINOX] == 'J2000'
+    npt.assert_approx_equal(
+        float(response[ned.Ned.DBR_LON].rstrip('h')) * 15 % 360, 10, significant=5)
+    npt.assert_approx_equal(
+        float(response[ned.Ned.DBR_LAT].rstrip('d')), 20, significant=5)
 
 
 def test_query_object_async(patch_get):
