@@ -49,7 +49,8 @@ from ...exceptions import InvalidQueryError, LoginError, RemoteServiceError, Tab
 from . import conf
 
 
-__all__ = ['Lamost', 'LamostClass']
+__all__ = ['Lamost', 'LamostClass',
+           'parse_lrs_spectrum', 'parse_mrs_spectrum']
 
 
 _TOKEN_ENV_VARS = (
@@ -2209,3 +2210,162 @@ class LamostClass(BaseQuery):
 
 # Singleton instance for module-level access
 Lamost: LamostClass = LamostClass()
+
+
+# Utility functions for FITS spectrum processing
+
+def _spectrum_table_arrays(hdu, *, allow_loglam=False):
+    """Read the named spectral arrays shared by LRS and MRS table HDUs."""
+    if not isinstance(hdu, fits.BinTableHDU) or hdu.data is None or len(hdu.data) == 0:
+        raise ValueError("Spectrum HDU must contain a nonempty binary table.")
+    columns = {name.upper() for name in hdu.columns.names}
+    loglam = allow_loglam and 'LOGLAM' in columns
+    wavelength_column = 'LOGLAM' if loglam else 'WAVELENGTH'
+    if 'FLUX' not in columns or wavelength_column not in columns:
+        raise ValueError("Spectrum table requires FLUX and WAVELENGTH (or historical MRS LOGLAM) columns.")
+    if loglam:
+        if 'WAVELENGTH' in columns:
+            raise ValueError("Spectrum table has ambiguous WAVELENGTH and LOGLAM columns.")
+        # Historical MRS files store one scalar pixel per row, including coadds.
+        flux = np.array(hdu.data['FLUX'], copy=True)
+        wavelength = np.array(hdu.data['LOGLAM'], copy=True)
+    else:
+        if len(hdu.data) != 1:
+            raise ValueError("FLUX and WAVELENGTH require one table row of vector arrays.")
+        flux = np.array(hdu.data['FLUX'][0], copy=True)
+        wavelength = np.array(hdu.data['WAVELENGTH'][0], copy=True)
+    if (flux.ndim != 1 or flux.size == 0 or flux.shape != wavelength.shape
+            or flux.dtype.kind not in 'iuf' or wavelength.dtype.kind not in 'iuf'):
+        raise ValueError(f"FLUX and {wavelength_column} must be nonempty numeric arrays of equal length.")
+    if loglam:
+        invalid = np.flatnonzero(~np.isfinite(wavelength))
+        if invalid.size:
+            first = invalid[0]
+            raise ValueError(
+                f"LOGLAM must be finite; found {invalid.size} invalid pixels, "
+                f"first at zero-based index {first}: {wavelength[first]!r}."
+            )
+        # Promote before exponentiating: float32 log wavelengths otherwise lose
+        # precision unnecessarily. Do not apply RV corrections or reorder pixels.
+        # The MRS parser checks the converted values, including overflow and
+        # underflow to zero, and reports the extension and offending pixel.
+        with np.errstate(over='ignore', under='ignore', invalid='ignore'):
+            wavelength = 10.0 ** wavelength.astype(np.float64)
+    return wavelength, flux
+
+
+def parse_lrs_spectrum(filename):
+    """
+    Parse a low-resolution spectrum (LRS) FITS file.
+
+    Read the wavelength and flux arrays without smoothing, changing flux
+    precision, selecting pixels, or applying a velocity correction.
+
+    Parameters
+    ----------
+    filename : str
+        Path to the LRS FITS file.
+
+    Returns
+    -------
+    wavelength : `~numpy.ndarray`
+        Wavelength array in Angstroms.
+    flux : `~numpy.ndarray`
+        Spectrum flux array.
+
+    Raises
+    ------
+    ValueError
+        The file is neither a primary-HDU LRS image with COEFF0/COEFF1 nor
+        a two-HDU file with FLUX and WAVELENGTH table columns.
+
+    Notes
+    -----
+    This parser validates the file layout, not the scientific quality of its
+    pixels. It does not reject nonfinite or nonpositive wavelength/flux values.
+
+    Examples
+    --------
+    >>> wavelength, flux = parse_lrs_spectrum('spec.fits')  # doctest: +SKIP
+    """
+    with fits.open(filename) as hdulist:
+        if len(hdulist) == 1:
+            header, scidata = hdulist[0].header, hdulist[0].data
+            if (scidata is None or scidata.ndim != 2 or not all(scidata.shape)
+                    or 'COEFF0' not in header or 'COEFF1' not in header):
+                raise ValueError("LRS primary HDU requires a flux image and COEFF0/COEFF1 header keywords.")
+            flux = np.array(scidata[0], copy=True)
+            wavelength = 10 ** (float(header['COEFF0']) + np.arange(flux.size) * float(header['COEFF1']))
+        elif len(hdulist) == 2:
+            wavelength, flux = _spectrum_table_arrays(hdulist[1])
+        else:
+            raise ValueError(
+                f"Unsupported LRS FITS layout: found {len(hdulist)} HDUs; "
+                "expected a single primary image or a primary HDU and a spectrum table."
+            )
+
+    return wavelength, flux
+
+
+def parse_mrs_spectrum(filename):
+    """
+    Parse a medium-resolution spectrum (MRS) FITS file.
+
+    This function reads a LAMOST medium-resolution spectrum FITS file which
+    contains multiple spectral bands in separate extensions. It supports
+    single-row FLUX/WAVELENGTH vectors and historical DR8/DR9 tables with
+    scalar FLUX/LOGLAM pixels in successive rows. LOGLAM is converted to
+    wavelength as ``10**LOGLAM`` in double precision. Pixel order, flux values,
+    and extension names (including coadds and individual exposures) are kept;
+    no radial-velocity or wavelength-frame correction is applied.
+    Logarithmic wavelengths must be finite and the resulting wavelengths must
+    be finite and positive. Flux quality selection is left to the caller.
+
+    Parameters
+    ----------
+    filename : str
+        Path to the MRS FITS file.
+
+    Returns
+    -------
+    dict
+        Dictionary with extension names as keys. Each value contains
+        ``wavelength`` (array in Angstroms) and ``flux`` (spectrum flux array).
+
+    Raises
+    ------
+    ValueError
+        No spectrum extensions are present, or an extension is empty, lacks
+        supported columns, has ambiguous wavelength columns, or does not have
+        the numeric array shapes described above. Duplicate extension names
+        are rejected to avoid silently losing a spectrum. Nonfinite LOGLAM or
+        nonfinite/nonpositive wavelengths, including conversion overflow or
+        underflow to zero, are rejected with extension and pixel diagnostics.
+
+    Examples
+    --------
+    >>> data = parse_mrs_spectrum('spec_mrs.fits')  # doctest: +SKIP
+    >>> for band_name, band_data in data.items():  # doctest: +SKIP
+    ...     print(f"{band_name}: {len(band_data['wavelength'])} pixels")  # doctest: +SKIP
+    """
+    data = {}
+    with fits.open(filename) as hdulist:
+        if len(hdulist) < 2:
+            raise ValueError(f"{filename}: MRS FITS requires at least one spectrum extension.")
+        for i, hdu in enumerate(hdulist[1:], 1):
+            extension_name = hdu.header.get('EXTNAME', f'Extension_{i}')
+            try:
+                wavelength, flux = _spectrum_table_arrays(hdu, allow_loglam=True)
+                invalid = np.flatnonzero(~np.isfinite(wavelength) | (wavelength <= 0))
+                if invalid.size:
+                    first = invalid[0]
+                    raise ValueError(
+                        f"Wavelengths must be finite and positive; found {invalid.size} invalid pixels, "
+                        f"first at zero-based index {first}: {wavelength[first]!r}."
+                    )
+            except ValueError as error:
+                raise ValueError(f"{filename}: extension {extension_name!r} (HDU {i}): {error}") from error
+            if extension_name in data:
+                raise ValueError(f"{filename}: duplicate spectrum extension name: {extension_name} (HDU {i}).")
+            data[extension_name] = {'wavelength': wavelength, 'flux': flux}
+    return data

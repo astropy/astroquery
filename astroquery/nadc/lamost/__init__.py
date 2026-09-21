@@ -43,6 +43,8 @@ class Conf(_config.ConfigNamespace):
 conf = Conf()
 
 from .core import Lamost, LamostClass  # noqa: E402
+from .core import parse_lrs_spectrum, parse_mrs_spectrum  # noqa: E402
 
 __all__ = ['Lamost', 'LamostClass',
-           'Conf', 'conf']
+           'Conf', 'conf',
+           'parse_lrs_spectrum', 'parse_mrs_spectrum']

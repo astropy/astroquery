@@ -38,5 +38,26 @@
       "source": "dr8_sql_med_stellar_csv.body",
       "sha256": "d528a2348f91282f7f3ea91c9481ff71e7037043de02a08426f869b1546b9c69"
     }
+  },
+  "mrs_dr8_excerpt.fits.gz": {
+    "source_record": "arxiv2205_09972_cme/data/lamost/dr8/v1.0/medium/624510064.fits",
+    "source_sha256": "dab91a26198108f3848e1ece79286d5488f6e4c409e412bd6e9bb6e611480d78",
+    "provenance": "First 16 pixels of each real extension; extension names and science values preserved. Modern excerpt keeps only FLUX/WAVELENGTH; primary header keeps OBSID."
+  },
+  "mrs_dr10_excerpt.fits.gz": {
+    "source_record": "r101659_flare/data/lamost/dr10/v2.0/medium/1007903112.fits",
+    "source_sha256": "7c469c1c3c4656dd83e303c832ec2c19b80ae5cd4804c2a36aaa97d377063b2c",
+    "provenance": "First 16 pixels of each real extension; extension names and science values preserved. Modern excerpt keeps only FLUX/WAVELENGTH; primary header keeps OBSID."
+  },
+  "activity_dr7_excerpt.fits.gz": {
+    "source_record": "arxiv2209_15255_activity/data/lamost/dr7/v2.0/low/54901214.fits",
+    "source_sha256": "3834ad6f8e0665f9ede558eee763bda98cf613a63cc8c279dc6e86b08a0218d8",
+    "provenance": "Flux/wavelength pixels spanning 3880-4025 Angstroms, reserialized with OBSID; original pixel order and values preserved.",
+    "rv_kms": -24.78,
+    "independent_S_L": 0.1803738541038765,
+    "reference_S_L": 0.18038,
+    "reference_uncertainty": 0.003597,
+    "numerical_atol": 1e-07,
+    "paper": "https://arxiv.org/abs/2209.15255"
   }
 }
