@@ -166,6 +166,14 @@ class NedClass(BaseQuery):
         equinox : str, optional
             The equinox may be either ``J2000.0`` or ``B1950.0``.
             Defaults to ``J2000.0``.
+            For string-formatted coordinates (for example,
+            "12h30m00s +12d30m00s"), this value is used to determine the
+            request equinox. If the value is not recognized as J2000/B1950,
+            the query raises an input error.
+            For coordinate-object inputs, this argument is ignored and the
+            equinox is derived from the coordinate frame.
+            Accepted NED equatorial pairs are FK4/B1950 and FK5/J2000;
+            otherwise, the coordinate is normalized to FK5/J2000.
         z_constraint: str, optional
             The redshift constraint may be ``Unconstrained``, ``Available``,
             ``Unavailable``, ``Larger Than``, ``Less Than`` or ``Between``.
@@ -231,6 +239,14 @@ class NedClass(BaseQuery):
         equinox : str, optional
             The equinox may be either ``J2000.0`` or ``B1950.0``.
             Defaults to ``J2000.0``.
+            For string-formatted coordinates (for example,
+            "12h30m00s +12d30m00s"), this value is used to determine the
+            request equinox. If the value is not recognized as J2000/B1950,
+            the query raises an input error.
+            For coordinate-object inputs, this argument is ignored and the
+            equinox is derived from the coordinate frame.
+            Accepted NED equatorial pairs are FK4/B1950 and FK5/J2000;
+            otherwise, the coordinate is normalized to FK5/J2000.
         z_constraint: str, optional
             The redshift constraint may be ``Unconstrained``, ``Available``,
             ``Unavailable``, ``Larger Than``, ``Less Than`` or ``Between``.
@@ -269,7 +285,8 @@ class NedClass(BaseQuery):
         else:
             try:
                 c = commons.parse_coordinates(coordinates)
-                ra, dec, equ, frame = _get_coord_for_ned(c, equinox=equinox)
+                isStrCoord = isinstance(coordinates, str)
+                ra, dec, equ, frame = _get_coord_for_ned(c, equinox=equinox, isStrCoord=isStrCoord)
                 frame_name = c.frame.name.lower()
                 if (frame_name == NED_COORD_FRAMES['gal'].lower()
                         or frame_name == NED_COORD_FRAMES['sgal'].lower()):
@@ -286,8 +303,10 @@ class NedClass(BaseQuery):
                     request_payload[self.DBR_LAT] = self._fixed_float(
                         dec, unit='d', digits=decimal_digits)
                 self.SEARCH_TYPE = Ned.CONESEARCH_POSITION
-            except (u.UnitsError, TypeError, ValueError):
-                raise TypeError("Coordinates not specified correctly")
+            except (u.UnitsError, TypeError, ValueError) as exc:
+                raise TypeError(
+                    f"Coordinates not specified correctly: {exc}"
+                ) from exc
 
         z_cs, msg = self._check_redshift_constraints(
             z_constraint=z_constraint, z_value1=z_value1, z_value2=z_value2, z_unit=z_unit)
@@ -1068,7 +1087,7 @@ def _get_value_from_paths(obj, attr_paths):
     return None
 
 
-def _get_coord_for_ned(c, *, equinox=None):
+def _get_coord_for_ned(c, *, equinox=None, isStrCoord=False):
     frame_name = c.frame.name.lower()
     equ = None
 
@@ -1089,22 +1108,33 @@ def _get_coord_for_ned(c, *, equinox=None):
     else:
         frame = NED_COORD_FRAMES['equ']
 
-        # frame + equinox to csys + equinox mapping for NED service
-        # fk4+B1950 -> equatorial+B1950, fk5+J2000 -> equatorial+J2000,
-        # other -> equatorial+equinox (default to J2000 if not specified)
+        # Accepted NED equatorial pairs are FK4/B1950 and FK5/J2000.
+        # For string-form coordinates outside FK4/FK5, parse the requested equinox,
+        # transform to FK5 for RA/Dec extraction, and keep equinox in payload.
+        # For non-string inputs or mismatched frame/equinox pairs, normalize to
+        # FK5/J2000 before building the request payload.
         if frame_name in ('fk4', 'fk5'):
             def_equ = NED_COORD_EQUINOX['b'] \
                 if frame_name == 'fk4' else NED_COORD_EQUINOX['j']
             equ = _get_equinox(c)
         else:
-            def_equ = None
-            equ = None
-        # transform fk4/non B1950, fk5/non J2000, or any other frame
-        # to fk5/target_equ based on the input equinox
+            if isStrCoord:
+                equ = _find_target_equinox(equinox=equinox)
+                if equ is None:
+                    raise ValueError(
+                        f"Invalid equinox value: {equinox}. "
+                        f"Valid values are: {NED_COORD_EQUINOX['j']}, "
+                        f"{NED_COORD_EQUINOX['b']}.")
+                else:
+                    c = c.transform_to(FK5)
+                    def_equ = equ
+            else:
+                def_equ = None
+                equ = None
+
         if equ is None or def_equ is None or def_equ not in equ:
-            target_equ = _find_target_equinox(equinox=equinox)
-            c = c.transform_to(FK5(equinox=target_equ))
-            equ = target_equ
+            equ = NED_COORD_EQUINOX['j']  # default to J2000 for FK5 frame
+            c = c.transform_to(FK5(equinox=equ))
 
     ra = _get_value_from_paths(c, ra_attrs)
     dec = _get_value_from_paths(c, dec_attrs)
@@ -1121,7 +1151,7 @@ def _find_target_equinox(equinox=None):
     pattern = rf'({j}|{b})(?:\.0)?'
     equ_input = equinox or j
     match = re.search(pattern, equ_input)
-    return match[1] if match else j
+    return match[1] if match else None
 
 
 def _get_equinox(c):
