@@ -1,0 +1,42 @@
+{
+  "med_catalogue_dr8.txt": {
+    "source_record": "arxiv2205_09972_cme/data/lamost/catalogue/candidate2.json",
+    "release": "dr8",
+    "sub_version": "v1.0",
+    "sql": "SELECT obsid,lmjm,ra,dec,rv_br0,rv_br0_err FROM med_catalogue WHERE obsid=635003103 LIMIT 20",
+    "timestamp": "2026-09-12T01:27:39.158076+00:00",
+    "rows": 10,
+    "columns": 6,
+    "provenance": "Reconstructed from the exact header and one-column strings preserved by the previous client; not raw HTTP bytes.",
+    "byte_verification": {
+      "capture_date": "2026-09-20",
+      "endpoint": "https://www.lamost.org/openapi/dr8/v1.0/sql",
+      "parameters": {
+        "sql": "SELECT obsid,lmjm,ra,dec,rv_br0,rv_br0_err FROM med_catalogue WHERE obsid=635003103 LIMIT 20",
+        "output.fmt": "csv"
+      },
+      "source": "dr8_sql_med_catalogue_csv.body",
+      "sha256": "8ea658b068cfb3c82d20215435f752bc183af5ad92796178dc907e89c1e9dee1"
+    }
+  },
+  "med_stellar_dr8.txt": {
+    "source_record": "arxiv2205_09972_cme/data/lamost/catalogue/star2.json",
+    "release": "dr8",
+    "sub_version": "v1.0",
+    "sql": "SELECT * FROM med_stellar WHERE obsid=635003103 LIMIT 20",
+    "timestamp": "2026-09-12T01:48:23.506321+00:00",
+    "rows": 1,
+    "columns": 80,
+    "provenance": "Reconstructed from the exact header and one-column strings preserved by the previous client; not raw HTTP bytes.",
+    "byte_verification": {
+      "capture_date": "2026-09-20",
+      "endpoint": "https://www.lamost.org/openapi/dr8/v1.0/sql",
+      "parameters": {
+        "sql": "SELECT * FROM med_stellar WHERE obsid=635003103 LIMIT 20",
+        "output.fmt": "csv"
+      },
+      "source": "dr8_sql_med_stellar_csv.body",
+      "sha256": "d528a2348f91282f7f3ea91c9481ff71e7037043de02a08426f869b1546b9c69"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "login_dr7.html": {
+    "endpoint": "https://www.lamost.org/openapi/dr7/v2.0/sql",
+    "parameters": {
+      "sql": "SELECT obsid FROM catalogue LIMIT 1",
+      "output.fmt": "csv"
+    },
+    "authentication": "fixed synthetic invalid token",
+    "captured_at": "2026-09-21T04:00:26.438683+00:00",
+    "transformation": "Removed all URL query strings and the synthetic invalid token; no headers retained. Removed trailing whitespace on blank HTML lines.",
+    "sha256": "411e113ac77ccc374dadd45f98ba10ff905a0aa6efd5a87a2494a25ce157d883",
+    "release": "dr7/v2.0"
+  }
+}
