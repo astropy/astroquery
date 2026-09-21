@@ -314,6 +314,7 @@ These others are functional, but do not follow a common & consistent API:
   jplhorizons/jplhorizons.rst
   jplsbdb/jplsbdb.rst
   lamda/lamda.rst
+  nadc/lamost.rst
   ipac/nexsci/nasa_exoplanet_archive.rst
   oac/oac.rst
   ogle/ogle.rst
@@ -400,6 +401,7 @@ generally return a table listing the available data first.
   ipac/irsa/irsa.rst
   magpis/magpis.rst
   mast/mast.rst
+  nadc/lamost.rst
   ipac/ned/ned.rst
   nrao/nrao.rst
   nvas/nvas.rst
