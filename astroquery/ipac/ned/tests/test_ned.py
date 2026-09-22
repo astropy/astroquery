@@ -8,6 +8,8 @@ import pytest
 from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u
+from astropy.utils.exceptions import AstropyDeprecationWarning
+
 from astroquery.exceptions import InvalidQueryError, RemoteServiceError, TableParseError
 from astroquery.utils.mocks import MockResponse
 
@@ -97,8 +99,9 @@ def test_get_references_async(patch_get):
 
 def test_get_references(patch_get):
     # by NED API of N36.1 release
-    response = ned.Ned.get_table_async(
-        "m1", table='references', from_year=2010)
+    with pytest.warns(AstropyDeprecationWarning):
+        response = ned.Ned.get_table_async(
+            "m1", table='references', from_year=2010)
     assert response is not None
     result = ned.Ned.get_table(
         "m1", table='references', maxrec=10)
