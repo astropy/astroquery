@@ -18,7 +18,7 @@ class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.template_module`.
     """
-    server = _config.ConfigItem(
+    url = _config.ConfigItem(
         ['http://dummy_server_mirror_1',
          'http://dummy_server_mirror_2',
          'http://dummy_server_mirror_n'],
