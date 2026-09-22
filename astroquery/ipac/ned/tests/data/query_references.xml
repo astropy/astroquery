@@ -1,209 +1,116 @@
-<?xml version="1.0"?>
-<VOTABLE version="1.1">
-<DEFINITIONS>
-<COOSYS ID="J2000" equinox="2000." epoch="2000." system="eq_FK5" />
-</DEFINITIONS>
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.5" xmlns="http://www.ivoa.net/xml/VOTable/v1.3"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3  https://www.ivoa.net/xml/VOTable/VOTable-1.5.xsd">
 <RESOURCE type="results">
+<LINK content-role="query" href="/NED::API/ReferencesOfObject?TARGET=m1&amp;MAXREC=10"/>
+<TABLE ID="references" name="ReferencensOfObject" nrows="10">
+<GROUP  ID="QUERY" name="QUERY">
+<PARAM name="MAXREC" datatype="char" arraysize="*" value="10"/>
+<PARAM name="TARGET" datatype="char" arraysize="*" value="m1"/>
+</GROUP>
+<GROUP ID="RESPONSE"  name="RESPONSE">
+<PARAM name="QUERY_STATUS" datatype="char" arraysize="*" value="OK">
 <DESCRIPTION>
-Results from query to  NASA/IPAC Extragalactic Database (NED),
-which is operated by the Jet Propulsion Laboratory, California Institute of
-Technology, under contract with the National Aeronautics and Space Administration.
-This work was (partially) supported by the US National Virtual Observatory
-development project, which is funded by the National Science Foundation
-under cooperative agreement AST0122449 with The Johns Hopkins University.
+The result is truncated. The full result is available at the Resource Link.
 </DESCRIPTION>
-<INFO name="QUERY_STATUS" value="OK"/>
-<PARAM name="queryDateTime"  ucd="time.creation" datatype="char" arraysize="*" value="2013-07-18T04:24:59PDT"/>
-<LINK content-role="query" content-type="char"
-href="http://ned.ipac.caltech.edu/cgi-bin/datasearch?search_type=Reference&amp;objname=MESSIER 001&amp;of=xml_main"/>
-<TABLE ID="NED_ReferenceData" name="ReferenceData for MESSIER 001">
-<DESCRIPTION> The results of your search for literature references in NED </DESCRIPTION>
+</PARAM>
+<PARAM name="QUERY_TIME" datatype="char" arraysize="*" xtype="timestamp" value="20260608T165559Z"/>
+<PARAM name="RECORDS_AVAILABLE" datatype="int" value="180"/>
+<PARAM name="RECORDS_RETURNED" datatype="int" value="10"/>
+</GROUP>
+<GROUP ID="Curation" name="Curation">
+<PARAM ID="Publisher" datatype="char" name="Publisher" ucd="meta.curation" value="NASA/IPAC Extragalactic Database (NED)" arraysize="*">
+<DESCRIPTION>
+Copyright 2019-2026 Caltech, Support from NASA is acknowledged.
+This information is taken from a collection created and curated by
+the NASA/IPAC Extragalactic Database (NED), operated by the California Institute of Technology (Caltech).
+If your research benefits from the use of NED, the following acknowledgement in your paper would be appreciated:
 
-<FIELD ID="ref_col1" name="No." ucd="meta.number" datatype="int">
-<DESCRIPTION> A sequential number of the reference for this object, applicable to this list only. </DESCRIPTION>
+"This research has made use of the NASA/IPAC Extragalactic Database (NED), which is funded by the National Aeronautics and Space Administration and operated by the California Institute of Technology."
+
+See: https://ned.ipac.caltech.edu/Documents/Overview/Acknowledgments 
+</DESCRIPTION>
+</PARAM>
+<PARAM name="queryEngineInfo" datatype="char" arraysize="*" value="https://ned.ipac.caltech.edu/NED::API/ReferencesOfObject" />
+</GROUP>
+<FIELD ID="row" name="No." ucd="meta.number" datatype="int" >
+<DESCRIPTION>A row number applicable to this list only</DESCRIPTION>
 </FIELD>
-<FIELD ID="ref_col2" name="Refcode" ucd="meta.bib.bibcode" datatype="char" arraysize="*">
-<DESCRIPTION> The NED 19-digit Bibliographic Reference code (year, journal, volume number, page number, and the initial of the first author's last name). </DESCRIPTION>
+<FIELD ID="refcode" name="Reference" ucd="meta.bib.bibcode" datatype="char" arraysize="*" >
+<DESCRIPTION>Bibliographic reference code</DESCRIPTION>
+<LINK content-role="query;encode:values" content-type="text/xml" href="/reflookup?refcode=" />
 </FIELD>
-<FIELD ID="ref_col3" name="Author List" ucd="meta.list" datatype="char" arraysize="*">
-<DESCRIPTION> The first 15 characters of the author list. </DESCRIPTION>
+<FIELD ID="authors" name="Author List" ucd="meta.bib.author" datatype="char" arraysize="*" >
+<DESCRIPTION>Author List</DESCRIPTION>
 </FIELD>
-<FIELD ID="ref_col4" name="Article Title" ucd="meta.title" datatype="char" arraysize="*">
-<DESCRIPTION> The first 80 characters of the article's title. </DESCRIPTION>
+<FIELD ID="title" name="Article Title" ucd="meta.title" datatype="char" arraysize="*" >
+<DESCRIPTION>Article Title</DESCRIPTION>
 </FIELD>
 <DATA>
 <TABLEDATA>
 <TR>
-<TD>  1</TD>
-<TD>2011ApJS..192...19W</TD>
-<TD><![CDATA[Weiland, J. L.;...]]></TD>
-<TD><![CDATA[Seven-year Wilkinson Microwave Anisotropy Probe (WMAP) Observations: Planets and...]]></TD>
+<TD>1</TD>
+<TD>2025ApJ...995...11A</TD>
+<TD>Abbasi, R.; Ackermann, M.; Adams, J.; Agarwalla, S. K.; Aguilar, J. A.; Ahlers, M.; Alameddine, J. M.; Ali, S.; Amin, N. M.; Andeen, K.; Argüelles, C.; Ashida, Y.; Athanasiadou, S.; Axani, S. N.; Babu, R.; Bai, X.; Baines-Holmes, J.; Balagopal V., A.; Barwick, S. W.; Bash, S.; Basu, V.; Bay, R.; Beatty, J. J.; Becker Tjus, J.; Behrens, P.; Beise, J.; Bellenghi, C.; Benkel, B.; BenZvi, S.; Berley, D.; Bernardini, E.; Besson, D. Z.; Blaufuss, E.; Bloom, L.; Blot, S.; Bodo, I.; Bontempo, F.; Book Motzkin, J. Y.; Boscolo Meneguolo, C.; Böser, S.; Botner, O.; Böttcher, J.; Braun, J.; Brinson, B.; Brisson-Tsavoussis, Z.; Burley, R. T.; Butterfield, D.; Campana, M. A.; Carloni, K.; Carpio, J.; Chattopadhyay, S.; Chau, N.; Chen, Z.; Chirkin, D.; Choi, S.; Clark, B. A.; Coleman, A.; Coleman, P.; Collin, G. H.; Borja, D. A. Coloma; Connolly, A.; Conrad, J. M.; Corley, R.; Cowen, D. F.; De Clercq, C.; DeLaunay, J. J.; Delgado, D.; Delmeulle, T.; Deng, S.; Desiati, P.; de Vries, K. D.; de Wasseige, G.; DeYoung, T.; Díaz-Vélez, J. C.; DiKerby, S.; Dittmer, M.; Domi, A.; Draper, L.; Dueser, L.; Durnford, D.; Dutta, K.; DuVernois, M. A.; Ehrhardt, T.; Eidenschink, L.; Eimer, A.; Eller, P.; Ellinger, E.; Elsässer, D.; Engel, R.; Erpenbeck, H.; Esmail, W.; Eulig, S.; Evans, J.; Evenson, P. A.; Fan, K. L.; Fang, K.; Farrag, K.; Fazely, A. R.; Fedynitch, A.; Feigl, N.; Finley, C.; Fischer, L.; Fox, D.; Franckowiak, A.; Fukami, S.; Fürst, P.; Gallagher, J.; Ganster, E.; Garcia, A.; Garcia, M.; Garg, G.; Genton, E.; Gerhardt, L.; Ghadimi, A.; Glaser, C.; Glüsenkamp, T.; Gonzalez, J. G.; Goswami, S.; Granados, A.; Grant, D.; Gray, S. J.; Griffin, S.; Griswold, S.; Groth, K. M.; Guevel, D.; Günther, C.; Gutjahr, P.; Ha, C.; Haack, C.; Hallgren, A.; Halve, L.; Halzen, F.; Hamacher, L.; Ha Minh, M.; Handt, M.; Hanson, K.; Hardin, J.; Harnisch, A. A.; Hatch, P.; Haungs, A.; Häussler, J.; Helbing, K.; Hellrung, J.; Henke, B.; Hennig, L.; Henningsen, F.; Heuermann, L.; Hewett, R.; Heyer, N.; Hickford, S.; Hidvegi, A.; Hill, C.; Hill, G. C.; Hmaid, R.; Hoffman, K. D.; Hooper, D.; Hori, S.; Hoshina, K.; Hostert, M.; Hou, W.; Huber, T.; Hultqvist, K.; Hymon, K.; Ishihara, A.; Iwakiri, W.; Jacquart, M.; Jain, S.; Janik, O.; Jansson, M.; Jeong, M.; Jin, M.; Kamp, N.; Kang, D.; Kang, W.; Kang, X.; Kappes, A.; Kardum, L.; Karg, T.; Karl, M.; Karle, A.; Katil, A.; Kauer, M.; Kelley, J. L.; Khanal, M.; Khatee Zathul, A.; Kheirandish, A.; Kimku, H.; Kiryluk, J.; Klein, C.; Klein, S. R.; Kobayashi, Y.; Kochocki, A.; Koirala, R.; Kolanoski, H.; Kontrimas, T.; Köpke, L.; Kopper, C.; Koskinen, D. J.; Koundal, P.; Kowalski, M.; Kozynets, T.; Krieger, N.; Krishnamoorthi, J.; Krishnan, T.; Kruiswijk, K.; Krupczak, E.; Kumar, A.; Kun, E.; Kurahashi, N.; Lad, N.; Lagunas Gualda, C.; Lallement Arnaud, L.; Lamoureux, M.; Larson, M. J.; Lauber, F.; Lazar, J. P.; Leonard DeHolton, K.; Leszczyńska, A.; Liao, J.; Lin, C.; Liu, Y. T.; Liubarska, M.; Love, C.; Lu, L.; Lucarelli, F.; Luszczak, W.; Lyu, Y.; Madsen, J.; Magnus, E.; Makino, Y.; Manao, E.; Mancina, S.; Mand, A.; Mariș, I. C.; Marka, S.; Marka, Z.; Marten, L.; Martinez-Soler, I.; Maruyama, R.; Mauro, J.; Mayhew, F.; McNally, F.; Mead, J. V.; Meagher, K.; Mechbal, S.; Medina, A.; Meier, M.; Merckx, Y.; Merten, L.; Mitchell, J.; Molchany, L.; Montaruli, T.; Moore, R. W.; Morii, Y.; Mosbrugger, A.; Moulai, M.; Mousadi, D.; Moyaux, E.; Mukherjee, T.; Naab, R.; Nakos, M.; Naumann, U.; Necker, J.; Neste, L.; Neumann, M.; Niederhausen, H.; Nisa, M. U.; Noda, K.; Noell, A.; Novikov, A.; Obertacke Pollmann, A.; O'Dell, V.; Olivas, A.; Orsoe, R.; Osborn, J.; O'Sullivan, E.; Palusova, V.; Pandya, H.; Parenti, A.; Park, N.; Parrish, V.; Paudel, E. N.; Paul, L.; Pérez de los Heros, C.; Pernice, T.; Peterson, J.; Plum, M.; Pontén, A.; Poojyam, V.; Popovych, Y.; Rodriguez, M. Prado; Pries, B.; Procter-Murphy, R.; Przybylski, G. T.; Pyras, L.; Raab, C.; Rack-Helleis, J.; Rad, N.; Ravn, M.; Rawlins, K.; Rechav, Z.; Rehman, A.; Reistroffer, I.; Resconi, E.; Reusch, S.; Rho, C. D.; Rhode, W.; Ricca, L.; Riedel, B.; Rifaie, A.; Roberts, E. J.; Robertson, S.; Rongen, M.; Rosted, A.; Rott, C.; Ruhe, T.; Ruohan, L.; Ryckbosch, D.; Saffer, J.; Salazar-Gallegos, D.; Sampathkumar, P.; Sandrock, A.; Sanger-Johnson, G.; Santander, M.; Sarkar, S.; Savelberg, J.; Scarnera, M.; Schaile, P.; Schaufel, M.; Schieler, H.; Schindler, S.; Schlickmann, L.; Schlüter, B.; Schlüter, F.; Schmeisser, N.; Schmidt, T.; Schröder, F. G.; Schumacher, L.; Schwirn, S.; Sclafani, S.; Seckel, D.; Seen, L.; Seikh, M.; Seunarine, S.; Sevle Myhr, P. A.; Shah, R.; Shefali, S.; Shimizu, N.; Skrzypek, B.; Snihur, R.; Soedingrekso, J.; Sègaard, A.; Soldin, D.; Soldin, P.; Sommani, G.; Spannfellner, C.; Spiczak, G. M.; Spiering, C.; Stachurska, J.; Stamatikos, M.; Stanev, T.; Stezelberger, T.; Stürwald, T.; Stuttard, T.; Sullivan, G. W.; Taboada, I.; Ter-Antonyan, S.; Terliuk, A.; Thakuri, A.; Thiesmeyer, M.; Thompson, W. G.; Thwaites, J.; Tilav, S.; Tollefson, K.; Toscano, S.; Tosi, D.; Trettin, A.; Upadhyay, A. K.; Upshaw, K.; Vaidyanathan, A.; Valtonen-Mattila, N.; Valverde, J.; Vandenbroucke, J.; Van Eeden, T.; van Eijndhoven, N.; Van Rootselaar, L.; van Santen, J.; Vara, J.; Varsi, F.; Venugopal, M.; Vereecken, M.; Carrasco, S. Vergara; Verpoest, S.; Veske, D.; Vijai, A.; Villarreal, J.; Walck, C.; Wang, A.; Warrick, E. H. S.; Weaver, C.; Weigel, P.; Weindl, A.; Weldert, J.; Wen, A. Y.; Wendt, C.; Werthebach, J.; Weyrauch, M.; Whitehorn, N.; Wiebusch, C. H.; Williams, D. R.; Witthaus, L.; Wolf, M.; Wrede, G.; Xu, X. W.; Yanez, J. P.; Yildizci, E.; Yoshida, S.; Young, R.; Yu, F.; Yu, S.; Yuan, T.; Zegarelli, A.; Zhang, S.; Zhang, Z.; Zhelnin, P.; Zilberman, P.; IceCube Collaboration</TD>
+<TD>All-sky Neutrino Point-source Search with IceCube Combined Track and Cascade Data</TD>
 </TR>
 <TR>
-<TD>  2</TD>
-<TD>2011ApJ...742...16T</TD>
-<TD><![CDATA[Trujillo-Gomez,...]]></TD>
-<TD><![CDATA[Galaxies in {LAMBDA}CDM with Halo Abundance Matching: Luminosity-Velocity Relati...]]></TD>
+<TD>2</TD>
+<TD>2025ApJ...983..116Y</TD>
+<TD>Yan, Zhen; Yu, Wenfei; Page, Kim L.; Lin, Jie; Li, Di; Niu, Chenhui; Law, Casey; Zhang, Bing; Chatterjee, Shami; Zhang, Xian; Anna-Thomas, Reshma</TD>
+<TD>Simultaneous Multiwavelength Observations of the Repeating Fast Radio Burst FRB 20190520B with Swift and FAST</TD>
 </TR>
 <TR>
-<TD>  3</TD>
-<TD>2011ApJ...740L..24K</TD>
-<TD><![CDATA[Kazantzidis, St...]]></TD>
-<TD><![CDATA[Formation of Dwarf Spheroidal Galaxies via Mergers of Disky Dwarfs              ]]></TD>
+<TD>3</TD>
+<TD>2024JASTP.25706208B</TD>
+<TD>Baron, G.; Aguilar-Rodriguez, E.; Mejia-Ambriz, J. C.; Chang, O.; Gonzalez-Esparza, J. A.; Villanueva, P.; Andrade, E.</TD>
+<TD>An updated catalog of IPS radio sources observed by MEXART at 140 MHz for space weather studies</TD>
 </TR>
 <TR>
-<TD>  4</TD>
-<TD>2011ApJ...729..105C</TD>
-<TD><![CDATA[Case, G. L.; Ch...]]></TD>
-<TD><![CDATA[First Results from Fermi Gamma-ray Burst Monitor Earth Occultation Monitoring: O...]]></TD>
+<TD>4</TD>
+<TD>2024A&amp;A...690A.250W</TD>
+<TD>Wach, T.; Mitchell, A.; Mohrmann, L.</TD>
+<TD>A background-estimation technique for the detection of extended gamma-ray structures with IACTs</TD>
 </TR>
 <TR>
-<TD>  5</TD>
-<TD>2011A&amp;A...531A.153M</TD>
-<TD><![CDATA[Maselli, A.; Cu...]]></TD>
-<TD><![CDATA[The populations of hard X-ray and gamma-ray sources: a correlation study and new...]]></TD>
+<TD>5</TD>
+<TD>2024A&amp;A...688A.203M</TD>
+<TD>Marton, G.; Gezer, I.; Madarász, M.; Dionatos, O.; Audard, M.; Roquette, J.; Hernandez, D.; Paladini, R.; Altieri, B.</TD>
+<TD>The new Herschel/PACS Point Source Catalogue</TD>
 </TR>
 <TR>
-<TD>  6</TD>
-<TD>2010ApJS..188..405A</TD>
-<TD><![CDATA[Abdo, A. A.; Ac...]]></TD>
-<TD><![CDATA[Fermi Large Area Telescope First Source Catalog                                 ]]></TD>
+<TD>6</TD>
+<TD>2024A&amp;A...681A..62M</TD>
+<TD>Munshi, S.; Mertens, F. G.; Koopmans, L. V. E.; Offringa, A. R.; Semelin, B.; Aubert, D.; Barkana, R.; Bracco, A.; Brackenhoff, S. A.; Cecconi, B.; Ceccotti, E.; Corbel, S.; Fialkov, A.; Gehlot, B. K.; Ghara, R.; Girard, J. N.; Grießmeier, J. M.; Höfer, C.; Hothi, I.; Mériot, R.; Mevius, M.; Ocvirk, P.; Shaw, A. K.; Theureau, G.; Yatawatta, S.; Zarka, P.; Zaroubi, S.</TD>
+<TD>First upper limits on the 21 cm signal power spectrum from cosmic dawn from one night of observations with NenuFAR</TD>
 </TR>
 <TR>
-<TD>  7</TD>
-<TD>2010ApJS..186..378T</TD>
-<TD><![CDATA[Tueller, J.; Ba...]]></TD>
-<TD><![CDATA[The 22 Month Swift-BAT All-Sky Hard X-ray Survey                                ]]></TD>
+<TD>7</TD>
+<TD>2023MNRAS.521.6195M</TD>
+<TD>Malyshev, Dmitry V.; Bhat, Aakash</TD>
+<TD>Multiclass classification of Fermi-LAT sources with hierarchical class definition</TD>
 </TR>
 <TR>
-<TD>  8</TD>
-<TD>2010A&amp;A...524A..64C</TD>
-<TD><![CDATA[Cusumano, G.; L...]]></TD>
-<TD><![CDATA[The Palermo Swift-BAT hard X-ray catalogue. III. Results after 54 months of sky ...]]></TD>
+<TD>8</TD>
+<TD>2023MNRAS.519.3526H</TD>
+<TD>Herranz, D.; López-Caniego, M.; López-Caraballo, C. H.; Génova-Santos, R. T.; Perrott, Y. C.; Rubiño-Martín, J. A.; Rebolo, R.; Artal, E.; Ashdown, M.; Barreiro, R. B.; Casas, F. J.; de la Hoz, E.; Fernández-Torreiro, M.; Guidi, F.; Hoyland, R. J.; Lasenby, A. N.; Martínez-González, E.; Peel, M. W.; Piccirillo, L.; Poidevin, F.; Ruiz-Granados, B.; Tramonte, D.; Vansyngel, F.; Vielva, P.; Watson, R. A.</TD>
+<TD>QUIJOTE scientific results - IX. Radio sources in the QUIJOTE-MFI wide survey maps</TD>
 </TR>
 <TR>
-<TD>  9</TD>
-<TD>2010A&amp;A...522A..68T</TD>
-<TD><![CDATA[Telezhinsky, I....]]></TD>
-<TD><![CDATA[The catalog of variable sources detected by INTEGRAL. I. Catalog and techniques ]]></TD>
+<TD>9</TD>
+<TD>2023MNRAS.518.4138E</TD>
+<TD>Eckner, Christopher; Calore, Francesca; Erkal, Denis; Lilleengen, Sophia; Petersen, Michael S.</TD>
+<TD>How do the dynamics of the Milky Way-Large Magellanic Cloud system affect gamma-ray constraints on particle dark matter?</TD>
 </TR>
 <TR>
-<TD> 10</TD>
-<TD>2009NEWPS.5.......:</TD>
-<TD><![CDATA[NEWPS team     ]]></TD>
-<TD><![CDATA[New Extragalactic Point Source catalogue downloaded on July 22, 2009 from http:/...]]></TD>
-</TR>
-<TR>
-<TD> 11</TD>
-<TD>2009ApJS..183...46A</TD>
-<TD><![CDATA[Abdo, A. A.; Ac...]]></TD>
-<TD><![CDATA[Fermi/Large Area Telescope Bright Gamma-Ray Source List                         ]]></TD>
-</TR>
-<TR>
-<TD> 12</TD>
-<TD>2009ApJ...706L...7U</TD>
-<TD><![CDATA[Ubertini, P.; S...]]></TD>
-<TD><![CDATA[The Fermi/LAT Sky as Seen by INTEGRAL/IBIS                                      ]]></TD>
-</TR>
-<TR>
-<TD> 13</TD>
-<TD>2009ApJ...705..868L</TD>
-<TD><![CDATA[Lopez-Caniego, ...]]></TD>
-<TD><![CDATA[Polarization of the WMAP Point Sources                                          ]]></TD>
-</TR>
-<TR>
-<TD> 14</TD>
-<TD>2009A&amp;A...506.1563P</TD>
-<TD><![CDATA[Pittori, C.; Ve...]]></TD>
-<TD><![CDATA[First AGILE catalog of high-confidence gamma-ray sources                        ]]></TD>
-</TR>
-<TR>
-<TD> 15</TD>
-<TD>2009A&amp;A...493..339W</TD>
-<TD><![CDATA[Watson, M. G.; ...]]></TD>
-<TD><![CDATA[The XMM-Newton serendipitous survey. V. The Second XMM-Newton serendipitous sour...]]></TD>
-</TR>
-<TR>
-<TD> 16</TD>
-<TD>2008ApJS..174..313H</TD>
-<TD><![CDATA[Helmboldt, J. F...]]></TD>
-<TD><![CDATA[Radio Frequency Spectra of 388 Bright 74 MHz Sources                            ]]></TD>
-</TR>
-<TR>
-<TD> 17</TD>
-<TD>2007ApJS..172..686K</TD>
-<TD><![CDATA[Kassim, N. E.; ...]]></TD>
-<TD><![CDATA[The 74 MHz System on the Very Large Array                                       ]]></TD>
-</TR>
-<TR>
-<TD> 18</TD>
-<TD>2007ApJS..170..175B</TD>
-<TD><![CDATA[Bird, A. J.; Ma...]]></TD>
-<TD><![CDATA[The Third IBIS/ISGRI Soft Gamma-Ray Survey Catalog                              ]]></TD>
-</TR>
-<TR>
-<TD> 19</TD>
-<TD>2007AJ....134.1245C</TD>
-<TD><![CDATA[Cohen, A. S.; L...]]></TD>
-<TD><![CDATA[The VLA Low-Frequency Sky Survey                                                ]]></TD>
-</TR>
-<TR>
-<TD> 20</TD>
-<TD>2007A&amp;A...475..775K</TD>
-<TD><![CDATA[Krivonos, R.; R...]]></TD>
-<TD><![CDATA[INTEGRAL/IBIS all-sky survey in hard X-rays                                     ]]></TD>
-</TR>
-<TR>
-<TD> 21</TD>
-<TD>2007A&amp;A...472..705V</TD>
-<TD><![CDATA[Verrecchia, F.;...]]></TD>
-<TD><![CDATA[The BeppoSAX WFC X-ray source catalogue                                         ]]></TD>
-</TR>
-<TR>
-<TD> 22</TD>
-<TD>2007A&amp;A...467..585B</TD>
-<TD><![CDATA[Bodaghee, A.; C...]]></TD>
-<TD><![CDATA[A description of sources detected by INTEGRAL during the first 4 years of observ...]]></TD>
-</TR>
-<TR>
-<TD> 23</TD>
-<TD>2004ApJS..151..299H</TD>
-<TD><![CDATA[Hodge, Tracy M....]]></TD>
-<TD><![CDATA[Classification of Spectra from the Infrared Space Observatory PHT-S Database    ]]></TD>
-</TR>
-<TR>
-<TD> 24</TD>
-<TD>2004ApJS..150..343E</TD>
-<TD><![CDATA[Engelke, C. W.;...]]></TD>
-<TD><![CDATA[A Uniform Database of 2.2-16.5 microns Spectra from the ISOCAM CVF Spectrometer ]]></TD>
-</TR>
-<TR>
-<TD> 25</TD>
-<TD>2004ApJ...608..865A</TD>
-<TD><![CDATA[Antoni, T.; Ape...]]></TD>
-<TD><![CDATA[Search for Cosmic-Ray Point Sources with KASCADE                                ]]></TD>
-</TR>
-<TR>
-<TD> 26</TD>
-<TD>2003ApJ...597..615N</TD>
-<TD><![CDATA[Nolan, P. L.; T...]]></TD>
-<TD><![CDATA[Variability of EGRET Gamma-Ray Sources                                          ]]></TD>
-</TR>
-<TR>
-<TD> 27</TD>
-<TD>2003A&amp;A...411L..59E</TD>
-<TD><![CDATA[Ebisawa, K.; Bo...]]></TD>
-<TD><![CDATA[High-energy sources before INTEGRAL. INTEGRAL reference catalog                 ]]></TD>
-</TR>
-<TR>
-<TD> 28</TD>
-<TD>2001ApJS..135..155M</TD>
-<TD><![CDATA[Mattox, J., Har...]]></TD>
-<TD><![CDATA[A Quantitative Evaluation of Potential Radio Identifications for 3EG EGRET Sourc...]]></TD>
+<TD>10</TD>
+<TD>2023ApJ...951...82M</TD>
+<TD>Mckinven, R.; Gaensler, B. M.; Michilli, D.; Masui, K.; Kaspi, V. M.; Su, J.; Bhardwaj, M.; Cassanelli, T.; Chawla, P.; Dong, F. Adam; Fonseca, E.; Leung, C.; Li, D. Z.; Ng, C.; Patel, C.; Pearlman, A. B.; Petroff, E.; Pleunis, Z.; Rafiei-Ravandi, M.; Rahman, M.; Sand, K. R.; Shin, K.; Stairs, I. H.; Tendulkar, S.</TD>
+<TD>Revealing the Dynamic Magnetoionic Environments of Repeating Fast Radio Burst Sources through Multiyear Polarimetric Monitoring with CHIME/FRB</TD>
 </TR>
 </TABLEDATA>
 </DATA>
 </TABLE>
 </RESOURCE>
 </VOTABLE>
-
