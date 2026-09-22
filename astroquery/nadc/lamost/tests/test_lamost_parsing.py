@@ -5,6 +5,7 @@ from pathlib import Path
 import json
 
 from astropy import units as u
+from astropy.table import Table
 import numpy as np
 import pytest
 
@@ -212,6 +213,25 @@ def test_cone_schema_prefixes_preserve_exact_matches(monkeypatch, patch_request,
     assert table['unknown_obsid'][0] == '0002'
 
 
+@pytest.mark.parametrize('body', [b'[]', b'{"rows": []}'], ids=['list', 'rows'])
+def test_empty_cone_result_has_one_set_of_typed_columns(monkeypatch, patch_request, body):
+    schema = {'obsid': {'datatype': 'long'}, 'ra': {'datatype': 'double'}}
+    monkeypatch.setattr(LamostClass, '_catalog_schema', lambda self, *args, **kwargs: schema)
+    patch_request(create_mock_response(content=body, content_type='application/json'))
+    table = LamostClass().query_region('10 40', '1 arcmin')
+    assert len(table) == 0
+    assert table.colnames == ['obsid', 'ra']
+    assert table['obsid'].dtype.kind in 'iu'
+    assert table['ra'].dtype.kind == 'f'
+
+
+@pytest.mark.parametrize('datatype', ['char', 'long', 'double', 'boolean'])
+def test_schema_rejects_multidimensional_columns(datatype):
+    table = Table({'value': np.array([[1, 2], [3, 4]])})
+    with pytest.raises(TableParseError, match="'value' could not be converted"):
+        LamostClass()._apply_catalog_schema(table, {'value': {'datatype': datatype}})
+
+
 @pytest.mark.parametrize('fields,rows', [
     ('<FIELD name="n" datatype="int" arraysize="2"/>', '<TR><TD/></TR>'),
     ('<FIELD name="n" datatype="int"/>', '<TR><TD/><TD>1</TD></TR>'),
@@ -221,6 +241,21 @@ def test_votable_missing_integer_requires_reliable_scalar_mapping(fields, rows):
     content += '</TABLEDATA></DATA></TABLE></RESOURCE></VOTABLE>'
     with pytest.raises(TableParseError):
         LamostClass()._parse_result(create_mock_response(content=content))
+
+
+@pytest.mark.parametrize('field', [
+    '<FIELD name="value"/>', '<FIELD name="value" />',
+    '<FIELD name="value"><DESCRIPTION>identifier</DESCRIPTION></FIELD>',
+    '<FIELD name="value"></FIELD>', '<FIELD name="value" arraysize="*"/>',
+], ids=['self-closing', 'self-closing-space', 'with-child', 'paired-empty', 'arraysize-only'])
+def test_votable_field_without_datatype_is_repaired_in_every_form(field):
+    # A FIELD without datatype defaults to a one-character string in astropy,
+    # which would reject the identifier below as truncated.
+    content = ('<VOTABLE version="1.3" xmlns="http://www.ivoa.net/xml/VOTable/v1.3"><RESOURCE><TABLE>'
+               f'{field}<DATA><TABLEDATA><TR><TD>00101001</TD></TR></TABLEDATA></DATA>'
+               '</TABLE></RESOURCE></VOTABLE>')
+    table = LamostClass()._parse_result(create_mock_response(content=content))
+    assert list(table['value']) == ['00101001']
 
 
 @pytest.mark.parametrize('version', ['1.2', '1.3'])

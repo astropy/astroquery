@@ -395,8 +395,9 @@ class LamostClass(BaseQuery):
             raise InvalidQueryError(f"{name} must be an integer >= {minimum}.")
         return int(value)
 
-    def _parse_table_response(self, response, *, verbose=False, column_schema=None):
-        table = self._parse_result(response, verbose=verbose, column_schema=column_schema)
+    def _parse_table_response(self, response, *, verbose=False, column_schema=None, empty_columns=None):
+        table = self._parse_result(response, verbose=verbose, column_schema=column_schema,
+                                   empty_columns=empty_columns)
         self.table = table
         return table
 
@@ -438,8 +439,12 @@ class LamostClass(BaseQuery):
 
             if 'tables' in data and isinstance(data['tables'], list):
                 table_entries = data['tables']
+            elif 'columns' in data:
+                # One table description, not a mapping of table names.
+                table_entries = [data]
             elif any(isinstance(value, dict) for value in data.values()):
-                return {'tables': data}
+                return {'tables': {str(name): value for name, value in data.items()
+                                   if isinstance(value, dict)}}
             else:
                 table_entries = [data]
         elif isinstance(data, list):
@@ -578,6 +583,8 @@ class LamostClass(BaseQuery):
                 values = []
                 mask = []
                 try:
+                    if column.ndim != 1:
+                        raise ValueError("Multidimensional column.")
                     for value in column:
                         missing = value is None or np.ma.is_masked(value)
                         if isinstance(value, (str, bytes)):
@@ -958,10 +965,13 @@ class LamostClass(BaseQuery):
         if get_query_payload:
             return response
         catalog_name = self._spectral_catalog_name(resolution, None)
-        schema = self._catalog_schema(catalog_name, cache=cache)
+        base_schema = self._catalog_schema(catalog_name, cache=cache)
         prefix = 'med_catalogue_' if self._normalize_resolution(resolution) == 'medium' else 'catalogue_'
-        schema = {**{prefix + name: metadata for name, metadata in schema.items()}, **schema}
-        table = self._parse_table_response(response, verbose=verbose, column_schema=schema)
+        # Legacy cone services prefix column names; type both spellings, but
+        # build an empty result from one of them only.
+        schema = {**{prefix + name: metadata for name, metadata in base_schema.items()}, **base_schema}
+        table = self._parse_table_response(response, verbose=verbose, column_schema=schema,
+                                           empty_columns=list(base_schema))
         return self._prepare_catalog_result(table, catalog_name=catalog_name, columns=None)
 
     def query_sql_async(self, sql, *, output_format=None,
@@ -1921,7 +1931,7 @@ class LamostClass(BaseQuery):
 
         return filepath
 
-    def _parse_result(self, response, *, verbose=False, column_schema=None):
+    def _parse_result(self, response, *, verbose=False, column_schema=None, empty_columns=None):
         """
         Parse response into an astropy Table based on content type.
 
@@ -1933,6 +1943,11 @@ class LamostClass(BaseQuery):
             HTTP response from query.
         verbose : bool, optional
             If False, suppress VOTable warnings. Default is False.
+        column_schema : dict, optional
+            Column metadata applied to the parsed table.
+        empty_columns : list of str, optional
+            Column names for a result without any columns. Defaults to the
+            schema names.
 
         Returns
         -------
@@ -1961,7 +1976,8 @@ class LamostClass(BaseQuery):
             schema = self._columns_schema(table.meta.get('columns'))
             schema.update(column_schema or {})
             if not len(table) and not table.colnames and schema:
-                table = Table(names=list(schema), meta=table.meta)
+                names = list(schema) if empty_columns is None else list(empty_columns)
+                table = Table(names=names, meta=table.meta)
             self._apply_catalog_schema(table, schema)
             return table
         except Exception as error:
@@ -2362,7 +2378,7 @@ def parse_mrs_spectrum(filename):
         if len(hdulist) < 2:
             raise ValueError(f"{filename}: MRS FITS requires at least one spectrum extension.")
         for i, hdu in enumerate(hdulist[1:], 1):
-            extension_name = hdu.header.get('EXTNAME', f'Extension_{i}')
+            extension_name = hdu.header.get('EXTNAME') or f'Extension_{i}'
             try:
                 wavelength, flux = _spectrum_table_arrays(hdu, allow_loglam=True)
                 invalid = np.flatnonzero(~np.isfinite(wavelength) | (wavelength <= 0))

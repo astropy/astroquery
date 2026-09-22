@@ -160,6 +160,17 @@ def test_mrs_rejects_unsupported_layouts(tmp_path, layout, diagnostic):
         parse_mrs_spectrum(path)
 
 
+def test_mrs_empty_extname_falls_back_to_position(tmp_path):
+    table = fits.BinTableHDU.from_columns([
+        fits.Column(name='FLUX', format='2D', array=[[1., 2.]]),
+        fits.Column(name='WAVELENGTH', format='2D', array=[[5000., 6000.]])])
+    table.header['EXTNAME'] = ''
+    path = tmp_path / 'unnamed.fits'
+    with fits.HDUList([fits.PrimaryHDU(), table]) as hdus:
+        hdus.writeto(path)
+    assert list(parse_mrs_spectrum(path)) == ['Extension_1']
+
+
 def test_historical_layout_is_mrs_only(tmp_path):
     path = tmp_path / 'historical.fits'
     with fits.HDUList([fits.PrimaryHDU(), fits.BinTableHDU.from_columns([

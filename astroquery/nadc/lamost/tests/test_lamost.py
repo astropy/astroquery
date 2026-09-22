@@ -1432,6 +1432,15 @@ class TestLamostDataDiscovery:
         assert result['tables']['combined']['table_name'] == 'combined'
         assert 'med_combined' in result['tables']
 
+    @pytest.mark.parametrize('data, expected', [
+        ({'name': 'combined', 'columns': {'obsid': {'datatype': 'long'}}}, {'combined'}),
+        ({'columns': {'obsid': {'datatype': 'long'}}}, set()),
+        ({'combined': {'columns': ['obsid']}, 'status': 'ok'}, {'combined'}),
+    ], ids=['named-single-table', 'unnamed-single-table', 'status-entry'])
+    def test_get_tables_metadata_single_table_and_status_entries(self, patch_request, data, expected):
+        patch_request(create_mock_response(json_data=data))
+        assert set(LamostClass().get_tables_metadata()['tables']) == expected
+
     @pytest.mark.parametrize('parameters', [{'obsid': '101001'}, {'ra': 10., 'dec': 40., 'radius': .001}])
     def test_repeat_observations(self, patch_request, parameters):
         data = {'uid': 'U_12345', 'obsid-low': ['101001', '101002'], 'obsid-medium': ['101001']}

@@ -8,7 +8,7 @@ from __future__ import annotations
 import re
 
 
-_FIELD_WITHOUT_DATATYPE_RE = re.compile(rb"<FIELD\s+([^>]*?)></FIELD>", re.IGNORECASE)
+_FIELD_START_TAG_RE = re.compile(rb"<FIELD\b([^>]*?)\s*(/?)>", re.IGNORECASE)
 _EMPTY_ARRAYSIZE_RE = re.compile(rb'arraysize=""', re.IGNORECASE)
 _ZERO_ARRAYSIZE_RE = re.compile(rb'\s+arraysize="0"', re.IGNORECASE)
 
@@ -70,17 +70,19 @@ def sanitize_votable_content(
 
     if fix_missing_field_datatype:
         def _fix_field(match):
-            field_content = match.group(1)
-            if b"datatype=" in field_content.lower():
+            # Repair the start tag only, whether the element is self-closing,
+            # empty, or carries DESCRIPTION/VALUES children.
+            attributes, closing = match.group(1), match.group(2)
+            if b"datatype=" in attributes.lower():
                 return match.group(0)
 
-            fixed_content = field_content.rstrip()
-            if b"arraysize=" not in fixed_content.lower():
-                fixed_content += b' arraysize="*"'
+            fixed_attributes = attributes.rstrip()
+            if b"arraysize=" not in fixed_attributes.lower():
+                fixed_attributes += b' arraysize="*"'
 
-            return b'<FIELD ' + fixed_content + b' datatype="char"></FIELD>'
+            return b'<FIELD' + fixed_attributes + b' datatype="char"' + closing + b'>'
 
-        sanitized = _FIELD_WITHOUT_DATATYPE_RE.sub(_fix_field, sanitized)
+        sanitized = _FIELD_START_TAG_RE.sub(_fix_field, sanitized)
 
     if fix_empty_arraysize and b'arraysize=""' in sanitized:
         sanitized = _EMPTY_ARRAYSIZE_RE.sub(b'arraysize="*"', sanitized)
