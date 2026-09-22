@@ -29,7 +29,13 @@ def isolate_lamost_defaults(monkeypatch, tmp_path, request):
         set_mock_home(monkeypatch, tmp_path)
     for env_name in LAMOST_TOKEN_ENV_VARS:
         monkeypatch.delenv(env_name, raising=False)
+    # The module-level instance was configured at import time, possibly from
+    # a developer's astroquery.cfg; conf.set_temp below does not update it.
     monkeypatch.setattr(Lamost, 'token', None)
+    monkeypatch.setattr(Lamost, 'URL', 'https://www.lamost.org/openapi')
+    monkeypatch.setattr(Lamost, 'TIMEOUT', 60)
+    monkeypatch.setattr(Lamost, 'data_release', 'dr10')
+    monkeypatch.setattr(Lamost, 'sub_version', 'v2.0')
     monkeypatch.setattr(
         LamostClass, '_request',
         Mock(side_effect=AssertionError('Unexpected HTTP request in an offline test.')),
