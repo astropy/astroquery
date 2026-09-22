@@ -1285,6 +1285,27 @@ class TestLamostDataRetrieval:
         assert set(tmp_path.iterdir()) == {tmp_path / expected}
         response.close.assert_called_once()
 
+    @pytest.mark.parametrize('header', [
+        'filename=""', 'filename="."', 'filename=".."', 'filename="../nested/"',
+    ], ids=['empty', 'dot', 'dotdot', 'directory'])
+    def test_download_catalog_ignores_header_without_a_file_name(
+            self, tmp_path, patch_request, mock_fits_content, header):
+        content = gzip.compress(mock_fits_content)
+        response = patch_request(create_mock_response(content=content, headers={'Content-Disposition': header}))
+        saved = LamostClass().download_catalog('test', save_dir=str(tmp_path))
+        assert saved == str(tmp_path / 'test.fits.gz')
+        assert (tmp_path / 'test.fits.gz').read_bytes() == content
+        assert set(tmp_path.iterdir()) == {tmp_path / 'test.fits.gz'}
+        assert response.call_count == 1
+
+    def test_download_catalog_empty_save_dir_is_current_directory(
+            self, tmp_path, monkeypatch, patch_request, mock_fits_content):
+        monkeypatch.chdir(tmp_path)
+        content = gzip.compress(mock_fits_content)
+        patch_request(create_mock_response(content=content))
+        assert LamostClass().download_catalog('test', save_dir='') == 'test.fits.gz'
+        assert (tmp_path / 'test.fits.gz').read_bytes() == content
+
     def test_download_catalog_rejects_corrupt_fits(self, tmp_path, monkeypatch):
         response = create_mock_response(
             content=b'not a fits product',

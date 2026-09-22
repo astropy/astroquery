@@ -1783,11 +1783,13 @@ class LamostClass(BaseQuery):
 
         content_disp = response.headers.get('Content-Disposition', '')
         filename_match = re.search(r'filename=([^;]+)', content_disp, re.IGNORECASE)
+        resolved = default_name
         if filename_match:
-            resolved = filename_match.group(1).strip(' "\'')
-            resolved = os.path.basename(resolved)
-        else:
-            resolved = default_name
+            # Keep only the final path component; a header naming no file
+            # (empty, "." or "..") must not turn save_dir itself into the target.
+            candidate = os.path.basename(filename_match.group(1).strip(' "\''))
+            if candidate not in ('', '.', '..'):
+                resolved = candidate
 
         return os.path.join(save_dir, resolved)
 
@@ -1889,7 +1891,7 @@ class LamostClass(BaseQuery):
             filepath = self._resolve_download_path(
                 response, save_dir, filename, 'dr3_plan.csv.gz' if dr3_plan else f"{catalog_name}.fits.gz"
             )
-            os.makedirs(os.path.dirname(filepath) or save_dir, exist_ok=True)
+            os.makedirs(os.path.dirname(filepath) or '.', exist_ok=True)
             if os.path.exists(filepath) and not overwrite:
                 return filepath
 
