@@ -20,6 +20,7 @@ from requests import HTTPError, Request, Response, TooManyRedirects
 from .. import conf
 from ..core import Lamost, LamostClass
 from astroquery.exceptions import (
+    InputWarning,
     InvalidQueryError,
     LoginError,
     RemoteServiceError,
@@ -778,6 +779,32 @@ class TestLamostConfiguration:
 
         lamost = LamostClass(pylamost_config=temp_config_file)
         assert lamost.token == 'auto_loaded_token'
+
+    @pytest.mark.parametrize('content', ['token="quoted_token"', "token='quoted_token'"])
+    def test_detect_token_unquotes_like_other_sources(self, temp_config_file, content):
+        temp_config_file.write_text(content)
+        assert LamostClass(pylamost_config=temp_config_file).token == 'quoted_token'
+
+    def test_config_file_is_read_as_utf8(self, temp_config_file, monkeypatch):
+        # open() without encoding= follows the locale; the C implementation
+        # cannot be redirected from Python, so record the encoding requested.
+        temp_config_file.write_bytes('# 令牌\ntoken=utf8_token\n'.encode('utf-8'))
+        real_open, encodings = open, []
+
+        def recording_open(file, *args, **kwargs):
+            if isinstance(file, (str, os.PathLike)) and os.fspath(file) == str(temp_config_file):
+                encodings.append(kwargs.get('encoding'))
+            return real_open(file, *args, **kwargs)
+
+        monkeypatch.setattr('builtins.open', recording_open)
+        assert LamostClass(pylamost_config=temp_config_file).token == 'utf8_token'
+        assert encodings == ['utf-8']
+
+    def test_unreadable_config_warns_and_stays_anonymous(self, temp_config_file):
+        temp_config_file.write_bytes(b'token=\xff\xfe')
+        with pytest.warns(InputWarning, match='Could not read config file'):
+            lamost = LamostClass(pylamost_config=temp_config_file)
+        assert lamost.token is None
 
     def test_detect_token_from_conf(self):
         """Test preferring Astroquery config token."""

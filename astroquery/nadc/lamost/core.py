@@ -45,7 +45,7 @@ from ._utils import (
 from ...query import BaseQuery
 from ... import log
 from ...utils import commons
-from ...exceptions import InvalidQueryError, LoginError, RemoteServiceError, TableParseError
+from ...exceptions import InputWarning, InvalidQueryError, LoginError, RemoteServiceError, TableParseError
 from . import conf
 
 
@@ -698,7 +698,7 @@ class LamostClass(BaseQuery):
         """
         config = self._get_config(config_file)
         if config and 'token' in config:
-            token_value = config['token'].strip()
+            token_value = _strip_optional_quotes(config['token'])
             if token_value:  # Only set if token is not empty
                 self.token = token_value
 
@@ -730,7 +730,7 @@ class LamostClass(BaseQuery):
 
         config = {}
         try:
-            with open(config_file, 'r') as fh:
+            with open(config_file, 'r', encoding='utf-8') as fh:
                 for line_num, line in enumerate(fh, 1):
                     line = line.strip()
                     # Skip empty lines and comments
@@ -748,7 +748,7 @@ class LamostClass(BaseQuery):
             warnings.warn(
                 f"Could not read config file {config_file}: {e}. "
                 "Continuing without token (public data only).",
-                UserWarning
+                InputWarning
             )
             return None
 
