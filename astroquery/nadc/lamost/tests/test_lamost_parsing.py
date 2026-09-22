@@ -5,7 +5,7 @@ from pathlib import Path
 import json
 
 from astropy import units as u
-from astropy.table import Table
+from astropy.table import MaskedColumn, Table
 import numpy as np
 import pytest
 
@@ -228,6 +228,42 @@ def test_empty_cone_result_has_one_set_of_typed_columns(monkeypatch, patch_reque
 @pytest.mark.parametrize('datatype', ['char', 'long', 'double', 'boolean'])
 def test_schema_rejects_multidimensional_columns(datatype):
     table = Table({'value': np.array([[1, 2], [3, 4]])})
+    with pytest.raises(TableParseError, match="'value' could not be converted"):
+        LamostClass()._apply_catalog_schema(table, {'value': {'datatype': datatype}})
+
+
+@pytest.mark.parametrize('column, datatype, expected, mask', [
+    (MaskedColumn([5, 0, 7], mask=[False, True, False]), 'long', [5, 0, 7], [False, True, False]),
+    (MaskedColumn([1.5, 2.0], mask=[True, False]), 'char', ['', '2.0'], [True, False]),
+    (np.array([b'000123', b'']), 'char', ['000123', ''], [False, True]),
+    (np.array([' 12 ', '', ' \t ', '+5']), 'long', [12, 0, 0, 5], [False, True, True, False]),
+    (np.array([1, 0, 1]), 'boolean', [True, False, True], [False, False, False]),
+    (np.array(['T', ' false ', '']), 'boolean', [True, False, False], [False, False, True]),
+    (np.array([3.0, 4.0]), 'long', [3, 4], [False, False]),
+    (np.array([True, False]), 'double', [1.0, 0.0], [False, False]),
+    (np.array([], dtype=str), 'double', [], []),
+], ids=['masked-int', 'float-to-char', 'bytes', 'str-to-int', 'int-to-bool',
+        'str-to-bool', 'float-to-int', 'bool-to-float', 'empty'])
+def test_schema_conversion_paths_preserve_values_and_masks(column, datatype, expected, mask):
+    table = Table({'value': column})
+    LamostClass()._apply_catalog_schema(table, {'value': {'datatype': datatype}})
+    result = table['value']
+    kind = {'long': 'iu', 'double': 'f', 'char': 'U', 'boolean': 'b'}[datatype]
+    assert result.dtype.kind in kind
+    assert np.ma.getmaskarray(result).tolist() == mask
+    assert [value for value, masked in zip(result.filled(), mask) if not masked] == [
+        value for value, masked in zip(expected, mask) if not masked]
+    if datatype == 'char':
+        assert result.dtype.itemsize == 4 * max(1, max(map(len, expected)))
+
+
+@pytest.mark.parametrize('column, datatype', [
+    (np.array([1.5]), 'long'), (np.array([np.inf]), 'long'), (np.array([2.0 ** 63]), 'long'),
+    (np.array([np.uint64(2 ** 63)]), 'long'), (np.array([1.0]), 'boolean'), (np.array([2]), 'boolean'),
+    (np.array(['1.0']), 'long'), (np.array(['1,5']), 'double'), (np.array(['yes']), 'boolean'),
+])
+def test_schema_conversion_paths_reject_invalid_values(column, datatype):
+    table = Table({'value': column})
     with pytest.raises(TableParseError, match="'value' could not be converted"):
         LamostClass()._apply_catalog_schema(table, {'value': {'datatype': datatype}})
 

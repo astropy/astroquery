@@ -580,27 +580,10 @@ class LamostClass(BaseQuery):
             )
             if caster is not None:
                 column = table[name]
-                values = []
-                mask = []
                 try:
                     if column.ndim != 1:
                         raise ValueError("Multidimensional column.")
-                    for value in column:
-                        missing = value is None or np.ma.is_masked(value)
-                        if isinstance(value, (str, bytes)):
-                            missing = missing or not value or (caster is not str and not value.strip())
-                        if isinstance(value, bytes):
-                            value = value.decode('utf-8')
-                        if (caster is int and not missing and isinstance(value, (float, np.floating))
-                                and (not np.isfinite(value) or value != np.trunc(value))):
-                            raise ValueError("Non-integral value in an integer column.")
-                        if caster is bool and not missing:
-                            boolean = str(value).strip().lower()
-                            if boolean not in {'true', 'false', 't', 'f', '1', '0'}:
-                                raise ValueError('Invalid boolean value.')
-                            value = boolean in {'true', 't', '1'}
-                        values.append(caster(value) if not missing else ('' if caster is str else 0))
-                        mask.append(missing)
+                    values, mask = self._cast_column_values(column, caster)
                     converted = MaskedColumn(
                         values, mask=mask, name=name,
                         dtype=np.int64 if caster is int else np.float64 if caster is float
@@ -620,6 +603,100 @@ class LamostClass(BaseQuery):
                     table[name].unit = u.Unit(str(unit))
                 except ValueError:
                     pass
+
+    @staticmethod
+    def _cast_column_values(column, caster):
+        """Return converted values and a missing-value mask for a 1-D column.
+
+        String and numeric columns are converted with array operations; object
+        columns, as produced from JSON, fall back to element-wise conversion.
+        Iterating a MaskedColumn creates a masked scalar per element and is
+        avoided throughout.
+        """
+        raw = np.asarray(column)
+        mask = np.ma.getmaskarray(column)
+        if raw.dtype.kind == 'S':
+            raw = np.char.decode(raw, 'utf-8')
+        kind = raw.dtype.kind
+
+        if kind == 'U':
+            # An empty field is missing for every type; whitespace-only fields
+            # are missing for numeric and boolean types but remain string values.
+            missing = mask | (raw == '')
+            if caster is not str:
+                missing |= np.char.strip(raw) == ''
+            if caster is str:
+                values = raw.copy()
+                values[missing] = ''
+                return LamostClass._narrow_strings(values), missing
+            present = raw[~missing]
+            if caster is bool:
+                converted = LamostClass._booleans(np.char.lower(np.char.strip(present)))
+            else:
+                converted = np.array([caster(value) for value in present],
+                                     dtype=np.int64 if caster is int else np.float64)
+            values = np.zeros(len(raw), dtype=converted.dtype)
+            values[~missing] = converted
+            return values, missing
+
+        if kind in 'iufb':
+            present = raw[~mask]
+            if caster is str:
+                values = raw.astype(str)
+                values[mask] = ''
+                return LamostClass._narrow_strings(values), mask
+            if caster is int:
+                if kind == 'f' and (not np.isfinite(present).all() or (present != np.trunc(present)).any()):
+                    raise ValueError("Non-integral value in an integer column.")
+                if kind in 'fu' and (np.abs(present) >= 2.0 ** 63).any():
+                    raise OverflowError("Integer value out of the int64 range.")
+                values = np.zeros(len(raw), dtype=np.int64)
+            elif caster is float:
+                values = np.zeros(len(raw), dtype=np.float64)
+            else:
+                if kind == 'f' and present.size:
+                    raise ValueError('Invalid boolean value.')
+                if kind in 'iu' and not np.isin(present, (0, 1)).all():
+                    raise ValueError('Invalid boolean value.')
+                values = np.zeros(len(raw), dtype=np.bool_)
+            values[~mask] = present.astype(values.dtype)
+            return values, mask
+
+        return LamostClass._cast_column_elements(raw, mask, caster)
+
+    @staticmethod
+    def _narrow_strings(values):
+        # Match the minimal width a list-built string column would receive.
+        width = int(np.char.str_len(values).max()) if values.size else 0
+        return values.astype(f'U{max(width, 1)}')
+
+    @staticmethod
+    def _booleans(lowered):
+        if not np.isin(lowered, ('true', 'false', 't', 'f', '1', '0')).all():
+            raise ValueError('Invalid boolean value.')
+        return np.isin(lowered, ('true', 't', '1'))
+
+    @staticmethod
+    def _cast_column_elements(raw, mask, caster):
+        values = []
+        missing_flags = []
+        for value, masked in zip(raw, mask):
+            missing = bool(masked) or value is None or np.ma.is_masked(value)
+            if isinstance(value, (str, bytes)):
+                missing = missing or not value or (caster is not str and not value.strip())
+            if isinstance(value, bytes):
+                value = value.decode('utf-8')
+            if (caster is int and not missing and isinstance(value, (float, np.floating))
+                    and (not np.isfinite(value) or value != np.trunc(value))):
+                raise ValueError("Non-integral value in an integer column.")
+            if caster is bool and not missing:
+                boolean = str(value).strip().lower()
+                if boolean not in {'true', 'false', 't', 'f', '1', '0'}:
+                    raise ValueError('Invalid boolean value.')
+                value = boolean in {'true', 't', '1'}
+            values.append(caster(value) if not missing else ('' if caster is str else 0))
+            missing_flags.append(missing)
+        return values, missing_flags
 
     def _prepare_catalog_result(self, table, *, catalog_name, columns):
         requested = [columns] if isinstance(columns, str) else list(columns or ())
@@ -2023,27 +2100,28 @@ class LamostClass(BaseQuery):
                     "the returned value; refusing to return truncated data."
                 )
             # Some legacy TABLEDATA encodes a missing integer as <TD/> without
-            # a null sentinel. Astropy can return an ordinary zero for it.
-            xml_table = next(node for node in ElementTree.fromstring(content).iter()
-                             if node.tag.rsplit('}', 1)[-1] == 'TABLE')
-            fields = [node for node in xml_table if node.tag.rsplit('}', 1)[-1] == 'FIELD']
-            tabledata = next((node for node in xml_table.iter()
-                              if node.tag.rsplit('}', 1)[-1] == 'TABLEDATA'), None)
-            if tabledata is not None:
-                rows = list(tabledata)
-                if (len(fields) != len(table.colnames) or len(rows) != len(table)
-                        or any(row.tag.rsplit('}', 1)[-1] != 'TR' or len(row) != len(fields)
-                               or any(cell.tag.rsplit('}', 1)[-1] != 'TD' or len(cell) for cell in row)
-                               for row in rows)):
+            # a null sentinel. Astropy can return an ordinary zero for it. Only
+            # integer columns holding an unmasked zero, or with an unexpected
+            # shape, need the cell-level scan of the document.
+            integer_types = {'short', 'int', 'long', 'unsignedByte'}
+            fields = first_table.fields
+            scanned = []
+            for i, field in enumerate(fields):
+                if field.datatype not in integer_types:
+                    continue
+                column = table.columns[i]
+                if column.ndim != 1 or column.dtype.kind not in 'iu' or (
+                        (np.asarray(column) == 0) & ~np.ma.getmaskarray(column)).any():
+                    scanned.append(i)
+            empty_cells = self._votable_empty_cells(content, len(fields), scanned) if scanned else None
+            if empty_cells is not None:
+                if len(next(iter(empty_cells.values()), ())) != len(table):
                     raise TableParseError('Cannot reliably map LAMOST VOTable TABLEDATA cells to columns.')
-                for i, field in enumerate(fields):
-                    if field.get('datatype') not in {'short', 'int', 'long', 'unsignedByte'}:
-                        continue
-                    missing = np.array([not (row[i].text or '').strip() for row in rows], dtype=bool)
+                for i, missing in empty_cells.items():
                     if not missing.any():
                         continue
                     column = table.columns[i]
-                    if field.get('arraysize') not in (None, '1') or column.ndim != 1 or column.dtype.kind not in 'iu':
+                    if fields[i].arraysize not in (None, '1') or column.ndim != 1 or column.dtype.kind not in 'iu':
                         raise TableParseError(f'Cannot reliably mask missing integer array in column {column.name!r}.')
                     mask = np.ma.getmaskarray(column) | missing
                     table.replace_column(column.name, MaskedColumn(column, mask=mask))
@@ -2062,6 +2140,40 @@ class LamostClass(BaseQuery):
             raise TableParseError(
                 f"Failed to parse response as VOTable: {str(ex)}"
             )
+
+    @staticmethod
+    def _votable_empty_cells(content, field_count, indices):
+        """Find empty TABLEDATA cells of the first TABLE for the given field indices.
+
+        The document is streamed and each row is discarded after inspection,
+        so memory stays bounded by one row. Returns ``None`` when the first
+        table has no TABLEDATA; otherwise a mapping from field index to a
+        boolean array of empty cells.
+        """
+        def local_name(element):
+            return element.tag.rsplit('}', 1)[-1]
+
+        empties = {i: [] for i in indices}
+        tabledata_found = False
+        for _, element in ElementTree.iterparse(BytesIO(content), events=('end',)):
+            tag = local_name(element)
+            if tag == 'TR':
+                cells = list(element)
+                if len(cells) != field_count or any(local_name(cell) != 'TD' or len(cell) for cell in cells):
+                    raise TableParseError('Cannot reliably map LAMOST VOTable TABLEDATA cells to columns.')
+                for i in indices:
+                    empties[i].append(not (cells[i].text or '').strip())
+                element.clear()
+            elif tag == 'TABLEDATA':
+                if any(local_name(row) != 'TR' for row in element):
+                    raise TableParseError('Cannot reliably map LAMOST VOTable TABLEDATA cells to columns.')
+                tabledata_found = True
+                element.clear()
+            elif tag == 'TABLE':
+                break
+        if not tabledata_found:
+            return None
+        return {i: np.array(flags, dtype=bool) for i, flags in empties.items()}
 
     def _parse_json_result(self, response):
         """
