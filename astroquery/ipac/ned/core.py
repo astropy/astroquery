@@ -285,8 +285,8 @@ class NedClass(BaseQuery):
         else:
             try:
                 c = commons.parse_coordinates(coordinates)
-                isStrCoord = isinstance(coordinates, str)
-                ra, dec, equ, frame = _get_coord_for_ned(c, equinox=equinox, isStrCoord=isStrCoord)
+                is_str_coord = isinstance(coordinates, str)
+                ra, dec, equ, frame = _get_coord_for_ned(c, equinox=equinox, is_str_coord=is_str_coord)
                 frame_name = c.frame.name.lower()
                 if (frame_name == NED_COORD_FRAMES['gal'].lower()
                         or frame_name == NED_COORD_FRAMES['sgal'].lower()):
@@ -1087,7 +1087,7 @@ def _get_value_from_paths(obj, attr_paths):
     return None
 
 
-def _get_coord_for_ned(c, *, equinox=None, isStrCoord=False):
+def _get_coord_for_ned(c, *, equinox=None, is_str_coord=False):
     frame_name = c.frame.name.lower()
     equ = None
 
@@ -1118,7 +1118,7 @@ def _get_coord_for_ned(c, *, equinox=None, isStrCoord=False):
                 if frame_name == 'fk4' else NED_COORD_EQUINOX['j']
             equ = _get_equinox(c)
         else:
-            if isStrCoord:
+            if is_str_coord:
                 equ = _find_target_equinox(equinox=equinox)
                 if equ is None:
                     raise ValueError(
