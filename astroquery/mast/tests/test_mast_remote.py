@@ -186,6 +186,11 @@ class TestMast:
                                              radius=0.1)
         assert len(set(result['search_pos'])) == 4  # Should have four different search positions
 
+        # Count only query
+        count_result = MastMissions.query_criteria(coordinates=coord, radius=0.1, count_only=True)
+        assert isinstance(count_result, int)
+        assert count_result > 0
+
         # Raise error if invalid input is given
         with pytest.raises(InvalidQueryError):
             MastMissions.query_criteria(coordinates="245.89675 -26.52575",

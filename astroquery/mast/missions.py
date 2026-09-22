@@ -138,6 +138,10 @@ class MastMissionsClass(MastQueryWithLogin):
         if self.service == self._search:
             results = self._service_api_connection._parse_result(response, verbose, data_key='results')
 
+            # If returning a count_only response, return the count as an integer
+            if isinstance(results, int):
+                return results
+
             # Add column descriptions to column metadata
             column_list = self.get_column_list()
             for col in results.columns:
@@ -378,7 +382,7 @@ class MastMissionsClass(MastQueryWithLogin):
     @class_or_instance
     @deprecated_renamed_argument('objectname', 'object_names', since='0.4.12')
     def query_criteria_async(self, *, coordinates=None, object_names=None, radius=3*u.arcmin,
-                             limit=5000, offset=0, select_cols=None, resolver=None, **criteria):
+                             limit=5000, offset=0, select_cols=None, resolver=None, count_only=False, **criteria):
         """
         Given a set of search criteria, returns a list of mission metadata.
 
@@ -414,6 +418,8 @@ class MastMissionsClass(MastQueryWithLogin):
             "SIMBAD" and "NED". If not specified, the default resolver order will be used. Please see the
             `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
             for more information. Default is None.
+        count_only : bool, optional
+            Default is False. If True, only the count of matching datasets will be returned.
         **criteria
             Criteria to apply. Valid criteria include coordinates, object_names, radius (as in
             `~astroquery.mast.missions.MastMissionsClass.query_region` and
@@ -462,13 +468,16 @@ class MastMissionsClass(MastQueryWithLogin):
             params["radius"] = radius.arcsec
             params["radius_units"] = 'arcseconds'
 
+        if count_only:
+            params["count_only"] = True
+
         self._build_params_from_criteria(params, **criteria)
 
         return self._service_api_connection.missions_request_async(self.service, params)
 
     @class_or_instance
     def query_region_async(self, coordinates, *, radius=3*u.arcmin, limit=5000, offset=0,
-                           select_cols=None, **criteria):
+                           select_cols=None, count_only=False, **criteria):
         """
         Given a sky position (or positions) and radius, returns a list of matching dataset IDs.
 
@@ -493,6 +502,8 @@ class MastMissionsClass(MastQueryWithLogin):
             If None, a default set of columns will be returned.
             Can either be an iterable of column names, a comma-separated string of column names,
             or 'all'/'*' to return all available columns.
+        count_only : bool, optional
+            Default is False. If True, only the count of matching datasets will be returned.
         **criteria
             Other mission-specific criteria arguments.
             All valid filters can be found using `~astroquery.mast.missions.MastMissionsClass.get_column_list`
@@ -516,12 +527,13 @@ class MastMissionsClass(MastQueryWithLogin):
                                          limit=limit,
                                          offset=offset,
                                          select_cols=select_cols,
+                                         count_only=count_only,
                                          **criteria)
 
     @class_or_instance
     @deprecated_renamed_argument('objectname', 'object_names', since='0.4.12')
     def query_object_async(self, object_names, *, radius=3*u.arcmin, limit=5000, offset=0,
-                           select_cols=None, resolver=None, **criteria):
+                           select_cols=None, resolver=None, count_only=False, **criteria):
         """
         Given an object name (or names), returns a list of matching rows.
 
@@ -551,6 +563,8 @@ class MastMissionsClass(MastQueryWithLogin):
             "SIMBAD" and "NED". If not specified, the default resolver order will be used. Please see the
             `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
             for more information. Default is None.
+        count_only : bool, optional
+            Default is False. If True, only the count of matching datasets will be returned.
         **criteria
             Other mission-specific criteria arguments.
             All valid filters can be found using `~astroquery.mast.missions.MastMissionsClass.get_column_list`
@@ -570,6 +584,7 @@ class MastMissionsClass(MastQueryWithLogin):
                                          offset=offset,
                                          select_cols=select_cols,
                                          resolver=resolver,
+                                         count_only=count_only,
                                          **criteria)
 
     @class_or_instance
