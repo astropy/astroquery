@@ -27,16 +27,8 @@ esa.emds.einsteinprobe
 nadc.lamost
 ^^^^^^^^^^^
 
-- Add a LAMOST archive client with catalog and region queries, SQL-backed
-  spatial filtering and nearest matches, legacy metadata and DR3 downloads,
-  typed table parsing, related-observation lookup, and credential-safe diagnostics.
-- Support LRS and MRS spectra, including historical FITS layouts, wavelength
-  validation, and unmodified flux arrays. Include local export, plotting, and
-  batch-processing examples.
-- Add a tested Ca II H&K activity-index example with interpolation checks
-  and masked results for failed files.
-- Correct record-envelope parsing, metadata types and missing-value masks;
-  recognize token failures and catalog error bodies while preserving existing files.
+- New module to access the LAMOST spectroscopic survey archive hosted by the
+  National Astronomical Data Center (NADC). [#2]
 
 nrao
 ^^^^

@@ -153,10 +153,10 @@ class LamostClass(BaseQuery):
     Authenticated requests and streaming downloads bypass the disk cache.
     ``get_query_payload=True`` returns parameters with credentials redacted.
 
-    Recognized authentication failures raise `~astroquery.exceptions.LoginError`.
+    Recognized authentication failures raise ``LoginError``.
     Other HTTP failures raise `requests.HTTPError`, service error payloads
-    raise `~astroquery.exceptions.RemoteServiceError`, and malformed tables
-    raise `~astroquery.exceptions.TableParseError`. Diagnostics retain
+    raise ``RemoteServiceError``, and malformed tables
+    raise ``TableParseError``. Diagnostics retain
     available error details with credentials redacted.
     """
 
@@ -1790,7 +1790,7 @@ class LamostClass(BaseQuery):
         return self._parse_table_response(response, verbose=verbose, column_schema=schema)
 
     def get_spectra(self, obsid, *, resolution='low', get_query_payload=False,
-                    verify='warn'):
+                    verify='warn', cache=True):
         """Download spectrum FITS data for an observation ID.
 
         Parameters
@@ -1804,6 +1804,9 @@ class LamostClass(BaseQuery):
         verify : str, optional
             FITS verification option passed to the ``verify`` method of the
             `astropy.io.fits.HDUList`. Default is ``"warn"``.
+        cache : bool, optional
+            Whether to use astroquery's request cache. Authenticated requests
+            bypass it.
 
         Returns
         -------
@@ -1817,7 +1820,7 @@ class LamostClass(BaseQuery):
         if get_query_payload:
             return url_list
 
-        with self._request_raise('GET', url_list[0]) as response:
+        with self._request_raise('GET', url_list[0], cache=cache) as response:
             with commons.get_readable_fileobj(BytesIO(response.content), encoding='binary') as source:
                 spectrum = fits.HDUList.fromstring(source.read())
         try:
@@ -2346,7 +2349,7 @@ class LamostClass(BaseQuery):
 
 
 # Singleton instance for module-level access
-Lamost: LamostClass = LamostClass()
+Lamost = LamostClass()
 
 
 # Utility functions for FITS spectrum processing

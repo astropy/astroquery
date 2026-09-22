@@ -1,7 +1,8 @@
 .. _astroquery.nadc.lamost:
 
-LAMOST Queries (``astroquery.nadc.lamost``)
-===========================================
+*****************************************
+LAMOST Queries (`astroquery.nadc.lamost`)
+*****************************************
 
 ``astroquery.nadc.lamost`` provides access to the LAMOST archive for catalog
 queries, metadata lookups, and LRS/MRS spectrum downloads and reading.
@@ -16,7 +17,7 @@ Run file-writing examples in a working directory reserved for this tutorial.
 Examples with ``overwrite=True`` replace their named output files on reruns.
 
 Configuration
--------------
+=============
 
 The base URL, timeout in seconds, default data release, sub-version, and token
 are read when a `~astroquery.nadc.lamost.LamostClass` instance is created.
@@ -59,11 +60,11 @@ file automatically. Authenticated requests disable response caching.
 downloads.
 
 Basic Usage
------------
+===========
 
 ``query_region`` requests CSV by default. Some archive VOTable
 responses declare string columns too short for their data; the client raises
-`~astroquery.exceptions.TableParseError` instead of returning truncated
+``TableParseError`` instead of returning truncated
 identifiers when VOTable is explicitly requested.
 
 .. doctest::
@@ -90,7 +91,7 @@ and angle strings such as ``'5 arcsec'``. Bare numbers mean degrees for
 ``query_region`` and ``query_repeat_observations``; they mean
 arcseconds for the structured ``query_spectra`` and
 ``query_stellar_parameters`` methods. Use explicit units to avoid ambiguity.
-Invalid or non-angular radii raise `~astroquery.exceptions.InvalidQueryError`.
+Invalid or non-angular radii raise ``InvalidQueryError``.
 
 CSV avoids the known VOTable format problem on endpoints that honor the
 format request. It does not establish that the service returned every match
@@ -125,7 +126,7 @@ For ``query_catalog`` and its wrappers, ``max_rows`` limits a single page
 do not aggregate pages.
 
 Data Release and Metadata
--------------------------
+=========================
 
 Use ``get_dr_versions`` to inspect available data-release and sub-version
 combinations. The instance's ``data_release`` and ``sub_version`` select the
@@ -133,66 +134,57 @@ archive endpoint used by query and data-product methods.
 ``get_tables_metadata`` returns the available catalogs and their field
 definitions. ``get_metadata(obsid)`` returns information about one observation.
 
-Release and Format Boundaries
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Known Limitations
+-----------------
 
-The reference configuration is the public DR10/v2.0 service. A release listed
-by ``get_dr_versions`` does not establish that every endpoint or output format
-works for that release. Select both version components explicitly when
-reproducing an observation; do not replace a historical release with a newer
-one merely because its endpoint responds.
+The reference configuration is the public DR10/v2.0 service. A release
+listed by ``get_dr_versions`` does not establish that every endpoint or
+output format works for it; select both version components explicitly when
+reproducing an observation.
 
-Legacy releases without ``/tables`` use SQL to read the visible database
-relations and their column types. Ordinary observation queries and stellar
-queries use their respective catalogs; a stellar-only subset is not used for
-an ordinary field search. Units unavailable in old metadata remain unset.
-SQL and structured queries choose JSON for modern configurations and CSV for legacy
-configurations by default (``output_format=None``). An explicit format is
-sent unchanged; some old SQL services return HTML for JSON requests.
-For configurations without a verified default catalog mapping, inspect
-``get_tables_metadata`` and use an explicit ``catalog_name`` or ``query_catalog``;
-the client does not guess a population or select a different release.
+- Legacy releases without ``/tables`` read the visible database relations and
+  their column types through SQL. Units unavailable in old metadata remain
+  unset.
+- ``output_format=None`` selects JSON for modern configurations and CSV for
+  legacy ones. An explicit format is sent unchanged; some old SQL services
+  return HTML for JSON requests.
+- Configurations without a verified default catalog mapping raise
+  ``InvalidQueryError`` from the spectral query helpers;
+  inspect ``get_tables_metadata`` and use ``query_catalog`` or an explicit
+  ``catalog_name``. The client does not guess a population or switch releases.
+- DR3 uses its native routes for SQL, cone search, spectrum metadata and FITS.
+  DR3 and DR8 cone services can return VOTable even when CSV is requested,
+  with column names such as ``catalogue_obsid``; the known prefixes are
+  matched to catalog types. DR3 has no verified related-observation lookup.
+- DR7--DR11 MRS v0 queries failed with the tested account because the
+  service could not read the MRS tables. Such failures propagate; they are
+  not turned into empty tables.
 
-DR3 uses verified native routes for SQL, cone search, spectrum metadata,
-and FITS. DR3 and DR8 cone services can return VOTable even when CSV is
-requested, with names such as ``catalogue_obsid`` or ``med_catalogue_obsid``.
-The client retains these names and matches the known prefixes to catalog types.
-A working native route for DR3 related-observation lookup is not established.
+Supported table inputs are JSON, CSV, tab-separated TXT and valid VOTable.
+Historical pipe-delimited text labelled as CSV is recognized from unquoted
+delimiters in its header; quoted delimiters, whitespace and embedded newlines
+remain field content. Missing fields, duplicate or empty column names and
+broken quoting raise ``TableParseError``. JSON record
+envelopes with ``rows`` and ``total`` keep each record and store ``total`` in
+``table.meta``; unrecognized JSON objects raise ``TableParseError`` rather
+than becoming a single data row.
 
-DR7--DR11 MRS v0 queries failed with the tested account because the backing
-service could not read the MRS tables. The client does not turn these failures
-into empty tables or switch releases. A listed release or visible schema does
-not establish permission to read its data.
+Executed ``query_catalog`` requests validate output, constraint, position and
+sort columns against ``get_tables_metadata`` before submitting the query, and
+the returned table must contain every requested column. Results record their
+source as ``table.meta['catalog']``; catalog names are specific to each
+release. Use ``cache=False`` to refresh cached metadata and query responses.
 
-Format support in the parser is distinct from service availability. Supported
-table inputs are JSON, CSV, tab-separated TXT, and valid VOTable. Historical
-pipe-delimited text labelled as CSV is recognized from unquoted delimiters in
-its header. Quoted commas, pipes, whitespace, and embedded newlines remain
-field content, including blank lines and the original CR/LF line endings.
-Mixed unquoted header delimiters, missing fields, duplicate or empty column
-names, and broken quoting raise `~astroquery.exceptions.TableParseError`.
-When a column name itself contains a delimiter, the service must quote it.
-JSON record envelopes with ``rows`` and ``total`` preserve each record and
-store ``total`` in table metadata. Unrecognized JSON objects raise
-``TableParseError`` rather than becoming a single data row.
+.. doctest-remote-data::
 
-Executed ``query_catalog`` requests validate output, constraint, position, and
-sort columns against ``get_tables_metadata`` before submitting the query.
-Use ``cache=False`` to refresh cached metadata and query responses. The
-returned table must also contain every requested output column.
-Structured results record their source as ``table.meta['catalog']``. Catalog
-names are specific to the LAMOST release; discover them from this metadata.
-
-.. doctest::
-
-  >>> versions = lamost.get_dr_versions()  # doctest: +SKIP
-  >>> sorted({version['dr_version'] for version in versions})  # doctest: +SKIP
-  >>> metadata = lamost.get_tables_metadata()  # doctest: +SKIP
-  >>> "tables" in metadata  # doctest: +SKIP
+  >>> versions = lamost.get_dr_versions()
+  >>> sorted({version['dr_version'] for version in versions})  # doctest: +IGNORE_OUTPUT
+  >>> metadata = lamost.get_tables_metadata()
+  >>> "tables" in metadata
   True
 
 Column Types and Units
-----------------------
+======================
 
 ``query_region``, ``query_catalog``, and its spectral-query wrappers use catalog metadata to
 convert numeric columns and attach recognized units. For example, ``obsid``
@@ -214,7 +206,7 @@ can retain object dtype without a schema. The client does not infer types from S
 expressions or aliases. Supply ``column_schema`` using the actual result
 column names when known types are required:
 
-.. doctest::
+.. doctest-remote-data::
 
   >>> column_schema = {
   ...     'obsid': {'datatype': 'long'},
@@ -222,28 +214,23 @@ column names when known types are required:
   ...     'feh': {'datatype': 'double'},
   ...     'gaia_source_id': {'datatype': 'char'},
   ... }
-  >>> stars = lamost.query_sql(  # doctest: +SKIP
+  >>> stars = lamost.query_sql(
   ...     'SELECT obsid, teff AS temperature, feh, gaia_source_id '
   ...     'FROM combined LIMIT 5', column_schema=column_schema)
-  >>> hot_stars = stars[stars['temperature'] > 5500]  # doctest: +SKIP
+  >>> hot_stars = stars[stars['temperature'] > 5500]
+  >>> stars['temperature'].unit
+  Unit("K")
 
-The comparison above uses the column's numeric values in kelvin. The schema
-must describe the returned expression, including any SQL unit conversion.
-With ``column_schema``, CSV/TXT fields are read as strings before conversion;
-columns without a declared datatype remain strings. This preserves character
-identifiers such as ``'00123'``.
-CSV character fields retain leading/trailing whitespace and embedded line
-endings. Under a character schema, whitespace-only strings remain values;
-empty fields are masked. Whitespace-only numeric fields remain masked.
-Values that cannot be converted to their declared datatype raise
-`~astroquery.exceptions.TableParseError`. Floating-point NaN and infinity
-are preserved; conversion does not establish scientific validity. Check
-column masks and ``numpy.isfinite`` when selecting numeric data for analysis.
-A legacy VOTable can encode a missing integer as an empty ``TD`` cell.
-The client masks empty scalar integer cells using their TABLEDATA positions,
-preserving real zeros and existing masks. Ambiguous row/column mappings and
-missing integer arrays raise ``TableParseError``. Malformed CSV and truncated
-VOTable values remain errors.
+The schema must describe the returned expression, including any SQL unit
+conversion. With ``column_schema``, CSV/TXT fields are read as strings before
+conversion, so character identifiers such as ``'00123'`` keep their leading
+zeros; columns without a declared datatype remain strings. Empty fields are
+masked; whitespace-only fields are values in character columns and masked in
+numeric ones. Values that cannot be converted to their declared datatype raise
+``TableParseError``. NaN and infinity are preserved, so
+check masks and ``numpy.isfinite`` before analysis. A legacy VOTable can encode
+a missing integer as an empty ``TD`` cell; these cells are masked by position,
+preserving real zeros.
 
 Only client-generated SQL has an empty-body compatibility check: one separate
 count confirms whether the same page is empty before a typed empty table is
@@ -273,7 +260,7 @@ are dimensionless. Units are attached only when declared and recognized;
 check ``table[column].unit`` before combining results from different sources.
 
 Spectral Sample Queries
------------------------
+=======================
 
 Use ``query_spectra`` to select spectral catalog records with common quality
 cuts; use ``get_spectra`` to download their FITS data. It translates query
@@ -369,7 +356,7 @@ be queried with SQL, but are not substituted for official target identities.
   (10.0004738, 40.9952444)
 
 Catalog Pagination and Export
------------------------------
+=============================
 
 Query methods return one page. To retrieve a larger sample, keep the selection,
 page size, and sort order fixed while advancing ``page``. For example:
@@ -392,7 +379,7 @@ single returned table, use ``Table.write`` with the desired local format;
 the service's ``output_format`` controls transport rather than file saving.
 
 Data Products
--------------
+=============
 
 Use ``resolution='low'`` for LRS or ``resolution='medium'`` for MRS.
 ``get_metadata`` returns an observation table; ``get_spectra`` accepts one
@@ -402,18 +389,22 @@ To obtain its download URL without fetching the file, use ``get_spectrum_list``.
 Authenticated URLs contain the token and must not be shared or logged;
 ``get_query_payload=True`` returns redacted parameters instead.
 
-``get_spectra`` uses Astropy's ``verify='warn'`` by default. The caller must
-close the returned HDU lists:
+``get_spectra`` uses Astropy's ``verify='warn'`` by default. For this archive
+product, use ``silentfix`` when reading and writing to repair extraneous
+``NAXIS1`` and ``NAXIS2`` primary-header cards. The caller must close the
+returned HDU lists:
 
-.. doctest::
+.. doctest-remote-data::
 
-  >>> spectra = lamost.get_spectra(176604010, resolution='low')  # doctest: +SKIP
-  >>> try:  # doctest: +SKIP
+  >>> spectra = lamost.get_spectra(176604010, resolution='low', verify='silentfix')
+  >>> try:
   ...     obsid = spectra[0][0].header['OBSID']
-  ...     spectra[0].writeto('lrs-spectrum.fits', overwrite=True, output_verify='fix')
+  ...     spectra[0].writeto('lrs-spectrum.fits', overwrite=True, output_verify='silentfix')
   ... finally:
   ...     for spectrum in spectra:
   ...         spectrum.close()
+  >>> obsid
+  176604010
 
 The saved ``lrs-spectrum.fits`` is used in the LRS processing example below.
 Astropy may fix structural header issues when writing; this is not a
@@ -446,7 +437,7 @@ Anonymous non-streaming requests use the inherited response cache, including
 requests and streaming catalog downloads bypass the cache.
 
 Local Spectrum Processing
--------------------------
+=========================
 
 ``parse_lrs_spectrum`` reads the supported single-HDU image or two-HDU table
 layout and returns two arrays: wavelength and flux. It preserves flux values
@@ -548,7 +539,7 @@ Plot a local MRS file with Matplotlib, retaining the extension labels:
    plt.close(fig)
 
 One-observation Activity Example
---------------------------------
+================================
 
 The :download:`standalone example <lamost_activity.py>` selects DR7/v2.0,
 retrieves metadata and a spectrum for observation 54901214, verifies the
@@ -587,21 +578,14 @@ centered at 3969.59 and 3934.78 Angstroms with FWHM 1.09 Angstroms. It uses
 linear interpolation and trapezoidal weights, then evaluates
 ``S_L = (1.8 * 8 * 1.09 / 20) * (H + K) / (R + V)``.
 
-The independently archived numerical result is ``0.1803738541038765``; the
-script checks absolute agreement within ``1e-7``. This computational tolerance
-is separate from the published measurement uncertainty ``0.003597``. The
-published central value is ``0.18038``. This is a fixed-observation example,
-not an uncertainty propagation or Mount Wilson calibration pipeline. It
-requires finite positive flux for all pixels supporting each bandpass,
-including neighbors outside the band edges that participate in interpolation.
-An edge exactly on a wavelength sample needs no extra outside neighbor.
-Invalid support pixels, RV, or nonfinite/nonpositive numerical results raise
-``ValueError`` with a reason; support-pixel errors also identify the band and
-pixel. Assess
-archive pixel masks and scientific selection criteria for other targets.
-The temporary FITS file is reserialized with Astropy header verification;
-it is not claimed to preserve the original HTTP bytes. All HDU lists and
-temporary files are closed or removed after use.
+The script checks its result against the independently archived value
+``0.1803738541038765`` to ``1e-7``; this computational tolerance is separate
+from the published uncertainty. It is a fixed-observation example, not an
+uncertainty propagation or Mount Wilson calibration. All pixels supporting a
+bandpass, including the interpolation neighbours just outside its edges, must
+have finite positive flux; invalid pixels, RV or results raise ``ValueError``
+naming the band and pixel. Assess archive pixel masks and selection criteria
+for other targets.
 
 To process local observations independently, import ``measure_files`` from the
 downloaded example. Supply the archive RV in km/s and expected integer OBSID
@@ -626,23 +610,23 @@ observation's reference index; the script's original single-observation command
 continues to perform that comparison.
 
 Failures and Diagnostics
-------------------------
+========================
 
 Invalid query parameters or unknown catalog columns raise
-`~astroquery.exceptions.InvalidQueryError`. Recognized authentication failures raise
-`~astroquery.exceptions.LoginError`; configure a valid token and create a
+``InvalidQueryError``. Recognized authentication failures raise
+``LoginError``; configure a valid token and create a
 new client as described above. Recognized cases include HTTP 401/403,
 OAuth redirects, HTML META refresh to the verified login host, and service
 errors asking to check a token. Other HTML pages remain parsing errors.
 Other HTTP failures raise `requests.HTTPError`;
 error payloads returned with HTTP success raise
-`~astroquery.exceptions.RemoteServiceError`. Both preserve available, redacted
+``RemoteServiceError``. Both preserve available, redacted
 error details. A missing endpoint or unsupported release is a service/address
 problem and does not by itself establish that a token is required.
 
 Malformed responses, missing requested columns, failed datatype conversions,
 and VOTables that would truncate data raise
-`~astroquery.exceptions.TableParseError`. Query and JSON metadata endpoints
+``TableParseError``. Query and JSON metadata endpoints
 also reject empty bodies and HTML pages, including mislabeled HTML. A text
 response with column headers and zero data rows is valid, as are supported
 empty JSON and VOTable results.
@@ -652,17 +636,6 @@ response. HTML and empty-body errors include the HTTP status, redacted URL,
 content type, and body length. Payload inspection does not test authentication,
 or data-query service availability. SQL-backed payload inspection validates
 columns using metadata, but does not execute the data query.
-
-Exceptions
-----------
-
-.. autoexception:: astroquery.exceptions.InvalidQueryError
-
-.. autoexception:: astroquery.exceptions.LoginError
-
-.. autoexception:: astroquery.exceptions.RemoteServiceError
-
-.. autoexception:: astroquery.exceptions.TableParseError
 
 Reference/API
 =============
