@@ -106,6 +106,8 @@ def constraints_sql(constraints, schema):
                 raise InvalidQueryError('An in constraint requires a nonempty list or newline-separated values.')
             parts.append(f'{column} IN ({", ".join(literal(v, schema[name]) for v in values)})')
         elif operation == 'contains':
+            if item.get('constraint') is None:
+                raise InvalidQueryError('A contains constraint requires a value.')
             value = literal('%' + str(item['constraint']) + '%', {'datatype': 'text'})
             parts.append(f'{column}::text ILIKE {value}')
         elif operation in operations:

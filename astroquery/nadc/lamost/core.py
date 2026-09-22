@@ -1165,7 +1165,8 @@ class LamostClass(BaseQuery):
             and JSON for modern ones. An explicit format is sent unchanged.
         get_query_payload : bool, optional
             Return the actual redacted request parameters without executing the
-            data query. SQL compilation can fetch field metadata first.
+            data query. SQL-backed requests fetch field metadata first and
+            validate columns; native request payloads are returned unvalidated.
         cache : bool, optional
             Whether to use astroquery's request cache.
         verbose : bool, optional
@@ -1186,8 +1187,12 @@ class LamostClass(BaseQuery):
         """
         if columns is not None:
             columns = [columns] if isinstance(columns, str) else list(columns)
+            if len(set(map(str, columns))) != len(columns):
+                raise InvalidQueryError('columns must not contain duplicate names.')
         if column_constraints is not None and not isinstance(column_constraints, Mapping):
             column_constraints = list(column_constraints)
+        if sort_order not in ('asc', 'desc'):
+            raise InvalidQueryError('sort_order must be asc or desc.')
 
         if output_format is None:
             output_format = 'csv' if self._legacy_metadata() else 'json'
@@ -1378,7 +1383,8 @@ class LamostClass(BaseQuery):
             and JSON for modern ones. An explicit format is sent unchanged.
         get_query_payload : bool, optional
             Return the actual redacted request parameters without executing the
-            data query. SQL compilation can fetch field metadata first.
+            data query. SQL-backed requests fetch field metadata first and
+            validate columns; native request payloads are returned unvalidated.
         cache : bool, optional
             Whether to use astroquery's request cache.
         verbose : bool, optional
@@ -1493,7 +1499,8 @@ class LamostClass(BaseQuery):
             and JSON for modern ones. An explicit format is sent unchanged.
         get_query_payload : bool, optional
             Return the actual redacted request parameters without executing the
-            data query. SQL compilation can fetch field metadata first.
+            data query. SQL-backed requests fetch field metadata first and
+            validate columns; native request payloads are returned unvalidated.
         cache : bool, optional
             Whether to use astroquery's request cache.
         verbose : bool, optional

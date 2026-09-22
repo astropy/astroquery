@@ -243,6 +243,24 @@ class TestLamost:
         assert payload['column_constraints'] == constraints
         assert 'showcol' in payload
 
+    @pytest.mark.parametrize('kwargs', [
+        {'sort_order': 'bogus'}, {'columns': ['obsid', 'obsid']},
+    ], ids=['sort-order', 'duplicate-columns'])
+    @pytest.mark.parametrize('position', [
+        None, {'cone': {'racenter': 10., 'deccenter': 40., 'radius': 5.}},
+    ], ids=['native', 'sql'])
+    def test_query_catalog_rejects_invalid_inputs_on_both_paths(self, spectral_schema, kwargs, position):
+        with pytest.raises(InvalidQueryError, match='sort_order|duplicate'):
+            LamostClass().query_catalog(
+                'combined', position_constraints=position, get_query_payload=True, **kwargs)
+
+    def test_query_catalog_contains_requires_a_value(self, spectral_schema):
+        with pytest.raises(InvalidQueryError, match='contains'):
+            LamostClass().query_catalog(
+                'combined', column_constraints=[{'column_name': 'obsid', 'operation': 'contains'}],
+                position_constraints={'cone': {'racenter': 10., 'deccenter': 40., 'radius': 5.}},
+                get_query_payload=True)
+
     @pytest.mark.parametrize('method', ['query_catalog', 'query_spectra', 'query_stellar_parameters'])
     def test_query_catalog_all_matches_uses_sql(self, monkeypatch, spectral_schema, method):
         request = Mock(return_value=create_mock_response(json_data=[]))
