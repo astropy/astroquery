@@ -28,7 +28,7 @@ nadc.lamost
 ^^^^^^^^^^^
 
 - New module to access the LAMOST spectroscopic survey archive hosted by the
-  National Astronomical Data Center (NADC). [#2]
+  National Astronomical Data Center (NADC). [#3666]
 
 nrao
 ^^^^
