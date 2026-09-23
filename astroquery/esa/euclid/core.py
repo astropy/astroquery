@@ -987,11 +987,11 @@ class EuclidClass(TapPlus):
         tile_index : str, mandatory
             tile index for products searchable by tile.
 
-        Searchable products by tile_index: 'DpdMerBksMosaic', 'dpdPhzPfOutputForL3', 'dpdPhzPfOutputCatalog',
-            'dpdMerFinalCatalog','dpdSpePfOutputCatalog', 'dpdSheLensMcChains', 'dpdHealpixBitMaskVMPZ',
-            'dpdHealpixFootprintMaskVMPZ', 'dpdHealpixCoverageVMPZ', 'dpdHealpixDepthMapVMPZ','dpdHealpixInfoMapVMPZ',
-            'dpdSheBiasParams', 'dpdSheLensMcFinalCatalog', 'dpdSheLensMcRawCatalog', 'dpdSheMetaCalFinalCatalog',
-            'dpdSheMetaCalRawCatalog', 'dpdSleDetectionOutput', 'dpdSleModelOutput', 'DpdSirCombinedSpectra',
+        Searchable products by tile_index: 'DpdMerBksMosaic', 'DPdPhzPfOutputForL3', 'DPdPhzPfOutputCatalog',
+            'DPdMerFinalCatalog','DPdSpePfOutputCatalog', 'DPdSheLensMcChains', 'DPdHealpixBitMaskVMPZ',
+            'DPdHealpixFootprintMaskVMPZ', 'DPdHealpixCoverageVMPZ', 'DPdHealpixDepthMapVMPZ','DPdHealpixInfoMapVMPZ',
+            'DPdSheBiasParams', 'DPdSheLensMcFinalCatalog', 'DPdSheLensMcRawCatalog', 'DPdSheMetaCalFinalCatalog',
+            'DPdSheMetaCalRawCatalog', 'DPdSleDetectionOutput', 'DPdSleModelOutput', 'DpdSirCombinedSpectra',
             'DpdMerSegmentationMap'
         product_type : str, mandatory, default None
             Available product types:
@@ -999,28 +999,28 @@ class EuclidClass(TapPlus):
                 #. MER
                      DpdMerSegmentationMap: Segmentation Map Product
                      DpdMerBksMosaic: Background-Subtracted Mosaic Product
-                     dpdMerFinalCatalog: Final Catalog Product
+                     DPdMerFinalCatalog: Final Catalog Product
                 #. PHZ
-                    dpdPhzPfOutputCatalog: PHZ PF output catalog product for Deep tiles
-                    dpdPhzPfOutputForL3: PHZ PF output catalog product for LE3
+                    DpdPhzPfOutputCatalog: PHZ PF output catalog product for Deep tiles
+                    DpdPhzPfOutputForL3: PHZ PF output catalog product for LE3
+                    DpdPhzDeepOutputCatalog: the photometric redshift and its PDF
                 #. SPE
-                    dpdSpePfOutputCatalog: SPE PF output catalog product
+                    DpdSpePfOutputCatalog: SPE PF output catalog product
                 #. SHE
-                    dpdSheLensMcChains: Shear LensMc Chains
-                    dpdSheBiasParams: Shear Bias Parameters Data Product
-                    dpdSheLensMcFinalCatalog: Shear LensMc Final Catalog
-                    dpdSheMetaCalFinalCatalog: Shear MetaCal Final Catalog
-                    dpdSheMetaCalRawCatalog: Shear LensMc Raw Catalog
-                    dpdSheLensMcRawCatalog: Shear LensMc Raw Catalog
+                    DpdSheLensMcChains: Shear LensMc Chains
+                    DpdSheBiasParams: Shear Bias Parameters Data Product
+                    DpdSheLensMcFinalCatalog: Shear LensMc Final Catalog
+                    DpdSheMetaCalFinalCatalog: Shear MetaCal Final Catalog
+                    DpdSheMetaCalRawCatalog: Shear LensMc Raw Catalog
+                    DpdSheLensMcRawCatalog: Shear LensMc Raw Catalog
                 #. VMPZ-ID
-                    dpdHealpixBitMaskVMPZ: Input Product: Bit Mask Parameters
-                    dpdHealpixFootprintMaskVMPZ: Output Product: HEALPix Footprint Mask
-                    dpdHealpixCoverageVMPZ: Output Product: HEALPix Coverage Mask
-                    dpdHealpixDepthMapVMPZ: Input Product: Depth Maps Parameters
-                    dpdHealpixInfoMapVMPZ: Input Product: Information Map Parameters
+                    DpdHealpixBitMaskVMPZ: Input Product: Bit Mask Parameters
+                    DpdHealpixFootprintMaskVMPZ: Output Product: HEALPix Footprint Mask
+                    DpdHealpixCoverageVMPZ: Output Product: HEALPix Coverage Mask
+                    DpdHealpixDepthMapVMPZ: Input Product: Depth Maps Parameters
+                    DpdHealpixInfoMapVMPZ: Input Product: Information Map Parameters
                 #. SLE
-                    dpdSleDetectionOutput: SLE Detection Output
-                    dpdSleModelOutput: SLE Model Output
+                    DpdSleDetectionOutput: SLE Detection Output
                 #. SIR
                     DpdSirCombinedSpectra: Combined Spectra Product
         schema : str, optional
@@ -1045,14 +1045,13 @@ class EuclidClass(TapPlus):
         if product_type is None:
             raise ValueError(self.__ERROR_MSG_REQUESTED_PRODUCT_TYPE)
 
-        query = None
-
         if product_type in conf.MOSAIC_PRODUCTS:
             dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'mosaic_product')
             extra_condition = '' if dsr_condition is None else f' AND {dsr_condition}'
 
             query = (
                 f"SELECT DISTINCT mosaic_product.file_name, mosaic_product.mosaic_product_oid, "
+                f"mosaic_product.product_type, "
                 f"mosaic_product.tile_index, mosaic_product.instrument_name, mosaic_product.filter_name, "
                 f"mosaic_product.category, mosaic_product.second_type, mosaic_product.ra, mosaic_product.dec, "
                 f"mosaic_product.release_name, mosaic_product.technique, mosaic_product.{self.dsr_1}, "
@@ -1064,6 +1063,7 @@ class EuclidClass(TapPlus):
             dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'basic_download_data')
             extra_condition = '' if dsr_condition is None else f' AND {dsr_condition}'
 
+            product_type_db = product_type[0].lower() + product_type[1:]
             query = (
                 f"SELECT basic_download_data.basic_download_data_oid, basic_download_data.product_type, "
                 f"basic_download_data.product_id, CAST(basic_download_data.observation_id_list as text) AS "
@@ -1072,8 +1072,8 @@ class EuclidClass(TapPlus):
                 f"CAST(basic_download_data.filter_name as text) AS filter_name, basic_download_data.release_name, "
                 f"basic_download_data.{self.dsr_1}, basic_download_data.{self.dsr_2}, "
                 f"basic_download_data.{self.dsr_3} FROM {schema}.basic_download_data "
-                f"WHERE '{tile_index}'=ANY(tile_index_list) AND product_type = '{product_type}' {extra_condition} "
-                f"ORDER BY observation_id_list ASC;")
+                f"WHERE '{tile_index}'=ANY(basic_download_data.tile_index_list) AND basic_download_data.product_type "
+                f"= '{product_type_db}' {extra_condition} ORDER BY observation_id_list ASC;")
 
         elif product_type in conf.COMBINED_SPECTRA_PRODUCTS:
             dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'combined_spectra')
@@ -1084,8 +1084,8 @@ class EuclidClass(TapPlus):
                 f"combined_spectra.tile_index, combined_spectra.stc_s, combined_spectra.product_type, "
                 f"combined_spectra.product_id, combined_spectra.observation_id_list, combined_spectra.{self.dsr_1}, "
                 f"combined_spectra.{self.dsr_2}, combined_spectra.{self.dsr_3} FROM {schema}.combined_spectra "
-                f"WHERE combined_spectra.tile_index = '{tile_index}' AND combined_spectra.product_type = '"
-                f"{product_type}' {extra_condition};")
+                f"WHERE combined_spectra.tile_index = '{tile_index}' AND combined_spectra.product_type = "
+                f"'{product_type}' {extra_condition};")
 
         elif product_type in conf.MER_SEGMENTATION_MAP_PRODUCTS:
             dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'mer_segmentation_map')
@@ -1119,33 +1119,31 @@ class EuclidClass(TapPlus):
         observation_id : str, mandatory
             observation id for observations. It is not compatible with parameter tile_index.
 
-            Searchable products by observation_id: 'dpdVisRawFrame', 'dpdNispRawFrame',
+            Searchable products by observation_id: 'DPdVisRawFrame', 'DPdNispRawFrame',
             'DpdVisCalibratedQuadFrame','DpdVisCalibratedFrameCatalog', 'DpdVisStackedFrame',
             'DpdVisStackedFrameCatalog',
             'DpdNirCalibratedFrame', 'DpdNirCalibratedFrameCatalog', 'DpdNirStackedFrameCatalog', 'DpdNirStackedFrame',
-            'DpdMerSegmentationMap', 'dpdMerFinalCatalog',
-            'dpdPhzPfOutputCatalog', 'dpdPhzPfOutputForL3',
-            'dpdSpePfOutputCatalog',
-            'dpdSheLensMcChains','dpdSheBiasParams', 'dpdSheLensMcFinalCatalog','dpdSheLensMcRawCatalog',
-            'dpdSheMetaCalFinalCatalog', 'dpdSheMetaCalRawCatalog',
-            'dpdHealpixBitMaskVMPZ', 'dpdHealpixFootprintMaskVMPZ', 'dpdHealpixCoverageVMPZ',
-            'dpdHealpixDepthMapVMPZ', 'dpdHealpixInfoMapVMPZ',
-            'dpdSleDetectionOutput','dpdSleModelOutput',
-            'DpdSirCombinedSpectra','dpdSirScienceFrame'
+            'DpdMerSegmentationMap', 'DpdMerFinalCatalog',
+            'DpdPhzPfOutputCatalog', 'DpdPhzPfOutputForL3', 'DpdPhzDeepOutputCatalog'
+            'DpdSpePfOutputCatalog',
+            'DpdSheLensMcChains','DpdSheBiasParams', 'DpdSheLensMcFinalCatalog','DpdSheLensMcRawCatalog',
+            'DpdSheMetaCalFinalCatalog', 'DpdSheMetaCalRawCatalog',
+            'DpdHealpixBitMaskVMPZ', 'DpdHealpixFootprintMaskVMPZ', 'DpdHealpixCoverageVMPZ',
+            'DpdHealpixDepthMapVMPZ', 'DpdHealpixInfoMapVMPZ',
+            'DpdSleDetectionOutput', 'DpdSirCombinedSpectra','DpdSirScienceFrame'
 
         tile_index : str, mandatory
             tile index for products searchable by tile. It is not compatible with parameter observation_id.
 
             Searchable products by tile_index:
-            'DpdMerSegmentationMap', 'dpdMerFinalCatalog', 'DpdMerBksMosaic',
-            'dpdPhzPfOutputCatalog','dpdPhzPfOutputForL3',
-            'dpdSpePfOutputCatalog',
-            'dpdSheLensMcChains', 'dpdSheBiasParams',  'dpdSheLensMcFinalCatalog', 'dpdSheLensMcRawCatalog',
-            'dpdSheMetaCalFinalCatalog', 'dpdSheMetaCalRawCatalog',
-            'dpdHealpixBitMaskVMPZ', 'dpdHealpixFootprintMaskVMPZ', 'dpdHealpixCoverageVMPZ',
-            'dpdHealpixDepthMapVMPZ','dpdHealpixInfoMapVMPZ',
-            dpdSleDetectionOutput', 'dpdSleModelOutput',
-            'DpdSirCombinedSpectra'
+            'DpdMerSegmentationMap', 'DpdMerFinalCatalog', 'DpdMerBksMosaic',
+            'DpdPhzPfOutputCatalog','DpdPhzPfOutputForL3', 'DpdPhzDeepOutputCatalog'
+            'DpdSpePfOutputCatalog',
+            'DpdSheLensMcChains', 'DpdSheBiasParams',  'DpdSheLensMcFinalCatalog', 'DpdSheLensMcRawCatalog',
+            'DpdSheMetaCalFinalCatalog', 'DpdSheMetaCalRawCatalog',
+            'DpdHealpixBitMaskVMPZ', 'DpdHealpixFootprintMaskVMPZ', 'DpdHealpixCoverageVMPZ',
+            'DpdHealpixDepthMapVMPZ','DPdHealpixInfoMapVMPZ',
+            'DDPdSleDetectionOutput', 'DpdSirCombinedSpectra'
 
         product_type : str, mandatory, default None
             Available product types:
@@ -1172,33 +1170,34 @@ class EuclidClass(TapPlus):
                 #. MER
                      DpdMerSegmentationMap: Segmentation Map Product
                      DpdMerBksMosaic: Background-Subtracted Mosaic Product
-                     dpdMerFinalCatalog: Final Catalog Product   \
+                     DpdMerFinalCatalog: Final Catalog Product   \
                                          - We suggest to use ADQL to retrieve data from this dataset.
                 #. PHZ      - We suggest to use ADQL to retrieve data from these products.
-                    dpdPhzPfOutputCatalog: PHZ PF output catalog product for weak lensing
-                    dpdPhzPfOutputForL3: PHZ PF output catalog product for LE3
+                    DpdPhzPfOutputCatalog: PHZ PF output catalog product for weak lensing
+                    DpdPhzPfOutputForL3: PHZ PF output catalog product for LE3
+                    DpdPhzDeepOutputCatalog: the photometric redshift and its PDF
                 #. SPE      - We suggest to use ADQL to retrieve data from this product.
-                    dpdSpePfOutputCatalog: SPE PF output catalog product
+                    DpdSpePfOutputCatalog: SPE PF output catalog product
                 #. SHE      - None of these product are available in Q1
-                    dpdSheLensMcChains: Shear LensMc Chains
-                    dpdSheBiasParams: Shear Bias Parameters Data Product
-                    dpdSheLensMcFinalCatalog: Shear LensMc Final Catalog
-                    dpdSheLensMcRawCatalog: Shear LensMc Raw Catalog
-                    dpdSheMetaCalFinalCatalog: Shear MetaCal Final Catalog
-                    dpdSheMetaCalRawCatalog: Shear LensMc Raw Catalog
+                    DpdSheLensMcChains: Shear LensMc Chains
+                    DpdSheBiasParams: Shear Bias Parameters Data Product
+                    DpdSheLensMcFinalCatalog: Shear LensMc Final Catalog
+                    DpdSheLensMcRawCatalog: Shear LensMc Raw Catalog
+                    DpdSheMetaCalFinalCatalog: Shear MetaCal Final Catalog
+                    DpdSheMetaCalRawCatalog: Shear LensMc Raw Catalog
                 #. VMPZ-ID
-                    dpdHealpixBitMaskVMPZ: Input Product: Bit Mask Parameters
-                    dpdHealpixFootprintMaskVMPZ: Output Product: HEALPix Footprint Mask
-                    dpdHealpixCoverageVMPZ: Output Product: HEALPix Coverage Mask
-                    dpdHealpixDepthMapVMPZ: Input Product: Depth Maps Parameters
-                    dpdHealpixInfoMapVMPZ: Input Product: Information Map Parameters
+                    DpdHealpixBitMaskVMPZ: Input Product: Bit Mask Parameters
+                    DpdHealpixFootprintMaskVMPZ: Output Product: HEALPix Footprint Mask
+                    DpdHealpixCoverageVMPZ: Output Product: HEALPix Coverage Mask
+                    DpdHealpixDepthMapVMPZ: Input Product: Depth Maps Parameters
+                    DpdHealpixInfoMapVMPZ: Input Product: Information Map Parameters
                 #. SLE      - None of these product are available in Q1
-                    dpdSleDetectionOutput: SLE Detection Output
-                    dpdSleModelOutput: SLE Model Output
+                    DpdSleDetectionOutput: SLE Detection Output
+                    DpdSleModelOutput: SLE Model Output
                 #. SIR
                     DpdSirCombinedSpectra: Combined Spectra Product \
                                            - We suggest to use ADQL to retrieve data (spectra) from this dataset.
-                    dpdSirScienceFrame: Science Frame Product
+                    DPdSirScienceFrame: Science Frame Product
         schema : str, optional
             release name. Default value is 'sedm'.
         dsr_part1: str, optional, default None
@@ -1228,7 +1227,6 @@ class EuclidClass(TapPlus):
             return self.__get_tile_catalogue_list(tile_index=tile_index, product_type=product_type, schema=schema,
                                                   verbose=verbose)
 
-        query = None
         if product_type in conf.OBSERVATION_STACK_PRODUCTS:
             table = f'{schema}.observation_stack'
 
@@ -1236,14 +1234,15 @@ class EuclidClass(TapPlus):
             extra_condition = '' if dsr_condition is None else f' AND {dsr_condition}'
 
             query = (f"SELECT observation_stack.file_name, observation_stack.observation_stack_oid, "
+                     f"observation_stack.product_type, "
                      f"observation_stack.observation_id, observation_stack.ra, observation_stack.dec, "
                      f"observation_stack.instrument_name, observation_stack.filter_name, "
-                     "observation_stack.release_name, observation_stack.category, observation_stack.second_type, "
+                     f"observation_stack.release_name, observation_stack.category, observation_stack.second_type, "
                      f"observation_stack.technique, observation_stack.product_type, observation_stack.start_time, "
                      f"observation_stack.duration, observation_stack.{self.dsr_1}, observation_stack.{self.dsr_2}, "
                      f"observation_stack.{self.dsr_3} FROM {table} WHERE "
-                     f" observation_stack.observation_id = '{observation_id}' AND observation_stack.product_type = '"
-                     f"{product_type}' {extra_condition};")
+                     f"observation_stack.observation_id = '{observation_id}' AND observation_stack.product_type = "
+                     f"'{product_type}' {extra_condition};")
 
         elif product_type in conf.BASIC_DOWNLOAD_DATA_PRODUCTS:
             table = f'{schema}.basic_download_data'
@@ -1252,6 +1251,7 @@ class EuclidClass(TapPlus):
                                                                'basic_download_data')
             extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
 
+            product_type_db = product_type[0].lower() + product_type[1:]
             query = (
                 f"SELECT CAST(basic_download_data.file_name_list AS text) AS file_name_list, "
                 f"basic_download_data.basic_download_data_oid, basic_download_data.product_type, "
@@ -1260,9 +1260,8 @@ class EuclidClass(TapPlus):
                 f"CAST(basic_download_data.patch_id_list as text) AS patch_id_list, "
                 f"CAST(basic_download_data.filter_name as text) AS filter_name, basic_download_data.release_name, "
                 f"basic_download_data.{self.dsr_1}, basic_download_data.{self.dsr_2}, basic_download_data.{self.dsr_3} "
-                f"FROM {table} WHERE '{observation_id}'=ANY(observation_id_list) AND product_type = '"
-                f"{product_type}' {extra_condition}"
-                f"ORDER BY observation_id_list ASC;")
+                f"FROM {table} WHERE '{observation_id}'=ANY(observation_id_list) AND basic_download_data.product_type "
+                f"= '{product_type_db}' {extra_condition} ORDER BY observation_id_list ASC;")
 
         elif product_type in conf.MER_SEGMENTATION_MAP_PRODUCTS:
             table = f'{schema}.mer_segmentation_map'
@@ -1274,7 +1273,7 @@ class EuclidClass(TapPlus):
             query = (
                 f"SELECT mer_segmentation_map.file_name, mer_segmentation_map.segmentation_map_oid, "
                 f"mer_segmentation_map.ra, mer_segmentation_map.dec, mer_segmentation_map.stc_s, "
-                f"mer_segmentation_map.tile_index, "
+                f"mer_segmentation_map.tile_index, mer_segmentation_map.product_type"
                 f"mer_segmentation_map.product_type, mer_segmentation_map.product_id, "
                 f"mer_segmentation_map.release_name, mer_segmentation_map.{self.dsr_1}, "
                 f"mer_segmentation_map.{self.dsr_2}, mer_segmentation_map.{self.dsr_3} FROM {table} "
@@ -1289,17 +1288,17 @@ class EuclidClass(TapPlus):
             dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'raw_frame')
             extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
 
-            if product_type == "dpdNispRawFrame":
+            if product_type == "DpdNispRawFrame":
                 instrument_name = "NISP"
             else:
                 instrument_name = "VIS"
 
             query = (
                 f"SELECT raw_frame.file_name, raw_frame.rawframe_oid, raw_frame.observation_id, "
-                f"raw_frame.instrument_name, raw_frame.data_set_release, raw_frame.filter_name, "
-                f"raw_frame.observation_mode, raw_frame.grism_wheel_pos, raw_frame.cal_block_id, "
-                f"raw_frame.cal_block_variant, raw_frame.ra, raw_frame.dec, raw_frame.obs_time_utc, "
-                f"raw_frame.exposure_time, raw_frame.release_name, raw_frame.{self.dsr_1}, "
+                f"raw_frame.product_type, raw_frame.instrument_name, raw_frame.data_set_release, "
+                f"raw_frame.filter_name,raw_frame.observation_mode, raw_frame.grism_wheel_pos, "
+                f"raw_frame.cal_block_id, raw_frame.cal_block_variant, raw_frame.ra, raw_frame.dec, "
+                f"raw_frame.obs_time_utc, raw_frame.exposure_time, raw_frame.release_name, raw_frame.{self.dsr_1}, "
                 f"raw_frame.{self.dsr_2}, raw_frame.{self.dsr_3} FROM {table} WHERE "
                 f"raw_frame.observation_id = '{observation_id}' "
                 f"AND raw_frame.instrument_name = '{instrument_name}' {extra_condition};")
@@ -1312,6 +1311,7 @@ class EuclidClass(TapPlus):
 
             query = (
                 f"SELECT calibrated_frame.file_name, calibrated_frame.calibrated_frame_oid, "
+                f"calibrated_frame.product_type, "
                 f"calibrated_frame.observation_id, calibrated_frame.instrument_name, calibrated_frame.filter_name, "
                 f"calibrated_frame.ra, calibrated_frame.dec, calibrated_frame.stc_s, calibrated_frame.start_time, "
                 f"calibrated_frame.end_time, calibrated_frame.duration, calibrated_frame.{self.dsr_1}, "
@@ -1331,8 +1331,8 @@ class EuclidClass(TapPlus):
                 f"frame_catalog.datarange_start_time, frame_catalog.datarange_end_time, "
                 f"frame_catalog.product_type, frame_catalog.product_id, frame_catalog.{self.dsr_1}, "
                 f"frame_catalog.{self.dsr_2}, frame_catalog.{self.dsr_3} FROM {table} "
-                f"WHERE frame_catalog.observation_id = '{observation_id}' AND frame_catalog.product_type = '"
-                f"{product_type}' {extra_condition};")
+                f"WHERE frame_catalog.observation_id ILIKE '{observation_id}' AND frame_catalog.product_type = "
+                f"'{product_type}' {extra_condition};")
 
         elif product_type in conf.COMBINED_SPECTRA_PRODUCTS:
             table = f'{schema}.combined_spectra'
@@ -1359,10 +1359,11 @@ class EuclidClass(TapPlus):
 
             query = (
                 f"SELECT sir_science_frame.file_name, sir_science_frame.science_frame_oid, "
+                f"sir_science_frame.product_type, "
                 f"sir_science_frame.observation_id, sir_science_frame.instrument_name, sir_science_frame.stc_s, "
                 f"sir_science_frame.prod_sdc, sir_science_frame.{self.dsr_1}, sir_science_frame.{self.dsr_2}, "
-                f"sir_science_frame.{self.dsr_3} FROM {table} WHERE sir_science_frame.observation_id = '"
-                f"{observation_id}' AND sir_science_frame.instrument_name = '{instrument_name}' {extra_condition};")
+                f"sir_science_frame.{self.dsr_3} FROM {table} WHERE sir_science_frame.observation_id = "
+                f"'{observation_id}' AND sir_science_frame.instrument_name = '{instrument_name}' {extra_condition};")
 
         else:
             raise ValueError(f"Invalid product type {product_type}.")
