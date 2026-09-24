@@ -153,3 +153,49 @@ linkcheck_ignore = [
     'https://splatalogue.online/#/basic',
     'https://ui.adsabs.harvard.edu',  # 405 Client Error: Not Allowed for sphinx-build
 ]
+
+
+# -- Plot directive: tolerate remote service outages --------------------------
+#
+# Some ``.. plot::`` blocks query live services (e.g. IRSA, CDMS). With warnings
+# treated as errors, a temporary outage of any of those services would fail the
+# whole docs build. Instead, when a plot fails because of a remote-service or
+# network error, render a placeholder figure and log it without a warning.
+
+import requests  # noqa: E402
+from matplotlib import pyplot as plt  # noqa: E402
+from matplotlib.sphinxext import plot_directive  # noqa: E402
+from pyvo.dal.exceptions import DALServiceError, DALQueryError  # noqa: E402
+from sphinx.util import logging as sphinx_logging  # noqa: E402
+
+from astroquery.exceptions import RemoteServiceError, TimeoutError as AQTimeoutError  # noqa: E402
+
+_REMOTE_ERRORS = (requests.exceptions.RequestException, ConnectionError, TimeoutError,
+                  DALServiceError, DALQueryError, RemoteServiceError, AQTimeoutError)
+_plot_logger = sphinx_logging.getLogger(__name__)
+
+
+def _run_code_tolerating_outages(run_code):
+    def wrapper(code, code_path, *args, **kwargs):
+        try:
+            return run_code(code, code_path, *args, **kwargs)
+        except plot_directive.PlotError as err:
+            if not isinstance(err.__cause__, _REMOTE_ERRORS):
+                raise
+            _plot_logger.info(f"Remote service unavailable while running a plot in "
+                              f"{code_path}; rendering a placeholder figure instead.\n"
+                              f"{type(err.__cause__).__name__}: {err.__cause__}")
+            plt.close('all')
+            fig = plt.figure(figsize=(6, 1.5))
+            fig.text(0.5, 0.5, "Figure not rendered: a remote service was unavailable\n"
+                     "when this documentation was built.", ha='center', va='center')
+            return {}
+    return wrapper
+
+
+# ``_run_code`` is private matplotlib API (``run_code`` before 3.9); if it is
+# missing, plots simply behave as before.
+for _name in ('_run_code', 'run_code'):
+    if hasattr(plot_directive, _name):
+        setattr(plot_directive, _name, _run_code_tolerating_outages(getattr(plot_directive, _name)))
+        break
