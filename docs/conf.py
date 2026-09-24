@@ -21,6 +21,14 @@ else:
 
 from pathlib import Path
 
+import requests
+from matplotlib import pyplot as plt
+from matplotlib.sphinxext import plot_directive
+from pyvo.dal.exceptions import DALServiceError, DALQueryError
+from sphinx.util import logging as sphinx_logging
+
+from astroquery.exceptions import RemoteServiceError, TimeoutError as AQTimeoutError
+
 # Load all of the global Astropy configuration
 try:
     from sphinx_astropy.conf.v3 import *  # noqa
@@ -161,14 +169,6 @@ linkcheck_ignore = [
 # treated as errors, a temporary outage of any of those services would fail the
 # whole docs build. Instead, when a plot fails because of a remote-service or
 # network error, render a placeholder figure and log it without a warning.
-
-import requests  # noqa: E402
-from matplotlib import pyplot as plt  # noqa: E402
-from matplotlib.sphinxext import plot_directive  # noqa: E402
-from pyvo.dal.exceptions import DALServiceError, DALQueryError  # noqa: E402
-from sphinx.util import logging as sphinx_logging  # noqa: E402
-
-from astroquery.exceptions import RemoteServiceError, TimeoutError as AQTimeoutError  # noqa: E402
 
 _REMOTE_ERRORS = (requests.exceptions.RequestException, ConnectionError, TimeoutError,
                   DALServiceError, DALQueryError, RemoteServiceError, AQTimeoutError)
