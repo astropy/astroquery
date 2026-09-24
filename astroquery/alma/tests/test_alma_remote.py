@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 import os
 from io import StringIO
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlsplit, parse_qs
 import re
 from unittest.mock import Mock, MagicMock, patch
 
@@ -12,10 +12,9 @@ from astropy import units as u
 import numpy as np
 import pytest
 
-from pyvo.dal.exceptions import DALOverflowWarning
-
 from astroquery.exceptions import CorruptDataWarning
 from astroquery.alma import Alma, get_enhanced_table
+from astroquery.utils.commons import FileContainer
 
 try:
     import regions
@@ -37,8 +36,10 @@ all_colnames = {'Project code', 'Source name', 'RA', 'Dec', 'Band',
 
 download_hostname = 'almascience.eso.org'
 
-# The MAXREC related overflow message is different in pyvo 1.7+, remove workaround when we have it as a minimum
-overflow_message = r"Partial result set. Potential causes MAXREC|Result set limited by user- or server-supplied MAXREC"
+# Orion KL sample coordinates and cutout radius.
+_CUTOUT_COORDS = coordinates.SkyCoord(
+    '5:35:14.461 -5:21:54.41', frame='fk5', unit=(u.hour, u.deg))
+_CUTOUT_SEARCH_RADIUS = 0.034 * u.deg
 
 
 @pytest.fixture
@@ -59,13 +60,11 @@ def alma(request):
 @pytest.mark.remote_data
 class TestAlma:
     def test_public(self, alma):
-        with pytest.warns(expected_warning=DALOverflowWarning, match=overflow_message):
-            results = alma.query(payload=None, public=True, maxrec=100)
+        results = alma.query(payload=None, public=True, maxrec=100)
         assert len(results) == 100
         for row in results:
             assert row['data_rights'] == 'Public'
-        with pytest.warns(expected_warning=DALOverflowWarning, match=overflow_message):
-            results = alma.query(payload=None, public=False, maxrec=100)
+        results = alma.query(payload=None, public=False, maxrec=100)
         assert len(results) == 100
         for row in results:
             assert row['data_rights'] == 'Proprietary'
@@ -106,8 +105,7 @@ class TestAlma:
     def test_bands(self, alma):
         payload = {'band_list': ['5', '7']}
         # Added maxrec here as downloading and reading the results take too long.
-        with pytest.warns(expected_warning=DALOverflowWarning, match=overflow_message):
-            result = alma.query(payload, maxrec=1000)
+        result = alma.query(payload, maxrec=1000)
         assert len(result) > 0
         for row in result:
             assert ('5' in row['band_list']) or ('7' in row['band_list'])
@@ -218,6 +216,82 @@ class TestAlma:
         trimmed_access_urls = (trimmed_access_url_list,)
         mock_calls = download_files_mock.mock_calls[0][1]
         assert mock_calls == trimmed_access_urls
+
+    @pytest.mark.remote_data
+    def test_get_data_urls_cutouts(self, alma):
+        coords = _CUTOUT_COORDS
+        result = alma.query_region(
+            coords, radius=_CUTOUT_SEARCH_RADIUS, science=True)
+        assert len(result) > 0
+        if 'spatial_resolution' in result.colnames:
+            filtered = result[result['spatial_resolution'] < 10]
+            if len(filtered) == 0:
+                filtered = result
+        else:
+            filtered = result
+        filtered = filtered[:3]
+        urls = alma.get_data_urls(filtered, coordinates=coords,
+                                  radius=0.01 * u.deg,
+                                  frequency=(80, 400) * u.GHz)
+        if not urls:
+            pytest.skip('No SODA cutouts for the selected observations')
+        for url in urls:
+            assert 'POS=' in url
+            assert 'CIRCLE' in url
+            assert 'BAND=' in url
+
+    @pytest.mark.remote_data
+    def test_open_frequency_cutout_matches_no_frequency(self, alma):
+        coords = _CUTOUT_COORDS
+        result = alma.query_region(
+            coords, radius=_CUTOUT_SEARCH_RADIUS, science=True)
+        assert len(result) > 0
+        if 'dataproduct_type' in result.colnames:
+            images = result[result['dataproduct_type'] == 'image']
+            if len(images):
+                result = images
+        if 'em_xel' in result.colnames:
+            continuum = result[result['em_xel'] <= 1]
+            if len(continuum):
+                result = continuum
+        if 'access_estsize' in result.colnames:
+            result = result[np.argsort(result['access_estsize'])]
+        filtered = result[:1]
+        radius = 0.01 * u.deg
+        urls_no_freq = alma.get_data_urls(
+            filtered, coordinates=coords, radius=radius)
+        urls_open = alma.get_data_urls(
+            filtered, coordinates=coords, radius=radius,
+            frequency=(-np.inf, np.inf) * u.GHz)
+        if not urls_no_freq or not urls_open:
+            pytest.skip('No SODA cutouts for the selected observations')
+
+        for url in urls_open:
+            params = parse_qs(urlsplit(url).query)
+            assert params['BAND'][0] == '-Inf +Inf'
+        for url in urls_no_freq:
+            assert 'BAND' not in parse_qs(urlsplit(url).query)
+
+        def _cutout_id(url):
+            return parse_qs(urlsplit(url).query).get('ID', [url])[0]
+
+        no_freq_by_id = {_cutout_id(url): url for url in urls_no_freq}
+        open_by_id = {_cutout_id(url): url for url in urls_open}
+        shared_ids = [uid for uid in no_freq_by_id if uid in open_by_id]
+        assert shared_ids
+        uid = shared_ids[0]
+        no_freq_fits = FileContainer(
+            no_freq_by_id[uid], encoding='binary',
+            show_progress=False).get_fits()
+        open_fits = FileContainer(
+            open_by_id[uid], encoding='binary',
+            show_progress=False).get_fits()
+        assert len(no_freq_fits) == len(open_fits)
+        for no_freq_hdu, open_hdu in zip(no_freq_fits, open_fits):
+            if no_freq_hdu.data is None:
+                assert open_hdu.data is None
+                continue
+            np.testing.assert_array_equal(no_freq_hdu.data, open_hdu.data)
 
     def test_download_data(self, tmp_path, alma):
         # test only fits files from a program
@@ -342,9 +416,8 @@ class TestAlma:
 
         result = alma.query_object('M83', public=True, science=True)
         assert len(result) > 0
-        with pytest.warns(expected_warning=DALOverflowWarning, match=overflow_message):
-            result = alma.query(payload={'pi_name': 'Bally*'}, public=True,
-                                maxrec=10)
+        result = alma.query(payload={'pi_name': 'Bally*'}, public=True,
+                            maxrec=10)
         assert result
         # Add overwrite=True in case the test previously died unexpectedly
         # and left the temp file.
@@ -498,8 +571,9 @@ class TestAlma:
         alma.help_tap()
         result = alma.query_tap(
             "select * from ivoa.obscore where s_resolution <0.1 and "
-            "science_keyword in ('High-mass star formation', 'Disks around "
-            "high-mass stars')")
+            "(science_keyword like '%High-mass star formation%' or "
+            "science_keyword like '%Disks around high-mass stars%')",
+            maxrec=100)
 
         assert len(result) >= 72
         # TODO why is it failing

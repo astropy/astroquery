@@ -118,6 +118,13 @@ svo_fps
 - Add ``get_filter_metadata`` to allow retrieval of filter metadata. [#3528]
 - Add ``get_zeropoint`` to allow retrieval of filter zeropoints and allow kwarg passing to ``get_filter_metadata``. [#3545]
 
+alma
+^^^^
+
+- Add ``get_data_urls``, ``get_data``, and ``get_data_async`` so filtered
+  TAP results can be mapped to download URLs and optional spatial and
+  frequency cutouts [#3660].
+
 heasarc
 ^^^^^^^
 - Add ``query_constraints`` to allow querying of different catalog columns. [#3403]
