@@ -7,22 +7,18 @@ LAMOST Queries (`astroquery.nadc.lamost`)
 ``astroquery.nadc.lamost`` provides access to the LAMOST archive for catalog
 queries, metadata lookups, and LRS/MRS spectrum downloads and reading.
 
-The examples below run in order in one Python session. They use the public
-DR10/v2.0 service unless another release is selected explicitly. Executing
-queries and downloading data requires internet access; payload-only examples
-do not execute the data query. 
+Examples use the public DR10/v2.0 service unless another release is specified.
+Executing queries and downloading data requires internet access; payload-only
+examples do not execute the data query.
 
-Run file-writing examples in a working directory reserved for this tutorial.
-Examples with ``overwrite=True`` replace their named output files on reruns.
+Examples with ``overwrite=True`` replace existing output files.
 
 Configuration
 =============
 
-The base URL, timeout in seconds, default data release, sub-version, and token
-are read when a `~astroquery.nadc.lamost.LamostClass` instance is created.
-The imported ``Lamost`` object is an instance created at import time. Changing
-``conf`` does not update existing instances; create a new instance after
-changing configuration:
+Set configuration options before creating a
+`~astroquery.nadc.lamost.LamostClass` instance. For example, to set the timeout
+in seconds:
 
 .. doctest::
 
