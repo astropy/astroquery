@@ -3,9 +3,6 @@
 
 """
 Las Cumbres Observatory (LCO)
------------------------------
-
-:author: Jon Nation (jnation@lco.global)
 """
 
 from astropy import config as _config
@@ -35,8 +32,8 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .core import LcoArchive, LcoArchiveQuery
+from astroquery.lco.core import LcoArchive, LcoArchiveClass
 
-__all__ = ['LcoArchive', 'LcoArchiveQuery',
+__all__ = ['LcoArchive', 'LcoArchiveClass',
            'Conf', 'conf',
            ]

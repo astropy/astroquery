@@ -14,7 +14,7 @@ from astropy.utils import console
 
 from astroquery.exceptions import (LargeQueryWarning, MaxResultsWarning,
                                    NoResultsWarning, RemoteServiceError)
-from astroquery.lco import core, LcoArchiveQuery
+from astroquery.lco import core, LcoArchiveClass
 from astroquery.utils.mocks import MockResponse
 
 
@@ -41,13 +41,13 @@ def nonremote_request(self, method, url, **kwargs):
 @pytest.fixture
 def patch_request(request):
     mp = request.getfixturevalue("monkeypatch")
-    mp.setattr(LcoArchiveQuery, '_request', nonremote_request)
+    mp.setattr(LcoArchiveClass, '_request', nonremote_request)
     return mp
 
 
 @pytest.fixture
 def lco():
-    return LcoArchiveQuery()
+    return LcoArchiveClass()
 
 
 # --- payload construction: no network needed at all -------------------------
@@ -175,8 +175,13 @@ def test_meaningless_row_limit_is_rejected(lco, row_limit):
 
 def test_bad_thumbnail_size(lco):
     with pytest.raises(ValueError, match="thumbnail_size"):
-        lco.query_criteria(site_id='lsc', thumbnail_size='enormous',
-                           get_query_payload=True)
+        lco.query_criteria(site_id='lsc', include_thumbnails=True,
+                           thumbnail_size='enormous', get_query_payload=True)
+
+    # The size is unused without thumbnails, so it is not checked.
+    payload = lco.query_criteria(site_id='lsc', thumbnail_size='enormous',
+                                 get_query_payload=True)
+    assert payload == {'site_id': 'lsc'}
 
 
 # --- parsing, against a saved archive response ------------------------------
@@ -218,7 +223,7 @@ def test_empty_result_warns(patch_request, lco, monkeypatch):
                                                 'next': None}).encode(),
                             url=url)
 
-    monkeypatch.setattr(LcoArchiveQuery, '_request', empty_request)
+    monkeypatch.setattr(LcoArchiveClass, '_request', empty_request)
     with pytest.warns(NoResultsWarning):
         result = lco.query_object('nothing-matches-this')
     assert len(result) == 0
@@ -246,7 +251,7 @@ def test_download_drops_the_auth_header(lco, monkeypatch, tmp_path):
         seen.update(kwargs.get('headers') or {})
         return local_filepath
 
-    monkeypatch.setattr(LcoArchiveQuery, '_download_file', record_headers)
+    monkeypatch.setattr(LcoArchiveClass, '_download_file', record_headers)
     lco._session.headers['Authorization'] = 'Token sekrit'
 
     frames = Table({'filename': ['a.fits.fz'], 'url': ['https://s3/a?X-Amz-Signature=x']})
@@ -263,7 +268,7 @@ def test_expired_download_link_explains_itself(lco, monkeypatch, tmp_path):
         response.status_code = 403
         raise requests.exceptions.HTTPError(response=response)
 
-    monkeypatch.setattr(LcoArchiveQuery, '_download_file', expired)
+    monkeypatch.setattr(LcoArchiveClass, '_download_file', expired)
     frames = Table({'filename': ['a.fits.fz'], 'url': ['https://expired']})
     with pytest.raises(RemoteServiceError, match='has expired'):
         lco.download_files(frames, download_dir=str(tmp_path))
@@ -275,7 +280,7 @@ def test_other_download_errors_are_not_swallowed(lco, monkeypatch, tmp_path):
         response.status_code = 404
         raise requests.exceptions.HTTPError(response=response)
 
-    monkeypatch.setattr(LcoArchiveQuery, '_download_file', not_found)
+    monkeypatch.setattr(LcoArchiveClass, '_download_file', not_found)
     frames = Table({'filename': ['a.fits.fz'], 'url': ['https://missing']})
     with pytest.raises(requests.exceptions.HTTPError):
         lco.download_files(frames, download_dir=str(tmp_path))
@@ -296,7 +301,7 @@ def test_login_with_token_sets_header(lco, monkeypatch):
         return MockResponse(content=json.dumps({'username': 'jnation'}).encode(),
                             url=url)
 
-    monkeypatch.setattr(LcoArchiveQuery, '_request', fake_request)
+    monkeypatch.setattr(LcoArchiveClass, '_request', fake_request)
     lco.login(token='sekrit')
     assert lco._session.headers['Authorization'] == 'Token sekrit'
     assert lco.authenticated()
@@ -311,7 +316,7 @@ def test_bad_token_is_rejected_and_header_removed(lco, monkeypatch):
         return MockResponse(content=json.dumps({'username': ''}).encode(),
                             url=url)
 
-    monkeypatch.setattr(LcoArchiveQuery, '_request', anonymous_profile)
+    monkeypatch.setattr(LcoArchiveClass, '_request', anonymous_profile)
     lco.login(token='wrong')
     assert not lco.authenticated()
     assert 'Authorization' not in lco._session.headers
@@ -338,7 +343,7 @@ def test_authenticated_queries_are_not_cached(lco, monkeypatch):
                                                 'next': None}).encode(),
                             url=url)
 
-    monkeypatch.setattr(LcoArchiveQuery, '_request', record_cache)
+    monkeypatch.setattr(LcoArchiveClass, '_request', record_cache)
 
     with pytest.warns(NoResultsWarning):
         lco.query_object('TEST-TARGET')
@@ -363,7 +368,7 @@ def paged_request(pages):
 def test_truncation_warns(lco, monkeypatch):
     rows = read_data('frames')['results']
     # One page that fills the row limit, with more waiting behind it.
-    monkeypatch.setattr(LcoArchiveQuery, '_request', paged_request(
+    monkeypatch.setattr(LcoArchiveClass, '_request', paged_request(
         [{'results': rows, 'next': 'https://archive-api.lco.global/frames/'
                                    '?cursor=TESTCURSOR&limit=2'}]))
 
@@ -374,7 +379,7 @@ def test_truncation_warns(lco, monkeypatch):
 
 def test_no_truncation_warning_when_the_archive_is_exhausted(lco, monkeypatch):
     rows = read_data('frames')['results']
-    monkeypatch.setattr(LcoArchiveQuery, '_request', paged_request(
+    monkeypatch.setattr(LcoArchiveClass, '_request', paged_request(
         [{'results': rows, 'next': None}]))
 
     warnings.simplefilter('error')
@@ -384,7 +389,7 @@ def test_no_truncation_warning_when_the_archive_is_exhausted(lco, monkeypatch):
 
 def test_no_truncation_warning_when_unlimited(lco, monkeypatch):
     rows = read_data('frames')['results']
-    monkeypatch.setattr(LcoArchiveQuery, '_request', paged_request(
+    monkeypatch.setattr(LcoArchiveClass, '_request', paged_request(
         [{'results': rows, 'next': 'https://archive-api.lco.global/frames/'
                                    '?cursor=TESTCURSOR&limit=2'},
          {'results': rows, 'next': None}]))
@@ -402,7 +407,7 @@ def test_unbounded_query_warns_once_it_is_large(lco, monkeypatch):
              {'results': [row, row], 'next': 'https://a/frames/?cursor=D'},
              {'results': [row, row], 'next': None}]
 
-    monkeypatch.setattr(LcoArchiveQuery, '_request', paged_request(pages))
+    monkeypatch.setattr(LcoArchiveClass, '_request', paged_request(pages))
     with pytest.warns(LargeQueryWarning, match='still paging'):
         result = lco.query_object('TEST-TARGET', row_limit=-1)
     assert len(result) == 6
@@ -412,7 +417,7 @@ def test_bounded_query_does_not_warn_about_size(lco, monkeypatch):
     # A row_limit stops on its own, so a large result set is intentional.
     monkeypatch.setattr(core, 'LARGE_RESULT_WARNING', 1)
     row = read_data('frames')['results'][0]
-    monkeypatch.setattr(LcoArchiveQuery, '_request', paged_request(
+    monkeypatch.setattr(LcoArchiveClass, '_request', paged_request(
         [{'results': [row, row], 'next': None}]))
 
     warnings.simplefilter('error', LargeQueryWarning)
@@ -424,7 +429,7 @@ def test_bounded_query_does_not_warn_about_size(lco, monkeypatch):
 def test_show_progress_controls_the_display(lco, monkeypatch, capsys,
                                             show_progress, expect_output):
     row = read_data('frames')['results'][0]
-    monkeypatch.setattr(LcoArchiveQuery, '_request', paged_request(
+    monkeypatch.setattr(LcoArchiveClass, '_request', paged_request(
         [{'results': [row], 'next': 'https://a/frames/?cursor=C'},
          {'results': [row], 'next': None}]))
 
@@ -469,10 +474,10 @@ def test_progress_never_reports_more_than_the_row_limit(lco, monkeypatch):
         def update(self, value):
             seen.append(value)
 
-    monkeypatch.setattr(LcoArchiveQuery, '_progress',
+    monkeypatch.setattr(LcoArchiveClass, '_progress',
                         lambda self, row_limit, show: Recorder())
     row = read_data('frames')['results'][0]
-    monkeypatch.setattr(LcoArchiveQuery, '_request', paged_request(
+    monkeypatch.setattr(LcoArchiveClass, '_request', paged_request(
         [{'results': [row] * 10, 'next': None}]))
 
     lco.query_object('TEST-TARGET', row_limit=4)
@@ -488,7 +493,7 @@ def test_cursor_pagination_is_requested(lco, monkeypatch):
                                                 'next': None}).encode(),
                             url=url)
 
-    monkeypatch.setattr(LcoArchiveQuery, '_request', record_params)
+    monkeypatch.setattr(LcoArchiveClass, '_request', record_params)
     with pytest.warns(NoResultsWarning):
         lco.query_object('TEST-TARGET', row_limit=10)
 

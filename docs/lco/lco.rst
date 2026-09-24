@@ -26,7 +26,7 @@ how to download the frames from a query. For more information on
 Positional Queries
 ------------------
 
-`~astroquery.lco.LcoArchiveQuery.query_region` searches by position. Given only
+`~astroquery.lco.LcoArchiveClass.query_region` searches by position. Given only
 a position, it returns the frames whose footprint contains that point:
 
 .. doctest-remote-data::
@@ -66,7 +66,7 @@ so the region searched is accurate to 0.5% of the radius specified.
 Object Name Queries
 -------------------
 
-`~astroquery.lco.LcoArchiveQuery.query_object` searches on the target name the
+`~astroquery.lco.LcoArchiveClass.query_object` searches on the target name the
 observer submitted with the observation request. It does not resolve the name
 or search on position, so use ``query_region`` if you want everything covering
 a target regardless of what it was called. The default parameter of ``exact=True``
@@ -91,9 +91,9 @@ case-insensitive contains query:
 Criteria Queries
 ----------------
 
-`~astroquery.lco.LcoArchiveQuery.query_criteria` searches on any combination of
+`~astroquery.lco.LcoArchiveClass.query_criteria` searches on any combination of
 frame criteria. A list of the criteria is available at
-`~astroquery.lco.LcoArchiveQuery.list_criteria`, while a more in depth
+`~astroquery.lco.LcoArchiveClass.list_criteria`, while a more in depth
 explanation of the available criteria can be found on
 `LCO's Developer Docs <https://developers.lco.global/#data-format-definition37>`_.
 Queries should be as constrained as possible to provide results quickly and efficiently.
@@ -193,7 +193,7 @@ will be printed.
 Downloading Data
 ----------------
 
-`~astroquery.lco.LcoArchiveQuery.download_files` downloads the data files for the
+`~astroquery.lco.LcoArchiveClass.download_files` downloads the data files for the
 frames in a result table:
 
 .. doctest-remote-data::
@@ -213,13 +213,13 @@ that its download link is fresh:
     >>> LcoArchive.download_files([69021388, 69081552], download_dir=".")
 
 The download links the archive returns are presigned and expire in 48 hours.
-Query again to refresh it, or use `~astroquery.lco.LcoArchiveQuery.get_frame`,
+Query again to refresh it, or use `~astroquery.lco.LcoArchiveClass.get_metadata`,
 which returns the full record for a single frame including the fields the result
 table leaves out (``area``, ``version_set`` and ``related_frames``):
 
 .. doctest-remote-data::
 
-    >>> frame = LcoArchive.get_frame(69008745)
+    >>> frame = LcoArchive.get_metadata(69008745)
     >>> frame["basename"]
     'lsc0m409-kb98-20240302-0017-b00'
     >>> sorted(frame)[:4]

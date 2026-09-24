@@ -10,7 +10,7 @@ from astropy.coordinates import SkyCoord
 from astropy.table import Table
 
 from astroquery.exceptions import MaxResultsWarning
-from astroquery.lco import LcoArchive, LcoArchiveQuery
+from astroquery.lco import LcoArchive, LcoArchiveClass
 
 
 pytestmark = pytest.mark.remote_data
@@ -76,7 +76,7 @@ class TestLcoArchive:
         # The real invariant: every frame returned by a point query must have
         # a footprint containing that point.
         for frame_id in result['id']:
-            frame = LcoArchive.get_frame(frame_id)
+            frame = LcoArchive.get_metadata(frame_id)
             assert footprint_contains(frame, M101), \
                 f"frame {frame_id} does not cover the queried position"
 
@@ -167,8 +167,8 @@ class TestLcoArchive:
         names = [n for n in result['thumbnail_filename'] if n]
         assert all(n.endswith('-small_thumbnail.jpg') for n in names)
 
-    def test_get_frame_keeps_nested_fields(self):
-        frame = LcoArchive.get_frame(sorted(EXPECTED_FRAME_IDS)[0])
+    def test_get_metadata_keeps_nested_fields(self):
+        frame = LcoArchive.get_metadata(sorted(EXPECTED_FRAME_IDS)[0])
         assert frame['id'] == sorted(EXPECTED_FRAME_IDS)[0]
         for key in ('area', 'version_set', 'related_frames'):
             assert key in frame
@@ -216,7 +216,7 @@ class TestLcoArchiveAuthenticated:
 
     @pytest.fixture
     def lco(self):
-        archive = LcoArchiveQuery()
+        archive = LcoArchiveClass()
         archive.login(token=os.environ['LCO_API_TOKEN'])
         assert archive.authenticated()
         return archive
@@ -243,6 +243,6 @@ class TestLcoArchiveAuthenticated:
         assert os.path.getsize(paths[0]) > 0
 
     def test_bad_token_is_rejected(self):
-        archive = LcoArchiveQuery()
+        archive = LcoArchiveClass()
         archive.login(token='definitely-not-a-real-token')
         assert not archive.authenticated()

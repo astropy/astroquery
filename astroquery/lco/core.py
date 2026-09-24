@@ -21,19 +21,18 @@ from astropy.time import Time
 from astropy.utils.console import ProgressBarOrSpinner, Spinner
 
 from astroquery import cache_conf, log
-
-from ..exceptions import (LargeQueryWarning, LoginError, MaxResultsWarning,
-                          NoResultsWarning, RemoteServiceError)
-from ..query import QueryWithLogin
-from ..utils import async_to_sync, commons
-from . import conf
-
-
-__all__ = ['LcoArchive', 'LcoArchiveQuery']
+from astroquery.exceptions import (LargeQueryWarning, LoginError, MaxResultsWarning,
+                                   NoResultsWarning, RemoteServiceError)
+from astroquery.lco import conf
+from astroquery.query import QueryWithLogin
+from astroquery.utils import commons
 
 
-#: Filters accepted by the ``/frames/`` endpoint. Anything not in here is
-#: rejected client-side so that typos do not silently return the whole archive.
+__all__ = ['LcoArchive', 'LcoArchiveClass']
+
+
+# Filters accepted by the ``/frames/`` endpoint. Anything not in here is
+# rejected client-side so that typos do not silently return the whole archive.
 FRAME_FILTERS = (
     'basename',
     'basename_exact',
@@ -62,8 +61,8 @@ FRAME_FILTERS = (
     'telescope_id',
 )
 
-#: Scalar columns kept in the result table, in display order. The fields ``related_frames``,
-#: ``version_set`` and ``area`` do not fit a flat table.
+# Scalar columns kept in the result table, in display order. The fields ``related_frames``,
+# ``version_set`` and ``area`` do not fit a flat table.
 RESULT_COLUMNS = (
     'id',
     'basename',
@@ -85,25 +84,24 @@ RESULT_COLUMNS = (
     'url',
 )
 
-#: The archive caps page size at 100 for anonymous users and 1000 for
-#: authenticated ones.
+# The archive caps page size at 100 for anonymous users and 1000 for
+# authenticated ones.
 ANONYMOUS_PAGE_SIZE = 100
 AUTHENTICATED_PAGE_SIZE = 1000
 
-#: Thumbnail sizes the archive publishes.
+# Thumbnail sizes the archive publishes.
 THUMBNAIL_SIZES = ('small', 'large')
 
-#: LCO Archive presigned URLs are only valid for this long, so only
-#: cache responses for this long.
+# LCO Archive presigned URLs are only valid for this long, so only
+# cache responses for this long.
 CACHE_TIMEOUT = 48 * 60 * 60
 
-#: How many frames an unbounded query may collect before it warns that it is
-#: still going.
+# How many frames an unbounded query may collect before it warns that it is
+# still going.
 LARGE_RESULT_WARNING = 10000
 
 
-@async_to_sync
-class LcoArchiveQuery(QueryWithLogin):
+class LcoArchiveClass(QueryWithLogin):
     """
     Search functionality for the LCO Archive.
 
@@ -116,8 +114,6 @@ class LcoArchiveQuery(QueryWithLogin):
     TOKEN_URL = conf.token_url
     TIMEOUT = conf.timeout
     ROW_LIMIT = conf.row_limit
-
-    _thumbnail_size = 'small'
 
     @property
     def _frames_url(self):
@@ -211,9 +207,9 @@ class LcoArchiveQuery(QueryWithLogin):
         self._session.headers.pop('Authorization', None)
         self._authenticated = False
 
-    def query_region_async(self, coordinates, *, radius=None, width=None,
-                           height=None, show_progress=True,
-                           get_query_payload=False, cache=None, **criteria):
+    def query_region(self, coordinates, *, radius=None, width=None,
+                     height=None, show_progress=True,
+                     get_query_payload=False, cache=None, **criteria):
         """
         Query for frames covering, or overlapping, a position on the sky.
 
@@ -244,29 +240,43 @@ class LcoArchiveQuery(QueryWithLogin):
             `False` for authenticated ones.
         **criteria
             Any other frame filter, as accepted by
-            :meth:`~astroquery.lco.LcoArchiveQuery.query_criteria`.
+            :meth:`~astroquery.lco.LcoArchiveClass.query_criteria`.
 
         Returns
         -------
-        frames : list of dict
-            The frame records the archive returned, one dict per frame.
+        frames : `~astropy.table.Table`
+            The matching frames, one row per frame.
         """
-        criteria.update(self._region_to_criteria(coordinates, radius=radius,
-                                                 width=width, height=height))
-        return self.query_criteria_async(get_query_payload=get_query_payload,
-                                         cache=cache,
-                                         show_progress=show_progress,
-                                         **criteria)
+        coordinates = commons.parse_coordinates(coordinates).icrs
 
-    def query_object_async(self, object_name, *, exact=True,
-                           show_progress=True, get_query_payload=False,
-                           cache=None, **criteria):
+        if width is not None or height is not None:
+            if width is None or height is None:
+                raise ValueError("Both 'width' and 'height' are required for "
+                                 "a box search.")
+            if radius is not None:
+                raise ValueError("Give either 'radius' or 'width' and "
+                                 "'height', not both.")
+            criteria['intersects'] = _box_to_wkt(coordinates, Angle(width),
+                                                 Angle(height))
+        elif radius is not None:
+            criteria['intersects'] = _circle_to_wkt(coordinates, Angle(radius))
+        else:
+            criteria['covers'] = f'POINT({coordinates.ra.deg} {coordinates.dec.deg})'
+
+        return self.query_criteria(get_query_payload=get_query_payload,
+                                   cache=cache,
+                                   show_progress=show_progress,
+                                   **criteria)
+
+    def query_object(self, object_name, *, exact=True,
+                     show_progress=True, get_query_payload=False,
+                     cache=None, **criteria):
         """
         Query for frames whose target name matches ``object_name``.
 
         This matches on the name the observer submitted with the observation
         request, and does not resolve the name or search on position. Use
-        :meth:`~astroquery.lco.LcoArchiveQuery.query_region` to search by
+        :meth:`~astroquery.lco.LcoArchiveClass.query_region` to search by
         position instead.
 
         Parameters
@@ -287,24 +297,24 @@ class LcoArchiveQuery(QueryWithLogin):
             `False` for authenticated ones.
         **criteria
             Any other frame filter, as accepted by
-            :meth:`~astroquery.lco.LcoArchiveQuery.query_criteria`.
+            :meth:`~astroquery.lco.LcoArchiveClass.query_criteria`.
 
         Returns
         -------
-        frames : list of dict
-            The frame records the archive returned, one dict per frame.
+        frames : `~astropy.table.Table`
+            The matching frames, one row per frame.
         """
         name_filter = 'target_name_exact' if exact else 'target_name'
-        return self.query_criteria_async(**{name_filter: object_name},
-                                         get_query_payload=get_query_payload,
-                                         cache=cache,
-                                         show_progress=show_progress,
-                                         **criteria)
+        return self.query_criteria(**{name_filter: object_name},
+                                   get_query_payload=get_query_payload,
+                                   cache=cache,
+                                   show_progress=show_progress,
+                                   **criteria)
 
-    def query_criteria_async(self, *, get_query_payload=False, cache=None,
-                             row_limit=None, include_thumbnails=False,
-                             thumbnail_size='small', show_progress=True,
-                             **criteria):
+    def query_criteria(self, *, get_query_payload=False, cache=None,
+                       row_limit=None, include_thumbnails=False,
+                       thumbnail_size='small', show_progress=True,
+                       **criteria):
         """
         Query the archive on any combination of frame filters.
 
@@ -314,7 +324,7 @@ class LcoArchiveQuery(QueryWithLogin):
             Frame filters to apply, as ``name=value`` pairs. Most are matched
             against the archive as given, e.g. ``site_id='lsc'`` or
             ``target_name_exact='M101'``;
-            :meth:`~astroquery.lco.LcoArchiveQuery.list_criteria` returns every
+            :meth:`~astroquery.lco.LcoArchiveClass.list_criteria` returns every
             accepted name, and the ``list_*`` methods give the accepted values
             for the code-valued ones. The criteria below are the ones that
             take a value you cannot guess from the name:
@@ -326,7 +336,7 @@ class LcoArchiveQuery(QueryWithLogin):
                 A `Well-Known Text (WKT)
                 <https://libgeos.org/specifications/wkt/>`_ region the frame
                 footprint must contain, or overlap.
-                :meth:`~astroquery.lco.LcoArchiveQuery.query_region` builds
+                :meth:`~astroquery.lco.LcoArchiveClass.query_region` builds
                 these for you from a position and an optional extent.
             ``exposure_time``
                 Seconds, either as a number or an
@@ -348,7 +358,7 @@ class LcoArchiveQuery(QueryWithLogin):
                 only its last value.
         row_limit : int, optional
             Maximum number of frames to return, at least 1. Defaults to
-            ``LcoArchiveQuery.ROW_LIMIT``; ``-1`` retrieves every match.
+            ``LcoArchiveClass.ROW_LIMIT``; ``-1`` retrieves every match.
         include_thumbnails : bool, optional
             Ask the archive for thumbnail links alongside the frame metadata,
             which adds ``thumbnail_url`` and ``thumbnail_filename`` columns to
@@ -368,10 +378,10 @@ class LcoArchiveQuery(QueryWithLogin):
 
         Returns
         -------
-        frames : list of dict
-            The frame records the archive returned, one dict per frame.
+        frames : `~astropy.table.Table`
+            The matching frames, one row per frame.
         """
-        if thumbnail_size not in THUMBNAIL_SIZES:
+        if include_thumbnails and thumbnail_size not in THUMBNAIL_SIZES:
             raise ValueError(f"'thumbnail_size' must be one of "
                              f"{', '.join(THUMBNAIL_SIZES)}.")
         row_limit = self.ROW_LIMIT if row_limit is None else row_limit
@@ -381,38 +391,15 @@ class LcoArchiveQuery(QueryWithLogin):
             raise ValueError("'row_limit' must be 1 or more, or -1 to "
                              f"retrieve every matching frame; got {row_limit}.")
 
-        # Stashed for _parse_result, because async_to_sync only returns the
-        # response and 'verbose'.
-        self._thumbnail_size = thumbnail_size
-
         payload = self._args_to_payload(**criteria)
         if include_thumbnails:
             payload['include_thumbnails'] = 'true'
         if get_query_payload:
             return payload
 
-        return self._fetch_pages(payload, row_limit=row_limit, cache=cache,
+        rows = self._fetch_pages(payload, row_limit=row_limit, cache=cache,
                                  show_progress=show_progress)
-
-    def _region_to_criteria(self, coordinates, *, radius=None, width=None,
-                            height=None):
-        """Turn a position and an optional extent into a WKT frame filter."""
-        coordinates = commons.parse_coordinates(coordinates).icrs
-
-        if width is not None or height is not None:
-            if width is None or height is None:
-                raise ValueError("Both 'width' and 'height' are required for "
-                                 "a box search.")
-            if radius is not None:
-                raise ValueError("Give either 'radius' or 'width' and "
-                                 "'height', not both.")
-            return {'intersects': _box_to_wkt(coordinates,
-                                              Angle(width), Angle(height))}
-
-        if radius is not None:
-            return {'intersects': _circle_to_wkt(coordinates, Angle(radius))}
-
-        return {'covers': f'POINT({coordinates.ra.deg} {coordinates.dec.deg})'}
+        return self._parse_result(rows, thumbnail_size=thumbnail_size)
 
     def _args_to_payload(self, **criteria):
         """Validate and normalise user criteria into archive query params."""
@@ -546,7 +533,7 @@ class LcoArchiveQuery(QueryWithLogin):
 
         return rows
 
-    def _parse_result(self, rows, *, verbose=False):
+    def _parse_result(self, rows, *, thumbnail_size):
         """Turn the frame records from a query into a `~astropy.table.Table`."""
         if not rows:
             warnings.warn("Query returned no results.", NoResultsWarning)
@@ -563,7 +550,7 @@ class LcoArchiveQuery(QueryWithLogin):
         # it into columns download_thumbnails can use.
         if any('thumbnails' in row for row in rows):
             thumbnails = [next((t for t in row.get('thumbnails') or []
-                                if t.get('size') == self._thumbnail_size), None)
+                                if t.get('size') == thumbnail_size), None)
                           for row in rows]
             table['thumbnail_url'] = [t['url'] if t else '' for t in thumbnails]
             table['thumbnail_filename'] = [
@@ -572,7 +559,7 @@ class LcoArchiveQuery(QueryWithLogin):
 
         return table
 
-    def get_frame(self, frame_id, *, cache=None):
+    def get_metadata(self, frame_id, *, cache=None):
         """
         Retrieve the metadata for a single frame, including a fresh download URL.
 
@@ -623,7 +610,7 @@ class LcoArchiveQuery(QueryWithLogin):
         else:
             if np.isscalar(frames):
                 frames = [frames]
-            records = [self.get_frame(frame_id) for frame_id in frames]
+            records = [self.get_metadata(frame_id) for frame_id in frames]
 
         return self._download_records(records, download_dir=download_dir,
                                       overwrite=overwrite)
@@ -789,4 +776,4 @@ def _box_to_wkt(coordinates, width, height):
     return _ring_to_wkt(ra, np.clip(dec, -90, 90))
 
 
-LcoArchive = LcoArchiveQuery()
+LcoArchive = LcoArchiveClass()
