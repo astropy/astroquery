@@ -10,8 +10,7 @@ queries, metadata lookups, and LRS/MRS spectrum downloads and reading.
 The examples below run in order in one Python session. They use the public
 DR10/v2.0 service unless another release is selected explicitly. Executing
 queries and downloading data requires internet access; payload-only examples
-do not execute the data query. Local processing also requires NumPy and
-Astropy; the plotting example requires Matplotlib.
+do not execute the data query. 
 
 Run file-writing examples in a working directory reserved for this tutorial.
 Examples with ``overwrite=True`` replace their named output files on reruns.
