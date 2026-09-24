@@ -12,6 +12,7 @@
 # See astropy.sphinx.conf for which values are set there.
 
 import datetime
+import os
 import sys
 
 if sys.version_info < (3, 11):
@@ -169,6 +170,11 @@ linkcheck_ignore = [
 # treated as errors, a temporary outage of any of those services would fail the
 # whole docs build. Instead, when a plot fails because of a remote-service or
 # network error, render a placeholder figure and log it without a warning.
+#
+# This only applies to builds that are not deployed (PR previews, local and CI
+# builds). RTD builds of branches (``latest``) and tags (releases) stay strict,
+# so an outage fails them and RTD keeps serving the last good build rather than
+# publishing placeholder figures.
 
 _REMOTE_ERRORS = (requests.exceptions.RequestException, ConnectionError, TimeoutError,
                   DALServiceError, DALQueryError, RemoteServiceError, AQTimeoutError)
@@ -195,7 +201,8 @@ def _run_code_tolerating_outages(run_code):
 
 # ``_run_code`` is private matplotlib API (``run_code`` before 3.9); if it is
 # missing, plots simply behave as before.
-for _name in ('_run_code', 'run_code'):
-    if hasattr(plot_directive, _name):
-        setattr(plot_directive, _name, _run_code_tolerating_outages(getattr(plot_directive, _name)))
-        break
+if os.environ.get('READTHEDOCS_VERSION_TYPE') not in ('branch', 'tag'):
+    for _name in ('_run_code', 'run_code'):
+        if hasattr(plot_directive, _name):
+            setattr(plot_directive, _name, _run_code_tolerating_outages(getattr(plot_directive, _name)))
+            break
