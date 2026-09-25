@@ -133,6 +133,10 @@ hitran
 
 - Updated the list of isotopes [#3644]
 
+hitran
+^^^^^^
+- File parser is exposed as a user-facing function ``hitran.read`` [#3589]
+
 gaia
 ^^^^
 
