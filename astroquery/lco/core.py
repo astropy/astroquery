@@ -16,7 +16,7 @@ import requests
 
 import astropy.units as u
 from astropy.coordinates import Angle
-from astropy.table import Table
+from astropy.table import MaskedColumn, Table
 from astropy.time import Time
 from astropy.utils.console import ProgressBarOrSpinner, Spinner
 
@@ -62,7 +62,8 @@ FRAME_FILTERS = (
 )
 
 # Scalar columns kept in the result table, in display order. The fields ``related_frames``,
-# ``version_set`` and ``area`` do not fit a flat table.
+# ``version_set`` and ``area`` do not fit a flat table, so ``ra`` and ``dec`` give the
+# center of ``area`` instead.
 RESULT_COLUMNS = (
     'id',
     'basename',
@@ -71,6 +72,8 @@ RESULT_COLUMNS = (
     'observation_day',
     'proposal_id',
     'target_name',
+    'ra',
+    'dec',
     'site_id',
     'telescope_id',
     'instrument_id',
@@ -545,6 +548,27 @@ class LcoArchiveClass(QueryWithLogin):
                       names=RESULT_COLUMNS)
         table['exposure_time'].unit = u.s
 
+        # The footprint center is the mean of its vertices taken as unit
+        # vectors, so footprints that straddle RA 0 or a pole come out right.
+        # Frames without a polygon footprint are masked.
+        ra = np.ma.masked_all(len(rows))
+        dec = np.ma.masked_all(len(rows))
+        for i, row in enumerate(rows):
+            area = row.get('area')
+            if not area or area.get('type') != 'Polygon':
+                continue
+            # GeoJSON repeats the first vertex to close the ring, which would
+            # otherwise be counted twice.
+            lon, lat = np.radians(area['coordinates'][0][:-1]).T
+            x = np.mean(np.cos(lat) * np.cos(lon))
+            y = np.mean(np.cos(lat) * np.sin(lon))
+            z = np.mean(np.sin(lat))
+            # The archive's longitudes run from -180 to 180.
+            ra[i] = np.degrees(np.arctan2(y, x)) % 360
+            dec[i] = np.degrees(np.arctan2(z, np.hypot(x, y)))
+        table['ra'] = MaskedColumn(ra, unit=u.deg)
+        table['dec'] = MaskedColumn(dec, unit=u.deg)
+
         # Thumbnails only come back when the query asked for them. The archive
         # returns every size, so keep the one the query asked for and flatten
         # it into columns download_thumbnails can use.
@@ -767,7 +791,7 @@ def _circle_to_wkt(coordinates, radius, *, nvertices=32):
 
 
 def _box_to_wkt(coordinates, width, height):
-    """Build a polygon for a box centred on ``coordinates``."""
+    """Build a polygon for a box centered on ``coordinates``."""
     half_height = height.to(u.deg) / 2
     half_width = width.to(u.deg) / 2 / np.cos(coordinates.dec.radian)
 

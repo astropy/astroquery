@@ -206,6 +206,49 @@ def test_nested_fields_are_dropped(patch_request, lco):
         assert column not in result.colnames
 
 
+def test_footprint_center_columns(patch_request, lco):
+    result = lco.query_object('TEST-TARGET', row_limit=2)
+    assert result['ra'].unit == u.deg
+    assert result['dec'].unit == u.deg
+    # The saved footprint spans RA 210.36 to 211.20, stored as longitudes in
+    # [-180, 180], and Dec 54.09 to 54.59.
+    assert result['ra'][0] == pytest.approx(210.7806, abs=1e-4)
+    assert result['dec'][0] == pytest.approx(54.3366, abs=1e-4)
+
+
+@pytest.mark.parametrize('ring, center', [
+    # Straddles RA 0, where the archive's longitudes change sign.
+    ([(-0.5, 9.5), (-0.5, 10.5), (0.5, 10.5), (0.5, 9.5)], (0, 10)),
+    # Straddles RA 180, where they jump from 180 to -180.
+    ([(179.5, -20.5), (179.5, -19.5), (-179.5, -19.5), (-179.5, -20.5)], (180, -20)),
+    # Surrounds the north pole.
+    ([(0, 89.5), (90, 89.5), (180, 89.5), (-90, 89.5)], (0, 90)),
+])
+def test_footprint_center_handles_wraps_and_poles(lco, monkeypatch, ring, center):
+    row = dict(read_data('frames')['results'][0],
+               area={'type': 'Polygon', 'coordinates': [ring + ring[:1]]})
+    monkeypatch.setattr(LcoArchiveClass, '_request', paged_request(
+        [{'results': [row], 'next': None}]))
+
+    result = lco.query_object('TEST-TARGET', row_limit=1)
+    # A wrap or pole mistake would be off by degrees; the vertex mean of a
+    # square in RA/Dec is only off its center by arcseconds.
+    found = SkyCoord(result['ra'][0], result['dec'][0], unit='deg')
+    assert found.separation(SkyCoord(*center, unit='deg')) < 0.01*u.deg
+
+
+def test_frames_without_a_footprint_have_a_masked_center(lco, monkeypatch):
+    rows = read_data('frames')['results']
+    rows[1]['area'] = None
+    monkeypatch.setattr(LcoArchiveClass, '_request', paged_request(
+        [{'results': rows, 'next': None}]))
+
+    result = lco.query_object('TEST-TARGET', row_limit=2)
+    assert not result['ra'].mask[0]
+    assert result['ra'].mask[1]
+    assert result['dec'].mask[1]
+
+
 def test_thumbnail_columns(patch_request, lco):
     result = lco.query_object('TEST-TARGET', row_limit=2,
                               include_thumbnails=True, thumbnail_size='small')
@@ -228,6 +271,7 @@ def test_empty_result_warns(patch_request, lco, monkeypatch):
         result = lco.query_object('nothing-matches-this')
     assert len(result) == 0
     assert 'basename' in result.colnames
+    assert 'ra' in result.colnames
 
 
 @pytest.mark.parametrize('method, key',

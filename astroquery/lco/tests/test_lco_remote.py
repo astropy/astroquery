@@ -80,6 +80,11 @@ class TestLcoArchive:
             assert footprint_contains(frame, M101), \
                 f"frame {frame_id} does not cover the queried position"
 
+        # Each of these 1m frames contains M101, so its footprint center is
+        # within a frame's half-diagonal (about 0.3 deg) of it.
+        centers = SkyCoord(result['ra'], result['dec'])
+        assert all(centers.separation(M101) < 0.5*u.deg)
+
     def test_query_region_radius_includes_the_point_matches(self):
         result = LcoArchive.query_region(M101, radius=0.2*u.deg,
                                          reduction_level=91, public=True,
