@@ -20,13 +20,13 @@ from urllib.parse import urlencode
 
 import astroquery.esa.utils.utils as esautils
 
-from astropy import log
 from astropy import units
 from astropy.coordinates import Angle, SkyCoord
 from astropy.table import vstack
 from astropy.units import Quantity
 from requests.exceptions import ConnectionError
 
+from astroquery import log
 from astroquery.exceptions import RemoteServiceError
 from astroquery.ipac.ned import Ned
 from astroquery.query import BaseQuery
