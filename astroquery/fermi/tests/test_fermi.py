@@ -3,6 +3,8 @@
 import json
 import os
 
+import requests
+
 import astropy.coordinates as coord
 import pytest
 from astropy.utils.exceptions import AstropyDeprecationWarning
@@ -28,6 +30,15 @@ EXPECTED_URLS = [
 ]
 
 FK5_COORDINATES = coord.SkyCoord(10.68471, 41.26875, unit=('deg', 'deg'))
+
+
+class ErrorResponse(MockResponse):
+    """A MockResponse whose raise_for_status matches requests' behaviour."""
+
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            raise requests.HTTPError(f"{self.status_code} Error",
+                                     response=self)
 
 
 def data_path(filename):
@@ -193,7 +204,7 @@ def test_bad_input_surfaces_server_error_message(request):
     mp = request.getfixturevalue("monkeypatch")
     body = json.dumps({'error': 'Invalid query parameters'}).encode()
     mp.setattr(fermi.FermiLAT, '_request',
-               lambda *a, **kw: MockResponse(body, status_code=400))
+               lambda *a, **kw: ErrorResponse(body, status_code=400))
 
     with pytest.raises(RemoteServiceError,
                        match='Invalid query parameters'):
@@ -227,8 +238,8 @@ def test_non_json_error_body_falls_back_to_text(request):
     """A non-JSON error body is reported verbatim rather than crashing."""
     mp = request.getfixturevalue("monkeypatch")
     mp.setattr(fermi.FermiLAT, '_request',
-               lambda *a, **kw: MockResponse(b'Service unavailable',
-                                             status_code=503))
+               lambda *a, **kw: ErrorResponse(b'Service unavailable',
+                                              status_code=503))
 
     with pytest.raises(RemoteServiceError, match='Service unavailable'):
         fermi.core.FermiLAT.get_status(QUERY_ID)

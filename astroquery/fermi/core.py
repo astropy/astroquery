@@ -15,6 +15,8 @@ import re
 import time
 from urllib.parse import urljoin
 
+import requests
+
 import astropy.units as u
 from astropy.utils.decorators import deprecated
 
@@ -266,33 +268,32 @@ def _raise_for_status(response, *, context):
     """
     Raise a `RemoteServiceError` carrying the server's error message.
 
-    The Fermi API signals bad requests with an HTTP error status and a JSON
-    body of the form ``{"error": "..."}``.  ``requests.raise_for_status`` only
-    reports the status code, so this helper pulls the message out of the body
-    (trying the ``error``, ``detail`` and ``message`` keys, then falling back
-    to the raw text) and surfaces it, as recommended by the astroquery API
-    specification.
+    Error detection is deferred to ``response.raise_for_status()``.  The Fermi
+    API describes bad requests in a JSON body of the form ``{"error": "..."}``
+    which ``raise_for_status`` alone does not surface, so the message is
+    pulled out of the body (trying the ``error``, ``detail`` and ``message``
+    keys, then falling back to the raw text) and attached to the exception.
     """
-    status_code = getattr(response, 'status_code', None)
-    if status_code is None or status_code < 400:
-        return
-
-    message = None
     try:
-        body = response.json()
-    except ValueError:
-        body = None
+        response.raise_for_status()
+    except requests.HTTPError as exc:
+        message = None
+        try:
+            body = response.json()
+        except ValueError:
+            body = None
 
-    if isinstance(body, dict):
-        for key in ('error', 'detail', 'message'):
-            if body.get(key):
-                message = body[key]
-                break
-    if message is None:
-        text = getattr(response, 'text', '') or ''
-        message = text.strip() or f"HTTP {status_code}"
+        if isinstance(body, dict):
+            for key in ('error', 'detail', 'message'):
+                if body.get(key):
+                    message = body[key]
+                    break
+        if message is None:
+            text = getattr(response, 'text', '') or ''
+            message = text.strip() or str(exc)
 
-    raise RemoteServiceError(f"{context} failed ({status_code}): {message}")
+        raise RemoteServiceError(
+            f"{context} failed ({response.status_code}): {message}") from exc
 
 
 def _file_url(entry):
