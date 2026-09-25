@@ -63,7 +63,7 @@ class FermiLATClass(BaseQuery):
         """
         Submit a query to the Fermi LAT Data Server.
 
-        Accepts the same arguments as `_parse_args`.
+        Accepts the same arguments as ``_parse_args``.
 
         Returns
         -------
