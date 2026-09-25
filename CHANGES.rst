@@ -96,9 +96,9 @@ fermi
   signature is unchanged. [#3647]
 - ``FermiLAT.query_object_async()`` now returns the server-assigned
   ``query_id`` instead of the URL of an HTML results page. [#3647]
-- New methods ``FermiLAT.get_status()``, ``FermiLAT.list_results()``,
-  ``FermiLAT.wait_for_completion()`` and ``FermiLAT.get_file_urls()`` expose
-  the individual steps of the asynchronous query workflow. [#3647]
+- New methods ``FermiLAT.get_status()``, ``FermiLAT.list_results()`` and
+  ``FermiLAT.get_file_urls()`` expose the individual steps of the
+  asynchronous query workflow. [#3647]
 - New keyword arguments: ``zenithangle`` (maximum zenith angle in degrees) and
   ``coordsystem`` (``'J2000'``, ``'B1950'`` or ``'Galactic'``). All-sky
   queries (radius > 60 deg, observation window <= 24 h) are now supported. [#3647]

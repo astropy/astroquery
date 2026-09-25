@@ -209,7 +209,7 @@ def test_wait_for_completion_polls_until_done(request, capsys):
     mp.setattr(fermi.FermiLAT, '_request', lambda *a, **kw: responses.pop(0))
     mp.setattr(fermi.FermiLAT, 'check_frequency', 0)
 
-    status = fermi.core.FermiLAT.wait_for_completion(QUERY_ID, verbose=True)
+    status = fermi.core.FermiLAT._wait_for_completion(QUERY_ID, verbose=True)
     assert status['state'] == 'Query completed'
     assert 'Query completed in' in capsys.readouterr().out
 
@@ -220,7 +220,7 @@ def test_wait_for_completion_times_out(request):
                lambda *a, **kw: MockResponse(read_data('status_running')))
 
     with pytest.raises(AstroqueryTimeoutError, match='did not complete within'):
-        fermi.core.FermiLAT.wait_for_completion(QUERY_ID, max_wait=0)
+        fermi.core.FermiLAT._wait_for_completion(QUERY_ID, max_wait=0)
 
 
 def test_non_json_error_body_falls_back_to_text(request):

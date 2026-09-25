@@ -191,7 +191,7 @@ class FermiLATClass(BaseQuery):
         _raise_for_status(response, context=f"Fermi LAT results ({query_id})")
         return response.json().get('files', [])
 
-    def wait_for_completion(self, query_id, *, check_frequency=None,
+    def _wait_for_completion(self, query_id, *, check_frequency=None,
                             max_wait=None, verbose=False):
         """
         Poll ``/query/{id}/status`` until the query finishes.
@@ -247,8 +247,8 @@ class FermiLATClass(BaseQuery):
         -------
         urls : list of str
         """
-        self.wait_for_completion(query_id, check_frequency=check_frequency,
-                                 max_wait=max_wait, verbose=verbose)
+        self._wait_for_completion(query_id, check_frequency=check_frequency,
+                                  max_wait=max_wait, verbose=verbose)
         return [_file_url(entry) for entry in self.list_results(query_id)]
 
     def _parse_result(self, result, *, verbose=False, **kwargs):
