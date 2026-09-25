@@ -89,7 +89,7 @@ class ESASkyClass(EsaTap):
         super().__init__(auth_session=auth_session, tap_url=tap_url)
 
         if show_messages:
-            self.get_status_messages()
+            self._get_status_messages()
 
     def query(self, query, *, async_job=False, output_file=None, output_format="votable", verbose=False):
         """Launches a synchronous or asynchronous job to query the ESASky TAP
@@ -1312,7 +1312,7 @@ class ESASkyClass(EsaTap):
             log.info("No spectra found.")
         return spectra
 
-    def get_status_messages(self):
+    def _get_status_messages(self):
         """Retrieve the messages to inform users about the status of the ESASky TAP"""
 
         try:
