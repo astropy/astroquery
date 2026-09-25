@@ -327,23 +327,18 @@ def _parse_coordinates(coordinates, *, coordsystem='J2000'):
     if isinstance(coordinates, str) and _COORD_PAIR_RE.match(coordinates):
         return coordinates.replace(' ', '')
 
-    try:
-        c = commons.parse_coordinates(coordinates)
-    except (u.UnitsError, TypeError):
-        raise ValueError("Coordinates not specified correctly")
-
-    return _fermi_format_coords(c, coordsystem=coordsystem)
-
-
-def _fermi_format_coords(c, *, coordsystem='J2000'):
     frames = {'j2000': 'fk5', 'b1950': 'fk4', 'galactic': 'galactic'}
-
     try:
         frame = frames[coordsystem.lower()]
     except KeyError:
         raise ValueError(
             f"Unsupported coordsystem {coordsystem!r}; "
             f"expected one of {', '.join(sorted(frames))}")
+
+    try:
+        c = commons.parse_coordinates(coordinates)
+    except (u.UnitsError, TypeError):
+        raise ValueError("Coordinates not specified correctly")
 
     c = c.transform_to(frame)
 
