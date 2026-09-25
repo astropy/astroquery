@@ -71,11 +71,6 @@ class FermiLATClass(BaseQuery):
             The identifier of the submitted query, e.g.
             ``'L2601082002167F48EE3069'``.  Pass it to `get_file_urls` (or
             just use `query_object`, which does the waiting for you).
-
-        Notes
-        -----
-        Prior to the REST API migration this method returned the URL of an
-        HTML results page.  It now returns the server-assigned ``query_id``.
         """
         payload = self._parse_args(*args, **kwargs)
 
