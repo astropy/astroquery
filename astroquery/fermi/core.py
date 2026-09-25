@@ -192,7 +192,7 @@ class FermiLATClass(BaseQuery):
         return response.json().get('files', [])
 
     def _wait_for_completion(self, query_id, *, check_frequency=None,
-                            max_wait=None, verbose=False):
+                             max_wait=None, verbose=False):
         """
         Poll ``/query/{id}/status`` until the query finishes.
 
