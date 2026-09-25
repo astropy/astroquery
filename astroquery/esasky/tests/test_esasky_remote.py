@@ -229,6 +229,13 @@ class TestESASky:
         tables = ESASky.get_tables(only_names=False)
         assert len(table_names) == len(tables)
 
+    def test_get_columns(self):
+        column_names = ESASky.get_columns(table_name='observations.mv_v_esasky_xmm_om_uv_fdw', only_names=True)
+        assert len(column_names) == 17
+
+        columns = ESASky.get_columns(table_name='observations.mv_v_esasky_xmm_om_uv_fdw', only_names=False)
+        assert len(column_names) == len(columns)
+
     def test_esasky_query_sso(self):
         result = ESASky.query_sso(sso_name="ceres")
         assert isinstance(result, TableList)
