@@ -464,7 +464,9 @@ def test_sia():
     sia_mock = Mock()
     empty_result = Table.read(os.path.join(DATA_DIR, 'alma-empty.txt'),
                               format='ascii')
-    sia_mock.search.return_value = Mock(table=empty_result)
+    mock_result = Mock()
+    mock_result.to_table.return_value = empty_result
+    sia_mock.search.return_value = mock_result
     alma = Alma()
     alma._get_dataarchive_url = Mock()
     alma._sia = sia_mock
@@ -477,7 +479,7 @@ def test_sia():
                             target_name='J0423-013',
                             publisher_did='ADS/JAO.ALMA#2013.1.00546.S',
                             exptime=25)
-    assert len(result.table) == 0
+    assert len(result) == 0
     assert_called_with(sia_mock.search, calib_level=[0, 1],
                        band=(300, 400), data_type='cube',
                        pos='CIRCLE 1 2 1',
