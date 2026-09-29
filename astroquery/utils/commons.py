@@ -32,12 +32,14 @@ __all__ = ['parse_coordinates',
            'ASTROPY_LT_5_1',
            'ASTROPY_LT_5_3',
            'ASTROPY_LT_6_0',
-           'ASTROPY_LT_7_1_1']
+           'ASTROPY_LT_7_1_1',
+           'ASTROPY_LT_8_1']
 
 ASTROPY_LT_5_1 = not minversion('astropy', '5.1')
 ASTROPY_LT_5_3 = not minversion('astropy', '5.3')
 ASTROPY_LT_6_0 = not minversion('astropy', '6.0')
 ASTROPY_LT_7_1_1 = not minversion('astropy', '7.1.1')
+ASTROPY_LT_8_1 = not minversion('astropy', '8.1dev')
 
 
 def parse_coordinates(coordinates, *, return_frame=None):
