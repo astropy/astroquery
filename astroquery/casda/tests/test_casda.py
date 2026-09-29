@@ -2,6 +2,7 @@
 
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+import contextlib
 import pytest
 import requests
 import os
@@ -19,6 +20,12 @@ import numpy as np
 
 from astroquery.casda import Casda
 from astroquery.exceptions import LoginError
+from astroquery.utils.commons import ASTROPY_LT_8_1
+
+if ASTROPY_LT_8_1:
+    W58 = None
+else:
+    from astropy.io.votable.exceptions import W58
 
 try:
     from unittest.mock import Mock, MagicMock
@@ -274,7 +281,11 @@ def test_query_region_async_box(patch_get):
 
 def test_filter_out_unreleased():
     with pytest.warns(W03):
-        all_records = parse(data_path('partial_unreleased.xml'), verify='warn').get_first_table().to_table()
+        # Hackary around W58 which was newly added into astropy v8.1.
+        astropy81_cm = pytest.warns(W58) if not ASTROPY_LT_8_1 else contextlib.nullcontext()
+
+        with astropy81_cm:
+            all_records = parse(data_path('partial_unreleased.xml'), verify='warn').get_first_table().to_table()
     assert all_records[0]['obs_release_date'] == '2017-08-02T03:51:19.728Z'
     assert all_records[1]['obs_release_date'] == '2218-01-02T16:51:00.728Z'
     assert all_records[2]['obs_release_date'] == ''
