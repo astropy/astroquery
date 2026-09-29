@@ -81,6 +81,15 @@ gaia
 - The values that the ``data_structure parameter`` can accept have been changed from RAW to DATAMODEL_GAIA, and from
   INDIVIDUAL to DATAMODEL_STANDARD. [#3629]
 
+esa.esasky
+^^^^^^^^^^
+
+- The argument tap_handler on ESASky has been deprecated. Use the ESASky instance directly for TAP
+  queries (Using esa.utils.EsaTap and PyVO).
+- Attribute urlBase has been deprecated on esasky.conf, use ESASKY_DOMAIN_SERVER instead.
+- Attribute timeout has been deprecated on esasky.conf, use ESASKY_CONNECTION_TIMEOUT instead.
+- Attribute row_limit has been deprecated on esasky.conf, use ESASKY_ROW_LIMIT instead.
+
 vizier
 ^^^^^^
 
