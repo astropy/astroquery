@@ -14,6 +14,7 @@ import os
 import shutil
 import zipfile
 from collections.abc import Iterable
+import warnings
 
 from astropy import units
 from astropy import units as u
@@ -24,6 +25,7 @@ from astropy.io.fits import TableHDU, BinTableHDU
 from astropy.table import Table
 from astropy.units import Quantity
 from astropy.utils.decorators import deprecated_renamed_argument
+from astropy.utils.exceptions import AstropyUserWarning
 from requests import HTTPError
 
 from astroquery import log
@@ -200,15 +202,6 @@ class GaiaClass(TapPlus):
             'EPOCH_SPECTRUM_XP_CROWDING', 'MEAN_SPECTRUM_XP', 'EPOCH_SPECTRUM_XP', 'CROWDED_FIELD_IMAGE',
             'EPOCH_ASTROMETRY_BRIGHT', 'MEAN_SPECTRUM_XP_GRAVLENS', 'EPOCH_FLAGS_NSS', 'EPOCH_PARAMETERS_RVS_SINGLE',
             'EPOCH_PARAMETERS_RVS_DOUBLE', 'EPOCH_FLAGS_VARI', 'RESIDUAL_IMAGE'].
-
-            Notes
-            -----
-            - ``CROWDED_FIELD_IMAGE`` supports only the ``'fits'`` format. The principal image is not included in the
-            returned dictionary. To retrieve both the image and the associated tables, inspect each individual fits
-            file.
-
-            - ``RESIDUAL_IMAGE`` also supports only the ``'fits'`` format. Since the FITS files contain images only, the
-            returned table is empty. Inspect each individual file to access their contents.
         linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID, TRANSIT_ID, IMAGE_ID
             By default, all the identifiers are considered as source_id.
 
@@ -224,7 +217,7 @@ class GaiaClass(TapPlus):
             By default, this value will be set to False .If set to True, the DataLink item tags are not validated.
         format : str, optional, default 'votable'
             Loading format. Supported values are  'csv', 'ecsv','votable_plain', 'json' and 'fits'
-        dump_to_file: boolean, optional, default False.
+        dump_to_file : boolean, optional, default False.
             If True, a ZIP archive named "datalink_output_<time_stamp>.zip" is created  with all the DataLink
             files is made in the current working directory. The <time_stamp> format follows the ISO 8601 standard:
             "YYYYMMDD_HHMMSS.mmmmmm".
@@ -232,6 +225,15 @@ class GaiaClass(TapPlus):
             To overwrite the output file ("datalink_output_<time_stamp>.zip") if it already exists.
         verbose : bool, optional, default 'False'
             Flag to display information about the process
+
+        Notes
+        -----
+
+        - ``CROWDED_FIELD_IMAGE`` supports only the ``'fits'`` format. The principal image is not included in the
+          returned dictionary. To retrieve both the image and the associated tables, inspect each individual fits
+          file.
+        - ``RESIDUAL_IMAGE`` also supports only the ``'fits'`` format. Since the FITS files contain images only, the
+          returned table is empty. Inspect each individual file to access their contents.
 
         Returns
         -------
@@ -245,6 +247,13 @@ class GaiaClass(TapPlus):
                 Path to the generated archive if ``dump_to_file=True``;
                 otherwise ``None``.
         """
+
+        warnings.warn(
+            "The return value of Gaia.load_data() has changed. The method now "
+            "returns a tuple containing the DataLink products and the path to the output file.",
+            AstropyUserWarning,
+            stacklevel=2,
+        )
 
         output_file_specified = False
 
