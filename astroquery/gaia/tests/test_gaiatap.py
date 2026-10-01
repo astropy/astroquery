@@ -881,6 +881,7 @@ def test_cone_search_and_changing_MAIN_GAIA_TABLE(mock_querier_async):
         assert "name_from_class" in job.parameters["query"]
 
 
+@pytest.mark.filterwarnings("ignore:")
 @pytest.mark.parametrize("overwrite_output_file", [True])
 def test_datalink_querier_load_data_vot_exception(mock_datalink_querier, overwrite_output_file):
     assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
@@ -924,14 +925,16 @@ def test_datalink_querier_load_data_vot_exception(mock_datalink_querier, overwri
     assert not os.path.exists(file_final)
 
 
+@pytest.mark.filterwarnings("ignore:")
 def test_datalink_querier_load_data_vot(mock_datalink_querier):
     result_dict, file_path = mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
-                                                  data_structure='DATAMODEL_STANDARD',
-                                                  retrieval_type="ALL",
-                                                  linking_parameter='SOURCE_ID', valid_data=False,
-                                                  avoid_datatype_check=False,
-                                                  format="votable", dump_to_file=True, overwrite_output_file=True,
-                                                  verbose=False)
+                                                             data_structure='DATAMODEL_STANDARD',
+                                                             retrieval_type="ALL",
+                                                             linking_parameter='SOURCE_ID', valid_data=False,
+                                                             avoid_datatype_check=False,
+                                                             format="votable", dump_to_file=True,
+                                                             overwrite_output_file=True,
+                                                             verbose=False)
 
     direc = os.getcwd()
     files = os.listdir(direc)
@@ -940,7 +943,7 @@ def test_datalink_querier_load_data_vot(mock_datalink_querier):
              Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
 
     assert len(files) == 1
-    assert files[0] == file_path
+    assert os.path.join(direc, files[0]) == file_path
 
     datalink_output = files[0]
 
@@ -965,25 +968,32 @@ def test_datalink_querier_load_data_vot(mock_datalink_querier):
 
     # check the returned output file path
 
+
+@pytest.mark.filterwarnings("ignore:")
+def test_datalink_querier_load_data_vot_no_dump_to_file(mock_datalink_querier):
+
     result_dict, file_path = mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
-                                                  data_structure='DATAMODEL_STANDARD',
-                                                  retrieval_type="ALL",
-                                                  linking_parameter='SOURCE_ID', valid_data=False,
-                                                  avoid_datatype_check=False,
-                                                  format="votable", dump_to_file=False, overwrite_output_file=True,
-                                                  verbose=False)
+                                                             data_structure='DATAMODEL_STANDARD',
+                                                             retrieval_type="ALL",
+                                                             linking_parameter='SOURCE_ID', valid_data=False,
+                                                             avoid_datatype_check=False,
+                                                             format="votable", dump_to_file=False,
+                                                             overwrite_output_file=True,
+                                                             verbose=False)
 
     assert file_path is None
 
 
+@pytest.mark.filterwarnings("ignore:")
 def test_datalink_querier_load_data_ecsv(mock_datalink_querier_ecsv):
     result_dict, file_path = mock_datalink_querier_ecsv.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
-                                                       data_structure='DATAMODEL_STANDARD',
-                                                       retrieval_type="ALL",
-                                                       linking_parameter='SOURCE_ID', valid_data=False,
-                                                       avoid_datatype_check=False,
-                                                       format="ecsv", dump_to_file=True, overwrite_output_file=True,
-                                                       verbose=False)
+                                                                  data_structure='DATAMODEL_STANDARD',
+                                                                  retrieval_type="ALL",
+                                                                  linking_parameter='SOURCE_ID', valid_data=False,
+                                                                  avoid_datatype_check=False,
+                                                                  format="ecsv", dump_to_file=True,
+                                                                  overwrite_output_file=True,
+                                                                  verbose=False)
 
     direc = os.getcwd()
     files = os.listdir(direc)
@@ -992,7 +1002,7 @@ def test_datalink_querier_load_data_ecsv(mock_datalink_querier_ecsv):
              Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
 
     assert len(files) == 1
-    assert files[0] == file_path
+    assert os.path.join(direc, files[0]) == file_path
 
     datalink_output = files[0]
 
@@ -1019,14 +1029,16 @@ def test_datalink_querier_load_data_ecsv(mock_datalink_querier_ecsv):
     assert not os.path.exists(datalink_output)
 
 
+@pytest.mark.filterwarnings("ignore:")
 def test_datalink_querier_load_data_csv(mock_datalink_querier_csv):
     result_dict, file_path = mock_datalink_querier_csv.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
-                                                      data_structure='DATAMODEL_STANDARD',
-                                                      retrieval_type="ALL",
-                                                      linking_parameter='SOURCE_ID', valid_data=False,
-                                                      avoid_datatype_check=False,
-                                                      format="csv", dump_to_file=True, overwrite_output_file=True,
-                                                      verbose=False)
+                                                                 data_structure='DATAMODEL_STANDARD',
+                                                                 retrieval_type="ALL",
+                                                                 linking_parameter='SOURCE_ID', valid_data=False,
+                                                                 avoid_datatype_check=False,
+                                                                 format="csv", dump_to_file=True,
+                                                                 overwrite_output_file=True,
+                                                                 verbose=False)
 
     direc = os.getcwd()
     files = os.listdir(direc)
@@ -1035,7 +1047,7 @@ def test_datalink_querier_load_data_csv(mock_datalink_querier_csv):
              Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
 
     assert len(files) == 1
-    assert files[0] == file_path
+    assert os.path.join(direc, files[0]) == file_path
 
     datalink_output = files[0]
 
@@ -1065,12 +1077,13 @@ def test_datalink_querier_load_data_csv(mock_datalink_querier_csv):
 @pytest.mark.filterwarnings("ignore:")
 def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
     result_dict, file_path = mock_datalink_querier_fits.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
-                                                       data_structure='DATAMODEL_STANDARD',
-                                                       retrieval_type="ALL",
-                                                       linking_parameter='SOURCE_ID', valid_data=False,
-                                                       avoid_datatype_check=False,
-                                                       format="fits", dump_to_file=True, overwrite_output_file=True,
-                                                       verbose=False)
+                                                                  data_structure='DATAMODEL_STANDARD',
+                                                                  retrieval_type="ALL",
+                                                                  linking_parameter='SOURCE_ID', valid_data=False,
+                                                                  avoid_datatype_check=False,
+                                                                  format="fits", dump_to_file=True,
+                                                                  overwrite_output_file=True,
+                                                                  verbose=False)
 
     direc = os.getcwd()
     files = os.listdir(direc)
@@ -1079,7 +1092,7 @@ def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
              Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
 
     assert len(files) == 1
-    assert files[0] == file_path
+    assert os.path.join(direc, files[0]) == file_path
 
     datalink_output = files[0]
 
@@ -1106,6 +1119,7 @@ def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
     assert not os.path.exists(datalink_output)
 
 
+@pytest.mark.filterwarnings("ignore:")
 def test_load_data_vot(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_now):
     assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
 
@@ -1175,18 +1189,13 @@ def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
 
-    GAIA_QUERIER.load_data(
-        valid_data=True,
-        ids="1,2,3,4",
-        format='fits',
-        retrieval_type="epoch_photometry",
-        verbose=True,
-        dump_to_file=True,
-        overwrite_output_file=True)
+    GAIA_QUERIER.load_data(valid_data=True, ids="1,2,3,4", format='fits', retrieval_type="epoch_photometry",
+                           verbose=True, dump_to_file=True, overwrite_output_file=True)
 
     path.unlink()
 
 
+@pytest.mark.filterwarnings("ignore:")
 def test_load_data_csv(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_now):
     assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
 
@@ -1213,18 +1222,13 @@ def test_load_data_csv(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_n
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
 
-    GAIA_QUERIER.load_data(
-        valid_data=True,
-        ids="1,2,3,4",
-        format='csv',
-        retrieval_type="epoch_photometry",
-        verbose=True,
-        dump_to_file=True,
-        overwrite_output_file=True)
+    GAIA_QUERIER.load_data(valid_data=True, ids="1,2,3,4", format='csv', retrieval_type="epoch_photometry",
+                           verbose=True, dump_to_file=True, overwrite_output_file=True)
 
     path.unlink()
 
 
+@pytest.mark.filterwarnings("ignore:")
 def test_load_data_ecsv(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_now):
     assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
 
@@ -1251,18 +1255,13 @@ def test_load_data_ecsv(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
 
-    GAIA_QUERIER.load_data(
-        valid_data=True,
-        ids="1,2,3,4",
-        format='ecsv',
-        retrieval_type="epoch_photometry",
-        verbose=True,
-        dump_to_file=True,
-        overwrite_output_file=True)
+    GAIA_QUERIER.load_data(valid_data=True, ids="1,2,3,4", format='ecsv', retrieval_type="epoch_photometry",
+                           verbose=True, dump_to_file=True, overwrite_output_file=True)
 
     path.unlink()
 
 
+@pytest.mark.filterwarnings("ignore:")
 def test_load_data_linking_parameter(monkeypatch, tmp_path, patch_datetime_now):
     assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
 
@@ -1289,18 +1288,13 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path, patch_datetime_now):
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
 
-    GAIA_QUERIER.load_data(
-        ids="1,2,3,4",
-        retrieval_type="epoch_photometry",
-        linking_parameter="SOURCE_ID",
-        valid_data=True,
-        verbose=True,
-        dump_to_file=True,
-        overwrite_output_file=True)
+    GAIA_QUERIER.load_data(ids="1,2,3,4", retrieval_type="epoch_photometry", linking_parameter="SOURCE_ID",
+                           valid_data=True, verbose=True, dump_to_file=True, overwrite_output_file=True)
 
     path.unlink()
 
 
+@pytest.mark.filterwarnings("ignore:")
 @pytest.mark.parametrize("linking_param", ['TRANSIT_ID', 'IMAGE_ID'])
 def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_param, patch_datetime_now):
     assert datetime.datetime.now(datetime.timezone.utc) == FAKE_TIME
@@ -1338,14 +1332,8 @@ def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
 
-    GAIA_QUERIER.load_data(
-        ids="1,2,3,4",
-        retrieval_type="epoch_photometry",
-        linking_parameter=linking_param,
-        valid_data=True,
-        verbose=True,
-        dump_to_file=True,
-        overwrite_output_file=True)
+    GAIA_QUERIER.load_data(ids="1,2,3,4", retrieval_type="epoch_photometry", linking_parameter=linking_param,
+                           valid_data=True, verbose=True, dump_to_file=True, overwrite_output_file=True)
 
     path.unlink()
 
