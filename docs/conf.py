@@ -12,6 +12,7 @@
 # See astropy.sphinx.conf for which values are set there.
 
 import datetime
+import os
 import sys
 
 if sys.version_info < (3, 11):
@@ -20,6 +21,14 @@ else:
     import tomllib
 
 from pathlib import Path
+
+import requests
+from matplotlib import pyplot as plt
+from matplotlib.sphinxext import plot_directive
+from pyvo.dal.exceptions import DALServiceError, DALQueryError
+from sphinx.util import logging as sphinx_logging
+
+from astroquery.exceptions import RemoteServiceError, TimeoutError as AQTimeoutError
 
 # Load all of the global Astropy configuration
 try:
@@ -153,3 +162,47 @@ linkcheck_ignore = [
     'https://splatalogue.online/#/basic',
     'https://ui.adsabs.harvard.edu',  # 405 Client Error: Not Allowed for sphinx-build
 ]
+
+
+# -- Plot directive: tolerate remote service outages --------------------------
+#
+# Some ``.. plot::`` blocks query live services (e.g. IRSA, CDMS). With warnings
+# treated as errors, a temporary outage of any of those services would fail the
+# whole docs build. Instead, when a plot fails because of a remote-service or
+# network error, render a placeholder figure and log it without a warning.
+#
+# This only applies to builds that are not deployed (PR previews, local and CI
+# builds). RTD builds of branches (``latest``) and tags (releases) stay strict,
+# so an outage fails them and RTD keeps serving the last good build rather than
+# publishing placeholder figures.
+
+_REMOTE_ERRORS = (requests.exceptions.RequestException, ConnectionError, TimeoutError,
+                  DALServiceError, DALQueryError, RemoteServiceError, AQTimeoutError)
+_plot_logger = sphinx_logging.getLogger(__name__)
+
+
+def _run_code_tolerating_outages(run_code):
+    def wrapper(code, code_path, *args, **kwargs):
+        try:
+            return run_code(code, code_path, *args, **kwargs)
+        except plot_directive.PlotError as err:
+            if not isinstance(err.__cause__, _REMOTE_ERRORS):
+                raise
+            _plot_logger.info(f"Remote service unavailable while running a plot in "
+                              f"{code_path}; rendering a placeholder figure instead.\n"
+                              f"{type(err.__cause__).__name__}: {err.__cause__}")
+            plt.close('all')
+            fig = plt.figure(figsize=(6, 1.5))
+            fig.text(0.5, 0.5, "Figure not rendered: a remote service was unavailable\n"
+                     "when this documentation was built.", ha='center', va='center')
+            return {}
+    return wrapper
+
+
+# ``_run_code`` is private matplotlib API (``run_code`` before 3.9); if it is
+# missing, plots simply behave as before.
+if os.environ.get('READTHEDOCS_VERSION_TYPE') not in ('branch', 'tag'):
+    for _name in ('_run_code', 'run_code'):
+        if hasattr(plot_directive, _name):
+            setattr(plot_directive, _name, _run_code_tolerating_outages(getattr(plot_directive, _name)))
+            break
