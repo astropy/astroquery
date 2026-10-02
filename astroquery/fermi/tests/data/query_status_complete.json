@@ -1,0 +1,14 @@
+{
+  "query_id": "L2601082002167F48EE3069",
+  "queue_status": [
+    { "server": "Photon Server", "queue_rank": 0, "time_remaining": "Unknown" },
+    { "server": "Spacecraft Server", "queue_rank": 0, "time_remaining": "Unknown" }
+  ],
+  "running_status": [
+    { "server": "Photon Server", "status": "Completed", "time_remaining": "N/A" }
+  ],
+  "servers_status": [
+    { "name": "Photon Server", "position": "Query complete", "time_remaining": "N/A" }
+  ],
+  "state": "Query completed"
+}
