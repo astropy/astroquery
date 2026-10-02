@@ -132,15 +132,7 @@ heasarc
 - Add ``query_constraints`` to allow querying of different catalog columns. [#3403]
 - Add support for uploading tables when using TAP directly through ``query_tap``. [#3403]
 - Add automatic guessing for the data host in ``download_data``. [#3403]
-- Include method to count the number of rows in a specified table. [#3549]
-- Fix ``query_region`` for catalog=None. It should fail early. [#3630]
-- Fix ``query_region`` when passing ``add_offset`` along with ``columns=None``. [#3630]
-- Generalize the ``content-type`` filter in ``locate_data`` in anticipation for backend datalink descriptor changes. [#3656]
-
-hitran
-^^^^^^
-
-- Updated the list of isotopes [#3644]
+- Adding method heasarc.query_all().  [#3499]
 
 gaia
 ^^^^
