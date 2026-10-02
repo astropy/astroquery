@@ -1,0 +1,77 @@
+{
+  "catalog_unknown.json": {
+    "source": "catalog_dl_unknown.body",
+    "release": "dr10/v2.0",
+    "endpoint": "https://www.lamost.org/openapi/dr10/v2.0/lrs/catalog",
+    "capture_date": "2026-09-20",
+    "transformation": "Unmodified response body; no headers or credentials.",
+    "sha256": "526f063a30326741578abe7e642e7c9cff720747c9560835d5bdb46d876fd297",
+    "parameters": {
+      "name": "does_not_exist"
+    }
+  },
+  "cone_mrs_dr8.xml": {
+    "source": "dr8_mrs_conesearch.body",
+    "release": "dr8/v1.0",
+    "endpoint": "https://www.lamost.org/openapi/dr8/v1.0/mrs/voservice/conesearch",
+    "capture_date": "2026-09-20",
+    "transformation": "Unmodified response body; no headers or credentials.",
+    "sha256": "bd5f1799674f9e270667689634c2862ac70318e742e780e2ad577af7848bc5ac",
+    "parameters": null,
+    "parameters_note": "Request parameters were not retained in the saved summary; this fixture replays the body only."
+  },
+  "info_lrs_dr10.json": {
+    "source": "info_lrs.body",
+    "release": "dr10/v2.0",
+    "endpoint": "https://www.lamost.org/openapi/dr10/v2.0/lrs/spectrum/info",
+    "capture_date": "2026-09-20",
+    "transformation": "Unmodified response body; no headers or credentials.",
+    "sha256": "cec048808eda5088c08f400459468064fa2ad20cfc5bf8ac754d5abe4031d09b",
+    "parameters": {
+      "obsid": 176604010
+    }
+  },
+  "info_mrs_dr10.json": {
+    "source": "info_mrs.body",
+    "release": "dr10/v2.0",
+    "endpoint": "https://www.lamost.org/openapi/dr10/v2.0/mrs/spectrum/info",
+    "capture_date": "2026-09-20",
+    "transformation": "Unmodified response body; no headers or credentials.",
+    "sha256": "19b79ed0c24a348f27778d5f92baa64ccac923625d929ec388553a6bc4614f57",
+    "parameters": {
+      "obsid": 1007903112
+    }
+  },
+  "schema_dr10.json": {
+    "source": "tables_dr10_v2.body",
+    "release": "dr10/v2.0",
+    "endpoint": "https://www.lamost.org/openapi/dr10/v2.0/tables",
+    "capture_date": "2026-09-20",
+    "transformation": "Only combined/med_combined column names and declared datatypes; reserialized JSON.",
+    "sha256": "8b08117f7a9849f2cbddb8a4fcaad728a63e52a7610224714b27dd0bacba7df5",
+    "parameters": {}
+  },
+  "info_mrs_dr8.json": {
+    "endpoint": "https://www.lamost.org/openapi/dr8/v1.0/mrs/spectrum/info",
+    "parameters": {
+      "obsid": 635003103
+    },
+    "authentication": "anonymous",
+    "captured_at": "2026-09-21T04:00:25.364986+00:00",
+    "transformation": "Unmodified response body; no headers or credentials.",
+    "sha256": "b8e56261ea1713486a1be39675caf8c0819d8db3b86235d0eb82e1685f016da0",
+    "release": "dr8/v1.0"
+  },
+  "login_dr7.html": {
+    "endpoint": "https://www.lamost.org/openapi/dr7/v2.0/sql",
+    "parameters": {
+      "sql": "SELECT obsid FROM catalogue LIMIT 1",
+      "output.fmt": "csv"
+    },
+    "authentication": "fixed synthetic invalid token",
+    "captured_at": "2026-09-21T04:00:26.438683+00:00",
+    "transformation": "Removed all URL query strings and the synthetic invalid token; no headers retained. Removed trailing whitespace on blank HTML lines.",
+    "sha256": "411e113ac77ccc374dadd45f98ba10ff905a0aa6efd5a87a2494a25ce157d883",
+    "release": "dr7/v2.0"
+  }
+}

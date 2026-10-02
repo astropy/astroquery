@@ -24,6 +24,12 @@ esa.emds.einsteinprobe
 
 - New module to access the ESA Einstein Probe Science Archive. [#3511]
 
+nadc.lamost
+^^^^^^^^^^^
+
+- New module to access the LAMOST spectroscopic survey archive hosted by the
+  National Astronomical Data Center (NADC). [#3666]
+
 nrao
 ^^^^
 

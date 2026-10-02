@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.2 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.2.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.ivoa.net/xml/VOTable/v1.2" version="1.2">
+<RESOURCE type="results">
+<DESCRIPTION>This is med-resolution data from LAMOST dr8. Powered by Chinese Virtual Observatory (China-VO): http://www.china-vo.org Sun Sep 20 17:19:08 CST 2026 In case of problem, please contact:	support@lamost.org
+</DESCRIPTION><INFO name="SERVICE_PROTOCOL" value="1.2">ConeSearch</INFO>
+<INFO name="QUERY_STATUS" value="OK"></INFO>
+<TABLE>
+<FIELD ID="COLID_56726" name="med_catalogue_mobsid" datatype="char" arraysize="*" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56727" name="med_catalogue_obsid" datatype="char" arraysize="*" ucd="ID_MAIN">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56728" name="med_catalogue_designation" datatype="char" arraysize="*" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56729" name="med_catalogue_obsdate" datatype="char" arraysize="*" ucd="DATE">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56730" name="med_catalogue_lmjd" datatype="int" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56731" name="med_catalogue_mjd" datatype="int" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56732" name="med_catalogue_planid" datatype="char" arraysize="*" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56733" name="med_catalogue_spid" datatype="int" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56734" name="med_catalogue_fiberid" datatype="int" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56735" name="med_catalogue_lmjm" datatype="int" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56736" name="med_catalogue_band" datatype="char" arraysize="*" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56737" name="med_catalogue_ra_obs" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56738" name="med_catalogue_dec_obs" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56739" name="med_catalogue_snr" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56740" name="med_catalogue_objtype" datatype="char" arraysize="*" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56741" name="med_catalogue_magtype" datatype="char" arraysize="*" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56742" name="med_catalogue_mag1" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56743" name="med_catalogue_mag2" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56744" name="med_catalogue_mag3" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56745" name="med_catalogue_mag4" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56746" name="med_catalogue_mag5" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56747" name="med_catalogue_mag6" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56748" name="med_catalogue_mag7" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56749" name="med_catalogue_tsource" datatype="char" arraysize="*" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56750" name="med_catalogue_fibertype" datatype="char" arraysize="*" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56751" name="med_catalogue_tfrom" datatype="char" arraysize="*" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56752" name="med_catalogue_tcomment" datatype="char" arraysize="*" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56753" name="med_catalogue_offsets" datatype="int" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56754" name="med_catalogue_offsets_v" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56755" name="med_catalogue_ra" datatype="double" ucd="POS_EQ_RA_MAIN">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56756" name="med_catalogue_dec" datatype="double" ucd="POS_EQ_DEC_MAIN">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56757" name="med_catalogue_rv_b0" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56758" name="med_catalogue_rv_b0_err" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56759" name="med_catalogue_rv_b1" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56760" name="med_catalogue_rv_b1_err" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56761" name="med_catalogue_rv_b_flag" datatype="int" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56762" name="med_catalogue_rv_r0" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56763" name="med_catalogue_rv_r0_err" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56764" name="med_catalogue_rv_r1" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56765" name="med_catalogue_rv_r1_err" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56766" name="med_catalogue_rv_r_flag" datatype="int" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56767" name="med_catalogue_rv_br0" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56768" name="med_catalogue_rv_br0_err" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56769" name="med_catalogue_rv_br1" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56770" name="med_catalogue_rv_br1_err" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56771" name="med_catalogue_rv_br_flag" datatype="int" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56772" name="med_catalogue_rv_lasp0" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56773" name="med_catalogue_rv_lasp0_err" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56774" name="med_catalogue_rv_lasp1" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56775" name="med_catalogue_rv_lasp1_err" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56776" name="med_catalogue_coadd" datatype="int" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56777" name="med_catalogue_fibermask" datatype="int" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56778" name="med_catalogue_bad_b" datatype="int" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56779" name="med_catalogue_bad_r" datatype="int" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56780" name="med_catalogue_gaia_source_id" datatype="char" arraysize="*" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<FIELD ID="COLID_56781" name="med_catalogue_gaia_g_mean_mag" datatype="double" ucd="">
+<DESCRIPTION></DESCRIPTION>
+</FIELD>
+<DATA><TABLEDATA>
+<TR><TD>63500310383727522B</TD><TD>635003103</TD><TD>J121933.15+015426.7</TD><TD>2018-01-25</TD><TD>58144</TD><TD>58143</TD><TD>HIP60544K201</TD><TD>3</TD><TD>103</TD><TD>83727522</TD><TD>B</TD><TD>184.8881400000</TD><TD>1.9074400000</TD><TD>5.35</TD><TD>k2star</TD><TD>KP</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>K2</TD><TD>Obj</TD><TD>SDSS</TD><TD>-</TD><TD>0</TD><TD>0.000</TD><TD>184.8881380000</TD><TD>1.9074400000</TD><TD>-3.94</TD><TD>3.80</TD><TD>2.71</TD><TD>3.87</TD><TD>0</TD><TD>3.87</TD><TD>4.54</TD><TD>8.57</TD><TD>4.95</TD><TD>0</TD><TD>-3.97</TD><TD>2.92</TD><TD>2.32</TD><TD>3.03</TD><TD>0</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>0</TD><TD>0</TD><TD>0</TD><TD>0</TD><TD>3700975728440669184</TD><TD>13.44139900</TD></TR>
+<TR><TD>63500310383727570B</TD><TD>635003103</TD><TD>J121933.15+015426.7</TD><TD>2018-01-25</TD><TD>58144</TD><TD>58143</TD><TD>HIP60544K201</TD><TD>3</TD><TD>103</TD><TD>83727570</TD><TD>B</TD><TD>184.8881400000</TD><TD>1.9074400000</TD><TD>6.05</TD><TD>k2star</TD><TD>KP</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>K2</TD><TD>Obj</TD><TD>SDSS</TD><TD>-</TD><TD>0</TD><TD>0.000</TD><TD>184.8881380000</TD><TD>1.9074400000</TD><TD>3.02</TD><TD>3.71</TD><TD>9.67</TD><TD>3.77</TD><TD>0</TD><TD>1.41</TD><TD>4.30</TD><TD>6.12</TD><TD>4.73</TD><TD>0</TD><TD>3.67</TD><TD>2.88</TD><TD>9.96</TD><TD>2.99</TD><TD>0</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>0</TD><TD>0</TD><TD>0</TD><TD>0</TD><TD>3700975728440669184</TD><TD>13.44139900</TD></TR>
+<TR><TD>63500310383727522R</TD><TD>635003103</TD><TD>J121933.15+015426.7</TD><TD>2018-01-25</TD><TD>58144</TD><TD>58143</TD><TD>HIP60544K201</TD><TD>3</TD><TD>103</TD><TD>83727522</TD><TD>R</TD><TD>184.8881400000</TD><TD>1.9074400000</TD><TD>13.38</TD><TD>k2star</TD><TD>KP</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>K2</TD><TD>Obj</TD><TD>SDSS</TD><TD>-</TD><TD>0</TD><TD>0.000</TD><TD>184.8881380000</TD><TD>1.9074400000</TD><TD>-3.94</TD><TD>3.80</TD><TD>2.71</TD><TD>3.87</TD><TD>0</TD><TD>3.87</TD><TD>4.54</TD><TD>8.57</TD><TD>4.95</TD><TD>0</TD><TD>-3.97</TD><TD>2.92</TD><TD>2.32</TD><TD>3.03</TD><TD>0</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>0</TD><TD>0</TD><TD>0</TD><TD>0</TD><TD>3700975728440669184</TD><TD>13.44139900</TD></TR>
+<TR><TD>63500310383727617R</TD><TD>635003103</TD><TD>J121933.15+015426.7</TD><TD>2018-01-25</TD><TD>58144</TD><TD>58143</TD><TD>HIP60544K201</TD><TD>3</TD><TD>103</TD><TD>83727617</TD><TD>R</TD><TD>184.8881400000</TD><TD>1.9074400000</TD><TD>17.60</TD><TD>k2star</TD><TD>KP</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>K2</TD><TD>Obj</TD><TD>SDSS</TD><TD>-</TD><TD>0</TD><TD>0.000</TD><TD>184.8881380000</TD><TD>1.9074400000</TD><TD>-4.65</TD><TD>3.19</TD><TD>2.00</TD><TD>3.27</TD><TD>0</TD><TD>0.17</TD><TD>6.64</TD><TD>4.88</TD><TD>6.93</TD><TD>0</TD><TD>2.70</TD><TD>2.60</TD><TD>8.99</TD><TD>2.72</TD><TD>0</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>0</TD><TD>0</TD><TD>0</TD><TD>0</TD><TD>3700975728440669184</TD><TD>13.44139900</TD></TR>
+<TR><TD>63500310383727593B</TD><TD>635003103</TD><TD>J121933.15+015426.7</TD><TD>2018-01-25</TD><TD>58144</TD><TD>58143</TD><TD>HIP60544K201</TD><TD>3</TD><TD>103</TD><TD>83727593</TD><TD>B</TD><TD>184.8881400000</TD><TD>1.9074400000</TD><TD>6.76</TD><TD>k2star</TD><TD>KP</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>K2</TD><TD>Obj</TD><TD>SDSS</TD><TD>-</TD><TD>0</TD><TD>0.000</TD><TD>184.8881380000</TD><TD>1.9074400000</TD><TD>1.10</TD><TD>3.64</TD><TD>7.75</TD><TD>3.70</TD><TD>0</TD><TD>-3.45</TD><TD>4.49</TD><TD>1.25</TD><TD>4.90</TD><TD>0</TD><TD>6.76</TD><TD>2.86</TD><TD>13.05</TD><TD>2.97</TD><TD>0</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>0</TD><TD>0</TD><TD>0</TD><TD>0</TD><TD>3700975728440669184</TD><TD>13.44139900</TD></TR>
+<TR><TD>63500310383727570R</TD><TD>635003103</TD><TD>J121933.15+015426.7</TD><TD>2018-01-25</TD><TD>58144</TD><TD>58143</TD><TD>HIP60544K201</TD><TD>3</TD><TD>103</TD><TD>83727570</TD><TD>R</TD><TD>184.8881400000</TD><TD>1.9074400000</TD><TD>14.26</TD><TD>k2star</TD><TD>KP</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>K2</TD><TD>Obj</TD><TD>SDSS</TD><TD>-</TD><TD>0</TD><TD>0.000</TD><TD>184.8881380000</TD><TD>1.9074400000</TD><TD>3.02</TD><TD>3.71</TD><TD>9.67</TD><TD>3.77</TD><TD>0</TD><TD>1.41</TD><TD>4.30</TD><TD>6.12</TD><TD>4.73</TD><TD>0</TD><TD>3.67</TD><TD>2.88</TD><TD>9.96</TD><TD>2.99</TD><TD>0</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>0</TD><TD>0</TD><TD>0</TD><TD>0</TD><TD>3700975728440669184</TD><TD>13.44139900</TD></TR>
+<TR><TD>63500310383727593R</TD><TD>635003103</TD><TD>J121933.15+015426.7</TD><TD>2018-01-25</TD><TD>58144</TD><TD>58143</TD><TD>HIP60544K201</TD><TD>3</TD><TD>103</TD><TD>83727593</TD><TD>R</TD><TD>184.8881400000</TD><TD>1.9074400000</TD><TD>15.30</TD><TD>k2star</TD><TD>KP</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>K2</TD><TD>Obj</TD><TD>SDSS</TD><TD>-</TD><TD>0</TD><TD>0.000</TD><TD>184.8881380000</TD><TD>1.9074400000</TD><TD>1.10</TD><TD>3.64</TD><TD>7.75</TD><TD>3.70</TD><TD>0</TD><TD>-3.45</TD><TD>4.49</TD><TD>1.25</TD><TD>4.90</TD><TD>0</TD><TD>6.76</TD><TD>2.86</TD><TD>13.05</TD><TD>2.97</TD><TD>0</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>0</TD><TD>0</TD><TD>0</TD><TD>0</TD><TD>3700975728440669184</TD><TD>13.44139900</TD></TR>
+<TR><TD>63500310383727617B</TD><TD>635003103</TD><TD>J121933.15+015426.7</TD><TD>2018-01-25</TD><TD>58144</TD><TD>58143</TD><TD>HIP60544K201</TD><TD>3</TD><TD>103</TD><TD>83727617</TD><TD>B</TD><TD>184.8881400000</TD><TD>1.9074400000</TD><TD>7.93</TD><TD>k2star</TD><TD>KP</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>K2</TD><TD>Obj</TD><TD>SDSS</TD><TD>-</TD><TD>0</TD><TD>0.000</TD><TD>184.8881380000</TD><TD>1.9074400000</TD><TD>-4.65</TD><TD>3.19</TD><TD>2.00</TD><TD>3.27</TD><TD>0</TD><TD>0.17</TD><TD>6.64</TD><TD>4.88</TD><TD>6.93</TD><TD>0</TD><TD>2.70</TD><TD>2.60</TD><TD>8.99</TD><TD>2.72</TD><TD>0</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>0</TD><TD>0</TD><TD>0</TD><TD>0</TD><TD>3700975728440669184</TD><TD>13.44139900</TD></TR>
+<TR><TD>635003103B</TD><TD>635003103</TD><TD>J121933.15+015426.7</TD><TD>2018-01-25</TD><TD>58144</TD><TD>58143</TD><TD>HIP60544K201</TD><TD>3</TD><TD>103</TD><TD></TD><TD>B</TD><TD>184.8881400000</TD><TD>1.9074400000</TD><TD>16.00</TD><TD>k2star</TD><TD>KP</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>K2</TD><TD>Obj</TD><TD>SDSS</TD><TD>-</TD><TD>0</TD><TD>0.000</TD><TD>184.8881380000</TD><TD>1.9074400000</TD><TD>-0.01</TD><TD>2.71</TD><TD>6.64</TD><TD>2.80</TD><TD>0</TD><TD>0.28</TD><TD>3.78</TD><TD>4.99</TD><TD>4.26</TD><TD>0</TD><TD>-1.08</TD><TD>2.30</TD><TD>5.21</TD><TD>2.43</TD><TD>0</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>1</TD><TD></TD><TD>0</TD><TD>0</TD><TD>3700975728440669184</TD><TD>13.44139900</TD></TR>
+<TR><TD>635003103R</TD><TD>635003103</TD><TD>J121933.15+015426.7</TD><TD>2018-01-25</TD><TD>58144</TD><TD>58143</TD><TD>HIP60544K201</TD><TD>3</TD><TD>103</TD><TD></TD><TD>R</TD><TD>184.8881400000</TD><TD>1.9074400000</TD><TD>37.99</TD><TD>k2star</TD><TD>KP</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>99.00</TD><TD>K2</TD><TD>Obj</TD><TD>SDSS</TD><TD>-</TD><TD>0</TD><TD>0.000</TD><TD>184.8881380000</TD><TD>1.9074400000</TD><TD>-0.01</TD><TD>2.71</TD><TD>6.64</TD><TD>2.80</TD><TD>0</TD><TD>0.28</TD><TD>3.78</TD><TD>4.99</TD><TD>4.26</TD><TD>0</TD><TD>-1.08</TD><TD>2.30</TD><TD>5.21</TD><TD>2.43</TD><TD>0</TD><TD>2.40</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>-9999.00</TD><TD>1</TD><TD></TD><TD>0</TD><TD>0</TD><TD>3700975728440669184</TD><TD>13.44139900</TD></TR>
+</TABLEDATA></DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
