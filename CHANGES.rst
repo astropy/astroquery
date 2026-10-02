@@ -94,14 +94,18 @@ fermi
   ``LATDataQuery.cgi`` endpoint whose HTML responses were previously scraped
   with regular expressions. The user-facing ``FermiLAT.query_object()``
   signature is unchanged. [#3647]
-- ``FermiLAT.query_object_async()`` now returns the server-assigned
-  ``query_id`` instead of the URL of an HTML results page. [#3647]
+- ``FermiLAT.query_object_async()`` is deprecated in favour of
+  ``FermiLAT.query_object()``, which is now the module's single query entry
+  point; until removed, it returns the server-assigned ``query_id`` instead
+  of the URL of an HTML results page. [#3647]
 - New methods ``FermiLAT.get_status()``, ``FermiLAT.list_results()`` and
   ``FermiLAT.get_file_urls()`` expose the individual steps of the
   asynchronous query workflow. [#3647]
-- New keyword arguments: ``zenithangle`` (maximum zenith angle in degrees) and
-  ``coordsystem`` (``'J2000'``, ``'B1950'`` or ``'Galactic'``). All-sky
-  queries (radius > 60 deg, observation window <= 24 h) are now supported. [#3647]
+- New keyword arguments: ``zenithangle`` (maximum zenith angle in degrees),
+  ``coordsystem`` (``'J2000'``, ``'B1950'`` or ``'Galactic'``), and
+  ``max_wait`` to bound the time spent waiting for a query to complete.
+  All-sky queries (radius > 60 deg, observation window <= 24 h) are now
+  supported. [#3647]
 - ``GetFermilatDatafile`` and ``get_fermilat_datafile`` are deprecated; they
   now delegate to ``FermiLAT.get_file_urls()`` and take a ``query_id`` rather
   than a results-page URL. [#3647]

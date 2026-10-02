@@ -81,7 +81,7 @@ def patch_request(request):
 
 
 def test_payload_field_names():
-    payload = fermi.core.FermiLAT.query_object_async(
+    payload = fermi.core.FermiLAT.query_object(
         FK5_COORDINATES, searchradius=15, energyrange_MeV='100,300000',
         obsdates='772109936,787661936', timesys='MET',
         get_query_payload=True)
@@ -97,24 +97,24 @@ def test_payload_field_names():
 
 
 def test_payload_defaults_radius_to_one_degree():
-    payload = fermi.core.FermiLAT.query_object_async(
+    payload = fermi.core.FermiLAT.query_object(
         FK5_COORDINATES, get_query_payload=True)
     assert payload['shapefield'] == 1
 
 
 def test_payload_zenithangle_only_when_given():
-    payload = fermi.core.FermiLAT.query_object_async(
+    payload = fermi.core.FermiLAT.query_object(
         FK5_COORDINATES, get_query_payload=True)
     assert 'zenithangle' not in payload
 
-    payload = fermi.core.FermiLAT.query_object_async(
+    payload = fermi.core.FermiLAT.query_object(
         FK5_COORDINATES, zenithangle=85, get_query_payload=True)
     assert payload['zenithangle'] == 85
 
 
 def test_payload_allsky_coordinates_pass_through():
     """An all-sky query submits "0.0,0.0" without hitting a name resolver."""
-    payload = fermi.core.FermiLAT.query_object_async(
+    payload = fermi.core.FermiLAT.query_object(
         '0.0,0.0', searchradius=180,
         obsdates='2008-08-04 15:43:36,2008-08-05 09:14:33',
         get_query_payload=True)
@@ -123,7 +123,7 @@ def test_payload_allsky_coordinates_pass_through():
 
 
 def test_payload_galactic_coordsystem():
-    payload = fermi.core.FermiLAT.query_object_async(
+    payload = fermi.core.FermiLAT.query_object(
         FK5_COORDINATES, coordsystem='Galactic', get_query_payload=True)
     assert payload['coordsystem'] == 'Galactic'
     lon, lat = (float(x) for x in payload['coordfield'].split(','))
@@ -133,14 +133,15 @@ def test_payload_galactic_coordsystem():
 
 def test_payload_bad_coordsystem():
     with pytest.raises(ValueError, match='Unsupported coordsystem'):
-        fermi.core.FermiLAT.query_object_async(
+        fermi.core.FermiLAT.query_object(
             FK5_COORDINATES, coordsystem='Ecliptic', get_query_payload=True)
 
 
-def test_query_object_async_returns_query_id(patch_request):
-    result = fermi.core.FermiLAT.query_object_async(
-        FK5_COORDINATES, energyrange_MeV='1000,100000',
-        obsdates='2013-01-01 00:00:00,2013-01-02 00:00:00')
+def test_deprecated_query_object_async_returns_query_id(patch_request):
+    with pytest.warns(AstropyDeprecationWarning):
+        result = fermi.core.FermiLAT.query_object_async(
+            FK5_COORDINATES, energyrange_MeV='1000,100000',
+            obsdates='2013-01-01 00:00:00,2013-01-02 00:00:00')
     assert result == QUERY_ID
 
     method, url, kwargs = patch_request.calls[0]
@@ -189,7 +190,7 @@ def test_missing_query_id_raises(request):
                lambda *a, **kw: MockResponse(json.dumps({'error': 'bad'}).encode()))
 
     with pytest.raises(RemoteServiceError, match="did not contain a 'query_id'"):
-        fermi.core.FermiLAT.query_object_async(FK5_COORDINATES)
+        fermi.core.FermiLAT.query_object(FK5_COORDINATES)
 
 
 def test_file_url_prefers_absolute_url_from_server():
@@ -208,7 +209,7 @@ def test_bad_input_surfaces_server_error_message(request):
 
     with pytest.raises(RemoteServiceError,
                        match='Invalid query parameters'):
-        fermi.core.FermiLAT.query_object_async(
+        fermi.core.FermiLAT.query_object(
             FK5_COORDINATES, energyrange_MeV='999999,1')
 
 

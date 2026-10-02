@@ -21,7 +21,7 @@ import astropy.units as u
 from astropy.utils.decorators import deprecated
 
 from ..query import BaseQuery
-from ..utils import commons, async_to_sync
+from ..utils import commons
 from ..exceptions import RemoteServiceError, TimeoutError
 from . import conf
 
@@ -41,14 +41,14 @@ _ERROR_TOKENS = ('error', 'fail', 'reject', 'invalid', 'abort', 'cancel')
 _COORD_PAIR_RE = re.compile(r'^\s*[-+]?\d+(\.\d*)?\s*,\s*[-+]?\d+(\.\d*)?\s*$')
 
 
-@async_to_sync
 class FermiLATClass(BaseQuery):
     """
     Query the Fermi LAT Data Server.
 
-    The server runs queries asynchronously: `query_object_async` submits a
-    query and returns its ``query_id``, and `query_object` additionally waits
-    for the query to finish and returns the URLs of the staged data files.
+    `query_object` submits a query, waits for the server to finish staging
+    the data files and returns their URLs.  `get_status`, `list_results` and
+    `get_file_urls` accept the ``query_id`` of a query submitted earlier, for
+    example through the LAT Data Query web form.
     """
 
     base_url = conf.url
@@ -61,44 +61,19 @@ class FermiLATClass(BaseQuery):
     # ------------------------------------------------------------------
     # submission
     # ------------------------------------------------------------------
-    def query_object_async(self, *args, **kwargs):
+    def query_object(self, name_or_coords, *, searchradius='', obsdates='',
+                     timesys='Gregorian', energyrange_MeV='',
+                     LATdatatype='Photon', spacecraftdata=True,
+                     coordsystem='J2000', zenithangle=None,
+                     check_frequency=None, max_wait=None, verbose=False,
+                     get_query_payload=False):
         """
-        Submit a query to the Fermi LAT Data Server.
+        Query the Fermi LAT Data Server and return the data file URLs.
 
-        Accepts the same arguments as ``_parse_args``.
+        The query is submitted to the server, which stages the requested
+        data files asynchronously; this method polls until the query has
+        finished and returns the URLs of the staged files.
 
-        Returns
-        -------
-        query_id : str
-            The identifier of the submitted query, e.g.
-            ``'L2601082002167F48EE3069'``.  Pass it to `get_file_urls` (or
-            just use `query_object`, which does the waiting for you).
-        """
-        payload = self._parse_args(*args, **kwargs)
-
-        if kwargs.get('get_query_payload'):
-            return payload
-
-        response = self._request(
-            "POST", url=f"{self.base_url}/query", json=payload,
-            timeout=self.TIMEOUT, cache=False)
-        _raise_for_status(response, context="Fermi LAT query submission")
-
-        result = response.json()
-
-        if 'query_id' not in result:
-            raise RemoteServiceError(
-                "The query response did not contain a 'query_id'. "
-                f"Server said: {result!r}")
-
-        return result['query_id']
-
-    def _parse_args(self, name_or_coords, *, searchradius='', obsdates='',
-                    timesys='Gregorian', energyrange_MeV='',
-                    LATdatatype='Photon', spacecraftdata=True,
-                    coordsystem='J2000', zenithangle=None,
-                    get_query_payload=False):
-        """
         Parameters
         ----------
         name_or_coords : str or `~astropy.coordinates.SkyCoord`
@@ -129,12 +104,64 @@ class FermiLATClass(BaseQuery):
             this frame.
         zenithangle : float, optional
             Maximum zenith angle in degrees.  The server default is 180.
+        check_frequency : float, optional
+            Minutes between status polls.  Defaults to `check_frequency`.
+        max_wait : float, optional
+            Give up (raising `~astroquery.exceptions.TimeoutError`) after
+            this many minutes.  ``None`` (default) waits indefinitely.
+        verbose : bool
+            Print the elapsed time on completion.
+        get_query_payload : bool
+            If ``True``, return the JSON payload instead of submitting it.
 
         Returns
         -------
-        payload : dict
-            The JSON payload posted to ``/query``.
+        urls : list of str
+            The URLs of the staged data files.
         """
+        payload = self._build_payload(
+            name_or_coords, searchradius=searchradius, obsdates=obsdates,
+            timesys=timesys, energyrange_MeV=energyrange_MeV,
+            LATdatatype=LATdatatype, spacecraftdata=spacecraftdata,
+            coordsystem=coordsystem, zenithangle=zenithangle)
+
+        if get_query_payload:
+            return payload
+
+        query_id = self._submit_query(payload)
+        return self.get_file_urls(query_id, check_frequency=check_frequency,
+                                  max_wait=max_wait, verbose=verbose)
+
+    @deprecated(since='0.4.12', alternative='query_object')
+    def query_object_async(self, name_or_coords, *, searchradius='',
+                           obsdates='', timesys='Gregorian',
+                           energyrange_MeV='', LATdatatype='Photon',
+                           spacecraftdata=True, coordsystem='J2000',
+                           zenithangle=None, get_query_payload=False):
+        """
+        Submit a query and return the server-assigned ``query_id``.
+
+        Deprecated.  Use `query_object`, which also waits for the query to
+        finish and returns the data file URLs; `get_status` and
+        `get_file_urls` accept the ``query_id`` of a previously submitted
+        query.
+        """
+        payload = self._build_payload(
+            name_or_coords, searchradius=searchradius, obsdates=obsdates,
+            timesys=timesys, energyrange_MeV=energyrange_MeV,
+            LATdatatype=LATdatatype, spacecraftdata=spacecraftdata,
+            coordsystem=coordsystem, zenithangle=zenithangle)
+
+        if get_query_payload:
+            return payload
+
+        return self._submit_query(payload)
+
+    def _build_payload(self, name_or_coords, *, searchradius='', obsdates='',
+                       timesys='Gregorian', energyrange_MeV='',
+                       LATdatatype='Photon', spacecraftdata=True,
+                       coordsystem='J2000', zenithangle=None):
+        """Build the JSON payload posted to ``/query``."""
         # The API requires a radius; the CGI form silently defaulted to 1 deg,
         # so preserve that behaviour rather than sending an empty string.
         if searchradius in ('', None):
@@ -157,6 +184,22 @@ class FermiLATClass(BaseQuery):
             payload['zenithangle'] = zenithangle
 
         return payload
+
+    def _submit_query(self, payload):
+        """POST ``payload`` to ``/query`` and return the ``query_id``."""
+        response = self._request(
+            "POST", url=f"{self.base_url}/query", json=payload,
+            timeout=self.TIMEOUT, cache=False)
+        _raise_for_status(response, context="Fermi LAT query submission")
+
+        result = response.json()
+
+        if 'query_id' not in result:
+            raise RemoteServiceError(
+                "The query response did not contain a 'query_id'. "
+                f"Server said: {result!r}")
+
+        return result['query_id']
 
     # ------------------------------------------------------------------
     # status / results
@@ -252,13 +295,6 @@ class FermiLATClass(BaseQuery):
         self._wait_for_completion(query_id, check_frequency=check_frequency,
                                   max_wait=max_wait, verbose=verbose)
         return [_file_url(entry) for entry in self.list_results(query_id)]
-
-    def _parse_result(self, result, *, verbose=False, **kwargs):
-        """
-        Turn the ``query_id`` returned by `query_object_async` into a list of
-        downloadable file URLs, waiting for the query to complete.
-        """
-        return self.get_file_urls(result, verbose=verbose)
 
 
 FermiLAT = FermiLATClass()
