@@ -58,6 +58,7 @@ FRAME_FILTERS = (
     'submitter',
     'target_name',
     'target_name_exact',
+    'target_name_iexact',
     'telescope_id',
 )
 
