@@ -11,15 +11,18 @@ European Space Agency (ESA)
 import os.path
 import shutil
 import tempfile
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, PropertyMock
 
 import astroquery.esa.utils.utils as esautils
+from astroquery.esa.utils import EsaTap
 from astropy.io.registry import IORegistryError
 from astropy.table import Table
 from requests import HTTPError
 from astropy import units as u
 
 import pytest
+
+from astroquery.esa.utils.tests import mocks
 
 
 def get_dummy_table():
@@ -67,7 +70,34 @@ def copy_to_temporal_path(data_path, temp_folder, filename):
     return temp_data_dir
 
 
-class TestIntegralTap:
+class DummyTapTable:
+    def __init__(self, columns):
+        self.columns = columns
+
+
+class DummyColumn:
+    def __init__(self, name, description, unit, datatype, ucd, utype):
+        self.name = name
+        self.description = description
+        self.unit = unit
+        self.datatype = datatype
+        self.ucd = ucd
+        self.utype = utype
+
+
+class DummyDatatype:
+    def __init__(self, content):
+        self.content = content
+
+
+class DummyTapClass(EsaTap):
+    ESA_ARCHIVE_NAME = "DummyClass"
+    TAP_URL = "dummyUrl"
+    LOGIN_URL = "dummyLogin"
+    LOGOUT_URL = "dummyLogout"
+
+
+class TestEsaUtils:
 
     @patch('pyvo.auth.authsession.AuthSession._request')
     def test_esa_auth_session_url(self, mock_get):
@@ -77,57 +107,7 @@ class TestIntegralTap:
         esa_session._request('GET', 'https://dummy.com/service')
 
         mock_get.assert_called_once_with('GET', 'https://dummy.com/service',
-                                         params={'TAPCLIENT': 'ASTROQUERY', 'format': 'votable_plain'})
-
-    @patch('pyvo.auth.authsession.AuthSession.post')
-    def test_login_success(self, mock_post):
-
-        mock_response = Mock()
-        mock_response.raise_for_status.return_value = None  # Simulate no HTTP error
-        mock_response.json.return_value = {"status": "success", "token": "mocked_token"}
-
-        # Configure the mock post method to return the mock Response
-        mock_post.return_value = mock_response
-
-        esa_session = esautils.ESAAuthSession()
-        esa_session.login(login_url='https://dummy.com/login', user='dummyUser', password='dummyPassword')
-
-        mock_post.assert_called_once_with(url='https://dummy.com/login',
-                                          data={'username': 'dummyUser', 'password': 'dummyPassword'},
-                                          headers={'Content-type': 'application/x-www-form-urlencoded',
-                                                   'Accept': 'text/plain'})
-
-    @patch('pyvo.auth.authsession.AuthSession.post')
-    def test_login_error(self, mock_post):
-        error_message = "Mocked HTTP error"
-        mock_post.side_effect = HTTPError(error_message)
-
-        with pytest.raises(HTTPError) as err:
-            esa_session = esautils.ESAAuthSession()
-            esa_session.login(login_url='https://dummy.com/login', user='dummyUser', password='dummyPassword')
-        assert error_message in err.value.args[0]
-
-    @patch('pyvo.auth.authsession.AuthSession.post')
-    def test_logout_success(self, mock_post):
-        mock_post.raise_for_status.return_value = None  # Simulate no HTTP error
-        mock_post.json.return_value = {"status": "success", "token": "mocked_token"}
-
-        esa_session = esautils.ESAAuthSession()
-        esa_session.logout(logout_url='https://dummy.com/logout')
-
-        mock_post.assert_called_once_with(url='https://dummy.com/logout',
-                                          headers={'Content-type': 'application/x-www-form-urlencoded',
-                                                   'Accept': 'text/plain'})
-
-    @patch('pyvo.auth.authsession.AuthSession.post')
-    def test_logout_error(self, mock_post):
-        error_message = "Mocked HTTP error"
-        mock_post.side_effect = HTTPError(error_message)
-
-        esa_session = esautils.ESAAuthSession()
-        with pytest.raises(HTTPError) as err:
-            esa_session.logout(logout_url='https://dummy.com/logout')
-        assert error_message in err.value.args[0]
+                                         params={'TAPCLIENT': 'ASTROQUERY'})
 
     def test_get_degree_radius(self):
         assert esautils.get_degree_radius(12.0) == 12.0
@@ -144,8 +124,8 @@ class TestIntegralTap:
             esautils.download_table(dummy_table, output_file=filename)
         assert 'Format could not be identified' in err.value.args[0]
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService')
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService')
     def test_execute_servlet_request(self, mock_tap):
 
         mock_tap._session.get.raise_for_status.return_value = None
@@ -157,8 +137,8 @@ class TestIntegralTap:
         mock_tap._session.get.assert_called_once_with(url='https://dummyurl.com/service',
                                                       params={'test': 'dummy', 'TAPCLIENT': 'ASTROQUERY'})
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService')
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService')
     def test_execute_servlet_request_with_parser_method(self, mock_tap):
         mock_parser_method = Mock()
         mock_response = Mock()
@@ -177,8 +157,8 @@ class TestIntegralTap:
 
         mock_parser_method.assert_called_once()
 
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService.capabilities', [])
-    @patch('astroquery.esa.integral.core.pyvo.dal.TAPService')
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService')
     def test_execute_servlet_request_error(self, mock_tap):
         error_message = "Mocked HTTP error"
         mock_tap._session.get.side_effect = HTTPError(error_message)
@@ -309,3 +289,211 @@ class TestIntegralTap:
             esautils.resolve_target(url='http://dummyurl.com/target_resolver', session=esa_session,
                                     target_name='dummy_target', target_resolver='ALL')
         assert 'This target cannot be resolved' in err.value.args[0]
+
+    # Tests to for EsaTap class
+
+    def test_get_alternative_tap(self):
+        esa_tap = DummyTapClass(tap_url="https://dummytap.es")
+        assert esa_tap.TAP_URL == "https://dummytap.es"
+
+    def test_get_tables(self):
+        # default parameters
+        table_set = PropertyMock()
+        table_set.keys.return_value = ['ila.epoch', 'ila.cons_pub_obs']
+        table_set.values.return_value = ['ila.epoch', 'ila.cons_pub_obs']
+        with patch('astroquery.esa.utils.utils.pyvo.dal.TAPService', autospec=True) as esa_tap_mock:
+            esa_tap_mock.return_value.tables = table_set
+            esa_tap = DummyTapClass()
+            assert len(esa_tap.get_tables(only_names=True)) == 2
+            assert len(esa_tap.get_tables()) == 2
+
+    def test_get_table(self):
+        table_set = PropertyMock()
+        tables_result = [Mock() for _ in range(3)]
+        tables_result[0].name = 'ila.epoch'
+        tables_result[1].name = 'ila.cons_pub_obs'
+        table_set.values.return_value = tables_result
+
+        with patch('astroquery.esa.utils.utils.pyvo.dal.TAPService', autospec=True) as esa_tap_mock:
+            esa_tap_mock.return_value.tables = table_set
+            esa_tap = DummyTapClass()
+            assert esa_tap.get_table('ila.cons_pub_obs').name == 'ila.cons_pub_obs'
+            assert esa_tap.get_table('test') is None
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.EsaTap.tap')
+    @patch('astroquery.esa.utils.utils.pyvo.dal.AsyncTAPJob')
+    def test_load_job(self, esa_tap_job_mock, mock_tap):
+        jobid = '101'
+        mock_job = Mock()
+        mock_job.job_id = '101'
+        esa_tap_job_mock.job_id.return_value = '101'
+        mock_tap.get_job.return_value = mock_job
+        esa_tap = DummyTapClass()
+
+        job = esa_tap.get_job(jobid=jobid)
+        assert job.job_id == '101'
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.EsaTap.tap')
+    def test_get_job_list(self, mock_get_job_list):
+        mock_job = Mock()
+        mock_job.job_id = '101'
+        mock_get_job_list.get_job_list.return_value = [mock_job]
+        esa_tap = DummyTapClass()
+
+        jobs = esa_tap.get_job_list()
+        assert len(jobs) == 1
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.ESAAuthSession.post')
+    def test_login_success(self, mock_post):
+        mock_response = Mock()
+        mock_response.raise_for_status.return_value = None  # Simulate no HTTP error
+        mock_response.json.return_value = {"status": "success", "token": "mocked_token"}
+
+        # Configure the mock post method to return the mock Response
+        mock_post.return_value = mock_response
+        esa_tap = DummyTapClass()
+        esa_tap.login(user='dummyUser', password='dummyPassword')
+
+        mock_post.assert_called_once_with(url="dummyLogin",
+                                          data={"username": "dummyUser", "password": "dummyPassword"},
+                                          headers={'Content-type': 'application/x-www-form-urlencoded',
+                                                   'Accept': 'text/plain'})
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.ESAAuthSession.post')
+    def test_login_error(self, mock_post):
+        error_message = "Mocked HTTP error"
+        mock_response = mocks.get_mock_response()
+
+        # Configure the mock post method to return the mock Response
+        mock_post.return_value = mock_response
+        esa_tap = DummyTapClass()
+        with pytest.raises(HTTPError) as err:
+            esa_tap.login(user='dummyUser', password='dummyPassword')
+        assert error_message in err.value.args[0]
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.ESAAuthSession.post')
+    def test_logout_success(self, mock_post):
+        mock_response = Mock()
+        mock_response.raise_for_status.return_value = None  # Simulate no HTTP error
+        mock_response.json.return_value = {"status": "success", "token": "mocked_token"}
+
+        # Configure the mock post method to return the mock Response
+        mock_post.return_value = mock_response
+        esa_tap = DummyTapClass()
+        esa_tap.logout()
+
+        mock_post.assert_called_once_with(url="dummyLogout",
+                                          headers={'Content-type': 'application/x-www-form-urlencoded',
+                                                   'Accept': 'text/plain'})
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.ESAAuthSession.post')
+    def test_logout_error(self, mock_post):
+
+        error_message = "Mocked HTTP error"
+        mock_response = mocks.get_mock_response()
+
+        # Configure the mock post method to return the mock Response
+        mock_post.return_value = mock_response
+        esa_tap = DummyTapClass()
+        with pytest.raises(HTTPError) as err:
+            esa_tap.logout()
+        assert error_message in err.value.args[0]
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astropy.table.Table.write')
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.search')
+    def test_query_tap_sync(self, search_mock, table_mock):
+        search_mock.return_value = mocks.get_dal_table()
+
+        query = 'select * from ivoa.obscore'
+        esa_tap = DummyTapClass()
+        esa_tap.query_tap(query=query, output_file='dummy.vot')
+        search_mock.assert_called_with(query)
+        table_mock.assert_called()
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.run_async')
+    def test_query_tap_async(self, async_job_mock):
+        async_job_mock.return_value = mocks.get_dal_table()
+
+        query = 'select * from ivoa.obscore'
+        esa_tap = DummyTapClass()
+        esa_tap.query_tap(query=query, async_job=True)
+        async_job_mock.assert_called_with(query)
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.search')
+    def test_query_table(self, async_job_mock):
+        async_job_mock.return_value = mocks.get_dal_table()
+
+        query = 'select * from ivoa.obscore'
+        esa_tap = DummyTapClass()
+        esa_tap.query_tap(query=query, async_job=False)
+        async_job_mock.assert_called_with(query)
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.EsaTap.query_tap')
+    def test_query_table_basic(self, query_tap_mock):
+        query_tap_mock.return_value = mocks.get_dal_table()
+
+        esa_tap = DummyTapClass()
+        esa_tap.query_table(table_name='table1')
+        query_tap_mock.assert_called_with(query='SELECT * FROM table1 ',
+                                          async_job=False,
+                                          output_file=None,
+                                          output_format='votable',
+                                          verbose=True)
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.EsaTap.query_tap')
+    def test_query_table_custom_filter(self, query_tap_mock):
+        query_tap_mock.return_value = mocks.get_dal_table()
+
+        esa_tap = DummyTapClass()
+        esa_tap.query_table(table_name='table1', columns=['column1', 'column2'], custom_filters="column1 = 12",
+                            get_metadata=False)
+        query_tap_mock.assert_called_with(query="SELECT column1, column2 FROM table1 WHERE column1 = 12",
+                                          async_job=False,
+                                          output_file=None,
+                                          output_format='votable',
+                                          verbose=True)
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.EsaTap.query_tap')
+    def test_query_table_filtered(self, query_tap_mock):
+        query_tap_mock.return_value = mocks.get_dal_table()
+
+        esa_tap = DummyTapClass()
+        esa_tap.query_table(table_name='table1', columns=['column1', 'column2'], custom_filters=None,
+                            get_metadata=False, table_filter='value1')
+        query_tap_mock.assert_called_with(query="SELECT column1, column2 FROM table1  WHERE table_filter = 'value1'",
+                                          async_job=False,
+                                          output_file=None,
+                                          output_format='votable',
+                                          verbose=True)
+
+    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
+    @patch('astroquery.esa.utils.EsaTap.get_table')
+    def test_get_metadata(self, table_mock):
+        # Prepare mock TAP columns
+        columns = [DummyColumn('ra', 'Right Ascension',
+                               'deg', DummyDatatype('float'), 'pos.eq.ra', None)]
+
+        table = DummyTapTable(columns)
+
+        tap_class = DummyTapClass()
+        table_mock.return_value = table
+
+        meta = tap_class.get_metadata("dummy_table")
+
+        assert type(meta) is Table
+
+        # Validate first row
+        assert meta[0]["Column"] == "ra"
+        assert meta[0]["Description"] == "Right Ascension"

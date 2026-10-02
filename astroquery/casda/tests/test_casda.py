@@ -2,10 +2,12 @@
 
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+import contextlib
 import pytest
 import requests
 import os
 import keyring
+from urllib.parse import urlparse
 
 from astropy.coordinates import SkyCoord
 import astropy.units as u
@@ -18,6 +20,14 @@ import numpy as np
 
 from astroquery.casda import Casda
 from astroquery.exceptions import LoginError
+from astroquery.utils.commons import ASTROPY_LT_8_1
+
+# Hackary around W58 which was newly added into astropy v8.1.
+if not ASTROPY_LT_8_1:
+    from astropy.io.votable.exceptions import W58
+    astropy81_cm = pytest.warns(W58)
+else:
+    astropy81_cm = contextlib.nullcontext()
 
 try:
     from unittest.mock import Mock, MagicMock
@@ -272,7 +282,7 @@ def test_query_region_async_box(patch_get):
 
 
 def test_filter_out_unreleased():
-    with pytest.warns(W03):
+    with pytest.warns(W03), astropy81_cm:
         all_records = parse(data_path('partial_unreleased.xml'), verify='warn').get_first_table().to_table()
     assert all_records[0]['obs_release_date'] == '2017-08-02T03:51:19.728Z'
     assert all_records[1]['obs_release_date'] == '2218-01-02T16:51:00.728Z'
@@ -337,8 +347,25 @@ def test_stage_data(patch_get):
     casda.POLL_INTERVAL = 1
     with pytest.warns(W50, match="Invalid unit string 'pixels'"):
         urls = casda.stage_data(table, verbose=True)
+    presigned_url = ('https://ingest.pawsey.org.au/casda-prd-as201-03/sb85679/catalogues/selavy.components.xml?'
+                     'response-content-disposition=attachment%3B%20filename%3D%22selavy.components.xml%22'
+                     '&X-Amz-Algorithm=AWS4-HMAC-SHA256'
+                     '&X-Amz-Credential=abc123%2F20260722%2Fpawsey%2Fs3%2Faws4_request'
+                     '&X-Amz-Signature=deadbeef1234567890')
     assert urls == ['http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits.checksum',
-                    'http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits']
+                    'http://casda.csiro.au/download/web/111-000-111-000/askap_img.fits',
+                    presigned_url]
+
+    # The pre-signed S3 URL must keep its percent-encoding intact (it is part of the AWS signature)
+    # and must not contain characters that are illegal in a URL such as spaces, ';' or '"'.
+    assert '%3B' in presigned_url and '%20' in presigned_url and '%2F' in presigned_url
+    assert ' ' not in presigned_url
+    assert ';' not in presigned_url
+    assert '"' not in presigned_url
+    # urllib must be able to parse it without raising
+    parsed = urlparse(presigned_url)
+    assert parsed.scheme == 'https'
+    assert parsed.netloc == 'ingest.pawsey.org.au'
 
 
 def test_cutout(patch_get):

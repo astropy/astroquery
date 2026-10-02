@@ -35,8 +35,8 @@ def data_path(filename):
 
 
 @pytest.mark.parametrize(('filename', 'length', 'ncols', 'd1', 'mv1'),
-                         zip(DATA_FILES, (13, 6), (18, 24), (0.091, 0.111),
-                             (10.20, 9.70)))
+                         list(zip(DATA_FILES, (13, 6), (18, 24), (0.091, 0.111),
+                                  (10.20, 9.70))))
 def test_reader(filename, length, ncols, d1, mv1):
     besancon_model = data_path(filename)
     with open(besancon_model, 'r') as f:

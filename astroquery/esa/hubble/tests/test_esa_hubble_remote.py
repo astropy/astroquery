@@ -43,7 +43,7 @@ class TestEsaHubbleRemoteData:
     top_obs_query = "select top 100 a.observation_id from ehst.archive a"
 
     hst_query = "select top 50 a.observation_id from ehst.archive " \
-                "a where a.collection='HST'"
+                "a where a.collection='HST' and a.release_date <= '2025-12-01 00:00:00.0'"
 
     top_artifact_query = "select a.artifact_id, a.observation_id from ehst.artifact a " \
                          "where a.observation_id = 'iexn02e9q'"

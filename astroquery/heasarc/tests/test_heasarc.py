@@ -6,6 +6,8 @@ import tempfile
 from unittest.mock import patch, PropertyMock
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
+from astropy.io import votable
+from pyvo.dal import TAPResults
 import astropy.units as u
 from astropy.time import Time
 
@@ -56,7 +58,11 @@ class MockTap:
     }
 
     def search(self, query, language='ADQL', maxrec=1000, uploads=None):
-        return MockResult()
+        if "SELECT COUNT(*) FROM" in query:
+            return TAPResults(votable.from_table(Table([[3055]], names=['count'],
+                                                       dtype=['int64'])))
+        else:
+            return MockResult()
 
 
 class MockResult:
@@ -234,13 +240,12 @@ def test_no_catalog():
     with pytest.raises(InvalidQueryError):
         # OBJ_LIST[0] and radius added to avoid a remote call
         Heasarc.query_region(
-            OBJ_LIST[0], spatial="cone", columns="*", radius="2arcmin")
+            OBJ_LIST[0], catalog=None, spatial="cone")
 
 
 def test__query_execute_no_catalog():
     with pytest.raises(InvalidQueryError):
-        # OBJ_LIST[0] and radius added to avoid a remote call
-        Heasarc._query_execute(None)
+        Heasarc._query_execute(catalog=None)
 
 
 def test_parse_constraints_no_filter():
@@ -825,3 +830,20 @@ def test__query_all():
                                            end_time="2020-01-02", get_query_payload=True)
     assert "end_time > 57754.0" in full_with_strtimes and \
         "start_time < 58850.0" in full_with_strtimes
+def test_row_count(mock_tap, mock_default_cols):
+    cat = "name-1"
+    assert Heasarc.count_rows(cat) == 3055
+
+
+def test_query_region_offset_with_no_column():
+    # use columns='*' to avoid remote call to obtain the default columns
+    query = Heasarc.query_region(
+        OBJ_LIST[0],
+        catalog="suzamaster",
+        spatial="cone",
+        radius="2arcmin",
+        columns='*',
+        get_query_payload=True,
+        add_offset=True,
+    )
+    assert ',DISTANCE(POINT(' in query

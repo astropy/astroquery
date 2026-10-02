@@ -332,11 +332,19 @@ class TestDownloadFileRemote:
 
 def test_session_VO_header():
     """Test that the session header includes both astroquery and pyVO."""
-    test_instance = with_VO()
+    test_instance = with_VO(extra_user_agents="test")
     user_agent = test_instance._session.headers['User-Agent']
     assert 'astroquery' in user_agent
     assert 'pyVO' in user_agent
+    assert user_agent.endswith("test")
     assert user_agent.count('astroquery') == 1
+
+
+def test_session_only_VO_header():
+    """Test that we can add extra user agents."""
+    test_instance = only_VO(extra_user_agents=["agent1", "agent2"])
+    user_agent = test_instance._session.headers['User-Agent']
+    assert all([string in user_agent for string in ["astroquery", "pyVO", "agent1", "agent2"]])
 
 
 def test_session_nonVO_header():

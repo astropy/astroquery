@@ -4,8 +4,44 @@
 New Tools and Services
 ----------------------
 
+esa.plato
+^^^^^^^^^
+- New module to access the ESA PLATO Science Archive. [#3573]
+
+noirlab
+^^^^^^^
+
+- Restore access to the `NSF NOIRLab <https://noirlab.edu>`_
+  `Astro Data Archive <https://astroarchive.noirlab.edu>`_ [#3359].
+
+esa.emds
+^^^^^^^^
+
+- New module to access the ESA ESDC Multi-Mission Data Services (EMDS). [#3511]
+
+esa.emds.einsteinprobe
+^^^^^^^^^^^^^^^^^^^^^^
+
+- New module to access the ESA Einstein Probe Science Archive. [#3511]
+
+nrao
+^^^^
+
+- Restored and rewritten ``astroquery.nrao`` module, now backed by the NRAO
+  TAP service at ``data-query.nrao.edu``. [#3015]
+
+eso
+^^^
+
+- Add functionality to list and query ESO catalogues. [#3531]
+
 API changes
 -----------
+
+esa.utils
+^^^^^^^^^^
+
+- Class EsaTap created as abstract class to extend all ESA modules based on PyVO. [#3511]
 
 esa.euclid
 ^^^^^^^^^^
@@ -15,18 +51,81 @@ esa.euclid
   ``datalabs_path``, ``file_name`` and ``hdu_index``. [#3438]
 - The default value of the parameter ``output_format`` in the the methods ``launch_job``, ``launch_job_async`` and
   ``cone_search`` is changed to "votable_gzip". [#3497]
-
-
 - Methods ``cone_search`` and ``cross_match_basic`` now define the  parameters ``table_name`` and ``ra_column_name`` and
   ``dec_column_name`` independently [#3496]
+- Method ``get_product`` now supports the input file_name as a Python list (e.g. ["file1.fits", "file2.fits"]) while
+  still accepting the original comma separated string format. [#3541]
+- Method ``get_product`` now supports the input product_id as a Python list while still accepting the original comma
+  separated string format. [#3564]
+- Update the output filename for downloads in the methods ``get_product`` and ``get_cutout`` [#3550]
+- The output file returned by the method ``get_product`` is never uncompressed and has the default name
+  get_product_ouput.zip in case the ``output_file`` is not defined. [#3564]
+- The method ``get_spectrum`` accepts the new parameter ``linking_parameter`` to retrieve the spectra by source_id and
+  sourcepatch_id. [#3543]
+-  The ``source_id`` kwarg in the ``get_spectrum`` method has been renamed to ``ids``. [#3543]
+- Method ``get_cutout`` has deprecated the 'instrument' and 'id' parameters, providing them has no effect any more.
+  The method now only supports retrieval of MER (background‑subtracted) image cutouts. [#3559]
+- The ``get_product_list`` method now also returns file_name_list column when the product type belongs to
+  BASIC_DOWNLOAD_DATA_PRODUCTS. [#3562]
+- The method ``get_spectrum`` accepts a single source_id or designation or multiple values separated by commas or a
+   list. [#3570]
+- New method, ``get_valid_le3_configuration_values``, to retrieve the valid values for the category, group, and
+   product_type parameters dynamically. [#3601]
+- In the method, ``get_scientific_product_list``, the ``dsr_part3`` parameter now supports the additional value
+   ``latest``. [#3601]
+- The methods ``get_product_list`` and ``get_scientific_product_list`` accept the new parameter ``schema``. [#3611]
+
+gaia
+^^^^
+
+- The values that the ``data_structure parameter`` can accept have been changed from RAW to DATAMODEL_GAIA, and from
+  INDIVIDUAL to DATAMODEL_STANDARD. [#3629]
+
+esa.esasky
+^^^^^^^^^^
+
+- The argument tap_handler on ESASky has been deprecated. Use the ESASky instance directly for TAP
+  queries (Using esa.utils.EsaTap and PyVO).
+- Attribute urlBase has been deprecated on esasky.conf, use ESASKY_DOMAIN_SERVER instead.
+- Attribute timeout has been deprecated on esasky.conf, use ESASKY_CONNECTION_TIMEOUT instead.
+- Attribute row_limit has been deprecated on esasky.conf, use ESASKY_ROW_LIMIT instead.
 
 vizier
 ^^^^^^
 
 - Methods ``get_catalog``, ``get_catalog_async`` and ``query_*`` now always return UCD1+ instead of UCD1. [#3458]
 
+mast
+^^^^
+- ``utils.mast_relative_path`` is now deprecated in favor of ``utils.get_cloud_paths``. [#3488]
+- When cloud access is enabled, ``Observations.download_file`` and ``Observations.download_products``
+  now check all requested products against cloud storage. As a result, setting ``cloud_only=True`` will skip
+  any products that are not available in the cloud, rather than falling back to on-prem downloads.
+- The ``objectname`` keyword is deprecated in ``MastMissions`` in favor of ``object_names``. [#3540]
+- The ``objectname`` parameter in ``Catalogs``, ``Observations``, ``Tesscut``, and ``utils`` is deprecated
+  in favor of ``object_name``. [#3567]
+- Gaia cone search now defaults to DR3. Previously, DR3 was not supported and the default was DR2. [#3622]
+
+vo_conesearch
+^^^^^^^^^^^^^
+- The whole ``vo_conesearch`` module is deprecated. Queries can be made using
+  PyVO Simple Cone Search interface instead. There is no direct replacement
+  for server validation. [#3548]
+
 Service fixes and enhancements
 ------------------------------
+
+esa.xmm_newton
+^^^^^^^^^^^^^^
+
+- Update ``get_epic_spectra`` method to get the latest version of PN RMF files from the SAS server
+  instead of having it hardcoded [#3563]
+
+svo_fps
+^^^^^^^
+
+- Add ``get_filter_metadata`` to allow retrieval of filter metadata. [#3528]
+- Add ``get_zeropoint`` to allow retrieval of filter zeropoints and allow kwarg passing to ``get_filter_metadata``. [#3545]
 
 heasarc
 ^^^^^^^
@@ -40,38 +139,88 @@ gaia
 
 - New datalink DR4 retrieval type RESIDUAL_IMAGE. [#3489]
 - The method ``load_data`` parses ecsv files [#3500].
+- Fixed decimal precision for query_object and cone_search to use 14 decimal places [#3539].
+- Added ``get_query_payload`` kwarg to return the ADQL query string. [#3539]
+
+gemini
+^^^^^^
+
+- Add support for newer instruments (GHOST, IGRINS, IGRINS-2, MAROON-X, ALOPEKE, ZORRO) [#3638]
+
+esa.euclid
+^^^^^^^^^^
+
+- New method query_sia to access the Simple Image Access Protocol (SIAP) v2.0 [#3569]
 
 esa.hubble
 ^^^^^^^^^^
 
 - Update ``get_datalabs_path`` method so an alternative path is checked if the
   file is not in Datalabs yet [#3437]
+- Update ``get_datalabs_path`` method to check for files for new collections (HLSP and HSLA) [#3578]
+
+esa.euclid
+^^^^^^^^^^
+
+- Update the list of supported data products used by the ``get_product_list`` method [#3655]
+
+
+imcce
+^^^^^
+
+- Change the URL for SkyBot and Miriade Web Services [#3595]
+- Adapted the ``Miriade`` Class to the new outputs of the Web Service [#3595]
+
+ipac.irsa
+^^^^^^^^^
+
+- Fix NAIF ID input mode in ``Most``: the parameter and value ``nafid``
+  were typos; the API expects ``naifid``. Old ``obj_nafid`` keyword and
+  ``"nafid_input"`` ``input_mode`` still work but emit
+  ``AstropyDeprecationWarning``. [#3607]
+
+casda
+^^^^^
+
+- Preserve the percent-encoding of staged file URLs so that pre-signed S3
+  download URLs remain valid. Previously the URLs were unquoted, which corrupted
+  pre-signed URLs and could raise errors when parsed by ``urllib``. [#3636]
+
 
 mast
 ^^^^
 
 - Raise an error if non-string values are passed to ``utils.resolve_object``. [#3435]
-
 - Filtering by file extension or by a string column is now case-insensitive in ``MastMissions.filter_products``
   and ``Observations.filter_products``. [#3427]
-
 - Switch to use HTTP continuation for partial downloads. [#3448]
-
 - Expand the supported data types for filter values in ``Mast.mast_query``. Previously, users had to input
   filter values enclosed in lists, even when specifying a single value or dictionary. [#3422]
-
 - Raise informative error if ``MastMissions`` query radius is too large. [#3447]
-
 - Add ``batch_size`` parameter to ``MastMissions.get_product_list``, ``Observations.get_product_list``,
   and ``utils.resolve_object`` to allow controlling the number of items sent in each batch request to the server.
   This can help avoid timeouts or connection errors for large requests. [#3454]
-
 - Separate requests for moving target cutouts in ``Tesscut`` to one per sector. [#3467]
-
 - Improved robustness of PanSTARRS column metadata parsing. This prevents metadata-related query errors. [#3485]
-
-- The ``select_cols`` parameter in ``MastMissions`` query functions now accepts an iterable of column names, a comma-delimited 
+- The ``select_cols`` parameter in ``MastMissions`` query functions now accepts an iterable of column names, a comma-delimited
   string of column names, or the special values 'all' or '*' to return all available columns. [#3492]
+- Improved robustness of product downloads for ``MastMissions``, including support for subscription-service JSON inputs and
+  clearer validation of MAST URIs and product metadata. [#3517]
+- Added full support for the International Ultraviolet Explorer (IUE) mission in ``MastMissions``. [#3517]
+- Added a new ``Observations.list_cloud_datasets()`` method for querying cloud-supported MAST datasets, alongside
+  improvements to cloud download handling. [#3488]
+- ``MastMissions`` query functions now support single or multiple targets via ``coordinates`` and
+  ``object_names`` (including combined use in ``query_criteria``). [#3540]
+- The cloud dataset in ``Observations`` is now enabled by default if the ``boto3`` and ``botocore`` packages are installed. This
+  default can be overridden by setting the ``enable_cloud_dataset`` configuration option to False. [#3534]
+- Results returned from ``MastMissions`` metadata query functions now include search parameters in the metadata of the ``astropy.table.Table`` object
+  and column descriptions in the column metadata. [#3588]
+- Added ``pass_id`` as an alias for the ``pass`` column in query functions for the Roman mission to avoid conflicts with
+  the reserved Python keyword. [#3588]
+- Update the cutout format request parameter in ``Zcut.download_cutouts`` to reflect a recent service change. [#3608]
+- Add a ``count_only`` parameter to ``MastMissions`` query methods to return only the number of matching results,
+  rather than the full result table. [#3645]
+
 
 jplspec
 ^^^^^^^
@@ -84,11 +233,15 @@ linelists.jplspec
 ^^^^^^^^^^^^^^^^^
 
 - New location for jplspec.  astroquery.jplspec is now deprecated in favor of astroquery.linelists.jplspec [#3455]
+- Added ``use_getmolecule`` option to ``query_lines`` to bypass the JPL query
+  service and retrieve full molecule catalogs via ``get_molecule``, and added a
+  configurable ``ftp_cat_server`` with a Wayback Machine fallback. [#3547]
 
 mpc
 ^^^
 
 - Fix bug in queries for interstellar objects with ``MPC.get_observations`` and enable queries for "dead" comets [#3474]
+- Fix ``MPC.get_observations`` column parsing for very close objects, very high proper motions, and objects in the Earth's shadow [#3594]
 
 linelists
 ^^^^^^^^^
@@ -96,10 +249,35 @@ linelists
 - General tools for both CDMS/JPL moved to linelists.core [#3456]
 - Added jplspec, moved from its previous location (astroquery.jplspec to astroquery.linelists.jplspec) [#3455]
 
+ogle
+^^^^
+
+- Added ``get_query_payload`` kwarg to aid in debugging. [#3533]
+- Removed support for deprecated non-coordinate use in queries. [#3533]
+
+simbad
+~~~~~~
+
+- Add the possibility to declare more information in the HTTP User-Agent header
+  in ``SimbadClass`` [#3529]
+
+vizier
+~~~~~~
+
+- When server-side errors occur (ex: VizieR is overloaded), the response is not kept in
+  astroquery's cache anymore, and a Python error is raised instead of returning a
+  misleading empty ``TableList`` [#3632]
+
 xmatch
 ^^^^^^
 
 - change url of xmatch to use the new CDS domain name [#3465]
+
+ipac.ned
+^^^^^^^^
+
+- Updated NED queries to match the NED N36.1 API release, with
+  corresponding documentation and test updates. [#3606]
 
 
 Infrastructure, Utility and Other Changes and Additions
@@ -109,6 +287,12 @@ Infrastructure, Utility and Other Changes and Additions
 
 - Versions of numpy <1.22 are no longer supported. [#3504]
 
+- ``BaseVOQuery`` now accepts a ``extra_user_agents`` parameter to allow the addition
+  of user agents on top of astroquery's ones [#3526]
+
+- Fix no expiration case for ``cache_timeout`` config option. [#3579]
+
+- Workaround upstream bug when caching a response using pyvo. [#3586]
 
 utils.tap
 ^^^^^^^^^
@@ -167,6 +351,8 @@ esa.euclid
   products. [#3313]
 
 - New cross-match method [#3386]
+- New parameters in the methods get_observation_products, get_product_list, get_product and get_scientific_product_list
+  to retrieve the products by the dataset release [#3514]
 
 esa.hubble
 ^^^^^^^^^^

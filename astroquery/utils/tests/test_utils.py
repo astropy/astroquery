@@ -377,7 +377,9 @@ fitsfilepath = os.path.join(os.path.dirname(__file__),
 def patch_getreadablefileobj(request):
     # Monkeypatch hack: ALWAYS treat as a URL
     _is_url = aud._is_url
+    is_url = aud.is_url
     aud._is_url = lambda x: True
+    aud.is_url = lambda x: True
 
     _try_url_open = aud._try_url_open
     aud._try_url_open = lambda x, **kwargs: MockRemote(x, **kwargs)
@@ -429,6 +431,7 @@ def patch_getreadablefileobj(request):
 
     def closing():
         aud._is_url = _is_url
+        aud.is_url = is_url
 
         aud._try_url_open = _try_url_open
 

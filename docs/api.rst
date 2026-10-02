@@ -33,8 +33,8 @@ The classes will have the following methods where appropriate:
 .. code-block:: python
 
     query_object(objectname, ...)
-    query_region(coordinate, radius=, width=)
-    get_images(coordinate)
+    query_region(coordinates, radius=, width=)
+    get_images(coordinates)
 
 They may also have other methods for querying non-standard data types
 (e.g., ADS queries that may return a ``bibtex`` text block).
@@ -50,7 +50,7 @@ name parser.
 
 query_region
 ````````````
-Query a region around a coordinate.
+Query a region around a coordinate.  The coordinate should be specified with the keyword ``coordinates`` and should be a astropy ``SkyCoord`` object.
 
 One of these keywords *must* be specified (no default is assumed)::
 
@@ -85,7 +85,7 @@ Common Keywords
 
 These keywords are common to all query methods::
 
-    return_query_payload - Return the POST data that will be submitted as a dictionary
+    get_query_payload - Return the POST data that will be submitted as a dictionary
     savename - [optional - see discussion below] File path to save the downloaded query to
     timeout - timeout in seconds
 
@@ -100,7 +100,7 @@ remote server before it can be downloaded.  For these queries, the approach is
 
 .. code-block:: python
 
-    result = Service.query_region_async(coordinate)
+    result = Service.query_region_async(coordinates)
 
     data = result.get_data()
     # this will periodically check whether the data is available at the specified URL

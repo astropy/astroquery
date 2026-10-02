@@ -6,34 +6,48 @@ MAST Observations
 This module contains various methods for querying MAST observations.
 """
 
-from pathlib import Path
-import warnings
-import time
 import os
+import time
+import warnings
+from pathlib import Path
 from urllib.parse import quote
 
+import astropy.coordinates as coord
+import astropy.units as u
 import numpy as np
-
+from astropy.table import Row, Table, vstack
+from astropy.utils.decorators import deprecated_renamed_argument
 from requests import HTTPError
 
-import astropy.units as u
-import astropy.coordinates as coord
-
-from astropy.table import Table, Row, vstack
 from astroquery import log
 from astroquery.mast.cloud import CloudAccess
 from astroquery.utils import commons
 
+from ..exceptions import (
+    CloudAccessWarning,
+    InputWarning,
+    InvalidQueryError,
+    NoResultsWarning,
+    RemoteServiceError,
+)
 from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
-from ..exceptions import (InvalidQueryError, RemoteServiceError,
-                          NoResultsWarning, InputWarning)
-
-from . import utils
+from . import conf, utils
 from .core import MastQueryWithLogin
 
-__all__ = ['Observations', 'ObservationsClass',
-           'MastClass', 'Mast']
+try:
+    # Optional dependency import for cloud access functionality
+    from botocore.exceptions import BotoCoreError, ClientError
+except ImportError:
+    pass
+
+__all__ = ['Observations', 'ObservationsClass', 'MastClass', 'Mast']
+
+CLOUD_DISABLED_MESSAGE = (
+    'Cloud data access is not enabled. You may be missing prerequisite packages, or cloud access may not be '
+    'enabled by default in module configuration. To enable, try calling the '
+    '`~astroquery.mast.ObservationsClass.enable_cloud_dataset` method.'
+)
 
 
 @async_to_sync
@@ -50,6 +64,28 @@ class ObservationsClass(MastQueryWithLogin):
     _caom_filtered_position = 'Mast.Caom.Filtered.Position'
     _caom_filtered = 'Mast.Caom.Filtered'
     _caom_products = 'Mast.Caom.Products'
+
+    def __init__(self, mast_token=None):
+        super().__init__(mast_token)
+        self._cloud_enabled_explicitly = None  # Track whether cloud access was explicitly enabled by the user
+
+    def _ensure_cloud_access(self):
+        """Ensure cloud access is initialized if appropriate."""
+        # User explicitly disabled
+        if self._cloud_enabled_explicitly is False:
+            return False
+
+        # Already initialized
+        if self._cloud_connection is not None:
+            return True
+
+        # Default behavior is to enable cloud access if the config option is set, so we check that here
+        if self._cloud_enabled_explicitly is None and conf.enable_cloud_dataset:
+            self.enable_cloud_dataset(_internal=True)
+
+        # Return False if cloud access failed to initialize
+        if self._cloud_connection is not None:
+            return True
 
     def _parse_result(self, responses, *, verbose=False):  # Used by the async_to_sync decorator functionality
         """
@@ -134,7 +170,7 @@ class ObservationsClass(MastQueryWithLogin):
             for more information. Default is None.
         **criteria
             Criteria to apply.
-            Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
+            Valid criteria are coordinates, object_name, radius (as in `query_region` and `query_object`),
             and all observation fields returned by the ``get_metadata("observations")``.
             The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
             except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
@@ -146,22 +182,22 @@ class ObservationsClass(MastQueryWithLogin):
         Returns
         -------
         response : tuple
-            Tuple of the form (position, filter_set), where position is either None (coordinates and objectname
+            Tuple of the form (position, filter_set), where position is either None (coordinates and object_name
             not given) or a string, and filter_set is list of filters dictionaries.
         """
 
         # Separating any position info from the rest of the filters
         coordinates = criteria.pop('coordinates', None)
-        objectname = criteria.pop('objectname', None)
+        object_name = criteria.pop('object_name', None)
         radius = criteria.pop('radius', 0.2*u.deg)
 
         # Build the mashup filter object and store it in the correct service_name entry
-        if coordinates or objectname:
+        if coordinates or object_name:
             mashup_filters = self._portal_api_connection.build_filter_set(self._caom_cone,
                                                                           self._caom_filtered_position,
                                                                           **criteria)
             coordinates = utils.parse_input_location(coordinates=coordinates,
-                                                     objectname=objectname,
+                                                     object_name=object_name,
                                                      resolver=resolver)
         else:
             mashup_filters = self._portal_api_connection.build_filter_set(self._caom_cone,
@@ -180,10 +216,9 @@ class ObservationsClass(MastQueryWithLogin):
 
         return position, mashup_filters
 
-    def enable_cloud_dataset(self, provider="AWS", profile=None, verbose=True):
+    def enable_cloud_dataset(self, provider="AWS", profile=None, verbose=True, *, _internal=False):
         """
-        Enable downloading public files from S3 instead of MAST.
-        Requires the boto3 library to function.
+        Enable downloading public files from S3 instead of MAST. Requires the botocore and boto3 libraries.
 
         Parameters
         ----------
@@ -196,13 +231,28 @@ class ObservationsClass(MastQueryWithLogin):
             Default True.
             Logger to display extra info and warning.
         """
-        self._cloud_connection = CloudAccess(provider, profile, verbose)
+        try:
+            self._cloud_connection = CloudAccess(provider, profile, verbose)
+            if not _internal:
+                self._cloud_enabled_explicitly = True
+        except (Exception) as e:
+            # Some error occurred trying to initialize cloud access
+            # Use a generic Exception catch here because there are various ways this can fail depending
+            # on the user's setup (e.g. missing dependencies, missing credentials, network issues), and
+            # we want to catch them all
+            self._cloud_connection = None
+            if not _internal:
+                # If the user is calling this method directly, error should be raised
+                raise
+            # If called internally, just warn and continue without cloud access
+            warnings.warn(e.msg, CloudAccessWarning)
 
     def disable_cloud_dataset(self):
         """
         Disables downloading public files from S3 instead of MAST.
         """
         self._cloud_connection = None
+        self._cloud_enabled_explicitly = False
 
     @class_or_instance
     def query_region_async(self, coordinates, *, radius=0.2*u.deg, pagesize=None, page=None):
@@ -248,14 +298,15 @@ class ObservationsClass(MastQueryWithLogin):
         return self._portal_api_connection.service_request_async(service, params, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def query_object_async(self, objectname, *, radius=0.2*u.deg, pagesize=None, page=None, resolver=None):
+    @deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
+    def query_object_async(self, object_name, *, radius=0.2*u.deg, pagesize=None, page=None, resolver=None):
         """
         Given an object name, returns a list of MAST observations.
         See column documentation `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
 
         Parameters
         ----------
-        objectname : str
+        object_name : str
             The name of the target around which to search.
         radius : str or `~astropy.units.Quantity` object, optional
             Default 0.2 degrees.
@@ -281,18 +332,28 @@ class ObservationsClass(MastQueryWithLogin):
         response : list of `~requests.Response`
         """
 
-        coordinates = utils.resolve_object(objectname, resolver=resolver)
+        coordinates = utils.resolve_object(object_name, resolver=resolver)
 
         return self.query_region_async(coordinates, radius=radius, pagesize=pagesize, page=page)
 
     @class_or_instance
-    def query_criteria_async(self, *, pagesize=None, page=None, resolver=None, **criteria):
+    @deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
+    def query_criteria_async(self, *, coordinates=None, object_name=None, radius=0.2*u.deg,
+                             pagesize=None, page=None, resolver=None, **criteria):
         """
         Given an set of criteria, returns a list of MAST observations.
         Valid criteria are returned by ``get_metadata("observations")``
 
         Parameters
         ----------
+        coordinates : str or `~astropy.coordinates` object, optional
+            The target around which to search. It may be specified as a string or as the
+            appropriate `~astropy.coordinates` object.
+        object_name : str, optional
+            The name of the target around which to search.
+        radius : str or `~astropy.units.Quantity` object, optional
+            Default 0.2 degrees. The string must be parsable by `~astropy.coordinates.Angle`.
+            The appropriate `~astropy.units.Quantity` object from `~astropy.units` may also be used.
         pagesize : int, optional
             Can be used to override the default pagesize.
             E.g. when using a slow internet connection.
@@ -306,7 +367,7 @@ class ObservationsClass(MastQueryWithLogin):
             for more information. Default is None.
         **criteria
             Criteria to apply. At least one non-positional criteria must be supplied.
-            Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
+            Valid criteria are coordinates, object_name, radius (as in `query_region` and `query_object`),
             and all observation fields returned by the ``get_metadata("observations")``.
             The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
             except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
@@ -320,8 +381,11 @@ class ObservationsClass(MastQueryWithLogin):
         -------
         response : list of `~requests.Response`
         """
-
-        position, mashup_filters = self._parse_caom_criteria(resolver=resolver, **criteria)
+        position, mashup_filters = self._parse_caom_criteria(resolver=resolver,
+                                                             coordinates=coordinates,
+                                                             object_name=object_name,
+                                                             radius=radius,
+                                                             **criteria)
 
         if not mashup_filters:
             raise InvalidQueryError("At least one non-positional criterion must be supplied.")
@@ -379,13 +443,14 @@ class ObservationsClass(MastQueryWithLogin):
 
         return int(self._portal_api_connection.service_request(service, params, pagesize, page)[0][0])
 
-    def query_object_count(self, objectname, *, radius=0.2*u.deg, pagesize=None, page=None, resolver=None):
+    @deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
+    def query_object_count(self, object_name, *, radius=0.2*u.deg, pagesize=None, page=None, resolver=None):
         """
         Given an object name, returns the number of MAST observations.
 
         Parameters
         ----------
-        objectname : str
+        object_name : str
             The name of the target around which to search.
         radius : str or `~astropy.units.Quantity` object, optional
             The string must be parsable by `~astropy.coordinates.Angle`. The
@@ -408,16 +473,26 @@ class ObservationsClass(MastQueryWithLogin):
         response : int
         """
 
-        coordinates = utils.resolve_object(objectname, resolver=resolver)
+        coordinates = utils.resolve_object(object_name, resolver=resolver)
 
         return self.query_region_count(coordinates, radius=radius, pagesize=pagesize, page=page)
 
-    def query_criteria_count(self, *, pagesize=None, page=None, resolver=None, **criteria):
+    @deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
+    def query_criteria_count(self, *, coordinates=None, object_name=None, radius=0.2*u.deg, pagesize=None,
+                             page=None, resolver=None, **criteria):
         """
         Given an set of filters, returns the number of MAST observations meeting those criteria.
 
         Parameters
         ----------
+        coordinates : str or `~astropy.coordinates` object, optional
+            The target around which to search. It may be specified as a string or as the appropriate
+            `~astropy.coordinates` object.
+        object_name : str, optional
+            The name of the target around which to search.
+        radius : str or `~astropy.units.Quantity` object, optional
+            Default 0.2 degrees. The string must be parsable by `~astropy.coordinates.Angle`.
+            The appropriate `~astropy.units.Quantity` object from `~astropy.units` may also be used.
         pagesize : int, optional
             Can be used to override the default pagesize.
             E.g. when using a slow internet connection.
@@ -431,7 +506,7 @@ class ObservationsClass(MastQueryWithLogin):
             for more information. Default is None.
         **criteria
             Criteria to apply. At least one non-positional criterion must be supplied.
-            Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
+            Valid criteria are coordinates, object_name, radius (as in `query_region` and `query_object`),
             and all observation fields listed `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
             The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
             except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
@@ -446,7 +521,11 @@ class ObservationsClass(MastQueryWithLogin):
         response : int
         """
 
-        position, mashup_filters = self._parse_caom_criteria(resolver=resolver, **criteria)
+        position, mashup_filters = self._parse_caom_criteria(resolver=resolver,
+                                                             coordinates=coordinates,
+                                                             object_name=object_name,
+                                                             radius=radius,
+                                                             **criteria)
 
         # send query
         if position:
@@ -622,14 +701,15 @@ class ObservationsClass(MastQueryWithLogin):
 
         return products[filter_mask]
 
-    def download_file(self, uri, *, local_path=None, base_url=None, cache=True, cloud_only=False, verbose=True):
+    def download_file(self, uri, *, local_path=None, base_url=None, cache=True, cloud_only=False,
+                      force_on_prem=False, verbose=True):
         """
         Downloads a single file based on the data URI
 
         Parameters
         ----------
         uri : str
-            The product dataURI, e.g. mast:JWST/product/jw00736-o039_t001_miri_ch1-long_x1d.fits
+            The MAST product dataURI, e.g. mast:JWST/product/jw00736-o039_t001_miri_ch1-long_x1d.fits.
         local_path : str
             Directory or filename to which the file will be downloaded.  Defaults to current working directory.
         base_url: str
@@ -639,7 +719,10 @@ class ObservationsClass(MastQueryWithLogin):
         cloud_only : bool, optional
             Default False. If set to True and cloud data access is enabled (see `enable_cloud_dataset`)
             files that are not found in the cloud will be skipped rather than downloaded from MAST
-            as is the default behavior. If cloud access is not enables this argument as no affect.
+            as is the default behavior. If cloud access is not enabled, this argument has no effect.
+        force_on_prem : bool, optional
+            Default False. If set to True, cloud data access will be bypassed and the
+            file will be downloaded from MAST on-prem servers even if cloud access is enabled.
         verbose : bool, optional
             Default True. Whether to show download progress in the console.
 
@@ -652,67 +735,80 @@ class ObservationsClass(MastQueryWithLogin):
         url : str
             The full url download path
         """
+        # Ensure cloud access is enabled
+        self._ensure_cloud_access()
 
-        # create the full data URL
-        base_url = base_url if base_url else self._portal_api_connection.MAST_DOWNLOAD_URL
-        data_url = base_url + "?uri=" + uri
-        escaped_url = base_url + "?uri=" + quote(uri, safe=":/")
+        if not uri or not isinstance(uri, str):
+            raise InvalidQueryError("A valid data product URI must be provided.")
 
-        # parse a local file path from local_path parameter.  Use current directory as default.
+        if cloud_only and force_on_prem:
+            raise InvalidQueryError(
+                "Invalid argument combination: `cloud_only=True` and `force_on_prem=True` "
+                "cannot both be set. `cloud_only` requires downloading from the cloud, "
+                "while `force_on_prem` explicitly disables cloud downloads. "
+                "Set one (or both) of these arguments to False."
+            )
+
+        base_url = base_url or self._portal_api_connection.MAST_DOWNLOAD_URL
+        data_url = f"{base_url}?uri={uri}"
+        escaped_url = f"{base_url}?uri={quote(uri, safe=':/')}"
+
+        # Resolve local output path
         filename = os.path.basename(uri)
-        if not local_path:  # local file path is not defined
-            local_path = filename
+        if local_path is None:  # local file path is not defined
+            local_path = Path(filename)
         else:
-            path = Path(local_path)
-            if not path.suffix:  # local_path is a directory
-                local_path = path / filename  # append filename
-                if not path.exists():  # create directory if it doesn't exist
-                    path.mkdir(parents=True, exist_ok=True)
-
-        # recreate the data_product key for cloud connection check
-        data_product = {'dataURI': uri}
-
-        status = "COMPLETE"
-        msg = None
-        url = None
+            local_path = Path(local_path)
+            if not local_path.suffix:  # local_path is a directory
+                local_path.mkdir(parents=True, exist_ok=True)
+                local_path = local_path / filename
 
         try:
-            if self._cloud_connection is not None and self._cloud_connection.is_supported(data_product):
+            # Attempt cloud download first (if enabled)
+            if self._cloud_connection is not None and not force_on_prem:
                 try:
-                    self._cloud_connection.download_file(data_product, local_path, cache, verbose)
-                except Exception as ex:
-                    log.exception("Error pulling from S3 bucket: {}".format(ex))
+                    self._cloud_connection.download_file_from_cloud(uri, local_path, cache, verbose)
+                except RemoteServiceError:
+                    # Product not found in cloud
                     if cloud_only:
-                        log.warning("Skipping file...")
-                        local_path = ""
-                        status = "SKIPPED"
-                    else:
-                        log.warning("Falling back to mast download...")
-                        self._download_file(escaped_url, local_path,
-                                            cache=cache, head_safe=True,
-                                            verbose=verbose)
+                        warnings.warn(f'The product {uri} was not found in the cloud. Skipping download.',
+                                      NoResultsWarning)
+                        return 'SKIPPED', None, None
+
+                    if self._cloud_enabled_explicitly:
+                        warnings.warn(f'The product {uri} was not found in the cloud. '
+                                      'Falling back to MAST download.', InputWarning)
+                    self._download_file(escaped_url, local_path, cache=cache, head_safe=True, verbose=verbose)
+                except (ClientError, BotoCoreError) as ex:
+                    # Should be in cloud, but download failed
+                    if cloud_only:
+                        warnings.warn(f'Could not download {uri} from cloud: {ex}. Skipping download.',
+                                      NoResultsWarning)
+                        return 'SKIPPED', None, None
+
+                    if self._cloud_enabled_explicitly:
+                        warnings.warn(f'Could not download {uri} from cloud: {ex}. Falling back to MAST download.',
+                                      InputWarning)
+                    self._download_file(escaped_url, local_path, cache=cache, head_safe=True, verbose=verbose)
             else:
-                self._download_file(escaped_url, local_path,
-                                    cache=cache, head_safe=True,
-                                    verbose=verbose)
+                if cloud_only:
+                    warnings.warn("`cloud_only` is True but cloud data access is not enabled. "
+                                  "Falling back to MAST download.", InputWarning)
+                self._download_file(escaped_url, local_path, cache=cache, head_safe=True, verbose=verbose)
 
             # check if file exists also this is where would perform md5,
             # and also check the filesize if the database reliably reported file sizes
-            if (not os.path.isfile(local_path)) and (status != "SKIPPED"):
-                status = "ERROR"
-                msg = "File was not downloaded"
-                url = data_url
+            if not local_path.is_file():
+                return 'ERROR', 'File was not downloaded', data_url
+
+            return 'COMPLETE', None, None
 
         except HTTPError as err:
-            status = "ERROR"
-            msg = "HTTPError: {0}".format(err)
-            url = data_url
-
-        return status, msg, url
+            return 'ERROR', f'HTTPError: {err}', data_url
 
     def _download_files(self, products, base_dir, *, flat=False, cache=True, cloud_only=False, verbose=True):
         """
-        Takes an `~astropy.table.Table` of data products and downloads them into the directory given by base_dir.
+        Download a table of MAST data products to a specified directory.
 
         Parameters
         ----------
@@ -720,44 +816,87 @@ class ObservationsClass(MastQueryWithLogin):
             Table containing products to be downloaded.
         base_dir : str
             Directory in which files will be downloaded.
-        flat : bool
-            Default is False.  If set to True, no subdirectories will be made for the
-            downloaded files.
-        cache : bool
-            Default is True. If file is found on disk it will not be downloaded again.
+        flat : bool, optional
+            Default is False.  If True, all files are downloaded directly into ``base_dir``.
+        cache : bool, optional
+            Default is True. If True, files found on disk will not be downloaded again.
         cloud_only : bool, optional
-            Default False. If set to True and cloud data access is enabled (see `enable_cloud_dataset`)
+            Default is False. If set to True and cloud data access is enabled (see `enable_cloud_dataset`)
             files that are not found in the cloud will be skipped rather than downloaded from MAST
-            as is the default behavior. If cloud access is not enables this argument as no affect.
+            as is the default behavior. If cloud access is not enabled, this argument has no effect.
         verbose : bool, optional
-            Default True. Whether to show download progress in the console.
+            Default is True. Whether to show download progress in the console.
 
         Returns
         -------
-        response : `~astropy.table.Table`
+        manifest : `~astropy.table.Table`
+            Table summarizing the download results.
         """
+        base_dir = Path(base_dir)
+        manifest_rows = []
 
-        manifest_array = []
-        for data_product in products:
+        # Resolve cloud URIs once if cloud is enabled
+        cloud_uri_map = None
+        if self._cloud_connection is not None:
+            cloud_uri_map = self.get_cloud_uris(products, return_uri_map=True, verbose=False)
 
-            # create the local file download path
-            if not flat:
-                local_path = os.path.join(base_dir, data_product['obs_collection'], data_product['obs_id'])
-                if not os.path.exists(local_path):
-                    os.makedirs(local_path)
+        for product in products:
+            mast_uri = product['dataURI']
+            filename = os.path.basename(product['productFilename'])
+
+            # Construct local path
+            if flat:
+                local_dir = base_dir
             else:
-                local_path = base_dir
-            local_path = os.path.join(local_path, os.path.basename(data_product['productFilename']))
+                local_dir = base_dir / product['obs_collection'] / product['obs_id']
+                local_dir.mkdir(parents=True, exist_ok=True)
+            local_path = local_dir / filename
 
-            # download the files
-            status, msg, url = self.download_file(data_product["dataURI"], local_path=local_path,
-                                                  cache=cache, cloud_only=cloud_only, verbose=verbose)
+            status, msg, url = 'ERROR', None, None
 
-            manifest_array.append([local_path, status, msg, url])
+            cloud_uri = cloud_uri_map.get(mast_uri) if cloud_uri_map else None
+            if cloud_uri:
+                try:
+                    self._cloud_connection.download_file_from_cloud(cloud_uri, local_path, cache, verbose)
+                    status = 'COMPLETE'
+                except (ClientError, BotoCoreError) as ex:
+                    # Should be in cloud, but download failed
+                    if cloud_only:
+                        warnings.warn(f'Could not download {cloud_uri} from cloud: {ex}. Skipping download.',
+                                      NoResultsWarning)
+                        status = 'SKIPPED'
+                        msg = str(ex)
+                    else:
+                        if self._cloud_enabled_explicitly:
+                            warnings.warn(f'Could not download {cloud_uri} from cloud: {ex}. '
+                                          'Falling back to MAST download.', InputWarning)
+                        status, msg, url = self.download_file(mast_uri, local_path=local_path, cache=cache,
+                                                              force_on_prem=True, verbose=verbose)
+            else:
+                if cloud_uri_map is not None:
+                    # Cloud is enabled, but product was not found in cloud
+                    if cloud_only:
+                        warnings.warn(f'The product {mast_uri} was not found in the cloud. Skipping download.',
+                                      NoResultsWarning)
+                        status = 'SKIPPED'
+                        msg = 'Product not found in cloud'
+                    else:
+                        if self._cloud_enabled_explicitly:
+                            warnings.warn(f'The product {mast_uri} was not found in the cloud. '
+                                          'Falling back to MAST download.', InputWarning)
+                        status, msg, url = self.download_file(mast_uri, local_path=local_path, cache=cache,
+                                                              force_on_prem=True, verbose=verbose)
+                else:
+                    # Cloud is not enabled
+                    if cloud_only:
+                        warnings.warn("`cloud_only` is True but cloud data access is not enabled. "
+                                      "Falling back to MAST download.", InputWarning)
+                    status, msg, url = self.download_file(mast_uri, local_path=local_path, cache=cache,
+                                                          cloud_only=False, force_on_prem=True, verbose=verbose)
 
-        manifest = Table(rows=manifest_array, names=('Local Path', 'Status', 'Message', "URL"))
+            manifest_rows.append([str(local_path), status, msg, url])
 
-        return manifest
+        return Table(rows=manifest_rows, names=('Local Path', 'Status', 'Message', 'URL'))
 
     def _download_curl_script(self, products, out_dir, verbose=True):
         """
@@ -845,6 +984,9 @@ class ObservationsClass(MastQueryWithLogin):
         response : `~astropy.table.Table`
             The manifest of files downloaded, or status of files on disk if curl option chosen.
         """
+        # Ensure cloud access is enabled
+        self._ensure_cloud_access()
+
         # If the products list is a row we need to cast it as a table
         if isinstance(products, Row):
             products = Table(products, masked=True)
@@ -897,6 +1039,24 @@ class ObservationsClass(MastQueryWithLogin):
 
         return manifest
 
+    def list_cloud_datasets(self):
+        """
+        Returns a list of datasets that support cloud data access. Datasets are the prefixes
+        present in the MAST public data bucket on AWS S3.
+
+        Returns
+        -------
+        response : list
+            List of dataset prefixes that support cloud data access.
+        """
+        # Ensure cloud access is enabled
+        cloud_enabled = self._ensure_cloud_access()
+
+        if not cloud_enabled:
+            raise RemoteServiceError(CLOUD_DISABLED_MESSAGE)
+
+        return self._cloud_connection.get_supported_datasets()
+
     def get_cloud_uris(self, data_products=None, *, include_bucket=True, full_url=False, pagesize=None, page=None,
                        mrp_only=False, extension=None, filter_products={}, return_uri_map=False, verbose=True,
                        **criteria):
@@ -941,7 +1101,7 @@ class ObservationsClass(MastQueryWithLogin):
             Default True. Whether to issue warnings if a product cannot be found in the cloud.
         **criteria
             Criteria to apply. At least one non-positional criteria must be supplied.
-            Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
+            Valid criteria are coordinates, object_name, radius (as in `query_region` and `query_object`),
             and all observation fields returned by the ``get_metadata("observations")``.
             The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
             except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
@@ -956,11 +1116,11 @@ class ObservationsClass(MastQueryWithLogin):
             List of URIs generated from the data products. May contain entries that are None
             if data_products includes products not found in the cloud.
         """
+        # Ensure cloud access is enabled
+        cloud_enabled = self._ensure_cloud_access()
 
-        if self._cloud_connection is None:
-            raise RemoteServiceError(
-                'Please enable anonymous cloud access by calling `enable_cloud_dataset` method. '
-                'Refer to `~astroquery.mast.ObservationsClass.enable_cloud_dataset` documentation for more info.')
+        if not cloud_enabled:
+            raise RemoteServiceError(CLOUD_DISABLED_MESSAGE)
 
         if data_products is None:
             if not criteria:
@@ -1017,8 +1177,8 @@ class ObservationsClass(MastQueryWithLogin):
     def get_cloud_uri(self, data_product, *, include_bucket=True, full_url=False):
         """
         For a given data product, returns the associated cloud URI.
-        If the product is from a mission that does not support cloud access an
-        exception is raised. If the mission is supported but the product
+        If the product is from a dataset that does not support cloud access an
+        exception is raised. If the dataset is supported but the product
         cannot be found in the cloud, the returned path is None.
 
         Parameters
@@ -1039,11 +1199,11 @@ class ObservationsClass(MastQueryWithLogin):
             Cloud URI generated from the data product. If the product cannot be
             found in the cloud, None is returned.
         """
+        # Ensure cloud access is enabled
+        cloud_enabled = self._ensure_cloud_access()
 
-        if self._cloud_connection is None:
-            raise RemoteServiceError(
-                'Please enable anonymous cloud access by calling `enable_cloud_dataset` method. '
-                'Refer to `~astroquery.mast.ObservationsClass.enable_cloud_dataset` documentation for more info.')
+        if not cloud_enabled:
+            raise RemoteServiceError(CLOUD_DISABLED_MESSAGE)
 
         # Query for product URIs
         return self._cloud_connection.get_cloud_uri(data_product, include_bucket, full_url)

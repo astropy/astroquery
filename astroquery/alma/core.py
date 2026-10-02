@@ -217,7 +217,7 @@ def get_enhanced_table(result):
     except ImportError:
         print(
             "Could not import astropy-regions, which is a requirement for get_enhanced_table function in alma."
-            "Please refer to https://astropy-regions.readthedocs.io/en/latest/installation.html for how to install it.")
+            "Please refer to the ``regions`` documentation for installation instructions.")
         raise
 
     def _parse_stcs_string(input):
@@ -494,7 +494,7 @@ class AlmaClass(QueryWithLogin):
             calibration, None to return both
         enhanced_results : bool
             True to return a table with quantities instead of just values. It
-            also returns the footprint as `regions` objects.
+            also returns the footprint as ``regions`` objects.
         payload : dict
             Dictionary of additional keywords.  See `help`.
         """
@@ -528,7 +528,7 @@ class AlmaClass(QueryWithLogin):
             Dictionary of additional keywords.  See `help`.
         enhanced_results : bool
             True to return a table with quantities instead of just values. It
-            also returns the footprints as `regions` objects.
+            also returns the footprints as ``regions`` objects.
         """
         rad = radius
         if not isinstance(radius, u.Quantity):
@@ -571,7 +571,7 @@ class AlmaClass(QueryWithLogin):
             Cap on the amount of records returned.  Default is no limit.
         enhanced_results : bool
             True to return a table with quantities instead of just values. It
-            also returns the footprints as `regions` objects.
+            also returns the footprints as ``regions`` objects.
 
         Returns
         -------

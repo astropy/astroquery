@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.4" xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/votable-1.4.xsd">
+<RESOURCE type="results">
+<INFO name="QUERY_STATUS" value="OK"/>
+
+<INFO name="QUERY" value="SELECT TOP 1 * FROM sedm.level_3 WHERE (latest='true') AND (product_type IN ('DDpdLE3clPkDOA', 'DpdCovarTwoPCFWLClPosPos2D', 'DpdCovarTwoPCFWLCOSEBIShearShear2D', 'DpdCovarTwoPCFWLParams', 'DpdCovarTwoPCFWLPEBPosShear2D', 'DpdCovarTwoPCFWLPEBShearShear2D', 'DpdCovarTwoPCFWLPosPos2D', 'DpdCovarTwoPCFWLPosShear2D', 'DpdCovarTwoPCFWLResampleClPosPos2D', 'DpdCovarTwoPCFWLResampleCOSEBIShearShear2D', 'DpdCovarTwoPCFWLResamplePEBPosShear2D', 'DpdCovarTwoPCFWLResamplePEBShearShear2D', 'DpdCovarTwoPCFWLResamplePosPos2D', 'DpdCovarTwoPCFWLResamplePosShear2D', 'DpdCovarTwoPCFWLResampleShearShear2D', 'DpdCovarTwoPCFWLShearShear2D', 'DpdHealpixBitMaskVMPZ', 'DpdLE3clAmicoAux', 'DpdLE3clAMICOModel', 'DpdLE3clAssociations', 'DpdLE3clCatMergeParams', 'DpdLE3clCATParams', 'DpdLE3clCcpInputParams', 'DpdLE3clCLTile', 'DpdLE3clCombConfigurationSet', 'DpdLE3clCombCovMatDeltaSigmaCosmoDep', 'DpdLE3clCombCovMatReducedShearCosmoDep', 'DpdLE3clCombCovMatReducedShearCosmoIndep', 'DpdLE3clCombRedSheProf', 'DpdLE3clCombStackingCosmoDep', 'DpdLE3clCombStackingCosmoInd', 'DpdLE3clCombUCovRedSheProf', 'DpdLE3clCombWLME', 'DpdLE3clCommon', 'DpdLE3clConfigurationSet', 'DpdLE3clCovmatTwoPointCov2', 'DpdLE3clDetClusters', 'DpdLE3clDetInputParams', 'DpdLE3clDetMergeParams', 'DpdLE3clDetOnMockParams', 'DpdLE3clGlueMatchParams', 'DpdLE3clLMFOutput', 'DpdLE3clLMFParams', 'DpdLE3clMatchForSelParams', 'DpdLE3clMockClusters', 'DpdLE3clMockGlueMatchParams', 'DpdLE3clPkYam', 'DpdLE3clPzwavAux', 'DpdLE3clPZWAVDensity', 'DpdLE3clRedshiftDistrib', 'DpdLE3clRichMembers', 'DpdLE3clSelRandom', 'DpdLE3clSelRandomParams', 'DpdLE3clSelSelFunc', 'DpdLE3clSelSelFuncInputParams', 'DpdLE3clSelSinfoniaIniClMockInputParams', 'DpdLE3clSelSinfoniaMockInputParams', 'DpdLE3clSelSubSample', 'DpdLE3clSinfoniaEllipticity', 'DpdLE3clTwoPointAutoCorrPol', 'DpdLE3clZClParams', 'DpdLE3edConfigurationFile', 'DpdLE3edMatchedCatalog', 'DpdLE3FullDet', 'DpdLE3gcBkMonopole', 'DpdLE3gcBkMultipole', 'DpdLE3gcCovmatPKCov1D', 'DpdLE3gcCovmatPKCov2Dcart', 'DpdLE3gcCovmatPKCov2Dpol', 'DpdLE3gcCovmatTwoPointCov1D', 'DpdLE3gcCovmatTwoPointCov2Dcart', 'DpdLE3gcCovmatTwoPointCov2Dpol', 'DpdLE3gcCovmatTwoPointCovMu', 'DpdLE3gcCovmatTwoPointCovPro', 'DpdLE3gcPkCross', 'DpdLE3gcPkDOA', 'DpdLE3gcPkYam', 'DpdLE3gcThreePointAll', 'DpdLE3gcThreePointSin', 'DpdLE3gcTwoPointAutoCorr', 'DpdLE3gcTwoPointAutoCorrCart', 'DpdLE3gcTwoPointAutoCorrPol', 'DpdLE3gcTwoPointCrossCorr', 'DpdLE3gcTwoPointCrossCorrCart', 'DpdLE3gcTwoPointCrossCorrPol', 'DpdLE3gcTwoPointRecAutoCorr', 'DpdLE3gcTwoPointRecAutoCorrCart', 'DpdLE3gcTwoPointRecAutoCorrPol', 'DpdLE3gcTwoPointRecCrossCorr', 'DpdLE3gcTwoPointRecCrossCorrCart', 'DpdLE3gcTwoPointRecCrossCorrPol', 'DpdLE3IDSELConfigurationSet', 'DpdLE3IDSELIDCatalog', 'DpdLE3IDSELIDStatistics', 'DpdLE3IDSELIDSubsampledCatalog', 'DpdLE3IDVMSPConfiguration', 'DpdLE3IDVMSPDetectionModel', 'DpdLE3IDVMSPDistModel', 'DpdLE3IDVMSPRandomCatalog', 'dpdMerFinalCatalog', 'dpdPhzPfOutputCatalog', 'DpdPKWLAlms', 'DpdPKWLCovMatrix2D', 'DpdPKWLEstimate2D', 'DpdPKWLMaps', 'DpdPKWLMixingMatrix2D', 'DpdRandomCatalogVMPZ', 'dpdSheLensMcChains', 'dpdSomeLevel3', 'dpdSpePfOutputCatalog', 'DpdTwoDMassConvergenceClusters', 'DpdTwoDMassConvergencePatch', 'DpdTwoDMassConvergencePatchesToSphere', 'DpdTwoDMassConvergenceSphere', 'DpdTwoDMassParamsConvergenceClusters', 'DpdTwoDMassParamsConvergencePatch', 'DpdTwoDMassParamsConvergencePatchesToSphere', 'DpdTwoDMassParamsConvergenceSphere', 'DpdTwoDMassParamsPeakCatalogConvergence', 'DpdTwoDMassParamsPeakCatalogMassAperture', 'DpdTwoDMassPeakCatalog', 'DpdTwoPCFWLClPosPos2D', 'DpdTwoPCFWLCOSEBIFilter', 'DpdTwoPCFWLCOSEBIShearShear2D', 'DpdTwoPCFWLParamsClPosPos2D', 'DpdTwoPCFWLParamsCOSEBIShearShear2D', 'DpdTwoPCFWLParamsPEBPosShear2D', 'DpdTwoPCFWLParamsPEBShearShear2D', 'DpdTwoPCFWLParamsPosPos2D', 'DpdTwoPCFWLParamsPosShear2D', 'DpdTwoPCFWLParamsShearShear2D', 'DpdTwoPCFWLPEBPosShear2D', 'DpdTwoPCFWLPEBShearShear2D', 'DpdTwoPCFWLPosPos2D', 'DpdTwoPCFWLPosShear2D', 'DpdTwoPCFWLShearShear2D', 'DpolDpdLE3clCovmatPKCov1')) ORDER BY observation_id_list ASC"><![CDATA[SELECT TOP 1 * FROM sedm.level_3 WHERE (latest='true') AND (product_type IN ('DDpdLE3clPkDOA', 'DpdCovarTwoPCFWLClPosPos2D', 'DpdCovarTwoPCFWLCOSEBIShearShear2D', 'DpdCovarTwoPCFWLParams', 'DpdCovarTwoPCFWLPEBPosShear2D', 'DpdCovarTwoPCFWLPEBShearShear2D', 'DpdCovarTwoPCFWLPosPos2D', 'DpdCovarTwoPCFWLPosShear2D', 'DpdCovarTwoPCFWLResampleClPosPos2D', 'DpdCovarTwoPCFWLResampleCOSEBIShearShear2D', 'DpdCovarTwoPCFWLResamplePEBPosShear2D', 'DpdCovarTwoPCFWLResamplePEBShearShear2D', 'DpdCovarTwoPCFWLResamplePosPos2D', 'DpdCovarTwoPCFWLResamplePosShear2D', 'DpdCovarTwoPCFWLResampleShearShear2D', 'DpdCovarTwoPCFWLShearShear2D', 'DpdHealpixBitMaskVMPZ', 'DpdLE3clAmicoAux', 'DpdLE3clAMICOModel', 'DpdLE3clAssociations', 'DpdLE3clCatMergeParams', 'DpdLE3clCATParams', 'DpdLE3clCcpInputParams', 'DpdLE3clCLTile', 'DpdLE3clCombConfigurationSet', 'DpdLE3clCombCovMatDeltaSigmaCosmoDep', 'DpdLE3clCombCovMatReducedShearCosmoDep', 'DpdLE3clCombCovMatReducedShearCosmoIndep', 'DpdLE3clCombRedSheProf', 'DpdLE3clCombStackingCosmoDep', 'DpdLE3clCombStackingCosmoInd', 'DpdLE3clCombUCovRedSheProf', 'DpdLE3clCombWLME', 'DpdLE3clCommon', 'DpdLE3clConfigurationSet', 'DpdLE3clCovmatTwoPointCov2', 'DpdLE3clDetClusters', 'DpdLE3clDetInputParams', 'DpdLE3clDetMergeParams', 'DpdLE3clDetOnMockParams', 'DpdLE3clGlueMatchParams', 'DpdLE3clLMFOutput', 'DpdLE3clLMFParams', 'DpdLE3clMatchForSelParams', 'DpdLE3clMockClusters', 'DpdLE3clMockGlueMatchParams', 'DpdLE3clPkYam', 'DpdLE3clPzwavAux', 'DpdLE3clPZWAVDensity', 'DpdLE3clRedshiftDistrib', 'DpdLE3clRichMembers', 'DpdLE3clSelRandom', 'DpdLE3clSelRandomParams', 'DpdLE3clSelSelFunc', 'DpdLE3clSelSelFuncInputParams', 'DpdLE3clSelSinfoniaIniClMockInputParams', 'DpdLE3clSelSinfoniaMockInputParams', 'DpdLE3clSelSubSample', 'DpdLE3clSinfoniaEllipticity', 'DpdLE3clTwoPointAutoCorrPol', 'DpdLE3clZClParams', 'DpdLE3edConfigurationFile', 'DpdLE3edMatchedCatalog', 'DpdLE3FullDet', 'DpdLE3gcBkMonopole', 'DpdLE3gcBkMultipole', 'DpdLE3gcCovmatPKCov1D', 'DpdLE3gcCovmatPKCov2Dcart', 'DpdLE3gcCovmatPKCov2Dpol', 'DpdLE3gcCovmatTwoPointCov1D', 'DpdLE3gcCovmatTwoPointCov2Dcart', 'DpdLE3gcCovmatTwoPointCov2Dpol', 'DpdLE3gcCovmatTwoPointCovMu', 'DpdLE3gcCovmatTwoPointCovPro', 'DpdLE3gcPkCross', 'DpdLE3gcPkDOA', 'DpdLE3gcPkYam', 'DpdLE3gcThreePointAll', 'DpdLE3gcThreePointSin', 'DpdLE3gcTwoPointAutoCorr', 'DpdLE3gcTwoPointAutoCorrCart', 'DpdLE3gcTwoPointAutoCorrPol', 'DpdLE3gcTwoPointCrossCorr', 'DpdLE3gcTwoPointCrossCorrCart', 'DpdLE3gcTwoPointCrossCorrPol', 'DpdLE3gcTwoPointRecAutoCorr', 'DpdLE3gcTwoPointRecAutoCorrCart', 'DpdLE3gcTwoPointRecAutoCorrPol', 'DpdLE3gcTwoPointRecCrossCorr', 'DpdLE3gcTwoPointRecCrossCorrCart', 'DpdLE3gcTwoPointRecCrossCorrPol', 'DpdLE3IDSELConfigurationSet', 'DpdLE3IDSELIDCatalog', 'DpdLE3IDSELIDStatistics', 'DpdLE3IDSELIDSubsampledCatalog', 'DpdLE3IDVMSPConfiguration', 'DpdLE3IDVMSPDetectionModel', 'DpdLE3IDVMSPDistModel', 'DpdLE3IDVMSPRandomCatalog', 'dpdMerFinalCatalog', 'dpdPhzPfOutputCatalog', 'DpdPKWLAlms', 'DpdPKWLCovMatrix2D', 'DpdPKWLEstimate2D', 'DpdPKWLMaps', 'DpdPKWLMixingMatrix2D', 'DpdRandomCatalogVMPZ', 'dpdSheLensMcChains', 'dpdSomeLevel3', 'dpdSpePfOutputCatalog', 'DpdTwoDMassConvergenceClusters', 'DpdTwoDMassConvergencePatch', 'DpdTwoDMassConvergencePatchesToSphere', 'DpdTwoDMassConvergenceSphere', 'DpdTwoDMassParamsConvergenceClusters', 'DpdTwoDMassParamsConvergencePatch', 'DpdTwoDMassParamsConvergencePatchesToSphere', 'DpdTwoDMassParamsConvergenceSphere', 'DpdTwoDMassParamsPeakCatalogConvergence', 'DpdTwoDMassParamsPeakCatalogMassAperture', 'DpdTwoDMassPeakCatalog', 'DpdTwoPCFWLClPosPos2D', 'DpdTwoPCFWLCOSEBIFilter', 'DpdTwoPCFWLCOSEBIShearShear2D', 'DpdTwoPCFWLParamsClPosPos2D', 'DpdTwoPCFWLParamsCOSEBIShearShear2D', 'DpdTwoPCFWLParamsPEBPosShear2D', 'DpdTwoPCFWLParamsPEBShearShear2D', 'DpdTwoPCFWLParamsPosPos2D', 'DpdTwoPCFWLParamsPosShear2D', 'DpdTwoPCFWLParamsShearShear2D', 'DpdTwoPCFWLPEBPosShear2D', 'DpdTwoPCFWLPEBShearShear2D', 'DpdTwoPCFWLPosPos2D', 'DpdTwoPCFWLPosShear2D', 'DpdTwoPCFWLShearShear2D', 'DpolDpdLE3clCovmatPKCov1')) ORDER BY observation_id_list ASC]]></INFO>
+<INFO name="JOBID" value="70117d58-5e8e-11f1-a1cd-1423f21597f1-TDEV"><![CDATA[70117d58-5e8e-11f1-a1cd-1423f21597f1-TDEV]]></INFO>
+
+<TABLE>
+<FIELD datatype="long" name="basic_download_data_oid"/>
+<FIELD arraysize="100x*" datatype="char" name="checksum_list"/>
+<FIELD arraysize="*" datatype="char" name="creation_date" xtype="timestamp"/>
+<FIELD arraysize="*" datatype="char" name="datalabs_path"/>
+<FIELD arraysize="*" datatype="char" name="data_set_release"/>
+<FIELD arraysize="*" datatype="char" name="data_set_release_part1"/>
+<FIELD arraysize="*" datatype="char" name="data_set_release_part2"/>
+<FIELD datatype="int" name="data_set_release_part3"/>
+<FIELD arraysize="*" datatype="double" name="data_size"/>
+<FIELD datatype="double" name="dec"/>
+<FIELD arraysize="100x*" datatype="char" name="file_name_list"/>
+<FIELD arraysize="*" datatype="char" name="file_path"/>
+<FIELD arraysize="100x*" datatype="char" name="file_type_list"/>
+<FIELD arraysize="*" datatype="char" name="filter_name"/>
+<FIELD arraysize="*" datatype="double" name="fov" xtype="polygon"/>
+<FIELD arraysize="*" datatype="char" name="ingested"/>
+<FIELD datatype="boolean" name="latest"/>
+<FIELD arraysize="*" datatype="char" name="level_3_category"/>
+<FIELD arraysize="*" datatype="char" name="level_3_group"/>
+<FIELD arraysize="100x*" datatype="char" name="observation_id_list"/>
+<FIELD arraysize="*" datatype="long" name="patch_id_list"/>
+<FIELD arraysize="*" datatype="char" name="product_id"/>
+<FIELD arraysize="*" datatype="char" name="product_type"/>
+<FIELD datatype="long" name="provenance_id"/>
+<FIELD datatype="int" name="published"/>
+<FIELD arraysize="*" datatype="char" name="purpose"/>
+<FIELD datatype="double" name="ra"/>
+<FIELD arraysize="*" datatype="char" name="release_date" xtype="timestamp"/>
+<FIELD arraysize="*" datatype="char" name="release_name"/>
+<FIELD arraysize="*" datatype="long" name="tile_index_list"/>
+<FIELD datatype="int" name="to_be_published"/>
+<FIELD arraysize="*" datatype="char" name="xml_file_content"/>
+<DATA>
+<TABLEDATA>
+  <TR>
+    <TD>3</TD>
+    <TD>cf3b5cecf7ed6c3ba30716291055592d                                                                    0dd16b44e944088bec3b7cfaf18b04ab                                                                    ad2bf6584319d2ab8a812c181489948e                                                                    91e27960134eca519cca137793246bb0                                                                    </TD>
+    <TD>2025-01-13T15:49:43.001</TD>
+    <TD></TD>
+    <TD>REGREPROC1_R2_CLTEST_R0</TD>
+    <TD>REGREPROC1</TD>
+    <TD>R2_CLTEST</TD>
+    <TD>0</TD>
+    <TD></TD>
+    <TD></TD>
+    <TD>EUC_LE3_CL-AMICO-MASK_SNR8.00_20250113T154828.343697Z_1.0.fits                                      EUC_LE3_CL-AMICO-NOISE_SNR8.00_20250113T154828.343697Z_1.0.fits                                     EUC_LE3_CL-AMICO-FILTERCONST_SNR8.00_20250113T154828.343697Z_1.0.fits                               EUC_LE3_CL-AMICO-AMPLITUDE_SNR8.00_20250113T154828.343697Z_1.0.fits                                 </TD>
+    <TD>/repository_dev//repository_dev/REGREPROC1_R2_CLTE/LE3/REGREPROC1_R2_CLTEST_R0/DpdLE3clAmicoAux/</TD>
+    <TD>AmicoMaskFile                                                                                       AmicoNoiseFile                                                                                      AmicoFilterConstFile                                                                                AmicoAmplitudeFile                                                                                  </TD>
+    <TD></TD>
+    <TD></TD>
+    <TD>INGESTED</TD>
+    <TD>T</TD>
+    <TD>Clusters of Galaxies</TD>
+    <TD>GrpCatalog</TD>
+    <TD></TD>
+    <TD></TD>
+    <TD>PPO_REGREPROC1_R2_CLTEST_R0_CLDET_R3-amico_aux-0</TD>
+    <TD>DpdLE3clAmicoAux</TD>
+    <TD>692</TD>
+    <TD>0</TD>
+    <TD>PRODUCTION</TD>
+    <TD></TD>
+    <TD></TD>
+    <TD>REGREPROC1_R2_CLTEST_R0</TD>
+    <TD></TD>
+    <TD>1</TD>
+    <TD>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;dpd-le3-cl-clamicoaux:DpdLE3clAmicoAux xmlns:dpd-le3-cl-clamicoaux="http://ecdm.euclid-ec.org/schema/dpd/le3/cl/clamicoaux" xmlns:sys="http://ecdm.euclid-ec.org/schema/sys" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:pro-le3-cl="http://ecdm.euclid-ec.org/schema/pro/le3/cl" xmlns:bas-fit="http://ecdm.euclid-ec.org/schema/bas/fit" xmlns:bas-dtd="http://ecdm.euclid-ec.org/schema/bas/dtd" xmlns:sys-dss="http://ecdm.euclid-ec.org/schema/sys/dss" xmlns:bas-dqc="http://ecdm.euclid-ec.org/schema/bas/dqc" xmlns:bas-ppr="http://ecdm.euclid-ec.org/schema/bas/ppr"&gt;
+ &lt;Header&gt;
+  &lt;ProductId&gt;PPO_REGREPROC1_R2_CLTEST_R0_CLDET_R3-amico_aux-0&lt;/ProductId&gt;
+  &lt;ProductType&gt;DpdLE3clAmicoAux&lt;/ProductType&gt;
+  &lt;SoftwareName&gt;DetInTile&lt;/SoftwareName&gt;
+  &lt;SoftwareRelease&gt;2.0&lt;/SoftwareRelease&gt;
+  &lt;ProdSDC&gt;SDC-IT-DEV&lt;/ProdSDC&gt;
+  &lt;DataSetRelease&gt;REGREPROC1_R2_CLTEST_R0&lt;/DataSetRelease&gt;
+  &lt;Purpose&gt;PRODUCTION&lt;/Purpose&gt;
+  &lt;PlanId&gt;PPO_CLDET_PLAN&lt;/PlanId&gt;
+  &lt;PPOId&gt;PPO_REGREPROC1_R2_CLTEST_R0_CLDET_R3&lt;/PPOId&gt;
+  &lt;PipelineDefinitionId&gt;CLDET_2.0&lt;/PipelineDefinitionId&gt;
+  &lt;PpoStatus&gt;COMPLETED&lt;/PpoStatus&gt;
+  &lt;ManualValidationStatus&gt;UNKNOWN&lt;/ManualValidationStatus&gt;
+  &lt;ProductNotifiedToBeChecked&gt;UNKNOWN&lt;/ProductNotifiedToBeChecked&gt;
+  &lt;AutomatedValidationStatus&gt;UNKNOWN&lt;/AutomatedValidationStatus&gt;
+  &lt;ExpirationDate&gt;2025-01-13T15:49:43.001000Z&lt;/ExpirationDate&gt;
+  &lt;ToBePublished&gt;0&lt;/ToBePublished&gt;
+  &lt;Published&gt;0&lt;/Published&gt;
+  &lt;Curator&gt;Curator0&lt;/Curator&gt;
+  &lt;CreationDate&gt;2025-01-13T15:49:43.001000Z&lt;/CreationDate&gt;
+ &lt;/Header&gt;
+ &lt;Data&gt;
+  &lt;AmicoMaskFile format="le3.cl.det.amico.output.mask" version="0.0"&gt;
+   &lt;DataContainer filestatus="PROPOSED" checksumMethod="MD5" checksumValue="cf3b5cecf7ed6c3ba30716291055592d"&gt;
+    &lt;FileName&gt;EUC_LE3_CL-AMICO-MASK_SNR8.00_20250113T154828.343697Z_1.0.fits&lt;/FileName&gt;
+   &lt;/DataContainer&gt;
+  &lt;/AmicoMaskFile&gt;
+  &lt;AmicoNoiseFile format="le3.cl.det.amico.output.noise" version="0.0"&gt;
+   &lt;DataContainer filestatus="PROPOSED" checksumMethod="MD5" checksumValue="0dd16b44e944088bec3b7cfaf18b04ab"&gt;
+    &lt;FileName&gt;EUC_LE3_CL-AMICO-NOISE_SNR8.00_20250113T154828.343697Z_1.0.fits&lt;/FileName&gt;
+   &lt;/DataContainer&gt;
+  &lt;/AmicoNoiseFile&gt;
+  &lt;AmicoFilterConstFile format="le3.cl.det.amico.output.filterConst" version="0.0"&gt;
+   &lt;DataContainer filestatus="PROPOSED" checksumMethod="MD5" checksumValue="ad2bf6584319d2ab8a812c181489948e"&gt;
+    &lt;FileName&gt;EUC_LE3_CL-AMICO-FILTERCONST_SNR8.00_20250113T154828.343697Z_1.0.fits&lt;/FileName&gt;
+   &lt;/DataContainer&gt;
+  &lt;/AmicoFilterConstFile&gt;
+  &lt;AmicoAmplitudeFile format="le3.cl.det.amico.output.amplitude" version="0.0"&gt;
+   &lt;DataContainer filestatus="PROPOSED" checksumMethod="MD5" checksumValue="91e27960134eca519cca137793246bb0"&gt;
+    &lt;FileName&gt;EUC_LE3_CL-AMICO-AMPLITUDE_SNR8.00_20250113T154828.343697Z_1.0.fits&lt;/FileName&gt;
+   &lt;/DataContainer&gt;
+  &lt;/AmicoAmplitudeFile&gt;
+ &lt;/Data&gt;
+&lt;/dpd-le3-cl-clamicoaux:DpdLE3clAmicoAux&gt;
+
+</TD>
+  </TR>
+</TABLEDATA>
+</DATA>
+
+</TABLE>
+</RESOURCE>
+</VOTABLE>

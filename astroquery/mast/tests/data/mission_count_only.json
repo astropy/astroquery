@@ -1,0 +1,49 @@
+{
+    "messages": [],
+    "search_params": {
+        "target": [],
+        "radius": 3.0,
+        "radius_units": "arcminutes",
+        "offset": 0,
+        "limit": 5000,
+        "sort_by": [
+            "sci_targname",
+            "sci_data_set_name"
+        ],
+        "sort_desc": [
+            false,
+            false
+        ],
+        "skip_count": false,
+        "count_only": true,
+        "select_cols": [
+            "sci_data_set_name",
+            "sci_targname",
+            "sci_hapnum",
+            "sci_haspnum",
+            "sci_hslanum",
+            "sci_instrume",
+            "sci_aper_1234",
+            "sci_spec_1234",
+            "sci_actual_duration",
+            "sci_start_time",
+            "sci_pep_id",
+            "sci_pi_last_name",
+            "sci_ra",
+            "sci_dec",
+            "sci_refnum",
+            "sci_central_wavelength",
+            "sci_release_date",
+            "sci_stop_time",
+            "sci_preview_name",
+            "scp_scan_type",
+            "sci_hlsp"
+        ],
+        "search_key": [],
+        "user_fields": [],
+        "conditions": []
+    },
+    "totalResults": 1066009,
+    "info": [],
+    "results": []
+}

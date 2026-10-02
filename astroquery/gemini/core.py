@@ -1,7 +1,5 @@
 """
 Search functionality for the Gemini archive of observations.
-
-For questions, contact ooberdorf@gemini.edu
 """
 
 import os
@@ -29,6 +27,12 @@ __valid_instruments__ = [
     'GMOS-S',
     'GNIRS',
     'GRACES',
+    'GHOST',
+    'IGRINS',
+    'IGRINS-2',
+    'ALOPEKE',
+    'ZORRO',
+    'MAROON-X',
     'NIRI',
     'NIFS',
     'GSAOI',

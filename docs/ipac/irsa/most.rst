@@ -27,7 +27,7 @@ JPL's Horizon database whenever possible. This lookup can fail when name
 ambiguities exist. For example, entering "Neptune" is unclear because ephemeris
 for both Neptune and Neptune system barycenter exist.
 
-Most will deliver a messsage if there is an ambiguity. The message may contain
+Most will deliver a message if there is an ambiguity. The message may contain
 suggested NAIF ID's, e.g. "899:NID" for Neptune.
 
 NAIF ID's are considered valid input. Satellites and asteroids with the same
@@ -40,6 +40,11 @@ Center (MPC) one-line format
 
 Depending on what input mode Most is being queried as, the list of required
 parameters will change.
+
+The ``catalog`` parameter will default to ``"wise_merged"`` if not specified.
+The other imaging data sets available include: ``"2mass"``, ``"sofia"``, 
+``"spitzer_bcd"``, ``"spherex"``, and ``"ztf"``. For the complete list of 
+available catalogs, refer to the `MOST page at IRSA <https://irsa.ipac.caltech.edu/applications/MOST>`_.
 
 Output Modes
 ============
@@ -103,7 +108,7 @@ postcard_url   Currently ``null``.  It is waiting for a future dataset that may 
 region_file    Markers for the moving object in DS9 "region" format.
 ============   ===============================================================
 
-The ``metadata`` key contains a table which columns change depending on what
+The ``metadata`` key contains a table with columns that change depending on what
 catalog (instrument) was queried. Only a small set of columns are guaranteed to
 always be present. The following table lays out which columns can be expected
 to be present for a given instrument/observatory:
@@ -228,6 +233,70 @@ to be present for a given instrument/observatory:
 | time                | UT time of observation                                |
 +---------------------+-------------------------------------------------------+
 | exposuretime        | Exposure time (sec)                                   |
++---------------------+-------------------------------------------------------+
+|.. centered:: **SOFIA**                                                      |
++---------------------+-------------------------------------------------------+
+| proposal_id         | SOFIA proposal identifier                             |
++---------------------+-------------------------------------------------------+
+| observationid       | Unique string for the observation                     |
++---------------------+-------------------------------------------------------+
+| productid           | File name                                             |
++---------------------+-------------------------------------------------------+
+| planeid             | (internal use only)                                   |
++---------------------+-------------------------------------------------------+
+| target_name         | Target name                                           |
++---------------------+-------------------------------------------------------+
+| target_moving       | Positive if moving target                             |
++---------------------+-------------------------------------------------------+
+| instrument          | SOFIA instrument                                      |
++---------------------+-------------------------------------------------------+
+| ra                  | Right ascension (J2000) of the observation in deg     |
++---------------------+-------------------------------------------------------+
+| dec                 | Declination (J2000) of the observation in deg         |
++---------------------+-------------------------------------------------------+
+| start_date          | Date and time of start of observation, UTC            |
++---------------------+-------------------------------------------------------+
+| end_date            | Date and time of end of observation, UTC              |
++---------------------+-------------------------------------------------------+
+| mjd_start           | Modified Julian Date of start of observation          |
++---------------------+-------------------------------------------------------+
+| mjd_end             | Modified Julian Date of end of observation            |
++---------------------+-------------------------------------------------------+
+| exposure_time       | Exposure time in sec                                  |
++---------------------+-------------------------------------------------------+
+| uri                 | Path to file                                          |
++---------------------+-------------------------------------------------------+
+| .. centered:: **SPHEREx**                                                   |
++---------------------+-------------------------------------------------------+
+| proposal_id         | (currently null)                                      |
++---------------------+-------------------------------------------------------+
+| observationid       | Unique string for the observation                     |
++---------------------+-------------------------------------------------------+
+| productid           | File name                                             |
++---------------------+-------------------------------------------------------+
+| planeid             | (internal use only)                                   |
++---------------------+-------------------------------------------------------+
+| target_name         | Target name                                           |
++---------------------+-------------------------------------------------------+
+| target_moving       | Positive if moving target                             |
++---------------------+-------------------------------------------------------+
+| instrument          | SPHEREx detector                                      |
++---------------------+-------------------------------------------------------+
+| ra                  | Right ascension (J2000) of the observation in deg     |
++---------------------+-------------------------------------------------------+
+| dec                 | Declination (J2000) of the observation in deg         |
++---------------------+-------------------------------------------------------+
+| start_date          | Date and time of start of observation, UTC            |
++---------------------+-------------------------------------------------------+
+| end_date            | Date and time of end of observation, UTC              |
++---------------------+-------------------------------------------------------+
+| mjd_start           | Modified Julian Date of start of observation          |
++---------------------+-------------------------------------------------------+
+| mjd_end             | Modified Julian Date of end of observation            |
++---------------------+-------------------------------------------------------+
+| exposure_time       | Exposure time in sec                                  |
++---------------------+-------------------------------------------------------+
+| uri                 | Path to file                                          |
 +---------------------+-------------------------------------------------------+
 
 The key ``region`` contains an URL to the DS9 Region file that draws a green

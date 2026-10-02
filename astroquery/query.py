@@ -30,15 +30,26 @@ from astroquery.utils import system_tools
 __all__ = ['BaseVOQuery', 'BaseQuery', 'QueryWithLogin']
 
 
-def to_cache(response, cache_file):
+def to_cache(original_response, cache_file):
     log.debug("Caching data to {0}".format(cache_file))
 
-    response = copy.deepcopy(response)
-    if hasattr(response, 'request'):
-        for key in tuple(response.request.hooks.keys()):
-            del response.request.hooks[key]
+    # Copying a TAPService instance with an auth session produces some warnings
+    # as a side affect. The hooks are not needed in the cache, so we remove
+    # them before caching and restore them afterwards.
+    # Related pyvo issue: https://github.com/astropy/pyvo/issues/755
+    hooks = None
+    if hasattr(original_response, 'request'):
+        hooks = original_response.request.hooks
+        del original_response.request.hooks
+    if hasattr(original_response, 'history'):
+        for r in original_response.history:
+            if hasattr(r, 'request'):
+                del r.request.hooks
+    response_copy = copy.deepcopy(original_response)
+    if hooks:
+        original_response.request.hooks = hooks
     with open(cache_file, "wb") as f:
-        pickle.dump(response, f, protocol=4)
+        pickle.dump(response_copy, f, protocol=4)
 
 
 def _replace_none_iterable(iterable):
@@ -116,7 +127,7 @@ class AstroQuery:
     def from_cache(self, cache_location, cache_timeout):
         request_file = self.request_file(cache_location)
         try:
-            if cache_timeout is None:
+            if cache_timeout == -1:
                 expired = False
             else:
                 current_time = datetime.now(timezone.utc)
@@ -183,7 +194,14 @@ class BaseVOQuery:
     Use in modules that rely on PyVO, either on its own or in combination with ``BaseQuery`` (be mindful
     about resolution order of base classes!).
     """
-    def __init__(self):
+    def __init__(self, *, extra_user_agents=None):
+        """Create an instance of BaseVOQuery.
+
+        Parameters
+        ----------
+        extra_user_agents : str | list(str)
+            Extra user agents to be added to the ones already provided by astroquery.
+        """
         super().__init__()
         if not hasattr(self, '_session'):
             # We don't want to override another, e.g. already authenticated session from another baseclass
@@ -198,6 +216,12 @@ class BaseVOQuery:
         else:
             user_agents = [f"astroquery/{version.version} pyVO/{pyvo.__version__} "
                            f"Python/{platform.python_version()} ({platform.system()})"] + user_agents
+
+        if extra_user_agents:
+            if isinstance(extra_user_agents, str):
+                user_agents += [extra_user_agents]
+            else:
+                user_agents += extra_user_agents
 
         self._session.headers['User-Agent'] = " ".join(user_agents)
 

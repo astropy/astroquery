@@ -6,6 +6,7 @@ MAST Core
 This the base class for MAST queries.
 """
 from astropy.utils import deprecated
+from astropy.utils.decorators import deprecated_renamed_argument
 from ..query import QueryWithLogin
 from . import utils
 from .auth import MastAuth
@@ -110,13 +111,14 @@ class MastQueryWithLogin(QueryWithLogin):
         """
         pass
 
-    def resolve_object(self, objectname, *, resolver=None, resolve_all=False):
+    @deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
+    def resolve_object(self, object_name, *, resolver=None, resolve_all=False):
         """
         Resolves an object name to a position on the sky.
 
         Parameters
         ----------
-        objectname : str
+        object_name : str
             Name of astronomical object to resolve.
         resolver : str, optional
             The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
@@ -135,6 +137,6 @@ class MastQueryWithLogin(QueryWithLogin):
             If ``resolve_all`` is True, returns a dictionary where the keys are the resolver names and the values are
             `~astropy.coordinates.SkyCoord` objects with the resolved coordinates.
         """
-        return utils.resolve_object(objectname,
+        return utils.resolve_object(object_name,
                                     resolver=resolver,
                                     resolve_all=resolve_all)

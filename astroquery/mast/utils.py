@@ -6,22 +6,23 @@ MAST Utils
 Miscellaneous functions used throughout the MAST module.
 """
 
+import platform
 import re
 import warnings
 
 import numpy as np
 import requests
-import platform
+from astropy import units as u
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
+from astropy.utils import deprecated
 from astropy.utils.console import ProgressBarOrSpinner
-from astropy import units as u
+from astropy.utils.decorators import deprecated_renamed_argument
 
 from .. import log
-from ..version import version
-from ..exceptions import InputWarning, NoResultsWarning, ResolverError, InvalidQueryError
+from ..exceptions import (InputWarning, InvalidQueryError, NoResultsWarning, ResolverError)
 from ..utils import commons
-
+from ..version import version
 
 __all__ = []
 
@@ -148,13 +149,14 @@ def _batched_request(
         return extract_func(resp)
 
 
-def resolve_object(objectname, *, resolver=None, resolve_all=False, batch_size=30):
+@deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
+def resolve_object(object_name, *, resolver=None, resolve_all=False, batch_size=30):
     """
     Resolves one or more object names to a position on the sky.
 
     Parameters
     ----------
-    objectname : str, or iterable of str
+    object_name : str, or iterable of str
         Name(s) of astronomical object(s) to resolve.
     resolver : str, optional
         The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
@@ -184,11 +186,11 @@ def resolve_object(objectname, *, resolver=None, resolve_all=False, batch_size=3
     # Normalize input
     try:
         # Strings are iterable, so check explicitly
-        if isinstance(objectname, str):
+        if isinstance(object_name, str):
             raise TypeError
-        object_names = list(objectname)
+        object_names = list(object_name)
     except TypeError:
-        object_names = [objectname]
+        object_names = [object_name]
 
     # If any items are not strings, raise an error
     if not all(isinstance(name, str) for name in object_names):
@@ -224,10 +226,9 @@ def resolve_object(objectname, *, resolver=None, resolve_all=False, batch_size=3
                     break
 
     # Send request to STScI Archive Name Translation Application (SANTA)
-    params = {'outputFormat': 'json',
-              'resolveAll': resolve_all or is_catalog}  # Always set resolveAll to True for MAST catalogs
+    params = {'outputFormat': 'json', 'resolveAll': resolve_all}  # Always set resolveAll to True for MAST catalogs
     if resolver and not params['resolveAll']:
-        params['resolver'] = resolver
+        params['resolver'] = [resolver, catalog] if is_catalog else [resolver]
 
     # Fetch results (batching if necessary)
     results = _batched_request(
@@ -303,20 +304,21 @@ def resolve_object(objectname, *, resolver=None, resolve_all=False, batch_size=3
     return list(resolved_coords.values())[0] if single else resolved_coords
 
 
-def parse_input_location(*, coordinates=None, objectname=None, resolver=None):
+@deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
+def parse_input_location(*, coordinates=None, object_name=None, resolver=None):
     """
-    Convenience function to parse user input of coordinates and objectname.
+    Convenience function to parse user input of coordinates and object_name.
 
     Parameters
     ----------
     coordinates : str or `astropy.coordinates` object, optional
         The target around which to search. It may be specified as a
         string or as the appropriate `astropy.coordinates` object.
-        One and only one of coordinates and objectname must be supplied.
-    objectname : str, optional
-        The target around which to search, by name (objectname="M104")
-        or TIC ID (objectname="TIC 141914082").
-        One and only one of coordinates and objectname must be supplied.
+        One and only one of coordinates and object_name must be supplied.
+    object_name : str, optional
+        The target around which to search, by name (object_name="M104")
+        or TIC ID (object_name="TIC 141914082").
+        One and only one of coordinates and object_name must be supplied.
     resolver : str, optional
         The resolver to use when resolving a named target into coordinates. Valid options are "SIMBAD" and "NED".
         If not specified, the default resolver order will be used. Please see the
@@ -331,17 +333,17 @@ def parse_input_location(*, coordinates=None, objectname=None, resolver=None):
     """
 
     # Checking for valid input
-    if objectname and coordinates:
-        raise InvalidQueryError("Only one of objectname and coordinates may be specified.")
+    if object_name and coordinates:
+        raise InvalidQueryError("Only one of object_name and coordinates may be specified.")
 
-    if not (objectname or coordinates):
-        raise InvalidQueryError("One of objectname and coordinates must be specified.")
+    if not (object_name or coordinates):
+        raise InvalidQueryError("One of object_name and coordinates must be specified.")
 
-    if not objectname and resolver:
+    if not object_name and resolver:
         warnings.warn("Resolver is only used when resolving object names and will be ignored.", InputWarning)
 
-    if objectname:
-        obj_coord = resolve_object(objectname, resolver=resolver)
+    if object_name:
+        obj_coord = resolve_object(object_name, resolver=resolver)
 
     # Parse coordinates, if given
     if coordinates:
@@ -370,36 +372,42 @@ def split_list_into_chunks(input_list, chunk_size):
         yield input_list[idx:idx + chunk_size]
 
 
+@deprecated(since='v0.4.12',
+            message=('This function is deprecated.'),
+            alternative='astroquery.mast.utils.get_cloud_paths')
 def mast_relative_path(mast_uri, *, verbose=True):
     """
-    Given one or more MAST dataURI(s), return the associated relative path(s).
+    Deprecated function. Use `astroquery.mast.utils.get_cloud_paths` instead.
+    """
+    return get_cloud_paths(mast_uri, verbose=verbose)
+
+
+def get_cloud_paths(mast_uri, *, verbose=True):
+    """
+    Given one or more MAST dataURI(s), return a list of associated cloud path(s).
 
     Parameters
     ----------
     mast_uri : str, list of str
         The MAST uri(s).
     verbose : bool, optional
-        Default True. Whether to issue warnings if the MAST relative path cannot be found for a product.
+        Default True. Whether to issue warnings if the cloud path cannot be found for a product.
 
     Returns
     -------
-    response : str, list of str
-        The associated relative path(s).
+    response : list of str
+        The associated cloud path(s).
     """
-    if isinstance(mast_uri, str):
-        uri_list = [mast_uri]
-    else:
-        uri_list = list(mast_uri)
+    uri_list = [mast_uri] if isinstance(mast_uri, str) else list(mast_uri)
 
-    # Split the list into chunks of 50 URIs; this is necessary
+    # Split the list into chunks of 40 URIs; this is necessary
     # to avoid "414 Client Error: Request-URI Too Large".
-    uri_list_chunks = list(split_list_into_chunks(uri_list, chunk_size=50))
+    uri_list_chunks = list(split_list_into_chunks(uri_list, chunk_size=40))
 
-    result = []
+    cloud_paths = []
     for chunk in uri_list_chunks:
         response = _simple_request("https://mast.stsci.edu/api/v0.1/path_lookup/",
-                                   {"uri": [mast_uri for mast_uri in chunk]})
-
+                                   {"uri": [mast_uri for mast_uri in chunk], "use_cloud_path": True})
         json_response = response.json()
 
         for uri in chunk:
@@ -409,22 +417,12 @@ def mast_relative_path(mast_uri, *, verbose=True):
             path = json_response.get(uri)["path"]
             if path is None:
                 if verbose:
-                    warnings.warn(f"Failed to retrieve MAST relative path for {uri}. Skipping...", NoResultsWarning)
-            elif 'galex' in path:
-                path = path.lstrip("/mast/")
-            elif '/ps1/' in path:
-                path = path.replace("/ps1/", "panstarrs/ps1/public/")
-            elif 'hlsp' in path:
-                path = path.replace("/hlsp_local/public/", "mast/")
+                    warnings.warn(f"Failed to retrieve cloud path for {uri}. Skipping...", NoResultsWarning)
             else:
                 path = path.lstrip("/")
-            result.append(path)
+            cloud_paths.append(path)
 
-    # If the input was a single URI string, we return a single string
-    if isinstance(mast_uri, str):
-        return result[0]
-    # Else, return a list of paths
-    return result
+    return cloud_paths
 
 
 def remove_duplicate_products(data_products, uri_key):

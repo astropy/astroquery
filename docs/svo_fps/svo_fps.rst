@@ -173,6 +173,22 @@ These are the data needed to plot the transmission curve for filter:
 
    The 2MASS H-band transmission curve
 
+Get metadata for a specific filter
+----------------------------------
+
+Given a ``filterID``, a dictionary of metadata associated with that filter can be retrieved
+from the FPS using `~astroquery.svo_fps.SvoFpsClass.get_filter_metadata`:
+
+.. doctest-remote-data::
+
+    >>> info = SvoFps.get_filter_metadata('PAN-STARRS/PS1.r')
+    >>> print(info['WavelengthEff'])
+    6155.4659814728 Angstrom
+    >>> print(info['FWHM'])
+    1397.7332085088 Angstrom
+    >>> print(info['components'])
+    Filter + Instrument + Atmosphere
+
 
 Troubleshooting
 ===============

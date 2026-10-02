@@ -1,23 +1,22 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+import json
 import logging
-from pathlib import Path
-import numpy as np
 import os
+from pathlib import Path
+
+import astropy.units as u
+import numpy as np
 import pytest
-
-from requests.models import Response
-
-from astropy.table import Table, unique
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
-import astropy.units as u
+from astropy.table import Table, unique
+from requests.models import Response
 
-from astroquery.mast import Observations, utils, Mast, Catalogs, Hapcut, Tesscut, Zcut, MastMissions
+from astroquery.mast import (Catalogs, Hapcut, Mast, MastMissions, Observations, Tesscut, Zcut, utils)
 
+from ...exceptions import (InputWarning, InvalidQueryError, MaxResultsWarning, NoResultsWarning)
 from ..utils import ResolverError
-from ...exceptions import (InputWarning, InvalidQueryError, MaxResultsWarning,
-                           NoResultsWarning)
 
 
 @pytest.fixture(scope="module")
@@ -38,6 +37,17 @@ def msa_product_table():
     return products
 
 
+@pytest.fixture()
+def reset_cloud_state():
+    pytest.importorskip('boto3')
+    # Reset cloud dataset state before and after each test
+    Observations._cloud_enabled_explicitly = None
+    Observations._cloud_connection = None
+    yield
+    Observations._cloud_enabled_explicitly = None
+    Observations._cloud_connection = None
+
+
 @pytest.mark.remote_data
 class TestMast:
 
@@ -54,8 +64,10 @@ class TestMast:
 
         # Try the same object with different resolvers
         # The position of objects can change with different resolvers
-        ned_loc = utils.resolve_object("jw100", resolver="NED")
-        assert round(ned_loc.separation(SkyCoord("354.10436 21.15083", unit='deg')).value, 4) == 0
+        # TODO: Commenting out NED resolver test for now since we've been having issues with NED service availability.
+        # Re-enable this test once the service is stable.
+        # ned_loc = utils.resolve_object("jw100", resolver="NED")
+        # assert round(ned_loc.separation(SkyCoord("354.10436 21.15083", unit='deg')).value, 4) == 0
 
         simbad_loc = utils.resolve_object("jw100", resolver="simbad")
         assert round(simbad_loc.separation(SkyCoord("83.70341477 -5.55918309", unit="deg")).value, 4) == 0
@@ -67,7 +79,7 @@ class TestMast:
         # Use resolve_all to get all resolvers
         loc_dict = utils.resolve_object("jw100", resolve_all=True)
         assert isinstance(loc_dict, dict)
-        assert loc_dict['NED'] == ned_loc
+        # assert loc_dict['NED'] == ned_loc
         assert loc_dict['SIMBAD'] == simbad_loc
 
         # Error if coordinates cannot be resolved
@@ -75,8 +87,8 @@ class TestMast:
             utils.resolve_object("invalid")
 
         # Error if coordinates cannot be resolved with a specific resolver
-        with pytest.raises(ResolverError, match='Could not resolve "invalid" to a sky position using resolver "NED"'):
-            utils.resolve_object("invalid", resolver="NED")
+        with pytest.raises(ResolverError, match='not resolve "invalid" to a sky position using resolver "SIMBAD"'):
+            utils.resolve_object("invalid", resolver="SIMBAD")
 
     ###########################
     # MissionSearchClass Test #
@@ -137,20 +149,26 @@ class TestMast:
 
     def test_missions_query_criteria(self):
         # Non-positional search
+        select_cols = ['sci_pep_id', 'sci_obs_type', 'sci_aec']
         with pytest.warns(MaxResultsWarning):
             result = MastMissions.query_criteria(sci_pep_id=12557,
                                                  sci_obs_type='SPECTRUM',
                                                  sci_aec='S',
                                                  limit=3,
-                                                 select_cols=['sci_pep_id', 'sci_obs_type', 'sci_aec'])
+                                                 select_cols=select_cols)
         assert isinstance(result, Table)
         assert len(result) == 3
         assert (result['sci_pep_id'] == 12557).all()
         assert (result['sci_obs_type'] == 'SPECTRUM').all()
         assert (result['sci_aec'] == 'S').all()
+        assert result.meta
+        assert len(result.meta['search_params']['conditions']) == 3
+        for cols in select_cols:
+            assert 'description' in result[cols].meta
+            assert result[cols].meta['description']
 
         # Positional criteria search
-        result = MastMissions.query_criteria(objectname='NGC6121',
+        result = MastMissions.query_criteria(object_names='NGC6121',
                                              radius=0.1,
                                              sci_start_time='<2012',
                                              sci_actual_duration='0..200',
@@ -161,10 +179,17 @@ class TestMast:
         assert (result['sci_start_time'] < '2012').all()
         assert ((result['sci_actual_duration'] >= 0) & (result['sci_actual_duration'] <= 200)).all()
 
-        # Raise error if a non-positional criterion is not supplied
-        with pytest.raises(InvalidQueryError):
-            MastMissions.query_criteria(coordinates="245.89675 -26.52575",
-                                        radius=1)
+        # Search with multiple positional inputs
+        coord = SkyCoord(245.89675, -26.52575, unit='deg')
+        result = MastMissions.query_criteria(coordinates=[coord, "205.54842 28.37728"],
+                                             object_names=["M2", "M9"],
+                                             radius=0.1)
+        assert len(set(result['search_pos'])) == 4  # Should have four different search positions
+
+        # Count only query
+        count_result = MastMissions.query_criteria(coordinates=coord, radius=0.1, count_only=True)
+        assert isinstance(count_result, int)
+        assert count_result > 0
 
         # Raise error if invalid input is given
         with pytest.raises(InvalidQueryError):
@@ -304,8 +329,11 @@ class TestMast:
         assert all(filtered['category'] == 'CALIBRATED')
 
     def test_missions_download_products(self, tmp_path):
-        def check_filepath(path):
-            assert path.is_file()
+        def check_filepaths(result):
+            for row in result:
+                if row['Status'] == 'COMPLETE':
+                    path = Path(row['Local Path'])
+                    assert path.is_file()
 
         # Check string input
         test_dataset_id = 'Z14Z0104T'
@@ -313,14 +341,32 @@ class TestMast:
                                                 download_dir=tmp_path)
         for row in result:
             if row['Status'] == 'COMPLETE':
-                check_filepath(row['Local Path'])
+                check_filepaths(result)
 
         # Check Row input
         datasets = MastMissions.query_object("M4", radius=0.1)
         prods = MastMissions.get_product_list(datasets[0])[0]
         result = MastMissions.download_products(prods,
                                                 download_dir=tmp_path)
-        check_filepath(result['Local Path'][0])
+        check_filepaths(result)
+
+        # JSON data input
+        json_data = [{'mission': 'hst',
+                      'fileset': 'Z14Z0104T',
+                      'filename': 'z14z0104t_pdq.fits'},
+                     {'mission': 'jwst',
+                      'fileset': 'jw01189001001_02101_00001',
+                      'filename': 'jw01189001001_02101_00001_nrs1_uncal.jpg'}]
+        result = MastMissions.download_products(json_data,
+                                                download_dir=tmp_path)
+        check_filepaths(result)
+
+        # JSON file input
+        json_file = tmp_path / 'products.json'
+        json_file.write_text(json.dumps(json_data))
+        result = MastMissions.download_products(json_file,
+                                                download_dir=tmp_path)
+        check_filepaths(result)
 
         # Warn about no products
         with pytest.warns(NoResultsWarning):
@@ -367,7 +413,8 @@ class TestMast:
         ('jwst', {'fileSetName': 'jw01189001001_02101_00001'}),
         ('classy', {'Target': 'J0021+0052'}),
         ('ullyses', {'host_galaxy_name': 'WLM', 'select_cols': ['observation_id']}),
-        ('roman', {'program': 3}),
+        ('roman', {'program': 3, 'pass_id': 1}),
+        ('iue', {'iue_data_id': 'LWR08496'}),
     ])
     def test_missions_workflow(self, tmp_path, mission, query_params):
         # Test workflow with other missions
@@ -513,7 +560,7 @@ class TestMast:
 
         # with position
         responses = Observations.query_criteria_async(filters=["NUV", "FUV"],
-                                                      objectname="M10")
+                                                      object_name="M10")
         assert isinstance(responses, list)
 
     def test_observations_query_criteria(self):
@@ -527,7 +574,7 @@ class TestMast:
         assert ((result['obs_collection'] == 'HST') | (result['obs_collection'] == 'HLA')).all()
 
         # with position
-        result = Observations.query_criteria(objectname="M10",
+        result = Observations.query_criteria(object_name="M10",
                                              filters=["NUV", "FUV"],
                                              obs_collection="GALEX")
         assert isinstance(result, Table)
@@ -535,7 +582,7 @@ class TestMast:
         assert (result['obs_collection'] == 'GALEX').all()
         assert sum(result['filters'] == 'NUV') == 4
 
-        result = Observations.query_criteria(objectname="M10",
+        result = Observations.query_criteria(object_name="M10",
                                              dataproduct_type="IMAGE",
                                              intentType="calibration")
         assert (result["intentType"] == "calibration").all()
@@ -584,7 +631,7 @@ class TestMast:
     # product functions
     def test_observations_get_product_list_async(self):
 
-        test_obs = Observations.query_criteria(filters=["NUV", "FUV"], objectname="M10")
+        test_obs = Observations.query_criteria(filters=["NUV", "FUV"], object_name="M10")
 
         responses = Observations.get_product_list_async(test_obs[0]["obsid"])
         assert isinstance(responses, list)
@@ -592,7 +639,7 @@ class TestMast:
         responses = Observations.get_product_list_async(test_obs[2:3])
         assert isinstance(responses, list)
 
-        observations = Observations.query_criteria(objectname="M8", obs_collection=["K2", "IUE"])
+        observations = Observations.query_criteria(object_name="M8", obs_collection=["K2", "IUE"])
         responses = Observations.get_product_list_async(observations[0])
         assert isinstance(responses, list)
 
@@ -604,7 +651,7 @@ class TestMast:
         assert isinstance(responses, list)
 
     def test_observations_get_product_list(self, capsys):
-        observations = Observations.query_criteria(objectname='M8', obs_collection=['K2', 'IUE'])
+        observations = Observations.query_criteria(object_name='M8', obs_collection=['K2', 'IUE'])
         test_obs_id = str(observations[0]['obsid'])
         mult_obs_ids = str(observations[0]['obsid']) + ',' + str(observations[1]['obsid'])
 
@@ -767,6 +814,42 @@ class TestMast:
         with caplog.at_level("INFO", logger="astroquery"):
             assert "products were duplicates" in caplog.text
 
+    def test_observations_download_products_cloud(self, tmp_path, msa_product_table, reset_cloud_state):
+        # Explicity enable cloud dataset
+        Observations.enable_cloud_dataset()
+
+        # Adding a product that's not in the cloud to test mixed downloads
+        in_uri = "mast:IUE/url/pub/vospectra/iue2/swp18830mxlo_vo.fits"
+        new_row = {col: msa_product_table[col][0] for col in msa_product_table.colnames}
+        new_row["dataURI"] = in_uri
+        new_row["productFilename"] = Path(in_uri).name
+        msa_product_table = msa_product_table.copy()
+        msa_product_table.add_row(new_row)
+
+        with pytest.warns(NoResultsWarning, match='Skipping download'):
+            result = Observations.download_products(msa_product_table,
+                                                    download_dir=tmp_path,
+                                                    cloud_only=True)
+        assert isinstance(result, Table)
+        assert len(result) == 2
+        # First product should be downloaded from cloud, second should be skipped
+        assert result['Status'][0] == 'COMPLETE'
+        assert result['Status'][1] == 'SKIPPED'
+        assert Path(result['Local Path'][0]).exists()
+        assert not Path(result['Local Path'][1]).exists()
+        Path.unlink(result['Local Path'][0])  # clean up file
+
+        # Should fall back and download if cloud_only is False
+        with pytest.warns(InputWarning, match='Falling back to MAST download.'):
+            result = Observations.download_products(msa_product_table,
+                                                    download_dir=tmp_path)
+        assert isinstance(result, Table)
+        assert len(result) == 2
+        assert result['Status'][0] == 'COMPLETE'
+        assert result['Status'][1] == 'COMPLETE'
+        assert Path(result['Local Path'][0]).exists()
+        assert Path(result['Local Path'][1]).exists()
+
     def test_observations_download_file(self, tmp_path):
 
         def check_result(result, path):
@@ -774,7 +857,7 @@ class TestMast:
             assert os.path.exists(path)
 
         # get observations from GALEX instrument with query_criteria
-        observations = Observations.query_criteria(objectname='M10',
+        observations = Observations.query_criteria(object_name='M10',
                                                    radius=0.001,
                                                    instrument_name='GALEX')
 
@@ -804,18 +887,34 @@ class TestMast:
         check_result(result, local_path_file)
 
     @pytest.mark.parametrize("in_uri", [
-        'mast:HLA/url/cgi-bin/getdata.cgi?download=1&filename=hst_05206_01_wfpc2_f375n_wf_daophot_trm.cat',
+        'mast:GALEX/url/data/GR6/pipe/01-vsn/03329-MISDR1_18916_0459/d/01-main/0001-img/07-try/'
+        'MISDR1_18916_0459-fd-flagstar.fits.gz',
         'mast:HST/product/u24r0102t_c3m.fits'
     ])
-    def test_observations_download_file_cloud(self, tmp_path, in_uri):
-        pytest.importorskip("boto3")
-
-        Observations.enable_cloud_dataset()
-
+    def test_observations_download_file_cloud(self, tmp_path, in_uri, reset_cloud_state):
         filename = Path(in_uri).name
         result = Observations.download_file(uri=in_uri, cloud_only=True, local_path=tmp_path)
         assert result == ('COMPLETE', None, None)
         assert Path(tmp_path, filename).exists()
+
+    def test_observations_download_file_cloud_not_found(self, tmp_path, reset_cloud_state):
+        in_uri = 'mast:IUE/url/pub/vospectra/iue2/swp18830mxlo_vo.fits'
+
+        # Explicity enable cloud dataset
+        Observations.enable_cloud_dataset()
+
+        # Warn and fallback
+        with pytest.warns(InputWarning, match='Falling back to MAST download.'):
+            result = Observations.download_file(uri=in_uri, local_path=tmp_path)
+            assert result == ('COMPLETE', None, None)
+            assert Path(tmp_path, Path(in_uri).name).exists()
+            Path.unlink(Path(tmp_path, Path(in_uri).name))  # clean up file
+
+        # Skip if cloud_only is set
+        with pytest.warns(NoResultsWarning, match='Skipping download'):
+            result = Observations.download_file(uri=in_uri, cloud_only=True, local_path=tmp_path)
+            assert result == ('SKIPPED', None, None)
+            assert not Path(tmp_path, Path(in_uri).name).exists()
 
     def test_observations_download_file_escaped(self, tmp_path):
         # test that `download_file` correctly escapes a URI
@@ -847,6 +946,14 @@ class TestMast:
         assert result == ("COMPLETE", None, None)
         assert Path(tmp_path, filename).exists()
 
+    def test_observations_list_cloud_missions(self, reset_cloud_state):
+        # Test that the function to list missions with cloud datasets returns expected missions
+        missions = Observations.list_cloud_datasets()
+        assert isinstance(missions, list)
+        assert len(missions) > 0
+        for m in ['hst', 'jwst', 'panstarrs', 'galex', 'tess']:
+            assert m in missions
+
     @pytest.mark.parametrize("test_data_uri, expected_cloud_uri", [
         ("mast:HST/product/u24r0102t_c1f.fits",
          "s3://stpubdata/hst/public/u24r/u24r0102t/u24r0102t_c1f.fits"),
@@ -854,13 +961,10 @@ class TestMast:
          "s3://stpubdata/panstarrs/ps1/public/rings.v3.skycell/1334/061/"
          "rings.v3.skycell.1334.061.stk.r.unconv.exp.fits")
     ])
-    def test_observations_get_cloud_uri(self, test_data_uri, expected_cloud_uri):
-        pytest.importorskip("boto3")
+    def test_observations_get_cloud_uri(self, test_data_uri, expected_cloud_uri, reset_cloud_state):
         # get a product list
         product = Table()
         product['dataURI'] = [test_data_uri]
-        # enable access to public AWS S3 bucket
-        Observations.enable_cloud_dataset()
 
         # get uri
         uri = Observations.get_cloud_uri(product[0])
@@ -873,18 +977,13 @@ class TestMast:
         assert uri == expected_cloud_uri, f'Cloud URI does not match expected. ({uri} != {expected_cloud_uri})'
 
     @pytest.mark.parametrize("test_obs_id", ["25568122", "31411", "107604081"])
-    def test_observations_get_cloud_uris(self, test_obs_id):
-        pytest.importorskip("boto3")
-
+    def test_observations_get_cloud_uris(self, test_obs_id, reset_cloud_state):
         # get a product list
         index = 24 if test_obs_id == '25568122' else 0
         products = Observations.get_product_list(test_obs_id)[index:index + 2]
 
         assert len(products) > 0, (f'No products found for OBSID {test_obs_id}. '
                                    'Unable to move forward with getting URIs from the cloud.')
-
-        # enable access to public AWS S3 bucket
-        Observations.enable_cloud_dataset()
 
         # get uris
         uris = Observations.get_cloud_uris(products)
@@ -896,16 +995,12 @@ class TestMast:
             Observations.get_cloud_uris(products,
                                         extension='png')
 
-    def test_observations_get_cloud_uris_list_input(self):
-        pytest.importorskip("boto3")
+    def test_observations_get_cloud_uris_list_input(self, reset_cloud_state):
         uri_list = ['mast:HST/product/u24r0102t_c1f.fits',
                     'mast:PS1/product/rings.v3.skycell.1334.061.stk.r.unconv.exp.fits']
         expected = ['s3://stpubdata/hst/public/u24r/u24r0102t/u24r0102t_c1f.fits',
                     's3://stpubdata/panstarrs/ps1/public/rings.v3.skycell/1334/061/rings.v3.skycell.1334.'
                     '061.stk.r.unconv.exp.fits']
-
-        # enable access to public AWS S3 bucket
-        Observations.enable_cloud_dataset()
 
         # list of URI strings as input
         uris = Observations.get_cloud_uris(uri_list)
@@ -925,15 +1020,10 @@ class TestMast:
                                         extension='png')
 
         # check for warning if one of the URIs is not found
-        with pytest.warns(NoResultsWarning, match='Failed to retrieve MAST relative path'):
+        with pytest.warns(NoResultsWarning, match='Failed to retrieve cloud path'):
             Observations.get_cloud_uris(['mast:HST/product/does_not_exist.fits'])
 
-    def test_observations_get_cloud_uris_query(self):
-        pytest.importorskip("boto3")
-
-        # enable access to public AWS S3 bucket
-        Observations.enable_cloud_dataset()
-
+    def test_observations_get_cloud_uris_query(self, reset_cloud_state):
         # get uris with other functions
         obs = Observations.query_criteria(target_name=234295610)
         prod = Observations.get_product_list(obs)
@@ -953,16 +1043,11 @@ class TestMast:
         with pytest.warns(NoResultsWarning):
             Observations.get_cloud_uris(target_name=234295611)
 
-    def test_observations_get_cloud_uris_no_duplicates(self, msa_product_table):
-        pytest.importorskip("boto3")
-
+    def test_observations_get_cloud_uris_no_duplicates(self, msa_product_table, reset_cloud_state):
         # Get a product list with 6 duplicate JWST MSA config files
         products = msa_product_table
 
         assert len(products) == 6
-
-        # enable access to public AWS S3 bucket
-        Observations.enable_cloud_dataset(provider='AWS')
 
         # Check that only one URI is returned
         uris = Observations.get_cloud_uris(products)
@@ -1039,7 +1124,8 @@ class TestMast:
 
         result = Catalogs.query_region("322.49324 12.16683",
                                        radius=0.01*u.deg, catalog="panstarrs",
-                                       table="mean")
+                                       table="mean",
+                                       columns=['objName', 'objID', 'yFlags', 'distance'])
         row = np.where((result['objName'] == 'PSO J322.4622+12.1920') & (result['yFlags'] == 16777496))
         assert isinstance(result, Table)
         np.testing.assert_allclose(result[row]['distance'], 0.039381703406789904)
@@ -1117,7 +1203,8 @@ class TestMast:
         result = Catalogs.query_object("M10",
                                        radius=.001,
                                        catalog="panstarrs",
-                                       table="mean")
+                                       table="mean",
+                                       columns=['objName', 'objID'])
         check_result(result, {'objName': 'PSO J254.2873-04.1006'})
 
         result = Catalogs.query_object("M10",
@@ -1164,24 +1251,24 @@ class TestMast:
 
         # with position
         responses = Catalogs.query_criteria_async(catalog="Tic",
-                                                  objectname="M10",
+                                                  object_name="M10",
                                                   objType="EXTENDED")
         assert isinstance(responses, list)
 
         responses = Catalogs.query_criteria_async(catalog="CTL",
-                                                  objectname="M10",
+                                                  object_name="M10",
                                                   objType="EXTENDED")
         assert isinstance(responses, list)
 
         responses = Catalogs.query_criteria_async(catalog="DiskDetective",
-                                                  objectname="M10",
+                                                  object_name="M10",
                                                   radius=2,
                                                   state="complete")
         assert isinstance(responses, list)
 
         responses = Catalogs.query_criteria_async(catalog="panstarrs",
                                                   table="mean",
-                                                  objectname="M10",
+                                                  object_name="M10",
                                                   radius=.02,
                                                   qualityFlag=48)
         assert isinstance(responses, Response)
@@ -1221,26 +1308,27 @@ class TestMast:
 
         # with position
         result = Catalogs.query_criteria(catalog="Tic",
-                                         objectname="M10", objType="EXTENDED")
+                                         object_name="M10", objType="EXTENDED")
         check_result(result, {'ID': '10000732589'})
 
-        result = Catalogs.query_criteria(objectname='TIC 291067184',
+        result = Catalogs.query_criteria(object_name='TIC 291067184',
                                          catalog="ctl",
                                          Tmag=[10.5, 11],
                                          POSflag="2mass")
         check_result(result, {'Tmag': 10.893})
 
         result = Catalogs.query_criteria(catalog="DiskDetective",
-                                         objectname="M10",
+                                         object_name="M10",
                                          radius=2,
                                          state="complete")
         check_result(result, {'designation': 'J165628.40-054630.8'})
 
         result = Catalogs.query_criteria(catalog="panstarrs",
-                                         objectname="M10",
+                                         object_name="M10",
                                          radius=.01,
                                          qualityFlag=32,
-                                         zoneID=10306)
+                                         zoneID=10306,
+                                         columns=['objName', 'objID'])
         check_result(result, {'objName': 'PSO J254.2861-04.1091'})
 
         result = Catalogs.query_criteria(coordinates="158.47924 -7.30962",
@@ -1369,13 +1457,13 @@ class TestMast:
         sector_table = Tesscut.get_sectors(coordinates=coord)
         check_sector_table(sector_table)
 
-        sector_table = Tesscut.get_sectors(objectname="M104")
+        sector_table = Tesscut.get_sectors(object_name="M104")
         check_sector_table(sector_table)
 
     def test_tesscut_get_sectors_mt(self):
         # Moving target functionality testing
         moving_target_name = 'Eleonora'
-        sector_table = Tesscut.get_sectors(objectname=moving_target_name,
+        sector_table = Tesscut.get_sectors(object_name=moving_target_name,
                                            moving_target=True)
         assert isinstance(sector_table, Table)
         assert len(sector_table) >= 1
@@ -1386,7 +1474,7 @@ class TestMast:
 
         error_nameresolve = f"Could not resolve \"{moving_target_name}\" to a sky position."
         with pytest.raises(ResolverError) as error_msg:
-            Tesscut.get_sectors(objectname=moving_target_name)
+            Tesscut.get_sectors(object_name=moving_target_name)
         assert error_nameresolve in str(error_msg.value)
 
     def test_tesscut_download_cutouts(self, tmpdir):
@@ -1414,14 +1502,14 @@ class TestMast:
                                             path=str(tmpdir), inflate=False)
         check_manifest(manifest, ".zip")
 
-        manifest = Tesscut.download_cutouts(objectname="TIC 32449963", size=1, path=str(tmpdir))
+        manifest = Tesscut.download_cutouts(object_name="TIC 32449963", size=1, path=str(tmpdir))
         check_manifest(manifest, "fits")
 
     def test_tesscut_download_cutouts_mt(self, tmpdir):
         # Moving target functionality testing
         moving_target_name = 'Eleonora'
 
-        manifest = Tesscut.download_cutouts(objectname=moving_target_name,
+        manifest = Tesscut.download_cutouts(object_name=moving_target_name,
                                             moving_target=True,
                                             sector=6,
                                             size=1,
@@ -1434,7 +1522,7 @@ class TestMast:
 
         error_nameresolve = f"Could not resolve \"{moving_target_name}\" to a sky position."
         with pytest.raises(ResolverError) as error_msg:
-            Tesscut.download_cutouts(objectname=moving_target_name)
+            Tesscut.download_cutouts(object_name=moving_target_name)
         assert error_nameresolve in str(error_msg.value)
 
     def test_tesscut_get_cutouts(self):
@@ -1455,7 +1543,7 @@ class TestMast:
                                                sector=[28, 68])
         check_cutout_hdu(cutout_hdus_list)
 
-        cutout_hdus_list = Tesscut.get_cutouts(objectname="TIC 32449963",
+        cutout_hdus_list = Tesscut.get_cutouts(object_name="TIC 32449963",
                                                size=1,
                                                sector=37)
         check_cutout_hdu(cutout_hdus_list)
@@ -1463,7 +1551,7 @@ class TestMast:
     def test_tesscut_get_cutouts_mt(self):
         # Moving target functionality testing
         moving_target_name = 'Eleonora'
-        cutout_hdus_list = Tesscut.get_cutouts(objectname=moving_target_name,
+        cutout_hdus_list = Tesscut.get_cutouts(object_name=moving_target_name,
                                                moving_target=True,
                                                sector=6,
                                                size=1)
@@ -1473,7 +1561,7 @@ class TestMast:
 
         error_nameresolve = f"Could not resolve \"{moving_target_name}\" to a sky position."
         with pytest.raises(ResolverError) as error_msg:
-            Tesscut.get_cutouts(objectname=moving_target_name)
+            Tesscut.get_cutouts(object_name=moving_target_name)
         assert error_nameresolve in str(error_msg.value)
 
     def test_tesscut_get_cutouts_mt_no_sector(self):
@@ -1484,7 +1572,7 @@ class TestMast:
         """
         moving_target_name = "Eleonora"
         # Moving target without specifying sector - should automatically fetch sectors
-        cutout_hdus_list = Tesscut.get_cutouts(objectname=moving_target_name, moving_target=True, size=1)
+        cutout_hdus_list = Tesscut.get_cutouts(object_name=moving_target_name, moving_target=True, size=1)
         assert isinstance(cutout_hdus_list, list)
         # Should return cutouts for all available sectors
         assert len(cutout_hdus_list) >= 1
@@ -1498,7 +1586,8 @@ class TestMast:
         """
         moving_target_name = "Eleonora"
         # Moving target without specifying sector - should automatically fetch sectors
-        manifest = Tesscut.download_cutouts(objectname=moving_target_name, moving_target=True, size=1, path=str(tmpdir))
+        manifest = Tesscut.download_cutouts(object_name=moving_target_name,
+                                            moving_target=True, size=1, path=str(tmpdir))
         assert isinstance(manifest, Table)
         # Should return files for all available sectors
         assert len(manifest) >= 1

@@ -2,6 +2,10 @@
 
 .. _astroquery.utils.tap:
 
+*********************************
+TAP/TAP+ (`astroquery.utils.tap`)
+*********************************
+
 .. Warning::
    This module is for internal astroquery use only with the purpose to
    support the modules developed and maintained by ESA (``astroquery.gaia``,
@@ -10,10 +14,6 @@
    we recommend to use `pyVO <https://pyvo.readthedocs.io/en/latest/>`__ instead.
    Our intention is to merge the functionalities and remove TAP/TAP+ from astroquery.
 
-
-*********************************
-TAP/TAP+ (`astroquery.utils.tap`)
-*********************************
 
 Table Access Protocol (TAP: https://www.ivoa.net/documents/TAP/) specified by the
 International Virtual Observatory Alliance (IVOA: https://www.ivoa.net) defines

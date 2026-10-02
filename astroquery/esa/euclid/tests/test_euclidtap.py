@@ -8,6 +8,7 @@ European Space Agency (ESA)
 """
 import glob
 import os
+import re
 import shutil
 from datetime import datetime
 from pathlib import Path
@@ -18,6 +19,7 @@ import numpy as np
 import pytest
 from astropy import coordinates
 from astropy.coordinates.sky_coordinate import SkyCoord
+from astropy.io.votable import parse_single_table
 from astropy.table import Column, Table
 from astropy.units import Quantity
 from astropy.utils.data import get_pkg_data_filename
@@ -43,11 +45,25 @@ JOBS_ASYNC_DATA = Path(JOB_ASYNC_FILE_NAME).read_text()
 TABLE_FILE_NAME = get_pkg_data_filename(os.path.join("data", '1714556098855O-result.vot'), package=package)
 TABLE_DATA = Path(TABLE_FILE_NAME).read_text()
 
+TABLE_SIA_FILE_NAME = get_pkg_data_filename(os.path.join("data", 'sia_test.vot'), package=package)
+
 RADIUS = 1 * u.deg
 SKYCOORD = SkyCoord(ra=19 * u.deg, dec=20 * u.deg, frame="icrs")
 
 PRODUCT_LIST_FILE_NAME = get_pkg_data_filename(os.path.join("data", 'test_get_product_list.vot'), package=package)
 TEST_GET_PRODUCT_LIST = Path(PRODUCT_LIST_FILE_NAME).read_text()
+
+LE3_SCIENTIFIC_PRODUCT_LIST_FILE_NAME = get_pkg_data_filename(
+    os.path.join("data", 'test_get_scientific_product_list.csv'), package=package)
+TEST_GET_SCIENTIFIC_PRODUCT_LIST = Path(LE3_SCIENTIFIC_PRODUCT_LIST_FILE_NAME).read_text()
+
+LE3_VALID_CONFIGURATION_FILE_NAME = get_pkg_data_filename(
+    os.path.join("data", 'test_get_valid_le3_configuration.vot'), package=package)
+TEST_GET_LE3_VALID_CONFIGURATION = Path(LE3_VALID_CONFIGURATION_FILE_NAME).read_text()
+
+MULTIPLE_GET_SPECTRUM = get_pkg_data_filename(os.path.join("data", 'get_spectrum_output.zip'), package=package)
+
+SINGLE_GET_SPECTRUM = get_pkg_data_filename(os.path.join("data", '1499442653027920313.fits.zip'), package=package)
 
 
 def make_table_metadata(table_name, ra, dec):
@@ -111,6 +127,8 @@ def mock_querier_async():
     conn_handler = DummyConnHandler()
     tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     cutout_handler = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+    sia_handler = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
+
     jobid = "12345"
 
     launch_response = DummyResponse(303)
@@ -139,7 +157,7 @@ def mock_querier_async():
     conn_handler.set_response("async/1479386030738O/results/result", results_response)
 
     return EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, cutout_handler=cutout_handler,
-                       show_server_messages=False)
+                       sia_handler=sia_handler, show_server_messages=False)
 
 
 @pytest.fixture(scope="module")
@@ -178,13 +196,13 @@ def test_load_environments():
 
     environment = 'WRONG'
     try:
-        tap = EuclidClass(environment='WRONG')
+        EuclidClass(environment='WRONG')
     except Exception as e:
         assert str(e).startswith(f"Invalid environment {environment}. Valid values: {list(conf.ENVIRONMENTS.keys())}")
 
 
 def test_query_async_object(column_attrs, mock_querier_async):
-    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
+    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.deg, u.deg), frame='icrs')
     table = mock_querier_async.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg),
                                             height=u.Quantity(0.1, u.deg), async_job=True)
 
@@ -196,7 +214,7 @@ def test_query_async_object(column_attrs, mock_querier_async):
 
 
 def test_query_async_object_columns(column_attrs, mock_querier_async):
-    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
+    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.deg, u.deg), frame='icrs')
     table = mock_querier_async.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg),
                                             height=u.Quantity(0.1, u.deg), columns=("alpha",), async_job=True)
 
@@ -208,7 +226,7 @@ def test_query_async_object_columns(column_attrs, mock_querier_async):
 
 
 def test_query_object(column_attrs, mock_querier):
-    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
+    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.deg, u.deg), frame='icrs')
     table = mock_querier.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg),
                                       height=u.Quantity(0.1, u.deg))
 
@@ -220,7 +238,7 @@ def test_query_object(column_attrs, mock_querier):
 
 
 def test_query_object_columns(column_attrs, mock_querier):
-    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
+    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.deg, u.deg), frame='icrs')
     table = mock_querier.query_object(coordinate=coord, width=u.Quantity(0.1, u.deg),
                                       height=u.Quantity(0.1, u.deg), columns=("alpha",))
 
@@ -231,7 +249,7 @@ def test_query_object_columns(column_attrs, mock_querier):
 
 
 def test_query_object_async_radius(column_attrs, mock_querier_async):
-    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
+    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.deg, u.deg), frame='icrs')
     table = mock_querier_async.query_object(coordinate=coord, radius=RADIUS, async_job=True)
 
     assert table is not None
@@ -242,7 +260,7 @@ def test_query_object_async_radius(column_attrs, mock_querier_async):
 
 
 def test_query_object_radius(column_attrs, mock_querier):
-    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
+    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.deg, u.deg), frame='icrs')
     table = mock_querier.query_object(coordinate=coord, radius=RADIUS)
 
     assert table is not None
@@ -253,7 +271,7 @@ def test_query_object_radius(column_attrs, mock_querier):
 
 
 def test_query_object_async_radius_columns(column_attrs, mock_querier_async):
-    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
+    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.deg, u.deg), frame='icrs')
     table = mock_querier_async.query_object(coordinate=coord, radius=RADIUS, columns=("alpha",), async_job=True)
 
     assert table is not None
@@ -263,7 +281,7 @@ def test_query_object_async_radius_columns(column_attrs, mock_querier_async):
 
 
 def test_query_object_radius_columns(column_attrs, mock_querier):
-    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.degree, u.degree), frame='icrs')
+    coord = SkyCoord(ra=60.3372780005097, dec=-49.93184727724773, unit=(u.deg, u.deg), frame='icrs')
     table = mock_querier.query_object(coordinate=coord, radius=RADIUS, columns=("alpha",))
 
     assert table is not None
@@ -642,6 +660,9 @@ def test_get_product_list():
     for product_type in conf.BASIC_DOWNLOAD_DATA_PRODUCTS:
         results = tap.get_product_list(observation_id='13', product_type=product_type)
         assert results is not None, "Expected a valid table"
+        if product_type == 'DPdMerFinalCatalog':
+            assert any(c.lower() == 'file_name_list' or 'file_name' for c in results.colnames), \
+                "Expected file_name_list column for DPdMerFinalCatalog"
 
     for product_type in conf.MER_SEGMENTATION_MAP_PRODUCTS:
         results = tap.get_product_list(observation_id='13', product_type=product_type)
@@ -666,6 +687,61 @@ def test_get_product_list():
     for product_type in conf.SIR_SCIENCE_FRAME_PRODUCTS:
         results = tap.get_product_list(observation_id='13', product_type=product_type)
         assert results is not None, "Expected a valid table"
+
+    ##############
+
+    for product_type in conf.SIR_SCIENCE_FRAME_PRODUCTS:
+        results = tap.get_product_list(observation_id='13', product_type=product_type, dsr_part1='CALBLOCK',
+                                       verbose=True)
+        assert results is not None, "Expected a valid table"
+
+    for product_type in conf.SIR_SCIENCE_FRAME_PRODUCTS:
+        results = tap.get_product_list(observation_id='13', product_type=product_type, dsr_part1='CALBLOCK',
+                                       dsr_part2='PV-023', verbose=True)
+        assert results is not None, "Expected a valid table"
+
+    for product_type in conf.SIR_SCIENCE_FRAME_PRODUCTS:
+        results = tap.get_product_list(observation_id='13', product_type=product_type, dsr_part1='CALBLOCK',
+                                       dsr_part2='PV-023', dsr_part3=1, verbose=True)
+        assert results is not None, "Expected a valid table"
+
+    for product_type in conf.SIR_SCIENCE_FRAME_PRODUCTS:
+        results = tap.get_product_list(observation_id='13', product_type=product_type, dsr_part2='PV-023', dsr_part3=1,
+                                       verbose=True)
+        assert results is not None, "Expected a valid table"
+
+    # use parameter schema
+    for product_type in conf.SIR_SCIENCE_FRAME_PRODUCTS:
+        results = tap.get_product_list(observation_id='13', product_type=product_type, schema='dr1', dsr_part2='PV-023',
+                                       dsr_part3=1, verbose=True)
+        assert results is not None, "Expected a valid table"
+
+
+def test_not_overlaping_values_in_product_groups():
+    # Test that no product appears in multiple groups
+    product_groups = {
+        "OBSERVATION_STACK_PRODUCTS": conf.OBSERVATION_STACK_PRODUCTS,
+        "BASIC_DOWNLOAD_DATA_PRODUCTS": conf.BASIC_DOWNLOAD_DATA_PRODUCTS,
+        "RAW_FRAME_PRODUCTS": conf.RAW_FRAME_PRODUCTS,
+        "MER_SEGMENTATION_MAP_PRODUCTS": conf.MER_SEGMENTATION_MAP_PRODUCTS,
+        "CALIBRATED_FRAME_PRODUCTS": conf.CALIBRATED_FRAME_PRODUCTS,
+        "FRAME_CATALOG_PRODUCTS": conf.FRAME_CATALOG_PRODUCTS,
+        "COMBINED_SPECTRA_PRODUCTS": conf.COMBINED_SPECTRA_PRODUCTS,
+        "SIR_SCIENCE_FRAME_PRODUCTS": conf.SIR_SCIENCE_FRAME_PRODUCTS,
+        "MOSAIC_PRODUCTS": conf.MOSAIC_PRODUCTS
+    }
+
+    seen = {}
+
+    for group_name, products in product_groups.items():
+        for product in products:
+            assert product not in seen, (
+                f"{product} is present in both "
+                f"{seen[product]} and {group_name}"
+            )
+            seen[product] = group_name
+
+    assert len(seen) == 31
 
 
 def test_get_product_list_by_tile_index():
@@ -727,7 +803,7 @@ def test_get_product_list_errors():
         tap.get_product_list(observation_id='13', product_type='DpdMerBksMosaic')
 
 
-def test_get_product_by_product_id(tmp_path_factory):
+def test_get_product_by_product_id(tmp_path_factory, capsys):
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
                        connhandler=conn_handler)
@@ -753,12 +829,95 @@ def test_get_product_by_product_id(tmp_path_factory):
 
     fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.fits')
 
-    result = tap.get_product(product_id='123456789', output_file=fits_file)
+    captured = capsys.readouterr()
+
+    result = tap.get_product(product_id='123456789', output_file=fits_file, verbose=True)
+
+    assert result is not None
+
+    captured = capsys.readouterr()
+
+    file_path = captured.out.splitlines()[0].replace('Product output file: ', '')
+    assert os.path.exists(file_path)
+
+    remove_temp_dir()
+
+    result = tap.get_product(product_id='123456789', output_file=None, verbose=True)
+
+    assert result is not None
+
+    captured = capsys.readouterr()
+
+    file_path = captured.out.splitlines()[0].replace('Product output file: ', '')
+    assert os.path.exists(file_path)
+    assert '123456789' in file_path
+
+    remove_temp_dir()
+
+    # Multiple product ids
+    result = tap.get_product(product_id='123456789,987654321', output_file=None)
+
+    assert result is not None
+
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    assert os.path.exists(os.path.join(dirs[0], 'get_product_output.zip'))
+
+    remove_temp_dir()
+
+    result = tap.get_product(product_id=['123456789', '987654321'], output_file=None)
+
+    assert result is not None
+
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    assert os.path.exists(os.path.join(dirs[0], 'get_product_output.zip'))
+
+    remove_temp_dir()
+
+
+def test_get_product_by_product_id_data_set_release(tmp_path_factory):
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+    # Launch response: we use default response because the query contains decimals
+    responseLaunchJob = DummyResponse(200)
+    responseLaunchJob.set_data(method='POST', context=None, body='', headers=None)
+
+    conn_handler.set_default_response(responseLaunchJob)
+
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+
+    result = tap.get_product(product_id='123456789', output_file=None, dsr_part1='CALBLOCK',
+                             dsr_part2='PV-023', dsr_part3=1)
+
+    assert result is not None
+
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    remove_temp_dir()
+
+    fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.fits')
+
+    result = tap.get_product(product_id='123456789', output_file=fits_file, dsr_part1='CALBLOCK',
+                             dsr_part2='PV-023', dsr_part3=1)
 
     assert result is not None
 
 
-def test_get_product():
+def test_get_product(capsys):
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
                        connhandler=conn_handler)
@@ -771,7 +930,26 @@ def test_get_product():
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
     result = tap.get_product(file_name='EUC_SIM_NISRGS180-8-1_20220722T094150.427Z_PV023_NISP-S_8_18_0.fits',
-                             output_file=None)
+                             output_file=None, verbose=True)
+
+    assert result is not None
+
+    captured = capsys.readouterr()
+
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    file_path = captured.out.splitlines()[0].replace('Product output file: ', '')
+    assert os.path.exists(file_path)
+    assert 'EUC_SIM_NISRGS180-8-1_20220722T094150.427Z_PV023_NISP-S_8_18_0' in file_path
+
+    remove_temp_dir()
+
+    # Multiple product ids
+    result = tap.get_product(file_name='uno.fits,dos.fits', output_file=None)
 
     assert result is not None
 
@@ -780,6 +958,88 @@ def test_get_product():
 
     assert len(dirs) == 1
     assert dirs[0] is not None
+
+    assert os.path.exists(os.path.join(dirs[0], 'get_product_output.zip'))
+
+    remove_temp_dir()
+
+    result = tap.get_product(file_name=['uno.fits', 'dos.fits'], output_file=None)
+
+    assert result is not None
+
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    assert os.path.exists(os.path.join(dirs[0], 'get_product_output.zip'))
+
+    remove_temp_dir()
+
+
+@patch.object(TapPlus, 'load_data')
+def test_get_product_with_list_of_filenames(mock_load_data, tmp_path_factory):
+    """
+    Test that get_product accepts a list for file_name and converts it into
+    a comma-separated string, while ensuring a real output file exists so
+    __extract_file doesn't fail.
+    """
+
+    # Set up the enviornment
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+
+    responseLaunchJob = DummyResponse(200)
+    responseLaunchJob.set_data(method='POST', context=None, body='', headers=None)
+    conn_handler.set_default_response(responseLaunchJob)
+
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+
+    # Mock: create the file
+    def _fake_load_data(*args, **kwargs):
+        output_file = kwargs.get("output_file")
+        # Create a dummy fits and directory
+        of = Path(output_file)
+        of.parent.mkdir(parents=True, exist_ok=True)
+        of.write_bytes(b"SIMPLE  =                    T\nEND\n")
+        return None
+
+    mock_load_data.side_effect = _fake_load_data
+
+    # Input a as file names list
+    filenames = ["file1.fits", "file2.fits", "file3.fits", "file4.fits"]
+
+    # Force an output name with .fits so that the extractor treats it as 1 file
+    out_dir = tmp_path_factory.mktemp("euclid_tmp")
+    output_file = str(out_dir / "dummy.fits")
+
+    result = tap.get_product(file_name=filenames, output_file=output_file)
+
+    # Must return a list of files (at least the one we created)
+    assert result is not None
+    assert isinstance(result, list)
+    assert len(result) >= 1
+    assert result[0].endswith(".fits")
+
+    # Verify that FILE_NAME is correct
+    kwargs = mock_load_data.call_args.kwargs
+    params_dict = kwargs.get("params_dict")
+    assert params_dict["FILE_NAME"] == "file1.fits,file2.fits,file3.fits,file4.fits"
+    assert params_dict["RETRIEVAL_TYPE"] == "FILE"
+
+    result = tap.get_product(file_name=filenames)
+
+    assert result is not None
+
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    assert os.path.exists(os.path.join(dirs[0], 'get_product_output.zip'))
 
     remove_temp_dir()
 
@@ -852,6 +1112,8 @@ def test_get_observation_products(tmp_path_factory):
 
     assert result is not None
 
+    remove_temp_dir()
+
     result = tap.get_observation_products(id='13', product_type='mosaic', filter='VIS', output_file=None)
 
     assert result is not None
@@ -869,6 +1131,50 @@ def test_get_observation_products(tmp_path_factory):
     result = tap.get_observation_products(id='13', product_type='mosaic', filter='VIS', output_file=fits_file)
 
     assert result is not None
+
+    remove_temp_dir()
+
+
+def test_get_observation_products_data_set_release(tmp_path_factory):
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+    # Launch response: we use default response because the query contains decimals
+    responseLaunchJob = DummyResponse(200)
+    responseLaunchJob.set_data(method='POST', context=None, body='', headers=None)
+
+    conn_handler.set_default_response(responseLaunchJob)
+
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+
+    result = tap.get_observation_products(id='13', product_type='observation', filter='VIS', output_file=None,
+                                          dsr_part1='CALBLOCK', dsr_part2='PV-023', dsr_part3=1)
+
+    assert result is not None
+
+    remove_temp_dir()
+
+    result = tap.get_observation_products(id='13', product_type='mosaic', filter='VIS', output_file=None,
+                                          dsr_part1='CALBLOCK', dsr_part2='PV-023', dsr_part3=1)
+
+    assert result is not None
+
+    now = datetime.now()
+    dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
+
+    assert len(dirs) == 1
+    assert dirs[0] is not None
+
+    remove_temp_dir()
+
+    fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.fits')
+
+    result = tap.get_observation_products(id='13', product_type='mosaic', filter='VIS', output_file=fits_file,
+                                          dsr_part1='CALBLOCK', dsr_part2='PV-023', dsr_part3=1)
+
+    assert result is not None
+
+    remove_temp_dir()
 
 
 def test_get_observation_products_exceptions():
@@ -923,7 +1229,7 @@ def test_get_observation_products_exceptions_2(mock_load_data, caplog):
     remove_temp_dir()
 
 
-def test_get_cutout():
+def test_get_cutout(capsys):
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='cutout', client_id='ASTROQUERY',
                        connhandler=conn_handler)
@@ -945,9 +1251,14 @@ def test_get_cutout():
 
     result = tap.get_cutout(
         file_path='/data/repository/NIR/19704/EUC_NIR_W-STACK_NIR-J-19704_20190718T001858.5Z_00.00.fits',
-        instrument='NISP', id='19704', coordinate=c, radius=r, output_file=None)
+        coordinate=c, radius=r, output_file=None, verbose=True)
 
     assert result is not None
+
+    captured = capsys.readouterr()
+
+    file_path = captured.out.splitlines()[0].replace('Cutout output file: ', '')
+    assert os.path.exists(file_path)
 
     remove_temp_dir()
 
@@ -968,29 +1279,23 @@ def test_get_cutout_exception():
 
     c = coordinates.SkyCoord("187.89d 29.54d", frame='icrs')
     r = 1 * u.arcmin
-    file_path = '/data/repository/NIR/19704/EUC_NIR_W-STACK_NIR-J-19704_20190718T001858.5Z_00.00.fits',
+    file_path = '/data/repository/NIR/19704/EUC_NIR_W-STACK_NIR-J-19704_20190718T001858.5Z_00.00.fits'
 
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, cutout_handler=cutout_handler,
                       show_server_messages=False)
 
     with pytest.raises(ValueError, match="Radius cannot be greater than 30 arcminutes"):
-        tap.get_cutout(file_path=file_path, instrument='NISP', id='19704', coordinate=c, radius=100 * u.arcmin,
+        tap.get_cutout(file_path=file_path, coordinate=c, radius=100 * u.arcmin,
                        output_file=None)
 
     with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_cutout(file_path=None, instrument='NISP', id='19704', coordinate=c, radius=r, output_file=None)
+        tap.get_cutout(file_path=None, coordinate=c, radius=r, output_file=None)
 
     with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_cutout(file_path=file_path, instrument=None, id='19704', coordinate=c, radius=r, output_file=None)
+        tap.get_cutout(file_path=file_path, coordinate=None, radius=r, output_file=None)
 
     with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_cutout(file_path=file_path, instrument='NISP', id=None, coordinate=c, radius=r, output_file=None)
-
-    with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_cutout(file_path=file_path, instrument='NISP', id='19704', coordinate=None, radius=r, output_file=None)
-
-    with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_cutout(file_path=file_path, instrument='NISP', id='19704', coordinate=c, radius=None, output_file=None)
+        tap.get_cutout(file_path=file_path, coordinate=c, radius=None, output_file=None)
 
 
 @patch.object(TapPlus, 'load_data')
@@ -1013,24 +1318,33 @@ def test_get_cutout_exceptions_2(mock_load_data, caplog):
 
     mock_load_data.side_effect = HTTPError("launch_job_async HTTPError")
 
-    tap.get_cutout(file_path='hola.fits', instrument='NISP', id='19704', coordinate=SKYCOORD, radius=1 * u.arcmin,
+    tap.get_cutout(file_path='hola.fits', coordinate=SKYCOORD, radius=1 * u.arcmin,
                    output_file=None)
 
-    mssg = ("Cannot retrieve the product for file_path hola.fits, obsId 19704, and collection NISP. HTTP error: "
+    mssg = ("Cannot retrieve the product for file_path hola.fits. HTTP error: "
             "launch_job_async HTTPError")
     assert caplog.records[0].msg == mssg
 
     mock_load_data.side_effect = Exception("launch_job_async Exception")
 
-    tap.get_cutout(file_path='hola.fits', instrument='NISP', id='19704', coordinate=SKYCOORD, radius=1 * u.arcmin,
+    tap.get_cutout(file_path='hola.fits', coordinate=SKYCOORD, radius=1 * u.arcmin,
                    output_file=None)
 
-    mssg = ("Cannot retrieve the product for file_path hola.fits, obsId 19704, and collection NISP: launch_job_async "
+    mssg = ("Cannot retrieve the product for file_path hola.fits: launch_job_async "
             "Exception")
     assert caplog.records[1].msg == mssg
 
 
-def test_get_spectrum(tmp_path_factory):
+@pytest.mark.filterwarnings('ignore:')
+@patch.object(TapPlus, 'load_data')
+def test_get_spectrum(mock_load_data, tmp_path_factory, capsys):
+    def _fake_load_data(*args, **kwargs):
+        output_file = kwargs.get("output_file")
+        shutil.copy2(SINGLE_GET_SPECTRUM, Path(output_file))
+        return None
+
+    mock_load_data.side_effect = _fake_load_data
+
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
                        connhandler=conn_handler)
@@ -1042,9 +1356,12 @@ def test_get_spectrum(tmp_path_factory):
 
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
-    result = tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=None)
+    result = tap.get_spectrum(ids='1499442653027920313', schema='sedm_sc8', output_file=None)
 
     assert result is not None
+    assert len(result) == 2
+    assert "SPECTRA_RGS-sedm 1499442653027920313.fits" in result[0]
+    assert "SPECTRA_BGS-sedm 1499442653027920313.fits" in result[1]
 
     now = datetime.now()
     dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
@@ -1054,11 +1371,147 @@ def test_get_spectrum(tmp_path_factory):
 
     remove_temp_dir()
 
-    fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.fits')
+    fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.zip')
 
-    result = tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=fits_file)
+    result = tap.get_spectrum(ids='1499442653027920313', schema='sedm_sc8', output_file=fits_file)
+    assert os.path.exists(fits_file)
 
     assert result is not None
+    assert len(result) == 2
+    assert "SPECTRA_RGS-sedm 1499442653027920313.fits" in result[0]
+    assert "SPECTRA_BGS-sedm 1499442653027920313.fits" in result[1]
+
+    remove_temp_dir()
+
+    result = tap.get_spectrum(ids='1499442653027920313', schema='sedm_sc8', output_file=None, verbose=True)
+
+    assert result is not None
+    assert len(result) == 2
+    assert "SPECTRA_RGS-sedm 1499442653027920313.fits" in result[0]
+    assert "SPECTRA_BGS-sedm 1499442653027920313.fits" in result[1]
+
+    captured = capsys.readouterr()
+
+    file_path = captured.out.splitlines()[1].replace('Spectra output file: ', '')
+    assert os.path.exists(file_path)
+    assert os.path.basename(file_path) == '1499442653027920313.fits.zip'
+
+    remove_temp_dir()
+
+    fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.fits')
+
+    result = tap.get_spectrum(ids='1499442653027920313', schema='sedm_sc8', linking_parameter="SOURCE_ID",
+                              output_file=fits_file)
+
+    assert result is not None
+    assert len(result) == 2
+    assert "SPECTRA_RGS-sedm 1499442653027920313.fits" in result[0]
+    assert "SPECTRA_BGS-sedm 1499442653027920313.fits" in result[1]
+
+    remove_temp_dir()
+
+    fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.zip')
+
+    result = tap.get_spectrum(ids='1499442653027920313', schema='sedm_sc8', linking_parameter="SOURCEPATCH_ID",
+                              output_file=fits_file)
+
+    assert result is not None
+    assert len(result) == 2
+    assert "SPECTRA_RGS-sedm 1499442653027920313.fits" in result[0]
+    assert "SPECTRA_BGS-sedm 1499442653027920313.fits" in result[1]
+
+    remove_temp_dir()
+
+    # Check int value
+    fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.zip')
+
+    result = tap.get_spectrum(ids=1499442653027920313, schema='sedm_sc8', linking_parameter="SOURCEPATCH_ID",
+                              output_file=fits_file)
+
+    assert result is not None
+    assert len(result) == 2
+    assert "SPECTRA_RGS-sedm 1499442653027920313.fits" in result[0]
+    assert "SPECTRA_BGS-sedm 1499442653027920313.fits" in result[1]
+
+    remove_temp_dir()
+
+    fits_file = os.path.join(tmp_path_factory.mktemp("euclid_tmp"), 'my_fits_file.zip')
+
+    result = tap.get_spectrum(ids=1499442653027920313)
+
+    assert result is not None
+    assert len(result) == 2
+    assert "SPECTRA_RGS-sedm 1499442653027920313.fits" in result[0]
+    assert "SPECTRA_BGS-sedm 1499442653027920313.fits" in result[1]
+
+    remove_temp_dir()
+
+
+@pytest.mark.filterwarnings('ignore:')
+@patch.object(TapPlus, 'load_data')
+def test_get_spectrum_multiple(mock_load_data, tmp_path_factory, capsys):
+    def _fake_load_data(*args, **kwargs):
+        output_file = kwargs.get("output_file")
+        shutil.copy2(MULTIPLE_GET_SPECTRUM, Path(output_file))
+        return None
+
+    mock_load_data.side_effect = _fake_load_data
+
+    conn_handler = DummyConnHandler()
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+    # Launch response: we use default response because the query contains decimals
+    responseLaunchJob = DummyResponse(200)
+    responseLaunchJob.set_data(method='POST', context=None, body='', headers=None)
+
+    conn_handler.set_default_response(responseLaunchJob)
+
+    tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+
+    result = tap.get_spectrum(ids='1499442653027920313,1500431128027836270', schema='sedm_sc8', output_file=None,
+                              verbose=True)
+
+    assert result is not None
+    assert len(result) == 2
+    assert "SPECTRA_RGS_COMBINED.fits" in result[0]
+    assert "SPECTRA_BGS_COMBINED.fits" in result[1]
+
+    captured = capsys.readouterr()
+
+    file_path = captured.out.splitlines()[0].replace('Spectra output file: ', '')
+    assert os.path.exists(file_path)
+    assert os.path.basename(file_path) == 'get_spectrum_output.zip'
+
+    remove_temp_dir()
+
+    # A list of ids
+
+    capsys.readouterr()
+
+    result = tap.get_spectrum(ids=['1499442653027920313', '1500431128027836270'], schema='sedm_sc8', output_file=None,
+                              verbose=True)
+
+    assert result is not None
+    assert len(result) == 2
+    assert "SPECTRA_RGS_COMBINED.fits" in result[0]
+    assert "SPECTRA_BGS_COMBINED.fits" in result[1]
+
+    captured = capsys.readouterr()
+
+    file_path = captured.out.splitlines()[0].replace('Spectra output file: ', '')
+    assert os.path.exists(file_path)
+    assert os.path.basename(file_path) == 'get_spectrum_output.zip'
+
+    remove_temp_dir()
+
+    ids = ['sedm 1499442653027920313'] * 2000
+
+    with pytest.raises(ValueError, match="Invalid number of ids:  2000 > 1000"):
+        tap.get_spectrum(ids=ids, schema='sedm_sc8', output_file=None, verbose=True)
+
+    message = "Missing data release in: ids = 1499442653027920313,1500431128027836270 and schema = None"
+    with pytest.raises(ValueError, match=message):
+        tap.get_spectrum(ids='1499442653027920313,1500431128027836270', schema=None, output_file=None, verbose=True)
 
 
 @patch.object(TapPlus, 'load_data')
@@ -1076,7 +1529,7 @@ def test_get_spectrum_exceptions_2(mock_load_data, caplog):
 
     mock_load_data.side_effect = HTTPError("launch_job_async HTTPError")
 
-    tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=None)
+    tap.get_spectrum(ids='2417660845403252054', schema='sedm_sc8', output_file=None)
 
     mssg = ("Cannot retrieve spectrum for source_id 2417660845403252054, schema sedm_sc8. HTTP error: launch_job_async "
             "HTTPError")
@@ -1084,7 +1537,7 @@ def test_get_spectrum_exceptions_2(mock_load_data, caplog):
 
     mock_load_data.side_effect = Exception("launch_job_async Exception")
 
-    tap.get_spectrum(source_id='2417660845403252054', schema='sedm_sc8', output_file=None)
+    tap.get_spectrum(ids='2417660845403252054', schema='sedm_sc8', output_file=None)
 
     mssg = "Cannot retrieve spectrum for source_id 2417660845403252054, schema sedm_sc8: launch_job_async Exception"
     assert caplog.records[1].msg == mssg
@@ -1105,114 +1558,175 @@ def test_get_spectrum_exceptions():
     # if source_id is None or schema is None:
 
     with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_spectrum(source_id=None, schema='sedm_sc8', output_file=None)
+        tap.get_spectrum(ids=None, schema='sedm_sc8', output_file=None)
 
-    with pytest.raises(ValueError, match="Missing required argument"):
-        tap.get_spectrum(source_id='2417660845403252054', schema=None, output_file=None)
+    with pytest.raises(ValueError, match="Missing data release in: ids = 2417660845403252054 and schema = None "):
+        tap.get_spectrum(ids='2417660845403252054', schema=None, output_file=None)
 
     with pytest.raises(ValueError, match=(
             "Invalid argument value for 'retrieval_type'. Found hola, expected: 'ALL' or any of \\['SPECTRA_BGS', "
             "'SPECTRA_RGS'\\]")):
-        tap.get_spectrum(retrieval_type='hola', source_id='2417660845403252054', schema='schema', output_file=None)
+        tap.get_spectrum(retrieval_type='hola', ids='2417660845403252054', schema='schema', output_file=None)
+
+    linking_parameter = 'NOT_VALID'
+    with pytest.raises(ValueError, match=f"^Invalid linking_parameter value '{linking_parameter}' .*"):
+        tap.get_spectrum(ids='2417660845403252054', schema='sedm_sc8', linking_parameter=linking_parameter,
+                         output_file='fits_file')
 
 
-def test_get_scientific_data_product_list():
+def test_get_valid_le3_configuration_values():
+    conn_handler = DummyConnHandler()
+
+    tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
+                       connhandler=conn_handler)
+    # Launch response: we use default response because the query contains decimals
+    response_launch_job = DummyResponse(200)
+    response_launch_job.set_data(method='POST', context=None, body=TEST_GET_LE3_VALID_CONFIGURATION, headers=None)
+
+    conn_handler.set_default_response(response_launch_job)
+
+    euclid = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
+
+    result = euclid.get_valid_le3_configuration_values()
+
+    assert result is not None
+    assert len(result) == 130
+
+
+@patch.object(EuclidClass, 'get_valid_le3_configuration_values')
+def test_get_scientific_data_product_list(mock_get_valid_le3_configuration_values):
+    mock_get_valid_le3_configuration_values.return_value = parse_single_table(
+        LE3_VALID_CONFIGURATION_FILE_NAME).to_table()
+
     conn_handler = DummyConnHandler()
     tap_plus = TapPlus(url="http://test:1111/tap", data_context='data', client_id='ASTROQUERY',
                        connhandler=conn_handler)
     # Launch response: we use default response because the query contains decimals
-    responseLaunchJob = DummyResponse(200)
-    responseLaunchJob.set_data(method='POST', context=None, body=TEST_GET_PRODUCT_LIST, headers=None)
+    response_launch_job = DummyResponse(200)
+    response_launch_job.set_data(method='POST', context=None, body=TEST_GET_SCIENTIFIC_PRODUCT_LIST, headers=None)
 
-    conn_handler.set_default_response(responseLaunchJob)
+    conn_handler.set_default_response(response_launch_job)
 
     euclid = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tap_plus, show_server_messages=False)
 
     results = euclid.get_scientific_product_list(observation_id=11111)
-
     assert results is not None, "Expected a valid table"
 
     results = euclid.get_scientific_product_list(tile_index=11111)
-
     assert results is not None, "Expected a valid table"
 
     results = euclid.get_scientific_product_list(category='Clusters of Galaxies', group='GrpCatalog',
                                                  product_type='DpdLE3clAmicoAux')
-
     assert results is not None, "Expected a valid table"
 
     results = euclid.get_scientific_product_list(category='Weak Lensing Products', group='2PCF',
                                                  product_type='DpdCovarTwoPCFWLClPosPos2D')
-
     assert results is not None, "Expected a valid table"
 
     results = euclid.get_scientific_product_list(category='Weak Lensing Products')
-
     assert results is not None, "Expected a valid table"
 
     results = euclid.get_scientific_product_list(group='GrpCatalog')
-
     assert results is not None, "Expected a valid table"
 
     results = euclid.get_scientific_product_list(category='Weak Lensing Products', group='2PCF')
-
     assert results is not None, "Expected a valid table"
 
     results = euclid.get_scientific_product_list(group='2PCF', product_type='DpdCovarTwoPCFWLClPosPos2D')
-
     assert results is not None, "Expected a valid table"
 
     results = euclid.get_scientific_product_list(category='Weak Lensing Products',
                                                  product_type='DpdCovarTwoPCFWLClPosPos2D')
-
     assert results is not None, "Expected a valid table"
 
     results = euclid.get_scientific_product_list(product_type='DpdCovarTwoPCFWLClPosPos2D')
+    assert results is not None, "Expected a valid table"
 
+    ########
+
+    results = euclid.get_scientific_product_list(product_type='DpdCovarTwoPCFWLClPosPos2D', dsr_part1='CALBLOCK',
+                                                 verbose=True)
+    assert results is not None, "Expected a valid table"
+
+    results = euclid.get_scientific_product_list(product_type='DpdCovarTwoPCFWLClPosPos2D', dsr_part1='CALBLOCK',
+                                                 dsr_part2='PV-023', verbose=True)
+    assert results is not None, "Expected a valid table"
+
+    results = euclid.get_scientific_product_list(product_type='DpdCovarTwoPCFWLClPosPos2D', dsr_part1='CALBLOCK',
+                                                 dsr_part2='PV-023', dsr_part3=1, verbose=True)
+    assert results is not None, "Expected a valid table"
+
+    results = euclid.get_scientific_product_list(product_type='DpdCovarTwoPCFWLClPosPos2D', dsr_part1='CALBLOCK',
+                                                 dsr_part3=1, verbose=True)
+    assert results is not None, "Expected a valid table"
+
+    results = euclid.get_scientific_product_list(product_type='DpdCovarTwoPCFWLClPosPos2D',
+                                                 dsr_part2='PV-023', dsr_part3=1, verbose=True)
+    assert results is not None, "Expected a valid table"
+
+    results = euclid.get_scientific_product_list(product_type='DpdCovarTwoPCFWLClPosPos2D', dsr_part1='CALBLOCK',
+                                                 dsr_part2='PV-023', dsr_part3='latest', verbose=True)
+    assert results is not None, "Expected a valid table"
+
+    # use parameter schema
+    results = euclid.get_scientific_product_list(product_type='DpdCovarTwoPCFWLClPosPos2D', schema='dr1',
+                                                 dsr_part1='CALBLOCK', dsr_part2='PV-023', dsr_part3='latest',
+                                                 verbose=True)
     assert results is not None, "Expected a valid table"
 
 
-def test_get_scientific_data_product_list_exceptions():
-    eculid = EuclidClass()
+@patch.object(EuclidClass, 'get_valid_le3_configuration_values')
+def test_get_scientific_data_product_list_exceptions(mock_get_valid_le3_configuration_values):
+    mock_get_valid_le3_configuration_values.return_value = parse_single_table(
+        LE3_VALID_CONFIGURATION_FILE_NAME).to_table()
 
-    with pytest.raises(ValueError, match="Include a valid parameter to retrieve a LE3 product."):
-        eculid.get_scientific_product_list(observation_id=None, tile_index=None, category=None, group=None,
+    euclid = EuclidClass()
+
+    with pytest.raises(ValueError, match="Include at least one parameter to retrieve a LE3 product."):
+        euclid.get_scientific_product_list(observation_id=None, tile_index=None, category=None, group=None,
                                            product_type=None)
 
     with pytest.raises(ValueError, match="The release is required."):
-        eculid.get_scientific_product_list(observation_id=11111, dataset_release=None)
+        euclid.get_scientific_product_list(observation_id=11111, dataset_release=None)
 
     with pytest.raises(ValueError, match="Incompatible: 'observation_id' and 'tile_id'. Use only one."):
-        eculid.get_scientific_product_list(observation_id=11111, tile_index=1234567)
+        euclid.get_scientific_product_list(observation_id=11111, tile_index=1234567)
 
-    with pytest.raises(ValueError, match=r"Invalid combination of parameters: category=not_valid. *."):
-        eculid.get_scientific_product_list(observation_id=11111, category='not_valid')
+    with pytest.raises(ValueError, match=r"Invalid parameter combination:*."):
+        euclid.get_scientific_product_list(observation_id=11111, category='not_valid')
 
-    with pytest.raises(ValueError, match=r"Invalid combination of parameters: group=not_valid.  *."):
-        eculid.get_scientific_product_list(observation_id=11111, group='not_valid')
+    with pytest.raises(ValueError,
+                       match=r"Invalid parameter combination:\ncategory=None\ngroup=not_valid\nproduct_type=None*."):
+        euclid.get_scientific_product_list(observation_id=11111, group='not_valid')
 
-    with pytest.raises(ValueError, match=r"Invalid combination of parameters: product_type=not_valid.  *."):
-        eculid.get_scientific_product_list(observation_id=11111, product_type='not_valid')
+    values__ = r"Invalid parameter combination:\ncategory=None\ngroup=None\nproduct_type=not_valid\n\nValid values*."
+    with pytest.raises(ValueError, match=values__):
+        euclid.get_scientific_product_list(observation_id=11111, product_type='not_valid')
 
-    with pytest.raises(ValueError, match=r"Invalid combination of parameters: category=Clusters of Galaxies.  *."):
-        eculid.get_scientific_product_list(observation_id=11111, category='Clusters of Galaxies',
+    values__ = r"Invalid parameter combination:\ncategory=Clusters of Galaxies\ngroup=not_valid*."
+    with pytest.raises(ValueError, match=values__):
+        euclid.get_scientific_product_list(observation_id=11111, category='Clusters of Galaxies',
                                            group='not_valid')
 
-    with pytest.raises(ValueError, match=r"Invalid combination of parameters: category=Clusters of Galaxies; "
-                                         r"group=GrpCatalog; product_type=not_valid. *."):
-        eculid.get_scientific_product_list(observation_id=11111, category='Clusters of Galaxies',
+    values__ = r"Invalid parameter combination:\ncategory=Clusters of Galaxies\ngroup=GrpCatalog*."
+    with pytest.raises(ValueError, match=values__):
+        euclid.get_scientific_product_list(observation_id=11111, category='Clusters of Galaxies',
                                            group='GrpCatalog',
                                            product_type='not_valid')
 
-    with pytest.raises(ValueError,
-                       match=r"Invalid combination of parameters: category=Clusters of Galaxies; "
-                             r"product_type=not_valid.  *."):
-        eculid.get_scientific_product_list(observation_id=11111, category='Clusters of Galaxies',
+    values__ = r"Invalid parameter combination:\ncategory=Clusters of Galaxies\ngroup=None\nproduct_type=not_valid*."
+    with pytest.raises(ValueError, match=values__):
+        euclid.get_scientific_product_list(observation_id=11111, category='Clusters of Galaxies',
                                            product_type='not_valid')
 
+    values__ = r"Invalid parameter combination:\ncategory=None\ngroup=GrpCatalog\nproduct_type=not_valid*."
+    with pytest.raises(ValueError, match=values__):
+        euclid.get_scientific_product_list(observation_id=11111, group='GrpCatalog', product_type='not_valid')
+
     with pytest.raises(ValueError,
-                       match=r"Invalid combination of parameters: group=GrpCatalog; product_type=not_valid. *."):
-        eculid.get_scientific_product_list(observation_id=11111, group='GrpCatalog', product_type='not_valid')
+                       match=r"No valid dsr_part3 value: wrong"):
+        euclid.get_scientific_product_list(product_type='DpdCovarTwoPCFWLClPosPos2D', dsr_part1='CALBLOCK',
+                                           dsr_part2='PV-023', dsr_part3='wrong', verbose=True)
 
 
 @patch.object(TapPlus, 'login')
@@ -1221,10 +1735,10 @@ def test_login(mock_login):
     tapplus = TapPlus(url="https://test:1111/tap", connhandler=conn_handler)
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
     tap.login(user="user", password="password")
-    assert (mock_login.call_count == 3)
+    assert (mock_login.call_count == 4)
     mock_login.side_effect = HTTPError("Login error")
     tap.login(user="user", password="password")
-    assert (mock_login.call_count == 4)
+    assert (mock_login.call_count == 5)
 
 
 @patch.object(TapPlus, 'login_gui')
@@ -1234,7 +1748,7 @@ def test_login_gui(mock_login_gui, mock_login):
     tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
     tap.login_gui()
-    assert (mock_login_gui.call_count == 2)
+    assert (mock_login_gui.call_count == 3)
     mock_login_gui.side_effect = HTTPError("Login error")
     tap.login(user="user", password="password")
     assert (mock_login.call_count == 1)
@@ -1246,10 +1760,10 @@ def test_logout(mock_logout):
     tapplus = TapPlus(url="http://test:1111/tap", connhandler=conn_handler)
     tap = EuclidClass(tap_plus_conn_handler=conn_handler, datalink_handler=tapplus, show_server_messages=False)
     tap.logout()
-    assert (mock_logout.call_count == 3)
+    assert (mock_logout.call_count == 4)
     mock_logout.side_effect = HTTPError("Login error")
     tap.logout()
-    assert (mock_logout.call_count == 4)
+    assert (mock_logout.call_count == 5)
 
 
 def test_get_datalinks(monkeypatch):
@@ -1483,6 +1997,104 @@ def test_load_async_job(mock_querier_async):
     assert job is not None
 
     assert job.jobid == jobid
+
+
+@pytest.mark.parametrize("verbose", [False, True])
+def test_query_sia(monkeypatch, verbose):
+    def load_data_monkeypatch(self, params_dict, output_file, http_method, verbose):
+        return Table.read(TABLE_SIA_FILE_NAME, format='votable')
+
+    monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatch)
+    euclid = EuclidClass(show_server_messages=False)
+
+    coords = SkyCoord(267.78, 65.53, frame="icrs", unit="deg")  # NGC 6505
+
+    table = euclid.query_sia(coordinates=coords, radius=1.0, verbose=verbose)
+    assert isinstance(table, Table)
+    fn = 'file_name'
+    assert table[fn][0] == 'EUC_MER_BGSUB-MOSAIC-VIS_TILE101007315-D84386_20230826T000856.482420Z_00.00.fits.gz'
+
+    table = euclid.query_sia(coordinates=coords, radius=1.0, dsr_part1='CALBLOCK', dsr_part2='PV-023', dsr_part3=1,
+                             verbose=verbose)
+    assert isinstance(table, Table)
+    assert table[fn][0] == 'EUC_MER_BGSUB-MOSAIC-VIS_TILE101007315-D84386_20230826T000856.482420Z_00.00.fits.gz'
+
+    # The coordinate is a string
+
+    coords = "81.1238 17.4175"
+
+    table = euclid.query_sia(coordinates=coords, radius=1.0, verbose=verbose)
+    assert isinstance(table, Table)
+    fn = 'file_name'
+    assert table[fn][0] == 'EUC_MER_BGSUB-MOSAIC-VIS_TILE101007315-D84386_20230826T000856.482420Z_00.00.fits.gz'
+
+    table = euclid.query_sia(coordinates=coords, radius=1.0, dsr_part1='CALBLOCK', dsr_part2='PV-023', dsr_part3=1,
+                             verbose=verbose)
+    assert isinstance(table, Table)
+    assert table[fn][0] == 'EUC_MER_BGSUB-MOSAIC-VIS_TILE101007315-D84386_20230826T000856.482420Z_00.00.fits.gz'
+
+    # the search redius is a Quantity
+
+    table = euclid.query_sia(coordinates=coords, radius=1.0, verbose=verbose)
+    assert isinstance(table, Table)
+    fn = 'file_name'
+    assert table[fn][0] == 'EUC_MER_BGSUB-MOSAIC-VIS_TILE101007315-D84386_20230826T000856.482420Z_00.00.fits.gz'
+
+    table = euclid.query_sia(coordinates=coords, radius=u.Quantity(0.01, u.deg), dsr_part1='CALBLOCK',
+                             dsr_part2='PV-023', dsr_part3=1, verbose=verbose)
+    assert isinstance(table, Table)
+    assert table[fn][0] == 'EUC_MER_BGSUB-MOSAIC-VIS_TILE101007315-D84386_20230826T000856.482420Z_00.00.fits.gz'
+
+
+def test_query_sia_exceptions(monkeypatch):
+    def load_data_monkeypatch(self, params_dict, output_file, http_method, verbose):
+        return Table()
+
+    monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatch)
+    euclid = EuclidClass(show_server_messages=False)
+
+    coords = SkyCoord(267.78, 65.53, frame="icrs", unit="deg")  # NGC 6505
+
+    error_message = "Invalid search tyype XX"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.query_sia(search_type='XX', coordinates=coords, verbose=True)
+
+    error_message = "Invalid instrument XX"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.query_sia(instrument='XX', coordinates=coords, verbose=True)
+
+    error_message = "For instrument ALL band must be None"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.query_sia(instrument='ALL', band='XX', coordinates=coords, verbose=True)
+
+    error_message = "Invalid band NIR_H for instrument VIS"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.query_sia(instrument='VIS', band='NIR_H', coordinates=coords, verbose=True)
+
+    error_message = "Invalid band VIS for instrument NISP"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.query_sia(instrument='NISP', band='VIS', coordinates=coords, verbose=True)
+
+    error_message = "Invalid calibration 5"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.query_sia(calibration=5, coordinates=coords, verbose=True)
+
+    error_message = "Search radius is zero or negative: -1.0"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.query_sia(coordinates=coords, radius=-1.0, verbose=True)
+
+    error_message = "Search radius is zero or negative: 0.0"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.query_sia(coordinates=coords, radius=0.0, verbose=True)
+
+    error_message = "Invalid coordinates or search radius: None, 1.0"
+    with pytest.raises(ValueError, match=error_message):
+        euclid.query_sia(coordinates=None, radius=1.0, verbose=True)
+
+    error_message = ("Invalid coordinates or search radius: <SkyCoord (ICRS): (ra, dec) in deg\n    (267.78, 65.53)>, "
+                     "None")
+    with pytest.raises(ValueError, match=re.escape(error_message)):
+        euclid.query_sia(coordinates=coords, radius=None, verbose=True)
 
 
 def remove_temp_dir():

@@ -97,11 +97,11 @@ The following example demonstrates how to use the `~astroquery.mast.TesscutClass
    tess-s0061-1-2     61      1   2
    tess-s0088-1-2     88      1   2
 
-You can also use the ``objectname`` parameter to specify a target by name or TIC ID.
+You can also use the ``object_name`` parameter to specify a target by name or TIC ID.
 
 .. doctest-remote-data::
 
-   >>> sector_table = Tesscut.get_sectors(objectname="TIC 32449963")
+   >>> sector_table = Tesscut.get_sectors(object_name="TIC 32449963")
    >>> print(sector_table)     # doctest: +IGNORE_OUTPUT
      sectorName   sector camera ccd
    -------------- ------ ------ ---
@@ -111,7 +111,7 @@ To find sectors for a moving target, set the ``moving_target`` parameter to ``Tr
 
 .. doctest-remote-data::
 
-   >>> sector_table = Tesscut.get_sectors(objectname="Ceres", moving_target=True)
+   >>> sector_table = Tesscut.get_sectors(object_name="Ceres", moving_target=True)
    >>> print(sector_table)
      sectorName   sector camera ccd
    -------------- ------ ------ ---
@@ -161,12 +161,12 @@ The following example demonstrates how to request a TESS cutout using sky coordi
    1  PIXELS        1 BinTableHDU    281   3495R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]
    2  APERTURE      1 ImageHDU        82   (5, 5)   int32
 
-You may also request cutouts of a moving target by inputting a valid moving target as the ``objectname`` and setting 
+You may also request cutouts of a moving target by inputting a valid moving target as the ``object_name`` and setting 
 the ``moving_target`` parameter to ``True``.
 
 .. doctest-remote-data::
 
-   >>> hdulist = Tesscut.get_cutouts(objectname="Eleonora",
+   >>> hdulist = Tesscut.get_cutouts(object_name="Eleonora",
    ...                               moving_target=True,
    ...                               sector=6)
    >>> hdulist[0].info()  # doctest: +IGNORE_OUTPUT

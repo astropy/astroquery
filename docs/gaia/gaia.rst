@@ -31,7 +31,7 @@ The TAP query language is Astronomical Data Query Language
 (ADQL_), which is similar
 to Structured Query Language (SQL), widely used to query databases.
 
-.. _ADQL: https://www.ivoa.net/documents/ADQL/2.0
+.. _ADQL: https://www.ivoa.net/documents/ADQL
 
 TAP provides two operation modes:
 
@@ -588,11 +588,11 @@ surrounded by quotation marks, i.e.: *user_<your_login_name>."<table_name>"*)::
 2.3.2. Uploading table from file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A file containing a table can be uploaded to the user private area. Only a file associated to any of the formats described in
-https://docs.astropy.org/en/stable/io/unified.html#built-in-table-readers-writers, and automatically identified by its suffix
+A file containing a table can be uploaded to the user private area. Only a file associated to any of
+the `formats accepted by astropy <https://docs.astropy.org/en/stable/io/unified_table.html#built-in-table-readers-writers>`_,
+and automatically identified by its suffix
 or content can be used. Note that for a multi-extension fits file with multiple tables, the first table found will be used.
-For any other format, the file can be transformed into an astropy Table (https://docs.astropy.org/en/stable/io/unified.html#getting-started-with-table-i-o)
-and passed to the method.
+For other formats, the file should be transformed into an astropy Table and passed to the method.
 
 The parameter 'format' must be provided when the input file is not a votable file.
 
@@ -909,7 +909,7 @@ The following example shows how to retrieve the DataLink products associated wit
 .. doctest-remote-data::
 
   >>> retrieval_type = 'ALL'          # Options are: 'EPOCH_PHOTOMETRY', 'MCMC_GSPPHOT', 'MCMC_MSC', 'XP_SAMPLED', 'XP_CONTINUOUS', 'RVS', 'ALL'
-  >>> data_structure = 'INDIVIDUAL'     # Options are: 'INDIVIDUAL' or 'RAW'
+  >>> data_structure = 'DATAMODEL_STANDARD'     # Options are: 'DATAMODEL_STANDARD' or 'DATAMODEL_GAIA'
   >>> data_release   = 'Gaia DR3'     # Options are: 'Gaia DR3' (default), 'Gaia DR2'
   >>> datalink = Gaia.load_data(ids=[2263166706630078848, 2263178457660566784, 2268372099615724288],
   ...                           data_release=data_release, retrieval_type=retrieval_type, data_structure=data_structure)

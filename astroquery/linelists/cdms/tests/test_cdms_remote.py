@@ -238,7 +238,7 @@ def test_remote_all_species():
 class TestRegressionAllCats:
     species_table = CDMS.get_species_table(write_new_species_cache=False)
 
-    @pytest.mark.parametrize('row', species_table)
+    @pytest.mark.parametrize('row', list(species_table))
     def test_regression_allcats(self, row):
         """
         Expensive test - try all the molecules

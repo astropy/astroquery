@@ -1,0 +1,49 @@
+basic_download_data_oid,checksum_list,creation_date,datalabs_path,data_set_release,data_set_release_part1,data_set_release_part2,data_set_release_part3,data_size,dec,file_name_list,file_path,file_type_list,filter_name,fov,ingested,latest,level_3_category,level_3_group,observation_id_list,patch_id_list,product_id,product_type,provenance_id,published,purpose,ra,release_date,release_name,tile_index_list,to_be_published,xml_file_content
+3,"(cf3b5cecf7ed6c3ba30716291055592d, 0dd16b44e944088bec3b7cfaf18b04ab, ad2bf6584319d2ab8a812c181489948e, 91e27960134eca519cca137793246bb0)",2025-01-13T15:49:43.001,,REGREPROC1_R2_CLTEST_R0,REGREPROC1,R2_CLTEST,0,,,"(EUC_LE3_CL-AMICO-MASK_SNR8.00_20250113T154828.343697Z_1.0.fits, EUC_LE3_CL-AMICO-NOISE_SNR8.00_20250113T154828.343697Z_1.0.fits, EUC_LE3_CL-AMICO-FILTERCONST_SNR8.00_20250113T154828.343697Z_1.0.fits, EUC_LE3_CL-AMICO-AMPLITUDE_SNR8.00_20250113T154828.343697Z_1.0.fits)",/repository_dev//repository_dev/REGREPROC1_R2_CLTE/LE3/REGREPROC1_R2_CLTEST_R0/DpdLE3clAmicoAux/,"(AmicoMaskFile, AmicoNoiseFile, AmicoFilterConstFile, AmicoAmplitudeFile)",,,INGESTED,true,Clusters of Galaxies,GrpCatalog,,,PPO_REGREPROC1_R2_CLTEST_R0_CLDET_R3-amico_aux-0,DpdLE3clAmicoAux,692,0,PRODUCTION,,,REGREPROC1_R2_CLTEST_R0,,1,"<?xml version=""1.0"" encoding=""UTF-8""?>
+<dpd-le3-cl-clamicoaux:DpdLE3clAmicoAux xmlns:dpd-le3-cl-clamicoaux=""http://ecdm.euclid-ec.org/schema/dpd/le3/cl/clamicoaux"" xmlns:sys=""http://ecdm.euclid-ec.org/schema/sys"" xmlns:xs=""http://www.w3.org/2001/XMLSchema"" xmlns:pro-le3-cl=""http://ecdm.euclid-ec.org/schema/pro/le3/cl"" xmlns:bas-fit=""http://ecdm.euclid-ec.org/schema/bas/fit"" xmlns:bas-dtd=""http://ecdm.euclid-ec.org/schema/bas/dtd"" xmlns:sys-dss=""http://ecdm.euclid-ec.org/schema/sys/dss"" xmlns:bas-dqc=""http://ecdm.euclid-ec.org/schema/bas/dqc"" xmlns:bas-ppr=""http://ecdm.euclid-ec.org/schema/bas/ppr"">
+ <Header>
+  <ProductId>PPO_REGREPROC1_R2_CLTEST_R0_CLDET_R3-amico_aux-0</ProductId>
+  <ProductType>DpdLE3clAmicoAux</ProductType>
+  <SoftwareName>DetInTile</SoftwareName>
+  <SoftwareRelease>2.0</SoftwareRelease>
+  <ProdSDC>SDC-IT-DEV</ProdSDC>
+  <DataSetRelease>REGREPROC1_R2_CLTEST_R0</DataSetRelease>
+  <Purpose>PRODUCTION</Purpose>
+  <PlanId>PPO_CLDET_PLAN</PlanId>
+  <PPOId>PPO_REGREPROC1_R2_CLTEST_R0_CLDET_R3</PPOId>
+  <PipelineDefinitionId>CLDET_2.0</PipelineDefinitionId>
+  <PpoStatus>COMPLETED</PpoStatus>
+  <ManualValidationStatus>UNKNOWN</ManualValidationStatus>
+  <ProductNotifiedToBeChecked>UNKNOWN</ProductNotifiedToBeChecked>
+  <AutomatedValidationStatus>UNKNOWN</AutomatedValidationStatus>
+  <ExpirationDate>2025-01-13T15:49:43.001000Z</ExpirationDate>
+  <ToBePublished>0</ToBePublished>
+  <Published>0</Published>
+  <Curator>Curator0</Curator>
+  <CreationDate>2025-01-13T15:49:43.001000Z</CreationDate>
+ </Header>
+ <Data>
+  <AmicoMaskFile format=""le3.cl.det.amico.output.mask"" version=""0.0"">
+   <DataContainer filestatus=""PROPOSED"" checksumMethod=""MD5"" checksumValue=""cf3b5cecf7ed6c3ba30716291055592d"">
+    <FileName>EUC_LE3_CL-AMICO-MASK_SNR8.00_20250113T154828.343697Z_1.0.fits</FileName>
+   </DataContainer>
+  </AmicoMaskFile>
+  <AmicoNoiseFile format=""le3.cl.det.amico.output.noise"" version=""0.0"">
+   <DataContainer filestatus=""PROPOSED"" checksumMethod=""MD5"" checksumValue=""0dd16b44e944088bec3b7cfaf18b04ab"">
+    <FileName>EUC_LE3_CL-AMICO-NOISE_SNR8.00_20250113T154828.343697Z_1.0.fits</FileName>
+   </DataContainer>
+  </AmicoNoiseFile>
+  <AmicoFilterConstFile format=""le3.cl.det.amico.output.filterConst"" version=""0.0"">
+   <DataContainer filestatus=""PROPOSED"" checksumMethod=""MD5"" checksumValue=""ad2bf6584319d2ab8a812c181489948e"">
+    <FileName>EUC_LE3_CL-AMICO-FILTERCONST_SNR8.00_20250113T154828.343697Z_1.0.fits</FileName>
+   </DataContainer>
+  </AmicoFilterConstFile>
+  <AmicoAmplitudeFile format=""le3.cl.det.amico.output.amplitude"" version=""0.0"">
+   <DataContainer filestatus=""PROPOSED"" checksumMethod=""MD5"" checksumValue=""91e27960134eca519cca137793246bb0"">
+    <FileName>EUC_LE3_CL-AMICO-AMPLITUDE_SNR8.00_20250113T154828.343697Z_1.0.fits</FileName>
+   </DataContainer>
+  </AmicoAmplitudeFile>
+ </Data>
+</dpd-le3-cl-clamicoaux:DpdLE3clAmicoAux>
+
+"

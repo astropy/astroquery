@@ -262,8 +262,12 @@ class ServiceAPI(BaseQuery):
         -------
         response : `~astropy.table.Table`
         """
-
         result = response.json()
+
+        # Check for a count_only response and return the count if present
+        if "search_params" in result and result["search_params"]["count_only"]:
+            return result["totalResults"]
+
         result_table = _json_to_table(result, data_key=data_key)
 
         # Check for no results

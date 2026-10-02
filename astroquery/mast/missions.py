@@ -7,6 +7,7 @@ This module contains methods for searching MAST missions.
 """
 
 import difflib
+import json
 import warnings
 from collections.abc import Iterable
 from json import JSONDecodeError
@@ -14,18 +15,23 @@ from pathlib import Path
 from urllib.parse import quote
 
 import astropy.units as u
-import astropy.coordinates as coord
 import numpy as np
-from astropy.table import Table, Row, Column, vstack
+from astropy.coordinates import Angle, BaseCoordinateFrame, SkyCoord
+from astropy.table import Column, Row, Table, vstack
+from astropy.utils.decorators import deprecated_renamed_argument
 from requests import HTTPError, RequestException
 
 from astroquery import log
-from astroquery.utils import commons, async_to_sync
-from astroquery.utils.class_or_instance import class_or_instance
-from astroquery.exceptions import InputWarning, InvalidQueryError, MaxResultsWarning, NoResultsWarning
-
+from astroquery.exceptions import (
+    InputWarning,
+    InvalidQueryError,
+    MaxResultsWarning,
+    NoResultsWarning,
+)
 from astroquery.mast import utils
 from astroquery.mast.core import MastQueryWithLogin
+from astroquery.utils import async_to_sync, commons
+from astroquery.utils.class_or_instance import class_or_instance
 
 from . import conf
 
@@ -48,8 +54,11 @@ class MastMissionsClass(MastQueryWithLogin):
                              'spectral_type', 'bmv0_mag', 'u_mag', 'b_mag', 'v_mag', 'gaia_g_mean_mag', 'star_mass',
                              'instrument', 'grating', 'filter', 'observation_id']
 
-    # maximum supported query radius
+    # Maximum supported query radius
     _max_query_radius = 30 * u.arcmin
+
+    # Maximum number of input targets accepted in a single query
+    _max_input_targets = 100
 
     def __init__(self, *, mission='hst', mast_token=None):
         super().__init__(mast_token=mast_token)
@@ -59,7 +68,8 @@ class MastMissionsClass(MastQueryWithLogin):
             'jwst': 'fileSetName',
             'roman': 'fileSetName',
             'classy': 'Target',
-            'ullyses': 'observation_id'
+            'ullyses': 'observation_id',
+            'iue': 'iue_data_id'
         }
 
         # Service attributes
@@ -128,6 +138,21 @@ class MastMissionsClass(MastQueryWithLogin):
         if self.service == self._search:
             results = self._service_api_connection._parse_result(response, verbose, data_key='results')
 
+            # If returning a count_only response, return the count as an integer
+            if isinstance(results, int):
+                return results
+
+            # Add column descriptions to column metadata
+            column_list = self.get_column_list()
+            for col in results.columns:
+                if col in column_list['name']:
+                    description = column_list[column_list['name'] == col]['description'].value[0]
+                    results[col].meta = {'description': str(description)}
+
+            # Add search parameters to table metadata
+            result_json = response.json()
+            results.meta['search_params'] = result_json.get('search_params', {})
+
             # Warn if maximum results are returned
             if len(results) >= self.limit:
                 warnings.warn("Maximum results returned, may not include all sources within radius.",
@@ -160,6 +185,10 @@ class MastMissionsClass(MastQueryWithLogin):
         # Check each criteria argument for validity
         valid_cols = list(self.columns[self.mission]['name']) + self._search_option_fields
         for kwd in criteria.keys():
+            if kwd == "pass_id" and "pass_id" not in valid_cols and "pass" in valid_cols:
+                # Special case where the actual column name is "pass", but that's a reserved keyword in Python
+                # We allow "pass_id" as an alias
+                kwd = "pass"
             col = next((name for name in valid_cols if name == kwd), None)
             if not col:
                 closest_match = difflib.get_close_matches(kwd, valid_cols, n=1)
@@ -263,91 +292,113 @@ class MastMissionsClass(MastQueryWithLogin):
             valid_select_cols.append(dataset_col)
         return valid_select_cols
 
-    @class_or_instance
-    def query_region_async(self, coordinates, *, radius=3*u.arcmin, limit=5000, offset=0,
-                           select_cols=None, **criteria):
+    def _parse_multiple_targets(self, *, coordinates=None, object_names=None, resolver=None):
         """
-        Given a sky position and radius, returns a list of matching dataset IDs.
+        Parse coordinate and object-name targets into a list of API target strings.
 
         Parameters
         ----------
-        coordinates : str or `~astropy.coordinates` object
-            The target around which to search. It may be specified as a
-            string or as the appropriate `~astropy.coordinates` object.
-        radius : str or `~astropy.units.Quantity` object
-            Default is 3 arcminutes. The radius around the coordinates to search within.
-            The string must be parsable by `~astropy.coordinates.Angle`. The
-            appropriate `~astropy.units.Quantity` object from `~astropy.units` may also be used.
-            The maximum supported query radius is 30 arcminutes.
-        limit : int
-            Default is 5000. The maximum number of dataset IDs in the results.
-        offset : int
-            Default is 0. The number of records you wish to skip before selecting records.
-        select_cols: iterable or str or None, optional
-            Default is None. Names of columns that will be included in the result table.
-            If None, a default set of columns will be returned.
-            Can either be an iterable of column names, a comma-separated string of column names,
-            or 'all'/'*' to return all available columns.
-        **criteria
-            Other mission-specific criteria arguments.
-            All valid filters can be found using `~astroquery.mast.missions.MastMissionsClass.get_column_list`
-            function.
-            For example, one can specify the output columns(select_cols) or use other filters(conditions).
-            To filter by multiple values for a single column, pass in a list of values or
-            a comma-separated string of values.
+        coordinates : str, iterable of str, or `~astropy.coordinates` object, optional
+            Coordinate target(s). Can be a single coordinate string/object, a comma-separated
+            coordinate string, an iterable of coordinate strings/objects, or a vector
+            `~astropy.coordinates.SkyCoord`.
+        object_names : str or iterable of str, optional
+            Object-name target(s). Can be a single object name string, a comma-separated
+            object-name string, or an iterable of object-name strings.
+        resolver : str, optional
+            The resolver to use when resolving named targets into coordinates.
 
         Returns
         -------
-        response : list of `~requests.Response`
-
-        Raises
-        ------
-        InvalidQueryError
-            If the query radius is larger than the limit (30 arcminutes).
+        list of str
+            A list of target strings in "ra dec" format for the API.
         """
+        def _as_list(values):
+            """Normalize the input values into a list of strings or coordinate objects."""
+            if values is None:
+                items = []
+            elif isinstance(values, str):
+                items = [item.strip() for item in values.split(',') if item.strip()]
+            elif isinstance(values, Iterable) and not isinstance(values, (SkyCoord, BaseCoordinateFrame)):
+                items = list(values)
+            else:
+                items = [values]
 
-        self.limit = limit
-        self.service = self._search
+            return [item.strip() if isinstance(item, str) else item for item in items]
 
-        # Check that criteria arguments are valid
-        self._validate_criteria(**criteria)
+        def _is_legacy_ra_dec_pair(items):
+            """Detect ['ra', 'dec'] passed as one coordinate split on comma."""
+            if len(items) != 2 or not all(isinstance(item, str) for item in items):
+                return False
 
-        # Put coordinates and radius into consistent format
-        coordinates = commons.parse_coordinates(coordinates, return_frame='icrs')
+            try:
+                float(items[0])
+                float(items[1])
+                return True
+            except ValueError:
+                return False
 
-        # If radius is just a number, assume arcminutes
-        radius = coord.Angle(radius, u.arcmin)
+        coordinate_items = _as_list(coordinates)
+        object_name_items = _as_list(object_names)
 
-        if radius > self._max_query_radius:
+        # Backward compatibility for historical single-coordinate input like:
+        # coordinates="10.5, -20.1"
+        if _is_legacy_ra_dec_pair(coordinate_items):
+            coordinate_items = [f"{coordinate_items[0]} {coordinate_items[1]}"]
+
+        total_targets = len(coordinate_items) + len(object_name_items)
+
+        if total_targets == 0:
+            raise InvalidQueryError('No targets were provided.')
+
+        if total_targets > self._max_input_targets:
             raise InvalidQueryError(
-                f"Query radius too large. Must be ≤{self._max_query_radius}, got {radius}."
+                f'Too many input targets provided. Maximum supported is {self._max_input_targets}, '
+                f'got {total_targets}.'
             )
 
-        # Basic params
-        params = {'target': [f"{coordinates.ra.deg} {coordinates.dec.deg}"],
-                  'radius': radius.arcsec,
-                  'radius_units': 'arcseconds',
-                  'limit': limit,
-                  'offset': offset,
-                  'select_cols': self._parse_select_cols(select_cols)}
+        targets = []
 
-        self._build_params_from_criteria(params, **criteria)
+        # Parse coordinate targets
+        for coord in coordinate_items:
+            sc = commons.parse_coordinates(coord, return_frame='icrs')
+            # If input is a vector SkyCoord, iterate through each coordinate
+            if isinstance(sc, SkyCoord) and sc.isscalar is False:
+                for ra, dec in zip(sc.ra.deg, sc.dec.deg):
+                    targets.append(f"{ra} {dec}")
+            else:
+                targets.append(f"{sc.ra.deg} {sc.dec.deg}")
 
-        return self._service_api_connection.missions_request_async(self.service, params)
+        # Parse object name targets
+        if object_names:
+            resolved = utils.resolve_object(object_name_items, resolver=resolver)
+            for name in object_name_items:
+                sc = resolved if isinstance(resolved, SkyCoord) else resolved.get(name)
+                if sc:
+                    targets.append(f"{sc.ra.deg} {sc.dec.deg}")
+
+        return targets
 
     @class_or_instance
-    def query_criteria_async(self, *, coordinates=None, objectname=None, radius=3*u.arcmin,
-                             limit=5000, offset=0, select_cols=None, resolver=None, **criteria):
+    @deprecated_renamed_argument('objectname', 'object_names', since='0.4.12')
+    def query_criteria_async(self, *, coordinates=None, object_names=None, radius=3*u.arcmin,
+                             limit=5000, offset=0, select_cols=None, resolver=None, count_only=False, **criteria):
         """
         Given a set of search criteria, returns a list of mission metadata.
 
         Parameters
         ----------
-        coordinates : str or `~astropy.coordinates` object
-            The target around which to search. It may be specified as a
-            string or as the appropriate `~astropy.coordinates` object.
-        objectname : str
-            The name of the target around which to search.
+        coordinates : str, iterable of str, or `~astropy.coordinates` object
+            Coordinate target(s) around which to search. Can be specified as:
+            - A single coordinate string or `~astropy.coordinates.SkyCoord` object
+            - A comma-separated string of coordinates (e.g., "10.0 20.0, 15.0 25.0")
+            - An iterable of coordinate strings or coordinate objects
+        object_names : str or iterable of str, optional
+            Object name target(s) around which to search. Can be specified as:
+            - A single object name string
+            - A comma-separated string of object names (e.g., "M31, M51, NGC 1234")
+            - An iterable of object name strings
+            If both ``coordinates`` and ``object_names`` are provided, they are combined.
         radius : str or `~astropy.units.Quantity` object
             Default is 3 arcminutes. The radius around the coordinates to search within.
             The string must be parsable by `~astropy.coordinates.Angle`. The
@@ -367,16 +418,18 @@ class MastMissionsClass(MastQueryWithLogin):
             "SIMBAD" and "NED". If not specified, the default resolver order will be used. Please see the
             `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
             for more information. Default is None.
+        count_only : bool, optional
+            Default is False. If True, only the count of matching datasets will be returned.
         **criteria
-            Criteria to apply. At least one non-positional criterion must be supplied.
-            Valid criteria are coordinates, objectname, radius (as in
+            Criteria to apply. Valid criteria include coordinates, object_names, radius (as in
             `~astroquery.mast.missions.MastMissionsClass.query_region` and
             `~astroquery.mast.missions.MastMissionsClass.query_object` functions),
             and all fields listed in the column documentation for the mission being queried.
             List of all valid fields that can be used to match results on criteria can be retrieved by calling
             `~astroquery.mast.missions.MastMissionsClass.get_column_list` function.
             To filter by multiple values for a single column, pass in a list of values or
-            a comma-separated string of values.
+            a comma-separated string of values. For the Roman mission, you can also use the special "pass_id"
+            keyword as an alias for the "pass" column, which is a reserved keyword in Python.
 
         Returns
         -------
@@ -394,44 +447,104 @@ class MastMissionsClass(MastQueryWithLogin):
         # Check that criteria arguments are valid
         self._validate_criteria(**criteria)
 
-        # Parse user input location
-        if objectname or coordinates:
-            coordinates = utils.parse_input_location(coordinates=coordinates,
-                                                     objectname=objectname,
-                                                     resolver=resolver)
+        # Build query
+        params = {"limit": self.limit, "offset": offset, "select_cols": self._parse_select_cols(select_cols)}
 
-        # if radius is just a number we assume degrees
-        radius = coord.Angle(radius, u.arcmin)
+        # Parse target information if coordinates or object names are provided
+        if coordinates is not None or object_names is not None:
+            target_strings = self._parse_multiple_targets(coordinates=coordinates,
+                                                          object_names=object_names,
+                                                          resolver=resolver)
 
-        if radius > self._max_query_radius:
-            raise InvalidQueryError(
-                f"Query radius too large. Must be ≤{self._max_query_radius}, got {radius}."
-            )
+            # if radius is just a number we assume degrees
+            radius = Angle(radius, u.arcmin)
 
-        # build query
-        params = {"limit": self.limit, "offset": offset, 'select_cols': self._parse_select_cols(select_cols)}
-        if coordinates:
-            params["target"] = [f"{coordinates.ra.deg} {coordinates.dec.deg}"]
+            if radius > self._max_query_radius:
+                raise InvalidQueryError(
+                    f"Query radius too large. Must be ≤{self._max_query_radius}, got {radius}."
+                )
+
+            params["target"] = target_strings
             params["radius"] = radius.arcsec
             params["radius_units"] = 'arcseconds'
 
-        if not self._service_api_connection.check_catalogs_criteria_params(criteria):
-            raise InvalidQueryError("At least one non-positional criterion must be supplied.")
+        if count_only:
+            params["count_only"] = True
 
         self._build_params_from_criteria(params, **criteria)
 
         return self._service_api_connection.missions_request_async(self.service, params)
 
     @class_or_instance
-    def query_object_async(self, objectname, *, radius=3*u.arcmin, limit=5000, offset=0,
-                           select_cols=None, resolver=None, **criteria):
+    def query_region_async(self, coordinates, *, radius=3*u.arcmin, limit=5000, offset=0,
+                           select_cols=None, count_only=False, **criteria):
         """
-        Given an object name, returns a list of matching rows.
+        Given a sky position (or positions) and radius, returns a list of matching dataset IDs.
 
         Parameters
         ----------
-        objectname : str
-            The name of the target around which to search.
+        coordinates : str, iterable of str, or `~astropy.coordinates` object
+            The target(s) around which to search. Can be specified as:
+            - A single coordinate string or `~astropy.coordinates.SkyCoord` object
+            - A comma-separated string of coordinates (e.g., "10.0 20.0, 15.0 25.0")
+            - An iterable of coordinate strings or `~astropy.coordinates` objects
+        radius : str or `~astropy.units.Quantity` object
+            Default is 3 arcminutes. The radius around the coordinates to search within.
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from `~astropy.units` may also be used.
+            The maximum supported query radius is 30 arcminutes.
+        limit : int
+            Default is 5000. The maximum number of dataset IDs in the results.
+        offset : int
+            Default is 0. The number of records you wish to skip before selecting records.
+        select_cols: iterable or str or None, optional
+            Default is None. Names of columns that will be included in the result table.
+            If None, a default set of columns will be returned.
+            Can either be an iterable of column names, a comma-separated string of column names,
+            or 'all'/'*' to return all available columns.
+        count_only : bool, optional
+            Default is False. If True, only the count of matching datasets will be returned.
+        **criteria
+            Other mission-specific criteria arguments.
+            All valid filters can be found using `~astroquery.mast.missions.MastMissionsClass.get_column_list`
+            function.
+            For example, one can specify the output columns(select_cols) or use other filters(conditions).
+            To filter by multiple values for a single column, pass in a list of values or
+            a comma-separated string of values. For the Roman mission, you can also use the special "pass_id"
+            keyword as an alias for the "pass" column, which is a reserved keyword in Python.
+
+        Returns
+        -------
+        response : list of `~requests.Response`
+
+        Raises
+        ------
+        InvalidQueryError
+            If the query radius is larger than the limit (30 arcminutes).
+        """
+        return self.query_criteria_async(coordinates=coordinates,
+                                         radius=radius,
+                                         limit=limit,
+                                         offset=offset,
+                                         select_cols=select_cols,
+                                         count_only=count_only,
+                                         **criteria)
+
+    @class_or_instance
+    @deprecated_renamed_argument('objectname', 'object_names', since='0.4.12')
+    def query_object_async(self, object_names, *, radius=3*u.arcmin, limit=5000, offset=0,
+                           select_cols=None, resolver=None, count_only=False, **criteria):
+        """
+        Given an object name (or names), returns a list of matching rows.
+
+        Parameters
+        ----------
+        object_names : str or iterable of str, optional
+            Object name target(s) around which to search. Can be specified as:
+            - A single object name string
+            - A comma-separated string of object names (e.g., "M31, M51, NGC 1234")
+            - An iterable of object name strings
+            If both ``coordinates`` and ``object_names`` are provided, they are combined.
         radius : str or `~astropy.units.Quantity` object, optional
             Default is 3 arcminutes. The radius around the coordinates to search within.
             The string must be parsable by `~astropy.coordinates.Angle`. The
@@ -450,23 +563,29 @@ class MastMissionsClass(MastQueryWithLogin):
             "SIMBAD" and "NED". If not specified, the default resolver order will be used. Please see the
             `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
             for more information. Default is None.
+        count_only : bool, optional
+            Default is False. If True, only the count of matching datasets will be returned.
         **criteria
             Other mission-specific criteria arguments.
             All valid filters can be found using `~astroquery.mast.missions.MastMissionsClass.get_column_list`
             function.
             For example, one can specify the output columns(select_cols) or use other filters(conditions).
             To filter by multiple values for a single column, pass in a list of values or
-            a comma-separated string of values.
+            a comma-separated string of values. For the Roman mission, you can also use the special "pass_id"
+            keyword as an alias for the "pass" column, which is a reserved keyword in Python.
 
         Returns
         -------
         response : list of `~requests.Response`
         """
-
-        coordinates = utils.resolve_object(objectname, resolver=resolver)
-
-        return self.query_region_async(coordinates, radius=radius, limit=limit, offset=offset,
-                                       select_cols=select_cols, **criteria)
+        return self.query_criteria_async(object_names=object_names,
+                                         radius=radius,
+                                         limit=limit,
+                                         offset=offset,
+                                         select_cols=select_cols,
+                                         resolver=resolver,
+                                         count_only=count_only,
+                                         **criteria)
 
     @class_or_instance
     def get_product_list_async(self, datasets, *, batch_size=1000):
@@ -609,18 +728,21 @@ class MastMissionsClass(MastQueryWithLogin):
 
         return products[filter_mask]
 
-    def download_file(self, uri, *, local_path=None, cache=True, verbose=True):
+    def download_file(self, uri, *, local_path=None, cache=True, mission=None, verbose=True):
         """
         Downloads a single file based on the data URI.
 
         Parameters
         ----------
         uri : str
-            The product dataURI
+            The product filename or URI to be downloaded.
         local_path : str
             Directory or filename to which the file will be downloaded.  Defaults to current working directory.
         cache : bool
             Default is True. If file is found on disk, it will not be downloaded again.
+        mission : str, optional
+            The mission to which the file belongs. If not provided, the current value of the ``mission`` attribute
+            will be used.
         verbose : bool, optional
             Default is True. Whether to show download progress in the console.
 
@@ -635,14 +757,21 @@ class MastMissionsClass(MastQueryWithLogin):
         """
 
         # Construct the full data URL based on mission
-        if self.mission in ['hst', 'jwst', 'roman']:
+        current_mission = mission.lower() if mission else self.mission
+
+        if current_mission in ['hst', 'jwst', 'roman', 'roman_spectra', 'roman_cgi']:
             # HST, JWST, and RST have a dedicated endpoint for retrieving products
-            base_url = self._service_api_connection.MISSIONS_DOWNLOAD_URL + self.mission + '/api/v0.1/retrieve_product'
+            base_url = (f"{self._service_api_connection.MISSIONS_DOWNLOAD_URL}{current_mission}"
+                        "/api/v0.1/retrieve_product")
             keyword = 'product_name'
         else:
             # HLSPs use MAST download URL
             base_url = self._service_api_connection.MAST_DOWNLOAD_URL
             keyword = 'uri'
+            # These files require a MAST URI and not just a filename
+            if not uri.startswith('mast:'):
+                raise InvalidQueryError(f'For mission "{current_mission}", a full MAST URI is required '
+                                        f'for downloading. Got "{uri}".')
         data_url = base_url + f'?{keyword}=' + uri
         escaped_url = base_url + f'?{keyword}=' + quote(uri, safe='')
 
@@ -714,15 +843,33 @@ class MastMissionsClass(MastQueryWithLogin):
         base_dir = Path(base_dir)
 
         for data_product in products:
+            col_names = data_product.colnames
             # Determine local path for each file
-            local_path = base_dir / data_product['dataset'] if not flat else base_dir
+            filename = data_product['filename']
+            uri = data_product['uri'] if 'uri' in col_names else filename
+            dataset = None
+            if 'dataset' in col_names:
+                dataset = data_product['dataset']
+            elif 'fileset' in col_names:
+                dataset = data_product['fileset']
+            if not dataset and not flat:
+                raise InvalidQueryError('Data product is missing "dataset" or "fileset" field required for '
+                                        'constructing local download path. Specify `flat=True` to avoid this '
+                                        'requirement.')
+
+            # If the products are a subscription JSON, they should include a mission field
+            mission = data_product['mission'].lower() if 'mission' in col_names else self.mission
+
+            # Create the local file path
+            local_path = base_dir if flat else base_dir / 'mastDownload' / mission / dataset
             local_path.mkdir(parents=True, exist_ok=True)
-            local_file_path = local_path / Path(data_product['filename']).name
+            local_file_path = local_path / Path(filename).name
 
             # Download files and record status
-            status, msg, url = self.download_file(data_product['uri'],
+            status, msg, url = self.download_file(uri,
                                                   local_path=local_file_path,
                                                   cache=cache,
+                                                  mission=mission,
                                                   verbose=verbose)
             manifest_entries.append([local_file_path, status, msg, url])
 
@@ -737,9 +884,10 @@ class MastMissionsClass(MastQueryWithLogin):
 
         Parameters
         ----------
-        products : str, list, `~astropy.table.Table`
+        products : str, list of str, `~astropy.table.Table`, or list of dict
             Either a single or list of dataset IDs (e.g., as input for `get_product_list`),
-            or a Table of products (e.g., as output from `get_product_list`)
+            a Table of products (e.g., as output from `get_product_list`), or a JSON file or data from
+            the MAST subscription service containing product information.
         download_dir : str or Path, optional
             Directory for file downloads.  Defaults to current directory.
         flat : bool, optional
@@ -764,11 +912,30 @@ class MastMissionsClass(MastQueryWithLogin):
         manifest : `~astropy.table.Table`
             A table manifest showing downloaded file locations and statuses.
         """
+        if not products:
+            raise InvalidQueryError('No products specified for download.')
+
         # Ensure `products` is a Table, collecting products if necessary
-        if isinstance(products, (str, list)):
+        if (isinstance(products, str) and products.endswith('.json')) or isinstance(products, Path):
+            # Products coming from local JSON filepath from subscription service
+            try:
+                with open(products, 'r') as f:
+                    json_data = json.load(f)
+            except JSONDecodeError as ex:
+                raise InvalidQueryError(f'Failed to decode JSON file at {products}: {ex}')
+
+            if not isinstance(json_data, (list, tuple)):
+                raise InvalidQueryError(f'Expected a list of product rows in JSON file at {products}.')
+            products = Table(rows=json_data)
+        elif isinstance(products, (list)) and all(isinstance(prod, dict) for prod in products):
+            # Products coming from JSON data from subscription service
+            products = Table(rows=products)
+        elif isinstance(products, (str, list)):
+            # Products given as dataset ID(s)
             products = [products] if isinstance(products, str) else products
             products = vstack([self.get_product_list(oid) for oid in products])
         elif isinstance(products, Row):
+            # Single row of products
             products = Table(products, masked=True)
 
         # Apply filters
@@ -778,16 +945,15 @@ class MastMissionsClass(MastQueryWithLogin):
         products = utils.remove_duplicate_products(products, 'filename')
 
         if not len(products):
-            warnings.warn("No products to download.", NoResultsWarning)
+            warnings.warn("No products to download after applying filters.", NoResultsWarning)
             return
 
         # Set up base directory for downloads
         download_dir = Path(download_dir or '.')
-        base_dir = download_dir if flat else download_dir / 'mastDownload' / self.mission
 
         # Download files
         manifest = self._download_files(products,
-                                        base_dir=base_dir,
+                                        base_dir=download_dir,
                                         flat=flat,
                                         cache=cache,
                                         verbose=verbose)

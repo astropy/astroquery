@@ -7,20 +7,26 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 """
 import binascii
-import os
-import pprint
-import tarfile
-import zipfile
 from collections.abc import Iterable
 from datetime import datetime
+from datetime import timezone
+from functools import cache
+import os
+import pprint
+import re
+import tarfile
+import zipfile
 
 from astropy import units
 from astropy import units as u
 from astropy.coordinates import Angle
+from astropy.table import unique
 from astropy.units import Quantity
+from astropy.utils import deprecated_renamed_argument
 from requests.exceptions import HTTPError
 
 from astroquery import log
+import astroquery.esa.utils.utils as esautils
 from astroquery.utils import commons
 from astroquery.utils.tap import TapPlus
 from astroquery.utils.tap import taputils
@@ -34,6 +40,7 @@ class EuclidClass(TapPlus):
     __ERROR_MSG_REQUESTED_PRODUCT_TYPE = "Missing required argument: 'product_type'"
     __ERROR_MSG_REQUESTED_GENERIC = "Missing required argument"
     __ERROR_MSG_REQUESTED_RADIUS = "Radius cannot be greater than 30 arcminutes"
+
     EUCLID_MESSAGES = "notification?action=GetNotifications"
 
     """
@@ -42,9 +49,11 @@ class EuclidClass(TapPlus):
     ROW_LIMIT = conf.ROW_LIMIT
 
     __VALID_DATALINK_RETRIEVAL_TYPES = conf.VALID_DATALINK_RETRIEVAL_TYPES
+    __VALID_LINKING_PARAMETERS = conf.VALID_LINKING_PARAMETERS
+    __regex_designation = re.compile(r"\s*(\S+)\s(-?\d+)\s*", flags=re.MULTILINE | re.UNICODE)
 
     def __init__(self, *, environment='PDR', tap_plus_conn_handler=None, datalink_handler=None, cutout_handler=None,
-                 verbose=False, show_server_messages=True):
+                 sia_handler=None, verbose=False, show_server_messages=True):
         """Constructor for EuclidClass.
 
         Parameters
@@ -52,11 +61,13 @@ class EuclidClass(TapPlus):
         environment : str, mandatory if no tap, data or cutout hosts is specified, default 'PDR'
             The Euclid Science Archive environment: 'PDR', 'IDR', 'OTF' and 'REG'
         tap_plus_conn_handler : tap connection handler object, optional, default None
-            HTTP(s) connection hander (creator). If no handler is provided, a new one is created.
-        datalink_handler : dataliink connection handler object, optional, default None
-            HTTP(s) connection hander (creator). If no handler is provided, a new one is created.
+            HTTP(s) connection handler (creator). If no handler is provided, a new one is created.
+        datalink_handler : datalink connection handler object, optional, default None
+            HTTP(s) connection handler (creator). If no handler is provided, a new one is created.
         cutout_handler : cutout connection handler object, optional, default None
-            HTTP(s) connection hander (creator). If no handler is provided, a new one is created.
+            HTTP(s) connection handler (creator). If no handler is provided, a new one is created.
+        sia_handler : siap connection handler object, optional, default None
+            HTTP(s) connection handler (creator). If no handler is provided, a new one is created.
         verbose : bool, optional, default 'True'
             flag to display information about the process
         show_server_messages : bool, optional, default 'True'
@@ -71,6 +82,9 @@ class EuclidClass(TapPlus):
         self.main_table = conf.ENVIRONMENTS[self.environment]['main_table']
         self.main_table_ra = conf.ENVIRONMENTS[self.environment]['main_table_ra_column']
         self.main_table_dec = conf.ENVIRONMENTS[self.environment]['main_table_dec_column']
+        self.dsr_1 = conf.ENVIRONMENTS[self.environment]['data_set_release_part1']
+        self.dsr_2 = conf.ENVIRONMENTS[self.environment]['data_set_release_part2']
+        self.dsr_3 = conf.ENVIRONMENTS[self.environment]['data_set_release_part3']
 
         url_server = conf.ENVIRONMENTS[environment]['url_server']
 
@@ -113,6 +127,20 @@ class EuclidClass(TapPlus):
                                           use_names_over_ids=conf.USE_NAMES_OVER_IDS)
         else:
             self.__euclidcutout = cutout_handler
+
+        if sia_handler is None:
+            self.__euclidsia = TapPlus(url=url_server,
+                                       server_context="sas-sia",
+                                       tap_context=None,
+                                       upload_context=None,
+                                       table_edit_context="TableTool",
+                                       data_context="sia2/query",
+                                       datalink_context=None,
+                                       verbose=verbose,
+                                       client_id='ASTROQUERY',
+                                       use_names_over_ids=conf.USE_NAMES_OVER_IDS)
+        else:
+            self.__euclidsia = sia_handler
 
         if show_server_messages:
             self.get_status_messages()
@@ -656,6 +684,8 @@ class EuclidClass(TapPlus):
             self.__eucliddata.login(user=tap_user, password=tap_password, verbose=verbose)
             log.info(f"Login to Euclid cutout service: {self.__euclidcutout._TapPlus__getconnhandler().get_host_url()}")
             self.__euclidcutout.login(user=tap_user, password=tap_password, verbose=verbose)
+            log.info(f"Login to Euclid sia service: {self.__euclidsia._TapPlus__getconnhandler().get_host_url()}")
+            self.__euclidsia.login(user=tap_user, password=tap_password, verbose=verbose)
         except HTTPError as err:
             log.error('Error logging in data or cutout services: %s' % (str(err)))
             log.error("Logging out from TAP server")
@@ -700,6 +730,14 @@ class EuclidClass(TapPlus):
             log.error("Logging out from TAP server")
             TapPlus.logout(self, verbose=verbose)
 
+        try:
+            log.info(f"Login to Euclid sia server: {self.__euclidsia._TapPlus__getconnhandler().get_host_url()}")
+            self.__euclidsia.login(user=tap_user, password=tap_password, verbose=verbose)
+        except HTTPError as err:
+            log.error('Error logging in sia server: %s' % (str(err)))
+            log.error("Logging out from TAP server")
+            TapPlus.logout(self, verbose=verbose)
+
     def logout(self, verbose=False):
         """
         Performs a logout
@@ -734,6 +772,12 @@ class EuclidClass(TapPlus):
             log.info("Euclid cutout server logout OK")
         except HTTPError as err:
             log.error('Error logging out cutout server: %s' % (str(err)))
+
+        try:
+            self.__euclidsia.logout(verbose=verbose)
+            log.info("Euclid sia server logout OK")
+        except HTTPError as err:
+            log.error('Error logging out sia server: %s' % (str(err)))
 
     @staticmethod
     def __get_quantity_input(value, msg):
@@ -784,26 +828,41 @@ class EuclidClass(TapPlus):
     def __set_dirs(output_file, observation_id):
         if output_file is None:
             now = datetime.now()
-            output_dir = os.getcwd() + os.sep + "temp_" + now.strftime("%Y%m%d_%H%M%S")
-            output_file_full_path = output_dir + os.sep + str(observation_id)
+            output_dir = os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d_%H%M%S"))
+            output_file_full_path = os.path.join(output_dir, str(observation_id))
+
+            try:
+                if output_dir:
+                    os.makedirs(output_dir, exist_ok=True)
+            except OSError as err:
+                raise OSError("Creation of the directory %s failed: %s"
+                              % (output_dir, err.strerror))
         else:
-            output_file_full_path = output_file
-            output_dir = os.path.dirname(output_file_full_path)
-        try:
-            if output_dir:
-                os.makedirs(output_dir, exist_ok=True)
-        except OSError as err:
-            raise OSError("Creation of the directory %s failed: %s"
-                          % (output_dir, err.strerror))
+            if '' == os.path.dirname(output_file):
+                output_file_full_path = os.path.join(os.getcwd(), output_file)
+                output_dir = os.path.dirname(output_file_full_path)
+            else:
+                output_file_full_path = output_file
+                output_dir = os.path.dirname(output_file_full_path)
+
         return output_file_full_path, output_dir
 
     @staticmethod
-    def __check_file_number(output_dir, output_file_name,
-                            output_file_full_path, files):
+    def __check_file_number(output_dir, output_file_name, output_file_full_path, files):
+
+        if tarfile.is_tarfile(output_file_full_path):
+            with tarfile.open(output_file_full_path) as tar_ref:
+                files.extend([os.path.join(output_dir, file) for file in tar_ref.namelist()])
+            return
+        elif zipfile.is_zipfile(output_file_full_path):
+            with zipfile.ZipFile(output_file_full_path, 'r') as zip_ref:
+                files.extend([os.path.join(output_dir, file) for file in zip_ref.namelist()])
+            return
+
         num_files_in_dir = len(os.listdir(output_dir))
         if num_files_in_dir == 1:
             output_f = output_file_name
-            output_full_path = output_dir + os.sep + output_f
+            output_full_path = os.path.join(output_dir, output_f)
 
             os.rename(output_file_full_path, output_full_path)
             files.append(output_full_path)
@@ -819,16 +878,20 @@ class EuclidClass(TapPlus):
         if tarfile.is_tarfile(output_file_full_path):
             with tarfile.open(output_file_full_path) as tar_ref:
                 tar_ref.extractall(path=output_dir)
+                files.extend([os.path.join(output_dir, file) for file in tar_ref.namelist()])
         elif zipfile.is_zipfile(output_file_full_path):
             with zipfile.ZipFile(output_file_full_path, 'r') as zip_ref:
                 zip_ref.extractall(output_dir)
+                files.extend([os.path.join(output_dir, file) for file in zip_ref.namelist()])
         elif not EuclidClass.is_gz_file(output_file_full_path):
             # single file: return it
             files.append(output_file_full_path)
             return files
+        return None
 
     def get_observation_products(self, *, id=None, schema="sedm", product_type=None, product_subtype="STK",
-                                 filter="VIS", output_file=None, verbose=False):
+                                 filter="VIS", dsr_part1=None, dsr_part2=None, dsr_part3=None, output_file=None,
+                                 verbose=False):
         """
         Downloads the products for a given EUCLID observation_id (observations) or tile_index (mosaics)
         For big files the download may require a long time
@@ -838,7 +901,7 @@ class EuclidClass(TapPlus):
         id : str, mandatory
             observation identifier (observation id for observations, mosaic id for mosaics)
         schema : str, optional
-            schema name. Default value is 'sedm'.
+            release name. Default value is 'sedm'.
         product_type : str, mandatory, default None
             list only products of the given type.
             possible values: 'observation', 'mosaic'
@@ -851,6 +914,13 @@ class EuclidClass(TapPlus):
         output_file : str, optional
             output file, use zip extension when downloading multiple files
             if no value is provided, a temporary one is created
+        dsr_part1: str, optional, default None
+            the data set release part 1: for OTF environment, the activity code; for REG and IDR, the target environment
+        dsr_part2: str, optional, default None
+            the data set release part 2: for OTF environment, the patch id (a positive integer); for REG and IDR,
+            the activity code
+        dsr_part3: int, optional, default None
+            the data set release part 3: for OTF, REG and IDR environment, the version (an integer greater than 1)
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -868,13 +938,24 @@ class EuclidClass(TapPlus):
 
         params_dict = {'TYPE': product_subtype, 'RETRIEVAL_ACCESS': 'DIRECT', 'TAPCLIENT': 'ASTROQUERY',
                        'RELEASE': schema}
+
         if product_type == 'observation':
             params_dict['FILTER'] = filter
             params_dict['RETRIEVAL_TYPE'] = 'OBSERVATION'
             params_dict['OBS_ID'] = id
+
         if product_type == 'mosaic':
             params_dict['MSC_ID'] = id
             params_dict['RETRIEVAL_TYPE'] = 'MOSAIC'
+
+        if dsr_part1 is not None:
+            params_dict['DSP1'] = dsr_part1
+
+        if dsr_part2 is not None:
+            params_dict['DSP2'] = dsr_part2
+
+        if dsr_part3 is not None:
+            params_dict['DSP3'] = dsr_part3
 
         output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id=id)
         try:
@@ -896,7 +977,8 @@ class EuclidClass(TapPlus):
 
         return files
 
-    def __get_tile_catalogue_list(self, *, tile_index, product_type, verbose=False):
+    def __get_tile_catalogue_list(self, *, tile_index, product_type, schema="sedm", dsr_part1=None,
+                                  dsr_part2=None, dsr_part3=None, verbose=False):
         """
         Get the list of products of a given EUCLID tile_index (mosaics)
 
@@ -905,11 +987,11 @@ class EuclidClass(TapPlus):
         tile_index : str, mandatory
             tile index for products searchable by tile.
 
-        Searchable products by tile_index: 'DpdMerBksMosaic', 'dpdPhzPfOutputForL3', 'dpdPhzPfOutputCatalog',
-            'dpdMerFinalCatalog','dpdSpePfOutputCatalog', 'dpdSheLensMcChains', 'dpdHealpixBitMaskVMPZ',
-            'dpdHealpixFootprintMaskVMPZ', 'dpdHealpixCoverageVMPZ', 'dpdHealpixDepthMapVMPZ','dpdHealpixInfoMapVMPZ',
-            'dpdSheBiasParams', 'dpdSheLensMcFinalCatalog', 'dpdSheLensMcRawCatalog', 'dpdSheMetaCalFinalCatalog',
-            'dpdSheMetaCalRawCatalog', 'dpdSleDetectionOutput', 'dpdSleModelOutput', 'DpdSirCombinedSpectra',
+        Searchable products by tile_index: 'DpdMerBksMosaic', 'DPdPhzPfOutputForL3', 'DPdPhzPfOutputCatalog',
+            'DPdMerFinalCatalog','DPdSpePfOutputCatalog', 'DPdSheLensMcChains', 'DPdHealpixBitMaskVMPZ',
+            'DPdHealpixFootprintMaskVMPZ', 'DPdHealpixCoverageVMPZ', 'DPdHealpixDepthMapVMPZ','DPdHealpixInfoMapVMPZ',
+            'DPdSheBiasParams', 'DPdSheLensMcFinalCatalog', 'DPdSheLensMcRawCatalog', 'DPdSheMetaCalFinalCatalog',
+            'DPdSheMetaCalRawCatalog', 'DPdSleDetectionOutput', 'DPdSleModelOutput', 'DpdSirCombinedSpectra',
             'DpdMerSegmentationMap'
         product_type : str, mandatory, default None
             Available product types:
@@ -917,30 +999,39 @@ class EuclidClass(TapPlus):
                 #. MER
                      DpdMerSegmentationMap: Segmentation Map Product
                      DpdMerBksMosaic: Background-Subtracted Mosaic Product
-                     dpdMerFinalCatalog: Final Catalog Product
+                     DPdMerFinalCatalog: Final Catalog Product
                 #. PHZ
-                    dpdPhzPfOutputCatalog: PHZ PF output catalog product for Deep tiles
-                    dpdPhzPfOutputForL3: PHZ PF output catalog product for LE3
+                    DpdPhzPfOutputCatalog: PHZ PF output catalog product for Deep tiles
+                    DpdPhzPfOutputForL3: PHZ PF output catalog product for LE3
+                    DpdPhzDeepOutputCatalog: the photometric redshift and its PDF
                 #. SPE
-                    dpdSpePfOutputCatalog: SPE PF output catalog product
+                    DpdSpePfOutputCatalog: SPE PF output catalog product
                 #. SHE
-                    dpdSheLensMcChains: Shear LensMc Chains
-                    dpdSheBiasParams: Shear Bias Parameters Data Product
-                    dpdSheLensMcFinalCatalog: Shear LensMc Final Catalog
-                    dpdSheMetaCalFinalCatalog: Shear MetaCal Final Catalog
-                    dpdSheMetaCalRawCatalog: Shear LensMc Raw Catalog
-                    dpdSheLensMcRawCatalog: Shear LensMc Raw Catalog
+                    DpdSheLensMcChains: Shear LensMc Chains
+                    DpdSheBiasParams: Shear Bias Parameters Data Product
+                    DpdSheLensMcFinalCatalog: Shear LensMc Final Catalog
+                    DpdSheMetaCalFinalCatalog: Shear MetaCal Final Catalog
+                    DpdSheMetaCalRawCatalog: Shear LensMc Raw Catalog
+                    DpdSheLensMcRawCatalog: Shear LensMc Raw Catalog
                 #. VMPZ-ID
-                    dpdHealpixBitMaskVMPZ: Input Product: Bit Mask Parameters
-                    dpdHealpixFootprintMaskVMPZ: Output Product: HEALPix Footprint Mask
-                    dpdHealpixCoverageVMPZ: Output Product: HEALPix Coverage Mask
-                    dpdHealpixDepthMapVMPZ: Input Product: Depth Maps Parameters
-                    dpdHealpixInfoMapVMPZ: Input Product: Information Map Parameters
+                    DpdHealpixBitMaskVMPZ: Input Product: Bit Mask Parameters
+                    DpdHealpixFootprintMaskVMPZ: Output Product: HEALPix Footprint Mask
+                    DpdHealpixCoverageVMPZ: Output Product: HEALPix Coverage Mask
+                    DpdHealpixDepthMapVMPZ: Input Product: Depth Maps Parameters
+                    DpdHealpixInfoMapVMPZ: Input Product: Information Map Parameters
                 #. SLE
-                    dpdSleDetectionOutput: SLE Detection Output
-                    dpdSleModelOutput: SLE Model Output
+                    DpdSleDetectionOutput: SLE Detection Output
                 #. SIR
                     DpdSirCombinedSpectra: Combined Spectra Product
+        schema : str, optional
+            release name. Default value is 'sedm'.
+        dsr_part1: str, optional, default None
+            the data set release part 1: for OTF environment, the activity code; for REG and IDR, the target environment
+        dsr_part2: str, optional, default None
+            the data set release part 2: for OTF environment, the patch id (a positive integer); for REG and IDR,
+            the activity code
+        dsr_part3: int, optional, default None
+            the data set release part 3: for OTF, REG and IDR environment, the version (an integer greater than 1)
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -954,55 +1045,72 @@ class EuclidClass(TapPlus):
         if product_type is None:
             raise ValueError(self.__ERROR_MSG_REQUESTED_PRODUCT_TYPE)
 
-        query = None
-
         if product_type in conf.MOSAIC_PRODUCTS:
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'mosaic_product')
+            extra_condition = '' if dsr_condition is None else f' AND {dsr_condition}'
+
             query = (
                 f"SELECT DISTINCT mosaic_product.file_name, mosaic_product.mosaic_product_oid, "
+                f"mosaic_product.product_type, "
                 f"mosaic_product.tile_index, mosaic_product.instrument_name, mosaic_product.filter_name, "
                 f"mosaic_product.category, mosaic_product.second_type, mosaic_product.ra, mosaic_product.dec, "
-                f"mosaic_product.release_name, "
-                f"mosaic_product.technique FROM sedm.mosaic_product WHERE mosaic_product.tile_index = '{tile_index}' "
-                f"AND "
-                f"mosaic_product.product_type = '{product_type}';")
+                f"mosaic_product.release_name, mosaic_product.technique, mosaic_product.{self.dsr_1}, "
+                f"mosaic_product.{self.dsr_2}, mosaic_product.{self.dsr_3} FROM {schema}.mosaic_product "
+                f"WHERE mosaic_product.tile_index = '{tile_index}' "
+                f"AND mosaic_product.product_type = '{product_type}' {extra_condition};")
 
-        if product_type in conf.BASIC_DOWNLOAD_DATA_PRODUCTS:
+        elif product_type in conf.BASIC_DOWNLOAD_DATA_PRODUCTS:
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'basic_download_data')
+            extra_condition = '' if dsr_condition is None else f' AND {dsr_condition}'
+
+            product_type_db = product_type[0].lower() + product_type[1:]
             query = (
                 f"SELECT basic_download_data.basic_download_data_oid, basic_download_data.product_type, "
                 f"basic_download_data.product_id, CAST(basic_download_data.observation_id_list as text) AS "
                 f"observation_id_list, CAST(basic_download_data.tile_index_list as text) AS tile_index_list, "
                 f"CAST(basic_download_data.patch_id_list as text) AS patch_id_list, "
-                f"CAST(basic_download_data.filter_name as text) AS filter_name, basic_download_data.release_name FROM "
-                f"sedm.basic_download_data WHERE '{tile_index}'=ANY(tile_index_list) AND product_type = '"
-                f"{product_type}' "
-                f"ORDER BY observation_id_list ASC;")
+                f"CAST(basic_download_data.filter_name as text) AS filter_name, basic_download_data.release_name, "
+                f"basic_download_data.{self.dsr_1}, basic_download_data.{self.dsr_2}, "
+                f"basic_download_data.{self.dsr_3} FROM {schema}.basic_download_data "
+                f"WHERE '{tile_index}'=ANY(basic_download_data.tile_index_list) AND basic_download_data.product_type "
+                f"= '{product_type_db}' {extra_condition} ORDER BY observation_id_list ASC;")
 
-        if product_type in conf.COMBINED_SPECTRA_PRODUCTS:
+        elif product_type in conf.COMBINED_SPECTRA_PRODUCTS:
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'combined_spectra')
+            extra_condition = '' if dsr_condition is None else f' AND {dsr_condition}'
+
             query = (
                 f"SELECT combined_spectra.combined_spectra_oid, combined_spectra.lambda_range, "
                 f"combined_spectra.tile_index, combined_spectra.stc_s, combined_spectra.product_type, "
-                f"combined_spectra.product_id, combined_spectra.observation_id_list FROM sedm.combined_spectra "
-                f"WHERE combined_spectra.tile_index = '{tile_index}' AND combined_spectra.product_type = '"
-                f"{product_type}';")
+                f"combined_spectra.product_id, combined_spectra.observation_id_list, combined_spectra.{self.dsr_1}, "
+                f"combined_spectra.{self.dsr_2}, combined_spectra.{self.dsr_3} FROM {schema}.combined_spectra "
+                f"WHERE combined_spectra.tile_index = '{tile_index}' AND combined_spectra.product_type = "
+                f"'{product_type}' {extra_condition};")
 
-        if product_type in conf.MER_SEGMENTATION_MAP_PRODUCTS:
+        elif product_type in conf.MER_SEGMENTATION_MAP_PRODUCTS:
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'mer_segmentation_map')
+            extra_condition = '' if dsr_condition is None else f' AND {dsr_condition}'
+
             query = (
                 f"SELECT mer_segmentation_map.file_name, mer_segmentation_map.segmentation_map_oid, "
                 f"mer_segmentation_map.ra, mer_segmentation_map.dec, mer_segmentation_map.stc_s, "
                 f"mer_segmentation_map.tile_index, "
                 f"CAST(mer_segmentation_map.observation_id_list as TEXT) AS observation_id_list, "
-                f"mer_segmentation_map.product_type, mer_segmentation_map.product_id FROM sedm.mer_segmentation_map "
+                f"mer_segmentation_map.product_type, mer_segmentation_map.product_id, "
+                f"mer_segmentation_map.{self.dsr_1}, mer_segmentation_map.{self.dsr_2}, "
+                f"mer_segmentation_map.{self.dsr_3} FROM {schema}.mer_segmentation_map "
                 f"WHERE mer_segmentation_map.tile_index = '{tile_index}' AND "
-                f"mer_segmentation_map.product_type = '{product_type}';")
+                f"mer_segmentation_map.product_type = '{product_type}' {extra_condition};")
 
-        if query is None:
+        else:
             raise ValueError(f"Invalid product type {product_type}.")
 
         job = super().launch_job(query=query, output_format='votable_plain', verbose=verbose,
                                  format_with_results_compressed=('votable_gzip',))
         return job.get_results()
 
-    def get_product_list(self, *, observation_id=None, tile_index=None, product_type, verbose=False):
+    def get_product_list(self, *, observation_id=None, tile_index=None, product_type, schema="sedm", dsr_part1=None,
+                         dsr_part2=None, dsr_part3=None, verbose=False):
         """
         Get the list of products of a given EUCLID id searching by observation_id or tile_index.
 
@@ -1011,33 +1119,31 @@ class EuclidClass(TapPlus):
         observation_id : str, mandatory
             observation id for observations. It is not compatible with parameter tile_index.
 
-            Searchable products by observation_id: 'dpdVisRawFrame', 'dpdNispRawFrame',
-            ,'DpdVisCalibratedQuadFrame','DpdVisCalibratedFrameCatalog', 'DpdVisStackedFrame',
+            Searchable products by observation_id: 'DPdVisRawFrame', 'DPdNispRawFrame',
+            'DpdVisCalibratedQuadFrame','DpdVisCalibratedFrameCatalog', 'DpdVisStackedFrame',
             'DpdVisStackedFrameCatalog',
             'DpdNirCalibratedFrame', 'DpdNirCalibratedFrameCatalog', 'DpdNirStackedFrameCatalog', 'DpdNirStackedFrame',
-            'DpdMerSegmentationMap', 'dpdMerFinalCatalog',
-            'dpdPhzPfOutputCatalog', 'dpdPhzPfOutputForL3',
-            'dpdSpePfOutputCatalog',
-            'dpdSheLensMcChains','dpdSheBiasParams', 'dpdSheLensMcFinalCatalog','dpdSheLensMcRawCatalog',
-            'dpdSheMetaCalFinalCatalog', 'dpdSheMetaCalRawCatalog',
-            'dpdHealpixBitMaskVMPZ', 'dpdHealpixFootprintMaskVMPZ', 'dpdHealpixCoverageVMPZ',
-            'dpdHealpixDepthMapVMPZ', 'dpdHealpixInfoMapVMPZ',
-            'dpdSleDetectionOutput','dpdSleModelOutput',
-            'DpdSirCombinedSpectra','dpdSirScienceFrame'
+            'DpdMerSegmentationMap', 'DpdMerFinalCatalog',
+            'DpdPhzPfOutputCatalog', 'DpdPhzPfOutputForL3', 'DpdPhzDeepOutputCatalog'
+            'DpdSpePfOutputCatalog',
+            'DpdSheLensMcChains','DpdSheBiasParams', 'DpdSheLensMcFinalCatalog','DpdSheLensMcRawCatalog',
+            'DpdSheMetaCalFinalCatalog', 'DpdSheMetaCalRawCatalog',
+            'DpdHealpixBitMaskVMPZ', 'DpdHealpixFootprintMaskVMPZ', 'DpdHealpixCoverageVMPZ',
+            'DpdHealpixDepthMapVMPZ', 'DpdHealpixInfoMapVMPZ',
+            'DpdSleDetectionOutput', 'DpdSirCombinedSpectra','DpdSirScienceFrame'
 
         tile_index : str, mandatory
             tile index for products searchable by tile. It is not compatible with parameter observation_id.
 
             Searchable products by tile_index:
-            'DpdMerSegmentationMap', 'dpdMerFinalCatalog', 'DpdMerBksMosaic',
-            'dpdPhzPfOutputCatalog','dpdPhzPfOutputForL3',
-            'dpdSpePfOutputCatalog',
-            'dpdSheLensMcChains', 'dpdSheBiasParams',  'dpdSheLensMcFinalCatalog', 'dpdSheLensMcRawCatalog',
-            'dpdSheMetaCalFinalCatalog', 'dpdSheMetaCalRawCatalog',
-            'dpdHealpixBitMaskVMPZ', 'dpdHealpixFootprintMaskVMPZ', 'dpdHealpixCoverageVMPZ',
-            'dpdHealpixDepthMapVMPZ','dpdHealpixInfoMapVMPZ',
-            dpdSleDetectionOutput', 'dpdSleModelOutput',
-            'DpdSirCombinedSpectra'
+            'DpdMerSegmentationMap', 'DpdMerFinalCatalog', 'DpdMerBksMosaic',
+            'DpdPhzPfOutputCatalog','DpdPhzPfOutputForL3', 'DpdPhzDeepOutputCatalog'
+            'DpdSpePfOutputCatalog',
+            'DpdSheLensMcChains', 'DpdSheBiasParams',  'DpdSheLensMcFinalCatalog', 'DpdSheLensMcRawCatalog',
+            'DpdSheMetaCalFinalCatalog', 'DpdSheMetaCalRawCatalog',
+            'DpdHealpixBitMaskVMPZ', 'DpdHealpixFootprintMaskVMPZ', 'DpdHealpixCoverageVMPZ',
+            'DpdHealpixDepthMapVMPZ','DPdHealpixInfoMapVMPZ',
+            'DDPdSleDetectionOutput', 'DpdSirCombinedSpectra'
 
         product_type : str, mandatory, default None
             Available product types:
@@ -1064,33 +1170,43 @@ class EuclidClass(TapPlus):
                 #. MER
                      DpdMerSegmentationMap: Segmentation Map Product
                      DpdMerBksMosaic: Background-Subtracted Mosaic Product
-                     dpdMerFinalCatalog: Final Catalog Product   \
+                     DpdMerFinalCatalog: Final Catalog Product   \
                                          - We suggest to use ADQL to retrieve data from this dataset.
                 #. PHZ      - We suggest to use ADQL to retrieve data from these products.
-                    dpdPhzPfOutputCatalog: PHZ PF output catalog product for weak lensing
-                    dpdPhzPfOutputForL3: PHZ PF output catalog product for LE3
+                    DpdPhzPfOutputCatalog: PHZ PF output catalog product for weak lensing
+                    DpdPhzPfOutputForL3: PHZ PF output catalog product for LE3
+                    DpdPhzDeepOutputCatalog: the photometric redshift and its PDF
                 #. SPE      - We suggest to use ADQL to retrieve data from this product.
-                    dpdSpePfOutputCatalog: SPE PF output catalog product
+                    DpdSpePfOutputCatalog: SPE PF output catalog product
                 #. SHE      - None of these product are available in Q1
-                    dpdSheLensMcChains: Shear LensMc Chains
-                    dpdSheBiasParams: Shear Bias Parameters Data Product
-                    dpdSheLensMcFinalCatalog: Shear LensMc Final Catalog
-                    dpdSheLensMcRawCatalog: Shear LensMc Raw Catalog
-                    dpdSheMetaCalFinalCatalog: Shear MetaCal Final Catalog
-                    dpdSheMetaCalRawCatalog: Shear LensMc Raw Catalog
+                    DpdSheLensMcChains: Shear LensMc Chains
+                    DpdSheBiasParams: Shear Bias Parameters Data Product
+                    DpdSheLensMcFinalCatalog: Shear LensMc Final Catalog
+                    DpdSheLensMcRawCatalog: Shear LensMc Raw Catalog
+                    DpdSheMetaCalFinalCatalog: Shear MetaCal Final Catalog
+                    DpdSheMetaCalRawCatalog: Shear LensMc Raw Catalog
                 #. VMPZ-ID
-                    dpdHealpixBitMaskVMPZ: Input Product: Bit Mask Parameters
-                    dpdHealpixFootprintMaskVMPZ: Output Product: HEALPix Footprint Mask
-                    dpdHealpixCoverageVMPZ: Output Product: HEALPix Coverage Mask
-                    dpdHealpixDepthMapVMPZ: Input Product: Depth Maps Parameters
-                    dpdHealpixInfoMapVMPZ: Input Product: Information Map Parameters
+                    DpdHealpixBitMaskVMPZ: Input Product: Bit Mask Parameters
+                    DpdHealpixFootprintMaskVMPZ: Output Product: HEALPix Footprint Mask
+                    DpdHealpixCoverageVMPZ: Output Product: HEALPix Coverage Mask
+                    DpdHealpixDepthMapVMPZ: Input Product: Depth Maps Parameters
+                    DpdHealpixInfoMapVMPZ: Input Product: Information Map Parameters
                 #. SLE      - None of these product are available in Q1
-                    dpdSleDetectionOutput: SLE Detection Output
-                    dpdSleModelOutput: SLE Model Output
+                    DpdSleDetectionOutput: SLE Detection Output
+                    DpdSleModelOutput: SLE Model Output
                 #. SIR
                     DpdSirCombinedSpectra: Combined Spectra Product \
                                            - We suggest to use ADQL to retrieve data (spectra) from this dataset.
-                    dpdSirScienceFrame: Science Frame Product
+                    DPdSirScienceFrame: Science Frame Product
+        schema : str, optional
+            release name. Default value is 'sedm'.
+        dsr_part1: str, optional, default None
+            the data set release part 1: for OTF environment, the activity code; for REG and IDR, the target environment
+        dsr_part2: str, optional, default None
+            the data set release part 2: for OTF environment, the patch id (a positive integer); for REG and IDR,
+            the activity code
+        dsr_part3: int, optional, default None
+            the data set release part 3: for OTF, REG and IDR environment, the version (an integer greater than 1)
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1108,117 +1224,218 @@ class EuclidClass(TapPlus):
             raise ValueError(self.__ERROR_MSG_REQUESTED_OBSERVATION_ID + "; " + self.__ERROR_MSG_REQUESTED_TILE_ID)
 
         if tile_index is not None:
-            return self.__get_tile_catalogue_list(tile_index=tile_index, product_type=product_type, verbose=verbose)
+            return self.__get_tile_catalogue_list(tile_index=tile_index, product_type=product_type, schema=schema,
+                                                  verbose=verbose)
 
-        query = None
         if product_type in conf.OBSERVATION_STACK_PRODUCTS:
+            table = f'{schema}.observation_stack'
+
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'observation_stack')
+            extra_condition = '' if dsr_condition is None else f' AND {dsr_condition}'
+
             query = (f"SELECT observation_stack.file_name, observation_stack.observation_stack_oid, "
+                     f"observation_stack.product_type, "
                      f"observation_stack.observation_id, observation_stack.ra, observation_stack.dec, "
                      f"observation_stack.instrument_name, observation_stack.filter_name, "
-                     "observation_stack.release_name, observation_stack.category, observation_stack.second_type, "
+                     f"observation_stack.release_name, observation_stack.category, observation_stack.second_type, "
                      f"observation_stack.technique, observation_stack.product_type, observation_stack.start_time, "
-                     f"observation_stack.duration FROM sedm.observation_stack WHERE "
-                     f" observation_stack.observation_id = '{observation_id}' AND observation_stack.product_type = '"
-                     f"{product_type}';")
+                     f"observation_stack.duration, observation_stack.{self.dsr_1}, observation_stack.{self.dsr_2}, "
+                     f"observation_stack.{self.dsr_3} FROM {table} WHERE "
+                     f"observation_stack.observation_id = '{observation_id}' AND observation_stack.product_type = "
+                     f"'{product_type}' {extra_condition};")
 
-        if product_type in conf.BASIC_DOWNLOAD_DATA_PRODUCTS:
+        elif product_type in conf.BASIC_DOWNLOAD_DATA_PRODUCTS:
+            table = f'{schema}.basic_download_data'
+
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3,
+                                                               'basic_download_data')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
+
+            product_type_db = product_type[0].lower() + product_type[1:]
             query = (
-                f"SELECT basic_download_data.basic_download_data_oid, basic_download_data.product_type, "
+                f"SELECT CAST(basic_download_data.file_name_list AS text) AS file_name_list, "
+                f"basic_download_data.basic_download_data_oid, basic_download_data.product_type, "
                 f"basic_download_data.product_id, CAST(basic_download_data.observation_id_list as text) AS "
                 f"observation_id_list, CAST(basic_download_data.tile_index_list as text) AS tile_index_list, "
                 f"CAST(basic_download_data.patch_id_list as text) AS patch_id_list, "
-                f"CAST(basic_download_data.filter_name as text) AS filter_name, basic_download_data.release_name FROM "
-                f"sedm.basic_download_data WHERE '{observation_id}'=ANY(observation_id_list) AND product_type = '"
-                f"{product_type}' "
-                f"ORDER BY observation_id_list ASC;")
+                f"CAST(basic_download_data.filter_name as text) AS filter_name, basic_download_data.release_name, "
+                f"basic_download_data.{self.dsr_1}, basic_download_data.{self.dsr_2}, basic_download_data.{self.dsr_3} "
+                f"FROM {table} WHERE '{observation_id}'=ANY(observation_id_list) AND basic_download_data.product_type "
+                f"= '{product_type_db}' {extra_condition} ORDER BY observation_id_list ASC;")
 
-        if product_type in conf.MER_SEGMENTATION_MAP_PRODUCTS:
+        elif product_type in conf.MER_SEGMENTATION_MAP_PRODUCTS:
+            table = f'{schema}.mer_segmentation_map'
+
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3,
+                                                               'mer_segmentation_map')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
+
             query = (
                 f"SELECT mer_segmentation_map.file_name, mer_segmentation_map.segmentation_map_oid, "
                 f"mer_segmentation_map.ra, mer_segmentation_map.dec, mer_segmentation_map.stc_s, "
-                f"mer_segmentation_map.tile_index, "
-                f"mer_segmentation_map.product_type, mer_segmentation_map.product_id FROM sedm.mer_segmentation_map "
+                f"mer_segmentation_map.tile_index, mer_segmentation_map.product_type"
+                f"mer_segmentation_map.product_type, mer_segmentation_map.product_id, "
+                f"mer_segmentation_map.release_name, mer_segmentation_map.{self.dsr_1}, "
+                f"mer_segmentation_map.{self.dsr_2}, mer_segmentation_map.{self.dsr_3} FROM {table} "
                 f"WHERE ( observation_id_list = '{observation_id}' OR observation_id_list like '{observation_id},"
                 f"%' OR observation_id_list "
                 f"like '%,{observation_id}' OR CAST(observation_id_list as TEXT) like '%,{observation_id},%' ) AND "
-                f"mer_segmentation_map.product_type = '{product_type}';")
+                f"mer_segmentation_map.product_type = '{product_type}' {extra_condition};")
 
-        if product_type in conf.RAW_FRAME_PRODUCTS:
+        elif product_type in conf.RAW_FRAME_PRODUCTS:
+            table = f'{schema}.raw_frame'
 
-            if product_type == "dpdNispRawFrame":
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'raw_frame')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
+
+            if product_type == "DpdNispRawFrame":
                 instrument_name = "NISP"
             else:
                 instrument_name = "VIS"
 
             query = (
                 f"SELECT raw_frame.file_name, raw_frame.rawframe_oid, raw_frame.observation_id, "
-                f"raw_frame.instrument_name, raw_frame.data_set_release, raw_frame.filter_name, "
-                f"raw_frame.observation_mode, raw_frame.grism_wheel_pos, raw_frame.cal_block_id, "
-                f"raw_frame.cal_block_variant, raw_frame.ra, raw_frame.dec, raw_frame.obs_time_utc, "
-                f"raw_frame.exposure_time FROM sedm.raw_frame WHERE raw_frame.observation_id = '{observation_id}' "
-                f"AND raw_frame.instrument_name = '{instrument_name}';")
+                f"raw_frame.product_type, raw_frame.instrument_name, raw_frame.data_set_release, "
+                f"raw_frame.filter_name,raw_frame.observation_mode, raw_frame.grism_wheel_pos, "
+                f"raw_frame.cal_block_id, raw_frame.cal_block_variant, raw_frame.ra, raw_frame.dec, "
+                f"raw_frame.obs_time_utc, raw_frame.exposure_time, raw_frame.release_name, raw_frame.{self.dsr_1}, "
+                f"raw_frame.{self.dsr_2}, raw_frame.{self.dsr_3} FROM {table} WHERE "
+                f"raw_frame.observation_id = '{observation_id}' "
+                f"AND raw_frame.instrument_name = '{instrument_name}' {extra_condition};")
 
-        if product_type in conf.CALIBRATED_FRAME_PRODUCTS:
+        elif product_type in conf.CALIBRATED_FRAME_PRODUCTS:
+            table = f'{schema}.calibrated_frame'
+
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'calibrated_frame')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
+
             query = (
                 f"SELECT calibrated_frame.file_name, calibrated_frame.calibrated_frame_oid, "
+                f"calibrated_frame.product_type, "
                 f"calibrated_frame.observation_id, calibrated_frame.instrument_name, calibrated_frame.filter_name, "
                 f"calibrated_frame.ra, calibrated_frame.dec, calibrated_frame.stc_s, calibrated_frame.start_time, "
-                f"calibrated_frame.end_time, calibrated_frame.duration "
-                f"FROM sedm.calibrated_frame WHERE calibrated_frame.observation_id = '{observation_id}' AND "
-                f"calibrated_frame.product_type = '{product_type}';")
+                f"calibrated_frame.end_time, calibrated_frame.duration, calibrated_frame.{self.dsr_1}, "
+                f"calibrated_frame.{self.dsr_2}, calibrated_frame.{self.dsr_3} "
+                f"FROM {table} WHERE calibrated_frame.observation_id = '{observation_id}' AND "
+                f"calibrated_frame.product_type = '{product_type}' {extra_condition};")
 
-        if product_type in conf.FRAME_CATALOG_PRODUCTS:
+        elif product_type in conf.FRAME_CATALOG_PRODUCTS:
+            table = f'{schema}.frame_catalog'
+
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'frame_catalog')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
+
             query = (
                 f"SELECT frame_catalog.file_name, frame_catalog.catalog_oid, frame_catalog.observation_id, "
                 f"frame_catalog.instrument_name, frame_catalog.filter_name, frame_catalog.ra, frame_catalog.dec, "
                 f"frame_catalog.datarange_start_time, frame_catalog.datarange_end_time, "
-                f"frame_catalog.product_type, frame_catalog.product_id FROM sedm.frame_catalog "
-                f"WHERE frame_catalog.observation_id = '{observation_id}' AND frame_catalog.product_type = '"
-                f"{product_type}';")
+                f"frame_catalog.product_type, frame_catalog.product_id, frame_catalog.{self.dsr_1}, "
+                f"frame_catalog.{self.dsr_2}, frame_catalog.{self.dsr_3} FROM {table} "
+                f"WHERE frame_catalog.observation_id ILIKE '{observation_id}' AND frame_catalog.product_type = "
+                f"'{product_type}' {extra_condition};")
 
-        if product_type in conf.COMBINED_SPECTRA_PRODUCTS:
+        elif product_type in conf.COMBINED_SPECTRA_PRODUCTS:
+            table = f'{schema}.combined_spectra'
+
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'combined_spectra')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
+
             query = (
                 f"SELECT combined_spectra.combined_spectra_oid, combined_spectra.lambda_range, "
                 f"combined_spectra.tile_index, combined_spectra.stc_s, combined_spectra.product_type, "
-                f"combined_spectra.product_id FROM sedm.combined_spectra "
-                f"WHERE ( observation_id_list = '{observation_id}' OR observation_id_list like '{observation_id} %' "
-                f"OR observation_id_list "
-                f"like '% {observation_id}' OR observation_id_list like '% {observation_id} %' ) AND "
-                f"combined_spectra.product_type = '{product_type}';")
+                f"combined_spectra.product_id, combined_spectra.{self.dsr_1}, combined_spectra.{self.dsr_2}, "
+                f"combined_spectra.{self.dsr_3} FROM {table} WHERE ( observation_id_list = '{observation_id}' "
+                f"OR observation_id_list like '{observation_id} %' OR observation_id_list like '% {observation_id}' "
+                f"OR observation_id_list like '% {observation_id} %' ) AND "
+                f"combined_spectra.product_type = '{product_type}' {extra_condition};")
 
-        if product_type in conf.SIR_SCIENCE_FRAME_PRODUCTS:
+        elif product_type in conf.SIR_SCIENCE_FRAME_PRODUCTS:
+            table = f'{schema}.sir_science_frame'
+
+            dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3, 'sir_science_frame')
+            extra_condition = '' if dsr_condition is None else f'AND {dsr_condition}'
+
             instrument_name = "NISP"
 
             query = (
                 f"SELECT sir_science_frame.file_name, sir_science_frame.science_frame_oid, "
+                f"sir_science_frame.product_type, "
                 f"sir_science_frame.observation_id, sir_science_frame.instrument_name, sir_science_frame.stc_s, "
-                f"sir_science_frame.prod_sdc FROM sedm.sir_science_frame "
-                f"WHERE sir_science_frame.observation_id = '{observation_id}' AND sir_science_frame.instrument_name = '"
-                f"{instrument_name}';")
+                f"sir_science_frame.prod_sdc, sir_science_frame.{self.dsr_1}, sir_science_frame.{self.dsr_2}, "
+                f"sir_science_frame.{self.dsr_3} FROM {table} WHERE sir_science_frame.observation_id = "
+                f"'{observation_id}' AND sir_science_frame.instrument_name = '{instrument_name}' {extra_condition};")
 
-        if query is None:
+        else:
             raise ValueError(f"Invalid product type {product_type}.")
 
         job = super().launch_job(query=query, output_format='votable_plain', verbose=verbose,
                                  format_with_results_compressed=('votable_gzip',))
         return job.get_results()
 
-    def get_product(self, *, file_name=None, product_id=None, schema='sedm', output_file=None, verbose=False):
+    def __get_data_set_release_by_env(self, dsr_1_value=None, dsr_2_value=None, dsr_3_value=None, alias=None):
+        """
+        Build a SQL WHERE clause for filtering dataset releases by environment values.
+
+        Parameters:
+            dsr_1_value: Optional value for the first dataset release field.
+            dsr_2_value: Optional value for the second dataset release field.
+            dsr_3_value: Optional value for the third dataset release field.
+                         If set to "latest", the clause filters on latest = true.
+            alias: Optional table alias prepended to field names.
+
+        Returns:
+            A string containing SQL conditions joined with AND, or None if no
+            filter values are provided.
+        """
+
+        clauses = []
+
+        def build_key(field):
+            return ".".join(filter(None, [alias, str(field)]))
+
+        if dsr_1_value is not None:
+            clauses.append(f"{build_key(self.dsr_1)} = '{dsr_1_value}'")
+
+        if dsr_2_value is not None:
+            clauses.append(f"{build_key(self.dsr_2)} = '{dsr_2_value}'")
+
+        if dsr_3_value is not None:
+            if dsr_3_value == "latest":
+                clauses.append("latest = 'true'")
+            else:
+                clauses.append(f"{build_key(self.dsr_3)} = {dsr_3_value}")
+
+        return " AND ".join(clauses) if clauses else None
+
+    def get_product(self, *, file_name=None, product_id=None, schema='sedm', output_file=None, dsr_part1=None,
+                    dsr_part2=None, dsr_part3=None, verbose=False):
         """
         Downloads a product given its file name or product id
 
         Parameters
         ----------
-        file_name : str, optional, default None
-            file name for the product. More than one can be specified between comma. Either file_name or product_id
-            is mandatory
-        product_id : str, optional, default None
-            product id. More than one can be specified between comma. Either file_name or product_id is mandatory
+        file_name : str or list of str, default None
+            file name for the product. Can be a single string, including multiple file names separated
+            by commas, or a list of file name strings. Either file_name or product_id is mandatory.
+            Downloading multiple files at once is less efficient than downloading them individually.
+        product_id : str or list of str, mandatory, default None
+            product id. More than one can be specified between comma or a list of product id strings.
+            Either file_name or product_id is mandatory.  Downloading multiple products at once is less efficient than
+            downloading them individually.
         schema : str, optional, default 'sedm'
-            the data release name (schema) in which the product should be searched
+            the data release name in which the product should be searched
         output_file : str, optional
-            output file, use zip extension when downloading multiple files
-            if no value is provided, a temporary one is created
+            output file path, use zip extension when downloading multiple files.
+            If no value is provided, a temporary one is created: "<working directory>/temp_<%Y%m%d_%H%M%S>/<file_name>".
+        dsr_part1: str, optional, default None
+            the data set release part 1: for OTF environment, the activity code; for REG and IDR, the target
+            environment. Only applicable for product_id
+        dsr_part2: str, optional, default None
+            the data set release part 2: for OTF environment, the patch id (a positive integer); for REG and IDR,
+            the activity code. Only applicable for product_id
+        dsr_part3: int, optional, default None
+            the data set release part 3: for OTF, REG and IDR environment, the version (an integer greater than 1).
+            Only applicable for product_id
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1231,14 +1448,51 @@ class EuclidClass(TapPlus):
             raise ValueError("'file_name' and 'product_id' are both None")
 
         params_dict = {'TAPCLIENT': 'ASTROQUERY', 'RELEASE': schema}
+
+        multiple_values = False
+
         if file_name is not None:
+
+            multiple_values = self.__is_multiple(file_name)
+
+            if isinstance(file_name, (list, tuple)):
+                file_name = ",".join(file_name)
+
             params_dict['FILE_NAME'] = file_name
             params_dict['RETRIEVAL_TYPE'] = 'FILE'
+
         if product_id is not None:
+
+            multiple_values = self.__is_multiple(product_id)
+
+            if isinstance(product_id, (list, tuple)):
+                product_id = ",".join(product_id)
+
             params_dict['PRODUCT_ID'] = product_id
             params_dict['RETRIEVAL_TYPE'] = 'PRODUCT_ID'
 
-        output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id='temp')
+            if dsr_part1 is not None:
+                params_dict['DSP1'] = dsr_part1
+
+            if dsr_part2 is not None:
+                params_dict['DSP2'] = dsr_part2
+
+            if dsr_part3 is not None:
+                params_dict['DSP3'] = dsr_part3
+
+        if multiple_values:
+            observation_id = 'get_product_output.zip'
+        else:
+            if file_name is not None:
+                observation_id = file_name
+            else:
+                observation_id = product_id + '.fits'
+
+        output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id=observation_id)
+
+        if verbose:
+            print(f"Product output file: {output_file_full_path}")
+
         try:
             self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
         except HTTPError as err:
@@ -1250,29 +1504,145 @@ class EuclidClass(TapPlus):
             return None
 
         files = []
-        self.__extract_file(output_file_full_path=output_file_full_path, output_dir=output_dir, files=files)
-        if files:
-            return files
-
-        self.__check_file_number(output_dir=output_dir, output_file_name=os.path.basename(output_file_full_path),
-                                 output_file_full_path=output_file_full_path, files=files)
+        if multiple_values:
+            self.__check_file_number(output_dir=output_dir, output_file_name=os.path.basename(output_file_full_path),
+                                     output_file_full_path=output_file_full_path, files=files)
+        else:
+            files.append(output_file_full_path)
 
         return files
 
-    def get_cutout(self, *, file_path=None, instrument=None, id=None, coordinate, radius, output_file=None,
-                   verbose=False):
+    def __is_multiple(self, value):
+
+        return not isinstance(value, int) and ((isinstance(value, (list, tuple)) and len(value) > 1) or ',' in value)
+
+    def query_sia(self, coordinates, *, radius=0.1, search_type='CIRCLE', calibration=2, instrument='ALL', band=None,
+                  collection='sedm', dsr_part1=None, dsr_part2=None, dsr_part3=None, output_file=None, verbose=False):
         """
-        Downloads a cutout given its file path, instrument and obs_id, and the cutout region
+        Query the Euclid Observation Images service using the IVOA Simple Image Access Protocol (SIAP) 2.0.
+
+        The service provides access to public calibrated and stacked VIS and NISP images, MER mosaics, and Level 1 (raw)
+         VIS and NISP observations.
+
+        Parameters
+        ----------
+        coordinates: str or SkyCoord, mandatory
+            Center of the search region.
+        radius: float or quantity, optional, default value 0.1 degree
+            Radius of the search region. If a numeric value is provided, it is interpreted as degrees.
+            An astropy.units.Quantity may also be supplied. When search_type="BOX", this value specifies the box width.
+        search_type : str, optional, default CIRCLE
+            Shape of the search region. Supported values are "CIRCLE" and "BOX".
+        calibration: int, optional, default 2
+            Calibration level following the ObsCore data model:
+
+            - 1: raw instrumental data
+            - 2: instrumental data in a standard format
+            - 3: science-ready data
+            - 4: enhanced data products
+        instrument: str, optional, default ALL
+            Instrument to query. Supported values are "ALL", "VIS", and "NISP".
+        band: str, optional, default None
+            Instrument filter. This parameter is ignored when instrument="ALL". Valid values are:
+
+            - "VIS" for the VIS instrument
+            - "NIR_Y", "NIR_J", "NIR_H", or "NISP" for the NISP instrument
+        collection : str, optional, default sedm
+            Name of the data collection.
+        dsr_part1: str, optional, default None
+            First component of the dataset release identifier: for OTF environment, the activity code; for REG and IDR,
+            the target environment
+        dsr_part2: str, optional, default None
+            Second component of the dataset release identifier: for OTF environment, the patch id (a positive integer);
+            for REG and IDR, the activity code
+        dsr_part3: str, optional, default None
+            Third component of the dataset release identifier: for OTF, REG and IDR environment, the version
+            (an integer greater than 1)
+        output_file : string, optional, default None
+            Output file where the query results are written.
+        verbose : bool, optional, default False
+            Flag to display information about the process
+
+        Returns
+        -------
+        astropy.table.Table or str
+             Query results. If ``output_file`` is specified, the results are written to the given file in VOTable
+             format.
+        """
+
+        valid_search_types = {'CIRCLE', 'BOX'}
+        valid_calibrations = {0: 'CALIB_ZERO', 1: 'CALIB_ONE', 2: 'CALIB_TWO', 3: 'CALIB_THREE'}
+        valid_instruments = {'ALL', 'VIS', 'NISP'}
+        valid_band_vis = {'VIS'}
+        valid_band_nisp = {'NIR_H', 'NIR_J', 'NIR_Y', 'NISP'}
+
+        if search_type not in valid_search_types:
+            raise ValueError(f"Invalid search tyype {search_type}")
+
+        if calibration is not None and calibration not in valid_calibrations:
+            raise ValueError(f"Invalid calibration {calibration}")
+
+        if instrument not in valid_instruments:
+            raise ValueError(f"Invalid instrument {instrument}")
+
+        if instrument == 'ALL' and band is not None:
+            raise ValueError(f"For instrument {instrument} band must be None")
+
+        if instrument == 'VIS' and band is not None and band not in valid_band_vis:
+            raise ValueError(f"Invalid band {band} for instrument {instrument}")
+
+        if instrument == 'NISP' and band is not None and band not in valid_band_nisp:
+            raise ValueError(f"Invalid band {band} for instrument {instrument}")
+
+        if coordinates is not None and radius is not None:
+            coord = commons.parse_coordinates(coordinates=coordinates)
+            ra_deg = coord.ra.degree
+            dec_deg = coord.dec.degree
+            radius_deg = esautils.get_degree_radius(radius)
+
+            if radius_deg <= 0.0:
+                raise ValueError(f"Search radius is zero or negative: {radius}")
+        else:
+            raise ValueError(f"Invalid coordinates or search radius: {coordinates}, {radius}")
+
+        params_dict = dict()
+        params_dict['TAPCLIENT'] = 'ASTROQUERY'
+        params_dict['POS'] = f"{search_type},{ra_deg},{dec_deg},{radius_deg}"
+        params_dict['INSTRUMENT'] = instrument
+        params_dict['COLLECTION'] = collection
+
+        if calibration is not None:
+            params_dict['CALIB'] = valid_calibrations[calibration]
+
+        if instrument != 'ALL' and band is not None:
+            params_dict['BAND'] = band
+
+        if dsr_part1 is not None:
+            params_dict['DSP1'] = dsr_part1
+
+        if dsr_part2 is not None:
+            params_dict['DSP2'] = dsr_part2
+
+        if dsr_part3 is not None:
+            params_dict['DSP3'] = dsr_part3
+
+        return self.__euclidsia.load_data(params_dict=params_dict, output_file=output_file, http_method='GET',
+                                          verbose=verbose)
+
+    @deprecated_renamed_argument(('instrument', 'id'), (None, None), since='0.4.12')
+    def get_cutout(self, *, file_path=None, coordinate, radius, output_file=None, verbose=False, instrument=None,
+                   id=None):
+        """
+        Downloads a cutout from a MER mosaic (background-subtracted image) for a given
+        fits file path, centered on a coordinate and with a specified radius.
+
+        This method supports **only MER mosaic cutouts**.
 
         Parameters
         ----------
         file_path : str, mandatory, default None
-            file path for the product on the server
-        instrument : str, mandatory, default None
-            instrument for the product, can be 'VIS' or 'NISP'
-        id : str, mandatory, default None
-            the observation id or tile index for MER products
-        coordinate : astropy.coordinate, mandatory
+            file path for the product on the server (MER mosaic)
+        coordinate : astropy.coordinate or Simbad/VizieR/NED name (str), mandatory
             coordinates center point
         radius : astropy.units, mandatory
             the radius of the cutout to generate
@@ -1286,7 +1656,7 @@ class EuclidClass(TapPlus):
         The fits file is downloaded, and the local path where the cutout is saved is returned
         """
 
-        if file_path is None or instrument is None or id is None or coordinate is None or radius is None:
+        if file_path is None or coordinate is None or radius is None:
             raise ValueError(self.__ERROR_MSG_REQUESTED_GENERIC)
 
         # Parse POS
@@ -1298,20 +1668,24 @@ class EuclidClass(TapPlus):
         ra = ra_hours * 15.0  # Converts to degrees
         pos = """CIRCLE,{ra},{dec},{radius}""".format(**{'ra': ra, 'dec': dec, 'radius': radius_deg})
 
-        params_dict = {'TAPCLIENT': 'ASTROQUERY', 'FILEPATH': file_path, 'COLLECTION': instrument, 'OBSID': id,
-                       'POS': pos}
+        params_dict = {'TAPCLIENT': 'ASTROQUERY', 'FILEPATH': file_path, 'POS': pos}
 
-        output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id='temp')
+        replace = os.path.basename(file_path).replace('.fits', '_cutout.fits')
+        output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id=replace)
+        if verbose:
+            print("Cutout output file: " + output_file_full_path)
+
         try:
-            self.__euclidcutout.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
+            self.__euclidcutout.load_data(params_dict=params_dict, output_file=output_file_full_path,
+                                          verbose=verbose)
         except HTTPError as err:
             log.error(
-                f"Cannot retrieve the product for file_path {file_path}, obsId {id}, and collection {instrument}. "
+                f"Cannot retrieve the product for file_path {file_path}. "
                 f"HTTP error: {err}")
             return None
         except Exception as exx:
             log.error(
-                f"Cannot retrieve the product for file_path {file_path}, obsId {id}, and collection {instrument}: "
+                f"Cannot retrieve the product for file_path {file_path}: "
                 f"{str(exx)}")
             return None
 
@@ -1325,28 +1699,35 @@ class EuclidClass(TapPlus):
 
         return files
 
-    def get_spectrum(self, *, source_id, schema='sedm', retrieval_type="ALL", output_file=None, verbose=False):
+    @deprecated_renamed_argument('source_id', 'ids', since='0.4.12')
+    def get_spectrum(self, *, ids, schema='sedm', retrieval_type="ALL", linking_parameter='SOURCE_ID',
+                     output_file=None, verbose=False):
         """
-        Downloads a spectrum with datalink.
+        Downloads spectra with datalink.
 
         The spectrum associated with the source_id is downloaded as a compressed fits file, and the files it contains
         are returned in a list. The compressed fits file is saved in the local path given by output_file. If this
-        parameter is not set, the result is saved in the file "<working
-        directory>/temp_<%Y%m%d_%H%M%S>/<source_id>.fits.zip". In any case, the content of the zip file is
-        automatically extracted.
+        parameter is not set, for a single id, the result is saved in the file
+        "<working directory>/temp_<%Y%m%d_%H%M%S>/<source_id>.fits.zip" or get_spectrum_output.zip" for multiple ids.
+        In any case, the content of the zip file is automatically extracted.
 
         Parameters
         ----------
-        source_id : str, mandatory, default None
-            source id for the spectrum
-        schema : str, mandatory, default 'sedm'
+        ids : str, int, str list or int list, mandatory
+            The identifier (<source_id>) or designation (<data-release>+blank+<source_id>). Can be a single designation
+            or id, a string with multiple values separated by commas, or a list.
+        schema : str, optional, default 'sedm'
             the data release
         retrieval_type : str, optional, default 'ALL' to retrieve all data from the list of sources
             retrieval type identifier. Possible values are: 'SPECTRA_BGS' for the blue spectrum and 'SPECTRA_RGS' for
             the red one.
+        linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID or SOURCEPATCH_ID
+            By default, all the identifiers are considered as source_id
+            SOURCE_ID: the identifiers are considered as source_id
+            SOURCEPATCH_ID: the identifiers are considered as sourcepatch_id
         output_file : str, optional
             output file name. If no value is provided, a temporary one is created with the name
-            "<working directory>/temp_<%Y%m%d_%H%M%S>/<source_id>.fits"
+            "<working directory>/temp_<%Y%m%d_%H%M%S>/<source_id>.fits or get_spectrum_output.zip"
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
@@ -1354,11 +1735,14 @@ class EuclidClass(TapPlus):
         -------
         A list of files: the files contained in the downloaded compressed fits file. The format of the file is
         SPECTRA_<colour>-<schema> <source_id>.fits', where <colour> is BGS or RGS, and <schema> and <source_id> are
-        taken from the input parameters.
+        taken from the input parameters. For multiple ids, the format is SPECTRA_<colour>_COMBINED.fits
 
         """
 
-        if source_id is None or schema is None:
+        if ids is None:
+            raise ValueError(self.__ERROR_MSG_REQUESTED_GENERIC)
+
+        if isinstance(ids, (list, tuple)) and not ids:
             raise ValueError(self.__ERROR_MSG_REQUESTED_GENERIC)
 
         rt = str(retrieval_type).upper()
@@ -1366,51 +1750,93 @@ class EuclidClass(TapPlus):
             raise ValueError(f"Invalid argument value for 'retrieval_type'. Found {retrieval_type}, "
                              f"expected: 'ALL' or any of {self.__VALID_DATALINK_RETRIEVAL_TYPES}")
 
-        params_dict = {}
+        max_allow_elements = conf.SPECTRA_LIMIT
+        max_elements = 1
+        if isinstance(ids, str):
+            ids_arg = ids
+            if ',' in ids:
+                max_elements = ids.count(',')
+        elif isinstance(ids, int):
+            ids_arg = str(ids)
+        elif isinstance(ids, (list, tuple)):
+            max_elements = len(ids)
+            ids_arg = ','.join(str(item) for item in ids)
+        else:
+            raise ValueError(self.__ERROR_MSG_REQUESTED_GENERIC)
 
-        id_value = """{schema} {source_id}""".format(**{'schema': schema, 'source_id': source_id})
-        params_dict['ID'] = id_value
-        params_dict['SCHEMA'] = schema
+        if not self.__regex_designation.search(ids_arg) and schema is None:
+            raise ValueError(f"Missing data release in: ids = {ids_arg} and schema = {schema} ")
+
+        if max_elements > max_allow_elements:
+            raise ValueError(f"Invalid number of ids:  {max_elements} > {max_allow_elements} ")
+
+        params_dict = {}
+        params_dict['ID'] = ids_arg
+        if schema is not None:
+            params_dict['RELEASE'] = schema
         params_dict['RETRIEVAL_TYPE'] = str(retrieval_type)
         params_dict['USE_ZIP_ALWAYS'] = 'true'
         params_dict['TAPCLIENT'] = 'ASTROQUERY'
 
-        fits_file = source_id + '.fits.zip'
+        if linking_parameter not in self.__VALID_LINKING_PARAMETERS:
+            raise ValueError(
+                f"Invalid linking_parameter value '{linking_parameter}' (Valid values: "
+                f"{', '.join(self.__VALID_LINKING_PARAMETERS)})")
+        else:
+            if linking_parameter != 'SOURCE_ID':
+                params_dict['LINKING_PARAMETER'] = linking_parameter
 
-        if output_file is not None:
-            if not output_file.endswith('.zip'):
-                output_file = output_file + '.zip'
+        if output_file is None:
 
-            if os.path.dirname(output_file) == '':
-                output_file = os.path.join(os.getcwd(), output_file)
+            if self.__is_multiple(ids):
+                download_name_formatted = 'get_spectrum_output.zip'
+            else:
+                download_name_formatted = str(ids) + '.fits.zip'
 
-            if verbose:
-                print(f"output file: {output_file}")
+            now = datetime.now(timezone.utc)
+            now_formatted = now.strftime("%Y%m%d_%H%M%S.%f")
+            path = os.path.join(os.getcwd(), "temp_" + now_formatted)
+            output_file = os.path.join(path, download_name_formatted)
+        else:
+            path = os.path.dirname(output_file)
+            if path == '':
+                path = os.getcwd()
+                output_file = os.path.join(path, output_file)
 
-        output_file_full_path, output_dir = self.__set_dirs(output_file=output_file, observation_id=fits_file)
+        if verbose:
+            print(f"Spectra output file: {output_file}")
 
-        if os.listdir(output_dir):
-            raise IOError(f'The directory is not empty: {output_dir}')
-
-        try:
-            self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file_full_path, verbose=verbose)
-        except HTTPError as err:
-            log.error(f'Cannot retrieve spectrum for source_id {source_id}, schema {schema}. HTTP error: {err}')
-            return None
-        except Exception as exx:
-            log.error(f'Cannot retrieve spectrum for source_id {source_id}, schema {schema}: {str(exx)}')
-            return None
+        if not os.path.exists(path):
+            try:
+                os.mkdir(path)
+            except FileExistsError:
+                log.debug("Path %s already exist" % path)
+            except OSError:
+                log.error("Creation of the directory %s failed" % path)
 
         files = []
-        self.__extract_file(output_file_full_path=output_file_full_path, output_dir=output_dir, files=files)
+
+        try:
+            self.__eucliddata.load_data(params_dict=params_dict, output_file=output_file, verbose=verbose)
+        except HTTPError as err:
+            log.error(f'Cannot retrieve spectrum for source_id {ids_arg}, schema {schema}. HTTP error: {err}')
+            return None
+        except Exception as exx:
+            log.error(f'Cannot retrieve spectrum for source_id {ids_arg}, schema {schema}: {str(exx)}')
+            return None
+
+        self.__extract_file(output_file_full_path=output_file, output_dir=path, files=files)
 
         if files:
             return files
 
-        self.__check_file_number(output_dir=output_dir,
-                                 output_file_name=os.path.basename(output_file_full_path),
-                                 output_file_full_path=output_file_full_path,
-                                 files=files)
+        self.__check_file_number(output_dir=path, output_file_name=os.path.basename(output_file),
+                                 output_file_full_path=output_file, files=files)
+
+        if log.isEnabledFor(20):
+            log.debug("List of products available:")
+            for item in sorted([key for key in files.keys()]):
+                log.debug("Product = " + item)
 
         return files
 
@@ -1422,173 +1848,157 @@ class EuclidClass(TapPlus):
         ----------
         ids : str, int, list of str or list of int, mandatory
             list of identifiers
-        linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID
-            By default, all the identifiers are considered as source_id
+        linking_parameter : str, optional, default SOURCE_ID, valid values: SOURCE_ID or SOURCEPATCH_ID
+            Specifies how the identifiers should be interpreted. By default, all the identifiers are considered as
+            source_id
+            ``SOURCE_ID``: The identifiers are interpreted as ``source_id`` values.
+            ``SOURCEPATCH_ID``: The identifiers are interpreted as ``sourcepatch_id`` values.
         extra_options : str, optional, default None, valid values: METADATA
-            To let customize the server behaviour, if present.
-            If provided with value METADATA, the extra fields datalabs_path, file_name & hdu_index will be retrieved.
+            Additional options used to customize server behavior.
+            Valid values are: ``METADATA``: Retrieves the additional fields;``datalabs_path``, ``file_name``, and
+            ``hdu_index``.
         verbose : bool, optional, default 'False'
             flag to display information about the process
 
         Returns
         -------
-        A table object
+        astropy.table.Table
+            Table containing the retrieved datalinks.
 
         """
 
-        return self.__eucliddata.get_datalinks(ids=ids,
-                                               linking_parameter=linking_parameter,
-                                               extra_options=extra_options,
-                                               verbose=verbose)
+        if linking_parameter not in self.__VALID_LINKING_PARAMETERS:
+            raise ValueError(
+                f"Invalid linking_parameter value '{linking_parameter}' (Valid values: "
+                f"{', '.join(self.__VALID_LINKING_PARAMETERS)})")
+
+        final_linking_parameter = None
+        if linking_parameter != 'SOURCE_ID':
+            final_linking_parameter = linking_parameter
+
+        return self.__eucliddata.get_datalinks(ids=ids, linking_parameter=final_linking_parameter,
+                                               extra_options=extra_options, verbose=verbose)
+
+    @cache
+    def get_valid_le3_configuration_values(self):
+        """ Gets the valid LE3 configuration values.
+
+        Returns
+        -------
+        astropy.table.Table
+            Table containing the retrieved products.
+        """
+
+        query = ('select level_3_category, level_3_group, product_type from common.level_3_configuration order by '
+                 'level_3_category, level_3_group, product_type')
+        job = super().launch_job(query=query, format_with_results_compressed=('votable_gzip',))
+
+        return job.get_results()
 
     def get_scientific_product_list(self, *, observation_id=None, tile_index=None, category=None, group=None,
-                                    product_type=None, dataset_release='REGREPROC1_R2', verbose=False):
+                                    product_type=None, dataset_release='REGREPROC1_R2', schema="sedm", dsr_part1=None,
+                                    dsr_part2=None, dsr_part3=None, verbose=False):
         """ Gets the LE3 products (the high-level science data products).
 
-        Please note that not all combinations of category, group, and product_type are valid. Check the available values
-        in https://astroquery.readthedocs.io/en/latest/esa/euclid/euclid.html#appendix
+        Please note that not all combinations of ``category``, ``group``, and ``product_type`` are valid. Use the
+        ``get_valid_le3_configuration_values()`` method to retrieve the list of valid values.
 
         Parameters
         ----------
         observation_id: str, optional, default None.
-            It is not compatible with parameter tile_index.
+            Observation identifier. This parameter is not compatible with ``tile_index``.
         tile_index: str, optional, default None.
-            It is not compatible with parameter observation_id.
+            Tile identifier. This parameter is not compatible with ``observation_id``.
         category: str, optional, default None.
+            Product category.
         group : str, optional, default None
+            Product group.
         product_type : str, optional, default None
+            Product type.
         dataset_release : str, mandatory. Default REGREPROC1_R2
-            Data release from which data should be taken.
+            Data release from which the data should be retrieved.
+        schema : str, optional, default 'sedm'
+            the data release
+        dsr_part1: str, optional, default None
+            the data set release part 1: for OTF environment, the activity code; for REG and IDR, the target environment
+        dsr_part2: str, optional, default None
+            the data set release part 2: for OTF environment, the patch id (a positive integer); for REG and IDR,
+            the activity code
+        dsr_part3: int or str, optional, default None
+            the data set release part 3: for OTF, REG and IDR environment, the version (an integer greater than 1). If
+            the value is ``latest``, the latest available version of each product type will be retrieved. Note that
+            filtering by ``dsr_part1`` and ``dsr_part2`` is compatible with ``dsr_part3="latest"``.
         verbose : bool, optional, default 'False'
-            flag to display information about the process
+            Flag indicating whether to display information about the process.
 
         Returns
         -------
-        The products in an astropy.table.Table
-
+        astropy.table.Table
+            Table containing the retrieved products.
         """
 
-        query_extra_condition = ""
+        if all(v is None for v in (observation_id, tile_index, category, group, product_type,)):
+            raise ValueError("Include at least one parameter to retrieve a LE3 product.")
 
-        if (observation_id is None and tile_index is None and category is None and group is None and product_type is
-                None):
-            raise ValueError("Include a valid parameter to retrieve a LE3 product.")
-
-        if dataset_release is None:
+        if not dataset_release:
             raise ValueError("The release is required.")
 
         if observation_id is not None and tile_index is not None:
             raise ValueError(self.__ERROR_MSG_REQUESTED_OBSERVATION_ID_AND_TILE_ID)
 
+        if dsr_part3 is not None:
+            if not (isinstance(dsr_part3, int) or dsr_part3 == "latest"):
+                raise ValueError(f"No valid dsr_part3 value: {dsr_part3}")
+
+        le3_table = self.get_valid_le3_configuration_values()
+
+        filtered = le3_table
+
+        filters = {"level_3_category": category, "level_3_group": group, "product_type": product_type, }
+
+        for column, value in filters.items():
+            if value is None:
+                continue
+            filtered = filtered[filtered[column] == value]
+            if filtered is None or not filtered:
+                raise ValueError(
+                    (
+                        "Invalid parameter combination:\n"
+                        f"category={category}\n"
+                        f"group={group}\n"
+                        f"product_type={product_type}\n\n"
+                        "Valid values:\n"
+                        f"{pprint.pformat(le3_table)}"
+                    )
+                )
+
+        conditions = [f"release_name='{dataset_release}'"]
+
         if tile_index is not None:
-            query_extra_condition = f" AND '{tile_index}' = ANY(tile_index_list) "
+            conditions.append(f"'{tile_index}' = ANY(tile_index_list)")
 
         if observation_id is not None:
-            query_extra_condition = f" AND '{observation_id}' = ANY(observation_id_list) "
+            conditions.append(f"'{observation_id}' = ANY(observation_id_list)")
 
-        if category is not None:
+        dsr_condition = self.__get_data_set_release_by_env(dsr_part1, dsr_part2, dsr_part3)
+        if dsr_condition:
+            conditions.append(dsr_condition)
 
-            try:
-                _ = conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[category]
-            except KeyError:
-                raise ValueError(
-                    f"Invalid combination of parameters: category={category}. Valid values:\n "
-                    f"{pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
+        if product_type is not None:
+            conditions.append(f"product_type = '{product_type}'")
+        else:
+            valid_products = unique(filtered, keys="product_type")["product_type"].tolist()
 
-            if group is not None:
+            if not valid_products:
+                raise ValueError("No valid product types found.")
 
-                try:
-                    product_type_for_category_group_list = conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[category][
-                        group]
-                except KeyError:
-                    raise ValueError(
-                        f"Invalid combination of parameters: category={category}; group={group}. Valid "
-                        f"values:\n {pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
+            quoted_products = ", ".join(f"'{p}'" for p in valid_products)
+            conditions.append(f"product_type IN ({quoted_products})")
 
-                if product_type is not None:
+        table = f"{schema}.level_3"
+        query = f" SELECT * FROM {table} WHERE {' AND '.join(conditions)} ORDER BY observation_id_list ASC "
 
-                    if product_type not in product_type_for_category_group_list:
-                        raise ValueError(
-                            f"Invalid combination of parameters: category={category}; group={group}; "
-                            f"product_type={product_type}. Valid values:\n "
-                            f"{pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
-
-                    query_extra_condition = query_extra_condition + f" AND product_type ='{product_type}' "
-                else:
-
-                    final_products = ', '.join(f"'{w}'" for w in product_type_for_category_group_list)
-                    query_extra_condition = query_extra_condition + f" AND product_type IN ({final_products}) "
-            else:  # category is not None and group is None
-
-                product_type_for_category_group_list = [item for row in
-                                                        conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[category]
-                                                        .values() for item in row]
-                if product_type is not None:
-
-                    if product_type not in product_type_for_category_group_list:
-                        raise ValueError(
-                            f"Invalid combination of parameters: category={category}; product_type={product_type}."
-                            f" Valid values:\n {pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
-
-                    query_extra_condition = query_extra_condition + f" AND product_type = '{product_type}' "
-
-                else:  # category is not None and group is None and product_type is None
-                    final_products = ', '.join(f"'{w}'" for w in product_type_for_category_group_list)
-                    query_extra_condition = query_extra_condition + f" AND product_type IN ({final_products}) "
-        else:  # category is None
-
-            all_groups_dict = {}
-            for i in conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS.keys():
-                all_groups_dict.update(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS[i])
-
-            if group is not None:
-
-                try:
-                    _ = all_groups_dict[group]
-                except KeyError:
-                    raise ValueError(
-                        f"Invalid combination of parameters: group={group}. Valid values:\n "
-                        f"{pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
-
-                if product_type is not None:
-
-                    if product_type not in all_groups_dict[group]:
-                        raise ValueError(
-                            f"Invalid combination of parameters: group={group}; product_type={product_type}. Valid "
-                            f"values:\n {pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
-
-                    query_extra_condition = query_extra_condition + f" AND product_type = '{product_type}' "
-                else:  # group is not None and product_type is None
-
-                    product_type_for_group_list = all_groups_dict[group]
-                    final_products = ', '.join(f"'{w}'" for w in product_type_for_group_list)
-                    query_extra_condition = query_extra_condition + f" AND product_type IN ({final_products}) "
-
-            else:  # category is None and group is None
-
-                product_type_for_category_group_list = [element for sublist in all_groups_dict.values() for element
-                                                        in sublist]
-
-                if product_type is not None:
-                    if product_type not in product_type_for_category_group_list:
-                        raise ValueError(
-                            f"Invalid combination of parameters: product_type={product_type}. Valid values:\n "
-                            f"{pprint.pformat(conf.VALID_LE3_PRODUCT_TYPES_CATEGORIES_GROUPS)}")
-
-                    query_extra_condition = query_extra_condition + f" AND product_type = '{product_type}' "
-
-                else:
-                    query_extra_condition = query_extra_condition + ""
-
-        query = (
-            f"SELECT basic_download_data.basic_download_data_oid, basic_download_data.product_type, "
-            f"basic_download_data.product_id, CAST(basic_download_data.observation_id_list as text) AS "
-            f"observation_id_list, CAST(basic_download_data.tile_index_list as text) AS tile_index_list, "
-            f"CAST(basic_download_data.patch_id_list as text) AS patch_id_list, "
-            f"CAST(basic_download_data.filter_name as text) AS filter_name FROM sedm.basic_download_data WHERE "
-            f"release_name='{dataset_release}' {query_extra_condition} ORDER BY observation_id_list ASC")
-
-        job = super().launch_job(query=query, output_format='votable_plain', verbose=verbose,
+        job = super().launch_job(query=query, output_format='csv', verbose=verbose,
                                  format_with_results_compressed=('votable_gzip',))
 
         return job.get_results()
