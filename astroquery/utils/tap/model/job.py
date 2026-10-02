@@ -10,8 +10,8 @@ from urllib.parse import urlencode
 
 import requests
 from astropy.io.votable.tree import VOTableFile
-from astropy.logger import log
 
+from astroquery import log
 from astroquery.utils.tap import taputils
 from astroquery.utils.tap.model import modelutils
 from astroquery.utils.tap.xmlparser import utils
