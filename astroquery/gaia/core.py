@@ -8,24 +8,23 @@ European Space Astronomy Centre (ESAC)
 European Space Agency (ESA)
 
 """
+from collections.abc import Iterable
 import datetime
 import json
 import os
 import shutil
+from typing import Literal, overload
 import zipfile
-from collections.abc import Iterable
-import warnings
 
 from astropy import units
 from astropy import units as u
 from astropy.coordinates import Angle
 from astropy.io import fits
 from astropy.io import votable
-from astropy.io.fits import TableHDU, BinTableHDU
+from astropy.io.fits import BinTableHDU, TableHDU
 from astropy.table import Table
 from astropy.units import Quantity
 from astropy.utils.decorators import deprecated_renamed_argument
-from astropy.utils.exceptions import AstropyUserWarning
 from requests import HTTPError
 
 from astroquery import log
@@ -166,11 +165,32 @@ class GaiaClass(TapPlus):
         except HTTPError:
             log.error("Error logging out data server")
 
+    @overload
+    def load_data(self, ids, *, data_release=None, data_structure='DATAMODEL_STANDARD', retrieval_type="ALL",
+                  linking_parameter='SOURCE_ID', valid_data=False, band=None, avoid_datatype_check=False,
+                  format="votable", dump_to_file: Literal[False] = False, overwrite_output_file=False, verbose=False,
+                  output_file=None) -> dict[str, Table]:
+        ...
+
+    @overload
+    def load_data(self, ids, *, data_release=None, data_structure='DATAMODEL_STANDARD', retrieval_type="ALL",
+                  linking_parameter='SOURCE_ID', valid_data=False, band=None, avoid_datatype_check=False,
+                  format="votable", dump_to_file: Literal[True], overwrite_output_file=False, verbose=False,
+                  output_file=None) -> tuple[dict[str, Table], str]:
+        ...
+
+    @overload
+    def load_data(self, ids, *, data_release=None, data_structure='DATAMODEL_STANDARD', retrieval_type="ALL",
+                  linking_parameter='SOURCE_ID', valid_data=False, band=None, avoid_datatype_check=False,
+                  format="votable", dump_to_file: bool, overwrite_output_file=False, verbose=False,
+                  output_file=None) -> dict[str, Table] | tuple[dict[str, Table], str]:
+        ...
+
     @deprecated_renamed_argument(("output_file", "band"), (None, None), since=("0.4.8", "0.4.11"))
     def load_data(self, ids, *, data_release=None, data_structure='DATAMODEL_STANDARD', retrieval_type="ALL",
                   linking_parameter='SOURCE_ID', valid_data=False, band=None, avoid_datatype_check=False,
                   format="votable", dump_to_file=False, overwrite_output_file=False, verbose=False,
-                  output_file=None):
+                  output_file=None) -> tuple[dict[str, Table], str | None] | dict[str, Table]:
         """Load DataLink products for the specified identifiers.
 
         Parameters
@@ -247,13 +267,6 @@ class GaiaClass(TapPlus):
                 Path to the generated archive if ``dump_to_file=True``;
                 otherwise ``None``.
         """
-
-        warnings.warn(
-            "The return value of Gaia.load_data() has changed. The method now "
-            "returns a tuple containing the DataLink products and the path to the output file.",
-            AstropyUserWarning,
-            stacklevel=2,
-        )
 
         output_file_specified = False
 
@@ -351,7 +364,10 @@ class GaiaClass(TapPlus):
             for item in sorted([key for key in files.keys()]):
                 log.debug("Product = " + item)
 
-        return files, return_output_file_path
+        if dump_to_file:
+            return files, return_output_file_path
+
+        return files
 
     @staticmethod
     def __get_data_files(output_file, path):
