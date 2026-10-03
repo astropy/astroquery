@@ -21,8 +21,8 @@ from astroquery.mast import (Catalogs, MastMissions, Observations, Tesscut, Zcut
                              discovery_portal, auth, core, cloud)
 from astroquery.mast.cloud import CloudAccess
 from astroquery.utils.mocks import MockResponse
-from astroquery.exceptions import (BlankResponseWarning, InvalidQueryError, InputWarning, MaxResultsWarning,
-                                   NoResultsWarning, RemoteServiceError, ResolverError)
+from astroquery.exceptions import (BlankResponseWarning, InvalidQueryError, InputWarning, LargeQueryWarning,
+                                   MaxResultsWarning, NoResultsWarning, RemoteServiceError, ResolverError)
 
 try:
     # Optional dependency import for cloud access functionality
@@ -1670,7 +1670,7 @@ def test_tesscut_download_cutouts(tmpdir):
     assert "Input product must be SPOC." in str(invalid_query.value)
 
 
-def test_tesscut_get_cutouts(tmpdir):
+def test_tesscut_get_cutouts(caplog):
     coord = SkyCoord(107.27, -70.0, unit="deg")
     cutout_hdus_list = Tesscut.get_cutouts(coordinates=coord, size=5)
     assert isinstance(cutout_hdus_list, list)
@@ -1692,6 +1692,13 @@ def test_tesscut_get_cutouts(tmpdir):
     assert isinstance(cutout_hdus_list, list)
     assert len(cutout_hdus_list) == 1
     assert isinstance(cutout_hdus_list[0], fits.HDUList)
+
+    # Check that an INFO message is returned when timeout is adjusted
+    Tesscut.get_cutouts(coordinates=coord, size=5, timeout=1000)
+    with caplog.at_level("INFO", logger="astroquery"):
+        assert "timeout upper limit is being changed" in caplog.text
+    # Ensure that timeout returns to default (600 seconds) after adjusted in previous call
+    assert Tesscut._service_api_connection.TIMEOUT == 600
 
     # Testing catch for multiple designators'
     error_str = ("Only one of moving_target and coordinates may be specified. "
@@ -1772,6 +1779,15 @@ def test_tesscut_download_cutouts_mt_no_sector_empty_results(tmpdir, monkeypatch
         )
     assert isinstance(manifest, Table)
     assert len(manifest) == 0
+
+
+@pytest.mark.xfail(raises=LargeQueryWarning)
+@pytest.mark.parametrize("size", [31, [5, 60], 0.2 * u.deg, [0.1 * u.deg, 0.2 * u.deg], 5000 * u.arcsec, 20 * u.arcmin])
+def test_tesscut_timeout_param(size):
+
+    # Check that a warning comes up when cutout size too big
+    coordinates = '60 60'
+    Tesscut.get_cutouts(coordinates=coordinates, size=size)
 
 
 ######################

@@ -13,19 +13,19 @@ images, Hubble Advanced Products (HAP), and selected deep-field surveys. These i
 designed for common science workflows such as quick-look visualization, time-series
 extraction, and focused analysis around known sources.
 
-The sections below describe the available cutout classes and typical usage patterns, 
+The sections below describe the available cutout classes and typical usage patterns,
 with examples demonstrating how to request cutout products.
 
 TESSCut
 =======
 
-`TESSCut <https://mast.stsci.edu/tesscut/>`__ is a MAST service that provides image cutouts from the **full-frame images 
+`TESSCut <https://mast.stsci.edu/tesscut/>`__ is a MAST service that provides image cutouts from the **full-frame images
 (FFIs) taken by the Transiting Exoplanet Survey Satellite** (`TESS <https://archive.stsci.edu/missions-and-data/tess>`__).
 This service enables users to extract small, localized regions of TESS data around targets of interest without downloading
-entire FFI files, which are quite large. TESSCut is particularly useful for time-series analysis, quick-look visualization, 
+entire FFI files, which are quite large. TESSCut is particularly useful for time-series analysis, quick-look visualization,
 and focused studies of specific objects.
 
-The `~astroquery.mast.TesscutClass` provides programmatic access to the 
+The `~astroquery.mast.TesscutClass` provides programmatic access to the
 `MAST TESScut API <https://mast.stsci.edu/tesscut/docs/getting_started.html#requesting-a-cutout>`__,
 enabling TESSCut queries directly from Python scripts and applications. It has three main capabilities:
 
@@ -33,12 +33,12 @@ enabling TESSCut queries directly from Python scripts and applications. It has t
 - In-memory Cutouts: Retrieve cutouts as `~astropy.io.fits.HDUList` objects for immediate analysis without writing files to disk.
 - Downloaded Cutouts: Download cutout target pixel files (TPFs) to local storage.
 
-TESSCut supports cutout requests centered on fixed sky coordinates, resolved object names (including TIC IDs), and 
-moving targets such as asteroids and comets. Requests may return multiple cutouts when a target appears in more than 
+TESSCut supports cutout requests centered on fixed sky coordinates, resolved object names (including TIC IDs), and
+moving targets such as asteroids and comets. Requests may return multiple cutouts when a target appears in more than
 one sector or overlaps multiple cameras or CCDs. For fixed targets, cutouts may be requested by sky coordinates or object name.
-For moving targets, `ephemerides from the JPL Horizons <https://ssd.jpl.nasa.gov/horizons/app.html>`__ system are used to determine 
-target positions on a per-sector basis. All cutouts are generated from Science Processing Operations 
-Center (`SPOC <https://archive.stsci.edu/missions-and-data/tess>`__) FFI products and are returned in the standard TESS 
+For moving targets, `ephemerides from the JPL Horizons <https://ssd.jpl.nasa.gov/horizons/app.html>`__ system are used to determine
+target positions on a per-sector basis. All cutouts are generated from Science Processing Operations
+Center (`SPOC <https://archive.stsci.edu/missions-and-data/tess>`__) FFI products and are returned in the standard TESS
 `target pixel file format <https://astrocut.readthedocs.io/en/latest/astrocut/file_formats.html#target-pixel-files>`__.
 
 As of August 2025, the option to generate cutouts from TESS Image Calibration
@@ -50,7 +50,7 @@ FFIs continue to be supported through TESSCut.
 **Note:** TESSCut limits each user to a maximum of **10 simultaneous requests**. If this limit
 is exceeded, the service will respond with a ``503 Service Temporarily Unavailable Error``.
 
-If you use TESSCut for your work, please cite 
+If you use TESSCut for your work, please cite
 `Brasseur et al. 2019 <https://ui.adsabs.harvard.edu/abs/2019ascl.soft05007B/abstract>`__.
 
 
@@ -161,7 +161,7 @@ The following example demonstrates how to request a TESS cutout using sky coordi
    1  PIXELS        1 BinTableHDU    281   3495R x 12C   [D, E, J, 25J, 25E, 25E, 25E, 25E, J, E, E, 38A]
    2  APERTURE      1 ImageHDU        82   (5, 5)   int32
 
-You may also request cutouts of a moving target by inputting a valid moving target as the ``object_name`` and setting 
+You may also request cutouts of a moving target by inputting a valid moving target as the ``object_name`` and setting
 the ``moving_target`` parameter to ``True``.
 
 .. doctest-remote-data::
@@ -218,6 +218,32 @@ standard TESS pipeline format and can be opened using Astropy or other FITS-comp
 Downloaded cutouts are recommended when working with large numbers of targets, performing
 offline analysis, or integrating TESS cutouts into automated pipelines.
 
+Timeouts
+---------
+
+It is important to be mindful of the requested cutout size when using either `~astroquery.mast.TesscutClass.download_cutouts`
+or `~astroquery.mast.TesscutClass.get_cutouts`, as it will affect the time it takes to retrieve your cutouts. By default,
+any request that ``astroquery.mast`` makes to an API is capped at 600 seconds. Queries that take longer than this will yield
+a timeout error. The recommended cutout size for TESSCut is no larger than 30 pixels in either the X or Y
+direction, so a user will be met with a warning message if the input cutout size exceeds
+those limits. Below is an example of a request using `~astroquery.mast.TesscutClass.get_cutouts` for cutouts of
+size 0.2 x 0.2 degrees-squared, which is around 34 x 34 pixels-squared.
+
+.. doctest-skip::
+
+   >>> import astropy.units as u
+   >>> from astroquery.mast import Tesscut
+   >>> from astropy.coordinates import SkyCoord
+   ...
+   >>> cutout_coord = SkyCoord(107.18696, -70.50919, unit="deg")
+   >>> hdulist = Tesscut.get_cutouts(coordinates=cutout_coord, size=0.2*u.deg)
+   WARNING: LargeQueryWarning: You have selected a large cutout size that may result in a timeout error.
+   We suggest limiting the size of your requested cutout, or changing the request timeout limit from
+   its default 600 seconds to something higher, using the timeout argument. [astroquery.mast.cutouts]
+
+At this point, users may choose to decrease their cutout size or extend the request timeout limit from
+600 seconds to something longer.
+
 
 Zcut
 ====
@@ -227,7 +253,7 @@ hosted at MAST. Unlike mission-specific cutout services, ZCut enables positional
 a variety of wide-area and deep-field datasets through a single interface, making it useful
 for exploratory imaging analysis and multi-survey comparisons.
 
-The `~astroquery.mast.ZcutClass` provides programmatic access to the `MAST ZCut API <https://mast.stsci.edu/zcut/>`_, 
+The `~astroquery.mast.ZcutClass` provides programmatic access to the `MAST ZCut API <https://mast.stsci.edu/zcut/>`_,
 allowing users to generate cutouts centered on a sky position without downloading full-frame images.
 Cutouts may be returned either as in-memory FITS objects for interactive analysis or as files
 written to disk in FITS or common image formats.
@@ -429,7 +455,7 @@ target are included in the result.
    1  SCI           1 ImageHDU       102   (5, 5)   float32
    2  WHT           1 ImageHDU        56   (5, 5)   float32
 
-Each element in the returned list is a FITS image provided as an in-memory object. In-memory cutouts are best 
+Each element in the returned list is a FITS image provided as an in-memory object. In-memory cutouts are best
 suited for visualization, exploratory analysis, and notebook-based workflows where temporary files are unnecessary.
 
 Download Cutouts
@@ -439,7 +465,7 @@ For workflows that require cutout files to be saved locally, such as batch proce
 offline analysis, `~astroquery.mast.HapcutClass.download_cutouts` can be used to download HAP
 image cutouts to disk.
 
-This method accepts the same target and size parameters as `~astroquery.mast.HapcutClass.get_cutouts`, 
+This method accepts the same target and size parameters as `~astroquery.mast.HapcutClass.get_cutouts`,
 but writes the resulting cutout files to the specified directory instead of returning in-memory FITS
 objects. The method returns an `~astropy.table.Table` listing the local paths of the
 downloaded cutouts.
