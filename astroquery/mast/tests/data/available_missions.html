@@ -1,0 +1,51 @@
+ <!DOCTYPE html>
+    <html>
+    <head>
+        <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
+
+    <title>MAST Search API Doc</title>
+    </head>
+    <body>
+    <div id="swagger-ui">
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+
+    <script>
+    var swagger_config = {
+      "presets": [
+        SwaggerUIBundle.presets.apis,
+        SwaggerUIStandalonePreset
+      ],
+      "dom_id": "#swagger-ui",
+      "layout": "StandaloneLayout",
+      "deepLinking": true,
+      "showExtensions": true,
+      "showCommonExtensions": true
+    };
+
+    /*
+    Parse dynamic urls config into Javascript object. This gets generated from fastapi_doc.py.
+    This should look like
+    {
+    "urls": [
+        {
+          "url": "http://url/to/service1/openapi.json",
+          "name": "service1"
+        },
+        {
+          "url": "http://url/to/service2/openapi.json",
+          "name": "service2"
+        },
+        ...
+      ]
+    }
+    */
+    var urls_config_obj = JSON.parse('{"urls": [{"name": "hst_api", "url": "hst_api_openapi.json"}, {"name": "jwst_api", "url": "jwst_api_openapi.json"}, {"name": "classy_api", "url": "classy_api_openapi.json"}, {"name": "ullyses_api", "url": "ullyses_api_openapi.json"}, {"name": "roman_api", "url": "roman_api_openapi.json"}, {"name": "roman_spectra_api", "url": "roman_spectra_api_openapi.json"}, {"name": "all_missions_api", "url": "all_missions_api_openapi.json"}, {"name": "iue_api", "url": "iue_api_openapi.json"}, {"name": "roman_cgi_api", "url": "roman_cgi_api_openapi.json"}]}');
+    var config_merged = {...swagger_config, ...urls_config_obj};
+
+    const ui = SwaggerUIBundle(config_merged);
+    </script>
+    </body>
+    </html>
