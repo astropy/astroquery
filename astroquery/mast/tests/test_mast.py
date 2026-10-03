@@ -353,6 +353,7 @@ def test_missions_parse_select_cols():
     # All columns
     all_cols = MastMissions._parse_select_cols('all')
     assert all_cols == MastMissions.get_column_list()['name'].value.tolist()
+    assert MastMissions._parse_select_cols('*') == all_cols
 
     # Comma-separated string
     string_cols = MastMissions._parse_select_cols('sci_pep_id, sci_instrume')
@@ -387,6 +388,11 @@ def test_missions_parse_select_cols():
         valid_cols = MastMissions._parse_select_cols(['sci_pep_id', 'invalid_column'])
     assert 'sci_pep_id' in valid_cols
     assert 'invalid_column' not in valid_cols
+
+    # Warn with a suggestion for a misspelled column.
+    with pytest.warns(InputWarning, match='Did you mean "sci_instrume"'):
+        suggested_cols = MastMissions._parse_select_cols(['sci_instrum'])
+    assert 'sci_instrume' not in suggested_cols
 
     # Workaround for Ullyses mission default columns
     ullyses_mission = MastMissions(mission='ullyses')
@@ -817,13 +823,14 @@ def test_missions_read_product_asdf(mocker, mock_asdf_open):
     assert isinstance(obj, asdf.AsdfFile)
 
 
-def test_missions_read_product_asdf_refreshes_expired_url(mocker):
-    """Test that an expired S3 URL is refreshed during a lazy range read."""
+@pytest.mark.parametrize(('status', 'refreshes'), [(400, True), (403, True), (404, False)])
+def test_missions_read_product_asdf_refreshes_expired_url(mocker, status, refreshes):
+    """Refresh expired S3 URLs, but propagate unrelated range-fetch errors."""
     pytest.importorskip("asdf")
     pytest.importorskip("fsspec")
 
     class ExpiredURL(Exception):
-        status = 403
+        pass
 
     class MockResponse:
         headers = {"Location": "https://example-bucket.s3.amazonaws.com/refreshed.asdf"}
@@ -852,19 +859,131 @@ def test_missions_read_product_asdf_refreshes_expired_url(mocker):
         gateway_headers={"Authorization": "token test"},
     )
     file_object.url = "https://example-bucket.s3.amazonaws.com/expired.asdf"
+    expired_error = ExpiredURL()
+    expired_error.status = status
 
     fetch_range = mocker.patch.object(
         missions_module.HTTPFile,
         "async_fetch_range",
-        side_effect=[ExpiredURL(), b"range-data"],
+        side_effect=[expired_error, b"range-data"] if refreshes else expired_error,
     )
 
-    result = asyncio.run(file_object._async_fetch_range_with_refresh(10, 20))
+    if refreshes:
+        result = asyncio.run(file_object._async_fetch_range_with_refresh(10, 20))
+        assert result == b"range-data"
+    else:
+        with pytest.raises(ExpiredURL):
+            asyncio.run(file_object._async_fetch_range_with_refresh(10, 20))
 
-    assert result == b"range-data"
-    assert fetch_range.call_count == 2
-    assert file_object.url.endswith("refreshed.asdf")
-    assert file_object.session.calls[0][0] == file_object.fs.gateway_url
+    assert fetch_range.call_count == (2 if refreshes else 1)
+    assert file_object.url.endswith("refreshed.asdf") is refreshes
+    assert len(file_object.session.calls) == (1 if refreshes else 0)
+
+
+def test_missions_read_product_asdf_refresh_missing_location(mocker):
+    pytest.importorskip("fsspec")
+
+    class MockResponse:
+        headers = {}
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc_value, traceback):
+            return False
+
+        def raise_for_status(self):
+            return None
+
+    file_object = missions_module._RefreshingHTTPFile.__new__(missions_module._RefreshingHTTPFile)
+    file_object.session = SimpleNamespace(get=lambda *args, **kwargs: MockResponse())
+    file_object.fs = SimpleNamespace(gateway_url='https://mast.example/retrieve_product', gateway_headers={})
+
+    with pytest.raises(RuntimeError, match='did not include a Location header'):
+        asyncio.run(file_object._refresh_url())
+
+
+def test_missions_refreshing_http_file_fetch_range(mocker):
+    pytest.importorskip("fsspec")
+    file_object = missions_module._RefreshingHTTPFile.__new__(missions_module._RefreshingHTTPFile)
+    file_object.loop = 'mock-loop'
+    sync_fetch = mocker.patch.object(missions_module, 'fsspec_sync', return_value=b'range-data')
+
+    result = file_object._fetch_range(5, 15)
+
+    assert result == b'range-data'
+    sync_fetch.assert_called_once_with(
+        'mock-loop', file_object._async_fetch_range_with_refresh, 5, 15
+    )
+
+
+@pytest.mark.parametrize('partial', [True, False])
+def test_missions_refreshing_http_filesystem_open(mocker, partial):
+    pytest.importorskip("fsspec")
+    file_system = SimpleNamespace()
+    with pytest.raises(NotImplementedError, match='Only read-binary mode is supported'):
+        missions_module._RefreshingHTTPFileSystem._open(
+            file_system, 'https://example.test/file', mode='wb'
+        )
+
+    file_system.loop = 'mock-loop'
+    file_system.block_size = 1024
+    file_system.kwargs = {}
+    file_system.asynchronous = False
+    file_system.cache_type = 'bytes'
+    file_system.cache_options = {}
+    file_system.info = MagicMock(return_value={'size': 256, 'partial': partial})
+    file_system.set_session = MagicMock()
+    session = object()
+    mocker.patch.object(missions_module, 'fsspec_sync', return_value=session)
+    refreshing_file = mocker.patch.object(missions_module, '_RefreshingHTTPFile', return_value='refreshing-file')
+    streaming_file = mocker.patch.object(missions_module, 'HTTPStreamFile', return_value='streaming-file')
+
+    result = missions_module._RefreshingHTTPFileSystem._open(
+        file_system, 'https://example.test/file'
+    )
+
+    if partial:
+        assert result == 'refreshing-file'
+        refreshing_file.assert_called_once()
+        streaming_file.assert_not_called()
+    else:
+        assert result == 'streaming-file'
+        streaming_file.assert_called_once()
+        refreshing_file.assert_not_called()
+
+
+def test_missions_open_refreshing_asdf(mocker):
+    pytest.importorskip('asdf')
+    pytest.importorskip('fsspec')
+    download_url = 'https://mast.example/retrieve_product?product_name=test.asdf'
+    headers = {'Authorization': 'token test'}
+    s3_url = 'https://bucket.example/test.asdf?signature=abc'
+    response = MagicMock()
+    response.headers = {'Location': s3_url}
+    request = mocker.patch.object(missions_module.requests, 'get', return_value=response)
+    file_object = object()
+    file_system = MagicMock()
+    file_system.open.return_value = file_object
+    file_system_class = mocker.patch.object(
+        missions_module, '_RefreshingHTTPFileSystem', return_value=file_system
+    )
+    asdf_file = object()
+    asdf_open = mocker.patch.object(missions_module.asdf, 'open', return_value=asdf_file)
+
+    result = missions_module._open_refreshing_asdf(download_url, headers, copy_arrays=False)
+
+    assert result is asdf_file
+    request.assert_called_once_with(download_url, headers=headers, allow_redirects=False)
+    response.raise_for_status.assert_called_once_with()
+    file_system_class.assert_called_once_with(
+        gateway_url=download_url,
+        gateway_headers=headers,
+        block_size=1024 * 1024,
+        cache_type='bytes',
+    )
+    file_system.open.assert_called_once_with(s3_url, 'rb')
+    asdf_open.assert_called_once_with(file_object, copy_arrays=False)
 
 
 def test_missions_read_product_asdf_missing_packages(mocker, mock_asdf_open):
@@ -890,6 +1009,37 @@ def test_missions_read_product_asdf_missing_packages(mocker, mock_asdf_open):
 
     # Verify the object is still returned correctly
     assert isinstance(obj, asdf.AsdfFile)
+
+
+def test_missions_read_product_asdf_partial_packages_missing(mocker, mock_asdf_open):
+    """Warn only for optional packages that are unavailable."""
+    missing_package = 'lz4'
+    mocker.patch(
+        'importlib.util.find_spec',
+        side_effect=lambda package: None if package == missing_package else MagicMock(),
+    )
+
+    with pytest.warns(ImportWarning, match=f'"{missing_package}" package is encouraged') as warning_list:
+        MastMissions.read_product('test_file.asdf', mission='roman')
+
+    assert len(warning_list) == 1
+
+
+@pytest.mark.parametrize(
+    ('dependency', 'message'),
+    [
+        ('fsspec', 'The "fsspec" package is required'),
+        ('asdf', 'The "asdf" package is required'),
+    ],
+)
+def test_missions_read_product_asdf_missing_dependency(mocker, dependency, message):
+    if dependency == 'asdf' and missions_module.fsspec is None:
+        pytest.skip('The fsspec-missing branch is exercised first when fsspec is unavailable.')
+
+    mocker.patch.object(missions_module, dependency, None)
+
+    with pytest.raises(ImportError, match=message):
+        MastMissions.read_product('test_file.asdf', mission='roman')
 
 
 def test_missions_read_product_unsupported_format():
