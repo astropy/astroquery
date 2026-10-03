@@ -138,7 +138,8 @@ class MastMissionsClass(MastQueryWithLogin):
     @class_or_instance
     @deprecated_renamed_argument('objectname', 'object_names', since='0.4.12')
     def query_criteria_async(self, *, coordinates=None, object_names=None, radius=3*u.arcmin,
-                             limit=5000, offset=0, select_cols=None, resolver=None, count_only=False, mission=None, **criteria):
+                             limit=5000, offset=0, select_cols=None, resolver=None, count_only=False,
+                             mission=None, **criteria):
         """
         Given a set of search criteria, returns a list of mission metadata.
 
