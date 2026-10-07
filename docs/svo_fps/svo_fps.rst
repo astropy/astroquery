@@ -68,7 +68,7 @@ occur. A smaller wavelength range might succeed, but if a large range really is
 required then you can use the ``timeout`` argument to allow for a longer
 response time.
 
-Get list of Filters under a specified Facilty and Instrument
+Get list of Filters under a specified Facility and Instrument
 ------------------------------------------------------------
 
 Similarly, `~astroquery.svo_fps.SvoFpsClass.get_filter_list` retrieves a list of all
