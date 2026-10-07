@@ -90,6 +90,11 @@ esa.esasky
 - Attribute timeout has been deprecated on esasky.conf, use ESASKY_CONNECTION_TIMEOUT instead.
 - Attribute row_limit has been deprecated on esasky.conf, use ESASKY_ROW_LIMIT instead.
 
+gemini
+^^^^^^
+
+- Added ``get_query_payload`` kwarg to allow inspection of the query payload to aid in debugging. [#3568]
+
 vizier
 ^^^^^^
 
