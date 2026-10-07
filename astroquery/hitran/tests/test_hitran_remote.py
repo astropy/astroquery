@@ -8,6 +8,10 @@ from ...hitran import Hitran
 
 @pytest.mark.remote_data
 def test_query_remote():
+    # 2026-07-24: returns 27 instead of 29 now?
+    # there were legitimate updates to the water table,
+    # so note that remote failures here may indicate database updates
+    # (but may not so we should investigate if there are changes)
     tbl = Hitran.query_lines(molecule_number=1, isotopologue_number=1,
                              min_frequency=0. / u.cm, max_frequency=10. / u.cm)
     assert isinstance(tbl, Table)
