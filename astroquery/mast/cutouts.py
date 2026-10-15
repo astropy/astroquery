@@ -38,13 +38,13 @@ def _parse_cutout_size(size, mission=None, timeout=None):
 
     Parameters
     ----------
-    size : int, array-like, `~astropy.units.Quantity`
+    size : int, float, array-like, `~astropy.units.Quantity`
         The size of the cutout array. If ``size`` is a scalar number or
         a scalar `~astropy.units.Quantity`, then a square cutout of ``size``
-        will be created.  If ``size`` has two elements, they should be in
-        ``(ny, nx)`` order.  Scalar numbers in ``size`` are assumed to be in
-        units of pixels. `~astropy.units.Quantity` objects must be in pixel or
-        angular units.
+        will be created. One-element sequences also create square cutouts.
+        If ``size`` has two elements, they should be in ``(ny, nx)`` order.
+        Scalar numbers in ``size`` are assumed to be in units of pixels.
+        `~astropy.units.Quantity` objects must be in pixel or angular units.
     mission : str, optional
         The mission for which the size parsing is being done. This parameter
         is mainly meant to trigger a cutout size warning specifically for TESSCut
@@ -59,62 +59,94 @@ def _parse_cutout_size(size, mission=None, timeout=None):
 
     Returns
     -------
-    response : array
-        Size array in the form [ny, nx] where nx/ny are quantities with units
-        either pixels or degrees.
+    params : dict
+        Cutout request parameters containing the x and y sizes and their units.
     """
-
-    # This local variable will change to True if input cutout size exceeds recommended limits for TESS
-    limit_reached = False
-
-    # Checking 2d size inputs for the recommended cutout size
-    if (mission == 'TESS') & (not isinstance(size, (int, float, u.Quantity))):
-        if len(size) == 2:
-            if np.isscalar(size[0]):
-                size = [size[0] * u.pixel, size[1] * u.pixel]
-
-            # Based on the literature, TESS resolution is approx. 21 arcseconds per pixel.
-            # We will convert the recommended upper limit for a dimension from pixels
-            # to the unit being passed.
-            with u.set_enabled_equivalencies(u.pixel_scale(21 * u.arcsec / u.pixel)):
-                limit_reached = (size * size[0].unit > 30 * u.pixel).any()
-
-    # Making size into an array [ny, nx]
-    if np.isscalar(size):
-        size = np.repeat(size, 2)
-
-        if mission == 'TESS':
-            limit_reached = (size > 30).any()
+    # Define error messages for invalid cutout size types and units
+    err_msg_type = "Cutout size must be a number or an astropy Quantity."
+    err_msg_units = "Cutout size must be in pixels or an angular quantity."
 
     if isinstance(size, u.Quantity):
-        size = np.atleast_1d(size)
-        if len(size) == 1:
-            size = np.repeat(size, 2)
+        # If the size is already an astropy Quantity, we can work with it directly
+        values = np.atleast_1d(size).reshape(-1)
+    else:
+        # If the size is not an astropy Quantity, we need to convert it into a list of values for further processing
+        if np.isscalar(size):
+            input_values = [size]
+        elif isinstance(size, np.ndarray) and size.ndim == 0:
+            input_values = [size.item()]
+        else:
+            try:
+                input_values = list(size)
+            except TypeError:
+                raise InvalidQueryError(err_msg_type)
 
-            if mission == 'TESS':
-                with u.set_enabled_equivalencies(u.pixel_scale(21 * u.arcsec / u.pixel)):
-                    limit_reached = (size > 30 * u.pixel).any()
+        if any(isinstance(value, u.Quantity) for value in input_values):
+            # For Quantities, ensure that all values are either astropy Quantities or converted to pixels
+            try:
+                quantities = [value if isinstance(value, u.Quantity) else float(value) * u.pixel
+                              for value in input_values]
+            except (TypeError, ValueError):
+                raise InvalidQueryError(err_msg_type)
 
-    if len(size) > 2:
+            # Extract the units of the quantities to ensure consistency and handle mixed units appropriately
+            unit_kinds = []
+            for value in quantities:
+                if value.unit == u.pixel:
+                    unit_kinds.append('pixel')
+                elif value.unit.physical_type == 'angle':
+                    unit_kinds.append('angle')
+                else:
+                    raise InvalidQueryError(err_msg_units)
+
+            if len(set(unit_kinds)) > 1:
+                if mission != 'TESS':
+                    raise InvalidQueryError("Mixed pixel and angular cutout sizes can only be converted for TESS.")
+                # Convert all angular quantities to pixels using the TESS pixel scale equivalency
+                equivalencies = u.pixel_scale(21 * u.arcsec / u.pixel)
+                values = u.Quantity([value.to_value(u.pixel, equivalencies=equivalencies)
+                                     for value in quantities], u.pixel)
+            else:
+                values = u.Quantity(quantities).reshape(-1)
+        else:
+            # For non-Quantity inputs, attempt to convert them to a numpy array of floats and then to pixels
+            try:
+                values = np.asarray(input_values, dtype=float).reshape(-1) * u.pixel
+            except (TypeError, ValueError):
+                raise InvalidQueryError(err_msg_type)
+
+    # Ensure that we have at least one value and at most two values for the cutout size
+    if values.size == 0:
+        raise InvalidQueryError("Cutout size must contain at least one value.")
+    if values.size > 2:
         warnings.warn("Too many dimensions in cutout size, only the first two will be used.", InputWarning)
+    values = values[:2]
+    if values.size == 1:
+        values = np.repeat(values, 2)
 
-    # Getting x and y out of the size
-    if np.isscalar(size[0]):
-        x = size[1]
-        y = size[0]
+    # Convert the cutout size to appropriate units for further processing
+    if values.unit == u.pixel:
+        values = values.to_value(u.pixel)
         units = "px"
-    elif size[0].unit == u.pixel:
-        x = size[1].value
-        y = size[0].value
-        units = "px"
-    elif size[0].unit.physical_type == 'angle':
-        x = size[1].to(u.deg).value
-        y = size[0].to(u.deg).value
+    elif values.unit.physical_type == 'angle':
+        values = values.to_value(u.deg)
         units = "d"
     else:
-        raise InvalidQueryError("Cutout size must be in pixels or angular quantity.")
+        raise InvalidQueryError(err_msg_units)
 
-    if (limit_reached) & (not timeout):
+    # Check if the cutout size exceeds the recommended limits for TESS
+    if mission == 'TESS':
+        if units == "d":
+            with u.set_enabled_equivalencies(u.pixel_scale(21 * u.arcsec / u.pixel)):
+                limit_reached = (values * u.deg > 30 * u.pixel).any()
+        else:
+            limit_reached = (values > 30).any()
+    else:
+        limit_reached = False
+
+    x, y = values[1], values[0]
+
+    if limit_reached and not timeout:
         warnings.warn("You have selected a large cutout size that may result in a timeout error. We suggest limiting"
                       " the size of your requested cutout, or changing the request timeout limit from its"
                       " default 600 seconds to something higher, using the timeout argument.", LargeQueryWarning)

@@ -20,6 +20,7 @@ from requests import HTTPError, Response
 from astroquery.mast import (Catalogs, MastMissions, Observations, Tesscut, Zcut, Mast, utils, services,
                              discovery_portal, auth, core, cloud)
 from astroquery.mast.cloud import CloudAccess
+from astroquery.mast.cutouts import _parse_cutout_size
 from astroquery.utils.mocks import MockResponse
 from astroquery.exceptions import (BlankResponseWarning, InvalidQueryError, InputWarning, LargeQueryWarning,
                                    MaxResultsWarning, NoResultsWarning, RemoteServiceError, ResolverError)
@@ -1552,6 +1553,69 @@ def test_catalogs_download_hsc_spectra(tmpdir):
 # TesscutClass tests #
 ######################
 
+def test_parse_cutout_size_normalizes_inputs():
+    # Test cutout size with scalar and array inputs
+    assert _parse_cutout_size(5) == {'x': 5.0, 'y': 5.0, 'units': 'px'}
+    assert _parse_cutout_size(np.array(5)) == {'x': 5.0, 'y': 5.0, 'units': 'px'}
+    assert _parse_cutout_size([5]) == {'x': 5.0, 'y': 5.0, 'units': 'px'}
+    assert _parse_cutout_size(5 * u.arcsec)['y'] == pytest.approx(5 / 3600)
+    assert _parse_cutout_size([5 * u.pixel]) == {'x': 5.0, 'y': 5.0, 'units': 'px'}
+    assert _parse_cutout_size([5, 2 * u.pixel]) == {'x': 2.0, 'y': 5.0, 'units': 'px'}
+
+    # Test cutout size with angular units
+    size = _parse_cutout_size([1 * u.arcmin, 2 * u.arcsec], mission='TESS')
+    assert size['x'] == pytest.approx(2 / 3600)
+    assert size['y'] == pytest.approx(1 / 60)
+    assert size['units'] == 'd'
+
+    # Test cutout size with mixed pixel and angular units for TESS mission
+    size = _parse_cutout_size([5, 2 * u.arcsec], mission='TESS')
+    assert size['x'] == pytest.approx(2 / 21)
+    assert size['y'] == pytest.approx(5)
+    assert size['units'] == 'px'
+
+    # Warn if cutout size is too large for TESS mission
+    with pytest.warns(LargeQueryWarning, match='large cutout size'):
+        _parse_cutout_size(31, mission='TESS')
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        warnings.simplefilter('always')
+        _parse_cutout_size(31, mission='TESS', timeout=1)
+    assert not any(issubclass(warning.category, LargeQueryWarning) for warning in caught_warnings)
+
+    # Warn if cutout size has too many dimensions
+    with pytest.warns(InputWarning, match="Too many dimensions in cutout size"):
+        _parse_cutout_size([5, 5, 5])
+
+    # Error if cutout size is not in pixels or an angular quantity
+    with pytest.raises(InvalidQueryError, match='Cutout size must be in pixels or an angular quantity.'):
+        _parse_cutout_size(5 * u.kg, mission='TESS')
+
+    with pytest.raises(InvalidQueryError, match='Cutout size must be in pixels or an angular quantity.'):
+        _parse_cutout_size([5 * u.kg, 5], mission='TESS')
+
+    # Error if cutout size is empty
+    with pytest.raises(InvalidQueryError, match='Cutout size must contain at least one value.'):
+        _parse_cutout_size([])
+
+    # Error if mixed pixel and angular cutout sizes are used for non-TESS missions
+    with pytest.raises(InvalidQueryError, match='Mixed pixel and angular cutout sizes can only be converted for TESS.'):
+        _parse_cutout_size([5, 2 * u.arcsec])
+
+    with pytest.raises(InvalidQueryError, match='Mixed pixel and angular cutout sizes can only be converted for TESS.'):
+        _parse_cutout_size([1 * u.pixel, 2 * u.arcsec])
+
+    # Error if cutout size is not a number or an astropy Quantity
+    with pytest.raises(InvalidQueryError, match='Cutout size must be a number or an astropy Quantity.'):
+        _parse_cutout_size('invalid')
+
+    with pytest.raises(InvalidQueryError, match='Cutout size must be a number or an astropy Quantity.'):
+        _parse_cutout_size(None)
+
+    # Error if 2D cutout size has one invalid dimension
+    with pytest.raises(InvalidQueryError, match='Cutout size must be a number or an astropy Quantity.'):
+        _parse_cutout_size([5 * u.pixel, 'invalid'])
+
+
 def test_tesscut_get_sector():
     coord = SkyCoord(324.24368, -27.01029, unit="deg")
     sector_table = Tesscut.get_sectors(coordinates=coord)
@@ -1589,6 +1653,10 @@ def test_tesscut_get_sector():
     assert sector_table['sector'][0] == 1
     assert sector_table['camera'][0] == 1
     assert sector_table['ccd'][0] == 3
+
+
+def test_tesscut_get_sector_invalid():
+    coord = SkyCoord(324.24368, -27.01029, unit="deg")
 
     # Invalid queries
     # Testing catch for multiple designators'
@@ -1651,10 +1719,28 @@ def test_tesscut_download_cutouts(tmpdir):
     assert manifest["Local Path"][0][-4:] == "fits"
     assert os.path.isfile(manifest[0]['Local Path'])
 
+
+def test_tesscut_download_cutouts_timeout(tmpdir, caplog):
+    coord = SkyCoord(107.27, -70.0, unit="deg")
+    default_timeout = Tesscut._service_api_connection.TIMEOUT
+
+    with caplog.at_level("INFO", logger="astroquery"):
+        manifest = Tesscut.download_cutouts(coordinates=coord,
+                                            size=5,
+                                            path=str(tmpdir),
+                                            timeout=1000)
+
+    assert isinstance(manifest, Table)
+    assert "Request timeout upper limit is being changed to 1000 seconds." in caplog.text
+    assert Tesscut._service_api_connection.TIMEOUT == default_timeout
+
+
+def test_tesscut_download_cutouts_invalid_query(tmpdir):
+    coord = SkyCoord(324.24368, -27.01029, unit="deg")
+
     # Testing catch for multiple designators'
     error_str = ("Only one of moving_target and coordinates may be specified. "
                  "Please remove coordinates if using moving_target and object_name.")
-
     with pytest.raises(InvalidQueryError) as invalid_query:
         Tesscut.download_cutouts(object_name="Eleonora",
                                  moving_target=True,
@@ -1700,10 +1786,17 @@ def test_tesscut_get_cutouts(caplog):
     # Ensure that timeout returns to default (600 seconds) after adjusted in previous call
     assert Tesscut._service_api_connection.TIMEOUT == 600
 
-    # Testing catch for multiple designators'
+
+def test_tesscut_get_cutouts_invalid_query():
+    coord = SkyCoord(324.24368, -27.01029, unit="deg")
+
+    # Warn if too many dimensions in cutout size
+    with pytest.warns(InputWarning, match="Too many dimensions in cutout size"):
+        Tesscut.get_cutouts(coordinates=coord, size=[5, 5, 5])
+
+    # Testing catch for multiple designators
     error_str = ("Only one of moving_target and coordinates may be specified. "
                  "Please remove coordinates if using moving_target and object_name.")
-
     with pytest.raises(InvalidQueryError) as invalid_query:
         Tesscut.get_cutouts(object_name="Eleonora",
                             moving_target=True,
@@ -1781,13 +1874,13 @@ def test_tesscut_download_cutouts_mt_no_sector_empty_results(tmpdir, monkeypatch
     assert len(manifest) == 0
 
 
-@pytest.mark.xfail(raises=LargeQueryWarning)
 @pytest.mark.parametrize("size", [31, [5, 60], 0.2 * u.deg, [0.1 * u.deg, 0.2 * u.deg], 5000 * u.arcsec, 20 * u.arcmin])
 def test_tesscut_timeout_param(size):
 
     # Check that a warning comes up when cutout size too big
     coordinates = '60 60'
-    Tesscut.get_cutouts(coordinates=coordinates, size=size)
+    with pytest.warns(LargeQueryWarning):
+        Tesscut.get_cutouts(coordinates=coordinates, size=size)
 
 
 ######################
