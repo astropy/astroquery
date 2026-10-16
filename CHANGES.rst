@@ -228,6 +228,8 @@ mast
 - Update the cutout format request parameter in ``Zcut.download_cutouts`` to reflect a recent service change. [#3608]
 - Add a ``count_only`` parameter to ``MastMissions`` query methods to return only the number of matching results,
   rather than the full result table. [#3645]
+- Added warning message for ``Tesscut`` requests when input cutout size reaches a limit of 30 pixels in either dimension,
+  and enables users to modify the request timeout upper limit from the default 600 seconds. [#3675]
 
 
 jplspec

@@ -22,63 +22,134 @@ from astropy.io import fits
 from astropy.table import Table
 from astropy.utils.decorators import deprecated_renamed_argument
 
-from ..exceptions import InputWarning, InvalidQueryError, NoResultsWarning
+from . import conf
+from .. import log
+from ..exceptions import InputWarning, InvalidQueryError, LargeQueryWarning, NoResultsWarning
 from .core import MastQueryWithLogin
 from .utils import parse_input_location
 
 __all__ = ["TesscutClass", "Tesscut", "ZcutClass", "Zcut"]
 
 
-def _parse_cutout_size(size):
+def _parse_cutout_size(size, mission=None, timeout=None):
     """
     Take a user input cutout size and parse it into the regular format
     [ny,nx] where nx/ny are quantities with units either pixels or degrees.
 
     Parameters
     ----------
-    size : int, array-like, `~astropy.units.Quantity`
+    size : int, float, array-like, `~astropy.units.Quantity`
         The size of the cutout array. If ``size`` is a scalar number or
         a scalar `~astropy.units.Quantity`, then a square cutout of ``size``
-        will be created.  If ``size`` has two elements, they should be in
-        ``(ny, nx)`` order.  Scalar numbers in ``size`` are assumed to be in
-        units of pixels. `~astropy.units.Quantity` objects must be in pixel or
-        angular units.
+        will be created. One-element sequences also create square cutouts.
+        If ``size`` has two elements, they should be in ``(ny, nx)`` order.
+        Scalar numbers in ``size`` are assumed to be in units of pixels.
+        `~astropy.units.Quantity` objects must be in pixel or angular units.
+    mission : str, optional
+        The mission for which the size parsing is being done. This parameter
+        is mainly meant to trigger a cutout size warning specifically for TESSCut
+        requests. Default is None.
+    timeout : int or float, optional
+        The modified request timeout limit.
+        The request processing time by default is 600 seconds, meaning an attempt at communicating
+        with the API will take 600 seconds before timing out. In the context of this function, this
+        parameter is meant to keep track of whether or not the timeout limit has been modified, which
+        will affect whether or not a warning message about the cutout size gets triggered.
+        Default is None.
 
     Returns
     -------
-    response : array
-        Size array in the form [ny, nx] where nx/ny are quantities with units
-        either pixels or degrees.
+    params : dict
+        Cutout request parameters containing the x and y sizes and their units.
     """
-
-    # Making size into an array [ny, nx]
-    if np.isscalar(size):
-        size = np.repeat(size, 2)
+    # Define error messages for invalid cutout size types and units
+    err_msg_type = "Cutout size must be a number or an astropy Quantity."
+    err_msg_units = "Cutout size must be in pixels or an angular quantity."
 
     if isinstance(size, u.Quantity):
-        size = np.atleast_1d(size)
-        if len(size) == 1:
-            size = np.repeat(size, 2)
+        # If the size is already an astropy Quantity, we can work with it directly
+        values = np.atleast_1d(size).reshape(-1)
+    else:
+        # If the size is not an astropy Quantity, we need to convert it into a list of values for further processing
+        if np.isscalar(size):
+            input_values = [size]
+        elif isinstance(size, np.ndarray) and size.ndim == 0:
+            input_values = [size.item()]
+        else:
+            try:
+                input_values = list(size)
+            except TypeError:
+                raise InvalidQueryError(err_msg_type)
 
-    if len(size) > 2:
-        warnings.warn("Too many dimensions in cutout size, only the first two will be used.",
-                      InputWarning)
+        if any(isinstance(value, u.Quantity) for value in input_values):
+            # For Quantities, ensure that all values are either astropy Quantities or converted to pixels
+            try:
+                quantities = [value if isinstance(value, u.Quantity) else float(value) * u.pixel
+                              for value in input_values]
+            except (TypeError, ValueError):
+                raise InvalidQueryError(err_msg_type)
 
-    # Getting x and y out of the size
-    if np.isscalar(size[0]):
-        x = size[1]
-        y = size[0]
+            # Extract the units of the quantities to ensure consistency and handle mixed units appropriately
+            unit_kinds = []
+            for value in quantities:
+                if value.unit == u.pixel:
+                    unit_kinds.append('pixel')
+                elif value.unit.physical_type == 'angle':
+                    unit_kinds.append('angle')
+                else:
+                    raise InvalidQueryError(err_msg_units)
+
+            if len(set(unit_kinds)) > 1:
+                if mission != 'TESS':
+                    raise InvalidQueryError("Mixed pixel and angular cutout sizes can only be converted for TESS.")
+                # Convert all angular quantities to pixels using the TESS pixel scale equivalency
+                equivalencies = u.pixel_scale(21 * u.arcsec / u.pixel)
+                values = u.Quantity([value.to_value(u.pixel, equivalencies=equivalencies)
+                                     for value in quantities], u.pixel)
+            else:
+                values = u.Quantity(quantities).reshape(-1)
+        else:
+            # For non-Quantity inputs, attempt to convert them to a numpy array of floats and then to pixels
+            try:
+                values = np.asarray(input_values, dtype=float).reshape(-1) * u.pixel
+            except (TypeError, ValueError):
+                raise InvalidQueryError(err_msg_type)
+
+    # Ensure that we have at least one value and at most two values for the cutout size
+    if values.size == 0:
+        raise InvalidQueryError("Cutout size must contain at least one value.")
+    if values.size > 2:
+        warnings.warn("Too many dimensions in cutout size, only the first two will be used.", InputWarning)
+    values = values[:2]
+    if values.size == 1:
+        values = np.repeat(values, 2)
+
+    # Convert the cutout size to appropriate units for further processing
+    if values.unit == u.pixel:
+        values = values.to_value(u.pixel)
         units = "px"
-    elif size[0].unit == u.pixel:
-        x = size[1].value
-        y = size[0].value
-        units = "px"
-    elif size[0].unit.physical_type == 'angle':
-        x = size[1].to(u.deg).value
-        y = size[0].to(u.deg).value
+    elif values.unit.physical_type == 'angle':
+        values = values.to_value(u.deg)
         units = "d"
     else:
-        raise InvalidQueryError("Cutout size must be in pixels or angular quantity.")
+        raise InvalidQueryError(err_msg_units)
+
+    # Check if the cutout size exceeds the recommended limits for TESS
+    if mission == 'TESS':
+        if units == "d":
+            with u.set_enabled_equivalencies(u.pixel_scale(21 * u.arcsec / u.pixel)):
+                limit_reached = (values * u.deg > 30 * u.pixel).any()
+        else:
+            limit_reached = (values > 30).any()
+    else:
+        limit_reached = False
+
+    x, y = values[1], values[0]
+
+    if limit_reached and not timeout:
+        warnings.warn("You have selected a large cutout size that may result in a timeout error. We suggest limiting"
+                      " the size of your requested cutout, or changing the request timeout limit from its"
+                      " default 600 seconds to something higher, using the timeout argument.", LargeQueryWarning)
 
     return {"x": x, "y": y, "units": units}
 
@@ -276,7 +347,7 @@ class TesscutClass(MastQueryWithLogin):
     @deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
     def download_cutouts(self, *, coordinates=None, size=5, sector=None, product='SPOC', path=".",
                          inflate=True, object_name=None, moving_target=False, mt_type=None, resolver=None,
-                         verbose=False):
+                         verbose=False, timeout=None):
         """
         Download cutout target pixel file(s) around the given coordinates with indicated size.
 
@@ -337,6 +408,11 @@ class TesscutClass(MastQueryWithLogin):
             If not specified, the default resolver order will be used. Please see the
             `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
             for more information. Default is None.
+        timeout : int or float, optional
+            The modified request timeout limit.
+            The request processing time by default is 600 seconds, meaning an attempt at communicating
+            with the API will take 600 seconds before timing out. The timeout upper limit can be modified
+            using this argument for large cutout requests via TESSCut. Default is None.
 
         Returns
         -------
@@ -344,6 +420,13 @@ class TesscutClass(MastQueryWithLogin):
         """
         self._validate_product(product)
         self._validate_target_input(coordinates, object_name, moving_target)
+
+        # Modify TIMEOUT attribute if necessary (usually this is modified for large requests)
+        if timeout:
+            default_timeout = conf.timeout
+            self._service_api_connection.TIMEOUT = timeout
+            log.info(f"Request timeout upper limit is being changed to {self._service_api_connection.TIMEOUT}"
+                     " seconds.")
 
         # For moving targets without a sector specified, fetch sectors first and make
         # individual requests per sector to reduce memory pressure on the service
@@ -372,7 +455,7 @@ class TesscutClass(MastQueryWithLogin):
             localpath_table["Local Path"] = all_paths
             return localpath_table
 
-        params = _parse_cutout_size(size)
+        params = _parse_cutout_size(size, timeout=timeout, mission="TESS")
 
         if sector:
             params["sector"] = sector
@@ -419,6 +502,10 @@ class TesscutClass(MastQueryWithLogin):
         os.remove(zipfile_path)
 
         localpath_table['Local Path'] = [os.path.join(path, file) for file in cutout_files]
+
+        if timeout:
+            self._service_api_connection.TIMEOUT = default_timeout
+
         return localpath_table
 
     @deprecated_renamed_argument('product', None, since='0.4.11', message='Tesscut no longer supports operations on '
@@ -426,7 +513,7 @@ class TesscutClass(MastQueryWithLogin):
                                  'The `product` argument is deprecated and will be removed in a future version.')
     @deprecated_renamed_argument('objectname', 'object_name', since='0.4.12')
     def get_cutouts(self, *, coordinates=None, size=5, product='SPOC', sector=None,
-                    object_name=None, moving_target=False, mt_type=None, resolver=None):
+                    object_name=None, moving_target=False, mt_type=None, resolver=None, timeout=None):
         """
         Get cutout target pixel file(s) around the given coordinates with indicated size,
         and return them as a list of  `~astropy.io.fits.HDUList` objects.
@@ -479,6 +566,11 @@ class TesscutClass(MastQueryWithLogin):
             If not specified, the default resolver order will be used. Please see the
             `STScI Archive Name Translation Application (SANTA) <https://mastresolver.stsci.edu/Santa-war/>`__
             for more information. Default is None.
+        timeout : int or float, optional
+            The modified request timeout limit.
+            The request processing time by default is 600 seconds, meaning an attempt at communicating
+            with the API will take 600 seconds before timing out. The timeout upper limit can be modified
+            using this argument for large cutout requests via TESSCut. Default is None.
 
         Returns
         -------
@@ -486,6 +578,13 @@ class TesscutClass(MastQueryWithLogin):
         """
         self._validate_product(product)
         self._validate_target_input(coordinates, object_name, moving_target)
+
+        # Modify TIMEOUT attribute if necessary (usually this is modified for large requests)
+        if timeout:
+            default_timeout = conf.timeout
+            self._service_api_connection.TIMEOUT = timeout
+            log.info(f"Request timeout upper limit is being changed to {self._service_api_connection.TIMEOUT}"
+                     " seconds.")
 
         # For moving targets without a sector specified, fetch sectors first and make
         # individual requests per sector to reduce memory pressure on the service
@@ -504,7 +603,7 @@ class TesscutClass(MastQueryWithLogin):
                 all_cutouts.extend(cutouts)
             return all_cutouts
 
-        params = _parse_cutout_size(size)
+        params = _parse_cutout_size(size, timeout=timeout, mission='TESS')
         if sector:
             params["sector"] = sector
 
@@ -536,11 +635,14 @@ class TesscutClass(MastQueryWithLogin):
                     hdulist = fits.open(file_data)
                     hdulist.filename = name  # preserve the original filename in the fits object
                     cutouts.append(hdulist)
-                return cutouts
         except zipfile.BadZipFile:
             message = response.json()
             warnings.warn(message['msg'], NoResultsWarning)
-            return []
+            cutouts = []
+
+        if timeout:
+            self._service_api_connection.TIMEOUT = default_timeout
+        return cutouts
 
 
 Tesscut = TesscutClass()
@@ -650,6 +752,7 @@ class ZcutClass(MastQueryWithLogin):
         response : `~astropy.table.Table`
             Cutout file(s) for given coordinates
         """
+
         # Get Skycoord object for coordinates/object
         coordinates = parse_input_location(coordinates=coordinates)
         size_dict = _parse_cutout_size(size)
