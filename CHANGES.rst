@@ -14,6 +14,12 @@ noirlab
 - Restore access to the `NSF NOIRLab <https://noirlab.edu>`_
   `Astro Data Archive <https://astroarchive.noirlab.edu>`_ [#3359].
 
+lco
+^^^
+
+- New module to access the `Las Cumbres Observatory (LCO) <https://lco.global>`_
+  `Science Archive <https://archive.lco.global>`_. [#3659]
+
 esa.emds
 ^^^^^^^^
 
