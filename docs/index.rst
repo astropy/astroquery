@@ -260,14 +260,14 @@ The following modules have been completed using a common API:
   linelists/cdms/cdms.rst
   esa/euclid/euclid.rst
   esa/hsa/hsa.rst
-  esa/hubble/hubble.rst
-  esa/emds/emds.rst
-  esa/emds/einsteinprobe/einsteinprobe.rst
-  esa/integral/integral.rst
-  esa/iso/iso.rst
-  esa/jwst/jwst.rst
-  esa/plato/plato.rst
-  esa/xmm_newton/xmm_newton.rst
+  ESA Hubble <esa/hubble/hubble.rst>
+  ESA EMDS <esa/emds/emds.rst>
+  EinsteinProbe Space Archive <esa/emds/einsteinprobe/einsteinprobe.rst>
+  ESA Integral <esa/integral/integral.rst>
+  ESA ISO Archive <esa/iso/iso.rst>
+  ESA JWST Archive <esa/jwst/jwst.rst>
+  ESA Plato <esa/plato/plato.rst>
+  ESA XMM-Newton <esa/xmm_newton/xmm_newton.rst>
   esasky/esasky.rst
   eso/eso.rst
   image_cutouts/first/first.rst
