@@ -42,7 +42,7 @@ oac
 ^^^
 
 - The Open Astronomy Catalog API has been retired and the ``astroquery.oac``
-  module has been removed. [#3686]
+  module has been removed. [#3687]
 
 esa.utils
 ^^^^^^^^^^
