@@ -828,7 +828,7 @@ class ZcutClass(MastQueryWithLogin):
         Returns
         -------
         response : A list of `~astropy.io.fits.HDUList` objects.
-            Cutoutfiles for given coordinates
+            Cutout files for given coordinates
         """
 
         # Get Skycoord object for coordinates/object
@@ -841,7 +841,8 @@ class ZcutClass(MastQueryWithLogin):
         if survey:
             param_dict["survey"] = survey
 
-        response = self._service_api_connection.service_request_async("astrocut", param_dict)
+        request_url = self._service_api_connection.REQUEST_URL + "astrocut"
+        response = self._service_api_connection._request("GET", request_url, params=param_dict)
         response.raise_for_status()  # Raise any errors
 
         try:
