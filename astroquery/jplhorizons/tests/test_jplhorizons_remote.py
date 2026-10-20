@@ -353,6 +353,42 @@ class TestHorizonsClass:
              res['vz'],
              res['lighttime'], res['range'],
              res['range_rate']], rtol=1e-3)
+    
+    def test_vectors_query_two(self):
+        # check values of Ceres for a given epoch, with vector_table="2xarp" to get all possible information
+        # orbital uncertainty of Ceres is basically zero
+        res = jplhorizons.Horizons(id='Ceres', location='500@10',
+                                   id_type='smallbody',
+                                   epochs=2451544.5).vectors(vector_table="2xarp",)[0]
+        
+        assert res['targetname'] == "1 Ceres (A801 AA)"
+        assert res['datetime_str'] == "A.D. 2000-Jan-01 00:00:00.0000"
+
+        assert_quantity_allclose(
+          [2451544.5, 
+           -2.377530292832982E+00, 8.007772359639206E-01,
+           4.628376133882323E-01, -3.605422228805115E-03, 
+           -1.057883336698096E-02, 3.379790443661611E-04,  
+           1.69636278E-10, 4.38650236E-10, 1.97923277E-10, 
+           1.94851194E-12, 5.56918627E-13, 2.05288488E-12, 
+           4.69444042E-10, 2.17944530E-11, 1.98774780E-10, 
+           8.81447488E-14, 1.83081418E-12, 2.22745222E-12, 
+           2.54838011E-11, 4.69258226E-10, 1.98774780E-10, 
+           1.83140694E-12, 7.48243991E-14, 2.22745222E-12, 
+           4.68686492E-10, 2.00119134E-10, 2.54838011E-11,
+           1.17091788E-13, 2.22563061E-12, 1.83140694E-12,],
+           [res['datetime_jd'],
+            res['x'], res['y'],
+            res['z'], res['vx'],
+            res['vy'], res['vz'],
+            res['x_s'], res['y_s'], res['z_s'],
+            res['vx_s'], res['vy_s'], res['vz_s'],
+            res['a_s_1'], res['c_s'], res['n_s_1'],
+            res['va_s'], res['vc_s'], res['vn_s_1'],
+            res['r_s_1'], res['t_s'], res['n_s_2'],
+            res['vr_s_1'], res['vt_s'], res['vn_s_2'],
+            res['a_s_2'], res['d_s'], res['r_s_2'],
+            res['va_ra_s'], res['va_dec_s'], res['vr_s_2'],], rtol=1e-3)
 
     def test_vectors_query_raw(self):
         # deprecated as of #2418
