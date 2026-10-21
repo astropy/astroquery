@@ -723,6 +723,71 @@ def test_missions_get_dataset_kwd(caplog):
         assert 'The mission "unknown" does not have a known dataset ID keyword' in caplog.text
 
 
+def test_missions_get_cloud_uri_map():
+    missions = MastMissions(mission='hst')
+    original_uris = [
+        'mast:HST/product/first.fits',
+        'mast:HST/product/second.fits',
+    ]
+    normalized_uris = [
+        'mast:HST/product/first.fits',
+        'mast:HST/product/second.fits',
+    ]
+    cloud_uris = {
+        normalized_uris[0]: 'first-cloud-uri',
+        normalized_uris[1]: 'second-cloud-uri',
+    }
+    with patch.object(missions, '_verify_mission'), \
+            patch.object(Observations, 'get_cloud_uris', return_value=cloud_uris) as get_cloud_uris:
+        result = missions.get_cloud_uri_map(
+            original_uris, include_bucket=False, full_url=True, verbose=False
+        )
+
+    assert result == {
+        original_uris[0]: 'first-cloud-uri',
+        original_uris[1]: 'second-cloud-uri',
+    }
+    get_cloud_uris.assert_called_once_with(normalized_uris, **{
+        'include_bucket': False,
+        'full_url': True,
+        'return_uri_map': True,
+        'verbose': False,
+    })
+
+
+@pytest.mark.parametrize(
+    'include_bucket, full_url, expected',
+    [
+        (True, False, 's3://example-bucket/test.asdf'),
+        (False, False, 'test.asdf'),
+        (False, True, 'https://example-bucket.s3.amazonaws.com/test.asdf?signature=abc123'),
+    ],
+)
+def test_missions_get_cloud_uri_map_roman(include_bucket, full_url, expected):
+    missions = MastMissions(mission='roman')
+    redirect_url = 'https://example-bucket.s3.amazonaws.com/test.asdf?signature=abc123'
+    response = MagicMock()
+    response.headers = {'Location': redirect_url}
+
+    with patch.object(missions, '_verify_mission'), \
+            patch.object(missions, '_get_roman_cloud_location', return_value=redirect_url) as get_location:
+        result = missions.get_cloud_uri_map(
+            ['mast:ROMAN/product/test.asdf'],
+            include_bucket=include_bucket,
+            full_url=full_url,
+        )
+
+    assert result == {'mast:ROMAN/product/test.asdf': expected}
+    get_location.assert_called_once()
+
+
+def test_missions_get_cloud_uri_map_conflicting_options():
+    with pytest.raises(InvalidQueryError, match='include_bucket must be set to False when full_url is True'):
+        MastMissions.get_cloud_uri_map(
+            ['mast:JWST/product/test.fits'], include_bucket=True, full_url=True
+        )
+
+
 @pytest.mark.parametrize(
     'method, kwargs,',
     [['query_region', dict()],

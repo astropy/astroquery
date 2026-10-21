@@ -409,6 +409,34 @@ class TestMast:
         result = MastMissions.download_file(uri, local_path=local_path_file)
         check_result(result, local_path_file)
 
+    @pytest.mark.parametrize("mission, prods", [
+        ('jwst', [
+            "jw01979003001_02101_00001/jw01979003001_02101_00001_nrca3_cal.fits"
+        ]),
+        ('hst', [
+            "J9FX01011/j9fx01010_asn.fits"
+        ])
+    ])
+    def test_missions_get_cloud_uri_map(self, mission, prods):
+        m = MastMissions(mission=mission)
+
+        # Include bucket, not full URL
+        cloud_uris = m.get_cloud_uri_map(prods, include_bucket=True, full_url=False)
+        assert isinstance(cloud_uris, dict)
+        for s3_uri in cloud_uris.values():
+            assert s3_uri.startswith("s3://")
+
+        # Full URL
+        cloud_uris_full = m.get_cloud_uri_map(prods, include_bucket=False, full_url=True)
+        for s3_uri in cloud_uris_full.values():
+            assert s3_uri.startswith("http://")
+
+        # Do not include bucket or full URL
+        cloud_uris_none = m.get_cloud_uri_map(prods, include_bucket=False, full_url=False)
+        for s3_uri in cloud_uris_none.values():
+            assert not s3_uri.startswith("s3://")
+            assert not s3_uri.startswith("https://")
+
     @pytest.mark.parametrize("mission, query_params", [
         ('jwst', {'fileSetName': 'jw01189001001_02101_00001'}),
         ('classy', {'Target': 'J0021+0052'}),
