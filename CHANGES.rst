@@ -236,6 +236,8 @@ mast
   rather than the full result table. [#3645]
 - Added warning message for ``Tesscut`` requests when input cutout size reaches a limit of 30 pixels in either dimension,
   and enables users to modify the request timeout upper limit from the default 600 seconds. [#3675]
+- Added support for the Hubble Spectroscopic Legacy Archive (HSLA) mission in ``MastMissions``. [#3689]
+- Added support for the Transiting Exoplanet Survey Satellite (TESS) mission in ``MastMissions``. [#3689]
 
 
 jplspec
