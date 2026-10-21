@@ -210,7 +210,10 @@ class MastMissionsClass(MastQueryWithLogin):
             'roman': 'fileSetName',
             'classy': 'Target',
             'ullyses': 'observation_id',
-            'iue': 'iue_data_id'
+            'iue': 'iue_data_id',
+            'hsla': 'dataSetName',
+            'tess': 'fileSetName',
+            'multi_mission': 'obsid'
         }
 
         # Service attributes
@@ -943,8 +946,8 @@ class MastMissionsClass(MastQueryWithLogin):
         """
         current_mission = mission.lower() if mission else self.mission
 
-        if current_mission in ['hst', 'jwst', 'roman', 'roman_spectra', 'roman_cgi']:
-            # HST, JWST, and RST have a dedicated endpoint for retrieving products
+        if current_mission in ['hst', 'jwst', 'roman', 'roman_spectra', 'roman_cgi', 'tess', 'hsla']:
+            # Certain missions have a dedicated endpoint for retrieving products
             base_url = (f"{self._service_api_connection.MISSIONS_DOWNLOAD_URL}{current_mission}"
                         "/api/v0.1/retrieve_product")
             keyword = 'product_name'
@@ -982,28 +985,18 @@ class MastMissionsClass(MastQueryWithLogin):
 
     def download_file(self, uri, *, local_path=None, cache=True, mission=None, verbose=True):
         """
-        Downloads a single file based on the data URI.
+        Construct the full download URL for a given data URI based on the mission.
 
         Parameters
         ----------
         uri : str
-            The product filename or URI to be downloaded.
-        local_path : str
-            Directory or filename to which the file will be downloaded.  Defaults to current working directory.
-        cache : bool
-            Default is True. If file is found on disk, it will not be downloaded again.
+            The product filename or URI for which to construct the download URL.
         mission : str, optional
             The mission to which the file belongs. If not provided, the current value of the ``mission`` attribute
             will be used.
-        verbose : bool, optional
-            Default is True. Whether to show download progress in the console.
 
         Returns
         -------
-        status: str
-            Download status message.  Either COMPLETE, SKIPPED, or ERROR.
-        msg : str
-            An error status message, if any.
         url : str
             The full URL download path.
         """
