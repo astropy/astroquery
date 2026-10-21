@@ -72,7 +72,7 @@ class MastMissionsClass(MastQueryWithLogin):
             'iue': 'iue_data_id',
             'hsla': 'dataSetName',
             'tess': 'fileSetName',
-            'multi_mission': 'obsid'
+            'multi_mission': 'obs_id'
         }
 
         # Service attributes
