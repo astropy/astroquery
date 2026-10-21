@@ -11,6 +11,10 @@ The following missions/products are currently available for search:
 
 - `James Webb Space Telescope <https://www.stsci.edu/jwst>`_ (``'jwst'``)
 
+- `Roman Space Telescope <https://www.stsci.edu/roman>`_ (``'roman'``, ``'roman_spectra'``, ``'roman_cgi'``)
+
+- `Transiting Exoplanet Survey Satellite <Follow link (cmd + click)>`_ (``'tess'``)
+
 - `International Ultraviolet Explorer <https://archive.stsci.edu/iue/>`_ (``'iue'``)
 
 - `High Level Science Products <https://outerspace.stsci.edu/display/MASTDOCS/About+HLSPs>`_
@@ -18,6 +22,8 @@ The following missions/products are currently available for search:
   - `COS Legacy Archive Spectroscopic SurveY <https://archive.stsci.edu/hlsp/classy>`_ (``'classy'``)
 
   - `Hubble UV Legacy Library of Young Stars as Essential Standards <https://archive.stsci.edu/hlsp/ullyses>`_ (``'ullyses'``)
+
+  - `Hubble Spectroscopic Legacy Archive <https://archive.stsci.edu/missions-and-data/hst/hsla>`_ (``'hsla'``)
 
 An object of the ``MastMissions`` class is instantiated with a default mission of ``'hst'`` and
 default service set to ``'search'``. The searchable metadata for Hubble encompasses all information that
