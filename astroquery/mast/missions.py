@@ -69,7 +69,10 @@ class MastMissionsClass(MastQueryWithLogin):
             'roman': 'fileSetName',
             'classy': 'Target',
             'ullyses': 'observation_id',
-            'iue': 'iue_data_id'
+            'iue': 'iue_data_id',
+            'hsla': 'dataSetName',
+            'tess': 'fileSetName',
+            'multi_mission': 'obsid'
         }
 
         # Service attributes
@@ -759,8 +762,8 @@ class MastMissionsClass(MastQueryWithLogin):
         # Construct the full data URL based on mission
         current_mission = mission.lower() if mission else self.mission
 
-        if current_mission in ['hst', 'jwst', 'roman', 'roman_spectra', 'roman_cgi']:
-            # HST, JWST, and RST have a dedicated endpoint for retrieving products
+        if current_mission in ['hst', 'jwst', 'roman', 'roman_spectra', 'roman_cgi', 'tess', 'hsla']:
+            # Certain missions have a dedicated endpoint for retrieving products
             base_url = (f"{self._service_api_connection.MISSIONS_DOWNLOAD_URL}{current_mission}"
                         "/api/v0.1/retrieve_product")
             keyword = 'product_name'
