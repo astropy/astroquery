@@ -1,4 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import os
 import pytest
 import requests
 import logging
@@ -147,6 +148,8 @@ def patch_get(monkeypatch, mock_response, mock_head_response):
         # Copy any headers from the session
         for key, value in self.headers.items():
             response.headers[key] = value
+        # Set the status and headers of a range request, as a server would
+        response._parse_range_header()
         return response
 
     monkeypatch.setattr(requests.Session, 'request', mock_request)
@@ -408,3 +411,298 @@ def test_download_file_caching(base_query, patch_get, tmp_path, log_level):
 
     # Reset logging level after test
     log.setLevel('INFO')
+
+
+class _ServerResponse(EnhancedMockResponse):
+    """A response whose ``content`` is the body sent by `_Server`."""
+
+    @property
+    def content(self):
+        return self._body
+
+    @content.setter
+    def content(self, value):
+        self._body = self._content = value
+
+
+class _Server:
+    """A mock server for the download tests below.
+
+    ``body`` is the complete file.  Each GET is answered by the next entry of
+    ``plan``: ``'ok'`` sends the requested bytes (honouring a Range header),
+    ``'ignore-range'`` sends the whole file with status 200, ``('break', n)``
+    sends n bytes and then raises, ``('short', n)`` sends n bytes and ends
+    without an error.  ``during`` is called while the body is being sent.
+    """
+
+    def __init__(self, monkeypatch, body=TEST_FILE_CONTENT, plan=('ok',), during=None):
+        self.body = body
+        self.plan = list(plan)
+        self.during = during
+        self.ranges = []
+        server = self
+
+        def request(session, method, url, **kwargs):
+            return server.respond(method, dict(session.headers))
+
+        monkeypatch.setattr(requests.Session, 'request', request)
+
+    def respond(self, method, session_headers):
+        server = self
+        response = _ServerResponse(b'')
+        response._body = b''
+        response.headers = CaseInsensitiveDict({'Accept-Ranges': 'bytes',
+                                                'Content-Length': str(len(self.body))})
+        response.status_code = 200
+        if method == 'HEAD':
+            return response
+        action = self.plan.pop(0) if self.plan else 'ok'
+        start = 0
+        if 'Range' in session_headers and action != 'ignore-range':
+            self.ranges.append(session_headers['Range'])
+            start = int(session_headers['Range'].split('=')[1].split('-')[0])
+            response.status_code = 206
+            response.headers['Content-Length'] = str(len(self.body) - start)
+            response.headers['Content-Range'] = f'bytes {start}-{len(self.body) - 1}/{len(self.body)}'
+        data = self.body[start:]
+        response._body = data
+
+        def iter_content(chunk_size=None):
+            if isinstance(action, tuple):
+                kind, n = action
+                yield data[:n]
+                if server.during:
+                    server.during()
+                if kind == 'break':
+                    raise requests.exceptions.ChunkedEncodingError("connection broken")
+                return
+            yield data[:5]
+            if server.during:
+                server.during()
+            yield data[5:]
+
+        response.iter_content = iter_content
+        response.raise_for_status = lambda: None
+        return response
+
+
+def _names(path):
+    return sorted(p.name for p in path.iterdir())
+
+
+@pytest.mark.parametrize('as_path', [False, True])
+@pytest.mark.parametrize('head_safe', [False, True])
+def test_download_interrupted_then_resumed(base_query, monkeypatch, tmp_path, head_safe, as_path):
+    """An interrupted transfer never puts partial data at the destination; the
+    data received are kept as ``.part`` and a later call resumes from them."""
+    local_file = tmp_path / 'test.txt'
+    seen = []
+    server = _Server(monkeypatch, plan=[('break', len(TEST_FILE_PARTIAL)), 'ok'],
+                     during=lambda: seen.append(local_file.exists()))
+    dest = local_file if as_path else str(local_file)
+
+    with pytest.raises(requests.exceptions.ChunkedEncodingError):
+        base_query._download_file('http://example.com/test.txt', dest, head_safe=head_safe)
+    assert _names(tmp_path) == ['test.txt.part']
+    assert (tmp_path / 'test.txt.part').read_bytes() == TEST_FILE_PARTIAL
+
+    result = base_query._download_file('http://example.com/test.txt', dest, head_safe=head_safe,
+                                       continuation=True)
+    assert result == dest
+    assert local_file.read_bytes() == TEST_FILE_CONTENT
+    assert _names(tmp_path) == ['test.txt']
+    assert server.ranges == [f'bytes={len(TEST_FILE_PARTIAL)}-{len(TEST_FILE_CONTENT) - 1}']
+    assert seen == [False, False]
+    assert 'Range' not in base_query._session.headers
+
+
+def test_download_short_body_is_not_published(base_query, monkeypatch, tmp_path):
+    """A body shorter than Content-Length, without a transport error, is rejected
+    and the existing destination file is left untouched."""
+    local_file = tmp_path / 'test.txt'
+    local_file.write_bytes(b'old version')
+    _Server(monkeypatch, plan=[('short', 10)])
+
+    with pytest.raises(OSError, match='incomplete'):
+        base_query._download_file('http://example.com/test.txt', str(local_file), continuation=False)
+    assert local_file.read_bytes() == b'old version'
+    assert (tmp_path / 'test.txt.part').read_bytes() == TEST_FILE_CONTENT[:10]
+    assert _names(tmp_path) == ['test.txt', 'test.txt.part']
+
+
+def test_download_server_ignores_range(base_query, monkeypatch, tmp_path):
+    """If the server answers a Range request with the whole file, the partial
+    data are discarded instead of being prepended to it."""
+    (tmp_path / 'test.txt.part').write_bytes(TEST_FILE_PARTIAL)
+    _Server(monkeypatch, plan=['ok', 'ignore-range'])
+
+    base_query._download_file('http://example.com/test.txt', str(tmp_path / 'test.txt'),
+                              continuation=True)
+    assert (tmp_path / 'test.txt').read_bytes() == TEST_FILE_CONTENT
+    assert _names(tmp_path) == ['test.txt']
+
+
+def test_download_destination_kept_during_transfer(base_query, monkeypatch, tmp_path):
+    """While a file is being downloaded again, readers still see the old complete
+    file, which is replaced only at the end."""
+    local_file = tmp_path / 'test.txt'
+    local_file.write_bytes(b'previous complete file')
+    seen = []
+    _Server(monkeypatch, during=lambda: seen.append(local_file.read_bytes()))
+
+    base_query._download_file('http://example.com/test.txt', str(local_file), continuation=False)
+    assert seen == [b'previous complete file']
+    assert local_file.read_bytes() == TEST_FILE_CONTENT
+    assert _names(tmp_path) == ['test.txt']
+
+
+@pytest.mark.parametrize('content', [b'', TEST_FILE_CONTENT, TEST_FILE_CONTENT + b'extra'])
+def test_download_existing_part(base_query, monkeypatch, tmp_path, content):
+    """An empty, complete or oversized ``.part`` file gives the right result."""
+    (tmp_path / 'test.txt.part').write_bytes(content)
+    _Server(monkeypatch)
+    base_query._download_file('http://example.com/test.txt', str(tmp_path / 'test.txt'),
+                              continuation=True)
+    assert (tmp_path / 'test.txt').read_bytes() == TEST_FILE_CONTENT
+    assert _names(tmp_path) == ['test.txt']
+
+
+def test_download_legacy_partial_destination(base_query, monkeypatch, tmp_path):
+    """An incomplete destination file written by an older astroquery is resumed."""
+    (tmp_path / 'test.txt').write_bytes(TEST_FILE_PARTIAL)
+    server = _Server(monkeypatch)
+    base_query._download_file('http://example.com/test.txt', str(tmp_path / 'test.txt'),
+                              continuation=True)
+    assert (tmp_path / 'test.txt').read_bytes() == TEST_FILE_CONTENT
+    assert server.ranges == [f'bytes={len(TEST_FILE_PARTIAL)}-{len(TEST_FILE_CONTENT) - 1}']
+    assert _names(tmp_path) == ['test.txt']
+
+
+def test_download_stale_part_removed(base_query, monkeypatch, tmp_path):
+    """A leftover ``.part`` is removed by a successful download that did not use it."""
+    (tmp_path / 'test.txt.part').write_bytes(b'stale')
+    _Server(monkeypatch)
+    base_query._download_file('http://example.com/test.txt', str(tmp_path / 'test.txt'),
+                              continuation=False)
+    assert _names(tmp_path) == ['test.txt']
+
+
+def test_download_failed_rename_keeps_data_as_part(base_query, monkeypatch, tmp_path):
+    """If the final rename fails, the downloaded data are kept as ``.part`` and no
+    temporary file is left behind."""
+    import astroquery.query
+    _Server(monkeypatch)
+    real_replace = astroquery.query._replace_file
+
+    def failing_replace(src, dst):
+        if dst.endswith('test.txt'):
+            raise PermissionError("denied")
+        return real_replace(src, dst)
+
+    monkeypatch.setattr(astroquery.query, '_replace_file', failing_replace)
+    with pytest.raises(PermissionError):
+        base_query._download_file('http://example.com/test.txt', str(tmp_path / 'test.txt'))
+    assert _names(tmp_path) == ['test.txt.part']
+    assert (tmp_path / 'test.txt.part').read_bytes() == TEST_FILE_CONTENT
+
+
+def test_download_head_length_differs_from_get(base_query, monkeypatch, tmp_path):
+    """The size check uses the Content-Length of the GET response, not of the HEAD."""
+    server = _Server(monkeypatch)
+    real_respond = server.respond
+
+    def respond(method, session_headers):
+        response = real_respond(method, session_headers)
+        if method == 'HEAD':
+            response.headers['Content-Length'] = '5'
+        return response
+
+    server.respond = respond
+    base_query._download_file('http://example.com/test.txt', str(tmp_path / 'test.txt'), head_safe=True)
+    assert (tmp_path / 'test.txt').read_bytes() == TEST_FILE_CONTENT
+    assert _names(tmp_path) == ['test.txt']
+
+
+def test_download_wrong_content_range(base_query, monkeypatch, tmp_path):
+    """A 206 response for a different range than requested is not appended."""
+    (tmp_path / 'test.txt.part').write_bytes(TEST_FILE_PARTIAL)
+    server = _Server(monkeypatch)
+    real_respond = server.respond
+
+    def respond(method, session_headers):
+        response = real_respond(method, session_headers)
+        if 'Range' in session_headers:
+            response.headers['Content-Range'] = f'bytes 0-{len(TEST_FILE_CONTENT) - 1}/{len(TEST_FILE_CONTENT)}'
+        return response
+
+    server.respond = respond
+    base_query._download_file('http://example.com/test.txt', str(tmp_path / 'test.txt'), continuation=True)
+    assert (tmp_path / 'test.txt').read_bytes() == TEST_FILE_CONTENT
+    assert _names(tmp_path) == ['test.txt']
+
+
+def test_download_failed_resume_keeps_larger_part(base_query, monkeypatch, tmp_path):
+    """A resume that fails with less data than the existing ``.part`` leaves the ``.part`` alone."""
+    (tmp_path / 'test.txt.part').write_bytes(TEST_FILE_PARTIAL)
+    _Server(monkeypatch)
+    import astroquery.query
+
+    def failing_copy(src, dst):
+        with open(dst, 'wb') as f:
+            f.write(b'Th')
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(astroquery.query.shutil, 'copyfile', failing_copy)
+    with pytest.raises(KeyboardInterrupt):
+        base_query._download_file('http://example.com/test.txt', str(tmp_path / 'test.txt'),
+                                  continuation=True)
+    assert _names(tmp_path) == ['test.txt.part']
+    assert (tmp_path / 'test.txt.part').read_bytes() == TEST_FILE_PARTIAL
+
+
+def test_download_destination_in_use_but_complete(base_query, monkeypatch, tmp_path):
+    """If dest cannot be replaced (e.g. open on Windows) but already holds the
+    complete file, the download succeeds and leaves no temporary file."""
+    import astroquery.query
+    local_file = tmp_path / 'test.txt'
+    local_file.write_bytes(TEST_FILE_CONTENT)
+    _Server(monkeypatch)
+    real_replace = astroquery.query._replace_file
+
+    def failing_replace(src, dst):
+        if dst.endswith('test.txt'):
+            raise PermissionError("in use")
+        return real_replace(src, dst)
+
+    monkeypatch.setattr(astroquery.query, '_replace_file', failing_replace)
+    base_query._download_file('http://example.com/test.txt', str(local_file), continuation=False)
+    assert local_file.read_bytes() == TEST_FILE_CONTENT
+    assert _names(tmp_path) == ['test.txt']
+
+
+def test_download_verbose_false_and_cache(base_query, monkeypatch, tmp_path):
+    """verbose=False writes atomically too, and cache=True with a different-size
+    file replaces it only at the end."""
+    local_file = tmp_path / 'test.txt'
+    local_file.write_bytes(b'short')
+    _Server(monkeypatch)
+    base_query._download_file('http://example.com/test.txt', str(local_file), cache=True,
+                              continuation=False, verbose=False)
+    assert local_file.read_bytes() == TEST_FILE_CONTENT
+    assert _names(tmp_path) == ['test.txt']
+
+
+@pytest.mark.skipif('not hasattr(os, "symlink")')
+def test_download_through_symlink(base_query, monkeypatch, tmp_path):
+    """A symlink at the destination is kept and its target is updated."""
+    target = tmp_path / 'target.txt'
+    target.write_bytes(b'old')
+    link = tmp_path / 'link.txt'
+    try:
+        os.symlink(target, link)
+    except OSError:
+        pytest.skip("symlinks not permitted")
+    _Server(monkeypatch)
+    base_query._download_file('http://example.com/test.txt', str(link), continuation=False)
+    assert link.is_symlink()
+    assert target.read_bytes() == TEST_FILE_CONTENT

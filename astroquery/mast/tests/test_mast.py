@@ -2079,3 +2079,81 @@ def test_download_file_from_cloud_verbose(patch_boto3):
     # Ensure callback was supplied
     _, kwargs = mock_resource.Bucket.return_value.download_file.call_args
     assert "Callback" in kwargs
+
+
+def test_extract_cutouts_is_atomic(tmp_path, monkeypatch):
+    """Cutout files appear in the output directory only when completely
+    extracted, and no temporary directory is left behind."""
+    import zipfile
+    from astroquery.mast import cutouts
+
+    zip_path = tmp_path / "cutouts.zip"
+    out = tmp_path / "out"
+    out.mkdir()
+    (out / "existing_astrocut.fits").write_bytes(b"old")
+    with zipfile.ZipFile(zip_path, "w") as zf:
+        zf.writestr("a_astrocut.fits", b"A" * 1000)
+        zf.writestr("existing_astrocut.fits", b"new")
+
+    seen = []
+    real_replace = cutouts._replace_file
+
+    def watching_replace(src, dst):
+        # Before each file is moved into place, nothing partial is visible
+        seen.append(sorted(p.name for p in out.iterdir() if not p.name.startswith(".")))
+        real_replace(src, dst)
+
+    monkeypatch.setattr(cutouts, "_replace_file", watching_replace)
+    names = cutouts._extract_cutouts(str(zip_path), str(out))
+
+    assert names == ["a_astrocut.fits", "existing_astrocut.fits"]
+    assert seen == [["existing_astrocut.fits"], ["a_astrocut.fits", "existing_astrocut.fits"]]
+    assert (out / "a_astrocut.fits").read_bytes() == b"A" * 1000
+    assert (out / "existing_astrocut.fits").read_bytes() == b"new"
+    assert sorted(p.name for p in out.iterdir()) == ["a_astrocut.fits", "existing_astrocut.fits"]
+
+
+def test_cutout_zipfile_names_are_unique():
+    """Zip files of requests made in the same second get different names."""
+    from astroquery.mast.cutouts import _zipfile_name
+    names = {_zipfile_name("tesscut") for _ in range(100)}
+    assert len(names) == 100
+    assert all(name.startswith("tesscut_") and name.endswith(".zip") for name in names)
+
+
+def test_extract_cutouts_unsafe_member_names(tmp_path):
+    """Member names with '..' or absolute paths are extracted inside the output directory."""
+    import zipfile
+    from astroquery.mast import cutouts
+
+    zip_path = tmp_path / "cutouts.zip"
+    out = tmp_path / "out"
+    out.mkdir()
+    with zipfile.ZipFile(zip_path, "w") as zf:
+        zf.writestr("../evil_astrocut.fits", b"E")
+        zf.writestr("/abs_astrocut.fits", b"A")
+
+    names = cutouts._extract_cutouts(str(zip_path), str(out))
+    assert sorted(names) == ["abs_astrocut.fits", "evil_astrocut.fits"]
+    assert sorted(p.name for p in out.iterdir()) == ["abs_astrocut.fits", "evil_astrocut.fits"]
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["cutouts.zip", "out"]
+
+
+def test_extract_cutouts_failure_cleans_up(tmp_path, monkeypatch):
+    """If extraction fails, the temporary directory is removed."""
+    import zipfile
+    from astroquery.mast import cutouts
+
+    zip_path = tmp_path / "cutouts.zip"
+    out = tmp_path / "out"
+    out.mkdir()
+    with zipfile.ZipFile(zip_path, "w") as zf:
+        zf.writestr("a_astrocut.fits", b"A")
+
+    def failing_replace(src, dst):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(cutouts, "_replace_file", failing_replace)
+    with pytest.raises(OSError):
+        cutouts._extract_cutouts(str(zip_path), str(out))
+    assert list(out.iterdir()) == []

@@ -212,3 +212,46 @@ def test_deactivate_with_set_temp(changing_mocked_response):
         assert len(os.listdir(mytest.cache_location)) == 0
 
     assert cache_conf.cache_active is True
+
+
+def test_to_cache_failure_keeps_existing_entry(tmp_path, monkeypatch):
+    """A failed rewrite of a cache entry leaves the previous entry intact and no temporary file."""
+    import pickle
+    from astroquery.query import to_cache
+
+    cache_file = tmp_path / "entry.pickle"
+    to_cache(_create_response(TEXT1), cache_file)
+    good = cache_file.read_bytes()
+
+    def failing_dump(obj, f, *args, **kwargs):
+        f.write(b"partial")
+        raise RuntimeError("disk full")
+
+    monkeypatch.setattr(pickle, "dump", failing_dump)
+    with pytest.raises(RuntimeError):
+        to_cache(_create_response(TEXT2), cache_file)
+    assert cache_file.read_bytes() == good
+    assert [p.name for p in tmp_path.iterdir()] == ["entry.pickle"]
+
+
+def test_clear_cache_removes_temporary_files(tmp_path):
+    """clear_cache also removes temporary files left by an interrupted cache write."""
+    mytest = CacheTestClass()
+    mytest.cache_location = tmp_path
+    (tmp_path / "a.pickle").write_bytes(b"x")
+    (tmp_path / "a.pickle.0123abcd.tmp").write_bytes(b"x")
+    mytest.clear_cache()
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_from_cache_unreadable_entry_is_a_miss(tmp_path, changing_mocked_response):
+    """A torn cache entry (e.g. written in place by an older astroquery) is ignored."""
+    mytest = CacheTestClass()
+    mytest.cache_location = tmp_path
+    mytest.test_func(URL1)
+    entries = list(tmp_path.glob("*.pickle"))
+    assert len(entries) == 1
+    entries[0].write_bytes(entries[0].read_bytes()[:10])
+
+    response = mytest.test_func(URL1)
+    assert response.content == TEXT2

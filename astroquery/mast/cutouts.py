@@ -10,7 +10,9 @@ Cutout queries on TESS FFIs.
 
 import json
 import os
+import shutil
 import time
+import uuid
 import warnings
 import zipfile
 from io import BytesIO
@@ -24,11 +26,44 @@ from astropy.utils.decorators import deprecated_renamed_argument
 
 from . import conf
 from .. import log
+from ..query import _replace_file
 from ..exceptions import InputWarning, InvalidQueryError, LargeQueryWarning, NoResultsWarning
 from .core import MastQueryWithLogin
 from .utils import parse_input_location
 
 __all__ = ["TesscutClass", "Tesscut", "ZcutClass", "Zcut"]
+
+
+def _zipfile_name(prefix):
+    """A zip file name that is unique even for requests made in the same second."""
+    return f"{prefix}_{time.strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:8]}.zip"
+
+
+def _extract_cutouts(zipfile_path, path):
+    """
+    Extract all files of a cutout zip file into ``path`` and return their names.
+
+    The files are extracted into a temporary directory and then renamed into
+    ``path`` one by one, so that a cutout file is never seen partly written
+    (cutouts are found again by file name, e.g. by lightkurve's TESScut cache).
+    """
+    tmp_dir = os.path.join(path, f".astroquery-extract-{uuid.uuid4().hex[:8]}")
+    try:
+        with zipfile.ZipFile(zipfile_path, 'r') as zip_ref:
+            # ZipFile.extract makes member names safe (no absolute paths, no "..")
+            extracted = [zip_ref.extract(info, tmp_dir) for info in zip_ref.infolist()]
+        cutout_files = []
+        for src in extracted:
+            if os.path.isdir(src):
+                continue
+            name = os.path.relpath(src, tmp_dir)
+            dst = os.path.join(path, name)
+            os.makedirs(os.path.dirname(dst) or path, exist_ok=True)
+            _replace_file(src, dst)
+            cutout_files.append(name)
+    finally:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+    return cutout_files
 
 
 def _parse_cutout_size(size, mission=None, timeout=None):
@@ -476,7 +511,7 @@ class TesscutClass(MastQueryWithLogin):
         astrocut_url = f"{self._service_api_connection.REQUEST_URL}{request_path}?{query}"
 
         os.makedirs(path, exist_ok=True)  # Ensure the path exists
-        zipfile_path = os.path.join(path, f"tesscut_{time.strftime('%Y%m%d%H%M%S')}.zip")
+        zipfile_path = os.path.join(path, _zipfile_name("tesscut"))
         self._download_file(astrocut_url, zipfile_path)
 
         localpath_table = Table(names=["Local Path"], dtype=[str])
@@ -496,9 +531,7 @@ class TesscutClass(MastQueryWithLogin):
             print("Inflating...")
 
         # Unzipping the zipfile
-        with zipfile.ZipFile(zipfile_path, 'r') as zip_ref:
-            cutout_files = zip_ref.namelist()
-            zip_ref.extractall(path, members=cutout_files)
+        cutout_files = _extract_cutouts(zipfile_path, path)
         os.remove(zipfile_path)
 
         localpath_table['Local Path'] = [os.path.join(path, file) for file in cutout_files]
@@ -774,7 +807,7 @@ class ZcutClass(MastQueryWithLogin):
                 astrocut_request += "&{}={}".format(key, img_params[key])
 
         astrocut_url = self._service_api_connection.REQUEST_URL + "astrocut?" + astrocut_request
-        zipfile_path = "{}zcut_{}.zip".format(path, time.strftime("%Y%m%d%H%M%S"))
+        zipfile_path = path + _zipfile_name("zcut")
         self._download_file(astrocut_url, zipfile_path)
 
         localpath_table = Table(names=["Local Path"], dtype=[str])
@@ -793,10 +826,7 @@ class ZcutClass(MastQueryWithLogin):
             print("Inflating...")
 
         # unzipping the zipfile
-        zip_ref = zipfile.ZipFile(zipfile_path, 'r')
-        cutout_files = zip_ref.namelist()
-        zip_ref.extractall(path, members=cutout_files)
-        zip_ref.close()
+        cutout_files = _extract_cutouts(zipfile_path, path)
         os.remove(zipfile_path)
 
         localpath_table['Local Path'] = [path+x for x in cutout_files]
@@ -931,7 +961,7 @@ class HapcutClass(MastQueryWithLogin):
 
         # Set up the download path
         path = os.path.join(path, '')
-        zipfile_path = "{}hapcut_{}.zip".format(path, time.strftime("%Y%m%d%H%M%S"))
+        zipfile_path = path + _zipfile_name("hapcut")
 
         # Download
         self._download_file(astrocut_url, zipfile_path)
@@ -952,10 +982,7 @@ class HapcutClass(MastQueryWithLogin):
             print("Inflating...")
 
         # unzipping the zipfile
-        zip_ref = zipfile.ZipFile(zipfile_path, 'r')
-        cutout_files = zip_ref.namelist()
-        zip_ref.extractall(path, members=cutout_files)
-        zip_ref.close()
+        cutout_files = _extract_cutouts(zipfile_path, path)
         os.remove(zipfile_path)
 
         localpath_table['Local Path'] = [path+x for x in cutout_files]

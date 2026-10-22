@@ -10,7 +10,10 @@ import io
 import os
 import platform
 import requests
+import shutil
 import textwrap
+import time
+import uuid
 
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -48,8 +51,48 @@ def to_cache(original_response, cache_file):
     response_copy = copy.deepcopy(original_response)
     if hooks:
         original_response.request.hooks = hooks
-    with open(cache_file, "wb") as f:
-        pickle.dump(response_copy, f, protocol=4)
+    # Write to a temporary file next to the cache entry and rename it into
+    # place, so that a reader never sees a partly written entry (for example
+    # when the process is interrupted, or when processes share a cache).
+    tmp_file = _temporary_path(cache_file, ".tmp")
+    try:
+        with open(tmp_file, "wb") as f:
+            pickle.dump(response_copy, f, protocol=4)
+        try:
+            _replace_file(tmp_file, cache_file)
+        except PermissionError as exc:
+            # For example on Windows, while another process reads the entry.
+            # Caching is best effort, so keep the existing entry rather than
+            # failing the query.
+            log.warning(f"Could not update cache file {cache_file}: {exc}")
+            os.remove(tmp_file)
+    except BaseException:
+        if os.path.exists(tmp_file):
+            os.remove(tmp_file)
+        raise
+
+
+def _temporary_path(path, suffix):
+    """A unique file name next to ``path``, used to write ``path`` atomically."""
+    return f"{os.fspath(path)}.{uuid.uuid4().hex[:8]}{suffix}"
+
+
+def _header(headers, name):
+    """Look up a response header by name, ignoring case."""
+    name = name.lower()
+    return next((value for key, value in headers.items() if key.lower() == name), None)
+
+
+def _replace_file(src, dst):
+    """`os.replace`, retried briefly on Windows, where it fails while ``dst`` is open."""
+    for attempt in range(5):
+        try:
+            os.replace(src, dst)
+            return
+        except PermissionError:
+            if os.name != 'nt' or attempt == 4:
+                raise
+            time.sleep(0.1 * 2 ** attempt)
 
 
 def _replace_none_iterable(iterable):
@@ -142,6 +185,9 @@ class AstroQuery:
                 log.debug(f"Cache expired for {request_file}...")
                 response = None
         except FileNotFoundError:
+            response = None
+        except (EOFError, pickle.UnpicklingError) as exc:
+            log.warning(f"Ignoring unreadable cache file {request_file}: {exc}")
             response = None
         if response:
             log.debug("Retrieved data from {0}".format(request_file))
@@ -304,6 +350,9 @@ class BaseQuery(metaclass=LoginABCMeta):
         """Removes all cache files."""
         for fle in self.cache_location.glob("*.pickle"):
             fle.unlink()
+        # Temporary files left by an interrupted write of a cache entry
+        for fle in self.cache_location.glob("*.pickle.*.tmp"):
+            fle.unlink()
 
     def _request(self, method, url,
                  params=None, data=None, headers=None,
@@ -428,14 +477,33 @@ class BaseQuery(metaclass=LoginABCMeta):
         continuation : bool
             If the file has already been partially downloaded *and* the server
             supports HTTP "range" requests, the download will be continued
-            where it left off.
+            where it left off.  Partial downloads are kept as
+            ``local_filepath + '.part'``.
         cache : bool
             Cache downloaded file. Defaults to False.
         method : "GET" or "POST"
         head_safe : bool
         verbose : bool
             Whether to show download progress. Defaults to True.
+
+        Notes
+        -----
+        The data are written to a temporary file next to ``local_filepath``,
+        checked against the ``Content-Length`` of the response that delivered
+        them, and renamed to ``local_filepath`` only when complete.  ``local_filepath``
+        therefore never holds a partial download, also when several processes
+        download the same file at the same time.  If the transfer is
+        interrupted by an exception, the data received so far are kept as
+        ``local_filepath + '.part'`` for a later call with
+        ``continuation=True``.  A process that is killed outright leaves its
+        temporary file (``local_filepath + '.<8 hex digits>.part'``) behind.
         """
+        dest = os.fspath(local_filepath)
+        if os.path.islink(dest):
+            # Update the file the link points to, as writing through it would
+            dest = os.path.realpath(dest)
+        part_filepath = dest + '.part'
+
         if head_safe:
             response = self._session.request("HEAD", url,
                                              timeout=timeout, stream=True,
@@ -453,112 +521,174 @@ class BaseQuery(metaclass=LoginABCMeta):
         else:
             length = None
 
-        if ((os.path.exists(local_filepath)
-             and ('Accept-Ranges' in response.headers)
-             and length is not None
-             and continuation)):
-            open_mode = 'ab'
+        resumable = ('Accept-Ranges' in response.headers) and length is not None
 
-            existing_file_length = os.stat(local_filepath).st_size
-            if existing_file_length == 0:
-                log.info(f"Found existing {local_filepath} file with length 0.  Overwriting.")
-                open_mode = 'wb'
+        existing_file_length = os.stat(dest).st_size if os.path.exists(dest) else None
+        if existing_file_length:
+            if continuation and resumable and existing_file_length >= length:
+                log.info(f"Found cached file {dest} with size {existing_file_length} = {length}.")
+                response.close()
+                return local_filepath
+            if cache and length is not None and existing_file_length == length:
+                log.info(f"Found cached file {dest} with expected size {existing_file_length}.")
+                response.close()
+                return local_filepath
+
+        # Data to resume from: the partial download kept by an interrupted
+        # call, or an incomplete file written in place by an older astroquery.
+        # They are copied rather than moved, so that both stay usable by other
+        # processes meanwhile.
+        resume_from = None
+        if continuation and resumable:
+            if os.path.exists(part_filepath) and os.stat(part_filepath).st_size > 0:
+                resume_from = part_filepath
+            elif existing_file_length:
+                resume_from = dest
+
+        if resume_from is None and existing_file_length and cache:
+            if length is not None:
+                log.warning(f"Found cached file {dest} with size {existing_file_length} "
+                            f"that is different from expected size {length}.  ")
+                if continuation:
+                    log.warning("Continuation was requested but is not possible because "
+                                "'Accepts-Ranges' is not in the response headers.")
+            else:
+                # The server doesn't return a Content-Length header, but the
+                # file is already cached.  One such case is dynamically
+                # generated files in the MAST Archive.
+                log.warning(f"Could not verify length of cached file {dest}. "
+                            "Re-downloading the file.")
+
+        tmp_filepath = _temporary_path(dest, '.part')
+        try:
+            offset = 0
+            if resume_from is not None:
+                shutil.copyfile(resume_from, tmp_filepath)
+                offset = os.stat(tmp_filepath).st_size
+                if offset > length:
+                    log.warning(f"Found partial download of {dest} with size {offset}, "
+                                f"larger than the expected {length}.  Overwriting.")
+                    offset = 0
+
+            if resume_from is not None and offset == length:
+                log.info(f"Found complete partial download of {dest} with size {length}.")
+                transfer = False
+            elif offset > 0:
+                transfer = True
+                log.info("Continuing download of file {0}, with {1} bytes to "
+                         "go ({2}%)".format(dest, length - offset,
+                                            (length - offset) / length * 100))
+                # bytes are indexed from 0:
+                # https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#range-request-header
+                self._session.headers['Range'] = "bytes={0}-{1}".format(offset, length - 1)
+                log.debug(f"Continuing with range={self._session.headers['Range']}")
+                try:
+                    response = self._session.request(method, url,
+                                                     timeout=timeout, stream=True,
+                                                     auth=auth, **kwargs)
+                    response.raise_for_status()
+                finally:
+                    self._session.headers.pop('Range', None)
+                content_range = _header(response.headers, 'Content-Range') or ''
+                if response.status_code != 206 or not content_range.startswith(f'bytes {offset}-'):
+                    log.warning(f"The server did not continue the download of {dest} "
+                                f"(status {response.status_code}).  Downloading the whole file.")
+                    if response.status_code == 206:
+                        # A different range than requested: fetch the whole file
+                        response = self._session.request(method, url,
+                                                         timeout=timeout, stream=True,
+                                                         auth=auth, **kwargs)
+                        response.raise_for_status()
+                    offset = 0
+            else:
+                transfer = True
                 if head_safe:
                     response = self._session.request(method, url,
                                                      timeout=timeout, stream=True,
                                                      auth=auth, **kwargs)
                     response.raise_for_status()
-            elif existing_file_length >= length:
-                # all done!
-                log.info(f"Found cached file {local_filepath} with size {existing_file_length} = {length}.")
-                return local_filepath
-            else:
-                log.info("Continuing download of file {0}, with {1} bytes to "
-                         "go ({2}%)".format(local_filepath,
-                                            length - existing_file_length,
-                                            (length-existing_file_length)/length*100))
 
-                # bytes are indexed from 0:
-                # https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#range-request-header
-                end = "{0}".format(length-1) if length is not None else ""
-                self._session.headers['Range'] = "bytes={0}-{1}".format(existing_file_length,
-                                                                        end)
-                log.debug(f"Continuing with range={self._session.headers['Range']}")
+            if transfer:
+                open_mode = 'ab' if offset else 'wb'
+                blocksize = astropy.utils.data.conf.download_block_size
 
-                response = self._session.request(method, url,
-                                                 timeout=timeout, stream=True,
-                                                 auth=auth, **kwargs)
-                response.raise_for_status()
-                del self._session.headers['Range']
+                log.debug(f"Downloading URL {url} to {dest} with size {length} "
+                          f"by blocks of {blocksize} with open_mode={open_mode}")
 
-        elif cache and os.path.exists(local_filepath):
-            if length is not None:
-                statinfo = os.stat(local_filepath)
-                if statinfo.st_size != length:
-                    log.warning(f"Found cached file {local_filepath} with size {statinfo.st_size} "
-                                f"that is different from expected size {length}.  ")
-                    if continuation:
-                        log.warning(
-                            "Continuation was requested but is not possible because "
-                            "'Accepts-Ranges' is not in the response headers.")
-                    open_mode = 'wb'
-                    response = self._session.request(method, url,
-                                                     timeout=timeout, stream=True,
-                                                     auth=auth, **kwargs)
-                    response.raise_for_status()
+                bytes_read = offset
+
+                # Only show progress bar if logging level is INFO or lower.
+                if log.getEffectiveLevel() <= 20:
+                    progress_stream = None  # Astropy default
                 else:
-                    log.info(f"Found cached file {local_filepath} with expected size {statinfo.st_size}.")
-                    response.close()
-                    return local_filepath
-            else:
-                # This is a special case where the server doesn't return a
-                # Content-Length header, but the file is already cached.
-                # One such case is dynamically generated files in the MAST Archive.
-                # In this case, we warn the user and re-download the file.
-                log.warning(f"Could not verify length of cached file {local_filepath}. "
-                            "Re-downloading the file.")
-                open_mode = 'wb'
-                response = self._session.request(method, url,
-                                                 timeout=timeout, stream=True,
-                                                 auth=auth, **kwargs)
-                response.raise_for_status()
-        else:
-            open_mode = 'wb'
-            if head_safe:
-                response = self._session.request(method, url,
-                                                 timeout=timeout, stream=True,
-                                                 auth=auth, **kwargs)
-                response.raise_for_status()
+                    progress_stream = io.StringIO()
 
-        blocksize = astropy.utils.data.conf.download_block_size
+                with open(tmp_filepath, open_mode) as f:
+                    if verbose:
+                        with ProgressBarOrSpinner(length, f'Downloading URL {url} to {dest} ...',
+                                                  file=progress_stream) as pb:
+                            for block in response.iter_content(blocksize):
+                                f.write(block)
+                                bytes_read += len(block)
+                                if length is not None:
+                                    pb.update(bytes_read if bytes_read <= length else length)
+                                else:
+                                    pb.update(bytes_read)
+                    else:
+                        f.write(response.content)
+                    f.flush()
+                    os.fsync(f.fileno())
 
-        log.debug(f"Downloading URL {url} to {local_filepath} with size {length} "
-                  f"by blocks of {blocksize} with open_mode={open_mode}")
+                # Check the size against the Content-Length of the response
+                # that delivered the data (a HEAD response may differ).  This is
+                # only possible when the body was not compressed in transit, as
+                # requests decompresses it.
+                body_length = _header(response.headers, 'Content-Length')
+                encoding = (_header(response.headers, 'Content-Encoding') or 'identity').lower()
+                if body_length is not None and encoding in ('', 'identity'):
+                    expected = offset + int(body_length)
+                    received = os.stat(tmp_filepath).st_size
+                    if received != expected:
+                        raise OSError(f"Download of {url} to {dest} is incomplete: "
+                                      f"received {received} bytes, expected {expected}.")
+                    if length is not None and expected != length:
+                        log.warning(f"The size of {url} was first reported as {length} bytes, "
+                                    f"then as {expected} bytes.")
 
-        bytes_read = 0
+            try:
+                _replace_file(tmp_filepath, dest)
+            except PermissionError:
+                # For example on Windows, while another process reads dest.  If
+                # dest already holds the same complete file, the job is done.
+                if (os.path.exists(dest) and length is not None
+                        and os.stat(dest).st_size == os.stat(tmp_filepath).st_size == length):
+                    log.info(f"{dest} is in use but already complete.")
+                    os.remove(tmp_filepath)
+                else:
+                    raise
+        except BaseException:
+            # Keep data that can be resumed, unless an existing partial
+            # download holds more; remove everything else.
+            if os.path.exists(tmp_filepath):
+                kept = os.stat(tmp_filepath).st_size
+                previous = os.stat(part_filepath).st_size if os.path.exists(part_filepath) else 0
+                if resumable and previous < kept <= length:
+                    try:
+                        _replace_file(tmp_filepath, part_filepath)
+                    except OSError:
+                        os.remove(tmp_filepath)
+                else:
+                    os.remove(tmp_filepath)
+            raise
+        finally:
+            response.close()
 
-        # Only show progress bar if logging level is INFO or lower.
-        if log.getEffectiveLevel() <= 20:
-            progress_stream = None  # Astropy default
-        else:
-            progress_stream = io.StringIO()
+        # The partial download, if any, is no longer needed.
+        try:
+            os.remove(part_filepath)
+        except OSError:
+            pass
 
-        if verbose:
-            with ProgressBarOrSpinner(length, f'Downloading URL {url} to {local_filepath} ...',
-                                      file=progress_stream) as pb:
-                with open(local_filepath, open_mode) as f:
-                    for block in response.iter_content(blocksize):
-                        f.write(block)
-                        bytes_read += len(block)
-                        if length is not None:
-                            pb.update(bytes_read if bytes_read <= length else length)
-                        else:
-                            pb.update(bytes_read)
-        else:
-            with open(local_filepath, open_mode) as f:
-                f.write(response.content)
-
-        response.close()
         return local_filepath
 
 

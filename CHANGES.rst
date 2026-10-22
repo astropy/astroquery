@@ -310,6 +310,16 @@ Infrastructure, Utility and Other Changes and Additions
 
 - Workaround upstream bug when caching a response using pyvo. [#3586]
 
+- Downloaded files and cached query results are now written to a temporary
+  file and renamed into place when complete, and downloads are checked against
+  the size reported by the server.  An interrupted download no longer leaves a
+  partial file under the final name, and caches shared by several processes or
+  users never expose a partly written file.  Partial downloads are kept as
+  ``<filename>.part`` and resumed with ``continuation=True``; ``alma``'s
+  ``verify_only`` reports them.  ``mast`` cutout zip files get unique names and
+  are extracted atomically.  An unreadable cache entry is treated as a cache
+  miss. [#PRNUMBER]
+
 utils.tap
 ^^^^^^^^^
 

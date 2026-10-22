@@ -982,18 +982,22 @@ class AlmaClass(QueryWithLogin):
                                         filename)
 
             if verify_only:
-                existing_file_length = os.stat(filename).st_size
+                checked = filename
+                if not os.path.exists(filename) and os.path.exists(filename + '.part'):
+                    # An interrupted download, kept by _download_file
+                    checked = filename + '.part'
+                existing_file_length = os.stat(checked).st_size
                 if 'content-length' in check_filename.headers:
                     length = int(check_filename.headers['content-length'])
                     if length == 0:
                         warnings.warn('URL {0} has length=0'.format(file_link))
                     elif existing_file_length == length:
-                        log.info(f"Found cached file {filename} with expected size {existing_file_length}.")
+                        log.info(f"Found cached file {checked} with expected size {existing_file_length}.")
                     elif existing_file_length < length:
-                        log.info(f"Found cached file {filename} with size {existing_file_length} < expected "
+                        log.info(f"Found cached file {checked} with size {existing_file_length} < expected "
                                  f"size {length}.  The download should be continued.")
                     elif existing_file_length > length:
-                        warnings.warn(f"Found cached file {filename} with size {existing_file_length} > expected "
+                        warnings.warn(f"Found cached file {checked} with size {existing_file_length} > expected "
                                       f"size {length}.  The download is likely corrupted.",
                                       CorruptDataWarning)
                 else:
