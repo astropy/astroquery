@@ -1943,6 +1943,15 @@ def test_zcut_get_cutouts(tmpdir):
     assert isinstance(cutout_list[0], fits.HDUList)
 
 
+@pytest.mark.parametrize("method", ["download_cutouts", "get_cutouts"])
+@pytest.mark.parametrize("size", [5.5, [1, 2.5], np.array([1.0, 2.5])])
+def test_zcut_rejects_fractional_pixel_size(method, size):
+    coord = SkyCoord(189.49206, 62.20615, unit="deg")
+
+    with pytest.raises(InvalidQueryError, match="Zcut pixel cutout sizes must be whole numbers"):
+        getattr(Zcut, method)(coordinates=coord, size=size)
+
+
 ################
 # Utils tests #
 ################
