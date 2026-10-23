@@ -238,6 +238,7 @@ mast
   and enables users to modify the request timeout upper limit from the default 600 seconds. [#3675]
 - Added the ``MastMissions.get_product`` method to read data products directly into memory as an `~astropy.io.fits.HDUList`
   or an `~asdf.AsdfFile` object. [#3593]
+- Added ``get_cloud_uri_map`` method to ``MastMissions`` for mapping data products to their corresponding cloud URIs. [#3690]
 
 
 jplspec
