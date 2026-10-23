@@ -765,7 +765,7 @@ class MastMissionsClass(MastQueryWithLogin):
         # Construct the full data URL based on mission
         current_mission = mission.lower() if mission else self.mission
 
-        if current_mission in ['hst', 'jwst', 'roman', 'roman_spectra', 'roman_cgi', 'tess', 'hsla']:
+        if current_mission in ['hst', 'jwst', 'roman', 'roman_wfi', 'roman_spectra', 'roman_cgi', 'tess', 'hsla']:
             # Certain missions have a dedicated endpoint for retrieving products
             base_url = (f"{self._service_api_connection.MISSIONS_DOWNLOAD_URL}{current_mission}"
                         "/api/v0.1/retrieve_product")
