@@ -911,10 +911,11 @@ The following example shows how to retrieve the DataLink products associated wit
   >>> retrieval_type = 'ALL'          # Options are: 'EPOCH_PHOTOMETRY', 'MCMC_GSPPHOT', 'MCMC_MSC', 'XP_SAMPLED', 'XP_CONTINUOUS', 'RVS', 'ALL'
   >>> data_structure = 'DATAMODEL_STANDARD'     # Options are: 'DATAMODEL_STANDARD' or 'DATAMODEL_GAIA'
   >>> data_release   = 'Gaia DR3'     # Options are: 'Gaia DR3' (default), 'Gaia DR2'
-  >>> datalink = Gaia.load_data(ids=[2263166706630078848, 2263178457660566784, 2268372099615724288],
+  >>> datalink, file_path = Gaia.load_data(ids=[2263166706630078848, 2263178457660566784, 2268372099615724288], dump_to_file=True,
   ...                           data_release=data_release, retrieval_type=retrieval_type, data_structure=data_structure)
 
-The DataLink products are stored inside a Python Dictionary. Each of its elements (keys) contains a one-element list that can be extracted as follows:
+The variable ``file_path`` contains the absolute path to the downloaded ZIP file when ``dump_to_file=True``.
+The variable ``datalink`` is a Python dictionary containing the DataLink products. Each key contains a one-element list, which can be extracted as follows:
 
 .. code-block:: python
 
