@@ -1122,7 +1122,7 @@ class MastMissionsClass(MastQueryWithLogin):
         data_uris = utils.remove_duplicate_products(data_uris, 'dataURI')
 
         uri_map = {}
-        if mission in ['roman', 'roman_spectra', 'roman_cgi']:
+        if mission in ['roman', 'roman_wfi', 'roman_spectra', 'roman_cgi']:
             for uri in data_uris:
                 # Get the presigned S3 URL for the Roman data product
                 s3_url = self._get_roman_cloud_location(self._get_download_url(uri, mission))
@@ -1178,7 +1178,7 @@ class MastMissionsClass(MastQueryWithLogin):
         if self._authenticated:
             headers["Authorization"] = f"token {self._auth_obj.session.cookies['mast_token']}"
 
-        resp = self._session.request("get", download_url, headers=headers, allow_redirects=False)
+        resp = utils._simple_request(download_url, headers=headers, allow_redirects=False)
         resp.raise_for_status()
 
         return resp.headers.get("Location")
