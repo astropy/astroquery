@@ -236,6 +236,7 @@ mast
   rather than the full result table. [#3645]
 - Added warning message for ``Tesscut`` requests when input cutout size reaches a limit of 30 pixels in either dimension,
   and enables users to modify the request timeout upper limit from the default 600 seconds. [#3675]
+- Added ``get_cloud_uri_map`` method to ``MastMissions`` for mapping data products to their corresponding cloud URIs. [#3690]
 
 
 jplspec

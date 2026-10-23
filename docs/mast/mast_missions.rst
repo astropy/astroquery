@@ -330,8 +330,70 @@ The filter below returns FITS products that are "science" type **and** less than
    JBTAA0020_jbtaa0020_asn.fits PUBLIC JBTAA0020 ...            AUX 11520 science
 
 
-Downloding Data
-===============
+Cloud Data Access
+=================
+
+The `~astroquery.mast.MastMissionsClass` provides the `~astroquery.mast.MastMissionsClass.get_cloud_uri_map` method
+for locating data products on the cloud. If a public MAST dataset is hosted on our Amazon S3 bucket, this method
+can be used to locate the corresponding cloud URIs. For many workflows, cloud access can be significantly faster,
+more scalable, and more cost-effective than downloading files locally.
+
+Why Use Cloud Data Access?
+----------------------------
+
+Cloud-hosted MAST data are stored in public object storage (Amazon S3) alongside cloud computing resources.
+Using cloud access allows users to:
+
+  - **Avoid large downloads** by reading data directly from cloud storage.
+  - **Reduce local storage needs** by processing data in the cloud without downloading files.
+  - **Improve performance** by leveraging high-bandwidth connections between cloud compute and storage.
+  - **Scale analyses** by utilizing cloud compute resources that can be adjusted to meet workload demands.
+  - **Enable reproducible workflows** that operate in a consistent cloud environment.
+
+Cloud access is particularly well-suited for:
+  - Large surveys or multi-terabyte datasets.
+  - Batch processing or pipeline workflows.
+  - JupyterHub or notebook environments hosted in the cloud.
+  - Situations where only a subset of files will be accessed.
+
+Traditional downloads remain appropriate when:
+  - Working with small datasets that fit comfortably on local storage.
+  - Working offline or in environments without internet access.
+  - Using software that requires local file access.
+
+Accessing Data via Cloud URIs
+-----------------------------
+
+Instead of downloading files, you can access them directly via their cloud URIs using the
+`~astroquery.mast.MastMissionsClass.get_cloud_uri_map` method. This allows you to work with the data in the cloud
+without needing to store it locally. The method accepts a table or list of products and returns a mapping of product
+URIs to their cloud locations.
+
+Cloud URIs may be returned as:
+
+  - Native cloud URIs (e.g., ``s3://stpubdata...``)
+  - HTTP URLs suitable for streaming (set ``full_url=True`` and ``include_bucket=False``)
+
+The following example demonstrates how to map a list of data products to their corresponding cloud URIs.
+
+.. doctest-remote-data::
+
+   >>> cloud_uri_map = missions.get_cloud_uri_map(
+   ...     ["IBZDA1010/ibzda1010_drz.fits", "IBZDA1010/ibzda1010_drc.fits"],
+   ...     full_url=False,
+   ...     include_bucket=True
+   ... )
+   INFO: Using the S3 STScI public dataset [astroquery.mast.cloud]
+   >>> print(cloud_uri_map)
+   {'IBZDA1010/ibzda1010_drz.fits': 's3://stpubdata/hst/public/ibzd/ibzda1010/ibzda1010_drz.fits',
+    'IBZDA1010/ibzda1010_drc.fits': 's3://stpubdata/hst/public/ibzd/ibzda1010/ibzda1010_drc.fits'}
+
+Once the URIs are obtained, they can be used directly in cloud-based workflows or with cloud-enabled libraries such as
+`Astropy <https://docs.astropy.org/en/stable/io/fits/usage/cloud.html>`__.
+
+
+Downloading Data
+=================
 
 Downloading Data Products
 -------------------------
