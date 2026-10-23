@@ -8,11 +8,12 @@ This module contains methods for searching MAST missions.
 
 import difflib
 import json
+import re
 import warnings
 from collections.abc import Iterable
 from json import JSONDecodeError
 from pathlib import Path
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
 
 import astropy.units as u
 import numpy as np
@@ -76,6 +77,7 @@ class MastMissionsClass(MastQueryWithLogin):
         self.service = self._search  # current API service
         self.service_dict = {self._search: {'path': self._search},
                              self._list_products: {'path': self._list_products}}
+        self._available_missions = None  # Lazy loading of available missions from MAST Search API
 
         # Search attributes
         self._search_option_fields = ['limit', 'offset', 'sort_by', 'search_key', 'sort_desc', 'select_cols',
@@ -93,6 +95,60 @@ class MastMissionsClass(MastQueryWithLogin):
         # Setter that updates the service parameters if the mission is changed
         self._mission = value.lower()  # case-insensitive
         self._service_api_connection.set_service_params(self.service_dict, f'search/{self.mission}')
+
+    @property
+    def available_missions(self):
+        """Return a list of available missions in the MAST Search API."""
+        if self._available_missions is None:
+            self._available_missions = self.get_available_missions()
+        return self._available_missions
+
+    def get_available_missions(self):
+        """
+        Return a list of available missions in the MAST Search API.
+
+        Returns
+        -------
+        missions : list
+            List of available missions in MAST Search API.
+        """
+        if self._available_missions is not None:
+            return self._available_missions
+
+        missions = []
+        html = utils._simple_request(f"{self._service_api_connection.MISSIONS_URL}docs").text
+
+        for match in re.findall(r'[\w/\.-]+openapi[\w/\.-]*\.json', html):
+            if match.startswith("/"):
+                continue
+
+            mission = re.search(r'(.+?)_api_openapi\.json$', match).group(1)
+            if mission:
+                missions.append(mission)
+
+        return missions
+
+    def _verify_mission(self, mission):
+        """
+        Verify that the specified mission is available in the MAST Search API.
+
+        Parameters
+        ----------
+        mission : str
+            The mission to verify.
+
+        Raises
+        ------
+        InvalidQueryError
+            If the specified mission is not available in the MAST Search API.
+        """
+        if mission not in self.available_missions:
+            closest = difflib.get_close_matches(mission, self.available_missions, n=1)
+            suggestion = f" Did you mean '{closest[0]}'? " if closest else ""
+            raise InvalidQueryError(
+                f"Mission '{mission}' is not available in the MAST Search API.{suggestion} "
+                f"Available missions are: {', '.join(self.available_missions)}."
+            )
 
     def _extract_products(self, response):
         """
@@ -728,6 +784,41 @@ class MastMissionsClass(MastQueryWithLogin):
 
         return products[filter_mask]
 
+    def _get_download_url(self, uri, mission=None):
+        """
+        Construct the full download URL for a given data URI based on the mission.
+
+        Parameters
+        ----------
+        uri : str
+            The product filename or URI for which to construct the download URL.
+        mission : str, optional
+            The mission to which the file belongs. If not provided, the current value of the ``mission`` attribute
+            will be used.
+
+        Returns
+        -------
+        url : str
+            The full URL download path.
+        """
+        current_mission = mission.lower() if mission else self.mission
+
+        if current_mission in ['hst', 'jwst', 'roman', 'roman_spectra', 'roman_cgi']:
+            # HST, JWST, and RST have a dedicated endpoint for retrieving products
+            base_url = (f"{self._service_api_connection.MISSIONS_DOWNLOAD_URL}{current_mission}"
+                        "/api/v0.1/retrieve_product")
+            keyword = 'product_name'
+        else:
+            # HLSPs use MAST download URL
+            base_url = self._service_api_connection.MAST_DOWNLOAD_URL
+            keyword = 'uri'
+            # These files require a MAST URI and not just a filename
+            if not uri.startswith('mast'):
+                raise InvalidQueryError(f'For mission "{current_mission}", a full MAST URI is required '
+                                        f'for downloading. Got "{uri}".')
+
+        return base_url + f'?{keyword}=' + quote(uri, safe='')
+
     def download_file(self, uri, *, local_path=None, cache=True, mission=None, verbose=True):
         """
         Downloads a single file based on the data URI.
@@ -959,6 +1050,138 @@ class MastMissionsClass(MastQueryWithLogin):
                                         verbose=verbose)
 
         return manifest
+
+    def get_cloud_uri_map(self, products=None, *, include_bucket=True, full_url=False, extension=None,
+                          filter_products={}, mission=None, verbose=True):
+        """
+        Given an `~astropy.table.Table` of data products or query criteria and filter parameters,
+        returns the associated cloud data URIs.
+
+        Parameters
+        ----------
+        products : `~astropy.table.Table`, list
+            Table containing products or list of MAST URIs to be converted into cloud data uris.
+            If provided, this will supercede page_size, page, or any keyword arguments passed in as criteria.
+        include_bucket : bool
+            Default True. When False, returns the path of the file relative to the
+            top level cloud storage location.
+            Must be set to False when using the full_url argument.
+        full_url : bool
+            Default False. Return an HTTP fetchable url instead of a cloud uri.
+            Must set include_bucket to False to use this option.
+        extension : string or array, optional
+            Default None. Option to filter by file extension.
+        filter_products : dict, optional
+            Filters to be applied to data products.  Valid filters are all products fields listed
+            `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__.
+            The column name as a string is the key. The corresponding value is one
+            or more acceptable values for that parameter.
+            Filter behavior is AND between the filters and OR within a filter set.
+            For example: {"productType": "SCIENCE", "extension"=["fits","jpg"]}
+        verbose : bool, optional
+            Default True. Whether to issue warnings if a product cannot be found in the cloud.
+        **criteria
+            Criteria to apply. At least one non-positional criteria must be supplied.
+            Valid criteria are coordinates, object_name, radius (as in `query_region` and `query_object`),
+            and all observation fields returned by the ``get_metadata("observations")``.
+            The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
+            except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
+            For non-float type criteria wildcards maybe used (both * and % are considered wildcards), however
+            only one wildcarded value can be processed per criterion.
+            RA and Dec must be given in decimal degrees, and datetimes in MJD.
+            For example: filters=["FUV","NUV"],proposal_pi="Ost*",t_max=[52264.4586,54452.8914]
+
+        Returns
+        -------
+        map : dict
+            Dictionary mapping the original data product URIs to their corresponding cloud URIs.
+        """
+        if include_bucket and full_url:
+            raise InvalidQueryError('include_bucket must be set to False when full_url is True.')
+
+        mission = mission.lower() if mission else self.mission
+        self._verify_mission(mission)
+
+        if isinstance(products, Table):
+            # Filter product list
+            products = self.filter_products(products, extension=extension, **filter_products)
+            data_uris = products['uri']
+        else:  # data_products is a list of URIs
+            # Warn if trying to supply filters
+            if filter_products or extension:
+                warnings.warn('Filtering is not supported when providing a list of MAST URIs. '
+                              'To apply filters, please provide query criteria or a table of data products '
+                              'as returned by `Observations.get_product_list`', InputWarning)
+            data_uris = products
+
+        if data_uris is None or not len(data_uris):
+            warnings.warn('No matching products to fetch associated cloud URIs.', NoResultsWarning)
+            return
+
+        # Remove duplicate products
+        data_uris = utils.remove_duplicate_products(data_uris, 'dataURI')
+
+        uri_map = {}
+        if mission in ['roman', 'roman_wfi', 'roman_spectra', 'roman_cgi']:
+            for uri in data_uris:
+                # Get the presigned S3 URL for the Roman data product
+                s3_url = self._get_roman_cloud_location(self._get_download_url(uri, mission))
+
+                if full_url or s3_url is None:
+                    cloud_uri = s3_url
+                else:
+                    parsed_url = urlsplit(s3_url)
+                    host = parsed_url.hostname or ''
+                    path = parsed_url.path.lstrip('/')
+                    if '.s3' in host:
+                        bucket = host.split('.s3', 1)[0]
+                    elif host == 's3.amazonaws.com' or host.startswith('s3.'):
+                        bucket, _, path = path.partition('/')
+                    else:
+                        raise InvalidQueryError(f"Unable to determine S3 bucket from URL: {s3_url}")
+
+                    cloud_uri = f"s3://{bucket}/{path}" if include_bucket else path
+
+                uri_map[str(uri)] = cloud_uri
+
+            return uri_map
+        else:
+            normalized_uris = [f"mast:{mission.upper()}/product/{str(uri).split('/')[-1]}"
+                               for uri in data_uris]
+            from astroquery.mast import Observations
+            normalized_uri_map = Observations.get_cloud_uris(
+                normalized_uris,
+                include_bucket=include_bucket,
+                full_url=full_url,
+                return_uri_map=True,
+                verbose=verbose,
+            )
+            return {str(uri): normalized_uri_map.get(normalized_uri)
+                    for uri, normalized_uri in zip(data_uris, normalized_uris)}
+
+    def _get_roman_cloud_location(self, download_url):
+        """
+        Retrieves the cloud location for a Roman data product given its download URL.
+
+        Parameters
+        ----------
+        download_url : str
+            The download URL for the Roman data product.
+
+        Returns
+        -------
+        str
+            The cloud location URL for the Roman data product.
+        """
+        # Make an authenticated request to get the presigned S3 URL for the ASDF file
+        headers = {}
+        if self._authenticated:
+            headers["Authorization"] = f"token {self._auth_obj.session.cookies['mast_token']}"
+
+        resp = utils._simple_request(download_url, headers=headers, allow_redirects=False)
+        resp.raise_for_status()
+
+        return resp.headers.get("Location")
 
     @class_or_instance
     def get_column_list(self):
