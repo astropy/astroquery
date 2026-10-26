@@ -16,19 +16,19 @@ Created on 30 jun. 2016
 """
 import datetime
 import os
-import zipfile
 from pathlib import Path
-from unittest.mock import patch
-
-import astropy.units as u
-import numpy as np
-import pytest
 import re
+from unittest.mock import patch
+import zipfile
+
 from astropy.coordinates.sky_coordinate import SkyCoord
 from astropy.table import Column, Table
 from astropy.units import Quantity
+import astropy.units as u
 from astropy.utils.data import get_pkg_data_filename
 from astropy.utils.exceptions import AstropyDeprecationWarning
+import numpy as np
+import pytest
 from requests import HTTPError
 
 from astroquery.gaia import conf
@@ -36,7 +36,7 @@ from astroquery.gaia.core import GaiaClass
 from astroquery.utils.commons import ASTROPY_LT_7_1_1
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
-from astroquery.utils.tap.core import TapPlus, Tap
+from astroquery.utils.tap.core import Tap, TapPlus
 from astroquery.utils.tap.model.tapcolumn import TapColumn
 from astroquery.utils.tap.model.taptable import TapTableMeta
 
@@ -547,8 +547,8 @@ def test_cone_search_precision(mock_querier):
     Verifies that cone_search() produces a query where RA, DEC and radius
     appear formatted with exactly 14 decimal places when using get_query_payload=True.
     """
-    coord = SkyCoord(ra=19*u.deg, dec=20*u.deg)
-    radius = 1*u.deg
+    coord = SkyCoord(ra=19 * u.deg, dec=20 * u.deg)
+    radius = 1 * u.deg
 
     query = mock_querier.cone_search(
         coord,
@@ -925,13 +925,22 @@ def test_datalink_querier_load_data_vot_exception(mock_datalink_querier, overwri
 
 
 def test_datalink_querier_load_data_vot(mock_datalink_querier):
-    result_dict = mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
-                                                  data_structure='DATAMODEL_STANDARD',
-                                                  retrieval_type="ALL",
-                                                  linking_parameter='SOURCE_ID', valid_data=False,
-                                                  avoid_datatype_check=False,
-                                                  format="votable", dump_to_file=True, overwrite_output_file=True,
-                                                  verbose=False)
+    result = mock_datalink_querier.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
+                                             data_structure='DATAMODEL_STANDARD',
+                                             retrieval_type="ALL",
+                                             linking_parameter='SOURCE_ID', valid_data=False,
+                                             avoid_datatype_check=False,
+                                             format="votable", dump_to_file=True,
+                                             overwrite_output_file=True,
+                                             verbose=False)
+
+    if isinstance(result, tuple):
+        result_dict, file_path = result
+        assert isinstance(result_dict, dict)
+        assert file_path is not None
+    else:
+        result_dict = result
+        assert isinstance(result_dict, dict)
 
     direc = os.getcwd()
     files = os.listdir(direc)
@@ -940,6 +949,8 @@ def test_datalink_querier_load_data_vot(mock_datalink_querier):
              Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
 
     assert len(files) == 1
+    assert os.path.join(direc, files[0]) == file_path
+
     datalink_output = files[0]
 
     extracted_files = []
@@ -961,15 +972,50 @@ def test_datalink_querier_load_data_vot(mock_datalink_querier):
 
     assert not os.path.exists(os.path.join(os.getcwd(), datalink_output))
 
+    # check the returned output file path
+
+
+def get_boolean_value(value: bool) -> bool:
+    return value
+
+
+@pytest.mark.parametrize("value", [True, False])
+def test_datalink_querier_load_data_vot_dump_to_file_boolean(mock_datalink_querier, value, ):
+    # Explicitly typed as bool, not Literal[True] or Literal[False].
+    value = get_boolean_value(value)
+
+    result = mock_datalink_querier.load_data(ids=[5937083312263887616], data_release="Gaia DR3",
+                                             data_structure="DATAMODEL_STANDARD", retrieval_type="ALL",
+                                             linking_parameter="SOURCE_ID", valid_data=False,
+                                             avoid_datatype_check=False, format="votable",
+                                             dump_to_file=value, overwrite_output_file=True, verbose=False, )
+
+    if isinstance(result, tuple):
+        result_dict, file_path = result
+        assert isinstance(result_dict, dict)
+        assert file_path is not None
+        os.remove(file_path)
+    else:
+        assert isinstance(result, dict)
+
 
 def test_datalink_querier_load_data_ecsv(mock_datalink_querier_ecsv):
-    result_dict = mock_datalink_querier_ecsv.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
-                                                       data_structure='DATAMODEL_STANDARD',
-                                                       retrieval_type="ALL",
-                                                       linking_parameter='SOURCE_ID', valid_data=False,
-                                                       avoid_datatype_check=False,
-                                                       format="ecsv", dump_to_file=True, overwrite_output_file=True,
-                                                       verbose=False)
+    result = mock_datalink_querier_ecsv.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
+                                                  data_structure='DATAMODEL_STANDARD',
+                                                  retrieval_type="ALL",
+                                                  linking_parameter='SOURCE_ID', valid_data=False,
+                                                  avoid_datatype_check=False,
+                                                  format="ecsv", dump_to_file=True,
+                                                  overwrite_output_file=True,
+                                                  verbose=False)
+
+    if isinstance(result, tuple):
+        result_dict, file_path = result
+        assert isinstance(result_dict, dict)
+        assert file_path is not None
+    else:
+        result_dict = result
+        assert isinstance(result_dict, dict)
 
     direc = os.getcwd()
     files = os.listdir(direc)
@@ -978,6 +1024,8 @@ def test_datalink_querier_load_data_ecsv(mock_datalink_querier_ecsv):
              Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
 
     assert len(files) == 1
+    assert os.path.join(direc, files[0]) == file_path
+
     datalink_output = files[0]
 
     extracted_files = []
@@ -1004,13 +1052,22 @@ def test_datalink_querier_load_data_ecsv(mock_datalink_querier_ecsv):
 
 
 def test_datalink_querier_load_data_csv(mock_datalink_querier_csv):
-    result_dict = mock_datalink_querier_csv.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
-                                                      data_structure='DATAMODEL_STANDARD',
-                                                      retrieval_type="ALL",
-                                                      linking_parameter='SOURCE_ID', valid_data=False,
-                                                      avoid_datatype_check=False,
-                                                      format="csv", dump_to_file=True, overwrite_output_file=True,
-                                                      verbose=False)
+    result = mock_datalink_querier_csv.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
+                                                 data_structure='DATAMODEL_STANDARD',
+                                                 retrieval_type="ALL",
+                                                 linking_parameter='SOURCE_ID', valid_data=False,
+                                                 avoid_datatype_check=False,
+                                                 format="csv", dump_to_file=True,
+                                                 overwrite_output_file=True,
+                                                 verbose=False)
+
+    if isinstance(result, tuple):
+        result_dict, file_path = result
+        assert isinstance(result_dict, dict)
+        assert file_path is not None
+    else:
+        result_dict = result
+        assert isinstance(result_dict, dict)
 
     direc = os.getcwd()
     files = os.listdir(direc)
@@ -1019,6 +1076,8 @@ def test_datalink_querier_load_data_csv(mock_datalink_querier_csv):
              Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
 
     assert len(files) == 1
+    assert os.path.join(direc, files[0]) == file_path
+
     datalink_output = files[0]
 
     extracted_files = []
@@ -1046,13 +1105,22 @@ def test_datalink_querier_load_data_csv(mock_datalink_querier_csv):
 
 @pytest.mark.filterwarnings("ignore:")
 def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
-    result_dict = mock_datalink_querier_fits.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
-                                                       data_structure='DATAMODEL_STANDARD',
-                                                       retrieval_type="ALL",
-                                                       linking_parameter='SOURCE_ID', valid_data=False,
-                                                       avoid_datatype_check=False,
-                                                       format="fits", dump_to_file=True, overwrite_output_file=True,
-                                                       verbose=False)
+    result = mock_datalink_querier_fits.load_data(ids=[5937083312263887616], data_release='Gaia DR3',
+                                                  data_structure='DATAMODEL_STANDARD',
+                                                  retrieval_type="ALL",
+                                                  linking_parameter='SOURCE_ID', valid_data=False,
+                                                  avoid_datatype_check=False,
+                                                  format="fits", dump_to_file=True,
+                                                  overwrite_output_file=True,
+                                                  verbose=False)
+
+    if isinstance(result, tuple):
+        result_dict, file_path = result
+        assert isinstance(result_dict, dict)
+        assert file_path is not None
+    else:
+        result_dict = result
+        assert isinstance(result_dict, dict)
 
     direc = os.getcwd()
     files = os.listdir(direc)
@@ -1061,6 +1129,8 @@ def test_datalink_querier_load_data_fits(mock_datalink_querier_fits):
              Path(direc, f).is_file() and f.endswith(".zip") and f.startswith('datalink_output')]
 
     assert len(files) == 1
+    assert os.path.join(direc, files[0]) == file_path
+
     datalink_output = files[0]
 
     extracted_files = []
@@ -1155,14 +1225,8 @@ def test_load_data_fits(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
 
-    GAIA_QUERIER.load_data(
-        valid_data=True,
-        ids="1,2,3,4",
-        format='fits',
-        retrieval_type="epoch_photometry",
-        verbose=True,
-        dump_to_file=True,
-        overwrite_output_file=True)
+    GAIA_QUERIER.load_data(valid_data=True, ids="1,2,3,4", format='fits', retrieval_type="epoch_photometry",
+                           verbose=True, dump_to_file=True, overwrite_output_file=True)
 
     path.unlink()
 
@@ -1193,14 +1257,8 @@ def test_load_data_csv(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_n
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
 
-    GAIA_QUERIER.load_data(
-        valid_data=True,
-        ids="1,2,3,4",
-        format='csv',
-        retrieval_type="epoch_photometry",
-        verbose=True,
-        dump_to_file=True,
-        overwrite_output_file=True)
+    GAIA_QUERIER.load_data(valid_data=True, ids="1,2,3,4", format='csv', retrieval_type="epoch_photometry",
+                           verbose=True, dump_to_file=True, overwrite_output_file=True)
 
     path.unlink()
 
@@ -1231,14 +1289,8 @@ def test_load_data_ecsv(monkeypatch, tmp_path, tmp_path_factory, patch_datetime_
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
 
-    GAIA_QUERIER.load_data(
-        valid_data=True,
-        ids="1,2,3,4",
-        format='ecsv',
-        retrieval_type="epoch_photometry",
-        verbose=True,
-        dump_to_file=True,
-        overwrite_output_file=True)
+    GAIA_QUERIER.load_data(valid_data=True, ids="1,2,3,4", format='ecsv', retrieval_type="epoch_photometry",
+                           verbose=True, dump_to_file=True, overwrite_output_file=True)
 
     path.unlink()
 
@@ -1269,14 +1321,8 @@ def test_load_data_linking_parameter(monkeypatch, tmp_path, patch_datetime_now):
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
 
-    GAIA_QUERIER.load_data(
-        ids="1,2,3,4",
-        retrieval_type="epoch_photometry",
-        linking_parameter="SOURCE_ID",
-        valid_data=True,
-        verbose=True,
-        dump_to_file=True,
-        overwrite_output_file=True)
+    GAIA_QUERIER.load_data(ids="1,2,3,4", retrieval_type="epoch_photometry", linking_parameter="SOURCE_ID",
+                           valid_data=True, verbose=True, dump_to_file=True, overwrite_output_file=True)
 
     path.unlink()
 
@@ -1318,14 +1364,8 @@ def test_load_data_linking_parameter_with_values(monkeypatch, tmp_path, linking_
 
     monkeypatch.setattr(TapPlus, "load_data", load_data_monkeypatched)
 
-    GAIA_QUERIER.load_data(
-        ids="1,2,3,4",
-        retrieval_type="epoch_photometry",
-        linking_parameter=linking_param,
-        valid_data=True,
-        verbose=True,
-        dump_to_file=True,
-        overwrite_output_file=True)
+    GAIA_QUERIER.load_data(ids="1,2,3,4", retrieval_type="epoch_photometry", linking_parameter=linking_param,
+                           valid_data=True, verbose=True, dump_to_file=True, overwrite_output_file=True)
 
     path.unlink()
 
