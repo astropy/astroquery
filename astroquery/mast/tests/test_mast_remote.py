@@ -1064,7 +1064,7 @@ class TestMast:
         # Initialize with a different collection
         c = Catalogs(collection="gaiadr3")
         assert c.collection == "gaiadr3"
-        assert c.catalog == "dbo.gaia_source"
+        assert c.catalog == "gaiadr3.gaia_source"
 
         # Initialize with a different collection and catalog
         c = Catalogs(collection="ullyses", catalog="publications")
@@ -1336,8 +1336,8 @@ class TestMast:
         assert CatalogCollection._discovered_collections is not None
 
     def test_catalog_collection_get_parent_collection(self):
-        parent = CatalogCollection.get_parent_collection("gaiadr3")
-        assert parent == "gaiadr3"
+        parent = CatalogCollection.get_parent_collection("skymapperdr4")
+        assert parent == "skymapperdr4"
 
         parent = CatalogCollection.get_parent_collection("tic_v82")
         assert parent == "mast_catalogs"
