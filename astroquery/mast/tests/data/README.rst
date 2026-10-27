@@ -82,8 +82,8 @@ To generate `~astroquery.mast.tests.data.tap_catalogs.vot`, use the following:
     >>> import pyvo
     >>> from astropy.io.votable import writeto
     ...
-    >>> tap_service = pyvo.dal.TAPService("https://mast.stsci.edu/vo-tap/api/v0.1/tic")
-    >>> query = 'SELECT table_name, description FROM tap_schema.tables'
+    >>> tap_service = pyvo.dal.TAPService("https://mast.stsci.edu/vo-tap/api/v0.1/mast_catalogs")
+    >>> query = "SELECT table_name, description FROM tap_schema.tables WHERE table_name LIKE 'tic_v82.%'"
     >>> result = tap_service.run_sync(query)
     >>> writeto(result.votable, 'tap_catalogs.vot')  # doctest: +SKIP
 
@@ -94,8 +94,8 @@ To generate `~astroquery.mast.tests.data.tap_columns.vot`, use the following:
     >>> import pyvo
     >>> from astropy.io.votable import writeto
     ...
-    >>> tap_service = pyvo.dal.TAPService("https://mast.stsci.edu/vo-tap/api/v0.1/tic")
-    >>> query = "SELECT column_name, datatype, unit, ucd, description FROM tap_schema.columns WHERE table_name = 'dbo.catalogrecord'"
+    >>> tap_service = pyvo.dal.TAPService("https://mast.stsci.edu/vo-tap/api/v0.1/mast_catalogs")
+    >>> query = "SELECT column_name, datatype, unit, ucd, description FROM tap_schema.columns WHERE table_name = 'tic_v82.source'"
     >>> result = tap_service.run_sync(query)
     >>> writeto(result.votable, 'tap_columns.vot')  # doctest: +SKIP
 
@@ -106,7 +106,7 @@ To generate `~astroquery.mast.tests.data.tap_capabilities.xml`, use the followin
     >>> import requests
     >>> import pyvo
     ...
-    >>> tap_service = pyvo.dal.TAPService("https://mast.stsci.edu/vo-tap/api/v0.1/tic")
+    >>> tap_service = pyvo.dal.TAPService("https://mast.stsci.edu/vo-tap/api/v0.1/mast_catalogs")
     >>> caps_url = tap_service.baseurl.rstrip("/") + "/capabilities"
     >>> resp = requests.get(caps_url)
     >>> resp.raise_for_status()
@@ -121,7 +121,7 @@ To generate `~astroquery.mast.tests.data.tap_results.vot`, use the following:
     >>> import pyvo
     >>> from astropy.io.votable import writeto
     ...
-    >>> tap_service = pyvo.dal.TAPService("https://mast.stsci.edu/vo-tap/api/v0.1/tic")
-    >>> query = "SELECT TOP 10 * FROM dbo.catalogrecord WHERE CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', 23.34086, 60.658, 0.002)) = 1"
+    >>> tap_service = pyvo.dal.TAPService("https://mast.stsci.edu/vo-tap/api/v0.1/mast_catalogs")
+    >>> query = "SELECT TOP 10 * FROM tic_v82.source WHERE CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', 23.34086, 60.658, 0.002)) = 1"
     >>> result = tap_service.run_sync(query)
     >>> writeto(result.votable, 'tap_results.vot')  # doctest: +SKIP

@@ -100,6 +100,7 @@ DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'panstarrs': 'panstarrs.json',
               'panstarrs_columns': 'panstarrs_columns.json',
               'tap_collections': 'tap_collections.json',  # Collections available
+              'tap_mast_catalogs': 'tap_mast_catalogs.vot',  # Catalogs under the mast_catalogs endpoint
               'tap_catalogs': 'tap_catalogs.vot',  # Catalogs for TIC
               'tap_columns': 'tap_columns.vot',  # Column metadata
               'tap_capabilities': 'tap_capabilities.xml',  # TAP service capabilities
@@ -319,6 +320,8 @@ def zcut_download_mockreturn(url, file_path):
 def vo_tap_mock():
     """Helper function to create a mock TAPService with predefined responses based on the input query."""
     def run_sync_mock(query, **kwargs):
+        print(query)
+        print(kwargs)
         """Mock function to simulate TAPService run_sync and run_async methods."""
         if 'invalid' in query:
             # Use this when wanting to simulate a DALQueryError
@@ -331,6 +334,9 @@ def vo_tap_mock():
             # Simulate a query that returns a count
             votable = from_table(Table({'count_all': [42]}))  # Example count value, can be adjusted as needed for tests
             return TAPResults(votable)
+        elif 'SELECT TOP 5000 table_name FROM tap_schema.tables' in query:
+            # Queries to get catalogs under the mast_catalogs endpoint
+            filename = data_path(DATA_FILES['tap_mast_catalogs'])
         elif 'tap_schema.tables' in query:
             # Queries to get catalogs
             filename = data_path(DATA_FILES['tap_catalogs'])
@@ -1916,7 +1922,7 @@ def test_observations_disable_cloud_dataset(patch_boto3):
 
 def test_catalogs_attributes(patch_tap):
     Catalogs.query_criteria(
-        collection="tic",
+        collection="tic_v82",
         region="Circle ICRS 202.4656816 +47.1999842 0.04",
         radius=0.002 * u.deg,
         offset=1,
@@ -1928,20 +1934,20 @@ def test_catalogs_attributes(patch_tap):
 
 
 def test_catalogs_get_catalogs(patch_tap):
-    catalogs = Catalogs.get_catalogs("tic")
+    catalogs = Catalogs.get_catalogs("tic_v82")
     assert isinstance(catalogs, Table)
     assert not any(catalog.startswith("tap_schema") for catalog in catalogs["catalog_name"])
 
 
 def test_catalogs_get_column_metadata(patch_tap):
-    metadata = Catalogs.get_column_metadata(collection="tic")
+    metadata = Catalogs.get_column_metadata(collection="tic_v82")
     assert isinstance(metadata, Table)
 
 
 def test_catalogs_query_criteria(patch_tap):
     # Coordinates
     result = Catalogs.query_criteria(
-        collection="tic",
+        collection="tic_v82",
         coordinates=regionCoords,
         radius=0.002 * u.deg,
         limit=2,
@@ -1951,7 +1957,7 @@ def test_catalogs_query_criteria(patch_tap):
     assert len(result) > 0
     assert "dec" in result.colnames
     query = get_patch_tap_query(patch_tap)
-    assert "FROM dbo.catalogrecord" in query
+    assert "FROM tic_v82.source" in query
     assert "CONTAINS" in query
     assert "CIRCLE" in query
     assert "TOP 2" in query
@@ -1961,7 +1967,7 @@ def test_catalogs_query_criteria(patch_tap):
 
     # Region query
     result = Catalogs.query_criteria(
-        collection="tic",
+        collection="tic_v82",
         region="Circle ICRS 202.4656816 +47.1999842 0.04",
         radius=0.002 * u.deg,
         offset=1,
@@ -1972,7 +1978,7 @@ def test_catalogs_query_criteria(patch_tap):
     assert len(result) > 0
     assert "dec" in result.colnames
     query = get_patch_tap_query(patch_tap)
-    assert "FROM dbo.catalogrecord" in query
+    assert "FROM tic_v82.source" in query
     assert "CONTAINS" in query
     assert "CIRCLE" in query
     assert "OFFSET" in query
@@ -1980,21 +1986,21 @@ def test_catalogs_query_criteria(patch_tap):
 
     # Non-positional query
     result = Catalogs.query_criteria(
-        collection="tic",
+        collection="tic_v82",
         filters={"pmra": [">-10", "<10"]},
     )
     assert isinstance(result, Table)
     assert len(result) > 0
     assert "dec" in result.colnames
     query = get_patch_tap_query(patch_tap)
-    assert "FROM dbo.catalogrecord" in query
+    assert "FROM tic_v82.source" in query
     assert "WHERE" in query
     assert "pmra > -10" in query
     assert "pmra < 10" in query
 
     # Run with async
     result = Catalogs.query_criteria(
-        collection="tic",
+        collection="tic_v82",
         coordinates=regionCoords,
         radius=0.002 * u.deg,
         run_async=True
@@ -2002,11 +2008,11 @@ def test_catalogs_query_criteria(patch_tap):
     assert isinstance(result, Table)
     assert len(result) > 0
     query = get_patch_tap_query(patch_tap, run_async=True)
-    assert "FROM dbo.catalogrecord" in query
+    assert "FROM tic_v82.source" in query
 
     # Count only query
     result = Catalogs.query_criteria(
-        collection="tic",
+        collection="tic_v82",
         coordinates=regionCoords,
         radius=0.002 * u.deg,
         count_only=True
@@ -2017,20 +2023,20 @@ def test_catalogs_query_criteria(patch_tap):
 
     # Only return ADQL
     result = Catalogs.query_criteria(
-        collection="tic",
+        collection="tic_v82",
         coordinates=regionCoords,
         radius=0.002 * u.deg,
         return_adql=True
     )
     assert isinstance(result, str)
-    assert "FROM dbo.catalogrecord" in result
+    assert "FROM tic_v82.source" in result
 
 
 def test_catalogs_invalid_query_criteria(patch_tap):
     # Specifying both region and coordinates
     with pytest.raises(InvalidQueryError, match="Specify either `region` or `coordinates`"):
         Catalogs.query_criteria(
-            collection="tic",
+            collection="tic_v82",
             coordinates=regionCoords,
             region="Circle ICRS 202.4656816 +47.1999842 0.04"
         )
@@ -2038,7 +2044,7 @@ def test_catalogs_invalid_query_criteria(patch_tap):
     # Specifying both region and object_name
     with pytest.raises(InvalidQueryError, match="Specify either `region` or `object_name`"):
         Catalogs.query_criteria(
-            collection="tic",
+            collection="tic_v82",
             object_name="M31",
             region="Circle ICRS 202.4656816 +47.1999842 0.04"
         )
@@ -2046,7 +2052,7 @@ def test_catalogs_invalid_query_criteria(patch_tap):
     # Named parameters and filters dict specifying criteria
     with pytest.raises(InvalidQueryError, match="Criteria specified both"):
         Catalogs.query_criteria(
-            collection="tic",
+            collection="tic_v82",
             object_name="M31",
             file_suffix=['A', 'B', '!C'],
             filters={"file_suffix": ['A', 'B', '!C']}
@@ -2055,7 +2061,7 @@ def test_catalogs_invalid_query_criteria(patch_tap):
     # sort_by cols and sort_desc different lengths
     with pytest.raises(InvalidQueryError, match="must be 1 or equal to length of 'sort_by'"):
         Catalogs.query_criteria(
-            collection="tic",
+            collection="tic_v82",
             coordinates=regionCoords,
             sort_by=["ra", "dec"],
             sort_desc=[True, False, True]
@@ -2064,7 +2070,7 @@ def test_catalogs_invalid_query_criteria(patch_tap):
     # Invalid sort col
     with pytest.raises(InvalidQueryError, match="Filter 'fake' is not recognized"):
         Catalogs.query_criteria(
-            collection="tic",
+            collection="tic_v82",
             coordinates=regionCoords,
             sort_by="fake",
         )
@@ -2072,7 +2078,7 @@ def test_catalogs_invalid_query_criteria(patch_tap):
     # Invalid filter
     with pytest.raises(InvalidQueryError, match="Filter 'fake' is not recognized"):
         Catalogs.query_criteria(
-            collection="tic",
+            collection="tic_v82",
             fake=1
         )
 
@@ -2086,7 +2092,7 @@ def test_catalogs_invalid_query_criteria(patch_tap):
     # Warn if result table is empty
     with pytest.warns(NoResultsWarning, match="The query returned no results."):
         Catalogs.query_criteria(
-            collection="tic",
+            collection="tic_v82",
             objtype="empty"
         )
 
@@ -2096,14 +2102,14 @@ def test_catalogs_query_region(patch_tap):
     result = Catalogs.query_region(
         regionCoords,
         radius=0.002 * u.deg,
-        collection="tic"
+        collection="tic_v82"
     )
 
     assert isinstance(result, Table)
     assert len(result) > 0
     assert "ra" in result.colnames
     query = get_patch_tap_query(patch_tap)
-    assert "FROM dbo.catalogrecord" in query
+    assert "FROM tic_v82.source" in query
     assert "CONTAINS" in query
     assert "CIRCLE" in query
     assert "POINT" in query
@@ -2113,14 +2119,14 @@ def test_catalogs_invalid_query_region():
     # Query without region or coordinates
     with pytest.raises(InvalidQueryError, match="Must specify either `region` or `coordinates`"):
         Catalogs.query_region(
-            collection="tic",
+            collection="tic_v82",
         )
 
     # Query with unsupported region type
     with pytest.raises(InvalidQueryError, match="does not support ADQL region type 'POLYGON'"):
         Catalogs.query_region(
             region="Polygon ICRS 202.4656816 +47.1999842 202.5656816 +47.2999842 202.3656816 +47.0999842",
-            collection="tic"
+            collection="tic_v82"
         )
 
 
@@ -2130,14 +2136,14 @@ def test_catalogs_query_object(patch_tap):
     result = Catalogs.query_object(
         "M10",
         radius=radius,
-        collection="TIC"
+        collection="tic_v82"
     )
 
     assert isinstance(result, Table)
     assert len(result) > 0
     assert "ra" in result.colnames
     query = get_patch_tap_query(patch_tap)
-    assert "FROM dbo.catalogrecord" in query
+    assert "FROM tic_v82.source" in query
     assert "CONTAINS" in query
     assert "POINT" in query
     assert str(radius) in query
@@ -2145,23 +2151,23 @@ def test_catalogs_query_object(patch_tap):
 
 def test_catalogs_init_with_catalog(patch_tap):
     catalog = Catalogs(
-        collection="tic",
-        catalog="tap_schema.schemas"
+        collection="tic_v82",
+        catalog="tic_v82.source"
     )
-    assert catalog.catalog == "tap_schema.schemas"
+    assert catalog.catalog == "tic_v82.source"
 
 
 def test_catalogs_setting_catalog(patch_tap):
     catalog = Catalogs(
-        collection="tic",
-        catalog="tap_schema.schemas"
+        collection="tic_v82",
+        catalog="tic_v82.source"
     )
-    catalog.catalog = "tap_schema.key_columns"
-    assert catalog.catalog == "tap_schema.key_columns"
+    catalog.catalog = "tic_v82.source"
+    assert catalog.catalog == "tic_v82.source"
 
 
 def test_catalogs_get_collections_cached(patch_tap):
-    catalog = Catalogs("tic")
+    catalog = Catalogs("tic_v82")
     collections = catalog.get_collections()
 
     assert isinstance(collections, Table)
@@ -2183,8 +2189,8 @@ def test_catalogs_collection_cache_is_shared(patch_tap):
 def test_catalogs_supports_spatial_queries(patch_tap):
     catalog = Catalogs()
     result = catalog.supports_spatial_queries(
-        collection="tic",
-        catalog="tap_schema.schemas"
+        collection="tic_v82",
+        catalog="tic_v82.source"
     )
 
     assert isinstance(result, bool)
@@ -2192,8 +2198,8 @@ def test_catalogs_supports_spatial_queries(patch_tap):
 
 
 def test_catalogs_verify_collection(patch_tap):
-    valid = Catalogs._verify_collection("tic")
-    assert valid.lower() == "tic"
+    valid = Catalogs._verify_collection("tic_v82")
+    assert valid.lower() == "tic_v82"
 
     # Renamed collection
     renamed = list(Catalogs._renamed_collections.keys())[0]
@@ -2229,14 +2235,14 @@ def test_catalogs_parse_inputs(patch_tap):
         assert catalog == collection_obj.default_catalog
 
     # Use catalog attribute if valid for collection
-    Catalogs.catalog = "dbo.catalogrecord"
-    collection_obj, catalog = Catalogs._parse_inputs(collection="tic")
-    assert collection_obj.name == "tic"
-    assert catalog == "dbo.catalogrecord"
+    Catalogs.catalog = "tic_v82.source"
+    collection_obj, catalog = Catalogs._parse_inputs(collection="tic_v82")
+    assert collection_obj.name == "tic_v82"
+    assert catalog == "tic_v82.source"
 
 
 def test_catalogs_parse_select_cols(patch_tap):
-    catalog = Catalogs("tic")
+    catalog = Catalogs("tic_v82")
     column_metadata = catalog.get_column_metadata()
     result = Catalogs._parse_select_cols(
         ["ra", "dec"],
@@ -2260,7 +2266,7 @@ def test_catalogs_parse_select_cols(patch_tap):
 
 
 def test_catalogs_parse_legacy_pagination(patch_tap):
-    catalog = Catalogs("tic")
+    catalog = Catalogs("tic_v82")
     limit, offset = catalog._parse_legacy_pagination(
         limit=5000,
         offset=0,
@@ -2619,8 +2625,8 @@ def test_catalogs_format_criteria_conditions(patch_tap):
     # Multiple numeric cols and singular criteria
     criteria = {"ra": 5, "dec": 10}
     result = Catalogs._format_criteria_conditions(
-        CatalogCollection("tic"),
-        "dbo.catalogrecord",
+        CatalogCollection("tic_v82"),
+        "tic_v82.source",
         criteria
     )
     assert result == ["ra = 5", "dec = 10"]
@@ -2628,8 +2634,8 @@ def test_catalogs_format_criteria_conditions(patch_tap):
     # Str cols and singular criteria
     criteria = {"obj_type": "STAR"}
     result = Catalogs._format_criteria_conditions(
-        CatalogCollection("tic"),
-        "dbo.catalogrecord",
+        CatalogCollection("tic_v82"),
+        "tic_v82.source",
         criteria
     )
     assert result == ["obj_type = 'STAR'"]
@@ -2637,8 +2643,8 @@ def test_catalogs_format_criteria_conditions(patch_tap):
     # Multiple cols and multiple criteria
     criteria = {"ra": [1, 2, 3], "dec": [">5", "<10"]}
     result = Catalogs._format_criteria_conditions(
-        CatalogCollection("tic"),
-        "dbo.catalogrecord",
+        CatalogCollection("tic_v82"),
+        "tic_v82.source",
         criteria
     )
     assert any("ra IN" in r or "ra >" in r for r in result)
@@ -2647,8 +2653,8 @@ def test_catalogs_format_criteria_conditions(patch_tap):
     # Str cols and multiple criteria
     criteria = {"obj_type": ["STAR", "!GALAXY"]}
     result = Catalogs._format_criteria_conditions(
-        CatalogCollection("tic"),
-        "dbo.catalogrecord",
+        CatalogCollection("tic_v82"),
+        "tic_v82.source",
         criteria
     )
     assert any("NOT" in r for r in result)
@@ -2657,8 +2663,8 @@ def test_catalogs_format_criteria_conditions(patch_tap):
     # Empty criteria
     criteria = {"ra": []}
     result = Catalogs._format_criteria_conditions(
-        CatalogCollection("tic"),
-        "dbo.catalogrecord",
+        CatalogCollection("tic_v82"),
+        "tic_v82.source",
         criteria
     )
     assert result == ["1=0"]
@@ -2669,7 +2675,7 @@ def test_catalogs_invalid_tap_query(patch_tap):
     # when 'invalid' is found in the query string
     with pytest.raises(InvalidQueryError, match="Simulated TAP query error"):
         Catalogs.query_criteria(
-            collection="tic",
+            collection="tic_v82",
             coordinates=regionCoords,
             radius=0.002 * u.deg,
             allwise='invalid'
@@ -2679,7 +2685,7 @@ def test_catalogs_invalid_tap_query(patch_tap):
         Catalogs.query_region(
             regionCoords,
             radius=0.002 * u.deg,
-            collection="tic",
+            collection="tic_v82",
             allwise='invalid'
         )
 
@@ -2687,14 +2693,14 @@ def test_catalogs_invalid_tap_query(patch_tap):
         Catalogs.query_object(
             "M10",
             radius=.001,
-            collection="TIC",
+            collection="tic_v82",
             allwise='invalid'
         )
 
     # Simulate a timeout
-    with pytest.raises(RuntimeError, match="TAP query timed out for collection 'tic'"):
+    with pytest.raises(RuntimeError, match="TAP query timed out for collection 'tic_v82'"):
         Catalogs.query_criteria(
-            collection="tic",
+            collection="tic_v82",
             coordinates=regionCoords,
             radius=0.002 * u.deg,
             allwise='timeout'
@@ -2706,7 +2712,7 @@ def test_catalogs_invalid_spatial_query(patch_tap):
     patch_tap.search = MagicMock(side_effect=DALQueryError("spatial failed"))
     with pytest.raises(InvalidQueryError, match="does not support spatial queries"):
         Catalogs.query_criteria(
-            collection="tic",
+            collection="tic_v82",
             coordinates=regionCoords,
             radius=0.002 * u.deg,
         )
@@ -2774,8 +2780,8 @@ def test_catalog_collection_discover_collections(patch_tap):
 
 
 def test_catalog_collection_get_parent_collection(patch_tap):
-    parent = CatalogCollection.get_parent_collection("tic")
-    assert parent == "tic"
+    parent = CatalogCollection.get_parent_collection("tic_v82")
+    assert parent == "mast_catalogs"
 
     # Error if collection not a string
     with pytest.raises(InvalidQueryError):
@@ -2787,7 +2793,7 @@ def test_catalog_collection_get_parent_collection(patch_tap):
 
 
 def test_catalog_collection_tap_get_catalog_metadata(patch_tap):
-    cc = CatalogCollection("tic")
+    cc = CatalogCollection("tic_v82")
     default_catalog = cc.get_default_catalog()
     default_metadata = cc.get_catalog_metadata(default_catalog)
     assert isinstance(default_metadata, CatalogMetadata)
@@ -2805,7 +2811,7 @@ def test_catalog_collection_tap_get_catalog_metadata(patch_tap):
 
 
 def test_catalog_collection_get_default_catalog(patch_tap):
-    cc = CatalogCollection("tic")
+    cc = CatalogCollection("tic_v82")
     catalogs = cc._fetch_catalogs()
     default = cc.get_default_catalog()
 
@@ -2815,10 +2821,10 @@ def test_catalog_collection_get_default_catalog(patch_tap):
 
     assert not default.startswith("tap_schema")
     assert default.casefold() in [name.casefold() for name in catalogs["catalog_name"]]
-    assert DEFAULT_CATALOGS["tic"] == default
+    assert DEFAULT_CATALOGS["tic_v82"] == default
 
     # First non-tap_schema
-    cc = CatalogCollection("tic")
+    cc = CatalogCollection("tic_v82")
     cc.name = "fake"
     fake_catalogs = Table({
         "catalog_name": [
@@ -2837,7 +2843,7 @@ def test_catalog_collection_get_default_catalog(patch_tap):
     assert default == "real_catalog"
 
     # All are tap_schema
-    cc = CatalogCollection("tic")
+    cc = CatalogCollection("tic_v82")
     cc.name = "fake"
     fake_catalogs = Table({
         "catalog_name": [
@@ -2855,7 +2861,7 @@ def test_catalog_collection_get_default_catalog(patch_tap):
 
 
 def test_catalog_collection_run_tap_query(patch_tap):
-    cc = CatalogCollection("tic")
+    cc = CatalogCollection("tic_v82")
 
     adql_str = (
         "SELECT TOP 10 solution_id, designation, source_id, ra, dec "
@@ -2872,14 +2878,14 @@ def test_catalog_collection_run_tap_query(patch_tap):
 
 
 def test_catalog_collection_invalid_run_tap_query(patch_tap):
-    cc = CatalogCollection("tic")
-    with pytest.raises(InvalidQueryError, match="TAP query failed for collection 'tic'"):
+    cc = CatalogCollection("tic_v82")
+    with pytest.raises(InvalidQueryError, match="TAP query failed for collection 'tic_v82'"):
         adql_str = "invalid"
         cc.run_tap_query(adql_str)
 
 
 def test_catalog_collection_grouped_fetch_catalogs(patch_tap):
-    name = "dbo"
+    name = "tic_v82"
     cc = CatalogCollection(name)
     _ = cc._fetch_catalogs()
     query = get_patch_tap_query(patch_tap)
@@ -2887,16 +2893,16 @@ def test_catalog_collection_grouped_fetch_catalogs(patch_tap):
 
 
 def test_catalog_collection_verify_catalog(patch_tap):
-    cc = CatalogCollection("tic")
+    cc = CatalogCollection("tic_v82")
     default_catalog = cc.get_default_catalog()
 
     # Valid catalog
     assert isinstance(cc._verify_catalog(default_catalog), str)
-    assert cc._verify_catalog(default_catalog) == 'dbo.catalogrecord'
+    assert cc._verify_catalog(default_catalog) == 'tic_v82.source'
 
 
 def test_catalog_collection_invalid_verify_catalog(patch_tap):
-    cc = CatalogCollection("tic")
+    cc = CatalogCollection("tic_v82")
 
     # Ambiguous
     fake_catalogs = Table({
@@ -2912,12 +2918,12 @@ def test_catalog_collection_invalid_verify_catalog(patch_tap):
         cc._verify_catalog("catalogA")
 
     # Invalid catalog
-    with pytest.raises(InvalidQueryError, match="Catalog 'fake' is not recognized for collection 'tic'"):
+    with pytest.raises(InvalidQueryError, match="Catalog 'fake' is not recognized for collection 'tic_v82'"):
         cc._verify_catalog("fake")
 
 
 def test_catalog_collection_invalid_get_column_metadata(patch_tap):
-    cc = CatalogCollection("tic")
+    cc = CatalogCollection("tic_v82")
 
     empty_result = Table(
         names=["column_name", "datatype", "unit", "ucd", "description"]
@@ -2926,13 +2932,13 @@ def test_catalog_collection_invalid_get_column_metadata(patch_tap):
 
     with pytest.raises(
         InvalidQueryError,
-        match="Catalog 'fake_catalog' not found in collection 'tic'"
+        match="Catalog 'fake_catalog' not found in collection 'tic_v82'"
     ):
         cc._get_column_metadata("fake_catalog")
 
 
 def test_catalog_collection_verify_criteria(patch_tap):
-    cc = CatalogCollection("tic")
+    cc = CatalogCollection("tic_v82")
     default_catalog = cc.get_default_catalog()
 
     # Valid filters
@@ -2942,7 +2948,7 @@ def test_catalog_collection_verify_criteria(patch_tap):
 
 
 def test_catalog_collection_invalid_verify_criteria(patch_tap):
-    cc = CatalogCollection("tic")
+    cc = CatalogCollection("tic_v82")
     default_catalog = cc.get_default_catalog()
 
     close_match_col = "gaiagaiabp"
@@ -2957,7 +2963,7 @@ def test_catalog_collection_invalid_verify_criteria(patch_tap):
 
 
 def test_catalog_collection_invalid_spatial_query(patch_tap):
-    cc = CatalogCollection("tic")
+    cc = CatalogCollection("tic_v82")
 
     # Force only spatial query to fail
     patch_tap.search = MagicMock(side_effect=DALQueryError("spatial failed"))
