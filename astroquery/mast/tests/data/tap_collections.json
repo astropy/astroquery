@@ -1583,11 +1583,17 @@
                         "default": ""
                     },
                     "MAXREC": {
-                        "type": "integer",
-                        "minimum": 0.0,
+                        "anyOf": [
+                            {
+                                "type": "integer",
+                                "minimum": 0.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Maxrec",
-                        "description": "Maximum number of records to be returned (max 100k)",
-                        "default": 100000
+                        "description": "Maximum number of records to be returned. Server default applied if omitted."
                     },
                     "RUNID": {
                         "anyOf": [
@@ -1607,9 +1613,6 @@
                         "anyOf": [
                             {
                                 "type": "string",
-                                "enum": [
-                                    "RUN"
-                                ],
                                 "const": "RUN"
                             },
                             {
@@ -1840,7 +1843,6 @@
                     "ps1dr1",
                     "ps1dr2",
                     "registry",
-                    "roman_catalogs",
                     "skymapperdr4",
                     "tic",
                     "ullyses",

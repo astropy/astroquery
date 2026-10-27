@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Produced with astropy.io.votable version 7.2.dev575+gbdbad6e82
+<!-- Produced with astropy.io.votable version 7.2.0
      http://www.astropy.org/ -->
 <VOTABLE version="1.4" xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/VOTable-1.4.xsd">
  <RESOURCE type="results">
   <INFO ID="QUERY_STATUS" name="QUERY_STATUS" value="OK"/>
-  <INFO ID="QUERY" name="QUERY" value="SELECT table_name, description FROM tap_schema.tables"/>
-  <TABLE nrows="6">
+  <INFO ID="QUERY" name="QUERY" value="SELECT table_name, description FROM tap_schema.tables WHERE table_name LIKE &apos;tic_v82.%&apos;"/>
+  <INFO ID="QUERY_STATUS" name="QUERY_STATUS" value="OVERFLOW"/>
+  <TABLE nrows="1">
    <FIELD ID="table_name" arraysize="*" datatype="char" name="table_name">
     <DESCRIPTION>
      Fully qualified table name
@@ -19,28 +20,8 @@
    <DATA>
     <TABLEDATA>
      <TR>
-      <TD>tap_schema.schemas</TD>
-      <TD>description of schemas in this dataset</TD>
-     </TR>
-     <TR>
-      <TD>tap_schema.tables</TD>
-      <TD>description of tables in this dataset</TD>
-     </TR>
-     <TR>
-      <TD>tap_schema.columns</TD>
-      <TD>description of columns in this dataset</TD>
-     </TR>
-     <TR>
-      <TD>tap_schema.keys</TD>
-      <TD>description of foreign keys in this dataset</TD>
-     </TR>
-     <TR>
-      <TD>tap_schema.key_columns</TD>
-      <TD>description of foreign key columns in this dataset</TD>
-     </TR>
-     <TR>
-      <TD>dbo.catalogrecord</TD>
-      <TD>Main Catalog Record</TD>
+      <TD>tic_v82.source</TD>
+      <TD>Main catalog record of the TESS Input Catalog (TIC) version 8.2</TD>
      </TR>
     </TABLEDATA>
    </DATA>
