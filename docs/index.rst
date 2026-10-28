@@ -316,7 +316,6 @@ These others are functional, but do not follow a common & consistent API:
   jplsbdb/jplsbdb.rst
   lamda/lamda.rst
   ipac/nexsci/nasa_exoplanet_archive.rst
-  oac/oac.rst
   ogle/ogle.rst
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
   sdss/sdss.rst

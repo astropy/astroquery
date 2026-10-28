@@ -714,14 +714,13 @@ class ZcutClass(MastQueryWithLogin):
         coordinates : str or `astropy.coordinates` object
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
-        size : int, array-like, `~astropy.units.Quantity`
+        size : int, float, array-like, `~astropy.units.Quantity`
             Optional, default 5 pixels.
             The size of the cutout array. If ``size`` is a scalar number or
             a scalar `~astropy.units.Quantity`, then a square cutout of ``size``
             will be created.  If ``size`` has two elements, they should be in
-            ``(ny, nx)`` order.  Scalar numbers in ``size`` are assumed to be in
-            units of pixels. `~astropy.units.Quantity` objects must be in pixel or
-            angular units.
+            ``(ny, nx)`` order. Pixel sizes must be whole numbers; `~astropy.units.Quantity`
+            objects may also use angular units.
         survey : str
             Optional
             The survey to restrict the cutout. The survey parameter will restrict to
@@ -756,6 +755,11 @@ class ZcutClass(MastQueryWithLogin):
         # Get Skycoord object for coordinates/object
         coordinates = parse_input_location(coordinates=coordinates)
         size_dict = _parse_cutout_size(size)
+        if size_dict["units"] == "px":
+            if any(value % 1 for value in (size_dict["x"], size_dict["y"])):
+                raise InvalidQueryError("Zcut pixel cutout sizes must be whole numbers.")
+            size_dict["x"] = int(size_dict["x"])
+            size_dict["y"] = int(size_dict["y"])
 
         path = os.path.join(path, '')
         astrocut_request = "ra={}&dec={}&y={}&x={}&units={}".format(coordinates.ra.deg,
@@ -812,14 +816,13 @@ class ZcutClass(MastQueryWithLogin):
         coordinates : str or `astropy.coordinates` object
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object.
-        size : int, array-like, `~astropy.units.Quantity`
+        size : int, float, array-like, `~astropy.units.Quantity`
             Optional, default 5 pixels.
             The size of the cutout array. If ``size`` is a scalar number or
             a scalar `~astropy.units.Quantity`, then a square cutout of ``size``
             will be created.  If ``size`` has two elements, they should be in
-            ``(ny, nx)`` order.  Scalar numbers in ``size`` are assumed to be in
-            units of pixels. `~astropy.units.Quantity` objects must be in pixel or
-            angular units.
+            ``(ny, nx)`` order. Pixel sizes must be whole numbers; `~astropy.units.Quantity`
+            objects may also use angular units.
         survey : str
             Optional
             The survey to restrict the cutout. The survey parameter will restrict to
@@ -828,13 +831,18 @@ class ZcutClass(MastQueryWithLogin):
         Returns
         -------
         response : A list of `~astropy.io.fits.HDUList` objects.
-            Cutoutfiles for given coordinates
+            Cutout files for given coordinates
         """
 
         # Get Skycoord object for coordinates/object
         coordinates = parse_input_location(coordinates=coordinates)
 
         param_dict = _parse_cutout_size(size)
+        if param_dict["units"] == "px":
+            if any(value % 1 for value in (param_dict["x"], param_dict["y"])):
+                raise InvalidQueryError("Zcut pixel cutout sizes must be whole numbers.")
+            param_dict["x"] = int(param_dict["x"])
+            param_dict["y"] = int(param_dict["y"])
         param_dict["ra"] = coordinates.ra.deg
         param_dict["dec"] = coordinates.dec.deg
 
