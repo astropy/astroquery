@@ -3,7 +3,7 @@
 import pytest
 
 from astroquery.cddis import CDDIS, CDDISClass
-from astroquery.exceptions import LoginError
+from astroquery.exceptions import LoginError, RemoteServiceError
 from astroquery.query import AstroQuery
 from astroquery.utils.mocks import MockResponse
 
@@ -85,6 +85,50 @@ def test_archive_url_rejects_unsafe_paths(path):
         CDDISClass()._archive_url(path)
 
 
+@pytest.mark.parametrize('path', [None, 42])
+def test_archive_url_requires_string_path(path):
+    with pytest.raises(TypeError, match='must be a string'):
+        CDDISClass()._archive_url(path)
+
+
+@pytest.mark.parametrize('path', ['', 'file/'])
+def test_archive_url_rejects_empty_or_trailing_file_path(path):
+    with pytest.raises(ValueError):
+        CDDISClass()._archive_url(path)
+
+
+def test_check_response_rejects_unauthorized_access():
+    response = MockResponse(
+        url='https://cddis.nasa.gov/archive/gnss/products/',
+        status_code=403)
+
+    with pytest.raises(LoginError, match='access was denied'):
+        CDDISClass._check_response(response)
+
+
+def test_query_files_rejects_response_without_links():
+    response = MockResponse(
+        content=b'<html></html>',
+        url='https://cddis.nasa.gov/archive/gnss/products/')
+
+    with pytest.raises(RemoteServiceError, match='directory listing'):
+        CDDISClass()._parse_result(response)
+
+
+def test_query_files_skips_external_and_invalid_links():
+    response = MockResponse(
+        content=(
+            b'<html><a href="valid.dat">valid.dat</a>'
+            b'<a href="https://example.com/file">external</a>'
+            b'<a href="invalid%path">invalid</a></html>'
+        ),
+        url='https://cddis.nasa.gov/archive/gnss/products')
+
+    result = CDDISClass()._parse_result(response)
+
+    assert result['path'].tolist() == ['products/valid.dat']
+
+
 def test_query_files_requires_earthdata_login(monkeypatch, tmp_path):
     response = MockResponse(
         content=b'Login required',
@@ -133,3 +177,21 @@ def test_download_file_accepts_cached_file_path(monkeypatch, tmp_path):
     result = CDDIS.download_file('data/daily/file.dat', savedir=str(tmp_path))
 
     assert result == filepath
+
+
+@pytest.mark.parametrize('already_exists', [False, True])
+def test_download_file_cleans_up_new_file_on_login_error(
+        monkeypatch, tmp_path, already_exists):
+    filepath = tmp_path / 'file.dat'
+    if already_exists:
+        filepath.write_bytes(b'existing data')
+    response = MockResponse(
+        content=b'Login required',
+        url='https://urs.earthdata.nasa.gov/oauth/authorize')
+    monkeypatch.setattr(
+        CDDIS, '_request', lambda *args, **kwargs: (str(filepath), response))
+
+    with pytest.raises(LoginError):
+        CDDIS.download_file('data/file.dat', savedir=str(tmp_path))
+
+    assert filepath.exists() is already_exists
