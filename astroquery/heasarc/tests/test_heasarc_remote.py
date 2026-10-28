@@ -180,9 +180,19 @@ class TestHeasarc:
             )
 
     def test_locate_data__xmmmaster(self):
-        links = Heasarc.locate_data(
-            Table({"__row": [4154, 4155]}), catalog_name="xmmmaster"
+        # Select two currently archived observations that are known 
+        # to have data products at the HEASARC.
+        query = """
+        SELECT TOP 2 __row, obsid, name, status, data_in_heasarc
+        FROM xmmmaster
+        WHERE status = 'archived' AND data_in_heasarc = 'Y'
+        ORDER __row
+        """
+        tab = Heasarc.query_tap(query).to_table()
+        assert len(tab) == 2, (
+            "Could not find two archived xmmmaster observations with data"
         )
+        links = Heasarc.locate_data(tab, catalog_name="xmmmaster")
         assert len(links) == 2
         assert "access_url" in links.colnames
         assert "sciserver" in links.colnames
