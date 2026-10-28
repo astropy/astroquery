@@ -390,18 +390,18 @@ You can also request cutouts in image formats such as jpg by setting the ``cutou
    Downloading URL https://mast.stsci.edu/zcut/api/v0.1/astrocut?ra=189.49206&dec=62.20615&y=200&x=300&units=px&format=jpg to ./zcut_20201202132453.zip ... [Done]
    ...
    >>> print(manifest)
-                                                  Local Path
-   -------------------------------------------------------------------------------------------------------
-      ./hlsp_3dhst_spitzer_irac_goods-n_irac1_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut_0.jpg
-   ./hlsp_3dhst_spitzer_irac_goods-n-s2_irac3_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut_0.jpg
-   ./hlsp_3dhst_spitzer_irac_goods-n-s1_irac4_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut_0.jpg
-      ./hlsp_3dhst_spitzer_irac_goods-n_irac2_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut_0.jpg
-         ./hlsp_3dhst_mayall_mosaic_goods-n_u_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut_0.jpg
-    ./hlsp_3dhst_subaru_suprimecam_goods-n_rc_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut_0.jpg
-     ./hlsp_3dhst_subaru_suprimecam_goods-n_v_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut_0.jpg
-    ./hlsp_3dhst_subaru_suprimecam_goods-n_ic_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut_0.jpg
-    ./hlsp_3dhst_subaru_suprimecam_goods-n_zp_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut_0.jpg
-     ./hlsp_3dhst_subaru_suprimecam_goods-n_b_v4.0_sc_189.492060_62.206150_10.0pix-x-5.0pix_astrocut_0.jpg
+                                                   Local Path
+   ----------------------------------------------------------------------------------------------------------
+      ./hlsp_3dhst_spitzer_irac_goods-n_irac1_v4.0_sci_189.4920600_62.2061500_10.0pix-x-5.0pix_astrocut_0.jpg
+   ./hlsp_3dhst_spitzer_irac_goods-n-s2_irac3_v4.0_sci_189.4920600_62.2061500_10.0pix-x-5.0pix_astrocut_1.jpg
+   ./hlsp_3dhst_spitzer_irac_goods-n-s1_irac4_v4.0_sci_189.4920600_62.2061500_10.0pix-x-5.0pix_astrocut_2.jpg
+      ./hlsp_3dhst_spitzer_irac_goods-n_irac2_v4.0_sci_189.4920600_62.2061500_10.0pix-x-5.0pix_astrocut_3.jpg
+         ./hlsp_3dhst_mayall_mosaic_goods-n_u_v4.0_sci_189.4920600_62.2061500_10.0pix-x-5.0pix_astrocut_4.jpg
+    ./hlsp_3dhst_subaru_suprimecam_goods-n_rc_v4.0_sci_189.4920600_62.2061500_10.0pix-x-5.0pix_astrocut_5.jpg
+     ./hlsp_3dhst_subaru_suprimecam_goods-n_v_v4.0_sci_189.4920600_62.2061500_10.0pix-x-5.0pix_astrocut_6.jpg
+    ./hlsp_3dhst_subaru_suprimecam_goods-n_ic_v4.0_sci_189.4920600_62.2061500_10.0pix-x-5.0pix_astrocut_7.jpg
+    ./hlsp_3dhst_subaru_suprimecam_goods-n_zp_v4.0_sci_189.4920600_62.2061500_10.0pix-x-5.0pix_astrocut_8.jpg
+     ./hlsp_3dhst_subaru_suprimecam_goods-n_b_v4.0_sci_189.4920600_62.2061500_10.0pix-x-5.0pix_astrocut_9.jpg
 
 
 HAPCut
