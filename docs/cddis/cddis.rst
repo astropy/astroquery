@@ -38,10 +38,10 @@ Browsing the archive
 Archive paths are relative to the GNSS archive root. For example, a daily
 observation directory can be listed as follows:
 
-.. code-block:: python
+.. doctest-remote-data::
 
     >>> from astroquery.cddis import CDDIS
-    >>> files = CDDIS.query_files('data/daily/2025/001/25d')  # doctest: +REMOTE_DATA
+    >>> files = CDDIS.query_files('data/daily/2025/001/25d')
     >>> files['name', 'path', 'is_directory']
 
 The CDDIS directory layout contains multiple GNSS product types. Consult the
@@ -55,13 +55,15 @@ Downloading a file
 
 Pass a listed archive path to ``download_file`` to save that product locally:
 
-.. code-block:: python
+.. doctest-remote-data::
 
+    >>> from astroquery.cddis import CDDIS
+    >>> files = CDDIS.query_files('data/daily/2025/001/25d')
     >>> file_paths = files[~files['is_directory']]['path']
     >>> if len(file_paths) == 0:
     ...     raise RuntimeError(
     ...         'No files in this directory; choose a populated archive date.')
-    >>> path = CDDIS.download_file(file_paths[0])  # doctest: +REMOTE_DATA
+    >>> path = CDDIS.download_file(file_paths[0])
 
 The method returns the local path. Files are saved to Astroquery's CDDIS cache
 directory by default; pass ``savedir`` to select another directory.
