@@ -180,7 +180,7 @@ class TestHeasarc:
             )
 
     def test_locate_data__xmmmaster(self):
-        # Select two currently archived observations that are known 
+        # Select two currently archived observations that are known
         # to have data products at the HEASARC.
         query = """
         SELECT TOP 2 __row, obsid, name, status, data_in_heasarc
