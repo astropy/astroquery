@@ -151,10 +151,12 @@ class CasdaClass(QueryWithLogin):
                 bottom = fk5_coords.dec.degree - (height/2)
                 left = fk5_coords.ra.degree - (width/2)
                 right = fk5_coords.ra.degree + (width/2)
-                pos = f'RANGE {left} {right} {bottom} {top}'
+                # fixed-point: the service rejects exponent notation such as 4.7e-06,
+                # which plain float formatting gives for positions near 0
+                pos = f'RANGE {left:.10f} {right:.10f} {bottom:.10f} {top:.10f}'
             else:
                 radius = u.Quantity(radius).to(u.deg)
-                pos = f'CIRCLE {fk5_coords.ra.degree} {fk5_coords.dec.degree} {radius.value}'
+                pos = f'CIRCLE {fk5_coords.ra.degree:.10f} {fk5_coords.dec.degree:.10f} {radius.value:.10f}'
 
             request_payload['POS'] = pos
 
@@ -222,7 +224,7 @@ class CasdaClass(QueryWithLogin):
         except ValueError as e:
             # catch common errors here, but never use bare excepts
             # return raw result/ handle in some way
-            log.info("Failed to convert query result to table", e)
+            log.info(f"Failed to convert query result to table: {e}")
             return response
 
     def filter_out_unreleased(self, table):

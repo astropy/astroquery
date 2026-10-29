@@ -200,6 +200,10 @@ casda
   download URLs remain valid. Previously the URLs were unquoted, which corrupted
   pre-signed URLs and could raise errors when parsed by ``urllib``. [#3636]
 
+- Fix ``query_region`` failing for positions with a declination (or right
+  ascension) close to zero, where the coordinates were sent in exponent
+  notation that the service rejects. [#3376]
+
 
 mast
 ^^^^

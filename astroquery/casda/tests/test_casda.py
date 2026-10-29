@@ -258,6 +258,17 @@ def test_query_region_box(patch_get):
     assert len(responses) == 2
 
 
+@pytest.mark.parametrize('dec', [0, 1e-5, -1e-5])
+def test_query_region_near_zero_dec(dec):
+    # the service rejects exponent notation such as 4.7e-06 in POS
+    centre = SkyCoord(333.9092, dec, unit=('deg', 'deg'))
+    circle = Casda.query_region(centre, radius=0.5 * u.deg, get_query_payload=True)['POS']
+    box = Casda.query_region(centre, width=0.5 * u.deg, height=1e-6 * u.deg, get_query_payload=True)['POS']
+    for pos in (circle, box):
+        assert all('e' not in num.lower() for num in pos.split()[1:]), pos
+    assert isclose(float(circle.split()[2]), centre.transform_to('fk5').dec.deg, abs_tol=1e-9)
+
+
 def test_query_region_async_box(patch_get):
     ra = 333.9092
     dec = -45.8418
