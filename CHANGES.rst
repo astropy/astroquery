@@ -111,6 +111,7 @@ mast
 - The ``objectname`` parameter in ``Catalogs``, ``Observations``, ``Tesscut``, and ``utils`` is deprecated
   in favor of ``object_name``. [#3567]
 - Gaia cone search now defaults to DR3. Previously, DR3 was not supported and the default was DR2. [#3622]
+- Adding in function to read FITS and ASDF data products to memory from STScI's S3 open data bucket using ``Observations.read_product()`` function. [#3610]
 
 vo_conesearch
 ^^^^^^^^^^^^^
