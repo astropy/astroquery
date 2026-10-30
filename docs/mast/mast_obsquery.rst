@@ -629,3 +629,47 @@ remain fully cloud-based.
    COMPLETE
    COMPLETE
    COMPLETE
+
+Streaming Data Products from S3 to memory
+-----------------------------------------
+If instead of downloading you would like to load an S3 URI directly to memory, you can use the `~astroquery.mast.ObservationsClass.read_product` method. 
+This function supports FITS and ASDF data products and will automatically parse the file for the suffix and load it to memory using `~astropy.io.fits.open` or `~asdf.open`.
+For ASDF data products, additional packages may be required such as ``roman_datamodels``, ``gwcs`` and ``lz4``.  To install astroquery with all these, and all other optional dependencies, use ``pip install astroquery[all]``.
+
+.. doctest-remote-data::
+
+   >>> from astroquery.mast import Observations
+   ...
+   >>> # For FITS files
+   >>> fits_product = Observations.read_product(product_path="s3://stpubdata/hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits")
+   ... fits_product.info()
+   Filename: <class 's3fs.core.S3File'>
+   No.    Name      Ver    Type      Cards   Dimensions   Format
+   0  PRIMARY       1 PrimaryHDU       9   ()      
+   1                1 BinTableHDU     32   10000R x 5C   [1E, 1E, 1E, 1E, 1E]  
+   >>> # For ASDF files
+   >>> asdf_product = Observations.read_product(product_path="s3://stpubdata/roman/nexus/soc_simulations/tutorial_data/r0003201001001001004_0001_wfi01_f106_cal.asdf", ignore_unrecognized=True)
+   >>> asdf_product.info()
+   root (AsdfObject)
+   ├─asdf_library (Software)
+   │ ├─author (str): The ASDF Developers
+   │ ├─homepage (str): http://github.com/asdf-format/asdf
+   │ ├─name (str): asdf
+   │ └─version (str): 3.4.0
+   ├─history (dict)
+   │ └─extensions (list)
+   │   ├─[0] (ExtensionMetadata) ...
+   │   ├─[1] (ExtensionMetadata) ...
+   │   ├─[2] (ExtensionMetadata) ...
+   │   ├─[3] (ExtensionMetadata) ...
+   │   ├─[4] (ExtensionMetadata) ...
+   │   └─[5] (ExtensionMetadata) ...
+   └─roman (dict)
+   ├─catalogs (dict)
+   │ ├─galaxies (TaggedDict) ...
+   │ └─2 not shown
+   ├─data (NDArrayType) ...
+   ├─dq (NDArrayType) ...
+   ├─err (NDArrayType) ...
+   ├─meta (dict) ...
+   └─wcs (TaggedDict) ...
