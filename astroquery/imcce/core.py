@@ -440,7 +440,7 @@ class SkybotClass(BaseQuery):
         >>> skybot = Skybot()
         >>> obj = skybot.cone_search(field, 0.1*u.deg, epoch) # doctest: +SKIP
         >>> skybot.uri # doctest: +SKIP
-        'https://ssp.imcce.fr/webservices/skybot/skybotconesearch_query.php?-ra=1.0&-dec=1.0&-rd=0.1&-ep=2458633.404166667&-loc=500&-filter=120.0&-objFilter=111&-refsys=EQJ2000&-output=all&-mime=text'
+        'https://ssp.imcce.fr/webservices/skybot/skybotconesearch_query.php?-ra=1.0&-dec=1.0&-rd=0.1&-ep=2458633.404166667&-observer=500&-filter=120.0&-objFilter=111&-refsys=EQJ2000&-output=all&-mime=text'
         """
         return self._uri
 
@@ -613,7 +613,7 @@ class SkybotClass(BaseQuery):
                            '-dec': coo.dec.deg,
                            '-rd': rad.deg,
                            '-ep': str(epoch.jd),
-                           '-loc': str(location),
+                           '-observer': str(location),
                            '-filter': position_error.arcsec,
                            '-objFilter':
                            str(int(find_asteroids))
