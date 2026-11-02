@@ -1,6 +1,7 @@
 """This module provides functions to send query to IPAC NED DBR services."""
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+from dataclasses import field
 import re
 from io import BytesIO
 from xml.dom.minidom import parseString
@@ -10,6 +11,7 @@ import astropy.coordinates as coord
 import astropy.io.votable as votable
 from astropy.coordinates import FK5
 from astropy.utils.decorators import deprecated_renamed_argument
+from attrs import field
 
 from astroquery.query import BaseQuery
 from astroquery.utils import commons
@@ -1071,23 +1073,19 @@ class NedClass(BaseQuery):
             first_table = p_table.get_first_table()
             table = first_table.to_table(use_names_over_ids=True)
             coordinate_ucds = {'pos.eq.ra': 'RA', 'pos.eq.dec': 'DEC'}
-            for name, votable_field in zip(table.colnames, first_table.fields):
-                if votable_field.datatype == 'char' or not votable_field.ucd:
-                    continue
-                field_ucds = {ucd.strip().casefold()
-                              for ucd in votable_field.ucd.split(';')}
-                normalized_name = next(
-                    (canonical_name for ucd, canonical_name
-                     in coordinate_ucds.items() if ucd in field_ucds),
-                    None)
-                if normalized_name is None or name == normalized_name:
-                    continue
-                if normalized_name in table.colnames:
-                    raise TableParseError(
-                        f"Cannot normalize NED coordinate column "
-                        f"{name!r} to {normalized_name!r}: that "
-                        "column name already exists.")
-                table.rename_column(name, normalized_name)
+            for name, field in zip(table.colnames, first_table.fields):
+                if field.datatype != "char" and field.ucd is not None:
+                    field_ucds = {ucd.strip().casefold()
+                                for ucd in field.ucd.split(';')}
+                    for ucd, normalized_name in coordinate_ucds.items():
+                        if ucd in field_ucds and name != normalized_name:
+                            if normalized_name in table.colnames:
+                                raise TableParseError(
+                                    f"Cannot normalize NED coordinate column "
+                                    f"{name!r} to {normalized_name!r}: that "
+                                    "column name already exists.")
+                            table.rename_column(name, normalized_name)
+                            break
             return table
         except Exception as ex:
             _raise_service_or_parse_error(ex)
