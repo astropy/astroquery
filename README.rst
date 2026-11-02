@@ -101,6 +101,13 @@ package. We create a separate Zenodo DOI for each version, they can be
 looked up at the following `Zenodo page <https://doi.org/10.5281/zenodo.591669>`__
 
 
+Code contributions
+------------------
+
+Astroquery welcomes PRs from our colleagues working at the various archives and astronomical data centers and/or of users of astroquery. 
+However, we opted in enforcing a PR limit to exitsing contributors due to the recent update of LLM generated PRs from people who are neither of the above.
+If you are a new contributor in any of the categories listed, please reach out to one of the maintainers on the astropy slack about your planned contributions so we can add you to the exeptions list.
+
 Additional Links
 ----------------
 
