@@ -504,6 +504,20 @@ def test_parse_result_table_parse_error():
         ned.Ned._parse_result(response)
 
 
+def test_parse_result_normalizes_coordinate_column_names():
+    with open(data_path(DATA_FILES['object']), 'rb') as infile:
+        content = infile.read()
+    content = content.replace(b'name="RA"', b'name="ra"')
+    content = content.replace(b'name="Dec"', b'name="DEC"')
+
+    table = ned.Ned._parse_result(MockResponse(content))
+
+    assert 'RA' in table.colnames
+    assert 'DEC' in table.colnames
+    assert 'RA-s' in table.colnames
+    assert 'Dec-s' in table.colnames
+
+
 def test_deprecated_namespace_import_warning():
     with pytest.warns(DeprecationWarning):
         import astroquery.ned  # noqa: F401

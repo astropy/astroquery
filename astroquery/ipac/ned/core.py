@@ -1035,6 +1035,8 @@ class NedClass(BaseQuery):
         Returns
         -------
         table : `~astropy.table.Table`
+            NED coordinate column names are normalized to ``RA`` and
+            ``DEC`` using their VOTable UCD metadata.
 
         Raises
         ------
@@ -1068,6 +1070,21 @@ class NedClass(BaseQuery):
             p_table = votable.parse(tf, verify='warn')
             first_table = p_table.get_first_table()
             table = first_table.to_table(use_names_over_ids=True)
+            coordinate_ucds = {'pos.eq.ra': 'RA', 'pos.eq.dec': 'DEC'}
+            for name, field in zip(table.colnames, first_table.fields):
+                if field.datatype == 'char' or field.ucd is None:
+                    continue
+                field_ucds = {ucd.strip().casefold()
+                              for ucd in field.ucd.split(';')}
+                for ucd, normalized_name in coordinate_ucds.items():
+                    if ucd in field_ucds and name != normalized_name:
+                        if normalized_name in table.colnames:
+                            raise TableParseError(
+                                f"Cannot normalize NED coordinate column "
+                                f"{name!r} to {normalized_name!r}: that "
+                                "column name already exists.")
+                        table.rename_column(name, normalized_name)
+                        break
             return table
         except Exception as ex:
             _raise_service_or_parse_error(ex)
