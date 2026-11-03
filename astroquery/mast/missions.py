@@ -1308,18 +1308,11 @@ class MastMissionsClass(MastQueryWithLogin):
             or more acceptable values for that parameter.
             Filter behavior is AND between the filters and OR within a filter set.
             For example: {"productType": "SCIENCE", "extension"=["fits","jpg"]}
+        mission : str, optional
+            The mission to which the data products belong. If not provided, the current value
+            of the ``mission`` attribute will be used.
         verbose : bool, optional
             Default True. Whether to issue warnings if a product cannot be found in the cloud.
-        **criteria
-            Criteria to apply. At least one non-positional criteria must be supplied.
-            Valid criteria are coordinates, object_name, radius (as in `query_region` and `query_object`),
-            and all observation fields returned by the ``get_metadata("observations")``.
-            The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
-            except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
-            For non-float type criteria wildcards maybe used (both * and % are considered wildcards), however
-            only one wildcarded value can be processed per criterion.
-            RA and Dec must be given in decimal degrees, and datetimes in MJD.
-            For example: filters=["FUV","NUV"],proposal_pi="Ost*",t_max=[52264.4586,54452.8914]
 
         Returns
         -------
