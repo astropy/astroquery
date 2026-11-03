@@ -333,7 +333,7 @@ The filter below returns FITS products that are "science" type **and** less than
 Reading Data Products
 ======================
 
-The `~astroquery.mast.MastMissionsClass.read_product` function allows you to read FITS or ASDF data products directly into memory as `~astropy.io.fits.HDUList`
+The `~astroquery.mast.MastMissionsClass.get_product` function allows you to read FITS or ASDF data products directly into memory as `~astropy.io.fits.HDUList`
 or `~asdf.AsdfFile` objects, respectively. The function accepts a product URI or a direct filename (for certain missions) as input.
 
 FITS files are opened with `~astropy.io.fits.open` and are downloaded and cached locally.
@@ -348,7 +348,7 @@ Remember that this method returns an open file object, so it is the user's respo
 with a context manager or by calling the ``close()`` method on the returned object.
 
 .. doctest-remote-data::
-   >>> obj = missions.read_product("jbtaa0010_asn.fits")  # doctest: +IGNORE_OUTPUT
+   >>> obj = missions.get_product("jbtaa0010_asn.fits")  # doctest: +IGNORE_OUTPUT
    >>> print(type(obj))
    <class 'astropy.io.fits.hdu.hdulist.HDUList'>
    >>> obj.info()  # doctest: +IGNORE_OUTPUT

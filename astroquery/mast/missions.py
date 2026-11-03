@@ -21,7 +21,7 @@ import requests
 from astropy.coordinates import Angle, BaseCoordinateFrame, SkyCoord
 from astropy.io import fits
 from astropy.table import Column, Row, Table, vstack
-from astropy.utils.decorators import deprecated_renamed_argument
+from astropy.utils.decorators import deprecated, deprecated_renamed_argument
 from requests import HTTPError, RequestException
 
 from astroquery import log
@@ -40,7 +40,6 @@ from astroquery.utils.class_or_instance import class_or_instance
 from . import conf
 
 try:
-    import fsspec
     from fsspec.asyn import sync as fsspec_sync
     from fsspec.implementations.http import HTTPFile, HTTPFileSystem, HTTPStreamFile
 
@@ -127,13 +126,16 @@ try:
                 session=session,
                 **file_kwargs,
             )
+
+    HAS_FSSPEC = True
 except ImportError:
-    fsspec = None
+    HAS_FSSPEC = False
 
 try:
     import asdf
+    HAS_ASDF = True
 except ImportError:
-    asdf = None
+    HAS_ASDF = False
 
 __all__ = ['MastMissionsClass', 'MastMissions']
 
@@ -1126,7 +1128,7 @@ class MastMissionsClass(MastQueryWithLogin):
 
         return manifest
 
-    def read_product(self, uri, *, mission=None, **kwargs):
+    def get_product(self, uri, *, mission=None, **kwargs):
         """
         Reads a data product file directly from a URI into an appropriate in-memory object based on file type.
         Supported file types are FITS and ASDF.
@@ -1154,11 +1156,11 @@ class MastMissionsClass(MastQueryWithLogin):
                 # Read in a
                 return fits.open(download_url, **kwargs)
             elif uri.endswith(".asdf"):
-                if fsspec is None:
+                if not HAS_FSSPEC:
                     raise ImportError('The "fsspec" package is required to read products directly from a URI. '
                                       'Please install it with `pip install fsspec` or install astroquery with '
                                       'optional dependencies using `pip install astroquery[all]`.')
-                if asdf is None:
+                if not HAS_ASDF:
                     raise ImportError('The "asdf" package is required to read ASDF files. Please install it with '
                                       '`pip install asdf` or install astroquery with optional dependencies using '
                                       '`pip install astroquery[all]`.')
@@ -1180,6 +1182,13 @@ class MastMissionsClass(MastQueryWithLogin):
             if err.response.status_code == 401:
                 self._warn_no_auth(download_url)
             raise
+
+    @deprecated(since="v0.4.12", alternative="get_product")
+    def read_product(self, uri, *, mission=None, **kwargs):
+        """
+        Deprecated. Use `get_product` instead.
+        """
+        return self.get_product(uri, mission=mission, **kwargs)
 
     @class_or_instance
     def get_column_list(self):

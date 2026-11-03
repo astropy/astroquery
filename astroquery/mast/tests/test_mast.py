@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import asyncio
+import importlib
 import json
 import os
 import re
@@ -38,8 +39,16 @@ except ImportError:
 try:
     # Optional dependency import for ASDF file handling
     import asdf
+    HAS_ASDF = True
 except ImportError:
-    pass
+    HAS_ASDF = False
+
+
+# Optional dependency import for fsspec
+if importlib.util.find_spec("fsspec") is not None:
+    HAS_FSSPEC = True
+else:
+    HAS_FSSPEC = False
 
 DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Name.Lookup': 'resolver.json',
@@ -762,9 +771,6 @@ def mock_fits_open(mocker):
 @pytest.fixture
 def mock_asdf_open(mocker):
     """Mock asdf.open and fsspec.filesystem for ASDF file reading without network access."""
-    pytest.importorskip("asdf")
-    pytest.importorskip("fsspec")
-
     # Mock response from requests.get for the initial URL fetch
     mock_response = MagicMock()
     mock_response.status_code = 307
@@ -782,10 +788,7 @@ def mock_asdf_open(mocker):
     mocker.patch("fsspec.filesystem", return_value=mock_fs)
 
     # Create a mock AsdfFile
-    if asdf is not None:
-        mock_asdf_file = MagicMock(spec=asdf.AsdfFile)
-    else:
-        mock_asdf_file = MagicMock()
+    mock_asdf_file = MagicMock(spec=asdf.AsdfFile)
 
     mock_asdf_open = mocker.patch("asdf.open", return_value=mock_asdf_file)
     mocker.patch(
@@ -795,42 +798,41 @@ def mock_asdf_open(mocker):
     return mock_asdf_open
 
 
-def test_missions_read_product_fits(mocker, mock_fits_open):
+def test_missions_get_product_fits(mocker, mock_fits_open):
     """Test reading a FITS file product."""
     mocker.patch.object(MastMissions, "_get_download_url", return_value="https://test.url/file.fits")
     uri = "file.fits"
-    obj = MastMissions.read_product(uri, mission='jwst')
+    obj = MastMissions.get_product(uri, mission='jwst')
     assert isinstance(obj, fits.HDUList)
     assert len(obj) == 1  # Should have at least the primary HDU
 
     # Call with additional kwargs to ensure they are passed to fits.open
-    obj = MastMissions.read_product(uri, mission='jwst', memmap=False)
+    obj = MastMissions.get_product(uri, mission='jwst', memmap=False)
     mock_fits_open.assert_called_with("https://test.url/file.fits", memmap=False)
     assert isinstance(obj, fits.HDUList)
 
 
-def test_missions_read_product_asdf(mocker, mock_asdf_open):
+@pytest.mark.skipif(not HAS_ASDF or not HAS_FSSPEC, reason="Requires asdf and fsspec")
+def test_missions_get_product_asdf(mocker, mock_asdf_open):
     """Test reading an ASDF file product."""
     # Mock importlib.util.find_spec to always return a spec (all packages present)
     mocker.patch("importlib.util.find_spec", return_value=MagicMock())
 
     uri = "file.asdf"
-    obj = MastMissions.read_product(uri, mission='roman')
+    obj = MastMissions.get_product(uri, mission='roman')
     assert isinstance(obj, asdf.AsdfFile)
 
     # Additional kwargs should be passed to asdf.open
-    obj = MastMissions.read_product(uri, mission='roman', copy_arrays=True)
+    obj = MastMissions.get_product(uri, mission='roman', copy_arrays=True)
     # Verify asdf.open was called with kwargs
     assert mock_asdf_open.call_args[1]['copy_arrays'] is True
     assert isinstance(obj, asdf.AsdfFile)
 
 
+@pytest.mark.skipif(not HAS_ASDF or not HAS_FSSPEC, reason="Requires asdf and fsspec")
 @pytest.mark.parametrize(('status', 'refreshes'), [(400, True), (403, True), (404, False)])
-def test_missions_read_product_asdf_refreshes_expired_url(mocker, status, refreshes):
+def test_missions_get_product_asdf_refreshes_expired_url(mocker, status, refreshes):
     """Refresh expired S3 URLs, but propagate unrelated range-fetch errors."""
-    pytest.importorskip("asdf")
-    pytest.importorskip("fsspec")
-
     class ExpiredURL(Exception):
         pass
 
@@ -882,8 +884,9 @@ def test_missions_read_product_asdf_refreshes_expired_url(mocker, status, refres
     assert len(file_object.session.calls) == (1 if refreshes else 0)
 
 
-def test_missions_read_product_asdf_refresh_missing_location(mocker):
-    pytest.importorskip("fsspec")
+@pytest.mark.skipif(not HAS_FSSPEC, reason="Requires fsspec")
+def test_missions_get_product_asdf_refresh_missing_location(mocker):
+    """Test that refreshing the URL fails when the Location header is missing."""
 
     class MockResponse:
         headers = {}
@@ -905,8 +908,8 @@ def test_missions_read_product_asdf_refresh_missing_location(mocker):
         asyncio.run(file_object._refresh_url())
 
 
+@pytest.mark.skipif(not HAS_FSSPEC, reason="Requires fsspec")
 def test_missions_refreshing_http_file_fetch_range(mocker):
-    pytest.importorskip("fsspec")
     file_object = missions_module._RefreshingHTTPFile.__new__(missions_module._RefreshingHTTPFile)
     file_object.loop = 'mock-loop'
     sync_fetch = mocker.patch.object(missions_module, 'fsspec_sync', return_value=b'range-data')
@@ -920,8 +923,8 @@ def test_missions_refreshing_http_file_fetch_range(mocker):
 
 
 @pytest.mark.parametrize('partial', [True, False])
+@pytest.mark.skipif(not HAS_FSSPEC, reason="Requires fsspec")
 def test_missions_refreshing_http_filesystem_open(mocker, partial):
-    pytest.importorskip("fsspec")
     file_system = SimpleNamespace()
     with pytest.raises(NotImplementedError, match='Only read-binary mode is supported'):
         missions_module._RefreshingHTTPFileSystem._open(
@@ -955,9 +958,8 @@ def test_missions_refreshing_http_filesystem_open(mocker, partial):
         refreshing_file.assert_not_called()
 
 
+@pytest.mark.skipif(not HAS_ASDF or not HAS_FSSPEC, reason="Requires asdf and fsspec")
 def test_missions_open_refreshing_asdf(mocker):
-    pytest.importorskip('asdf')
-    pytest.importorskip('fsspec')
     download_url = 'https://mast.example/retrieve_product?product_name=test.asdf'
     headers = {'Authorization': 'token test'}
     s3_url = 'https://bucket.example/test.asdf?signature=abc'
@@ -988,7 +990,8 @@ def test_missions_open_refreshing_asdf(mocker):
     asdf_open.assert_called_once_with(file_object, copy_arrays=False)
 
 
-def test_missions_read_product_asdf_missing_packages(mocker, mock_asdf_open):
+@pytest.mark.skipif(not HAS_ASDF or not HAS_FSSPEC, reason="Requires asdf and fsspec")
+def test_missions_get_product_asdf_missing_packages(mocker, mock_asdf_open):
     """Test that warnings are issued for missing ASDF-related packages."""
     # Mock importlib.util.find_spec to return None for the packages
     def mock_find_spec(package_name):
@@ -1000,7 +1003,7 @@ def test_missions_read_product_asdf_missing_packages(mocker, mock_asdf_open):
 
     # Capture warnings
     with pytest.warns(ImportWarning) as warning_list:
-        obj = MastMissions.read_product("test_file.asdf", mission='roman')
+        obj = MastMissions.get_product("test_file.asdf", mission='roman')
 
     # Check that warnings were issued for all three packages
     assert len(warning_list) == 3
@@ -1013,7 +1016,8 @@ def test_missions_read_product_asdf_missing_packages(mocker, mock_asdf_open):
     assert isinstance(obj, asdf.AsdfFile)
 
 
-def test_missions_read_product_asdf_partial_packages_missing(mocker, mock_asdf_open):
+@pytest.mark.skipif(not HAS_ASDF or not HAS_FSSPEC, reason="Requires asdf and fsspec")
+def test_missions_get_product_asdf_partial_packages_missing(mocker, mock_asdf_open):
     """Warn only for optional packages that are unavailable."""
     missing_package = 'lz4'
     mocker.patch(
@@ -1022,35 +1026,32 @@ def test_missions_read_product_asdf_partial_packages_missing(mocker, mock_asdf_o
     )
 
     with pytest.warns(ImportWarning, match=f'"{missing_package}" package is encouraged') as warning_list:
-        MastMissions.read_product('test_file.asdf', mission='roman')
+        MastMissions.get_product('test_file.asdf', mission='roman')
 
     assert len(warning_list) == 1
 
 
 @pytest.mark.parametrize(
     ('dependency', 'message'),
-    [
-        ('fsspec', 'The "fsspec" package is required'),
-        ('asdf', 'The "asdf" package is required'),
-    ],
+    [('fsspec', 'The "fsspec" package is required'), ('asdf', 'The "asdf" package is required')],
 )
-def test_missions_read_product_asdf_missing_dependency(mocker, dependency, message):
-    if dependency == 'asdf' and missions_module.fsspec is None:
+def test_missions_get_product_asdf_missing_dependency(mocker, dependency, message):
+    if dependency == 'asdf' and missions_module.HAS_FSSPEC is False:
         pytest.skip('The fsspec-missing branch is exercised first when fsspec is unavailable.')
 
-    mocker.patch.object(missions_module, dependency, None)
+    mocker.patch.object(missions_module, f'HAS_{dependency.upper()}', False)
 
     with pytest.raises(ImportError, match=message):
-        MastMissions.read_product('test_file.asdf', mission='roman')
+        MastMissions.get_product('test_file.asdf', mission='roman')
 
 
-def test_missions_read_product_unsupported_format():
+def test_missions_get_product_unsupported_format():
     """Test that unsupported file formats raise an InvalidQueryError."""
     with pytest.raises(InvalidQueryError, match="Unsupported file type"):
-        MastMissions.read_product("unsupported_file.txt")
+        MastMissions.get_product("unsupported_file.txt")
 
 
-def test_missions_read_product_unauthorized(mocker):
+def test_missions_get_product_unauthorized(mocker):
     """Test that unauthorized file access raises an error."""
     resp = Response()
     resp.status_code = 401
@@ -1058,7 +1059,7 @@ def test_missions_read_product_unauthorized(mocker):
 
     with pytest.raises(HTTPError):
         with pytest.warns(AuthenticationWarning, match="You are not authorized"):
-            MastMissions.read_product("file.fits", mission='jwst')
+            MastMissions.get_product("file.fits", mission='jwst')
 
 
 ###################

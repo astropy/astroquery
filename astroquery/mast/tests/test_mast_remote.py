@@ -419,9 +419,9 @@ class TestMast:
         ("jwst_niriss_trappars_0002.fits", "jwst"),
         ("mast:HLSP/classy/j0021+0052/hlsp_classy_hst_cos_j0021+0052_multi_v1_coadded.fits", "classy"),
     ])
-    def test_missions_read_product_fits(self, uri, mission):
-        # Test that read_product can read a FITS file from a URI and return an HDUList
-        hdul = MastMissions.read_product(uri, mission=mission)
+    def test_missions_get_product_fits(self, uri, mission):
+        # Test that get_product can read a FITS file from a URI and return an HDUList
+        hdul = MastMissions.get_product(uri, mission=mission)
         assert isinstance(hdul, fits.HDUList)
         assert len(hdul) > 1
         hdul.close()
@@ -460,7 +460,7 @@ class TestMast:
             if prod['filename'].endswith(('.fits', '.asdf')):
                 product = prod
                 break
-        obj = m.read_product(product['uri'], mission=mission)
+        obj = m.get_product(product['uri'], mission=mission)
         if mission == 'roman' and asdf is not None:
             assert isinstance(obj, asdf.AsdfFile)
         assert isinstance(obj, fits.HDUList)
