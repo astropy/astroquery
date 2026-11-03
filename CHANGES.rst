@@ -236,6 +236,8 @@ mast
   rather than the full result table. [#3645]
 - Added warning message for ``Tesscut`` requests when input cutout size reaches a limit of 30 pixels in either dimension,
   and enables users to modify the request timeout upper limit from the default 600 seconds. [#3675]
+- Added the ``MastMissions.get_product`` method to read data products directly into memory as an `~astropy.io.fits.HDUList`
+  or an `~asdf.AsdfFile` object. [#3593]
 
 
 jplspec
