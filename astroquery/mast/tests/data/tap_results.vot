@@ -1,0 +1,932 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Produced with astropy.io.votable version 7.2.0
+     http://www.astropy.org/ -->
+<VOTABLE version="1.4" xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/VOTable-1.4.xsd">
+ <RESOURCE type="results">
+  <INFO ID="QUERY_STATUS" name="QUERY_STATUS" value="OK"/>
+  <INFO ID="QUERY" name="QUERY" value="SELECT TOP 10 * FROM tic_v82.source WHERE CONTAINS(POINT(&apos;ICRS&apos;, ra, dec), CIRCLE(&apos;ICRS&apos;, 23.34086, 60.658, 0.002)) = 1"/>
+  <TABLE nrows="2">
+   <FIELD ID="id" datatype="long" name="id" ucd="meta.id;meta.main">
+    <DESCRIPTION>
+     The TESS Input Catalog (TIC) identifier (min: 1; max: 10^16)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="version" arraysize="*" datatype="char" name="version" ucd="meta.id">
+    <DESCRIPTION>
+     The date this version of the catalog was finalized (YYYYMMDD)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="hip" datatype="int" name="hip" ucd="meta.id">
+    <DESCRIPTION>
+     Hipparcos identifier
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="tyc" arraysize="*" datatype="char" name="tyc" ucd="meta.id">
+    <DESCRIPTION>
+     Tycho2 identifier
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="ucac" arraysize="*" datatype="char" name="ucac" ucd="meta.id">
+    <DESCRIPTION>
+     UCAC4 identifier
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="twomass" arraysize="*" datatype="char" name="twomass" ucd="meta.id">
+    <DESCRIPTION>
+     2MASS identifier (hhmmssss+ddmmsss J2000)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="sdss" datatype="long" name="sdss" ucd="meta.id">
+    <DESCRIPTION>
+     SDSS DR9 objid identifier
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="allwise" arraysize="*" datatype="char" name="allwise" ucd="meta.id">
+    <DESCRIPTION>
+     ALLWISE identifier (jhhmmss.ss+ddmmss.s)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="gaia" arraysize="*" datatype="char" name="gaia" ucd="meta.id">
+    <DESCRIPTION>
+     GAIA DR2 identifier
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="apass" arraysize="*" datatype="char" name="apass" ucd="meta.id">
+    <DESCRIPTION>
+     APASS DR9 identifier
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="kic" datatype="int" name="kic" ucd="meta.id">
+    <DESCRIPTION>
+     Kepler Input Catalog (KIC) identifier
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="objtype" arraysize="*" datatype="char" name="objtype" ucd="src.class.starGalaxy">
+    <DESCRIPTION>
+     Flag to identify the object's type (star or extended)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="typesrc" arraysize="*" datatype="char" name="typesrc" ucd="meta.ref">
+    <DESCRIPTION>
+     Flag to identify the source of the object (see Table 5 of DOI =
+     10.3847/1538-3881/ab3467 for further information)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="ra" datatype="double" name="ra" ucd="pos.eq.ra;meta.main" unit="deg">
+    <DESCRIPTION>
+     Right ascension in decimal degrees (J2000; min: 0; max: 360)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="dec" datatype="double" name="dec" ucd="pos.eq.dec;meta.main" unit="deg">
+    <DESCRIPTION>
+     Declination in decimal degrees (J2000; min: -90; max: 90)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="posflag" arraysize="*" datatype="char" name="posflag" ucd="meta.ref;pos.frame">
+    <DESCRIPTION>
+     Flag to identify the source of the object's position (see Table 5
+     of DOI = 10.3847/1538-3881/ab3467 for further information)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="pmra" datatype="float" name="pmra" ucd="pos.pm;pos.eq.ra" unit="mas.yr**-1">
+    <DESCRIPTION>
+     Proper motion in right ascension in mas/yr (min: -15000; max:
+     15000)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_pmra" datatype="float" name="e_pmra" ucd="stat.error;pos.pm;pos.eq.ra" unit="mas.yr**-1">
+    <DESCRIPTION>
+     Uncertainty in right ascension proper motion in mas/yr (pmra;
+     min: 0; max: 15000)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="pmdec" datatype="float" name="pmdec" ucd="pos.pm;pos.eq.dec" unit="mas.yr**-1">
+    <DESCRIPTION>
+     Proper motion in declination in mas/yr (min: -15000; max: 15000)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_pmdec" datatype="float" name="e_pmdec" ucd="stat.error;pos.pm;pos.eq.dec" unit="mas.yr**-1">
+    <DESCRIPTION>
+     Uncertainty in declination proper motion in mas/yr (pmdec; min:
+     0; max: 15000)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="pmflag" arraysize="*" datatype="char" name="pmflag" ucd="meta.ref;pos.frame">
+    <DESCRIPTION>
+     Flag to identify the source of the object's proper motion (see
+     Table 5 of DOI = 10.3847/1538-3881/ab3467 for further
+     information)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="plx" datatype="float" name="plx" ucd="pos.parallax" unit="mas">
+    <DESCRIPTION>
+     Parallax in mas (min: -100; max: 1000)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_plx" datatype="float" name="e_plx" ucd="stat.error;pos.parallax" unit="mas">
+    <DESCRIPTION>
+     Error in the parallax in mas (plx; min: -100; max: 1000)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="parflag" arraysize="*" datatype="char" name="parflag" ucd="meta.ref;pos.frame">
+    <DESCRIPTION>
+     Flag to identify the source of the object's parallax (see Table 5
+     of DOI = 10.3847/1538-3881/ab3467 for further information)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="gallong" datatype="double" name="gallong" ucd="pos.galactic.lon" unit="deg">
+    <DESCRIPTION>
+     Galactic longitude in decimal degrees (min: 0; max: 360)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="gallat" datatype="double" name="gallat" ucd="pos.galactic.lat" unit="deg">
+    <DESCRIPTION>
+     Galactic latitude in decimal degrees (min: -90; max: 90)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="eclong" datatype="double" name="eclong" ucd="pos.ecliptic.lon" unit="deg">
+    <DESCRIPTION>
+     Ecliptic longitude in decimal degrees (min: 0; max: 360)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="eclat" datatype="double" name="eclat" ucd="pos.ecliptic.lat" unit="deg">
+    <DESCRIPTION>
+     Ecliptic latitude in decimal degrees (min: -90; max: 90)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="bmag" datatype="float" name="bmag" ucd="phot.mag;em.opt.B" unit="mag">
+    <DESCRIPTION>
+     Johnson B magnitude (min: -25; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_bmag" datatype="float" name="e_bmag" ucd="stat.error;phot.mag" unit="mag">
+    <DESCRIPTION>
+     Uncertainty in Johnson B magnitude (bmag; min: 0; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="vmag" datatype="float" name="vmag" ucd="phot.mag;em.opt.V" unit="mag">
+    <DESCRIPTION>
+     Johnson V magnitude (min: -25; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_vmag" datatype="float" name="e_vmag" ucd="stat.error;phot.mag" unit="mag">
+    <DESCRIPTION>
+     Uncertainty in Johnson V magnitude (vmag; min: 0; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="umag" datatype="float" name="umag" ucd="phot.mag;em.opt.U" unit="mag">
+    <DESCRIPTION>
+     SDSS u-band (ab) magnitude (min: -25; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_umag" datatype="float" name="e_umag" ucd="stat.error;phot.mag" unit="mag">
+    <DESCRIPTION>
+     Uncertainty in SDSS u magnitude (umag; min: 0; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="gmag" datatype="float" name="gmag" ucd="phot.mag;em.opt.B" unit="mag">
+    <DESCRIPTION>
+     SDSS g-band (ab) magnitude (min: -25; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_gmag" datatype="float" name="e_gmag" ucd="stat.error;phot.mag" unit="mag">
+    <DESCRIPTION>
+     Uncertainty in SDSS g magnitude (gmag; min: 0; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="rmag" datatype="float" name="rmag" ucd="phot.mag;em.opt.R" unit="mag">
+    <DESCRIPTION>
+     SDSS r-band (ab) magnitude (min: -25; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_rmag" datatype="float" name="e_rmag" ucd="stat.error;phot.mag" unit="mag">
+    <DESCRIPTION>
+     Uncertainty in SDSS r magnitude (rmag; min: 0; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="imag" datatype="float" name="imag" ucd="phot.mag;em.opt.I" unit="mag">
+    <DESCRIPTION>
+     SDSS i-band (ab) magnitude (min: -25; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_imag" datatype="float" name="e_imag" ucd="stat.error;phot.mag" unit="mag">
+    <DESCRIPTION>
+     Uncertainty in SDSS i magnitude (imag; min: 0; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="zmag" datatype="float" name="zmag" ucd="phot.mag;em.opt.I" unit="mag">
+    <DESCRIPTION>
+     SDSS z-band (ab) magnitude (min: -25; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_zmag" datatype="float" name="e_zmag" ucd="stat.error;phot.mag" unit="mag">
+    <DESCRIPTION>
+     Uncertainty in SDSS z magnitude (zmag; min: 0; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="jmag" datatype="float" name="jmag" ucd="phot.mag;em.IR.J" unit="mag">
+    <DESCRIPTION>
+     2MASS J magnitude (min: -25; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_jmag" datatype="float" name="e_jmag" ucd="stat.error;phot.mag" unit="mag">
+    <DESCRIPTION>
+     Uncertainty in 2MASS J magnitude (jmag; min: 0; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="hmag" datatype="float" name="hmag" ucd="phot.mag;em.IR.H" unit="mag">
+    <DESCRIPTION>
+     2MASS H magnitude (min: -25; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_hmag" datatype="float" name="e_hmag" ucd="stat.error;phot.mag" unit="mag">
+    <DESCRIPTION>
+     Uncertainty in 2MASS H magnitude (hmag; min: 0; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="kmag" datatype="float" name="kmag" ucd="phot.mag;em.IR.K" unit="mag">
+    <DESCRIPTION>
+     2MASS Ks magnitude (min: -25; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_kmag" datatype="float" name="e_kmag" ucd="stat.error;phot.mag" unit="mag">
+    <DESCRIPTION>
+     Uncertainty in 2MASS Ks magnitude (kmag; min: 0; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="twomflag" arraysize="*" datatype="char" name="twomflag" ucd="meta.code.qual">
+    <DESCRIPTION>
+     Quality flags for 2MASS provided in a similar format to the EPIC
+     catalog (ph_qual-rd_flag-bl_flg-cc_flg-gal_contam-mp_flag)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="prox" datatype="float" name="prox" ucd="pos.angDistance" unit="arcsec">
+    <DESCRIPTION>
+     2MASS nearest neighbor distance in arcseconds (min: 0; max: 500)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="w1mag" datatype="float" name="w1mag" ucd="phot.mag;em.IR.3-4um" unit="mag">
+    <DESCRIPTION>
+     ALLWISE W1 (3.4um) magnitude (min: -25; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_w1mag" datatype="float" name="e_w1mag" ucd="stat.error;phot.mag" unit="mag">
+    <DESCRIPTION>
+     Uncertainty in ALLWISE W1 magnitude (w1mag; min: 0; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="w2mag" datatype="float" name="w2mag" ucd="phot.mag;em.IR.4-8um" unit="mag">
+    <DESCRIPTION>
+     ALLWISE W2 (4.6um) magnitude (min: -25; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_w2mag" datatype="float" name="e_w2mag" ucd="stat.error;phot.mag" unit="mag">
+    <DESCRIPTION>
+     Uncertainty in ALLWISE W2 magnitude (w2mag; min: 0; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="w3mag" datatype="float" name="w3mag" ucd="phot.mag;em.IR.8-15um" unit="mag">
+    <DESCRIPTION>
+     ALLWISE W3 (12um) magnitude (min: -25; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_w3mag" datatype="float" name="e_w3mag" ucd="stat.error;phot.mag" unit="mag">
+    <DESCRIPTION>
+     Uncertainty in ALLWISE W3 magnitude (w3mag; min: 0; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="w4mag" datatype="float" name="w4mag" ucd="phot.mag;em.IR.15-30um" unit="mag">
+    <DESCRIPTION>
+     ALLWISE W4 (22um) magnitude (min: -25; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_w4mag" datatype="float" name="e_w4mag" ucd="stat.error;phot.mag" unit="mag">
+    <DESCRIPTION>
+     Uncertainty in ALLWISE W4 magnitude (w4mag; min: 0; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="gaiamag" datatype="float" name="gaiamag" ucd="phot.mag;em.opt.V" unit="mag">
+    <DESCRIPTION>
+     GAIA DR2 G magnitude (min: -25; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_gaiamag" datatype="float" name="e_gaiamag" ucd="stat.error;phot.mag" unit="mag">
+    <DESCRIPTION>
+     Uncertainty in GAIA DR2 G magnitude (gaiamag; min: 0; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="tmag" datatype="float" name="tmag" ucd="phot.mag;em.opt" unit="mag">
+    <DESCRIPTION>
+     TESS magnitude (min: -25; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_tmag" datatype="float" name="e_tmag" ucd="stat.error;phot.mag" unit="mag">
+    <DESCRIPTION>
+     Uncertainty in TESS magnitude (tmag; min: 0; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="tessflag" arraysize="*" datatype="char" name="tessflag" ucd="meta.code">
+    <DESCRIPTION>
+     Flag to identify the source of the object's TESS magnitude (tmag;
+     usually a relation or catalog; see Table 5 of DOI =
+     10.3847/1538-3881/ab3467 for further information)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="spflag" arraysize="*" datatype="char" name="spflag" ucd="meta.code">
+    <DESCRIPTION>
+     Flag to identify the source of the object's stellar
+     characteristics (see Table 5 of DOI = 10.3847/1538-3881/ab3467
+     for further information)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="teff" datatype="float" name="teff" ucd="phys.temperature.effective" unit="K">
+    <DESCRIPTION>
+     Stellar effective temperature in Kelvin (min: 300; max: 100000)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_teff" datatype="float" name="e_teff" ucd="stat.error;phys.temperature.effective" unit="K">
+    <DESCRIPTION>
+     Uncertainty in stellar effective temperature in Kelvin (teff;
+     min: 0; max: 100000)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="logg" datatype="float" name="logg" ucd="phys.gravity" unit="cm.s**-2">
+    <DESCRIPTION>
+     Log of the stellar surface gravity in cgs units (min: -5; max:
+     10)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_logg" datatype="float" name="e_logg" ucd="stat.error;phys.gravity" unit="cm.s**-2">
+    <DESCRIPTION>
+     Uncertainty in log of the stellar surface gravity in cgs units
+     (logg; min: 0; max: 2.5)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="mh" datatype="float" name="mh" ucd="phys.abund.Z">
+    <DESCRIPTION>
+     Metallicity [M/H] (min: -7; max: 2)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_mh" datatype="float" name="e_mh" ucd="stat.error;phys.abund.Z">
+    <DESCRIPTION>
+     Uncertainty in the metallicity (mh; min: 0; max: 2.5)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="rad" datatype="float" name="rad" ucd="phys.size.radius" unit="solRad">
+    <DESCRIPTION>
+     Stellar radius best estimate in units of solar radii (min: 0.001;
+     max: 10000)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_rad" datatype="float" name="e_rad" ucd="stat.error;phys.size.radius" unit="solRad">
+    <DESCRIPTION>
+     Uncertainty in the stellar radius in units of solar radii (rad;
+     min: 0; max: 10000)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="mass" datatype="float" name="mass" ucd="phys.mass" unit="solMass">
+    <DESCRIPTION>
+     Stellar mass best estimate in units of solar masses (min: 0.01;
+     max: 500)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_mass" datatype="float" name="e_mass" ucd="stat.error;phys.mass" unit="solMass">
+    <DESCRIPTION>
+     Uncertainty in the stellar mass in units of solar masses (mass;
+     min: 0; max: 500)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="rho" datatype="float" name="rho" ucd="phys.density">
+    <DESCRIPTION>
+     Mean stellar density best estimate in solar units (mass/rad^3;
+     min: 0; max: 10^8)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_rho" datatype="float" name="e_rho" ucd="stat.error;phys.density">
+    <DESCRIPTION>
+     Uncertainty in the mean stellar density in solar units (rho; min:
+     0; max: 10^8)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="lumclass" arraysize="*" datatype="char" name="lumclass" ucd="src.class.luminosity">
+    <DESCRIPTION>
+     Luminosity class (DWARF or GIANT)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="lum" datatype="float" name="lum" ucd="phys.luminosity" unit="solLum">
+    <DESCRIPTION>
+     Stellar luminosity in units of solar luminosities
+     (rad^2*(teff/5772)^4; min: 0; max: 10^7)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_lum" datatype="float" name="e_lum" ucd="stat.error;phys.luminosity" unit="solLum">
+    <DESCRIPTION>
+     Uncertainty in the stellar luminosity in units of solar
+     luminosities (lum; min: 0; max: 10^7)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="d" datatype="float" name="d" ucd="pos.distance;pos.heliocentric" unit="pc">
+    <DESCRIPTION>
+     Distance in parsecs (min: 1; max: 5^9)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_d" datatype="float" name="e_d" ucd="stat.error;pos.distance" unit="pc">
+    <DESCRIPTION>
+     Uncertainty in the distance in parsecs (d; min: 0; max: 5^9)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="ebv" datatype="float" name="ebv" ucd="phot.color.excess" unit="mag">
+    <DESCRIPTION>
+     Color excess/reddening (E(B-V); min: 0; max: 999999)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_ebv" datatype="float" name="e_ebv" ucd="stat.error;phot.color.excess" unit="mag">
+    <DESCRIPTION>
+     Uncertainty in the color excess/reddening (ebv; min: 0; max:
+     999999)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="numcont" datatype="int" name="numcont" ucd="meta.number">
+    <DESCRIPTION>
+     Number of contamination sources found within 10 arcsec of the
+     star used in the calculation of the contamination ratio (min: 0;
+     max: 999999)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="contratio" datatype="float" name="contratio" ucd="stat.fit">
+    <DESCRIPTION>
+     Contamination ratio (min: 0; max: 999999)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="disposition" arraysize="*" datatype="char" name="disposition" ucd="meta.code.class">
+    <DESCRIPTION>
+     Disposition type (one of NULL or DUPLICATE or ARTIFACT or SPLIT)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="duplicate_id" datatype="long" name="duplicate_id" ucd="meta.code.multip">
+    <DESCRIPTION>
+     TIC ID (id) of another object in DUPLICATE or SPLIT set of stars
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="priority" datatype="float" name="priority" ucd="meta.number">
+    <DESCRIPTION>
+     Targeting priority (number from 0 to 1 = highest priority)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="eneg_ebv" datatype="float" name="eneg_ebv" ucd="stat.error;phot.color.excess;stat.min" unit="mag">
+    <DESCRIPTION>
+     Negative error for color excess/reddening in magnitudes (ebv)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="epos_ebv" datatype="float" name="epos_ebv" ucd="stat.error;phot.color.excess;stat.max" unit="mag">
+    <DESCRIPTION>
+     Positive error for color excess/reddening in magnitudes (ebv)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="ebvflag" arraysize="*" datatype="char" name="ebvflag" ucd="meta.ref;phot.color.excess">
+    <DESCRIPTION>
+     Flag to identify source of the object's reddening (ebv; see Table
+     6 of DOI = 10.3847/1538-3881/ab3467 for further information)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="eneg_mass" datatype="float" name="eneg_mass" ucd="stat.error;phys.mass;stat.min" unit="solMass">
+    <DESCRIPTION>
+     Negative error for stellar mass in units of solar masses (mass)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="epos_mass" datatype="float" name="epos_mass" ucd="stat.error;phys.mass;stat.max" unit="solMass">
+    <DESCRIPTION>
+     Positive error for stellar mass in units of solar masses (mass)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="eneg_rad" datatype="float" name="eneg_rad" ucd="stat.error;phys.size.radius;stat.min" unit="solRad">
+    <DESCRIPTION>
+     Negative error for stellar radius in units of solar radii (rad)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="epos_rad" datatype="float" name="epos_rad" ucd="stat.error;phys.size.radius;stat.max" unit="solRad">
+    <DESCRIPTION>
+     Positive error for stellar radius in units of solar radii (rad)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="eneg_rho" datatype="float" name="eneg_rho" ucd="stat.error;phys.density;stat.min">
+    <DESCRIPTION>
+     Negative error for mean stellar density in solar units (rho)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="epos_rho" datatype="float" name="epos_rho" ucd="stat.error;phys.density;stat.max">
+    <DESCRIPTION>
+     Positive error for mean stellar density in solar units (rho)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="eneg_logg" datatype="float" name="eneg_logg" ucd="stat.error;phys.gravity;stat.min" unit="cm.s**-2">
+    <DESCRIPTION>
+     Negative error for stellar surface gravity in cgs units (logg)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="epos_logg" datatype="float" name="epos_logg" ucd="stat.error;phys.gravity;stat.max" unit="cm.s**-2">
+    <DESCRIPTION>
+     Positive error for stellar surface gravity in cgs units (logg)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="eneg_lum" datatype="float" name="eneg_lum" ucd="stat.error;phys.luminosity;stat.min" unit="solLum">
+    <DESCRIPTION>
+     Negative error for stellar luminosity in solar luminosities (lum)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="epos_lum" datatype="float" name="epos_lum" ucd="stat.error;phys.luminosity;stat.max" unit="solLum">
+    <DESCRIPTION>
+     Positive error for stellar luminosity in solar luminosities (lum)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="eneg_dist" datatype="float" name="eneg_dist" ucd="stat.error;pos.distance;stat.min" unit="pc">
+    <DESCRIPTION>
+     Negative error for distance in parsecs (d)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="epos_dist" datatype="float" name="epos_dist" ucd="stat.error;pos.distance;stat.max" unit="pc">
+    <DESCRIPTION>
+     Positive error for distance in parsecs (d)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="distflag" arraysize="*" datatype="char" name="distflag" ucd="meta.ref;pos.distance">
+    <DESCRIPTION>
+     Flag to identify the source of the object's distance (one of:
+     NULL or bj2018 or tgas or hip; see DOI = 10.3847/1538-3881/ab3467
+     for further information)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="eneg_teff" datatype="float" name="eneg_teff" ucd="stat.error;phys.temperature.effective;stat.min" unit="K">
+    <DESCRIPTION>
+     Negative error for effective temperature in Kelvin (teff)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="epos_teff" datatype="float" name="epos_teff" ucd="stat.error;phys.temperature.effective;stat.max" unit="K">
+    <DESCRIPTION>
+     Positive error for effective temperature in Kelvin (teff)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="teffflag" arraysize="*" datatype="char" name="teffflag" ucd="meta.ref;phys.temperature.effective">
+    <DESCRIPTION>
+     Flag to identify the source of the object's effective temperature
+     (teff; see Table 6 of DOI = 10.3847/1538-3881/ab3467 for further
+     information)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="gaiabp" datatype="float" name="gaiabp" ucd="phot.mag;em.opt.B" unit="mag">
+    <DESCRIPTION>
+     GAIA DR2 BP magnitude (min: -25; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_gaiabp" datatype="float" name="e_gaiabp" ucd="stat.error;phot.mag" unit="mag">
+    <DESCRIPTION>
+     Uncertainty in GAIA DR2 BP magnitude (gaiabp; min: 0; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="gaiarp" datatype="float" name="gaiarp" ucd="phot.mag;em.opt.R" unit="mag">
+    <DESCRIPTION>
+     GAIA DR2 RP magnitude (min: -25; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_gaiarp" datatype="float" name="e_gaiarp" ucd="stat.error;phot.mag" unit="mag">
+    <DESCRIPTION>
+     Uncertainty in GAIA DR2 RP magnitude (gaiarp; min: 0; max: 50)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="gaiaqflag" datatype="int" name="gaiaqflag" ucd="meta.code.qual">
+    <DESCRIPTION>
+     Flag to identify the quality of the GAIA astrometric and
+     photometric information (-1 for insufficient info; 0 for poor-
+     quality Gaia info; 1 for good-quality Gaia info)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="vmagflag" arraysize="*" datatype="char" name="vmagflag" ucd="meta.ref;phot.mag;em.opt.V">
+    <DESCRIPTION>
+     Flag to identify the source of the object's V magnitude (vmag;
+     see Table 6 of DOI = 10.3847/1538-3881/ab3467 for further
+     information)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="bmagflag" arraysize="*" datatype="char" name="bmagflag" ucd="meta.ref;phot.mag;em.opt.B">
+    <DESCRIPTION>
+     Flag to identify the source of the object's B magnitude (bmag;
+     see Table 6 of DOI = 10.3847/1538-3881/ab3467 for further
+     information)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="splists" arraysize="*" datatype="char" name="splists" ucd="meta.code">
+    <DESCRIPTION>
+     Flag to identify if the object is in a specially curated list
+     (one of: NULL or cooldwarfs_v8 or hotsubdwarfs_v8; see DOI =
+     10.3847/1538-3881/ab3467 for further information)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_ra" datatype="double" name="e_ra" ucd="stat.error;pos.eq.ra" unit="mas">
+    <DESCRIPTION>
+     Error in right ascension in mas (ra; min: 0)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_dec" datatype="double" name="e_dec" ucd="stat.error;pos.eq.dec" unit="mas">
+    <DESCRIPTION>
+     Error in declination in mas (dec; min: 0)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="ra_orig" datatype="double" name="ra_orig" ucd="pos.eq.ra" unit="deg">
+    <DESCRIPTION>
+     Right ascension from original catalog in decimal degrees (min: 0;
+     max: 360)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="dec_orig" datatype="double" name="dec_orig" ucd="pos.eq.dec" unit="deg">
+    <DESCRIPTION>
+     Dec from original catalog in decimal degrees (min: -90; max: 90)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_ra_orig" datatype="double" name="e_ra_orig" ucd="stat.error;pos.eq.ra" unit="mas">
+    <DESCRIPTION>
+     Error in ra_orig in mas (min: 0)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="e_dec_orig" datatype="double" name="e_dec_orig" ucd="stat.error;pos.eq.dec" unit="mas">
+    <DESCRIPTION>
+     Error in dec_orig in mas (min: 0)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="raddflag" datatype="int" name="raddflag" ucd="meta.code">
+    <DESCRIPTION>
+     Flag to identify the luminosity class of the object based on the
+     object's stellar radius (-1 for insufficient information; 0 for
+     giant; 1 for dwarf)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="wdflag" datatype="int" name="wdflag" ucd="meta.code">
+    <DESCRIPTION>
+     Flag to identify whether the object falls within the GAIA
+     photometric white dwarf region (-1 for insufficient information;
+     0 for no; 1 for yes)
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="objid" datatype="long" name="objid" ucd="meta.record">
+    <DESCRIPTION>
+     MAST database internal identifier (min: 1; max: 10^16)
+    </DESCRIPTION>
+   </FIELD>
+   <DATA>
+    <TABLEDATA>
+     <TR>
+      <TD>389771243</TD>
+      <TD>20190415</TD>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD>01332122+6039245</TD>
+      <TD/>
+      <TD/>
+      <TD>509862886335551872</TD>
+      <TD/>
+      <TD/>
+      <TD>STAR</TD>
+      <TD>tmgaia2</TD>
+      <TD>23.3384477500649</TD>
+      <TD>60.656808690855</TD>
+      <TD>tmgaia2</TD>
+      <TD>-1.49941</TD>
+      <TD>0.222766</TD>
+      <TD>-0.421882</TD>
+      <TD>0.270665</TD>
+      <TD>gaia2</TD>
+      <TD>0.718119</TD>
+      <TD>0.239942</TD>
+      <TD>gaia2</TD>
+      <TD>128.047766484191</TD>
+      <TD>-1.79791936799995</TD>
+      <TD>49.3944829922685</TD>
+      <TD>46.265151445825</TD>
+      <TD/>
+      <TD/>
+      <TD>19.3387</TD>
+      <TD>0.0505</TD>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD>16.188</TD>
+      <TD>0.104</TD>
+      <TD>15.632</TD>
+      <TD>0.149</TD>
+      <TD>15.236</TD>
+      <TD>0.185</TD>
+      <TD>ABC-222-111-ccc-0-0</TD>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD>18.6451</TD>
+      <TD>0.002143</TD>
+      <TD>17.6956</TD>
+      <TD>0.0236</TD>
+      <TD>rered</TD>
+      <TD>gaia2</TD>
+      <TD>4115</TD>
+      <TD>129</TD>
+      <TD>4.47448</TD>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD>0.767159</TD>
+      <TD/>
+      <TD>0.64</TD>
+      <TD/>
+      <TD>1.4175</TD>
+      <TD/>
+      <TD>DWARF</TD>
+      <TD>0.15203527</TD>
+      <TD/>
+      <TD>1438.74</TD>
+      <TD>680.7</TD>
+      <TD>0.239724</TD>
+      <TD>0.04518395</TD>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD>0.0230126</TD>
+      <TD>0.0673553</TD>
+      <TD>panstarrs</TD>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD>431.19</TD>
+      <TD>930.21</TD>
+      <TD>bj2018</TD>
+      <TD/>
+      <TD/>
+      <TD>dered</TD>
+      <TD>19.5423</TD>
+      <TD>0.029285</TD>
+      <TD>17.5864</TD>
+      <TD>0.009821</TD>
+      <TD>1</TD>
+      <TD>gaia2</TD>
+      <TD/>
+      <TD/>
+      <TD>4.00275710846545</TD>
+      <TD>4.19813518760871</TD>
+      <TD>23.3384345760444</TD>
+      <TD>60.6568068744192</TD>
+      <TD>0.139034191249897</TD>
+      <TD>0.154058540438958</TD>
+      <TD>1</TD>
+      <TD>0</TD>
+      <TD>21716702</TD>
+     </TR>
+     <TR>
+      <TD>626516980</TD>
+      <TD>20190415</TD>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD>509862821919373824</TD>
+      <TD/>
+      <TD/>
+      <TD>STAR</TD>
+      <TD>gaia2</TD>
+      <TD>23.3424814143723</TD>
+      <TD>60.6580820170224</TD>
+      <TD>gaia2</TD>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD>128.049505340784</TD>
+      <TD>-1.7963452632486</TD>
+      <TD>49.3978953150112</TD>
+      <TD>46.2651885297731</TD>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD>21.0609</TD>
+      <TD>0.020971</TD>
+      <TD>20.6309</TD>
+      <TD>0.6</TD>
+      <TD>goffs</TD>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD>0</TD>
+      <TD/>
+      <TD>0</TD>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD/>
+      <TD>2.91672966794909</TD>
+      <TD>4.26470676184499</TD>
+      <TD>23.3424814143723</TD>
+      <TD>60.6580820170224</TD>
+      <TD>2.91672966794909</TD>
+      <TD>4.26470676184499</TD>
+      <TD/>
+      <TD>0</TD>
+      <TD>22205941</TD>
+     </TR>
+    </TABLEDATA>
+   </DATA>
+  </TABLE>
+ </RESOURCE>
+</VOTABLE>
