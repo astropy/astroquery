@@ -401,7 +401,7 @@ def find_fastest_mirror(servers, path="/", timeout=1.0):
     """
     import time
     import requests
-    timings = {}
+    timings, failures = {}, {}
     for server in servers:
         t0 = time.perf_counter()
         try:
@@ -409,10 +409,12 @@ def find_fastest_mirror(servers, path="/", timeout=1.0):
             response = requests.head(f"https://{server}{path}", timeout=timeout,
                                      allow_redirects=True)
             if response.status_code >= 500:
+                failures[server] = f"HTTP {response.status_code}"
                 continue
-        except requests.RequestException:
+        except requests.RequestException as ex:
+            failures[server] = type(ex).__name__
             continue
         timings[server] = time.perf_counter() - t0
     if not timings:
-        raise RuntimeError(f"No mirror among {list(servers)} responded within {timeout}s.")
+        raise RuntimeError(f"No mirror responded within {timeout}s: {failures}")
     return min(timings, key=timings.get), timings

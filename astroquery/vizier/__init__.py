@@ -23,10 +23,9 @@ class Conf(_config.ConfigNamespace):
 
     # the first item is the default
     servers_list = ['vizier.cds.unistra.fr',
+                    'vizier.idia.ac.za',
                     'vizier.cfa.harvard.edu',
                     'vizier.nao.ac.jp',
-                    'vizier.hia.nrc.ca',
-                    'vizier.ast.cam.ac.uk',
                     'vizier.iucaa.ernet.in',
                     'vizier.china-vo.org',
                     ]
