@@ -149,6 +149,7 @@ class ServiceAPI(BaseQuery):
 
     SERVICE_URL = conf.server
     REQUEST_URL = conf.server + "/api/v0.1/"
+    MISSIONS_URL = conf.server + "/search/"
     MISSIONS_DOWNLOAD_URL = conf.server + "/search/"
     MAST_DOWNLOAD_URL = conf.server + "/api/v0.1/Download/file"
     SERVICES = {}
