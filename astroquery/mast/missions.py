@@ -988,18 +988,28 @@ class MastMissionsClass(MastQueryWithLogin):
 
     def download_file(self, uri, *, local_path=None, cache=True, mission=None, verbose=True):
         """
-        Construct the full download URL for a given data URI based on the mission.
+        Downloads a single file based on the data URI.
 
         Parameters
         ----------
         uri : str
-            The product filename or URI for which to construct the download URL.
+            The product filename or URI to be downloaded.
+        local_path : str
+            Directory or filename to which the file will be downloaded.  Defaults to current working directory.
+        cache : bool
+            Default is True. If file is found on disk, it will not be downloaded again.
         mission : str, optional
             The mission to which the file belongs. If not provided, the current value of the ``mission`` attribute
             will be used.
+        verbose : bool, optional
+            Default is True. Whether to show download progress in the console.
 
         Returns
         -------
+        status: str
+            Download status message.  Either COMPLETE, SKIPPED, or ERROR.
+        msg : str
+            An error status message, if any.
         url : str
             The full URL download path.
         """
