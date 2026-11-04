@@ -1185,11 +1185,11 @@ class LamostClass(BaseQuery):
             allowed=('json', 'csv', 'votable', 'txt'),
         )
         request_payload = {
-            'rows': max_rows,
-            'page': page,
             'output.fmt': output_format,
             'order': sort_order
         }
+        if max_rows != 'all':
+            request_payload.update(rows=max_rows, page=page)
 
         if column_constraints:
             request_payload['column_constraints'] = column_constraints
@@ -1249,8 +1249,10 @@ class LamostClass(BaseQuery):
             Column used for sorting.
         sort_order : {"asc", "desc"}, optional
             Sort order.
-        max_rows : int, optional
-            Maximum rows in this page. Additional pages are not fetched automatically.
+        max_rows : int or str, optional
+            Maximum rows per page (default 100), or 'all' for no client row
+            limit. Using 'all' requires page=1. Additional pages are not
+            fetched automatically.
         page : int, optional
             One-based page number.
         output_format : {None, "json", "csv", "votable", "txt"}, optional
@@ -1292,8 +1294,11 @@ class LamostClass(BaseQuery):
 
         if output_format is None:
             output_format = 'csv' if self._legacy_metadata() else 'json'
-        max_rows = self._page_integer(max_rows, 'max_rows')
+        if not (isinstance(max_rows, str) and max_rows == 'all'):
+            max_rows = self._page_integer(max_rows, 'max_rows')
         page = self._page_integer(page, 'page')
+        if max_rows == 'all' and page != 1:
+            raise InvalidQueryError("max_rows='all' requires page=1.")
         use_sql = self._legacy_metadata() or bool(position_constraints and (
             not isinstance(position_constraints, Mapping) or set(position_constraints) != {'rect'}))
         schema = None
@@ -1470,8 +1475,9 @@ class LamostClass(BaseQuery):
             Column used for sorting.
         sort_order : {"asc", "desc"}, optional
             Sort order.
-        max_rows : int, optional
-            Maximum rows per page.
+        max_rows : int or str, optional
+            Maximum rows per page (default 100), or 'all' for no client row
+            limit. Using 'all' requires page=1.
         page : int, optional
             One-based page number.
         output_format : {None, "json", "csv", "votable", "txt"}, optional
@@ -1587,8 +1593,9 @@ class LamostClass(BaseQuery):
             Column used for sorting.
         sort_order : {"asc", "desc"}, optional
             Sort order.
-        max_rows : int, optional
-            Maximum rows per page.
+        max_rows : int or str, optional
+            Maximum rows per page (default 100), or 'all' for no client row
+            limit. Using 'all' requires page=1.
         page : int, optional
             One-based page number.
         output_format : {None, "json", "csv", "votable", "txt"}, optional

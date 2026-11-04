@@ -225,7 +225,8 @@ original one-based text line number (including skipped comments/header lines),
 so repeated positions and overlapping matches remain distinguishable.
 ``inputobjs_dist_arcsec`` gives the angular separation in arcseconds.
 For batch nearest matching, one qualifying row is selected per input;
-``max_rows`` then limits the complete output page, not each input separately.
+an integer ``max_rows`` then limits the complete output page, not each input
+separately.
 
 On SQL-backed paths, ``contains`` uses case-insensitive ``ILIKE`` patterns:
 ``%`` and ``_`` act as wildcards. Equivalence with the native structured
@@ -285,7 +286,8 @@ Catalog Pagination
 ``query_catalog``, ``query_spectra``, and ``query_stellar_parameters`` return
 one page per call, with a default ``max_rows=100`` and one-based ``page``.
 This is a client default to limit data transfer, not a general 100-row limit
-of the LAMOST service. These methods do not automatically fetch all matches.
+of the LAMOST service. With an integer ``max_rows``, additional pages are not
+fetched automatically.
 To request another page, keep the selection, page size, and sort order fixed:
 
 .. code-block:: python
@@ -297,6 +299,17 @@ To request another page, keep the selection, page size, and sort order fixed:
 An empty table marks the end of the results. Pages are separate requests,
 not an atomic snapshot of a changing catalog. Errors propagate instead of
 being treated as an empty final page.
+
+Set ``max_rows='all'`` with ``page=1`` (the default) to request all matching
+rows in one response, without a client row limit:
+
+.. code-block:: python
+
+   matches = lamost.query_spectra(
+       coord, '0.2 deg', columns=['obsid', 'ra', 'dec'], max_rows='all')
+
+Selection criteria and ``nearest_only`` still apply. Large results may
+exceed service timeouts or available memory.
 
 Data Products
 =============

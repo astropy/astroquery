@@ -56,10 +56,11 @@ def test_unknown_release_does_not_guess_catalog():
         LamostClass(data_release='dr99').query_stellar_parameters(get_query_payload=True)
 
 
-def test_proximity_preserves_input_lines_and_filters_before_nearest(spectral_schema):
+@pytest.mark.parametrize('max_rows', [3, 'all'])
+def test_proximity_preserves_input_lines_and_filters_before_nearest(spectral_schema, max_rows):
     client = LamostClass(token='private-token')
     payload = client.query_catalog(
-        'combined', columns=['obsid', 'teff'], max_rows=3,
+        'combined', columns=['obsid', 'teff'], max_rows=max_rows,
         position_constraints={'proximity': {'radecTextarea': '# targets\nra, dec, radius\n10, 40, 720\n10, 40, 720',
                                             'proximity_nearestonly': True}},
         column_constraints=[{'column_name': 'teff', 'operation': 'between', 'min': 4500, 'max': 6500}],
@@ -69,7 +70,10 @@ def test_proximity_preserves_input_lines_and_filters_before_nearest(spectral_sch
     assert '(3, 10.0, 40.0,' in sql and '(4, 10.0, 40.0,' in sql
     assert sql.index('t."teff" <= 6500') < sql.index('LIMIT 1')
     assert 'inputobjs_input_line' in sql
-    assert sql.endswith('LIMIT 3 OFFSET 0')
+    if max_rows == 'all':
+        assert sql.count('LIMIT') == 1 and 'OFFSET' not in sql
+    else:
+        assert sql.endswith('LIMIT 3 OFFSET 0')
     assert 'private-token' not in repr(payload)
 
 
@@ -95,6 +99,7 @@ def test_sql_escapes_strings_and_pages_without_deduplication():
 @pytest.mark.parametrize('kwargs', [
     {'nearest_only': 'False'}, {'nearest_only': True, 'page': 2},
     {'page': 0}, {'max_rows': True},
+    {'max_rows': 'ALL'}, {'max_rows': np.array([1, 2])},
 ])
 def test_invalid_query_parameters(spectral_schema, kwargs):
     with pytest.raises(InvalidQueryError):

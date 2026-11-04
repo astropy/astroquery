@@ -201,6 +201,8 @@ class TestLamost:
         query = getattr(LamostClass(token=token), method)
         assert query(*args, get_query_payload=True)['json']['rows'] == 100
         assert query(*args, max_rows=7, get_query_payload=True)['json']['rows'] == 7
+        payload = query(*args, max_rows='all', get_query_payload=True)['json']
+        assert 'rows' not in payload and 'page' not in payload
 
     def test_query_catalog_payload_simple(self):
         """Test catalog query payload construction"""
@@ -247,12 +249,13 @@ class TestLamost:
 
     @pytest.mark.parametrize('kwargs', [
         {'sort_order': 'bogus'}, {'columns': ['obsid', 'obsid']},
-    ], ids=['sort-order', 'duplicate-columns'])
+        {'max_rows': 'all', 'page': 2},
+    ], ids=['sort-order', 'duplicate-columns', 'all-with-page'])
     @pytest.mark.parametrize('position', [
         None, {'cone': {'racenter': 10., 'deccenter': 40., 'radius': 5.}},
     ], ids=['native', 'sql'])
     def test_query_catalog_rejects_invalid_inputs_on_both_paths(self, spectral_schema, kwargs, position):
-        with pytest.raises(InvalidQueryError, match='sort_order|duplicate'):
+        with pytest.raises(InvalidQueryError, match='sort_order|duplicate|page=1'):
             LamostClass().query_catalog(
                 'combined', position_constraints=position, get_query_payload=True, **kwargs)
 
@@ -264,7 +267,8 @@ class TestLamost:
                 get_query_payload=True)
 
     @pytest.mark.parametrize('method', ['query_catalog', 'query_spectra', 'query_stellar_parameters'])
-    def test_query_catalog_all_matches_uses_sql(self, monkeypatch, spectral_schema, method):
+    @pytest.mark.parametrize('max_rows', [5, 'all'])
+    def test_query_catalog_all_matches_uses_sql(self, monkeypatch, spectral_schema, method, max_rows):
         request = Mock(return_value=create_mock_response(json_data=[]))
         monkeypatch.setattr(LamostClass, '_request', request)
         if method == 'query_catalog':
@@ -275,12 +279,15 @@ class TestLamost:
         else:
             args = (SkyCoord(10, 40, unit='deg'), 5 * u.arcsec)
             kwargs = {'nearest_only': False}
-        result = getattr(LamostClass(), method)(*args, columns=['obsid'], max_rows=5, **kwargs)
+        result = getattr(LamostClass(), method)(*args, columns=['obsid'], max_rows=max_rows, **kwargs)
         assert len(result) == 0
         assert result['obsid'].dtype.kind == 'i'
         sql = request.call_args.kwargs['params']['sql']
         assert 'LIMIT 1' not in sql
-        assert sql.endswith('LIMIT 5 OFFSET 0')
+        if max_rows == 'all':
+            assert 'LIMIT' not in sql and 'OFFSET' not in sql
+        else:
+            assert sql.endswith('LIMIT 5 OFFSET 0')
         assert request.call_args.args[1].endswith('/sql')
 
     @pytest.mark.parametrize('token', ['', 'query-token'])

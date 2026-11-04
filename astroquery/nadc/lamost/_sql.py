@@ -178,7 +178,7 @@ def positions_sql(position):
 
 
 def catalog_sql(catalog, schema, *, constraints, position, columns, sort_by, sort_order, max_rows, page):
-    """Build a bounded SELECT; all filtering precedes nearest selection."""
+    """Build a SELECT; all filtering precedes nearest selection."""
     if sort_order not in ('asc', 'desc'):
         raise InvalidQueryError('sort_order must be asc or desc.')
     selected = list(columns or schema)
@@ -227,5 +227,6 @@ def catalog_sql(catalog, schema, *, constraints, position, columns, sort_by, sor
         if parts:
             sql += ' WHERE ' + ' AND '.join(parts)
     sql += ' ORDER BY ' + ', '.join(ordering)
-    sql += f' LIMIT {max_rows} OFFSET {(page - 1) * max_rows}'
+    if max_rows != 'all':
+        sql += f' LIMIT {max_rows} OFFSET {(page - 1) * max_rows}'
     return sql, extra_schema
