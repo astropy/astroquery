@@ -959,41 +959,6 @@ class MastMissionsClass(MastQueryWithLogin):
 
         return base_url + f'?{keyword}=' + quote(uri, safe='')
 
-    def download_file(self, uri, *, local_path=None, cache=True, mission=None, verbose=True):
-        """
-        Construct the full download URL for a given data URI based on the mission.
-
-        Parameters
-        ----------
-        uri : str
-            The product filename or URI for which to construct the download URL.
-        mission : str, optional
-            The mission to which the file belongs. If not provided, the current value of the ``mission`` attribute
-            will be used.
-
-        Returns
-        -------
-        url : str
-            The full URL download path.
-        """
-        current_mission = mission.lower() if mission else self.mission
-
-        if current_mission in ['hst', 'jwst', 'roman', 'roman_spectra', 'roman_cgi']:
-            # HST, JWST, and RST have a dedicated endpoint for retrieving products
-            base_url = (f"{self._service_api_connection.MISSIONS_DOWNLOAD_URL}{current_mission}"
-                        "/api/v0.1/retrieve_product")
-            keyword = 'product_name'
-        else:
-            # HLSPs use MAST download URL
-            base_url = self._service_api_connection.MAST_DOWNLOAD_URL
-            keyword = 'uri'
-            # These files require a MAST URI and not just a filename
-            if not uri.startswith('mast'):
-                raise InvalidQueryError(f'For mission "{current_mission}", a full MAST URI is required '
-                                        f'for downloading. Got "{uri}".')
-
-        return base_url + f'?{keyword}=' + quote(uri, safe='')
-
     def _warn_no_auth(self, download_url):
         """
         Warn the user that they are not authenticated to download the file, and provide guidance on how to authenticate.
