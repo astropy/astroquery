@@ -138,8 +138,54 @@ try:
 except ImportError:
     HAS_ASDF = False
 
+try:
+    import pyarrow
+    HAS_PYARROW = True
+except ImportError:
+    HAS_PYARROW = False
+
+try:
+    import pandas
+    HAS_PANDAS = True
+except ImportError:
+    HAS_PANDAS = False
+
+
 __all__ = ['MastMissionsClass', 'MastMissions']
 
+
+def _open_refreshing_generic(download_url, headers):
+    """
+    Shared logic for opening files from S3 URL that requires refreshing via the HTTP gateway.
+
+    Parameters
+    ----------
+    download_url : str
+        The URL to download file from.
+    headers : dict
+        The headers to include in the HTTP request.
+
+    Returns
+    -------
+    FS file object
+    """    
+    # Perform an initial request to get the S3 URL for file
+    response = requests.get(
+        download_url,
+        headers=headers,
+        allow_redirects=False,
+    )
+    response.raise_for_status()
+    s3_url = response.headers["Location"]
+
+    # Open the file using the refreshing HTTP file system
+    fs = _RefreshingHTTPFileSystem(
+        gateway_url=download_url,
+        gateway_headers=headers,
+        block_size=1 * 1024 * 1024,
+        cache_type="bytes",
+    )
+    return fs.open(s3_url, "rb")
 
 def _open_refreshing_asdf(download_url, headers, **kwargs):
     """
@@ -159,24 +205,32 @@ def _open_refreshing_asdf(download_url, headers, **kwargs):
     asdf.AsdfFile
         The opened ASDF file.
     """
-    # Perform an initial request to get the S3 URL for the ASDF file
-    response = requests.get(
-        download_url,
-        headers=headers,
-        allow_redirects=False,
-    )
-    response.raise_for_status()
-    s3_url = response.headers["Location"]
-
     # Open the ASDF file using the refreshing HTTP file system
-    fs = _RefreshingHTTPFileSystem(
-        gateway_url=download_url,
-        gateway_headers=headers,
-        block_size=1 * 1024 * 1024,
-        cache_type="bytes",
-    )
-    file_object = fs.open(s3_url, "rb")
+    file_object = _open_refreshing_generic(download_url, headers)
     return asdf.open(file_object, **kwargs)
+
+
+def _open_refreshing_parquet(download_url, headers, **kwargs):
+    """
+    Open a parquet file from an S3 URL that requires refreshing via the HTTP gateway.
+
+    Parameters
+    ----------
+    download_url : str
+        The URL to download the ASDF file from.
+    headers : dict
+        The headers to include in the HTTP request.
+    **kwargs : dict
+        Additional keyword arguments to pass to `astropy.table.Table.read`.
+
+    Returns
+    -------
+    astropy.table.Table
+        The opened parquet file as an astropy Table
+    """
+    # Open the parquet file using the refreshing HTTP file system
+    file_object = _open_refreshing_generic(download_url, headers)
+    return Table.read(file_object, **kwargs)
 
 
 @async_to_sync
@@ -1187,11 +1241,12 @@ class MastMissionsClass(MastQueryWithLogin):
     def get_product(self, uri, *, mission=None, **kwargs):
         """
         Reads a data product file directly from a URI into an appropriate in-memory object based on file type.
-        Supported file types are FITS and ASDF.
+        Supported file types are FITS, ASDF, and parquet.
 
         FITS files are opened with `~astropy.io.fits.open` and are downloaded and cached on disk. ASDF files
         are opened directly from the presigned S3 URL using `~fsspec.open` and `~asdf.open`, without being
-        downloaded to disk.
+        downloaded to disk. Parquet files are likewise opened directly from the presigned S3 URL 
+        without being downloaded to disk.
 
         Parameters
         ----------
@@ -1231,9 +1286,27 @@ class MastMissionsClass(MastQueryWithLogin):
                 if self._authenticated:
                     headers["Authorization"] = f"token {self._auth_obj.session.cookies['mast_token']}"
                 return _open_refreshing_asdf(download_url, headers, **kwargs)
+            elif uri.endswith(".parquet"):
+                if not HAS_FSSPEC:
+                    raise ImportError('The "fsspec" package is required to read products directly from a URI. '
+                                      'Please install it with `pip install fsspec` or install astroquery with '
+                                      'optional dependencies using `pip install astroquery[all]`.')
+                if not HAS_PYARROW:
+                    raise ImportError('The "pyarrow" package is required to read parquet files using astropy Table. '
+                                      'Please install it with `pip install pyarrow` or install astroquery with '
+                                      'optional dependencies using `pip install astroquery[all]`.')
+                if not HAS_PANDAS:
+                    raise ImportError('The "pandas" package is required to read parquet files using astropy Table. '
+                                      'Please install it with `pip install pandas` or install astroquery with '
+                                      'optional dependencies using `pip install astroquery[all]`.')
+
+                headers = {}
+                if self._authenticated:
+                    headers["Authorization"] = f"token {self._auth_obj.session.cookies['mast_token']}"
+                return _open_refreshing_parquet(download_url, headers, **kwargs)
             else:
                 raise InvalidQueryError(f"Unsupported file type for reading: {uri}. "
-                                        "Supported types are .fits and .asdf.")
+                                        "Supported types are .fits, .asdf, and .parquet.")
         except HTTPError as err:
             if err.response.status_code == 401:
                 self._warn_no_auth(download_url)

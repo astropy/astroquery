@@ -45,6 +45,8 @@ test = [
    "fsspec[http]",
    "moto[s3]",
    "s3fs",
+   "pandas",
+   "pyarrow",
 ]
 docs = [
    "sphinx",
@@ -62,6 +64,9 @@ all = [
    "botocore",
    "regions>=0.5",
    "roman_datamodels",
+   "fsspec[http]",
+   "pandas",
+   "pyarrow"
 ]
 
 [build-system]
