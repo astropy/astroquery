@@ -44,9 +44,7 @@ test = [
    "pytest-rerunfailures",
    "fsspec[http]",
    "moto[s3]",
-   "s3fs",
-   "pandas",
-   "pyarrow",
+   "s3fs"
 ]
 docs = [
    "sphinx",

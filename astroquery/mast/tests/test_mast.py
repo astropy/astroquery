@@ -14,7 +14,6 @@ from unittest.mock import MagicMock, patch
 import astropy.units as u
 import numpy as np
 import pytest
-import astropy
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
 from astropy.table import Table, unique
@@ -51,21 +50,17 @@ if importlib.util.find_spec("fsspec") is not None:
 else:
     HAS_FSSPEC = False
 
-try: 
-    # Optional dependency import for parquet file handling
-    import pyarrow
+# Optional dependency import for parquet file handling
+if importlib.util.find_spec("pyarrow") is not None:
     HAS_PYARROW = True
-    from pyarrow.parquet import ParquetFile
-except ImportError:
+else:
     HAS_PYARROW = False
 
-try: 
-    # Optional dependency import for parquet file handling
-    import pandas
+# Optional dependency import for parquet file handling
+if importlib.util.find_spec("pandas") is not None:
     HAS_PANDAS = True
-except ImportError:
+else:
     HAS_PANDAS = False
-
 
 DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Name.Lookup': 'resolver.json',
@@ -914,6 +909,7 @@ def mock_asdf_open(mocker):
     )
     return mock_asdf_open
 
+
 @pytest.fixture
 def mock_parquet_read(mocker):
     """Mock Table.read and fsspec.filesystem for parquet file reading without network access."""
@@ -934,14 +930,15 @@ def mock_parquet_read(mocker):
     mocker.patch("fsspec.filesystem", return_value=mock_fs)
 
     # Create a mock table
-    mock_table = Table({'id': [0,1], 'ra': [0.,2.], 'dec': [0., 45.]})
+    mock_table = Table({'id': [0, 1], 'ra': [0., 2.], 'dec': [0., 45.]})
 
-    mock_parquet_open = mocker.patch("astropy.table.Table.read", return_value=mock_table)
+    mock_parquet_open = mocker.patch.object(Table, "read", return_value=mock_table)
     mocker.patch(
         "astroquery.mast.missions._open_refreshing_parquet",
         side_effect=lambda url, headers, **kwargs: mock_parquet_open(mock_file, **kwargs),
     )
     return mock_parquet_open
+
 
 def test_missions_get_product_fits(mocker, mock_fits_open):
     """Test reading a FITS file product."""
@@ -1237,6 +1234,7 @@ def test_missions_open_refreshing_parquet(mocker):
     )
     file_system.open.assert_called_once_with(s3_url, 'rb')
     parquet_open.assert_called_once_with(file_object, copy_arrays=False)
+
 
 @pytest.mark.parametrize(
     ('dependency', 'message'),
