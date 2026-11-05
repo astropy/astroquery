@@ -470,7 +470,7 @@ or MAST URLs based on their preference.
 For convenience, `~astroquery.mast.ObservationsClass.get_product_urls` supports the same filtering options as
 `~astroquery.mast.ObservationsClass.filter_products`, allowing users to retrieve URLs for only a selected subset of products.
 
-.. doctest-skip::
+.. doctest-remote-data::
 
    >>> from astroquery.mast import Observations
    ...

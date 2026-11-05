@@ -935,7 +935,7 @@ class ObservationsClass(MastQueryWithLogin):
                           'Message': [msg]})
         return manifest
 
-    def _build_products_list(self, products, mrp_only=None, **filters):
+    def _build_products_list(self, products, *, mrp_only=None, **filters):
         """
         Builds a list of data products.
 
@@ -1138,7 +1138,7 @@ class ObservationsClass(MastQueryWithLogin):
         # Get the filtered products table or URI list
         products = self._build_products_list(products, mrp_only=mrp_only, **filters)
 
-        if not len(products):
+        if len(products) == 0:
             warnings.warn("No products to return urls for.", NoResultsWarning)
             return
 
