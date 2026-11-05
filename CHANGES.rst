@@ -239,6 +239,8 @@ mast
 - Added the ``MastMissions.get_product`` method to read data products directly into memory as an `~astropy.io.fits.HDUList`
   or an `~asdf.AsdfFile` object. [#3593]
 - Added ``get_cloud_uri_map`` method to ``MastMissions`` for mapping data products to their corresponding cloud URIs. [#3690]
+- Added support to the ``MastMissions.get_product`` method for streaming parquet files directly to memory as an 
+  `~astropy.table.Table` object. [#3702]
 
 
 jplspec
