@@ -66,6 +66,9 @@ intersphinx_mapping.update({
     'fsspec': ('https://filesystem-spec.readthedocs.io/en/stable', None),
 })
 
+# Disable type hints in the API documentation.
+autodoc_typehints = "none"
+
 # -- Project information ------------------------------------------------------
 
 # This does not *have* to match the package name, but typically does
