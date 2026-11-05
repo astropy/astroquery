@@ -475,6 +475,48 @@ download but will return useful information about the state of your downloads:
    >>> myAlma.download_files(link_list, cache=True, verify_only=True)  # doctest: +SKIP
 
 
+Filtering results, downloads, and cutouts
+=========================================
+
+After a TAP query you can filter the table in memory, then resolve
+download URLs or cutouts. Identifiers come from ``obs_id`` when
+present (product-level, so resolution filters apply), otherwise
+``member_ous_uid``.
+
+Unfiltered ALMA cubes can be very large. Filter first, then call
+:meth:`~astroquery.alma.AlmaClass.get_data_urls`. Pass ``coordinates``
+and ``radius`` for a spatial cutout, ``frequency`` for a spectral
+cutout, or both. ``coordinates`` must be a
+`~astropy.coordinates.SkyCoord`, and ``radius`` and ``frequency``
+must be `~astropy.units.Quantity` values (for example
+``0.01 * u.deg`` and ``(221.249, 221.576) * u.GHz``). Open-ended
+frequency bounds use ``numpy.inf``, e.g. ``(-np.inf, np.inf) * u.GHz``
+or ``(230, np.inf) * u.GHz``; these are sent to SODA as ``-Inf`` /
+``+Inf``. Omit the cutout arguments for full products.
+
+.. doctest-skip::
+
+    >>> from astroquery.alma import Alma
+    >>> from astropy.coordinates import SkyCoord
+    >>> import astropy.units as u
+    >>> alma = Alma()
+    >>> coords = SkyCoord('18h12m50.92235s', '-06d48m23.493s', frame='icrs')
+    >>> result = alma.query_region(coords, radius=0.001*u.deg)
+    >>> filtered = result[(result['spatial_resolution'] < 1.7) &
+    ...                   (result['velocity_resolution'] > 1000)]
+    >>> urls = alma.get_data_urls(filtered)
+    >>> cutout_urls = alma.get_data_urls(filtered, coordinates=coords,
+    ...                                  radius=0.01*u.deg,
+    ...                                  frequency=(221.249, 221.576) * u.GHz)
+    >>> alma.download_files(cutout_urls)
+
+:meth:`~astroquery.alma.AlmaClass.get_data` and
+:meth:`~astroquery.alma.AlmaClass.get_data_async` combine a region query
+with download in one call. Set ``cutout=True`` to apply a spatial cutout
+at the query position, and optionally pass ``frequency`` for a spectral
+cutout. Prefer the filter-then-download path above for ALMA.
+
+
 Downloading FITS data
 =====================
 
