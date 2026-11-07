@@ -1,0 +1,45 @@
+{
+ "sites": [
+  "bpl",
+  "coj",
+  "cpt",
+  "elp",
+  "lsc"
+ ],
+ "telescopes": [
+  "0m4a",
+  "0m4b",
+  "0m4c",
+  "0m8a",
+  "1m0a"
+ ],
+ "filters": [
+  "gp",
+  "rp",
+  "up",
+  "ip",
+  "zp",
+  "R",
+  "B"
+ ],
+ "instruments": [
+  "fa16",
+  "kb80",
+  "ep05",
+  "fl08",
+  "ak01"
+ ],
+ "obstypes": [
+  "ARC",
+  "BIAS",
+  "BPM",
+  "CATALOG",
+  "DARK"
+ ],
+ "proposals": [
+  "TEST-PROPOSAL-001",
+  "TEST-PROPOSAL-002",
+  "TEST-PROPOSAL-003"
+ ],
+ "generated_at": "2026-09-01T19:45:03.216Z"
+}

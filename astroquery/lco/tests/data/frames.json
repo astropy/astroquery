@@ -1,0 +1,202 @@
+{
+ "next": null,
+ "previous": null,
+ "results": [
+  {
+   "id": 97456069,
+   "basename": "lsc1m005-fa15-20240101-0001-e91",
+   "observation_date": "2024-01-01T00:00:00.000000Z",
+   "observation_day": "2024-01-01",
+   "proposal_id": "TEST-PROPOSAL-001",
+   "instrument_id": "fa15",
+   "target_name": "TEST-TARGET",
+   "reduction_level": 91,
+   "site_id": "lsc",
+   "telescope_id": "1m0a",
+   "exposure_time": 600.0,
+   "primary_optical_element": "SII",
+   "public_date": "2024-01-01T00:00:00.000000Z",
+   "configuration_type": "EXPOSE",
+   "observation_id": 830398287,
+   "request_id": 4365225,
+   "version_set": [
+    {
+     "id": 99780209,
+     "key": "TESTKEY99780209",
+     "md5": "00000000000000000000000000000000",
+     "extension": ".fits.fz",
+     "url": "https://archive-lco-global.s3.us-west-2.amazonaws.com/lsc/fa15/20240101/processed/lsc1m005-fa15-20240101-0001-e91.fits.fz?versionId=TESTVERSIONID&X-Amz-Signature=0000000000000000000000000000000000000000000000000000000000000000",
+     "created": "2024-01-01T00:05:00.000000Z"
+    }
+   ],
+   "url": "https://archive-lco-global.s3.us-west-2.amazonaws.com/lsc/fa15/20240101/processed/lsc1m005-fa15-20240101-0001-e91.fits.fz?versionId=TESTVERSIONID&X-Amz-Signature=0000000000000000000000000000000000000000000000000000000000000000",
+   "filename": "lsc1m005-fa15-20240101-0001-e91.fits.fz",
+   "thumbnails": [
+    {
+     "id": 16591406,
+     "frame": 97456069,
+     "size": "large",
+     "basename": "lsc1m005-fa15-20240101-0001-e91-large_thumbnail",
+     "extension": ".jpg",
+     "key": "TESTKEY16591406",
+     "url": "https://archive-lco-global.s3.us-west-2.amazonaws.com/lsc/fa15/20240101/thumbnails/lsc1m005-fa15-20240101-0001-e91-large_thumbnail.jpg?versionId=TESTVERSIONID&X-Amz-Signature=0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+     "id": 16591407,
+     "frame": 97456069,
+     "size": "small",
+     "basename": "lsc1m005-fa15-20240101-0001-e91-small_thumbnail",
+     "extension": ".jpg",
+     "key": "TESTKEY16591407",
+     "url": "https://archive-lco-global.s3.us-west-2.amazonaws.com/lsc/fa15/20240101/thumbnails/lsc1m005-fa15-20240101-0001-e91-small_thumbnail.jpg?versionId=TESTVERSIONID&X-Amz-Signature=0000000000000000000000000000000000000000000000000000000000000000"
+    }
+   ],
+   "DATE_OBS": "2024-01-01T00:00:00.000000Z",
+   "DAY_OBS": "2024-01-01",
+   "PROPID": "TEST-PROPOSAL-001",
+   "INSTRUME": "fa15",
+   "OBJECT": "TEST-TARGET",
+   "RLEVEL": 91,
+   "SITEID": "lsc",
+   "TELID": "1m0a",
+   "EXPTIME": 600.0,
+   "FILTER": "SII",
+   "L1PUBDAT": "2024-01-01T00:00:00.000000Z",
+   "OBSTYPE": "EXPOSE",
+   "BLKUID": 830398287,
+   "REQNUM": 4365225,
+   "area": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -148.79887538711287,
+       54.08620189033855
+      ],
+      [
+       -148.78857713225287,
+       54.58254204685201
+      ],
+      [
+       -149.64511461767603,
+       54.58556850167396
+      ],
+      [
+       -149.64513499437402,
+       54.089192029060975
+      ],
+      [
+       -148.79887538711287,
+       54.08620189033855
+      ]
+     ]
+    ]
+   },
+   "related_frames": [
+    65362998,
+    97116214,
+    97396742,
+    97425596,
+    97425830
+   ]
+  },
+  {
+   "id": 97456152,
+   "basename": "lsc1m005-fa15-20240101-0002-e91",
+   "observation_date": "2024-01-01T01:00:00.000000Z",
+   "observation_day": "2024-01-01",
+   "proposal_id": "TEST-PROPOSAL-001",
+   "instrument_id": "fa15",
+   "target_name": "TEST-TARGET",
+   "reduction_level": 91,
+   "site_id": "lsc",
+   "telescope_id": "1m0a",
+   "exposure_time": 600.0,
+   "primary_optical_element": "OIII",
+   "public_date": "2024-01-01T01:00:00.000000Z",
+   "configuration_type": "EXPOSE",
+   "observation_id": 830398287,
+   "request_id": 4365225,
+   "version_set": [
+    {
+     "id": 99780320,
+     "key": "TESTKEY99780320",
+     "md5": "00000000000000000000000000000000",
+     "extension": ".fits.fz",
+     "url": "https://archive-lco-global.s3.us-west-2.amazonaws.com/lsc/fa15/20240101/processed/lsc1m005-fa15-20240101-0002-e91.fits.fz?versionId=TESTVERSIONID&X-Amz-Signature=0000000000000000000000000000000000000000000000000000000000000000",
+     "created": "2024-01-01T01:05:00.000000Z"
+    }
+   ],
+   "url": "https://archive-lco-global.s3.us-west-2.amazonaws.com/lsc/fa15/20240101/processed/lsc1m005-fa15-20240101-0002-e91.fits.fz?versionId=TESTVERSIONID&X-Amz-Signature=0000000000000000000000000000000000000000000000000000000000000000",
+   "filename": "lsc1m005-fa15-20240101-0002-e91.fits.fz",
+   "thumbnails": [
+    {
+     "id": 16591463,
+     "frame": 97456152,
+     "size": "large",
+     "basename": "lsc1m005-fa15-20240101-0002-e91-large_thumbnail",
+     "extension": ".jpg",
+     "key": "TESTKEY16591463",
+     "url": "https://archive-lco-global.s3.us-west-2.amazonaws.com/lsc/fa15/20240101/thumbnails/lsc1m005-fa15-20240101-0002-e91-large_thumbnail.jpg?versionId=TESTVERSIONID&X-Amz-Signature=0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+     "id": 16591465,
+     "frame": 97456152,
+     "size": "small",
+     "basename": "lsc1m005-fa15-20240101-0002-e91-small_thumbnail",
+     "extension": ".jpg",
+     "key": "TESTKEY16591465",
+     "url": "https://archive-lco-global.s3.us-west-2.amazonaws.com/lsc/fa15/20240101/thumbnails/lsc1m005-fa15-20240101-0002-e91-small_thumbnail.jpg?versionId=TESTVERSIONID&X-Amz-Signature=0000000000000000000000000000000000000000000000000000000000000000"
+    }
+   ],
+   "DATE_OBS": "2024-01-01T01:00:00.000000Z",
+   "DAY_OBS": "2024-01-01",
+   "PROPID": "TEST-PROPOSAL-001",
+   "INSTRUME": "fa15",
+   "OBJECT": "TEST-TARGET",
+   "RLEVEL": 91,
+   "SITEID": "lsc",
+   "TELID": "1m0a",
+   "EXPTIME": 600.0,
+   "FILTER": "OIII",
+   "L1PUBDAT": "2024-01-01T01:00:00.000000Z",
+   "OBSTYPE": "EXPOSE",
+   "BLKUID": 830398287,
+   "REQNUM": 4365225,
+   "area": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -148.80001611886118,
+       54.08635364673273
+      ],
+      [
+       -148.7896832551423,
+       54.582697650479396
+      ],
+      [
+       -149.6462310710969,
+       54.58574431806907
+      ],
+      [
+       -149.6462857943921,
+       54.08936375516897
+      ],
+      [
+       -148.80001611886118,
+       54.08635364673273
+      ]
+     ]
+    ]
+   },
+   "related_frames": [
+    65362998,
+    97256703,
+    97396733,
+    97425596,
+    97425830
+   ]
+  }
+ ]
+}
