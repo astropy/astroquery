@@ -97,6 +97,11 @@ esa.esasky
 - Attribute timeout has been deprecated on esasky.conf, use ESASKY_CONNECTION_TIMEOUT instead.
 - Attribute row_limit has been deprecated on esasky.conf, use ESASKY_ROW_LIMIT instead.
 
+jplhorizons
+^^^^^^^^^^^
+
+- Adding ``vector_table`` as an optional parameter for the ``Horizons.vectors`` method. [#3273]
+
 vizier
 ^^^^^^
 

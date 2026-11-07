@@ -959,7 +959,7 @@ class HorizonsClass(BaseQuery):
     def vectors_async(self, *, get_query_payload=False,
                       closest_apparition=False, no_fragments=False,
                       get_raw_response=False, cache=True,
-                      refplane='ecliptic', vector_table="3", 
+                      refplane='ecliptic', vector_table="3",
                       aberrations='geometric', delta_T=False,):
         """
         Query JPL Horizons for state vectors.
@@ -1057,7 +1057,7 @@ class HorizonsClass(BaseQuery):
 
             See :ref:`Horizons Reference Frames <jpl-horizons-reference-frames>`
             in the astroquery documentation for details.
-        
+
         vector_table : string, optional
             Selects the table of vectors to be returned. Options are numbers 1-6,
             followed by any string of characters in the list [``'x'``, ``'a'``,
@@ -1417,8 +1417,8 @@ class HorizonsClass(BaseQuery):
         headerline = [h.strip() for h in headerline]
 
         # add numbers to duplicates
-        headerline_seen = {} # format - column_name: [headerline_idx, count]
-        dup_col_to_orig = {} # format - remapped_column_name: [original_column_name, index], used for later processing
+        headerline_seen = {}  # format - column_name: [headerline_idx, count]
+        dup_col_to_orig = {}  # format - remapped_column_name: [original_column_name, index], used for later processing
         for i, col in enumerate(headerline):
             if col in headerline_seen:
                 headerline_seen[col][1] += 1
@@ -1505,7 +1505,7 @@ class HorizonsClass(BaseQuery):
         # rename columns
         for col in rename:
             try:
-                if col in dup_col_to_orig.keys(): # preserve index on duplicate columns
+                if col in dup_col_to_orig.keys():  # preserve index on duplicate columns
                     to_rename = f"{column_defs[dup_col_to_orig[col][0]][0]}_{dup_col_to_orig[col][1]}"
                 else:
                     to_rename = column_defs[col][0]
