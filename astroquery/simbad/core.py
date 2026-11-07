@@ -25,6 +25,7 @@ from astroquery.simbad.utils import (_catch_deprecated_fields_with_arguments,
                                      query_criteria_fields)
 
 from pyvo.dal import TAPService, TAPQuery
+from astroquery import log
 from . import conf
 
 
@@ -113,7 +114,8 @@ class SimbadClass(BaseVOQuery):
     """
     SIMBAD_URL = 'https://' + conf.server + '/simbad/sim-script'
 
-    def __init__(self, ROW_LIMIT=None, *, timeout=None, extra_user_agents=None):
+    def __init__(self, ROW_LIMIT=None, *, timeout=None, extra_user_agents=None,
+                 find_mirror=False):
         super().__init__(extra_user_agents=extra_user_agents)
         # to create the TAPService
         self._server = conf.server
@@ -125,7 +127,22 @@ class SimbadClass(BaseVOQuery):
         self.joins = []  # a list of _Join
         self.criteria = []  # a list of strings
         self.ROW_LIMIT = ROW_LIMIT
+        if find_mirror:
+            self.find_mirror()
         self.timeout = timeout
+
+    @property
+    def servers_list(self):
+        """The list of available SIMBAD mirrors."""
+        return list(conf.servers_list)
+
+    def find_mirror(self, timeout=1.0):
+        """Switch to the fastest responding mirror and return its name."""
+        server, timings = commons.find_fastest_mirror(
+            self.servers_list, path="/simbad/sim-tap/capabilities", timeout=timeout)
+        self.server = server
+        log.info(f"Using SIMBAD mirror {server} ({timings[server]:.2f}s)")
+        return server
 
     @property
     def ROW_LIMIT(self):
