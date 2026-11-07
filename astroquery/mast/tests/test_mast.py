@@ -50,6 +50,18 @@ if importlib.util.find_spec("fsspec") is not None:
 else:
     HAS_FSSPEC = False
 
+# Optional dependency import for parquet file handling
+if importlib.util.find_spec("pyarrow") is not None:
+    HAS_PYARROW = True
+else:
+    HAS_PYARROW = False
+
+# Optional dependency import for parquet file handling
+if importlib.util.find_spec("pandas") is not None:
+    HAS_PANDAS = True
+else:
+    HAS_PANDAS = False
+
 DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Name.Lookup': 'resolver.json',
               'mission_search_results': 'mission_results.json',
@@ -898,6 +910,36 @@ def mock_asdf_open(mocker):
     return mock_asdf_open
 
 
+@pytest.fixture
+def mock_parquet_read(mocker):
+    """Mock Table.read and fsspec.filesystem for parquet file reading without network access."""
+    # Mock response from requests.get for the initial URL fetch
+    mock_response = MagicMock()
+    mock_response.status_code = 307
+    mock_response.headers = {
+        "Location": "https://example-bucket.s3.amazonaws.com/test.parquet?signature=abc123"
+    }
+    mock_requests = MagicMock()
+    mock_requests.get.return_value = mock_response
+    mocker.patch("requests.get", mock_requests)
+
+    # Mock fsspec.filesystem and the file handle
+    mock_fs = MagicMock()
+    mock_file = MagicMock()
+    mock_fs.open.return_value = mock_file
+    mocker.patch("fsspec.filesystem", return_value=mock_fs)
+
+    # Create a mock table
+    mock_table = Table({'id': [0, 1], 'ra': [0., 2.], 'dec': [0., 45.]})
+
+    mock_parquet_open = mocker.patch.object(Table, "read", return_value=mock_table)
+    mocker.patch(
+        "astroquery.mast.missions._open_refreshing_parquet",
+        side_effect=lambda url, headers, **kwargs: mock_parquet_open(mock_file, **kwargs),
+    )
+    return mock_parquet_open
+
+
 def test_missions_get_product_fits(mocker, mock_fits_open):
     """Test reading a FITS file product."""
     mocker.patch.object(MastMissions, "_get_download_url", return_value="https://test.url/file.fits")
@@ -927,6 +969,23 @@ def test_missions_get_product_asdf(mocker, mock_asdf_open):
     # Verify asdf.open was called with kwargs
     assert mock_asdf_open.call_args[1]['copy_arrays'] is True
     assert isinstance(obj, asdf.AsdfFile)
+
+
+@pytest.mark.skipif(not HAS_PYARROW or not HAS_PANDAS or not HAS_FSSPEC, reason="Requires pyarrow, pandas, & fsspec")
+def test_missions_get_product_parquet(mocker, mock_parquet_read):
+    """Test reading an parquet file product."""
+    # Mock importlib.util.find_spec to always return a spec (all packages present)
+    mocker.patch("importlib.util.find_spec", return_value=MagicMock())
+
+    uri = "file.parquet"
+    obj = MastMissions.get_product(uri, mission='roman')
+    assert isinstance(obj, Table)
+
+    # Additional kwargs should be passed to Table.read
+    obj = MastMissions.get_product(uri, mission='roman', include_names=["flagged_spatial_id", "dust_ebv"])
+    # Verify Table.read was called with kwargs
+    assert mock_parquet_read.call_args[1]['include_names'] == ["flagged_spatial_id", "dust_ebv"]
+    assert isinstance(obj, Table)
 
 
 @pytest.mark.skipif(not HAS_ASDF or not HAS_FSSPEC, reason="Requires asdf and fsspec")
@@ -1143,6 +1202,56 @@ def test_missions_get_product_asdf_missing_dependency(mocker, dependency, messag
 
     with pytest.raises(ImportError, match=message):
         MastMissions.get_product('test_file.asdf', mission='roman')
+
+
+@pytest.mark.skipif(not HAS_PYARROW or not HAS_PANDAS or not HAS_FSSPEC, reason="Requires pyarrow, pandas, & fsspec")
+def test_missions_open_refreshing_parquet(mocker):
+    download_url = 'https://mast.example/retrieve_product?product_name=test.parquet'
+    headers = {'Authorization': 'token test'}
+    s3_url = 'https://bucket.example/test.parquet?signature=abc'
+    response = MagicMock()
+    response.headers = {'Location': s3_url}
+    request = mocker.patch.object(missions_module.requests, 'get', return_value=response)
+    file_object = object()
+    file_system = MagicMock()
+    file_system.open.return_value = file_object
+    file_system_class = mocker.patch.object(
+        missions_module, '_RefreshingHTTPFileSystem', return_value=file_system
+    )
+    parquet_file = object()
+    parquet_open = mocker.patch.object(missions_module.Table, 'read', return_value=parquet_file)
+
+    result = missions_module._open_refreshing_parquet(download_url, headers, copy_arrays=False)
+
+    assert result is parquet_file
+    request.assert_called_once_with(download_url, headers=headers, allow_redirects=False)
+    response.raise_for_status.assert_called_once_with()
+    file_system_class.assert_called_once_with(
+        gateway_url=download_url,
+        gateway_headers=headers,
+        block_size=1024 * 1024,
+        cache_type='bytes',
+    )
+    file_system.open.assert_called_once_with(s3_url, 'rb')
+    parquet_open.assert_called_once_with(file_object, copy_arrays=False)
+
+
+@pytest.mark.parametrize(
+    ('dependency', 'message'),
+    [('fsspec', 'The "fsspec" package is required'),
+     ('pyarrow', 'The "pyarrow" package is required'),
+     ('pandas', 'The "pandas" package is required')],
+)
+def test_missions_get_product_parquet_missing_dependency(mocker, dependency, message):
+    if dependency in ['pyarrow', 'pandas'] and missions_module.HAS_FSSPEC is False:
+        pytest.skip('The fsspec-missing branch is exercised first when fsspec is unavailable.')
+    if dependency == 'pandas' and missions_module.HAS_PYARROW is False:
+        pytest.skip('The pyarrow-missing branch is exercised first when pyarrow is unavailable.')
+
+    mocker.patch.object(missions_module, f'HAS_{dependency.upper()}', False)
+
+    with pytest.raises(ImportError, match=message):
+        MastMissions.get_product('test_file.parquet', mission='roman')
 
 
 def test_missions_get_product_unsupported_format():
