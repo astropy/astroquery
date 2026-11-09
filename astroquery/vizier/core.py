@@ -98,8 +98,15 @@ class VizierClass(BaseQuery):
         """The list of available VizieR mirrors."""
         return list(conf.servers_list)
 
-    def find_mirror(self, timeout=1.0):
-        """Switch to the fastest responding mirror and return its name."""
+    def find_mirror(self, *, timeout=1.0):
+        """Switch to the fastest responding mirror and return its name.
+
+        Parameters
+        ----------
+        timeout : number
+            timeout for connecting to server in seconds
+            (This parameter's default is set from a configuration object.)
+        """
         server, timings = commons.find_fastest_mirror(
             self.servers_list, path="/viz-bin/votable", timeout=timeout)
         self.VIZIER_SERVER = server

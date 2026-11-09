@@ -29,13 +29,13 @@ VizieR is served from several mirrors, listed in
 ``Vizier(vizier_server=...)``, or let astroquery pick the fastest one by
 sending a short (1 s timeout) HEAD request to each mirror:
 
-.. doctest-skip::
+.. doctest-remote-data::
 
     >>> from astroquery.vizier import Vizier, conf
     >>> conf.servers_list
     ['vizier.cds.unistra.fr', 'vizier.cfa.harvard.edu', 'vizier.nao.ac.jp', ...]
-    >>> v = Vizier(find_mirror=True)  # logs the selected mirror
-    >>> v.VIZIER_SERVER
+    >>> viz = Vizier(find_mirror=True)  # logs the selected mirror
+    >>> viz.VIZIER_SERVER
 
 Catalogs exploration
 --------------------
