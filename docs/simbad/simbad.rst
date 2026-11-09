@@ -22,7 +22,9 @@ Mirrors
 -------
 
 SIMBAD is served from the mirrors listed in ``astroquery.simbad.conf.servers_list``.
-Switch with ``Simbad.server = ...``, or let astroquery pick the fastest one with
+To pick a mirror at startup use ``Simbad(simbad_server='simbad.harvard.edu')``.
+To switch later, set the ``server`` attribute of your instance (``sim.server = 'simbad.harvard.edu'``);
+``server`` is the only variable to change, everything else (``SIMBAD_URL``, the TAP service) follows it. Or let astroquery pick the fastest one with
 short (1 s timeout) HEAD requests:
 
 

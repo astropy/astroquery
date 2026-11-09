@@ -111,11 +111,24 @@ class SimbadClass(BaseVOQuery):
     Note that SIMBAD suggests submitting no more than 6 queries per second; if
     you submit more than that, your IP may be temporarily blacklisted
     (https://simbad.cds.unistra.fr/guide/sim-url.htx)
-    """
-    SIMBAD_URL = 'https://' + conf.server + '/simbad/sim-script'
 
+    Parameters
+    ----------
+    ROW_LIMIT : int, optional
+        Maximum number of rows to return (-1 for SIMBAD's maximum).
+    timeout : int, optional
+        Execution time limit for asynchronous queries, in seconds.
+    extra_user_agents : list of str, optional
+        Extra user agents to append to the request headers.
+    simbad_server : str, optional
+        The SIMBAD mirror to use, one of ``conf.servers_list``. Same as setting
+        ``sim.server`` afterwards. Defaults to ``conf.server``.
+    find_mirror : bool, optional
+        If True, switch ``server`` to the fastest responding mirror
+        (see `find_mirror`).
+    """
     def __init__(self, ROW_LIMIT=None, *, timeout=None, extra_user_agents=None,
-                 find_mirror=False):
+                 simbad_server=None, find_mirror=False):
         super().__init__(extra_user_agents=extra_user_agents)
         # to create the TAPService
         self._server = conf.server
@@ -127,6 +140,8 @@ class SimbadClass(BaseVOQuery):
         self.joins = []  # a list of _Join
         self.criteria = []  # a list of strings
         self.ROW_LIMIT = ROW_LIMIT
+        if simbad_server is not None:
+            self.server = simbad_server
         if find_mirror:
             self.find_mirror()
         self.timeout = timeout
@@ -190,8 +205,17 @@ class SimbadClass(BaseVOQuery):
 
     @property
     def server(self):
-        """The SIMBAD mirror to use."""
+        """The SIMBAD mirror to use.
+
+        This is the one attribute to set to switch mirrors (``sim.server = ...``);
+        `SIMBAD_URL`, `tap` and `find_mirror` all follow it.
+        """
         return self._server
+
+    @property
+    def SIMBAD_URL(self):
+        """The script URL of the current mirror (derived from `server`; read-only)."""
+        return f'https://{self.server}/simbad/sim-script'
 
     @server.setter
     def server(self, server: str):
