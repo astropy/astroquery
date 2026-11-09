@@ -374,7 +374,7 @@ def parse_votable(content):
     return tables
 
 
-def find_fastest_mirror(servers, path="/", timeout=1.0):
+def find_fastest_mirror(servers, *, path="/", timeout=1.0):
     """
     Send a short HEAD request to each mirror and return the fastest responder.
 
