@@ -870,8 +870,8 @@ def test__query_all():
     full_with_strtimes = Heasarc.query_all("217.0 -31.7",
                                            start_time="2017-01-01",
                                            end_time="2020-01-02", get_query_payload=True)
-    assert ("end_time > 57754.0" in full_with_strtimes and
-            "start_time < 58850.0" in full_with_strtimes)
+    assert ("end_time > 57754.0" in full_with_strtimes
+            and "start_time < 58850.0" in full_with_strtimes)
 
 
 def test_row_count(mock_tap, mock_default_cols):
