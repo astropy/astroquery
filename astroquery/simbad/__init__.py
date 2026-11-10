@@ -19,7 +19,8 @@ class Conf(_config.ConfigNamespace):
 
     server = _config.ConfigItem(
         servers_list,
-        'Name of the SIMBAD mirror to use.')
+        'Name of the SIMBAD mirror to use.',
+        aliases=['astroquery.simbad.simbad_server'])
 
     timeout = _config.ConfigItem(
         1080,

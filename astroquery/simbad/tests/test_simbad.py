@@ -760,3 +760,8 @@ def test_deprecated_arguments(query_method, args, deprecated_kwargs):
                           match=f'"{argument}" was deprecated in version 0.4.8 and will be '
                           'removed in a future version.*'):
             query_method(*args, get_query_payload=True, **{argument: True})["QUERY"]
+
+
+def test_simbad_server_config_alias():
+    """The CDS mirror instructions tell users to set ``simbad_server`` in astroquery.cfg."""
+    assert "astroquery.simbad.simbad_server" in simbad.conf.__class__.server.aliases

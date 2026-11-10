@@ -362,3 +362,8 @@ def test_vizier_no_probe_by_default(monkeypatch):
     calls = _patch_probe(monkeypatch, "vizier.nao.ac.jp")
     vizier.Vizier()
     assert calls == []
+
+
+def test_vizier_server_config_alias():
+    """The CDS mirror instructions tell users to set ``vizier_server`` in astroquery.cfg."""
+    assert "astroquery.vizier.vizier_server" in vizier.conf.__class__.server.aliases

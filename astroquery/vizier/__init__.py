@@ -32,7 +32,8 @@ class Conf(_config.ConfigNamespace):
 
     server = _config.ConfigItem(
         servers_list,
-        'Name of the VizieR mirror to use.')
+        'Name of the VizieR mirror to use.',
+        aliases=['astroquery.vizier.vizier_server'])
 
     timeout = _config.ConfigItem(
         60,
