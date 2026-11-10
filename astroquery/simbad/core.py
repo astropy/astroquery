@@ -214,8 +214,8 @@ class SimbadClass(BaseVOQuery):
 
     @property
     def SIMBAD_URL(self):
-        """The script URL of the current mirror (derived from `server`; read-only)."""
-        return f'https://{self.server}/simbad/sim-script'
+        """The TAP endpoint of the current mirror (derived from `server`; read-only)."""
+        return f'https://{self.server}/simbad/sim-tap/'
 
     @server.setter
     def server(self, server: str):
