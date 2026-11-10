@@ -41,6 +41,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         self._session = None
 
         self._saved_query = ""
+        self._last_result = None
 
         self._catalog_msg = (
             "catalog name is required! "
@@ -814,11 +815,11 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             col = table[colname]
             if col.dtype.kind not in 'f':
                 continue
-            if (abs(col.min()) < 1e-10 and abs(col.min()) > 0.0) or abs(col.max() > 1e10):
+            if (1e-10 > abs(col.min()) > 0.0) or (abs(col.max()) > 1e10):
                 col.format = "%10e"
             else:
                 col.format = "%10f"
-        return (table)
+        return table
 
     def query_all(self, position=None, get_query_payload=False, start_time=None,
                   end_time=None, verbose=False, maxrec=None, radius=None):
@@ -891,7 +892,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         elif position is None and start_time is not None:
             ra = None
             dec = None
-        elif ((position is None and start_time is None)):
+        elif position is None and start_time is None:
             raise ValueError("A valid position and/or a time range must be provided.")
 
         full_query = HeasarcClass._query_matches(ra=ra, dec=dec,
