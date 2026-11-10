@@ -720,9 +720,19 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         Converts input string like "2025-01-02T01:00:00..2025-01-05T23:59:59"
         into a decimal MJD constraint.
         """
-        start_mjd = Time(start_time, format='isot').mjd
-        end_mjd = Time(end_time, format='isot').mjd
-        return f"end_time > {start_mjd:.6f} AND start_time < {end_mjd:.6f}"
+        time_con_strs = []
+
+        # We want to support either start or end time being None, so that the
+        #  user can specify open-ended limits.
+        if start_time is not None:
+            start_mjd = Time(start_time, format='isot').mjd
+            time_con_strs.append(f"end_time > {start_mjd:.6f}")
+
+        if end_time is not None:
+            end_mjd = Time(end_time, format='isot').mjd
+            time_con_strs.append(f"start_time < {end_mjd:.6f}")
+
+        return " AND ".join(time_con_strs)
 
     @staticmethod
     def _query_matches(ra=None, dec=None, start_time=None, end_time=None, radius=None):
@@ -741,20 +751,23 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             POINT('ICRS', {ra}, {dec}))) as max_offset_deg
                 '''
 
-        if start_time is not None:
+        # We'll use this boolean check several times, so we just define a variable
+        has_time_constraint = start_time is not None or end_time is not None
+
+        if has_time_constraint:
             constraint_time = HeasarcClass._time_constraint(start_time, end_time)
 
         tname1, tname2 = None, None
-        if ra is not None and start_time is None:
+        if ra is not None and not has_time_constraint:
             tname1, tname2 = 'pos_small', 'pos_big'
-        elif ra is not None and start_time is not None:
+        elif ra is not None and has_time_constraint:
             tname1, tname2 = 'pos_time_small', 'pos_time_big'
             constraint_small += f" AND {constraint_time}"
             constraint_big += f" AND {constraint_time}"
-        elif ra is None and start_time is not None:
+        elif ra is None and has_time_constraint:
             tname1 = 'time'
         else:
-            raise ValueError("You must specify either a position or time range or both")
+            raise ValueError("You must specify either a position, or time range, or both.")
 
         #  These columns are only in b, so can remove the b.column
         select_block = f'''
@@ -889,10 +902,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         if position is not None:
             coords_icrs = parse_coordinates(position).icrs
             ra, dec = coords_icrs.ra.deg, coords_icrs.dec.deg
-        elif position is None and start_time is not None:
+        elif position is None and (start_time is not None or end_time is not None):
             ra = None
             dec = None
-        elif position is None and start_time is None:
+        elif position is None and (start_time is None and end_time is None):
             raise ValueError("A valid position and/or a time range must be provided.")
 
         full_query = HeasarcClass._query_matches(ra=ra, dec=dec,
