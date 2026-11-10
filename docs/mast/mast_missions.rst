@@ -11,6 +11,10 @@ The following missions/products are currently available for search:
 
 - `James Webb Space Telescope <https://www.stsci.edu/jwst>`_ (``'jwst'``)
 
+- `Roman Space Telescope <https://www.stsci.edu/roman>`_ (``'roman'``, ``'roman_spectra'``, ``'roman_cgi'``)
+
+- `Transiting Exoplanet Survey Satellite <Follow link (cmd + click)>`_ (``'tess'``)
+
 - `International Ultraviolet Explorer <https://archive.stsci.edu/iue/>`_ (``'iue'``)
 
 - `High Level Science Products <https://outerspace.stsci.edu/display/MASTDOCS/About+HLSPs>`_
@@ -18,6 +22,8 @@ The following missions/products are currently available for search:
   - `COS Legacy Archive Spectroscopic SurveY <https://archive.stsci.edu/hlsp/classy>`_ (``'classy'``)
 
   - `Hubble UV Legacy Library of Young Stars as Essential Standards <https://archive.stsci.edu/hlsp/ullyses>`_ (``'ullyses'``)
+
+  - `Hubble Spectroscopic Legacy Archive <https://archive.stsci.edu/missions-and-data/hst/hsla>`_ (``'hsla'``)
 
 An object of the ``MastMissions`` class is instantiated with a default mission of ``'hst'`` and
 default service set to ``'search'``. The searchable metadata for Hubble encompasses all information that
@@ -330,8 +336,98 @@ The filter below returns FITS products that are "science" type **and** less than
    JBTAA0020_jbtaa0020_asn.fits PUBLIC JBTAA0020 ...            AUX 11520 science
 
 
-Downloding Data
-===============
+Reading Data Products
+======================
+
+The `~astroquery.mast.MastMissionsClass.get_product` function allows you to read FITS or ASDF data products directly into memory as `~astropy.io.fits.HDUList`
+or `~asdf.AsdfFile` objects, respectively. The function accepts a product URI or a direct filename (for certain missions) as input.
+
+FITS files are opened with `~astropy.io.fits.open` and are downloaded and cached locally.
+
+ASDF products from the Roman Space Telescope mission are opened directly with `~fsspec.open` and `~asdf.open`. The products are
+read as `~asdf.AsdfFile` objects from presigned S3 URLs, without being downloaded locally. This requires the ``asdf`` and ``fsspec``
+packages to be installed. Other optional packages for reading products may be required depending on the product type and file format.
+These packages are ``gwcs``, ``lz4``, and ``roman_datamodels``. To install astroquery with all optional dependencies,
+use ``pip install astroquery[all]``.
+
+Remember that this method returns an open file object, so it is the user's responsibility to close the file when finished. This can be done
+with a context manager or by calling the ``close()`` method on the returned object.
+
+.. doctest-remote-data::
+   >>> obj = missions.get_product("jbtaa0010_asn.fits")  # doctest: +IGNORE_OUTPUT
+   >>> print(type(obj))
+   <class 'astropy.io.fits.hdu.hdulist.HDUList'>
+   >>> obj.info()  # doctest: +IGNORE_OUTPUT
+   Filename: /Users/user/.astropy/cache/download/url/6555b8e890752df0de737940d3afb19d/contents
+   No.    Name      Ver    Type      Cards   Dimensions   Format
+     0  PRIMARY       1 PrimaryHDU      44   ()
+     1  ASN           1 BinTableHDU     25   3R x 3C   [14A, 14A, L]
+   >>> obj.close()
+
+Cloud Data Access
+=================
+
+The `~astroquery.mast.MastMissionsClass` provides the `~astroquery.mast.MastMissionsClass.get_cloud_uri_map` method
+for locating data products on the cloud. If a public MAST dataset is hosted on our Amazon S3 bucket, this method
+can be used to locate the corresponding cloud URIs. For many workflows, cloud access can be significantly faster,
+more scalable, and more cost-effective than downloading files locally.
+
+Why Use Cloud Data Access?
+----------------------------
+
+Cloud-hosted MAST data are stored in public object storage (Amazon S3) alongside cloud computing resources.
+Using cloud access allows users to:
+
+  - **Avoid large downloads** by reading data directly from cloud storage.
+  - **Reduce local storage needs** by processing data in the cloud without downloading files.
+  - **Improve performance** by leveraging high-bandwidth connections between cloud compute and storage.
+  - **Scale analyses** by utilizing cloud compute resources that can be adjusted to meet workload demands.
+  - **Enable reproducible workflows** that operate in a consistent cloud environment.
+
+Cloud access is particularly well-suited for:
+  - Large surveys or multi-terabyte datasets.
+  - Batch processing or pipeline workflows.
+  - JupyterHub or notebook environments hosted in the cloud.
+  - Situations where only a subset of files will be accessed.
+
+Traditional downloads remain appropriate when:
+  - Working with small datasets that fit comfortably on local storage.
+  - Working offline or in environments without internet access.
+  - Using software that requires local file access.
+
+Accessing Data via Cloud URIs
+-----------------------------
+
+Instead of downloading files, you can access them directly via their cloud URIs using the
+`~astroquery.mast.MastMissionsClass.get_cloud_uri_map` method. This allows you to work with the data in the cloud
+without needing to store it locally. The method accepts a table or list of products and returns a mapping of product
+URIs to their cloud locations.
+
+Cloud URIs may be returned as:
+
+  - Native cloud URIs (e.g., ``s3://stpubdata...``)
+  - HTTP URLs suitable for streaming (set ``full_url=True`` and ``include_bucket=False``)
+
+The following example demonstrates how to map a list of data products to their corresponding cloud URIs.
+
+.. doctest-remote-data::
+
+   >>> cloud_uri_map = missions.get_cloud_uri_map(
+   ...     ["IBZDA1010/ibzda1010_drz.fits", "IBZDA1010/ibzda1010_drc.fits"],
+   ...     full_url=False,
+   ...     include_bucket=True
+   ... )
+   INFO: Using the S3 STScI public dataset [astroquery.mast.cloud]
+   >>> print(cloud_uri_map)
+   {'IBZDA1010/ibzda1010_drz.fits': 's3://stpubdata/hst/public/ibzd/ibzda1010/ibzda1010_drz.fits',
+    'IBZDA1010/ibzda1010_drc.fits': 's3://stpubdata/hst/public/ibzd/ibzda1010/ibzda1010_drc.fits'}
+
+Once the URIs are obtained, they can be used directly in cloud-based workflows or with cloud-enabled libraries such as
+`Astropy <https://docs.astropy.org/en/stable/io/fits/usage/cloud.html>`__.
+
+
+Downloading Data
+=================
 
 Downloading Data Products
 -------------------------

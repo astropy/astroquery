@@ -61,6 +61,7 @@ all = [
    "boto3",
    "botocore",
    "regions>=0.5",
+   "roman_datamodels",
 ]
 
 [build-system]

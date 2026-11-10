@@ -71,4 +71,3 @@ distribute-*.tar.gz
 
 # Mac OSX
 .DS_Store
-oacapi_test.py

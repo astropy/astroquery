@@ -38,6 +38,12 @@ eso
 API changes
 -----------
 
+oac
+^^^
+
+- The Open Astronomy Catalog API has been retired and the ``astroquery.oac``
+  module has been removed. [#3687]
+
 esa.utils
 ^^^^^^^^^^
 
@@ -80,6 +86,7 @@ gaia
 
 - The values that the ``data_structure parameter`` can accept have been changed from RAW to DATAMODEL_GAIA, and from
   INDIVIDUAL to DATAMODEL_STANDARD. [#3629]
+- The method ``load_data`` returns the path of the downloaded DataLink archive. [#3673]
 
 esa.esasky
 ^^^^^^^^^^
@@ -89,6 +96,11 @@ esa.esasky
 - Attribute urlBase has been deprecated on esasky.conf, use ESASKY_DOMAIN_SERVER instead.
 - Attribute timeout has been deprecated on esasky.conf, use ESASKY_CONNECTION_TIMEOUT instead.
 - Attribute row_limit has been deprecated on esasky.conf, use ESASKY_ROW_LIMIT instead.
+
+jplhorizons
+^^^^^^^^^^^
+
+- Adding ``vector_table`` as an optional parameter for the ``Horizons.vectors`` method. [#3273]
 
 vizier
 ^^^^^^
@@ -220,6 +232,13 @@ mast
 - Update the cutout format request parameter in ``Zcut.download_cutouts`` to reflect a recent service change. [#3608]
 - Add a ``count_only`` parameter to ``MastMissions`` query methods to return only the number of matching results,
   rather than the full result table. [#3645]
+- Added warning message for ``Tesscut`` requests when input cutout size reaches a limit of 30 pixels in either dimension,
+  and enables users to modify the request timeout upper limit from the default 600 seconds. [#3675]
+- Added the ``MastMissions.get_product`` method to read data products directly into memory as an `~astropy.io.fits.HDUList`
+  or an `~asdf.AsdfFile` object. [#3593]
+- Added ``get_cloud_uri_map`` method to ``MastMissions`` for mapping data products to their corresponding cloud URIs. [#3690]
+- Added support for the Hubble Spectroscopic Legacy Archive (HSLA) mission in ``MastMissions``. [#3689]
+- Added support for the Transiting Exoplanet Survey Satellite (TESS) mission in ``MastMissions``. [#3689]
 
 
 jplspec

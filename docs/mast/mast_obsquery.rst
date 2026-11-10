@@ -579,16 +579,16 @@ use the `~astropy.io.fits.open` function with the S3 URI and appropriate ``fsspe
 
    >>> from astropy.io import fits
    ...
-   >>> s3_uri = 's3://stpubdata/hst/public/jbev/jbeveo010/jbeveo010_drz.fits'
+   >>> s3_uri = 's3://stpubdata/hst/public/ibzd/ibzda1010/ibzda1010_spt.fits'
    >>> with fits.open(s3_uri, fsspec_kwargs={"anon": True}) as hdul:
    ...     hdul.info()
    Filename: <class 's3fs.core.S3File'>
    No.    Name      Ver    Type      Cards   Dimensions   Format
-   0  PRIMARY       1 PrimaryHDU     857   ()
-   1  SCI           1 ImageHDU        82   (4240, 4313)   float32
-   2  WHT           1 ImageHDU        44   (4240, 4313)   float32
-   3  CTX           1 ImageHDU        37   (4240, 4313)   int32
-   4  HDRTAB        1 BinTableHDU    595   10R x 293C   [9A, 3A, K, D, D, D, D, D, D, D, D, D, D, D, D, D, K, 3A, 9A, 7A, 18A, 4A, D, D, D, D, 3A, D, D, D, D, D, D, D, D, D, D, D, D, K, 8A, 23A, D, D, D, D, K, K, K, 8A, K, 23A, 9A, 20A, K, 4A, K, D, K, K, K, K, 23A, D, D, D, D, K, K, 3A, 3A, 4A, 4A, L, D, D, D, 3A, 1A, K, D, D, D, D, D, 4A, 4A, 12A, 12A, 23A, 8A, 23A, 10A, 10A, D, D, 3A, 3A, 23A, 4A, 8A, 7A, 23A, D, K, D, 6A, 9A, 8A, D, D, L, 9A, 18A, 3A, K, 5A, 7A, 3A, D, 13A, 8A, 4A, 3A, L, K, L, K, L, K, K, D, D, D, D, D, D, 3A, 1A, D, 23A, D, D, D, 3A, 23A, L, 1A, 3A, 6A, D, 3A, 6A, K, D, D, D, D, D, D, D, D, D, D, 23A, D, D, D, D, 3A, D, D, D, 1A, K, K, K, K, K, K, 23A, K, 5A, 7A, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, D, 12A, D, 24A, 23A, D, 1A, 1A, D, K, D, D, 1A, 1A, D, 4A, K, D, K, 7A, D, D, D, D, D, 23A, 23A, D, 8A, D, 29A, D, 3A, D, L, D, D, 4A, 6A, 5A, 2A, D, 3A, K, 1A, 1A, 1A, 1A, D, D, D, D, D, D, 4A, D, 4A, D, 4A, K, 4A, 3A, 1A, L, K, K, 37A, 1A, D, D, D, D, K, 3A, L, L, 6A, L, D, D, 3A, D, D, 3A, 8A, 1A, D, K, D, L, 30A, L, 5A]
+     0  PRIMARY       1 PrimaryHDU     344   ()
+     1  UDL           1 ImageHDU       196   (965,)   int16
+     2  SNAP1         1 ImageHDU       650   ()
+     3  UDL           2 ImageHDU       196   (965,)   int16
+     4  SNAP1         2 ImageHDU       650   ()
 
 
 Hybrid Workflows: Cloud-First Downloads

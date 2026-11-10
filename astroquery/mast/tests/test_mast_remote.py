@@ -18,6 +18,11 @@ from astroquery.mast import (Catalogs, Hapcut, Mast, MastMissions, Observations,
 from ...exceptions import (InputWarning, InvalidQueryError, MaxResultsWarning, NoResultsWarning)
 from ..utils import ResolverError
 
+try:
+    import asdf
+except ImportError:
+    asdf = None
+
 
 @pytest.fixture(scope="module")
 def msa_product_table():
@@ -31,7 +36,7 @@ def msa_product_table():
     products = Observations.get_product_list(obs['obsid'][0])
 
     # Filter out everything but the MSA config file
-    mask = np.char.find(np.char.asarray(products["dataURI"]), "_msa.fits") != -1
+    mask = np.char.find(np.asarray(products["dataURI"]), "_msa.fits") != -1
     products = products[mask]
 
     return products
@@ -409,21 +414,56 @@ class TestMast:
         result = MastMissions.download_file(uri, local_path=local_path_file)
         check_result(result, local_path_file)
 
+    @pytest.mark.parametrize("uri, mission", [
+        ("OFAE10C3Q/16j1600do_ccd.fits", "hst"),
+        ("jwst_niriss_trappars_0002.fits", "jwst"),
+        ("mast:HLSP/classy/j0021+0052/hlsp_classy_hst_cos_j0021+0052_multi_v1_coadded.fits", "classy"),
+    ])
+    def test_missions_get_product_fits(self, uri, mission):
+        # Test that get_product can read a FITS file from a URI and return an HDUList
+        hdul = MastMissions.get_product(uri, mission=mission)
+        assert isinstance(hdul, fits.HDUList)
+        assert len(hdul) > 1
+        hdul.close()
+
+    @pytest.mark.parametrize("mission, prods", [
+        ('jwst', [
+            "jw01979003001_02101_00001/jw01979003001_02101_00001_nrca3_cal.fits"
+        ]),
+        ('hst', [
+            "J9FX01011/j9fx01010_asn.fits"
+        ])
+    ])
+    def test_missions_get_cloud_uri_map(self, mission, prods):
+        m = MastMissions(mission=mission)
+
+        # Include bucket, not full URL
+        cloud_uris = m.get_cloud_uri_map(prods, include_bucket=True, full_url=False)
+        assert isinstance(cloud_uris, dict)
+        for s3_uri in cloud_uris.values():
+            assert s3_uri.startswith("s3://")
+
+        # Full URL
+        cloud_uris_full = m.get_cloud_uri_map(prods, include_bucket=False, full_url=True)
+        for s3_uri in cloud_uris_full.values():
+            assert s3_uri.startswith("http://")
+
+        # Do not include bucket or full URL
+        cloud_uris_none = m.get_cloud_uri_map(prods, include_bucket=False, full_url=False)
+        for s3_uri in cloud_uris_none.values():
+            assert not s3_uri.startswith("s3://")
+            assert not s3_uri.startswith("https://")
+
     @pytest.mark.parametrize("mission, query_params", [
         ('jwst', {'fileSetName': 'jw01189001001_02101_00001'}),
         ('classy', {'Target': 'J0021+0052'}),
         ('ullyses', {'host_galaxy_name': 'WLM', 'select_cols': ['observation_id']}),
-        ('roman', {'program': 3, 'pass_id': 1}),
+        # ('roman', {'program': 3, 'pass_id': 1}),  # Commenting this case out until Roman data is publicly available
         ('iue', {'iue_data_id': 'LWR08496'}),
     ])
     def test_missions_workflow(self, tmp_path, mission, query_params):
         # Test workflow with other missions
         m = MastMissions(mission=mission)
-
-        # Roman requires extra setup to point towards the test server
-        if mission == 'roman':
-            m._service_api_connection.SERVICE_URL = 'https://masttest.stsci.edu'
-            m._service_api_connection.REQUEST_URL = 'https://masttest.stsci.edu/search/roman/api/v0.1/'
 
         # Criteria query
         datasets = m.query_criteria(**query_params)
@@ -441,6 +481,18 @@ class TestMast:
         for row in result:
             if row['Status'] == 'COMPLETE':
                 assert (row['Local Path']).is_file()
+
+        # Read a product
+        product = None
+        for prod in prods:
+            if prod['filename'].endswith(('.fits', '.asdf')):
+                product = prod
+                break
+        obj = m.get_product(product['uri'], mission=mission)
+        if mission == 'roman' and asdf is not None:
+            assert isinstance(obj, asdf.AsdfFile)
+        assert isinstance(obj, fits.HDUList)
+        obj.close()
 
     ###################
     # MastClass tests #
@@ -693,7 +745,8 @@ class TestMast:
 
     def test_observations_get_product_list_tess_tica(self, caplog):
         # Get observations and products with both TESS and TICA FFIs
-        obs = Observations.query_criteria(target_name=['TESS FFI', 'TICA FFI', '429031146'])
+        obs_id = '1258205337'
+        obs = Observations.query_criteria(object_name="M4", target_name=['TESS FFI', 'TICA FFI', obs_id])
         prods = Observations.get_product_list(obs)
 
         # Check that WARNING messages about FFIs were logged
@@ -701,9 +754,9 @@ class TestMast:
             assert "TESS FFI products" in caplog.text
             assert "TICA FFI products" in caplog.text
 
-        # Should only return products corresponding to target 429031146
+        # Should only return products corresponding to target 1258205337
         assert len(prods) > 0
-        assert (np.char.find(np.char.asarray(prods['obs_id']), '429031146') != -1).all()
+        assert (np.char.find(np.asarray(prods['obs_id']), obs_id) != -1).all()
 
     def test_observations_get_unique_product_list(self, caplog):
         # Check that no rows are filtered out when all products are unique
@@ -1080,6 +1133,7 @@ class TestMast:
         def check_result(result, row, exp_values):
             assert isinstance(result, Table)
             for k, v in exp_values.items():
+                print(result[row][k])
                 assert result[row][k] == v
 
         in_radius = 0.1 * u.deg
@@ -1087,7 +1141,7 @@ class TestMast:
                                        radius=in_radius,
                                        catalog="Gaia")
         row = np.where(result['source_id'] == '3774902350511581696')
-        check_result(result, row, {'solution_id': '1635721458409799680'})
+        check_result(result, row, {'solution_id': '1636148068921376768'})
 
         result = Catalogs.query_region("322.49324 12.16683",
                                        radius=0.001*u.deg,
@@ -1109,10 +1163,11 @@ class TestMast:
         check_result(result, row, {'NumImages': 11, 'TargetName': 'NGC7078'})
 
         result = Catalogs.query_region("322.49324 12.16683",
-                                       radius=in_radius,
+                                       radius=0.01,
                                        catalog="Gaia",
                                        version=1)
         row = np.where(result['source_id'] == '1745948323734098688')
+        print(result[row])
         check_result(result, row, {'solution_id': '1635378410781933568'})
         result = Catalogs.query_region("322.49324 12.16683",
                                        radius=0.01*u.deg,

@@ -40,7 +40,7 @@ already installed, please make sure you use the ``--upgrade`` (or ``-U``) instal
     $ python -m pip install -U --pre astroquery
 
 To install all the mandatory and optional dependencies add the ``[all]``
-identifyer to the pip command above (or use ``[docs]`` or ``[test]`` for the
+identifier to the pip command above (or use ``[docs]`` or ``[test]`` for the
 dependencies required to build the documentation or run the tests):
 
 .. code-block:: bash
@@ -315,7 +315,6 @@ These others are functional, but do not follow a common & consistent API:
   jplsbdb/jplsbdb.rst
   lamda/lamda.rst
   ipac/nexsci/nasa_exoplanet_archive.rst
-  oac/oac.rst
   ogle/ogle.rst
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
   sdss/sdss.rst
