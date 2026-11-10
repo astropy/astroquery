@@ -818,6 +818,35 @@ def test_adql_str_comp():
     assert not adql_str_comp("WHERE a.dec-0.0 > 1.0", "WHERE a.dec+0.0 > 1.0")
 
 
+DESIRED_FULL_ADQL = """
+    select r.table_name as table_name, r.count as count,
+    r.description as description, r.regime as regime,
+    r.mission as mission, r.obj_type as obj_type, r.max_offset_deg
+    as max_offset_deg from ( SELECT table_name, count(*)
+    AS count, b.description, b.regime, b.mission, b.type
+    AS obj_type, MAX(DISTANCE(POINT('ICRS', a.ra, a.dec),
+    POINT('ICRS', 217.025, -31.725))) as max_offset_deg
+    FROM master_table.pos_small AS a, master_table.indexview
+    AS b WHERE a.table_name = b.name AND
+    ( (a.__x_ra_dec*-0.5121892283646801 + a.__y_ra_dec*-0.6790813682341418
+    + a.__z_ra_dec*-0.5258428374185955 > (cos(radians((a.dsr)))))
+    and (a.dec between -31.725 - a.dsr and -31.725 + a.dsr) and
+    (a.__x_ra_dec*-0.5121892283646801 + a.__y_ra_dec*-0.6790813682341418 +
+    a.__z_ra_dec*-0.5258428374185955 > 0.9998476951563913) and
+    (a.dec between -32.725 and -30.725) ) GROUP BY table_name,
+    b.description, b.regime, b.mission, b.type UNION ALL
+    SELECT table_name, count(*) AS count, b.description, b.regime,
+    b.mission, b.type AS obj_type, MAX(DISTANCE(POINT('ICRS',
+    a.ra, a.dec), POINT('ICRS', 217.025, -31.725))) as max_offset_deg
+    FROM master_table.pos_big AS a, master_table.indexview AS b
+    WHERE a.table_name = b.name AND ( (a.__x_ra_dec*-0.5121892283646801 +
+    a.__y_ra_dec*-0.6790813682341418 + a.__z_ra_dec*-0.5258428374185955 >
+    (cos(radians((a.dsr))))) and (a.dec between -31.725 - a.dsr and -31.725 + a.dsr)
+    ) GROUP BY table_name, b.description, b.regime, b.mission, b.type
+    ORDER BY count DESC ) as r
+"""
+
+
 def test__constraint_matches():
     #  Testing all together because it's easier to read this way.
     constraint_small = HeasarcClass._fast_geometry_constraint("217.0", "-31.7", large=False)
@@ -850,35 +879,7 @@ def test__constraint_matches():
     assert adql_str_comp(constraint_time, desired_time)
 
     constraint_full = HeasarcClass._query_matches("217.025", "-31.725")
-    desired_full = """
-                    select r.table_name as table_name, r.count as count,
-                    r.description as description, r.regime as regime,
-                    r.mission as mission, r.obj_type as obj_type, r.max_offset_deg
-                    as max_offset_deg from ( SELECT table_name, count(*)
-                    AS count, b.description, b.regime, b.mission, b.type
-                    AS obj_type, MAX(DISTANCE(POINT('ICRS', a.ra, a.dec),
-                    POINT('ICRS', 217.025, -31.725))) as max_offset_deg
-                    FROM master_table.pos_small AS a, master_table.indexview
-                    AS b WHERE a.table_name = b.name AND
-                    ( (a.__x_ra_dec*-0.5121892283646801 + a.__y_ra_dec*-0.6790813682341418
-                    + a.__z_ra_dec*-0.5258428374185955 > (cos(radians((a.dsr)))))
-                    and (a.dec between -31.725 - a.dsr and -31.725 + a.dsr) and
-                    (a.__x_ra_dec*-0.5121892283646801 + a.__y_ra_dec*-0.6790813682341418 +
-                    a.__z_ra_dec*-0.5258428374185955 > 0.9998476951563913) and
-                    (a.dec between -32.725 and -30.725) ) GROUP BY table_name,
-                    b.description, b.regime, b.mission, b.type UNION ALL
-                    SELECT table_name, count(*) AS count, b.description, b.regime,
-                    b.mission, b.type AS obj_type, MAX(DISTANCE(POINT('ICRS',
-                    a.ra, a.dec), POINT('ICRS', 217.025, -31.725))) as max_offset_deg
-                    FROM master_table.pos_big AS a, master_table.indexview AS b
-                    WHERE a.table_name = b.name AND ( (a.__x_ra_dec*-0.5121892283646801 +
-                    a.__y_ra_dec*-0.6790813682341418 + a.__z_ra_dec*-0.5258428374185955 >
-                    (cos(radians((a.dsr))))) and (a.dec between -31.725 - a.dsr and -31.725 + a.dsr)
-                    ) GROUP BY table_name, b.description, b.regime, b.mission, b.type
-                    ORDER BY count DESC ) as r
-                """
-
-    assert adql_str_comp(constraint_full, desired_full)
+    assert adql_str_comp(constraint_full, DESIRED_FULL_ADQL)
 
     constraint_with_time = HeasarcClass._query_matches("217.025", "-31.725",
                                                        start_time="2017-01-01",
@@ -891,16 +892,8 @@ def test__constraint_matches():
 
 
 def test__query_all():
-    # This call to query_all doesn't give the same significant digits as the _query_matches
-    #  call above, as in query_all there is an intermediate step where the coordinates string
-    #  is filtered through a SkyCoord
-    full_with_strpos = Heasarc.query_all("217.0 -31.7", get_query_payload=True)
-    #  in _query_matches and query_all, whitespaces get removed.
-    assert HeasarcClass._fix_sql_whitespace("""( (a.__x_ra_dec*-0.5120309075160554 +
-                                            a.__y_ra_dec*-0.6794879643287802 +
-                                            a.__z_ra_dec*-0.5254716510722678 >
-                                            (cos(radians((a.dsr)))))
-                                            """) in HeasarcClass._fix_sql_whitespace(full_with_strpos)
+    full_with_strpos = Heasarc.query_all("217.025 -31.725", get_query_payload=True)
+    assert adql_str_comp(full_with_strpos, DESIRED_FULL_ADQL)
 
     full_with_strtimes = Heasarc.query_all("217.0 -31.7",
                                            start_time="2017-01-01",
