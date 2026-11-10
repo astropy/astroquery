@@ -100,6 +100,15 @@ vizier
 ^^^^^^
 
 - Methods ``get_catalog``, ``get_catalog_async`` and ``query_*`` now always return UCD1+ instead of UCD1. [#3458]
+- The mirror configuration item ``conf.server`` can be set in the configuration file as ``vizier_server``. [#3701]
+
+simbad
+^^^^^^
+
+- ``SimbadClass.SIMBAD_URL`` is now a read-only property that follows ``SimbadClass.server`` and points to the
+  TAP endpoint (``https://<server>/simbad/sim-tap/``) instead of the deprecated ``sim-script`` endpoint.
+  Use ``server`` to change the mirror. The mirror configuration item ``conf.server`` can be set in the
+  configuration file as ``simbad_server``. [#3701]
 
 mast
 ^^^^
@@ -120,6 +129,28 @@ vo_conesearch
 
 Service fixes and enhancements
 ------------------------------
+
+simbad
+^^^^^^
+
+- Add ``find_mirror`` to ``SimbadClass``, which switches ``server`` to the fastest available.
+  New SIMBAD instances can use this with ``Simbad(find_mirror=True)``. [#3701]
+- The mirror can be chosen at startup with ``Simbad(simbad_server=...)``, as in ``Vizier(vizier_server=...)``, and
+  the available mirrors are listed in ``conf.servers_list`` and ``SimbadClass.servers_list``. [#3701]
+
+vizier
+^^^^^^
+
+- Add ``find_mirror`` to ``VizierClass``, which to the fastest avaiable server. It is used
+  at startup with ``Vizier(find_mirror=True)``. [#3701]
+- The available mirrors are now listed in ``conf.servers_list`` and
+  ``VizierClass.servers_list``, and are documented. [#3701]
+
+utils
+^^^^^
+
+- Add ``commons.find_fastest_mirror``, the helper behind ``find_mirror`` used
+  in SIMBAD and VizieR modules to identify the best mirror server. [#3701]
 
 esa.xmm_newton
 ^^^^^^^^^^^^^^
