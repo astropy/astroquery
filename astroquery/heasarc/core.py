@@ -38,6 +38,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         self._tap = None
         self._datalink = None
         self._meta_info = None
+        self._session = None
+
+        self._saved_query = ""
+
         self._catalog_msg = (
             "catalog name is required! "
             "Use 'xray' to search the master X-ray catalog. Or list catalogs by"
@@ -292,8 +296,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         """
         log.debug(f'TAP query: {query}')
         self._saved_query = query
-        return self.tap.search(
-            query, language='ADQL', maxrec=maxrec, uploads=uploads)
+        return self.tap.search(query, language='ADQL', maxrec=maxrec, uploads=uploads)
 
     def _query_execute(self, catalog=None, where=None, *,
                        offset_column=None,
