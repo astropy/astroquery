@@ -784,11 +784,14 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                 ORDER BY count DESC
             '''
 
-        #  rename for readability
+        # We only build the part of the query that includes the max offset column IF an
+        #  ra value is set, otherwise this query would error out looking for an
+        #  offset column that cannot exist
+        outer_offset = ", r.max_offset_deg as max_offset_deg" if ra is not None else ""
         full_query = f"""
         select r.table_name as table_name, r.count as count, r.description as description,
-        r.regime as regime, r.mission as mission, r.obj_type as obj_type,
-        r.max_offset_deg as max_offset_deg from ({full_query}) as r"""
+        r.regime as regime, r.mission as mission, r.obj_type as obj_type{outer_offset}
+        from ({full_query}) as r"""
 
         # Join all parts of the query, ensuring simple spacing
         return HeasarcClass._fix_sql_whitespace(full_query)
