@@ -738,7 +738,7 @@ def test__get_vector():
     assert all(abs(d - a) < 0.5 * (10 ** (-6)) for d, a in zip(desired, actual))
 
 
-def adql_str_comp(testing=str, reference=str):
+def adql_str_comp(testing: str, reference: str):
     return HeasarcClass._fix_sql_whitespace(testing) == HeasarcClass._fix_sql_whitespace(reference)
 
 
@@ -754,8 +754,7 @@ def test__constraint_matches():
     and (a.dec between -32.7 and -30.7) )
     """
 
-    assert HeasarcClass._fix_sql_whitespace(constraint_small) == \
-        HeasarcClass._fix_sql_whitespace(desired_small)
+    assert adql_str_comp(constraint_small, desired_small)
 
     constraint_large = HeasarcClass._fast_geometry_constraint("217.0", "-31.7", large=True)
     desired_large = """
@@ -803,7 +802,7 @@ def test__constraint_matches():
                     ORDER BY count DESC ) as r
                 """
 
-    assert HeasarcClass._fix_sql_whitespace(constraint_full) == HeasarcClass._fix_sql_whitespace(desired_full)
+    assert adql_str_comp(constraint_full, desired_full)
 
     constraint_with_time = HeasarcClass._query_matches("217.025", "-31.725",
                                                        start_time="2017-01-01",
@@ -816,7 +815,9 @@ def test__constraint_matches():
 
 
 def test__query_all():
-    #  For some reason, the significant digits here don't give the same result as above.
+    # This call to query_all doesn't give the same significant digits as the _query_matches
+    #  call above, as in query_all there is an intermediate step where the coordinates string
+    #  is filtered through a SkyCoord
     full_with_strpos = Heasarc.query_all("217.0 -31.7", get_query_payload=True)
     #  in _query_matches and query_all, whitespaces get removed.
     assert HeasarcClass._fix_sql_whitespace("""( (a.__x_ra_dec*-0.5120309075160554 +
@@ -828,8 +829,8 @@ def test__query_all():
     full_with_strtimes = Heasarc.query_all("217.0 -31.7",
                                            start_time="2017-01-01",
                                            end_time="2020-01-02", get_query_payload=True)
-    assert "end_time > 57754.0" in full_with_strtimes and \
-        "start_time < 58850.0" in full_with_strtimes
+    assert ("end_time > 57754.0" in full_with_strtimes and
+            "start_time < 58850.0" in full_with_strtimes)
 
 
 def test_row_count(mock_tap, mock_default_cols):
