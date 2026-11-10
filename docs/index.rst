@@ -308,6 +308,7 @@ These others are functional, but do not follow a common & consistent API:
   :maxdepth: 1
 
   alfalfa/alfalfa.rst
+  cddis/cddis.rst
   cosmosim/cosmosim.rst
   exoplanet_orbit_database/exoplanet_orbit_database.rst
   fermi/fermi.rst
