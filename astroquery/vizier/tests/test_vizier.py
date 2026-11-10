@@ -321,3 +321,44 @@ def test_query_error_response(monkeypatch):
     with pytest.raises(RemoteServiceError,
                        match="The database is not currently reachable"):
         v.query_region(scalar_skycoord, radius=5 * u.deg)
+
+
+def _patch_probe(monkeypatch, chosen):
+    calls = []
+
+    def fake(servers, path="/", timeout=1.0):
+        calls.append((list(servers), path, timeout))
+        return chosen, {chosen: 0.123}
+
+    monkeypatch.setattr(commons, "find_fastest_mirror", fake)
+    return calls
+
+
+def test_vizier_servers_list():
+    v = vizier.Vizier()
+    assert v.servers_list == list(vizier.conf.servers_list)
+    v.servers_list.append("fake")  # a copy, so conf is untouched
+    assert "fake" not in vizier.conf.servers_list
+    assert v.VIZIER_SERVER == vizier.conf.servers_list[0]
+
+
+def test_vizier_find_mirror(monkeypatch, caplog):
+    calls = _patch_probe(monkeypatch, "vizier.nao.ac.jp")
+    v = vizier.Vizier(find_mirror=True)
+    assert v.VIZIER_SERVER == "vizier.nao.ac.jp"
+    assert v._server_to_url().startswith("https://vizier.nao.ac.jp/viz-bin/")
+    assert calls == [(list(vizier.conf.servers_list), "/viz-bin/votable", 1.0)]
+    assert "Using VizieR mirror vizier.nao.ac.jp (0.12s)" in caplog.text
+
+
+def test_vizier_find_mirror_method_returns_server(monkeypatch):
+    _patch_probe(monkeypatch, "vizier.nao.ac.jp")
+    v = vizier.Vizier()
+    assert v.find_mirror(timeout=2) == "vizier.nao.ac.jp"
+    assert v.VIZIER_SERVER == "vizier.nao.ac.jp"
+
+
+def test_vizier_no_probe_by_default(monkeypatch):
+    calls = _patch_probe(monkeypatch, "vizier.nao.ac.jp")
+    vizier.Vizier()
+    assert calls == []
