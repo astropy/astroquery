@@ -377,7 +377,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             table.remove_column('__row')
         return table
 
-    def _parse_constraints(self, column_filters):
+    @staticmethod
+    def _parse_constraints(column_filters):
         """Convert constraints dictionary to ADQL WHERE clause
 
         Parameters
@@ -639,6 +640,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         return self.query_region(pos, catalog=mission, spatial='cone',
                                  get_query_payload=get_query_payload)
 
+    @staticmethod
     def _get_vector(ra=None, dec=None):
         """
         If the input is a string name of a column like "a.ra", then this routine
@@ -666,6 +668,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         except Exception as e:
             raise e
 
+    @staticmethod
     def _fast_geometry_constraint(ra, dec, large=False, radius=None):
         """
         Construct the spatial constraint to be added to the WHERE clause.  It compares
@@ -707,6 +710,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             )
             """
 
+    @staticmethod
     def _time_constraint(start_time=None, end_time=None):
         """"
         Converts input string like "2025-01-02T01:00:00..2025-01-05T23:59:59"
@@ -716,6 +720,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         end_mjd = Time(end_time, format='isot').mjd
         return f"end_time > {start_mjd:.6f} AND start_time < {end_mjd:.6f}"
 
+    @staticmethod
     def _query_matches(ra=None, dec=None, start_time=None, end_time=None, radius=None):
         """
         Constructs the full SQL query including the spatial and time constraints.
@@ -788,10 +793,12 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         # Join all parts of the query, ensuring simple spacing
         return HeasarcClass._fix_sql_whitespace(full_query)
 
+    @staticmethod
     def _fix_sql_whitespace(insql):
         import re
         return re.sub(r'\s+', ' ', insql).replace("\n", " ").strip()
 
+    @staticmethod
     def _set_print_formats(table):
         """
         Set the Astropy format (e.g., '.5f' or '.3e') so that
@@ -1035,7 +1042,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
 
         self.s3_client = self.s3_resource.meta.client
 
-    def _guess_host(self, host):
+    @staticmethod
+    def _guess_host(host):
         """Guess the host to use for downloading data
 
         Parameters
@@ -1187,7 +1195,8 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                 'An error occurred when downloading the data. Retry again.'
             )
 
-    def _copy_sciserver(self, links, location='.'):
+    @staticmethod
+    def _copy_sciserver(links, location='.'):
         """Copy data from the local archive on sciserver
 
         Do not call directly.
