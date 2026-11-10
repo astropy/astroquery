@@ -684,7 +684,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         dot_product = " + ".join([f"{vec0[i]}*{vec1[i]}" for i in range(3)])
         if radius is not None:
             if not isinstance(radius, (int, float)):
-                radius = radius.value
+                # Have to make sure that an input radius is in degrees before putting
+                #  it into the query string. We can use the coordinates.Angle() call
+                #  because it will accept both strings and Astropy quantities.
+                radius = coordinates.Angle(radius).to('deg').value
             radius_condition = f"{dot_product} > (cos(radians(({radius}))))"
             dec_condition = f"a.dec between {dec} - {radius} and {dec} + {radius}"
         else:
@@ -833,14 +836,15 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         end_time : str, `astropy.time` object, optional
             End of time range of interest as a string in ISOT format
             or Time object.
-        get_query_payload : bool, optional, optional
+        get_query_payload : bool, optional
             If `True` then returns the generated ADQL query as str and does not send the query.
             Defaults to `False`.
         radius : str or `~astropy.units.Quantity` object, optional
             If this radius is None, the specified coordinate is compared to each mission
             catalog entry using that catalog's default radius. (See get_default_radius().)
             This is based on the approximate location uncertainty for each mission. If you
-            specify a radius in degrees, it uses that instead.
+            specify a radius in degrees, it uses that instead. If an integer or float is passed,
+            it will be assumed it is in degrees.
         verbose : bool, optional
             If True, prints additional information about the query. Default is False.
         maxrec : int, optional
