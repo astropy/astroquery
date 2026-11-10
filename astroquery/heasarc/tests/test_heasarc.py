@@ -1,6 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import os
+import re
+import numpy as np
 import pytest
 import tempfile
 from unittest.mock import patch, PropertyMock
@@ -738,8 +740,47 @@ def test__get_vector():
     assert all(abs(d - a) < 0.5 * (10 ** (-6)) for d, a in zip(desired, actual))
 
 
-def adql_str_comp(testing: str, reference: str):
-    return HeasarcClass._fix_sql_whitespace(testing) == HeasarcClass._fix_sql_whitespace(reference)
+def adql_str_comp(testing: str, reference: str, rtol: float = 1e-7, atol: float = 1e-7) -> bool:
+    """Compare two ADQL query strings for equivalence, normalizing whitespace and
+    allowing a small floating-point tolerance on embedded numeric literals.
+
+    Different NumPy versions/builds and intermediate SkyCoord conversions can
+    produce tiny differences in the last decimal place of trigonometric calculations.
+    """
+    # Finds standalone numbers in an ADQL query string so they can be compared
+    # numerically, while skipping numbers that are part of table or column names
+    # (like "hete2" or "table_1").
+    adql_num_re = re.compile(
+        r"""
+        (?<![A-Za-z_\d.)])          # Make sure we aren't in the middle of a word/name, or right
+                                    # after a closing bracket (so 'a.dec-0.5' keeps its '-' sign
+                                    # as subtraction rather than gluing it to 0.5).
+        [-+]?                       # Include a leading '+' or '-' if the number is signed
+                                    # (for example, the '-0.512' in 'a.__x_ra_dec*-0.512').
+        (?:\d+\.\d*|\.\d+|\d+)      # Match the main digits, with or without a decimal point.
+        (?:[eE][-+]?\d+)?           # Include scientific notation at the end if present (like '1e-05').
+        (?![A-Za-z_\d.])            # Make sure the number ends cleanly and doesn't run into a word.
+        """,
+        re.VERBOSE,
+    )
+
+    testing_norm = HeasarcClass._fix_sql_whitespace(testing)
+    reference_norm = HeasarcClass._fix_sql_whitespace(reference)
+
+    # Extract all numeric literals in order and convert to float for tolerance comparison
+    testing_nums = [float(x) for x in adql_num_re.findall(testing_norm)]
+    reference_nums = [float(x) for x in adql_num_re.findall(reference_norm)]
+
+    # Replace numeric literals with a placeholder so we can verify that the
+    # non-numeric SQL structure and number positions match identically
+    testing_template = adql_num_re.sub("<NUM>", testing_norm)
+    reference_template = adql_num_re.sub("<NUM>", reference_norm)
+
+    return (
+        testing_template == reference_template
+        and len(testing_nums) == len(reference_nums)
+        and np.allclose(testing_nums, reference_nums, rtol=rtol, atol=atol)
+    )
 
 
 def test__constraint_matches():
