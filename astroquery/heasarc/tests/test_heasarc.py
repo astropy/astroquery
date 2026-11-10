@@ -783,6 +783,41 @@ def adql_str_comp(testing: str, reference: str, rtol: float = 1e-7, atol: float 
     )
 
 
+def test_adql_str_comp():
+    base_query = (
+        "SELECT * FROM hete2 AS a WHERE "
+        "(a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 > 0.9998476951563913) "
+        "AND (a.dec BETWEEN -32.7 AND -30.7) AND flux > 1e-12"
+    )
+
+    # Whitespace/newline differences and 16th-decimal-place float differences should pass
+    slightly_different_floats = """
+        SELECT * FROM hete2 AS a
+        WHERE (a.__x_ra_dec*-0.5120309075160552 + a.__y_ra_dec*-0.6794879643287802 > 0.9998476951563915)
+        AND (a.dec BETWEEN -32.7 AND -30.7) AND flux > 1.0000000000000002e-12
+    """
+    assert adql_str_comp(slightly_different_floats, base_query)
+
+    # Float differences larger than tolerance must fail
+    wrong_float = (
+        "SELECT * FROM hete2 AS a WHERE "
+        "(a.__x_ra_dec*-0.513 + a.__y_ra_dec*-0.6794879643287802 > 0.9998476951563913) "
+        "AND (a.dec BETWEEN -32.7 AND -30.7) AND flux > 1e-12"
+    )
+    assert not adql_str_comp(wrong_float, base_query)
+
+    # Different SQL operator/structure must fail
+    wrong_operator = base_query.replace("> 0.9998476951563913", "< 0.9998476951563913")
+    assert not adql_str_comp(wrong_operator, base_query)
+
+    # Different digits inside a table/column name (e.g. hete2 vs hete3) must fail
+    wrong_table_num = base_query.replace("hete2", "hete3")
+    assert not adql_str_comp(wrong_table_num, base_query)
+
+    # Binary subtraction vs addition (e.g. a.dec-0.5 vs a.dec+0.5) must fail
+    assert not adql_str_comp("WHERE a.dec-0.0 > 1.0", "WHERE a.dec+0.0 > 1.0")
+
+
 def test__constraint_matches():
     #  Testing all together because it's easier to read this way.
     constraint_small = HeasarcClass._fast_geometry_constraint("217.0", "-31.7", large=False)
