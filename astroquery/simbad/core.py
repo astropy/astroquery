@@ -111,24 +111,25 @@ class SimbadClass(BaseVOQuery):
     Note that SIMBAD suggests submitting no more than 6 queries per second; if
     you submit more than that, your IP may be temporarily blacklisted
     (https://simbad.cds.unistra.fr/guide/sim-url.htx)
-
-    Parameters
-    ----------
-    ROW_LIMIT : int, optional
-        Maximum number of rows to return (-1 for SIMBAD's maximum).
-    timeout : int, optional
-        Execution time limit for asynchronous queries, in seconds.
-    extra_user_agents : list of str, optional
-        Extra user agents to append to the request headers.
-    simbad_server : str, optional
-        The SIMBAD mirror to use, one of ``conf.servers_list``. Same as setting
-        ``sim.server`` afterwards. Defaults to ``conf.server``.
-    find_mirror : bool, optional
-        If True, switch ``server`` to the fastest responding mirror
-        (see `find_mirror`).
     """
     def __init__(self, ROW_LIMIT=None, *, timeout=None, extra_user_agents=None,
                  simbad_server=None, find_mirror=False):
+        """
+        Parameters
+        ----------
+        ROW_LIMIT : int, optional
+            Maximum number of rows to return (-1 for SIMBAD's maximum).
+        timeout : int, optional
+            Execution time limit for asynchronous queries, in seconds.
+        extra_user_agents : list of str, optional
+            Extra user agents to append to the request headers.
+        simbad_server : str, optional
+            The SIMBAD mirror to use, one of ``conf.servers_list``. Same as setting
+            ``sim.server`` afterwards. Defaults to ``conf.server``.
+        find_mirror : bool, optional
+            If True, switch ``server`` to the fastest responding mirror
+            (see `find_mirror`).
+        """
         super().__init__(extra_user_agents=extra_user_agents)
         # to create the TAPService
         self._server = conf.server
@@ -157,8 +158,12 @@ class SimbadClass(BaseVOQuery):
         Parameters
         ----------
         timeout : number
-            timeout for connecting to server in seconds
-            (This parameter's default is set from a configuration object.)
+            Time limit in seconds for the request sent to each mirror.
+
+        Returns
+        -------
+        str
+            The name of the selected mirror.
         """
         server, timings = commons.find_fastest_mirror(
             self.servers_list, path="/simbad/sim-tap/capabilities", timeout=timeout)
@@ -230,7 +235,7 @@ class SimbadClass(BaseVOQuery):
             self._server = server
         else:
             raise ValueError(f"'{server}' does not correspond to a SIMBAD server, "
-                             f"the two existing ones are {conf.servers_list}.")
+                             f"the known mirrors are {conf.servers_list}.")
 
     @property
     def tap(self):

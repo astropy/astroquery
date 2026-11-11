@@ -75,7 +75,7 @@ class VizierClass(BaseQuery):
             (This parameter's default is set from a configuration object.)
         find_mirror : bool
             If True, send a short HEAD request (1 s timeout) to each mirror in
-            `~astroquery.vizier.conf.servers_list`, switch to the fastest and
+            ``conf.servers_list``, switch to the fastest and
             report it.  See also `VizierClass.find_mirror`.
         """
 
@@ -104,8 +104,12 @@ class VizierClass(BaseQuery):
         Parameters
         ----------
         timeout : number
-            timeout for connecting to server in seconds
-            (This parameter's default is set from a configuration object.)
+            Time limit in seconds for the request sent to each mirror.
+
+        Returns
+        -------
+        str
+            The name of the selected mirror.
         """
         server, timings = commons.find_fastest_mirror(
             self.servers_list, path="/viz-bin/votable", timeout=timeout)
