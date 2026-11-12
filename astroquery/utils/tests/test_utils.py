@@ -465,3 +465,79 @@ def test_filecontainer_get(patch_getreadablefileobj):
 def test_is_coordinate(coordinates, expected):
     out = commons._is_coordinate(coordinates)
     assert out == expected
+
+
+# ---------------------
+# find_fastest_mirror
+# ---------------------
+
+class _FakeHead:
+    """Replacement for ``requests.head`` with a per-host outcome."""
+
+    def __init__(self, outcomes):
+        self.outcomes = outcomes
+        self.calls = []
+
+    def __call__(self, url, timeout=None, allow_redirects=None):
+        host = url.split("//")[1].split("/")[0]
+        self.calls.append((url, timeout))
+        outcome = self.outcomes[host]
+        if isinstance(outcome, Exception):
+            raise outcome
+        return type("Response", (), {"status_code": outcome})()
+
+
+@pytest.fixture
+def fake_head(monkeypatch):
+    import requests
+
+    def _install(outcomes):
+        head = _FakeHead(outcomes)
+        monkeypatch.setattr(requests, "head", head)
+        return head
+
+    return _install
+
+
+def test_find_fastest_mirror_picks_lowest_latency(fake_head, monkeypatch):
+    import time
+    fake_head({"a.org": 200, "b.org": 200, "c.org": 200})
+    # each mirror consumes two perf_counter calls: start and stop
+    ticks = iter([0, 0.5, 1, 1.1, 2, 2.9])
+    monkeypatch.setattr(time, "perf_counter", lambda: next(ticks))
+    best, timings = commons.find_fastest_mirror(["a.org", "b.org", "c.org"])
+    assert best == "b.org"
+    assert timings == pytest.approx({"a.org": 0.5, "b.org": 0.1, "c.org": 0.9})
+
+
+def test_find_fastest_mirror_skips_failures(fake_head):
+    import requests
+    fake_head({"a.org": requests.ConnectTimeout(), "b.org": requests.ConnectionError(), "c.org": 200})
+    best, timings = commons.find_fastest_mirror(["a.org", "b.org", "c.org"])
+    assert best == "c.org"
+    assert list(timings) == ["c.org"]
+
+
+@pytest.mark.parametrize("status", [200, 301, 404, 405])
+def test_find_fastest_mirror_non_5xx_is_up(fake_head, status):
+    fake_head({"a.org": status})
+    assert commons.find_fastest_mirror(["a.org"])[0] == "a.org"
+
+
+@pytest.mark.parametrize("status", [500, 502, 503])
+def test_find_fastest_mirror_5xx_is_down(fake_head, status):
+    fake_head({"a.org": status, "b.org": 200})
+    assert commons.find_fastest_mirror(["a.org", "b.org"])[0] == "b.org"
+
+
+def test_find_fastest_mirror_none_respond(fake_head):
+    import requests
+    fake_head({"a.org": requests.ConnectTimeout(), "b.org": 502})
+    with pytest.raises(RuntimeError, match=r"a\.org.*ConnectTimeout.*b\.org.*HTTP 502"):
+        commons.find_fastest_mirror(["a.org", "b.org"], timeout=0.5)
+
+
+def test_find_fastest_mirror_url_and_timeout(fake_head):
+    head = fake_head({"a.org": 200})
+    commons.find_fastest_mirror(["a.org"], path="/some/path", timeout=0.25)
+    assert head.calls == [("https://a.org/some/path", 0.25)]

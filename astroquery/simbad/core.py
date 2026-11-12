@@ -25,6 +25,7 @@ from astroquery.simbad.utils import (_catch_deprecated_fields_with_arguments,
                                      query_criteria_fields)
 
 from pyvo.dal import TAPService, TAPQuery
+from astroquery import log
 from . import conf
 
 
@@ -111,9 +112,24 @@ class SimbadClass(BaseVOQuery):
     you submit more than that, your IP may be temporarily blacklisted
     (https://simbad.cds.unistra.fr/guide/sim-url.htx)
     """
-    SIMBAD_URL = 'https://' + conf.server + '/simbad/sim-script'
-
-    def __init__(self, ROW_LIMIT=None, *, timeout=None, extra_user_agents=None):
+    def __init__(self, ROW_LIMIT=None, *, timeout=None, extra_user_agents=None,
+                 simbad_server=None, find_mirror=False):
+        """
+        Parameters
+        ----------
+        ROW_LIMIT : int, optional
+            Maximum number of rows to return (-1 for SIMBAD's maximum).
+        timeout : int, optional
+            Execution time limit for asynchronous queries, in seconds.
+        extra_user_agents : list of str, optional
+            Extra user agents to append to the request headers.
+        simbad_server : str, optional
+            The SIMBAD mirror to use, one of ``conf.servers_list``. Same as setting
+            ``sim.server`` afterwards. Defaults to ``conf.server``.
+        find_mirror : bool, optional
+            If True, switch ``server`` to the fastest responding mirror
+            (see `find_mirror`).
+        """
         super().__init__(extra_user_agents=extra_user_agents)
         # to create the TAPService
         self._server = conf.server
@@ -125,7 +141,35 @@ class SimbadClass(BaseVOQuery):
         self.joins = []  # a list of _Join
         self.criteria = []  # a list of strings
         self.ROW_LIMIT = ROW_LIMIT
+        if simbad_server is not None:
+            self.server = simbad_server
+        if find_mirror:
+            self.find_mirror()
         self.timeout = timeout
+
+    @property
+    def servers_list(self):
+        """The list of available SIMBAD mirrors."""
+        return list(conf.servers_list)
+
+    def find_mirror(self, *, timeout=1.0):
+        """Switch to the fastest responding mirror and return its name.
+
+        Parameters
+        ----------
+        timeout : number
+            Time limit in seconds for the request sent to each mirror.
+
+        Returns
+        -------
+        str
+            The name of the selected mirror.
+        """
+        server, timings = commons.find_fastest_mirror(
+            self.servers_list, path="/simbad/sim-tap/capabilities", timeout=timeout)
+        self.server = server
+        log.info(f"Using SIMBAD mirror {server} ({timings[server]:.2f}s)")
+        return server
 
     @property
     def ROW_LIMIT(self):
@@ -166,8 +210,17 @@ class SimbadClass(BaseVOQuery):
 
     @property
     def server(self):
-        """The SIMBAD mirror to use."""
+        """The SIMBAD mirror to use.
+
+        This is the one attribute to set to switch mirrors (``sim.server = ...``);
+        `SIMBAD_URL`, `tap` and `find_mirror` all follow it.
+        """
         return self._server
+
+    @property
+    def SIMBAD_URL(self):
+        """The TAP endpoint of the current mirror (derived from `server`; read-only)."""
+        return f'https://{self.server}/simbad/sim-tap/'
 
     @server.setter
     def server(self, server: str):
@@ -182,7 +235,7 @@ class SimbadClass(BaseVOQuery):
             self._server = server
         else:
             raise ValueError(f"'{server}' does not correspond to a SIMBAD server, "
-                             f"the two existing ones are {conf.servers_list}.")
+                             f"the known mirrors are {conf.servers_list}.")
 
     @property
     def tap(self):

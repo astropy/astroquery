@@ -92,17 +92,88 @@ def test_adql_parameter():
 # ------------------
 
 
-def test_simbad_mirror():
+@pytest.mark.parametrize("server", conf.servers_list)
+def test_simbad_mirror(server):
     simbad_instance = simbad.SimbadClass()
     # default value should be set at instantiation
-    assert simbad_instance.server == "simbad.cds.unistra.fr"
-    # it can be switched to harvard mirror
-    simbad_instance.server = "simbad.harvard.edu"
-    assert simbad_instance.server == "simbad.harvard.edu"
+    assert simbad_instance.server == conf.servers_list[0]
+    # it can be switched to any listed mirror
+    simbad_instance.server = server
+    assert simbad_instance.server == server
     # but not to an invalid mirror
     with pytest.raises(ValueError,
                        match="'test' does not correspond to a SIMBAD server, *"):
         simbad_instance.server = "test"
+
+
+def test_simbad_server_at_startup():
+    simbad_instance = simbad.SimbadClass(simbad_server="simbad.harvard.edu")
+    assert simbad_instance.server == "simbad.harvard.edu"
+    assert simbad_instance.tap.baseurl == "https://simbad.harvard.edu/simbad/sim-tap"
+    with pytest.raises(ValueError, match="does not correspond to a SIMBAD server"):
+        simbad.SimbadClass(simbad_server="test")
+
+
+def test_simbad_call_returns_fresh_instance():
+    new = simbad.Simbad(simbad_server="simbad.harvard.edu")
+    assert new is not simbad.Simbad
+    assert new.server == "simbad.harvard.edu"
+    assert simbad.Simbad.server == conf.servers_list[0]
+
+
+def test_simbad_url_follows_server():
+    simbad_instance = simbad.SimbadClass()
+    assert simbad_instance.SIMBAD_URL == f"https://{conf.servers_list[0]}/simbad/sim-tap/"
+    simbad_instance.server = "simbad.harvard.edu"
+    assert simbad_instance.SIMBAD_URL == "https://simbad.harvard.edu/simbad/sim-tap/"
+    with pytest.raises(AttributeError):
+        simbad_instance.SIMBAD_URL = "https://example.org"
+
+
+def test_simbad_servers_list():
+    simbad_instance = simbad.SimbadClass()
+    assert simbad_instance.servers_list == list(conf.servers_list)
+    simbad_instance.servers_list.append("fake")  # a copy, so conf is untouched
+    assert "fake" not in conf.servers_list
+
+
+def _patch_probe(monkeypatch, chosen):
+    from astroquery.utils import commons
+    calls = []
+
+    def fake(servers, path="/", timeout=1.0):
+        calls.append((list(servers), path, timeout))
+        return chosen, {chosen: 0.123}
+
+    monkeypatch.setattr(commons, "find_fastest_mirror", fake)
+    return calls
+
+
+def test_simbad_find_mirror(monkeypatch, caplog):
+    calls = _patch_probe(monkeypatch, "simbad.harvard.edu")
+    simbad_instance = simbad.SimbadClass(find_mirror=True)
+    assert simbad_instance.server == "simbad.harvard.edu"
+    assert calls == [(list(conf.servers_list), "/simbad/sim-tap/capabilities", 1.0)]
+    assert "Using SIMBAD mirror simbad.harvard.edu (0.12s)" in caplog.text
+
+
+def test_simbad_find_mirror_overrides_simbad_server(monkeypatch):
+    _patch_probe(monkeypatch, "simbad.harvard.edu")
+    simbad_instance = simbad.SimbadClass(simbad_server=conf.servers_list[0], find_mirror=True)
+    assert simbad_instance.server == "simbad.harvard.edu"
+
+
+def test_simbad_no_probe_by_default(monkeypatch):
+    calls = _patch_probe(monkeypatch, "simbad.harvard.edu")
+    simbad.SimbadClass()
+    assert calls == []
+
+
+@pytest.mark.usefixtures("_mock_simbad_class")
+def test_simbad_payload_after_server_switch():
+    simbad_instance = simbad.SimbadClass(simbad_server="simbad.harvard.edu")
+    payload = simbad_instance.query_tap("SELECT 1", get_query_payload=True)
+    assert payload["QUERY"] == "SELECT 1"
 
 
 def test_simbad_row_limit():
@@ -689,3 +760,8 @@ def test_deprecated_arguments(query_method, args, deprecated_kwargs):
                           match=f'"{argument}" was deprecated in version 0.4.8 and will be '
                           'removed in a future version.*'):
             query_method(*args, get_query_payload=True, **{argument: True})["QUERY"]
+
+
+def test_simbad_server_config_alias():
+    """The CDS mirror instructions tell users to set ``simbad_server`` in astroquery.cfg."""
+    assert "astroquery.simbad.simbad_server" in simbad.conf.__class__.server.aliases

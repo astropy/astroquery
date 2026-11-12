@@ -15,11 +15,12 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.simbad`.
     """
     # the first item is the default configuration
-    servers_list = ['simbad.cds.unistra.fr', 'simbad.harvard.edu']
+    servers_list = ['simbad.cds.unistra.fr', 'simbad.harvard.edu', 'simbad.idia.ac.za']
 
     server = _config.ConfigItem(
         servers_list,
-        'Name of the SIMBAD mirror to use.')
+        'Name of the SIMBAD mirror to use.',
+        aliases=['astroquery.simbad.simbad_server'])
 
     timeout = _config.ConfigItem(
         1080,

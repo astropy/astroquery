@@ -22,6 +22,7 @@ from ..query import BaseQuery
 from ..utils import commons
 from ..utils import async_to_sync
 from ..utils import schema
+from astroquery import log
 from . import conf
 from ..exceptions import TableParseError, EmptyResponseError, RemoteServiceError
 
@@ -46,7 +47,8 @@ class VizierClass(BaseQuery):
 
     def __init__(self, *, columns=["*"], column_filters={}, catalog=None,
                  keywords=None, ucd="", timeout=conf.timeout,
-                 vizier_server=conf.server, row_limit=conf.row_limit):
+                 vizier_server=conf.server, row_limit=conf.row_limit,
+                 find_mirror=False):
         """
         Parameters
         ----------
@@ -71,6 +73,10 @@ class VizierClass(BaseQuery):
             Maximum number of rows that will be fetched from the result
             (set to -1 for unlimited).
             (This parameter's default is set from a configuration object.)
+        find_mirror : bool
+            If True, send a short HEAD request (1 s timeout) to each mirror in
+            ``conf.servers_list``, switch to the fastest and
+            report it.  See also `VizierClass.find_mirror`.
         """
 
         super().__init__()
@@ -84,6 +90,32 @@ class VizierClass(BaseQuery):
         self.TIMEOUT = timeout
         self.VIZIER_SERVER = vizier_server
         self.ROW_LIMIT = row_limit
+        if find_mirror:
+            self.find_mirror()
+
+    @property
+    def servers_list(self):
+        """The list of available VizieR mirrors."""
+        return list(conf.servers_list)
+
+    def find_mirror(self, *, timeout=1.0):
+        """Switch to the fastest responding mirror and return its name.
+
+        Parameters
+        ----------
+        timeout : number
+            Time limit in seconds for the request sent to each mirror.
+
+        Returns
+        -------
+        str
+            The name of the selected mirror.
+        """
+        server, timings = commons.find_fastest_mirror(
+            self.servers_list, path="/viz-bin/votable", timeout=timeout)
+        self.VIZIER_SERVER = server
+        log.info(f"Using VizieR mirror {server} ({timings[server]:.2f}s)")
+        return server
 
     @property
     def columns(self):

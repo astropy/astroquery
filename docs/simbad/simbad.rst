@@ -18,6 +18,24 @@ Good practices
 The SIMBAD database is widely used. To ensure its continued accessibility and usability
 for everyone, here are some best practices to follow.
 
+Mirrors
+-------
+
+SIMBAD is served from the mirrors listed in ``astroquery.simbad.conf.servers_list``.
+To pick a mirror at startup use ``Simbad(simbad_server='simbad.harvard.edu')``.
+To switch later, set the ``server`` attribute of your instance (``sim.server = 'simbad.harvard.edu'``);
+``server`` is the only variable to change, everything else (``SIMBAD_URL``, the TAP service) follows it. Or let astroquery pick the fastest one with
+short (1 s timeout) HEAD requests:
+
+
+.. doctest-remote-data::
+
+    >>> from astroquery.simbad import Simbad
+    >>> Simbad.servers_list
+    ['simbad.cds.unistra.fr', 'simbad.harvard.edu']
+    >>> sim = Simbad(find_mirror=True)  # logs the selected mirror
+    >>> sim.server
+
 A warning about query rate
 --------------------------
 

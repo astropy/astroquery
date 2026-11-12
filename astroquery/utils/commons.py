@@ -372,3 +372,49 @@ def parse_votable(content):
     """
     tables = votable.parse(BytesIO(content), verify='warn')
     return tables
+
+
+def find_fastest_mirror(servers, *, path="/", timeout=1.0):
+    """
+    Send a short HEAD request to each mirror and return the fastest responder.
+
+    Parameters
+    ----------
+    servers : list of str
+        Host names (no scheme) of the mirrors to try.
+    path : str
+        Path appended to ``https://<server>`` for the request.
+    timeout : float
+        Per-mirror timeout in seconds.
+
+    Returns
+    -------
+    server : str
+        The mirror with the lowest response time.
+    timings : dict
+        Response time in seconds for each reachable mirror.
+
+    Raises
+    ------
+    RuntimeError
+        If no mirror responds within ``timeout``.
+    """
+    import time
+    import requests
+    timings, failures = {}, {}
+    for server in servers:
+        t0 = time.perf_counter()
+        try:
+            # any non-5xx answer (even 4xx/405 for a HEAD on a CGI path) means the server is up
+            response = requests.head(f"https://{server}{path}", timeout=timeout,
+                                     allow_redirects=True)
+            if response.status_code >= 500:
+                failures[server] = f"HTTP {response.status_code}"
+                continue
+        except requests.RequestException as ex:
+            failures[server] = type(ex).__name__
+            continue
+        timings[server] = time.perf_counter() - t0
+    if not timings:
+        raise RuntimeError(f"No mirror responded within {timeout}s: {failures}")
+    return min(timings, key=timings.get), timings
