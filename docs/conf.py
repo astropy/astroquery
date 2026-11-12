@@ -58,7 +58,7 @@ del intersphinx_mapping['scipy']
 del intersphinx_mapping['h5py']
 
 intersphinx_mapping.update({
-    'requests': ('https://requests.kennethreitz.org/en/stable', None),
+    'requests': ('https://requests.readthedocs.io/en/latest/', None),
     'regions': ('https://astropy-regions.readthedocs.io/en/stable', None),
     'mocpy': ('https://cds-astro.github.io/mocpy', None),
     'pyvo': ('https://pyvo.readthedocs.io/en/stable', None),
