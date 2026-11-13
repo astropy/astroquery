@@ -24,6 +24,17 @@ esa.emds.einsteinprobe
 
 - New module to access the ESA Einstein Probe Science Archive. [#3511]
 
+nrao
+^^^^
+
+- Restored and rewritten ``astroquery.nrao`` module, now backed by the NRAO
+  TAP service at ``data-query.nrao.edu``. [#3015]
+
+eso
+^^^
+
+- Add functionality to list and query ESO catalogues. [#3531]
+
 API changes
 -----------
 
@@ -152,6 +163,11 @@ esa.xmm_newton
 
 - Update ``get_epic_spectra`` method to get the latest version of PN RMF files from the SAS server
   instead of having it hardcoded [#3563]
+
+esa.jwst
+^^^^^^^^^^^^^^
+
+  - Refactored to use PyVo instead of deprecated TapPlus class [#3592]
 
 svo_fps
 ^^^^^^^

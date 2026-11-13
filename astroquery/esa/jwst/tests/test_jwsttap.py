@@ -23,7 +23,7 @@ import pytest
 from astropy import units
 from astropy.coordinates.name_resolve import NameResolveError
 from astropy.coordinates.sky_coordinate import SkyCoord
-from astropy.io.votable import parse_single_table,
+from astropy.io.votable import parse_single_tableß
 from astropy.table import Table
 from astropy.units import Quantity
 from requests import Response
