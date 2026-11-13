@@ -20,7 +20,7 @@ import io
 import astropy.units as u
 import numpy as np
 import pytest
-from astropy import units
+from astropy import units, log
 from astropy.coordinates.name_resolve import NameResolveError
 from astropy.coordinates.sky_coordinate import SkyCoord
 from astropy.io.votable import parse_single_table
@@ -1307,20 +1307,24 @@ class TestTap:
         }
 
     def test_parse_messages_response(self):
-        jwst = JwstClass(show_messages=False)
-        response = Response()
-        response.status_code = 200
-        plain_text = (
-            "notification_id1[type: type1,subtype1]=msg1\n"
-            "notification_id2[type: type2,subtype2]=msg2\n"
-            "notification_idn[type: typen,subtypen]=msgn"
-        )
-        response._content = plain_text.encode('utf-8')
-        response.headers['Content-Type'] = 'text/plain'
-        response.raw = io.BytesIO(response._content)
-        messages = jwst.parse_messages_response(response)
+        with log.log_to_list() as messages:
+            jwst = JwstClass(show_messages=False)
+            response = Response()
+            response.status_code = 200
+            plain_text = (
+                "notification_id1[type: type1,subtype1]=msg1\n"
+                "notification_id2[type: type2,subtype2]=msg2\n"
+                "notification_idn[type: typen,subtypen]=msgn"
+            )
+            response._content = plain_text.encode('utf-8')
+            response.headers['Content-Type'] = 'text/plain'
+            response.raw = io.BytesIO(response._content)
+            jwst._parse_messages_response(response)
+
         assert len(messages) == 3
-        assert messages == ["msg1", "msg2", "msgn"]
+        assert "msg1" in messages[0].message
+        assert "msg2" in messages[1].message
+        assert "msgn" in messages[2].message
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(JwstClass, 'query_tap')

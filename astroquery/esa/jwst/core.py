@@ -21,7 +21,6 @@ from datetime import datetime, timezone
 from astropy.io.votable import from_table, writeto
 from astropy.utils import deprecated_renamed_argument
 
-from astroquery import log
 import astroquery.esa.utils.utils as esautils
 
 from astropy import log
@@ -118,8 +117,7 @@ class JwstClass(EsaTap):
         name : str, optional, default None
             name of the job to be executed
         output_file : str, optional, default None
-            file name where the results are saved if dumpToFile is True.
-            If this parameter is not provided, the jobid is used instead
+            file name where the results are saved if needed
         output_format : str, optional, default 'votable'
             results format. Options are:
             'votable': str, binary VOTable format
@@ -365,7 +363,7 @@ class JwstClass(EsaTap):
                     only_public=False,
                     show_all_columns=False,
                     async_job=False,
-                    background=False,
+                    dump_to_file=None,
                     output_file=None,
                     output_format="votable",
                     verbose=False):
@@ -404,9 +402,6 @@ class JwstClass(EsaTap):
         async_job : bool, optional, default 'False'
             executes the job in asynchronous/synchronous mode (default
             synchronous)
-        background : bool, optional, default 'False'
-            when the job is executed in asynchronous mode, this flag specifies
-            whether the execution will wait until results are available
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
@@ -611,7 +606,7 @@ class JwstClass(EsaTap):
 
         if response.status == 403:
             log.info("ERROR: MAST tokens cannot be assigned "
-                  "or requested by anonymous users")
+                     "or requested by anonymous users")
         elif response.status == 500:
             log.info("ERROR: Server error when setting the token")
         else:
