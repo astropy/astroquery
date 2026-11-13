@@ -74,6 +74,7 @@ class JwstClass(EsaTap):
     Default parameters to define how to connect to eJWST Science Archive and different endpoints
     for login, logout and upload files.
     """
+
     ESA_ARCHIVE_NAME = "ESA JWST"
     TAP_URL = conf.JWST_TAP_SERVER
     LOGIN_URL = conf.JWST_LOGIN_SERVER
@@ -96,6 +97,7 @@ class JwstClass(EsaTap):
         tap_url:  str, optional
             URL to connect to eJWST Science Archive TAP service
         """
+
         super().__init__(auth_session=auth_session, tap_url=tap_url)
         if show_messages:
             self.get_status_messages()
