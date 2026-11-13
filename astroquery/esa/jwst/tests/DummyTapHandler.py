@@ -129,11 +129,6 @@ class DummyTapHandler:
         self.__parameters['verbose'] = verbose
         return None
 
-    def list_async_jobs(self, verbose=False):
-        self.__invokedMethod = 'list_async_jobs'
-        self.__parameters['verbose'] = verbose
-        return None
-
     def query_object(self, coordinate, radius=None, width=None, height=None,
                      verbose=False):
         self.__invokedMethod = 'query_object'

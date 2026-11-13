@@ -53,8 +53,14 @@ if hasattr(esatar, "fully_trusted_filter"):
 class JwstClass(EsaTap):
 
     """
-    Proxy class to default TapPlus object (pointing to JWST Archive)
+    Proxy class to default EsaTap object (pointing to JWST Archive)
     """
+
+    ESA_ARCHIVE_NAME = "ESA JWST"
+    TAP_URL = conf.JWST_TAP_SERVER
+    LOGIN_URL = conf.JWST_LOGIN_SERVER
+    LOGOUT_URL = conf.JWST_LOGOUT_SERVER
+    UPLOAD_URL = conf.JWST_UPLOAD
 
     JWST_DEFAULT_COLUMNS = ['observationid', 'calibrationlevel', 'public',
                             'dataproducttype', 'instrument_name',
@@ -70,24 +76,10 @@ class JwstClass(EsaTap):
     CAL_LEVELS = ['ALL', 1, 2, 3, -1]
     REQUESTED_OBSERVATION_ID = "Missing required argument: 'observation_id'"
 
-    """
-    Default parameters to define how to connect to eJWST Science Archive and different endpoints
-    for login, logout and upload files.
-    """
-
-    ESA_ARCHIVE_NAME = "ESA JWST"
-    TAP_URL = conf.JWST_TAP_SERVER
-    LOGIN_URL = conf.JWST_LOGIN_SERVER
-    LOGOUT_URL = conf.JWST_LOGOUT_SERVER
-    UPLOAD_URL = conf.JWST_UPLOAD
-
-    def __init__(self,
-                 *,
-                 show_messages=False,
-                 auth_session=None,
-                 tap_url=None):
+    def __init__(self, *, show_messages=False, auth_session=None, tap_url=None):
         """
         Method to initialize eJWST Science Archive module
+
         Parameters
         ----------
         show_messages: str, optional
@@ -97,7 +89,6 @@ class JwstClass(EsaTap):
         tap_url:  str, optional
             URL to connect to eJWST Science Archive TAP service
         """
-
         super().__init__(auth_session=auth_session, tap_url=tap_url)
         if show_messages:
             self.get_status_messages()
@@ -109,7 +100,8 @@ class JwstClass(EsaTap):
                    upload_resource=None,
                    upload_table_name=None,
                    async_job=False):
-        """Launches a synchronous or asynchronous job
+        """
+        Launches a synchronous or asynchronous job
         TAP & TAP+
 
         Parameters
@@ -139,7 +131,6 @@ class JwstClass(EsaTap):
         -------
         A Job object
         """
-
         if query == "" and upload_resource is None:
             raise ValueError(
                 "Either 'query' or 'upload_resource' must be provided."
@@ -238,7 +229,8 @@ class JwstClass(EsaTap):
                      only_public=False,
                      show_all_columns=False,
                      async_job=False, verbose=False):
-        """Launches a query region job in sync/async mode
+        """
+        Launches a query region job in sync/async mode
         TAP & TAP+
 
         Parameters
@@ -404,6 +396,8 @@ class JwstClass(EsaTap):
         async_job : bool, optional, default 'False'
             executes the job in asynchronous/synchronous mode (default
             synchronous)
+        dump_to_file : bool, optional, default 'False', deprecated
+            if True, the results are saved in a file instead of using memory
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
