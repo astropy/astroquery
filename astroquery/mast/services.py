@@ -13,6 +13,7 @@ import numpy as np
 
 from astropy.table import Table, MaskedColumn
 from astropy.utils.decorators import deprecated_renamed_argument
+from requests import HTTPError
 
 from .. import log
 from ..query import BaseQuery
@@ -235,11 +236,14 @@ class ServiceAPI(BaseQuery):
         if (time.time() - start_time) >= self.TIMEOUT:
             raise TimeoutError("Timeout limit of {} exceeded.".format(self.TIMEOUT))
 
-        if response.status_code in [400, 500]:
-            raise InvalidQueryError('The server was unable to process the request due to invalid input. '
-                                    'Please check the query parameters and try again. Use the '
-                                    '`MastMissions.get_column_list` method to see the available searchable '
-                                    'columns and their expected data types.')
+        if response.status_code == 400:
+            detail = response.text.strip() or response.reason
+            raise InvalidQueryError(f"MAST service request to {response.url} failed with HTTP 400. "
+                                    f"Please check your query. Error details: {detail}")
+        elif response.status_code == 500:
+            detail = response.text.strip() or response.reason
+            raise HTTPError(f"An error has occurred when processing your request. Please try your request again. "
+                            f"If errors continue, please contact the MAST helpdesk. Error details: {detail}")
 
         response.raise_for_status()
         return response
