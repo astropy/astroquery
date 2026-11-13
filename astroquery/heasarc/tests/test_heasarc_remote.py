@@ -186,7 +186,7 @@ class TestHeasarc:
         SELECT TOP 2 __row, obsid, name, status, data_in_heasarc
         FROM xmmmaster
         WHERE status = 'archived' AND data_in_heasarc = 'Y'
-        ORDER __row
+        ORDER BY __row
         """
         tab = Heasarc.query_tap(query).to_table()
         assert len(tab) == 2, (
