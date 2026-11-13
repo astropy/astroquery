@@ -658,6 +658,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             Target column list with value separated by a comma(,).
             Use * for all the columns. The default is to return a subset
             of the columns that are generally the most useful.
+        start_time, end_time : str or `~astropy.time.Time`
+            Inclusive time range boundaries for the search. Currently,
+            time constraints are only possible when doing global searches
+            with catalog='all'.
         verbose : bool, optional
             If False, suppress vo warnings.
         maxrec : int, optional
