@@ -136,7 +136,6 @@ Criteria-Based Queries
 In addition to positional searches, observations may be queried using metadata
 criteria such as mission name, instrument, filters, proposal information, or observation
 time. These queries are performed using the `~astroquery.mast.ObservationsClass.query_criteria` method.
-Valid cr
 
 Criteria are specified as keyword arguments corresponding to column names in the observation
 metadata table, as returned by ``Observations.get_metadata("observations")``.
