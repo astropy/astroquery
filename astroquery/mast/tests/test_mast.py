@@ -50,6 +50,8 @@ if importlib.util.find_spec("fsspec") is not None:
 else:
     HAS_FSSPEC = False
 
+_SERVICE_API_REQUEST = services.ServiceAPI._request
+
 DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Name.Lookup': 'resolver.json',
               'mission_search_results': 'mission_results.json',
@@ -1172,6 +1174,43 @@ def test_list_missions():
     assert isinstance(missions, list)
     for m in ['HST', 'HLA', 'GALEX', 'Kepler']:
         assert m in missions
+
+
+def test_service_api_request(mocker):
+    """Test the service API request."""
+    response = Response()
+    response.status_code = 200
+    response.url = "https://example.com/api/v0.1/catalogs"
+    mocker.patch.object(services.BaseQuery, "_request", return_value=response)
+
+    service_api = services.ServiceAPI()
+    response = _SERVICE_API_REQUEST(service_api, "POST", response.url)
+    assert response.status_code == 200
+
+
+@pytest.mark.parametrize(
+    ("status_code", "error_type", "message_fragment"),
+    [
+        (400, InvalidQueryError, "Please check your query."),
+        (500, HTTPError, "please contact the MAST helpdesk."),
+    ],
+)
+def test_service_api_request_http_errors(mocker, status_code, error_type, message_fragment):
+    """Test that service API request correctly handles HTTP errors."""
+    response = Response()
+    response.status_code = status_code
+    response.url = "https://example.com/api/v0.1/catalogs"
+    response._content = b"Backend failure detail"
+    mocker.patch.object(services.BaseQuery, "_request", return_value=response)
+
+    service_api = services.ServiceAPI()
+    with pytest.raises(error_type) as exc_info:
+        _SERVICE_API_REQUEST(service_api, "POST", response.url)
+
+    assert message_fragment in str(exc_info.value)
+    assert "Backend failure detail" in str(exc_info.value)
+    if status_code == 400:
+        assert response.url in str(exc_info.value)
 
 
 def test_mast_service_request_async():

@@ -201,22 +201,28 @@ class ServiceAPI(BaseQuery):
         Caching is defaulted to False but may be modified as needed
         Also parameters that allow for file download through this method are removed
 
-
         Parameters
         ----------
         method : 'GET' or 'POST'
+            HTTP method to use for the request, either 'GET' or 'POST'.
         url : str
+            The URL to which the request is sent.
         params : None or dict
+            The query parameters to include in the request URL.
         data : None or dict
+            The data to include in the body of the request.
         headers : None or dict
+            The HTTP headers to include in the request.
         auth : None or dict
+            Authentication information for the request.
         files : None or dict
+            Files to include in the request.
         stream : bool
-            See `~requests.request`
+            If True, the response content will be streamed.
         cache : bool
-            Default False. Use of built in caching
-        use_json: bool
-            Default False. if True then data is already in json format.
+            Default False. If True, the response will be cached.
+        use_json : bool
+            Default False. If True, then data is already in json format.
 
         Returns
         -------

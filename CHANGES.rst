@@ -278,6 +278,7 @@ mast
 - Added ``get_cloud_uri_map`` method to ``MastMissions`` for mapping data products to their corresponding cloud URIs. [#3690]
 - Added support for the Hubble Spectroscopic Legacy Archive (HSLA) mission in ``MastMissions``. [#3689]
 - Added support for the Transiting Exoplanet Survey Satellite (TESS) mission in ``MastMissions``. [#3689]
+- Improve handling of HTTP error codes coming from MAST service requests. [#3707]
 
 
 jplspec
