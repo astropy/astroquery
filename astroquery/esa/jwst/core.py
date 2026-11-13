@@ -19,7 +19,9 @@ import zipfile
 from datetime import datetime, timezone
 
 from astropy.io.votable import from_table, writeto
+from astropy.utils import deprecated_renamed_argument
 
+from astroquery import log
 import astroquery.esa.utils.utils as esautils
 
 from astropy import log
@@ -69,6 +71,10 @@ class JwstClass(EsaTap):
     CAL_LEVELS = ['ALL', 1, 2, 3, -1]
     REQUESTED_OBSERVATION_ID = "Missing required argument: 'observation_id'"
 
+    """
+    Default parameters to define how to connect to eJWST Science Archive and different endpoints
+    for login, logout and upload files.
+    """
     ESA_ARCHIVE_NAME = "ESA JWST"
     TAP_URL = conf.JWST_TAP_SERVER
     LOGIN_URL = conf.JWST_LOGIN_SERVER
@@ -80,6 +86,17 @@ class JwstClass(EsaTap):
                  show_messages=False,
                  auth_session=None,
                  tap_url=None):
+        """
+        Method to initialize eJWST Science Archive module
+        Parameters
+        ----------
+        show_messages: str, optional
+            To show/hide notification messages provided by the service (e.g. downtimes)
+        auth_session: pyvo.auth.authsession.AuthSession, optional
+            Session used to authenticate the user
+        tap_url:  str, optional
+            URL to connect to eJWST Science Archive TAP service
+        """
         super().__init__(auth_session=auth_session, tap_url=tap_url)
         if show_messages:
             self.get_status_messages()
@@ -136,7 +153,7 @@ class JwstClass(EsaTap):
 
         if query and upload_resource is None and upload_table_name is None:
             if verbose:
-                print("Executing query (no upload requested)...")
+                log.info("Executing query (no upload requested)...")
             result = self.query_tap(
                 query,
                 async_job=async_job,
@@ -149,7 +166,7 @@ class JwstClass(EsaTap):
         if query and upload_resource is None and upload_table_name is not None:
 
             if verbose:
-                print("Executing query and preparing result upload...")
+                log.info("Executing query and preparing result upload...")
 
             result = self.query_tap(
                 query,
@@ -171,7 +188,7 @@ class JwstClass(EsaTap):
                 writeto(votable, temp_path)
 
                 if verbose:
-                    print(f"Temporary VOTable written: {temp_path}")
+                    log.info(f"Temporary VOTable written: {temp_path}")
 
                 self.upload_table(
                     conf.JWST_UPLOAD,
@@ -184,7 +201,7 @@ class JwstClass(EsaTap):
                 if os.path.exists(temp_path):
                     os.remove(temp_path)
                     if verbose:
-                        print(f"Deleted temporary VOTable: {temp_path}")
+                        log.info(f"Deleted temporary VOTable: {temp_path}")
 
             return result
 
@@ -196,7 +213,7 @@ class JwstClass(EsaTap):
                 )
 
             if verbose:
-                print("Uploading user-provided file...")
+                log.info("Uploading user-provided file...")
 
             self.upload_table(
                 conf.JWST_UPLOAD,
@@ -332,11 +349,12 @@ class JwstClass(EsaTap):
                      f"{props_id_cond}"
                      f" ORDER BY dist ASC")
             if verbose:
-                print(query)
+                log.info(query)
             return self.query_tap(query=query,
                                   async_job=async_job,
                                   verbose=verbose)
 
+    @deprecated_renamed_argument("dump_to_file", None, since="0.4.12")
     def cone_search(self, coordinate, radius, *,
                     observation_id=None,
                     cal_level=None,
@@ -592,12 +610,12 @@ class JwstClass(EsaTap):
         )
 
         if response.status == 403:
-            print("ERROR: MAST tokens cannot be assigned "
+            log.info("ERROR: MAST tokens cannot be assigned "
                   "or requested by anonymous users")
         elif response.status == 500:
-            print("ERROR: Server error when setting the token")
+            log.info("ERROR: Server error when setting the token")
         else:
-            print("MAST token has been set successfully")
+            log.info("MAST token has been set successfully")
 
     def get_status_messages(self):
         """Retrieve the messages to inform users about
@@ -608,19 +626,18 @@ class JwstClass(EsaTap):
                 url=conf.JWST_TAP_SERVER + "/" + conf.JWST_MESSAGES,
                 tap=self.tap,
                 query_params={},
-                parser_method=self.parse_messages_response
+                parser_method=self._parse_messages_response
             )
         except OSError:
-            print("Status messages could not be retrieved")
+            log.info("Status messages could not be retrieved")
 
-    def parse_messages_response(self, response):
+    def _parse_messages_response(self, response):
         string_messages = []
         for line in response.iter_lines():
             string_message = line.decode("utf-8")
             string_messages.append(
                 string_message[string_message.index('=') + 1:])
-            print(string_messages[len(string_messages) - 1])
-        return string_messages
+            log.info(string_messages[len(string_messages) - 1])
 
     def get_product_list(self, *, observation_id=None,
                          cal_level="ALL",
@@ -909,9 +926,7 @@ class JwstClass(EsaTap):
             Returns the local path where the product(s) are saved.
         """
 
-        if (
-                isinstance(product_type, list) and '' in product_type
-        ) or not product_type:
+        if (isinstance(product_type, list) and '' in product_type) or not product_type:
             product_type = None
         if observation_id is None:
             raise ValueError(self.REQUESTED_OBSERVATION_ID)
@@ -1000,7 +1015,7 @@ class JwstClass(EsaTap):
                  f"FROM {str(conf.JWST_ARCHIVE_TABLE)} "
                  f"WHERE proposal_id='{str(proposal_id)}'")
         if verbose:
-            print(query)
+            log.info(query)
         results = self.query_tap(query=query, verbose=verbose)
         allobs = set(JwstClass.get_decoded_string(
             results['observationid']))

@@ -167,7 +167,7 @@ esa.xmm_newton
 esa.jwst
 ^^^^^^^^^^^^^^
 
-  - Refactored to use PyVo instead of deprecated TapPlus class [#3592]
+  - Refactored to use PyVo instead of deprecated TapPlus class. JwstDataHandler class not used anymore. [#3592]
 
 svo_fps
 ^^^^^^^

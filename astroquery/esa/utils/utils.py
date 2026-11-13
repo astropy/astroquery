@@ -26,6 +26,8 @@ import pyvo
 
 import numbers
 
+from requests import HTTPError
+
 from astroquery.query import BaseVOQuery, BaseQuery
 
 __all__ = ['ESAAuthSession', 'EsaTap']
@@ -114,7 +116,7 @@ class ESAAuthSession(pyvo.auth.authsession.AuthSession):
             response = self.post(url=logout_url, headers=header)
             response.raise_for_status()
             log.info('Logout executed successfully.')
-        except Exception as e:
+        except HTTPError as e:
             log.error('Logout error: {}'.format(e))
             raise e
 
@@ -759,8 +761,14 @@ def execute_servlet_request(url, tap, *, method='GET', query_params=None, data=N
         Url of the servlet
     tap: PyVO TAP, mandatory
         TAP instance from where the session will be extracted
+    method: str, optional, default value GET
+        the method used to execute the request, GET or POST
     query_params: dict, optional
         Parameters to be included in the request
+    data: str, optional
+        The payload to be submitted with the request
+    files: str, optional
+        For POST requests and upload operations, the files to be uploaded
     parser_method: dict, optional
         Method to parse the response
 
