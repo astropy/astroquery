@@ -1081,10 +1081,10 @@ class ObservationsClass(MastQueryWithLogin):
 
         return manifest
 
-    def get_product_urls(self, products, *, mrp_only=False, cloud_only=False, include_bucket=True,
+    def get_product_uris(self, products, *, mrp_only=False, cloud_only=False, include_bucket=True,
                          full_url=False, verbose=True, **filters):
         """
-        Get URLs for data products.
+        Get URIs for data products.
         If cloud access is enabled, cloud locations will be returned. By default these are S3
         URIs. If ``full_url`` is True, downloadable URLs are returned instead.
 
