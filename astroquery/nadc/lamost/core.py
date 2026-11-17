@@ -15,9 +15,10 @@ import os
 import re
 import tempfile
 import warnings
+from functools import partial
 from io import BytesIO, StringIO
 from numbers import Integral
-from urllib.parse import quote, quote_plus, urlencode
+from urllib.parse import quote, quote_plus, urlencode, urlsplit
 from xml.etree import ElementTree
 
 # Third party
@@ -27,8 +28,10 @@ from astropy.io import ascii, fits, votable
 from astropy.io.votable.exceptions import W46
 from astropy.table import MaskedColumn, Table
 import numpy as np
-from requests import HTTPError, Response
+from requests import HTTPError, RequestException, Response, Session
 from requests.structures import CaseInsensitiveDict
+from pyvo.dal import SCSService
+from pyvo.dal.exceptions import DALAccessError, DALFormatError
 
 # Local imports
 from ._response_utils import response_looks_like_html, sanitize_votable_content, widen_tabledata_strings
@@ -42,7 +45,7 @@ from ._utils import (
     _strip_optional_quotes,
     _successful_response_error,
 )
-from ...query import BaseQuery
+from ...query import BaseQuery, BaseVOQuery
 from ... import log
 from ...utils import commons
 from ...exceptions import InputWarning, InvalidQueryError, LoginError, RemoteServiceError, TableParseError
@@ -136,7 +139,7 @@ class _CsvReader(ascii.Csv):
     inputter_class = _CsvInputter
 
 
-class LamostClass(BaseQuery):
+class LamostClass(BaseVOQuery, BaseQuery):
     """
     Class for querying the LAMOST spectroscopic survey database.
 
@@ -288,15 +291,20 @@ class LamostClass(BaseQuery):
                 continue
             seen.add(id(current))
             current.args = tuple(self._redact(str(arg)) for arg in current.args)
-            for name in ('url', 'filename', 'filename2', 'doc', 'msg', 'reason'):
+            if isinstance(getattr(current, '_cause', None), str):
+                current._cause = self._redact(current._cause)
+            for name in ('_url', '_reason', 'url', 'filename', 'filename2', 'doc', 'msg', 'reason'):
                 value = getattr(current, name, None)
                 if isinstance(value, (str, Exception)):
-                    setattr(current, name, self._redact(str(value)))
+                    redacted = self._redact(str(value))
+                    if redacted != str(value):
+                        setattr(current, name, redacted)
             if getattr(current, 'request', None) is not None:
                 current.request = self._diagnostic_request(current.request)
             if getattr(current, 'response', None) is not None:
                 current.response = self._diagnostic_response(current.response)
-            pending.extend(item for item in (current.__cause__, current.__context__) if item is not None)
+            pending.extend(item for item in (current.__cause__, current.__context__,
+                                             getattr(current, 'cause', None)) if isinstance(item, Exception))
 
     def _response_hook(self, response, *args, **kwargs):
         # BaseQuery's hook logs raw URLs, headers and bodies, including tokens.
@@ -369,11 +377,14 @@ class LamostClass(BaseQuery):
 
     def _raise_response_error(self, response, context, *, stream=False):
         oauth_redirect = _oauth_redirect_url(response, include_body=not stream)
+        login_redirect = re.search(r'/(?:lmusers/)?user/login(?:/|$)',
+                                   urlsplit(response.headers.get('Location', '')).path)
         error = _successful_response_error(response) if not stream and response.status_code < 400 else None
-        if (oauth_redirect is not None or response.status_code in (401, 403) or error and (
+        if (oauth_redirect is not None or login_redirect or response.status_code in (401, 403) or error and (
                 re.match(r'(?i)^(401|403|unauthorized|unauthenticated|invalid token|expired token)(:|$)', error)
                 or 'check your token' in error.lower())):
             detail = ('the service redirected to an OAuth login page' if oauth_redirect is not None
+                      else 'the service redirected to a login page' if login_redirect
                       else error or _api_error_summary(response) or 'authentication required')
             advice = ('Check the supplied token validity, expiration and access permissions.' if self.token else
                       'Pass a token to LamostClass(token=...), or set conf.token / '
@@ -992,7 +1003,7 @@ class LamostClass(BaseQuery):
         return self._request_raise('GET', url, params=request_payload, cache=cache)
 
     def query_region(self, coordinates, radius, *,
-                     resolution='low', output_format='csv',
+                     resolution='low', output_format=None,
                      get_query_payload=False, cache=True, verbose=False):
         """Query the LAMOST catalog around sky coordinates.
 
@@ -1005,14 +1016,14 @@ class LamostClass(BaseQuery):
             angle strings such as ``'5 arcsec'`` and angular quantities are accepted.
         resolution : {"low", "medium"}, optional
             Spectral-resolution service to query.
-        output_format : {"votable", "json", "csv"}, optional
-            Output format requested from the service. The default is ``'csv'``
-            because some service VOTables declare string
-            fields too short to represent the returned identifiers.
+        output_format : {None, "votable", "json", "csv"}, optional
+            None or "votable" uses PyVO Cone Search on the official service.
+            Explicit JSON/CSV and configured mirrors retain OpenAPI.
         get_query_payload : bool, optional
-            Return the request payload instead of executing the request.
+            Preview redacted parameters without executing the data query.
+            VO previews may fetch release metadata.
         cache : bool, optional
-            Whether to use astroquery's request cache.
+            Whether to use astroquery's request cache for OpenAPI data queries.
         verbose : bool, optional
             Emit parser diagnostics for table responses.
 
@@ -1033,17 +1044,25 @@ class LamostClass(BaseQuery):
         Notes
         -----
         This method retrieves one response; archive row limits still apply.
+        VO uses the advertised release endpoint and bypasses the disk cache.
+        The OpenAPI compatibility path retains the following workarounds.
         DR3 and DR8 cone services can return VOTable despite a CSV request.
         Known ``catalogue_``/``med_catalogue_`` prefixes are retained and matched to
         catalog types. Undersized fixed-length string fields in TABLEDATA are
         widened before parsing; other cases that would truncate strings are
         rejected.
         """
+        if output_format is not None:
+            output_format = self._normalize_output_format(output_format, allowed=('votable', 'json', 'csv'))
+        if self._use_scs and output_format in (None, 'votable'):
+            return self._query_region_scs(
+                coordinates, radius, resolution=resolution, get_query_payload=get_query_payload)
+
         response = self._request_query_region(
             coordinates,
             radius,
             resolution=resolution,
-            output_format=output_format,
+            output_format=output_format or 'csv',
             get_query_payload=get_query_payload,
             cache=cache,
         )
@@ -1058,6 +1077,71 @@ class LamostClass(BaseQuery):
         table = self._parse_table_response(response, verbose=verbose, column_schema=schema,
                                            empty_columns=list(base_schema))
         return self._prepare_catalog_result(table, catalog_name=catalog_name, columns=None)
+
+    @property
+    def _use_scs(self):
+        return self.URL == 'https://www.lamost.org/openapi'
+
+    def _query_region_scs(self, coordinates, radius, *, resolution, get_query_payload):
+        """Query the archive's advertised Cone Search endpoint through PyVO."""
+        position = commons.parse_coordinates(coordinates).icrs
+        radius = self._radius_in(radius, u.deg)
+        resolution = self._normalize_resolution(resolution)
+        # DR1--DR3 have unversioned endpoints; v2.0 is the existing OpenAPI alias.
+        version = next((row for row in self.get_dr_versions()
+                        if row['dr_version'] == self.data_release and (
+                            row['sub_version'] == self.sub_version
+                            or row['sub_version'] == '' and self.sub_version == 'v2.0')), None)
+        if version is None:
+            raise InvalidQueryError(f'Unknown LAMOST release: {self.data_release}/{self.sub_version}.')
+        base_url = version['base_url']
+        endpoint = urlsplit(base_url)
+        host = endpoint.hostname or ''
+        if endpoint.scheme != 'https' or not (host == 'lamost.org' or host.endswith('.lamost.org')):
+            raise TableParseError('LAMOST release metadata supplied an invalid Cone Search base URL.')
+        path = 'medvoservice' if resolution == 'medium' else 'voservice'
+        url = f'{base_url.rstrip("/")}/{path}/conesearch'
+        with Session() as session:
+            session.headers.update(self._session.headers)
+            session.params['token'] = self.token or None
+            session.request = partial(Session.request, session, timeout=self.TIMEOUT)
+            service = SCSService(url, session=session)
+            if get_query_payload:
+                payload = dict(service.create_query(pos=position, radius=radius, verbosity=2))
+                if self.token:
+                    payload['token'] = self.token
+                return self._redact(payload)
+            response = None
+
+            def validate(current, *args, **kwargs):
+                nonlocal response
+                response = current
+                self._response_hook(current)
+                context = f'LAMOST VO (HTTP {current.status_code})'
+                self._raise_response_error(current, context, stream=True)
+                current.raise_for_status()
+                if 'html' in current.headers.get('Content-Type', '').lower():
+                    self._raise_response_error(current, context)
+                    self._validate_data_response(current)
+
+            session.hooks['response'].append(validate)
+            try:
+                table = service.search(pos=position, radius=radius).to_table()
+            except DALAccessError as error:
+                if response is not None:
+                    self.response = self._diagnostic_response(response)
+                self._sanitize_exception(error)
+                cause = getattr(error, 'cause', None)
+                if isinstance(cause, (LoginError, RequestException, RemoteServiceError, TableParseError)):
+                    raise cause
+                error_type = TableParseError if isinstance(error, DALFormatError) else RemoteServiceError
+                raise error_type(f'LAMOST Cone Search failed: {error}') from error
+            finally:
+                if response is not None:
+                    response.close()
+        self.table = self._prepare_catalog_result(
+            table, catalog_name=self._spectral_catalog_name(resolution, None), columns=None)
+        return self.table
 
     def query_sql_async(self, sql, *, output_format=None,
                         get_query_payload=False, cache=True):

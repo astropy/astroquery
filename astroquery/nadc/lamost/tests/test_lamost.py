@@ -29,6 +29,9 @@ from astroquery.exceptions import (
 from .helpers import DATA, create_mock_response
 
 
+pytestmark = pytest.mark.usefixtures('openapi_backend')
+
+
 class TestLamost:
     """
     Unit tests for LAMOST query class.

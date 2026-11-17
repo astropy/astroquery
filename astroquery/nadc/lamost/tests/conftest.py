@@ -52,6 +52,12 @@ def isolate_lamost_defaults(monkeypatch, tmp_path, request):
 
 
 @pytest.fixture
+def openapi_backend(monkeypatch):
+    """Exercise the retained OpenAPI contract independently of the VO tests."""
+    monkeypatch.setattr(LamostClass, '_use_scs', property(lambda self: False))
+
+
+@pytest.fixture
 def mock_home_dir(tmp_path, monkeypatch):
     """
     Mock home directory for config file testing.

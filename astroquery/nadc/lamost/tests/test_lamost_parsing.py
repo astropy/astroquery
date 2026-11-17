@@ -20,6 +20,8 @@ from .helpers import create_mock_response
 
 DATA = Path(__file__).parent / 'data'
 
+pytestmark = pytest.mark.usefixtures('openapi_backend')
+
 
 @pytest.mark.parametrize('datatype,value', [('char', '00123&A'), ('unicodeChar', '恒星00123')])
 @pytest.mark.parametrize('arraysize', ['', " arraysize='1'", " arraysize='3'"])
