@@ -672,6 +672,8 @@ class MastMissionsClass(MastQueryWithLogin):
 
         if count_only:
             params["count_only"] = True
+        else:
+            params["skip_count"] = True
 
         self._build_params_from_criteria(params, **criteria)
 
