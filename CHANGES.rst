@@ -164,6 +164,11 @@ esa.xmm_newton
 - Update ``get_epic_spectra`` method to get the latest version of PN RMF files from the SAS server
   instead of having it hardcoded [#3563]
 
+esa.jwst
+^^^^^^^^^^^^^^
+
+  - Refactored to use PyVo instead of deprecated TapPlus class. JwstDataHandler class not used anymore. [#3592]
+
 svo_fps
 ^^^^^^^
 
