@@ -22,12 +22,24 @@ class Conf(EmdsConf):
     CHEOPS_OBSERVATION_TABLE = _config.ConfigItem("cheops.observation_request",
                                                       "CHEOPS Observation Table")
 
-    CHEOPS_DATA_PRODUCT_TABLE = _config.ConfigItem("cheops.data_product",
+    CHEOPS_VISIT_TABLE = _config.ConfigItem("cheops.visit",
+                                                  "CHEOPS Observation Table")
+
+    CHEOPS_DATA_PRODUCT_TABLE = _config.ConfigItem("cheops.v_data_product",
                                                    "CHEOPS Data Product Table")
 
     CHEOPS_DATA_PRODUCT_QUERY = _config.ConfigItem("select * from cheops.data_product a where a.visit_oid in "
                                                    "(select distinct b.visit_oid from cheops.visit b where {})",
                                                    "CHEOPS Data Product Query")
+
+    CHEOPS_PI_TABLE = _config.ConfigItem("cheops.pi_tbl",
+                                            "CHEOPS PI Name Table")
+
+    CHEOPS_PROGRAMME_TABLE = _config.ConfigItem("cheops.programme",
+                                            "CHEOPS Programmes Table")
+
+    CHEOPS_PROGRAMME_INFO_TABLE = _config.ConfigItem("cheops.programme_info",
+                                            "CHEOPS Programme Info Table")
 
     DEFAULT_SCHEMAS = _config.ConfigItem("cheops",
                                          "Default TAP schema(s) for this mission (comma-separated) "
@@ -41,4 +53,4 @@ conf = Conf()
 
 from .core import Cheops, CheopsClass
 
-__all__ = ['Cheops', 'CheopsClass']
+__all__ = ['Cheops', 'CheopsClass', 'Conf', 'conf']
