@@ -105,8 +105,10 @@ class CheopsClass(EmdsClass):
             dec = coord.dec.degree
             cone_search_filter = self.create_cone_search_query(ra, dec, "ra", "dec", radius)
 
-        return self.query_table(table_name=conf.CHEOPS_OBSERVATION_TABLE, columns=columns, custom_filters=cone_search_filter,
-                                get_metadata=get_metadata, async_job=async_job, output_file=output_file, output_format=output_format, **filters)
+        return self.query_table(table_name=conf.CHEOPS_OBSERVATION_TABLE, columns=columns,
+                                custom_filters=cone_search_filter, get_metadata=get_metadata,
+                                async_job=async_job, output_file=output_file,
+                                output_format=output_format, **filters)
 
     def get_programmes(self, programme_key=None, title=None, pi_name=None):
         """
@@ -160,12 +162,20 @@ class CheopsClass(EmdsClass):
 
         """
         programmes = []
-        result_pi = self.query_table(table_name=conf.CHEOPS_PI_TABLE, columns=['pi_oid'], name=f"%{pi_name}%", verbose=False)
+        result_pi = self.query_table(table_name=conf.CHEOPS_PI_TABLE,
+                                     columns=['pi_oid'],
+                                     name=f"%{pi_name}%",
+                                     verbose=False)
         pi_oids = result_pi['pi_oid']
         if len(pi_oids) > 0:
             programmes_by_pi = self.query_table(conf.CHEOPS_PROGRAMME_TABLE, pi_oid=pi_oids[0], verbose=False)
-            programme_keys_from_id = list(map(lambda x: self._get_programme_key_from_type_and_id(x['type'], x['id']), programmes_by_pi))
-            programmes = self.query_table(conf.CHEOPS_PROGRAMME_INFO_TABLE, columns=['programme_key', 'title', 'abstract'], programme_key=programme_keys_from_id, verbose=False)
+            programme_keys_from_id = list(map(lambda x:
+                                              self._get_programme_key_from_type_and_id(x['type'], x['id']),
+                                              programmes_by_pi))
+            programmes = self.query_table(conf.CHEOPS_PROGRAMME_INFO_TABLE,
+                                          columns=['programme_key', 'title', 'abstract'],
+                                          programme_key=programme_keys_from_id,
+                                          verbose=False)
             programmes['pi_name'] = pi_name
             programmes['programme_oid'] = programmes_by_pi['programme_oid']
 
@@ -192,23 +202,33 @@ class CheopsClass(EmdsClass):
             raise TypeError("Please use only programme_key or title as "
                             "parameter.")
         elif programme_key is not None:
-            programmes = self.query_table(table_name=conf.CHEOPS_PROGRAMME_INFO_TABLE, columns=['programme_key', 'title', 'abstract'],  programme_key=programme_key,
+            programmes = self.query_table(table_name=conf.CHEOPS_PROGRAMME_INFO_TABLE,
+                                          columns=['programme_key', 'title', 'abstract'],
+                                          programme_key=programme_key,
                                           verbose=False)
         elif title is not None:
-            programmes = self.query_table(table_name=conf.CHEOPS_PROGRAMME_INFO_TABLE, columns=['programme_key', 'title', 'abstract'],  title=title,
+            programmes = self.query_table(table_name=conf.CHEOPS_PROGRAMME_INFO_TABLE,
+                                          columns=['programme_key', 'title', 'abstract'],
+                                          title=title,
                                           verbose=False)
         # It is necessary to retrieve the PI names using the type and id
         programme_key_author = {}
         programme_key_programme_oid = {}
         for programme_key in programmes['programme_key']:
             type, id = self._get_type_and_id_from_programme_key(programme_key)
-            pi_oid = self.query_table(conf.CHEOPS_PROGRAMME_TABLE, columns=['pi_oid', 'programme_oid'], type=type, id=id, verbose=False)
-            pi_name = self.query_table(conf.CHEOPS_PI_TABLE, columns=['name'], pi_oid = pi_oid['pi_oid'][0], verbose=False)
+            pi_oid = self.query_table(conf.CHEOPS_PROGRAMME_TABLE,
+                                      columns=['pi_oid', 'programme_oid'],
+                                      type=type, id=id, verbose=False)
+            pi_name = self.query_table(conf.CHEOPS_PI_TABLE,
+                                       columns=['name'],
+                                       pi_oid=pi_oid['pi_oid'][0],
+                                       verbose=False)
             programme_key_author[programme_key] = pi_name['name'][0]
             programme_key_programme_oid[programme_key] = pi_oid['programme_oid'][0]
 
         programmes['pi_name'] = [programme_key_author[programme_key] for programme_key in programmes['programme_key']]
-        programmes['programme_oid'] = [programme_key_programme_oid[programme_key] for programme_key in programmes['programme_key']]
+        programmes['programme_oid'] = [programme_key_programme_oid[programme_key] for
+                                       programme_key in programmes['programme_key']]
 
         return programmes
 
@@ -272,8 +292,9 @@ class CheopsClass(EmdsClass):
 
         Parameters
         ----------
-        observation: astropy.table.row.Row or str, mandatory
-            Row of the observation obtained using get_observations method or value for the column observation_request_oid
+        observation: astropy.table.row.Row or int, mandatory
+            Row of the observation obtained using get_observations method or value for
+            the column observation_request_oid
 
         Returns
         -------
@@ -283,13 +304,14 @@ class CheopsClass(EmdsClass):
         observation_request_oid = None
         if isinstance(observation, astropy.table.row.Row):
             observation_request_oid = observation['observation_request_oid']
-        elif isinstance(observation, str):
+        elif isinstance(observation, int):
             observation_request_oid = observation
         else:
             raise TypeError("Please use either the value of the row or the observation_request_oid column")
 
-        return self.query_table(conf.CHEOPS_VISIT_TABLE, observation_request_oid=observation_request_oid, verbose=False)
-
+        return self.query_table(conf.CHEOPS_VISIT_TABLE,
+                                observation_request_oid=observation_request_oid,
+                                verbose=False)
 
     def get_products_from_targets_or_coordinates(self, *, target_name=None, coordinates=None, radius=1.0, level=None):
         """
@@ -311,12 +333,17 @@ class CheopsClass(EmdsClass):
         product_lists = []
         checked_visits = []
         for observation in observations:
-            visits = self.query_table(table_name=conf.CHEOPS_VISIT_TABLE, observation_request_oid=observation['observation_request_oid'], verbose=False)
+            visits = self.query_table(table_name=conf.CHEOPS_VISIT_TABLE,
+                                      observation_request_oid=observation['observation_request_oid'],
+                                      verbose=False)
             for visit in visits:
                 if visit['visit_id'] in checked_visits:
                     continue
                 checked_visits.append(visit['visit_id'])
-                product_lists.append(self.query_table(table_name=conf.CHEOPS_DATA_PRODUCT_TABLE, visit_id=visit['visit_id'], verbose=False, **self._get_kwargs_for_level(level)))
+                product_lists.append(self.query_table(table_name=conf.CHEOPS_DATA_PRODUCT_TABLE,
+                                                      visit_id=visit['visit_id'],
+                                                      verbose=False,
+                                                      **self._get_kwargs_for_level(level)))
         return vstack(product_lists)
 
     def get_products_from_observation(self, observation, *,  level=None):
@@ -326,7 +353,8 @@ class CheopsClass(EmdsClass):
         Parameters
         ----------
         observation: astropy.table.row.Row or str, mandatory
-            Row of the observation obtained using get_observations method or value for the column observation_request_oid
+            Row of the observation obtained using get_observations method or value
+            for the column observation_request_oid
         level: str, optional
             calibration level of the products.
             Available values: EXT, L0.5, L1 and L2
@@ -343,7 +371,10 @@ class CheopsClass(EmdsClass):
             if visit['visit_id'] in checked_visits:
                 continue
             checked_visits.append(visit['visit_id'])
-            product_list.append(self.query_table(conf.CHEOPS_DATA_PRODUCT_TABLE, visit_id=visit['visit_id'], verbose=False, **self._get_kwargs_for_level(level)))
+            product_list.append(self.query_table(conf.CHEOPS_DATA_PRODUCT_TABLE,
+                                                 visit_id=visit['visit_id'],
+                                                 verbose=False,
+                                                 **self._get_kwargs_for_level(level)))
         return vstack(product_list)
 
     def get_products_from_visit(self, visit, *, level=None):
@@ -352,8 +383,9 @@ class CheopsClass(EmdsClass):
 
         Parameters
         ----------
-        visit: astropy.table.row.Row or str, mandatory
-            Row of the observation obtained using get_observations method or value for the column observation_request_oid
+        visit: astropy.table.row.Row or int, mandatory
+            Row of the observation obtained using get_observations method or value
+            for the column observation_request_oid
         level: str, optional
             calibration level of the products.
             Available values: EXT, L0.5, L1 and L2
@@ -363,8 +395,9 @@ class CheopsClass(EmdsClass):
         An astropy.table containing the visit associated to the observation
 
         """
-        visit_id = visit if isinstance(visit, str) else visit['visit_id']
-        return self.query_table(conf.CHEOPS_DATA_PRODUCT_TABLE, visit_id=visit_id, verbose=False, **self._get_kwargs_for_level(level))
+        visit_id = visit if isinstance(visit, int) else visit['visit_id']
+        return self.query_table(conf.CHEOPS_DATA_PRODUCT_TABLE, visit_id=visit_id,
+                                verbose=False, **self._get_kwargs_for_level(level))
 
     def get_products_from_programme(self, *, programme_key=None, title=None, pi_name=None, level=None):
         """
@@ -469,7 +502,8 @@ class CheopsClass(EmdsClass):
             verbose=verbose
         )
 
-    def download_products_from_targets_or_coordinates(self, *, target_name=None, coordinates=None, radius=1.0, level=None, path=''):
+    def download_products_from_targets_or_coordinates(self, *, target_name=None, coordinates=None, radius=1.0,
+                                                      level=None, path=''):
         """
         Download the list of files available for a cone search centered in a target or coordinates
         and a default radius. The level of the products can also be specified
@@ -487,47 +521,54 @@ class CheopsClass(EmdsClass):
         path: str, optional, default current directory
             Path where the file will be stored
         """
-        if  path is not None and path != '' and not os.path.exists(path):
+        if path is not None and path != '' and not os.path.exists(path):
             os.makedirs(path)
-        products = self.get_products_from_targets_or_coordinates(target_name=target_name, coordinates=coordinates, radius=radius, level=level)
+        products = self.get_products_from_targets_or_coordinates(target_name=target_name,
+                                                                 coordinates=coordinates,
+                                                                 radius=radius,
+                                                                 level=level)
         for product in products:
             print(f"Downloading {product['filename']}")
             self.download_product(filename=product['filename'], path=path)
 
     def download_products_from_observation(self, observation, *, level=None, path=''):
         """
-        Download the list of files available for a specific observation. The level of the products can also be specified
+        Download the list of files available for a specific observation.
+        The level of the products can also be specified
         Parameters
         ----------
         observation: astropy.table.row.Row or str, mandatory
-            Row of the observation obtained using get_observations method or value for the column observation_request_oid
+            Row of the observation obtained using get_observations method or value
+            for the column observation_request_oid
         level: str, optional
             calibration level of the products.
             Available values: EXT, L0.5, L1 and L2
         path: str, optional, default current directory
             Path where the file will be stored
         """
-        if  path is not None and path != '' and not os.path.exists(path):
+        if path is not None and path != '' and not os.path.exists(path):
             os.makedirs(path)
-        products = self.get_products_from_observation(observation = observation, level=level)
+        products = self.get_products_from_observation(observation=observation, level=level)
         for product in products:
             print(f"Downloading {product['filename']}")
             self.download_product(filename=product['filename'], path=path)
 
     def download_products_from_visit(self, visit, *, level=None, path=''):
         """
-        Download the list of files available for a specific observation. The level of the products can also be specified
+        Download the list of files available for a specific observation.
+        The level of the products can also be specified
         Parameters
         ----------
         visit: astropy.table.row.Row or str, mandatory
-            Row of the observation obtained using get_observations method or value for the column observation_request_oid
+            Row of the observation obtained using get_observations method or value for
+            the column observation_request_oid
         level: str, optional
             calibration level of the products.
             Available values: EXT, L0.5, L1 and L2
         path: str, optional, default current directory
             Path where the file will be stored
         """
-        if  path is not None and path != '' and not os.path.exists(path):
+        if path is not None and path != '' and not os.path.exists(path):
             os.makedirs(path)
         products = self.get_products_from_visit(visit=visit, level=level)
         for product in products:
@@ -553,11 +594,13 @@ class CheopsClass(EmdsClass):
             Path where the file will be stored
 
         """
-        if  path is not None and path != '' and not os.path.exists(path):
+        if path is not None and path != '' and not os.path.exists(path):
             os.makedirs(path)
-        products = self.get_products_from_programme(programme_key=programme_key, title=title, pi_name=pi_name, level=level)
+        products = self.get_products_from_programme(programme_key=programme_key, title=title,
+                                                    pi_name=pi_name, level=level)
         for product in products:
             print(f"Downloading {product['filename']}")
             self.download_product(filename=product['filename'], path=path)
+
 
 Cheops = CheopsClass()

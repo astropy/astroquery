@@ -71,8 +71,10 @@ class TestEmdsTap:
         print(query_table_mock)
 
         query_table_mock.assert_called_once_with(table_name='cheops.observation_request', columns=None,
-                                                 custom_filters='1=CONTAINS(POINT(\'ICRS\', ra, dec),CIRCLE(\'ICRS\', 81.1238, 17.4175, 0.01))',
-                                                 get_metadata=False, async_job=False, output_file=None, output_format='votable')
+                                                 custom_filters='1=CONTAINS(POINT(\'ICRS\', ra, dec),'
+                                                                'CIRCLE(\'ICRS\', 81.1238, 17.4175, 0.01))',
+                                                 get_metadata=False, async_job=False, output_file=None,
+                                                 output_format='votable')
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch('astroquery.esa.emds.core.esautils.resolve_target')
@@ -104,8 +106,10 @@ class TestEmdsTap:
         cheops = CheopsClass()
         cheops.get_observations(columns=['obs_cat', 'ra', 'dec'])
 
-        query_table_mock.assert_called_once_with(table_name='cheops.observation_request', columns=['obs_cat', 'ra', 'dec'],
-                                                 custom_filters=None, get_metadata=False, async_job=False, output_file=None,
+        query_table_mock.assert_called_once_with(table_name='cheops.observation_request',
+                                                 columns=['obs_cat', 'ra', 'dec'],
+                                                 custom_filters=None, get_metadata=False, async_job=False,
+                                                 output_file=None,
                                                  output_format='votable')
 
     def test_get_observations_error_target_and_coordinates(self):
@@ -136,7 +140,6 @@ class TestEmdsTap:
 
         # Check that filters are forwarded
         assert kwargs['observation_request_id'] == 3000240001
-
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, '_get_programme_from_pi')
@@ -188,35 +191,38 @@ class TestEmdsTap:
                                             'title': ['Programme A', 'Programme B'],
                                             'abstract': ['Abstract A', 'Abstract B']
                                         })
-                                       ]
+                                        ]
 
         cheops = CheopsClass()
         result = cheops._get_programme_from_pi('PI 1')
 
         assert len(result) == 2
         assert list(result['programme_key']) == ['PR010023', 'PR020007']
-        assert list(result['programme_oid']) == [1001,1002]
+        assert list(result['programme_oid']) == [1001, 1002]
 
         assert query_table_mock.call_count == 3
 
         # Verify the call to the subsequent tables
-        query_table_mock.assert_any_call(table_name=conf.CHEOPS_PI_TABLE, columns=['pi_oid'], name='%PI 1%', verbose=False)
+        query_table_mock.assert_any_call(table_name=conf.CHEOPS_PI_TABLE, columns=['pi_oid'], name='%PI 1%',
+                                         verbose=False)
 
         query_table_mock.assert_any_call(conf.CHEOPS_PROGRAMME_TABLE, pi_oid=10, verbose=False)
 
-        query_table_mock.assert_any_call(table_name=conf.CHEOPS_PROGRAMME_INFO_TABLE, columns=['programme_key', 'title', 'abstract'],
+        query_table_mock.assert_any_call(table_name=conf.CHEOPS_PROGRAMME_INFO_TABLE,
+                                         columns=['programme_key', 'title', 'abstract'],
                                          programme_key=['PR010023', 'PR020007'], verbose=False)
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'query_table')
-    def test_get_programme_from_pi(self,query_table_mock):
+    def test_get_programme_from_pi(self, query_table_mock):
         query_table_mock.return_value = Table(names=['pi_oid'], dtype=[int])
 
         cheops = CheopsClass()
         result = cheops._get_programme_from_pi('A PI')
 
         assert result == []
-        query_table_mock.assert_called_once_with(table_name=conf.CHEOPS_PI_TABLE, columns=['pi_oid'], name='%A PI%', verbose=False)
+        query_table_mock.assert_called_once_with(table_name=conf.CHEOPS_PI_TABLE, columns=['pi_oid'], name='%A PI%',
+                                                 verbose=False)
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'query_table')
@@ -224,9 +230,9 @@ class TestEmdsTap:
         query_table_mock.side_effect = [
             Table({'programme_key': ['PR010023', 'PR020007'], 'title': ['Programme A', 'Programme B'],
                    'abstract': ['Abstract A', 'Abstract B']}),
-            Table({ 'pi_oid': [10], 'programme_oid': [1001]}),
+            Table({'pi_oid': [10], 'programme_oid': [1001]}),
             Table({'name': ['PI 1']}),
-            Table({'pi_oid': [20],'programme_oid': [1002]}),
+            Table({'pi_oid': [20], 'programme_oid': [1002]}),
             Table({'name': ['PI 2']})
         ]
 
@@ -253,7 +259,7 @@ class TestEmdsTap:
         # Test programme info to programme table
         args, kwargs = query_table_mock.call_args_list[1]
         assert args[0] == conf.CHEOPS_PROGRAMME_TABLE
-        assert kwargs['columns'] == ['pi_oid','programme_oid']
+        assert kwargs['columns'] == ['pi_oid', 'programme_oid']
         assert kwargs['type'] == 1
         assert kwargs['id'] == 23
         assert kwargs['verbose'] is False
@@ -291,7 +297,7 @@ class TestEmdsTap:
         result = cheops.get_observations_from_programme(programme_key='PR010023')
 
         assert result is get_observations_mock.return_value
-        get_programmes_mock.assert_called_once_with('PR010023',None, None)
+        get_programmes_mock.assert_called_once_with('PR010023', None, None)
         get_observations_mock.assert_called_once_with(programme_oid=1001)
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
@@ -299,10 +305,10 @@ class TestEmdsTap:
     def test_get_visit_from_observation_oid(self, query_table_mock):
         cheops = CheopsClass()
 
-        result = cheops.get_visit_from_observation('OBS-123')
+        result = cheops.get_visit_from_observation(1234)
 
         assert result is query_table_mock.return_value
-        query_table_mock.assert_called_once_with(conf.CHEOPS_VISIT_TABLE, observation_request_oid='OBS-123', verbose=False)
+        query_table_mock.assert_called_once_with(conf.CHEOPS_VISIT_TABLE, observation_request_oid=1234, verbose=False)
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'query_table')
@@ -314,24 +320,24 @@ class TestEmdsTap:
         result = cheops.get_visit_from_observation(observation)
 
         assert result is query_table_mock.return_value
-        query_table_mock.assert_called_once_with(conf.CHEOPS_VISIT_TABLE, observation_request_oid='OBS-123', verbose=False)
+        query_table_mock.assert_called_once_with(conf.CHEOPS_VISIT_TABLE, observation_request_oid='OBS-123',
+                                                 verbose=False)
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
-    @pytest.mark.parametrize('invalid_observation', [None, 123, {}, ['OBS-123']])
-    def test_get_visit_from_observation_rejects_invalid_type(self, invalid_observation):
+    def test_get_visit_from_observation_rejects_invalid_type(self):
         cheops = CheopsClass()
 
         with pytest.raises(TypeError, match='Please use either the value of the row'):
-            cheops.get_visit_from_observation(invalid_observation)
+            cheops.get_visit_from_observation(observation='abcd')
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'query_table')
     @patch.object(CheopsClass, 'get_observations')
     def test_get_products_from_targets_or_coordinates(self, get_observations_mock, query_table_mock):
-        get_observations_mock.return_value = Table({'observation_request_oid': ['OBS-1', 'OBS-2']})
+        get_observations_mock.return_value = Table({'observation_request_oid': [1111, 2222]})
 
-        visits_1 = Table({'visit_id': ['VISIT-1', 'VISIT-2']})
-        visits_2 = Table({'visit_id': ['VISIT-2', 'VISIT-3']})
+        visits_1 = Table({'visit_id': [1234, 5678]})
+        visits_2 = Table({'visit_id': [5678, 9012]})
 
         products_1 = Table({'filename': ['product-1.fits']})
         products_2 = Table({'filename': ['product-2.fits']})
@@ -342,10 +348,10 @@ class TestEmdsTap:
 
         cheops = CheopsClass()
 
-        result = cheops.get_products_from_targets_or_coordinates(target_name='M31', radius=2.0,level='L2')
+        result = cheops.get_products_from_targets_or_coordinates(target_name='M31', radius=2.0, level='L2')
 
         assert len(result) == 3
-        assert list(result['filename']) == ['product-1.fits', 'product-2.fits', 'product-3.fits',]
+        assert list(result['filename']) == ['product-1.fits', 'product-2.fits', 'product-3.fits', ]
 
         get_observations_mock.assert_called_once_with(target_name='M31', coordinates=None, radius=2.0)
 
@@ -354,55 +360,54 @@ class TestEmdsTap:
         # From observation, extract the visits
         args, kwargs = query_table_mock.call_args_list[0]
         assert kwargs['table_name'] == conf.CHEOPS_VISIT_TABLE
-        assert kwargs['observation_request_oid'] == 'OBS-1'
+        assert kwargs['observation_request_oid'] == 1111
         assert kwargs['verbose'] is False
 
         # From the visit, extract the products
         args, kwargs = query_table_mock.call_args_list[1]
         assert kwargs['table_name'] == conf.CHEOPS_DATA_PRODUCT_TABLE
-        assert kwargs['visit_id'] == 'VISIT-1'
+        assert kwargs['visit_id'] == 1234
         assert kwargs['level'] == 'L2'
         assert kwargs['verbose'] is False
 
         # VISIT-2 -> products
         args, kwargs = query_table_mock.call_args_list[2]
         assert kwargs['table_name'] == conf.CHEOPS_DATA_PRODUCT_TABLE
-        assert kwargs['visit_id'] == 'VISIT-2'
+        assert kwargs['visit_id'] == 5678
         assert kwargs['level'] == 'L2'
         assert kwargs['verbose'] is False
 
         # From the second observation, extract the visit
         args, kwargs = query_table_mock.call_args_list[3]
         assert kwargs['table_name'] == conf.CHEOPS_VISIT_TABLE
-        assert kwargs['observation_request_oid'] == 'OBS-2'
+        assert kwargs['observation_request_oid'] == 2222
         assert kwargs['verbose'] is False
 
         # Verify that visits are processed only once
         args, kwargs = query_table_mock.call_args_list[4]
         assert kwargs['table_name'] == conf.CHEOPS_DATA_PRODUCT_TABLE
-        assert kwargs['visit_id'] == 'VISIT-3'
+        assert kwargs['visit_id'] == 9012
         assert kwargs['level'] == 'L2'
         assert kwargs['verbose'] is False
-
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'query_table')
     @patch.object(CheopsClass, 'get_visit_from_observation')
     def test_get_products_from_observation_deduplicates_visits(self, get_visit_mock, query_table_mock):
-        get_visit_mock.return_value = Table({'visit_id': ['VISIT-1', 'VISIT-1', 'VISIT-2']})
+        get_visit_mock.return_value = Table({'visit_id': [1234, 1234, 5678]})
 
         query_table_mock.side_effect = [Table({'filename': ['product-1.fits']}),
                                         Table({'filename': ['product-2.fits']}),
-        ]
+                                        ]
 
         cheops = CheopsClass()
 
-        result = cheops.get_products_from_observation('OBS-1', level='L1')
+        result = cheops.get_products_from_observation(1111, level='L1')
 
         assert len(result) == 2
         assert list(result['filename']) == ['product-1.fits', 'product-2.fits']
 
-        get_visit_mock.assert_called_once_with('OBS-1')
+        get_visit_mock.assert_called_once_with(1111)
 
         # VISIT-1 is duplicated and must only be queried once.
         assert query_table_mock.call_count == 2
@@ -410,24 +415,23 @@ class TestEmdsTap:
         # VISIT-1
         args, kwargs = query_table_mock.call_args_list[0]
         assert args[0] == conf.CHEOPS_DATA_PRODUCT_TABLE
-        assert kwargs['visit_id'] == 'VISIT-1'
+        assert kwargs['visit_id'] == 1234
         assert kwargs['verbose'] is False
         assert kwargs['level'] == 'L1'
 
         # VISIT-2
         args, kwargs = query_table_mock.call_args_list[1]
         assert args[0] == conf.CHEOPS_DATA_PRODUCT_TABLE
-        assert kwargs['visit_id'] == 'VISIT-2'
+        assert kwargs['visit_id'] == 5678
         assert kwargs['verbose'] is False
         assert kwargs['level'] == 'L1'
-
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'query_table')
     def test_get_products_from_visit_using_string(self, query_table_mock):
         cheops = CheopsClass()
 
-        result = cheops.get_products_from_visit('VISIT-1', level='L2')
+        result = cheops.get_products_from_visit(1234, level='L2')
 
         assert result is query_table_mock.return_value
 
@@ -436,15 +440,14 @@ class TestEmdsTap:
         args, kwargs = query_table_mock.call_args
 
         assert args[0] == conf.CHEOPS_DATA_PRODUCT_TABLE
-        assert kwargs['visit_id'] == 'VISIT-1'
+        assert kwargs['visit_id'] == 1234
         assert kwargs['verbose'] is False
         assert kwargs['level'] == 'L2'
-
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'query_table')
     def test_get_products_from_visit_using_row_without_level(self, query_table_mock):
-        visit = Table({'visit_id': ['VISIT-1']})[0]
+        visit = Table({'visit_id': [1234]})[0]
 
         cheops = CheopsClass()
 
@@ -457,20 +460,20 @@ class TestEmdsTap:
         args, kwargs = query_table_mock.call_args
 
         assert args[0] == conf.CHEOPS_DATA_PRODUCT_TABLE
-        assert kwargs['visit_id'] == 'VISIT-1'
+        assert kwargs['visit_id'] == 1234
         assert kwargs['verbose'] is False
 
         # level=None should not be forwarded to query_table
         assert 'level' not in kwargs
 
-
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'get_products_from_observation')
     @patch.object(CheopsClass, 'get_observations_from_programme')
     def test_get_products_from_programme(self, get_observations_mock, get_products_mock):
-        get_observations_mock.return_value = Table({'observation_request_oid': ['OBS-1', 'OBS-2']})
+        get_observations_mock.return_value = Table({'observation_request_oid': [1111, 2222]})
 
-        get_products_mock.side_effect = [Table({'filename': ['product-1.fits']}), Table({'filename': ['product-2.fits']})]
+        get_products_mock.side_effect = [Table({'filename': ['product-1.fits']}),
+                                         Table({'filename': ['product-2.fits']})]
 
         cheops = CheopsClass()
 
@@ -486,15 +489,14 @@ class TestEmdsTap:
         # Products for first observation
         args, kwargs = get_products_mock.call_args_list[0]
 
-        assert args[0]['observation_request_oid'] == 'OBS-1'
+        assert args[0]['observation_request_oid'] == 1111
         assert kwargs['level'] == 'L2'
 
         # Products for second observation
         args, kwargs = get_products_mock.call_args_list[1]
 
-        assert args[0]['observation_request_oid'] == 'OBS-2'
+        assert args[0]['observation_request_oid'] == 2222
         assert kwargs['level'] == 'L2'
-
 
     @pytest.mark.parametrize(
         ('level', 'expected'),
@@ -516,7 +518,7 @@ class TestEmdsTap:
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'download_product')
-    @patch.object(CheopsClass,'get_products_from_targets_or_coordinates')
+    @patch.object(CheopsClass, 'get_products_from_targets_or_coordinates')
     def test_download_products_from_targets_or_coordinates(self, get_products_mock, download_product_mock, tmp_path):
         get_products_mock.return_value = Table({'filename': ['one.fits', 'two.fits']})
 
@@ -524,7 +526,8 @@ class TestEmdsTap:
 
         cheops = CheopsClass()
 
-        cheops.download_products_from_targets_or_coordinates(coordinates='12 13', radius=0.5, level='L2', path=str(destination))
+        cheops.download_products_from_targets_or_coordinates(coordinates='12 13', radius=0.5,
+                                                             level='L2', path=str(destination))
 
         get_products_mock.assert_called_once_with(target_name=None, coordinates='12 13', radius=0.5, level='L2')
 
@@ -538,7 +541,6 @@ class TestEmdsTap:
         assert kwargs['filename'] == 'two.fits'
         assert kwargs['path'] == str(destination)
 
-
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'download_product')
     @patch.object(CheopsClass, 'get_products_from_observation')
@@ -549,9 +551,9 @@ class TestEmdsTap:
 
         cheops = CheopsClass()
 
-        cheops.download_products_from_observation('OBS-1', level='L1', path=str(destination))
+        cheops.download_products_from_observation(1111, level='L1', path=str(destination))
 
-        get_products_mock.assert_called_once_with(observation='OBS-1', level='L1')
+        get_products_mock.assert_called_once_with(observation=1111, level='L1')
 
         assert download_product_mock.call_count == 2
 
@@ -563,7 +565,6 @@ class TestEmdsTap:
         assert kwargs['filename'] == 'two.fits'
         assert kwargs['path'] == str(destination)
 
-
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'download_product')
     @patch.object(CheopsClass, 'get_products_from_visit')
@@ -574,9 +575,9 @@ class TestEmdsTap:
 
         cheops = CheopsClass()
 
-        cheops.download_products_from_visit('VISIT-1', level='L0.5', path=str(destination))
+        cheops.download_products_from_visit(1234, level='L0.5', path=str(destination))
 
-        get_products_mock.assert_called_once_with(visit='VISIT-1', level='L0.5')
+        get_products_mock.assert_called_once_with(visit=1234, level='L0.5')
 
         assert download_product_mock.call_count == 2
 
@@ -584,12 +585,11 @@ class TestEmdsTap:
         assert kwargs['filename'] == 'one.fits'
         assert kwargs['path'] == str(destination)
 
-
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'download_product')
     @patch.object(CheopsClass, 'get_products_from_programme')
-    def test_download_products_from_programme(self, get_products_mock, download_product_mock,tmp_path):
-        get_products_mock.return_value = Table({'filename': ['one.fits','two.fits']})
+    def test_download_products_from_programme(self, get_products_mock, download_product_mock, tmp_path):
+        get_products_mock.return_value = Table({'filename': ['one.fits', 'two.fits']})
 
         destination = f"{tmp_path}/downloads"
 
@@ -605,7 +605,6 @@ class TestEmdsTap:
         assert kwargs['filename'] == 'one.fits'
         assert kwargs['path'] == str(destination)
 
-
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'download_product')
     @patch.object(CheopsClass, 'get_products_from_visit')
@@ -614,8 +613,8 @@ class TestEmdsTap:
 
         cheops = CheopsClass()
 
-        cheops.download_products_from_visit('VISIT-1')
+        cheops.download_products_from_visit(1234)
 
-        get_products_mock.assert_called_once_with(visit='VISIT-1', level=None)
+        get_products_mock.assert_called_once_with(visit=1234, level=None)
 
         download_product_mock.assert_called_once_with(filename='one.fits', path='')

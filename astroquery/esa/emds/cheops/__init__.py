@@ -20,10 +20,10 @@ class Conf(EmdsConf):
     """
 
     CHEOPS_OBSERVATION_TABLE = _config.ConfigItem("cheops.observation_request",
-                                                      "CHEOPS Observation Table")
+                                                  "CHEOPS Observation Table")
 
     CHEOPS_VISIT_TABLE = _config.ConfigItem("cheops.visit",
-                                                  "CHEOPS Observation Table")
+                                            "CHEOPS Observation Table")
 
     CHEOPS_DATA_PRODUCT_TABLE = _config.ConfigItem("cheops.v_data_product",
                                                    "CHEOPS Data Product Table")
@@ -33,13 +33,13 @@ class Conf(EmdsConf):
                                                    "CHEOPS Data Product Query")
 
     CHEOPS_PI_TABLE = _config.ConfigItem("cheops.pi_tbl",
-                                            "CHEOPS PI Name Table")
+                                         "CHEOPS PI Name Table")
 
     CHEOPS_PROGRAMME_TABLE = _config.ConfigItem("cheops.programme",
-                                            "CHEOPS Programmes Table")
+                                                "CHEOPS Programmes Table")
 
     CHEOPS_PROGRAMME_INFO_TABLE = _config.ConfigItem("cheops.programme_info",
-                                            "CHEOPS Programme Info Table")
+                                                     "CHEOPS Programme Info Table")
 
     DEFAULT_SCHEMAS = _config.ConfigItem("cheops",
                                          "Default TAP schema(s) for this mission (comma-separated) "
