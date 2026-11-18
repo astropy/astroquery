@@ -25,8 +25,8 @@ from astropy.table import Table
 import pyvo
 
 import numbers
-
 from requests import HTTPError
+import requests
 
 from astroquery.query import BaseVOQuery, BaseQuery
 
@@ -206,7 +206,12 @@ class EsaTap(BaseVOQuery, BaseQuery):
         if auth_session:
             self._auth_session = auth_session
         else:
+            http_session = requests.Session()
             self._auth_session = ESAAuthSession(self.REQUEST_PARAMETERS)
+            self._auth_session.credentials.set(
+                pyvo.auth.securitymethods.COOKIE,
+                http_session,
+            )
 
         # Checks if a different URL need to be defined
         if tap_url:

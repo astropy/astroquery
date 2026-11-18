@@ -219,12 +219,17 @@ class CheopsClass(EmdsClass):
             pi_oid = self.query_table(conf.CHEOPS_PROGRAMME_TABLE,
                                       columns=['pi_oid', 'programme_oid'],
                                       type=type, id=id, verbose=False)
-            pi_name = self.query_table(conf.CHEOPS_PI_TABLE,
-                                       columns=['name'],
-                                       pi_oid=pi_oid['pi_oid'][0],
-                                       verbose=False)
-            programme_key_author[programme_key] = pi_name['name'][0]
-            programme_key_programme_oid[programme_key] = pi_oid['programme_oid'][0]
+            if len(pi_oid) > 0:
+                # In some cases we don't have enough information
+                pi_name = self.query_table(conf.CHEOPS_PI_TABLE,
+                                           columns=['name'],
+                                           pi_oid=pi_oid['pi_oid'][0],
+                                           verbose=False)
+                programme_key_author[programme_key] = pi_name['name'][0]
+                programme_key_programme_oid[programme_key] = pi_oid['programme_oid'][0]
+            else:
+                programme_key_author[programme_key] = None
+                programme_key_programme_oid[programme_key] = None
 
         programmes['pi_name'] = [programme_key_author[programme_key] for programme_key in programmes['programme_key']]
         programmes['programme_oid'] = [programme_key_programme_oid[programme_key] for
@@ -340,10 +345,12 @@ class CheopsClass(EmdsClass):
                 if visit['visit_id'] in checked_visits:
                     continue
                 checked_visits.append(visit['visit_id'])
-                product_lists.append(self.query_table(table_name=conf.CHEOPS_DATA_PRODUCT_TABLE,
-                                                      visit_id=visit['visit_id'],
-                                                      verbose=False,
-                                                      **self._get_kwargs_for_level(level)))
+                products = self.query_table(table_name=conf.CHEOPS_DATA_PRODUCT_TABLE,
+                                            visit_id=visit['visit_id'],
+                                            verbose=False,
+                                            **self._get_kwargs_for_level(level))
+                if len(products) > 0:
+                    product_lists.append(products)
         return vstack(product_lists)
 
     def get_products_from_observation(self, observation, *,  level=None):
@@ -371,10 +378,12 @@ class CheopsClass(EmdsClass):
             if visit['visit_id'] in checked_visits:
                 continue
             checked_visits.append(visit['visit_id'])
-            product_list.append(self.query_table(conf.CHEOPS_DATA_PRODUCT_TABLE,
-                                                 visit_id=visit['visit_id'],
-                                                 verbose=False,
-                                                 **self._get_kwargs_for_level(level)))
+            products = self.query_table(conf.CHEOPS_DATA_PRODUCT_TABLE,
+                                        visit_id=visit['visit_id'],
+                                        verbose=False,
+                                        **self._get_kwargs_for_level(level))
+            if len(products) > 0:
+                product_list.append(products)
         return vstack(product_list)
 
     def get_products_from_visit(self, visit, *, level=None):
@@ -424,7 +433,9 @@ class CheopsClass(EmdsClass):
         observations = self.get_observations_from_programme(programme_key=programme_key, title=title, pi_name=pi_name)
         product_lists = []
         for observation in observations:
-            product_lists.append(self.get_products_from_observation(observation, **self._get_kwargs_for_level(level)))
+            products = self.get_products_from_observation(observation, **self._get_kwargs_for_level(level))
+            if len(products) > 0:
+                product_lists.append(products)
 
         return vstack(product_lists)
 
@@ -528,7 +539,7 @@ class CheopsClass(EmdsClass):
                                                                  radius=radius,
                                                                  level=level)
         for product in products:
-            print(f"Downloading {product['filename']}")
+            log.info(f"Downloading {product['filename']}")
             self.download_product(filename=product['filename'], path=path)
 
     def download_products_from_observation(self, observation, *, level=None, path=''):
@@ -550,7 +561,7 @@ class CheopsClass(EmdsClass):
             os.makedirs(path)
         products = self.get_products_from_observation(observation=observation, level=level)
         for product in products:
-            print(f"Downloading {product['filename']}")
+            log.info(f"Downloading {product['filename']}")
             self.download_product(filename=product['filename'], path=path)
 
     def download_products_from_visit(self, visit, *, level=None, path=''):
@@ -572,7 +583,7 @@ class CheopsClass(EmdsClass):
             os.makedirs(path)
         products = self.get_products_from_visit(visit=visit, level=level)
         for product in products:
-            print(f"Downloading {product['filename']}")
+            log.info(f"Downloading {product['filename']}")
             self.download_product(filename=product['filename'], path=path)
 
     def download_products_from_programme(self, *, programme_key=None, title=None, pi_name=None, level=None, path=''):
@@ -599,7 +610,7 @@ class CheopsClass(EmdsClass):
         products = self.get_products_from_programme(programme_key=programme_key, title=title,
                                                     pi_name=pi_name, level=level)
         for product in products:
-            print(f"Downloading {product['filename']}")
+            log.info(f"Downloading {product['filename']}")
             self.download_product(filename=product['filename'], path=path)
 
 
