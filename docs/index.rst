@@ -262,6 +262,7 @@ The following modules have been completed using a common API:
   esa/hsa/hsa.rst
   esa/hubble/hubble.rst
   esa/emds/emds.rst
+  esa/emds/cheops/cheops.rst
   esa/emds/einsteinprobe/einsteinprobe.rst
   esa/integral/integral.rst
   esa/iso/iso.rst
@@ -385,6 +386,7 @@ generally return a table listing the available data first.
   esa/hsa/hsa.rst
   esa/hubble/hubble.rst
   esa/emds/emds.rst
+  esa/emds/cheops/cheops.rst
   esa/emds/einsteinprobe/einsteinprobe.rst
   esa/integral/integral.rst
   esa/iso/iso.rst
