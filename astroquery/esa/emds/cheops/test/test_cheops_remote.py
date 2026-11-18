@@ -14,15 +14,18 @@ import tempfile
 from pyvo import DALQueryError
 from astroquery.esa.emds.cheops import CheopsClass
 
+
 def create_temp_folder():
     return tempfile.TemporaryDirectory()
+
+
+cheops = CheopsClass()
 
 
 @pytest.mark.remote_data
 class TestCheopsRemote:
 
     def test_get_tables(self):
-        cheops = CheopsClass()
         names = cheops.get_tables(only_names=True)
 
         assert isinstance(names, list)
@@ -31,8 +34,6 @@ class TestCheopsRemote:
         assert cheops.conf.CHEOPS_DATA_PRODUCT_TABLE in [n.lower() for n in names]
 
     def test_get_table(self):
-        cheops = CheopsClass()
-
         observation_request_table = cheops.get_table("cheops.observation_request")
 
         assert observation_request_table is not None
@@ -45,8 +46,6 @@ class TestCheopsRemote:
             assert expected in colnames
 
     def test_query_tap(self):
-        cheops = CheopsClass()
-
         # Query an existing table
         result = cheops.query_tap("SELECT TOP 10 obs_cat, ra, dec, target_name FROM cheops.observation_request")
 
@@ -68,7 +67,6 @@ class TestCheopsRemote:
         temp_folder.cleanup()
 
     def test_get_observations_metadata(self):
-        cheops = CheopsClass()
         meta = cheops.get_observations(get_metadata=True)
 
         assert meta is not None
@@ -82,7 +80,6 @@ class TestCheopsRemote:
         assert {"ra", "dec"}.issubset(available)
 
     def test_get_observations_cone_coordinates(self):
-        cheops = CheopsClass()
         results = cheops.get_observations(
             coordinates="81.1238 17.4175",
             radius=0.1,
@@ -94,8 +91,6 @@ class TestCheopsRemote:
         assert {"obs_cat", "ra", "dec"}.issubset(set(results.colnames))
 
     def test_get_observations_cone_target_name(self):
-        cheops = CheopsClass()
-
         results = cheops.get_observations(
             target_name="V1589 Cyg",
             radius=0.1,
@@ -107,10 +102,8 @@ class TestCheopsRemote:
         assert {"obs_cat", "ra", "dec", "target_name"}.issubset(set(results.colnames))
 
     def test_get_observations_filters(self):
-        cheops = CheopsClass()
-
         # Run the filtered search
-        filters = { "request_id": 3000240001 }
+        filters = {"request_id": 3000240001}
 
         results = cheops.get_observations(
             **filters
@@ -125,10 +118,7 @@ class TestCheopsRemote:
         if len(results) > 0:
             assert set(results["request_id"]) == {3000240001}
 
-
     def test_get_observations_output_file(self):
-        cheops = CheopsClass()
-
         temp_folder = create_temp_folder()
         filename = os.path.join(temp_folder.name, "get_observations_cheops.votable")
 
@@ -146,51 +136,54 @@ class TestCheopsRemote:
 
         temp_folder.cleanup()
 
-    def test_get_products_by_observation_id(self):
-        cheops = CheopsClass()
+    def test_get_programmes(self):
+        programmes_by_key = cheops.get_programmes(programme_key="PR240015")
+        programmes_by_title = cheops.get_programmes(
+            title="Hunting a second transit of the long-period Neptune exoplanet HIP41378 e in the gaps of TESS")
+        programmes_by_pi = cheops.get_programmes(pi_name="SALOME GROUFFAL")
 
-        with pytest.raises(TypeError) as err:
-           cheops.get_products()
+        assert len(programmes_by_key) > 0
+        assert (programmes_by_key['programme_key'] == programmes_by_title['programme_key'])
+        assert (programmes_by_key['programme_key'] == programmes_by_pi['programme_key'])
 
-        assert "Please use either observation_id or visit_id" in str(err.value)
+    def test_get_visit_from_observation(self):
+        observation = cheops.get_observations(observation_request_oid=1)[0]
+        visits = cheops.get_visit_from_observation(observation)
 
-        table = cheops.get_products(observation_id=2652014)
+        assert len(visits) > 0
+        assert visits[0]['observation_request_oid'] == 1
+        assert visits[0]['visit_id'] is not None
 
-        assert table is not None
-        assert len(table) > 0
+    def test_get_products_from_coordinates(self):
+        products = cheops.get_products_from_targets_or_coordinates(coordinates='116.3289575 28.0261988888889')
 
-        # Mandatory columns for download
-        assert "filename" in table.colnames
-        assert "filepath" in table.colnames
+        assert len(products) > 0
+        assert ('CH_PR300050_TG000101_TU2020-03-10T05-00-00_EXT_PRE_StarCatalogue-OBSID0001015985_V0300.fits'
+                in products['filename'].value)
 
-    def test_get_products_by_visit_id(self):
-        cheops = CheopsClass()
+    def test_get_products_from_observation(self):
+        products = cheops.get_products_from_observation(observation=1)
 
-        table = cheops.get_products(visit_id=250033000701)
+        assert len(products) > 0
+        assert ('CH_PR300050_TG000101_TU2020-03-10T05-05-59_SCI_COR_Lightcurve-R40_V0300.fits'
+                in products['filename'].value)
 
-        assert table is not None
-        assert len(table) > 0
+    def test_get_products_from_visit(self):
+        products = cheops.get_products_from_visit(visit=300050000101)
 
-        table2 = cheops.get_products(observation_id=2652014, visit_id=250033000701)
+        assert len(products) > 0
+        assert ('CH_PR300050_TG000101_TU2020-03-10T05-00-00_EXT_PRE_StarCatalogue-OBSID0001015985_V0300.fits'
+                in products['filename'].value)
 
-        assert table2 is not None
-        assert len(table2) > 0
+        products = cheops.get_products_from_visit(visit=300050000101, level='L2')
 
-        with pytest.raises(ValueError) as err:
-            cheops.get_products(observation_id=2652065, visit_id=250033000701)
+        assert len(products) > 0
+        assert ('CH_PR300050_TG000101_TU2020-03-10T05-05-59_SCI_COR_Lightcurve-DEFAULT_V0300.fits'
+                in products['filename'].value)
 
-        assert "No data products can be found for CHEOPS" in str(err.value)
+    def test_get_products_from_programme(self):
+        products = cheops.get_products_from_programme(programme_key='PR300050')
 
-    def test_download_product(self, tmp_path):
-        cheops = CheopsClass()
-
-        filename = "CH_PR140061_TG000702_TU2023-08-26T00-32-10_SCI_COR_SubArray_V0300.fits"
-
-        local_path = cheops.download_product(
-            filename=filename,
-            path=str(tmp_path),
-            verbose=True
-        )
-
-        assert os.path.exists(local_path)
-        assert os.path.getsize(local_path) > 0
+        assert len(products) > 0
+        assert ('CH_PR300050_TG000101_TU2020-03-10T05-05-59_SCI_COR_Lightcurve-R34_V0300.fits'
+                in products['filename'].value)
