@@ -28,7 +28,7 @@ from requests import HTTPError, Response
 
 from astroquery.exceptions import (AuthenticationWarning, BlankResponseWarning, InputWarning, InvalidQueryError,
                                    MaxResultsWarning, NoResultsWarning, RemoteServiceError, ResolverError)
-from astroquery.mast import (Catalogs, CatalogCollection, MastMissions, Observations, Tesscut, Zcut, Mast, utils, services,
+from astroquery.mast import (Catalogs, MastMissions, Observations, Tesscut, Zcut, Mast, utils, services,
                              discovery_portal, auth, core, cloud)
 from astroquery.mast.cloud import CloudAccess
 from astroquery.mast import missions as missions_module
