@@ -24,6 +24,11 @@ esa.emds.einsteinprobe
 
 - New module to access the ESA Einstein Probe Science Archive. [#3511]
 
+esa.cheops
+^^^^^^^^^^
+
+- New module to access the ESA CHEOPS Mirror at ESA. [#3710]
+
 nrao
 ^^^^
 
