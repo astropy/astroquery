@@ -159,3 +159,4 @@ class EinsteinProbeClass(EmdsClass):
         )
 
 EinsteinProbe = EinsteinProbeClass()
+

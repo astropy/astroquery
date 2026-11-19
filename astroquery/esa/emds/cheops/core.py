@@ -353,7 +353,7 @@ class CheopsClass(EmdsClass):
                     product_lists.append(products)
         return vstack(product_lists)
 
-    def get_products_from_observation(self, observation, *,  level=None):
+    def get_products_from_observation(self, observation, *, level=None):
         """
         Retrieve the products associated to an observation
 
