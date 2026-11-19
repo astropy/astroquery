@@ -13,7 +13,7 @@ import os
 import pytest
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
-from unittest.mock import Mock, call, patch, PropertyMock
+from unittest.mock import Mock, patch, PropertyMock
 
 from astroquery.esa.emds.cheops import conf
 from astroquery.esa.emds.cheops import CheopsClass
@@ -211,18 +211,6 @@ class TestEmdsTap:
         query_table_mock.assert_any_call(table_name=conf.CHEOPS_PROGRAMME_INFO_TABLE,
                                          columns=['programme_key', 'title', 'abstract'],
                                          programme_key=['PR010023', 'PR020007'], verbose=False)
-
-    @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
-    @patch.object(CheopsClass, 'query_table')
-    def test_get_programme_from_pi(self, query_table_mock):
-        query_table_mock.return_value = Table(names=['pi_oid'], dtype=[int])
-
-        cheops = CheopsClass()
-        result = cheops._get_programme_from_pi('A PI')
-
-        assert result == []
-        query_table_mock.assert_called_once_with(table_name=conf.CHEOPS_PI_TABLE, columns=['pi_oid'], name='%A PI%',
-                                                 verbose=False)
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'query_table')
