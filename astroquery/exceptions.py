@@ -9,7 +9,8 @@ __all__ = ['TimeoutError', 'InvalidQueryError', 'RemoteServiceError',
            'TableParseError', 'LoginError', 'ResolverError',
            'NoResultsWarning', 'LargeQueryWarning', 'InputWarning',
            'AuthenticationWarning', 'MaxResultsWarning', 'CorruptDataWarning',
-           'EmptyResponseError', 'BlankResponseWarning']
+           'EmptyResponseError', 'BlankResponseWarning',
+           'MissingContentDispositionError']
 
 
 class TimeoutError(Exception):
@@ -110,6 +111,14 @@ class CorruptDataWarning(AstropyWarning):
 class EmptyResponseError(ValueError):
     """
     Astroquery error class to be raised when the query returns an empty result
+    """
+    pass
+
+
+class MissingContentDispositionError(ValueError):
+    """
+    Raised when a download destination cannot be deduced because the response
+    has no usable ``Content-Disposition`` filename.
     """
     pass
 

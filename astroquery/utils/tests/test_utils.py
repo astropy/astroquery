@@ -541,3 +541,26 @@ def test_find_fastest_mirror_url_and_timeout(fake_head):
     head = fake_head({"a.org": 200})
     commons.find_fastest_mirror(["a.org"], path="/some/path", timeout=0.25)
     assert head.calls == [("https://a.org/some/path", 0.25)]
+
+
+@pytest.mark.parametrize(
+    ('headers', 'expected'),
+    [
+        (None, None),
+        ({}, None),
+        ({'Content-Type': 'application/fits'}, None),
+        ({'Content-Disposition': 'attachment; filename="file.fits"'}, 'file.fits'),
+        ({'Content-Disposition': "attachment; filename=file.fits"}, 'file.fits'),
+        ({'Content-Disposition': "inline; filename=file.fits; size=12"}, 'file.fits'),
+        ({'Content-Disposition': 'attachment; filename="/path/to/file.fits"'}, 'file.fits'),
+        ({'Content-Disposition': "attachment; filename*=UTF-8''file%20name.fits"},
+         'file name.fits'),
+        ({'Content-Disposition':
+          'attachment; filename="fallback.fits"; '
+          "filename*=UTF-8''preferred.fits"},
+         'preferred.fits'),
+        ({'content-disposition': 'attachment; filename="case.fits"'}, 'case.fits'),
+    ],
+)
+def test_filename_from_headers(headers, expected):
+    assert commons.filename_from_headers(headers) == expected
