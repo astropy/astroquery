@@ -518,6 +518,7 @@ class CheopsClass(EmdsClass):
         """
         Download the list of files available for a cone search centered in a target or coordinates
         and a default radius. The level of the products can also be specified
+
         Parameters
         ----------
         target_name: str, optional
@@ -531,7 +532,9 @@ class CheopsClass(EmdsClass):
             Available values: EXT, L0.5, L1 and L2
         path: str, optional, default current directory
             Path where the file will be stored
+
         """
+
         if path is not None and path != '' and not os.path.exists(path):
             os.makedirs(path)
         products = self.get_products_from_targets_or_coordinates(target_name=target_name,
@@ -545,7 +548,8 @@ class CheopsClass(EmdsClass):
     def download_products_from_observation(self, observation, *, level=None, path=''):
         """
         Download the list of files available for a specific observation.
-        The level of the products can also be specified
+        The level of the products can also be specified.
+
         Parameters
         ----------
         observation: astropy.table.row.Row or str, mandatory
@@ -556,7 +560,9 @@ class CheopsClass(EmdsClass):
             Available values: EXT, L0.5, L1 and L2
         path: str, optional, default current directory
             Path where the file will be stored
+
         """
+
         if path is not None and path != '' and not os.path.exists(path):
             os.makedirs(path)
         products = self.get_products_from_observation(observation=observation, level=level)
@@ -568,6 +574,7 @@ class CheopsClass(EmdsClass):
         """
         Download the list of files available for a specific observation.
         The level of the products can also be specified
+
         Parameters
         ----------
         visit: astropy.table.row.Row or str, mandatory
@@ -578,7 +585,9 @@ class CheopsClass(EmdsClass):
             Available values: EXT, L0.5, L1 and L2
         path: str, optional, default current directory
             Path where the file will be stored
+
         """
+
         if path is not None and path != '' and not os.path.exists(path):
             os.makedirs(path)
         products = self.get_products_from_visit(visit=visit, level=level)
