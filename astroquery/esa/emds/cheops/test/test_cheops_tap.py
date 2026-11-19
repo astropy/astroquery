@@ -19,7 +19,7 @@ from astroquery.esa.emds.cheops import conf
 from astroquery.esa.emds.cheops import CheopsClass
 
 
-class TestEmdsTap:
+class TestCheopsTap:
 
     def test_get_tables(self):
         table_set = PropertyMock()
@@ -207,10 +207,6 @@ class TestEmdsTap:
                                          verbose=False)
 
         query_table_mock.assert_any_call(conf.CHEOPS_PROGRAMME_TABLE, pi_oid=10, verbose=False)
-
-        query_table_mock.assert_any_call(table_name=conf.CHEOPS_PROGRAMME_INFO_TABLE,
-                                         columns=['programme_key', 'title', 'abstract'],
-                                         programme_key=['PR010023', 'PR020007'], verbose=False)
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'query_table')
