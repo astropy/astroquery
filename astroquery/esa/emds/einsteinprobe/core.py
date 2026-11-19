@@ -158,5 +158,5 @@ class EinsteinProbeClass(EmdsClass):
             verbose=verbose
         )
 
-EinsteinProbe = EinsteinProbeClass()
 
+EinsteinProbe = EinsteinProbeClass()
