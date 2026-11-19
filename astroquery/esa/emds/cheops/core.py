@@ -322,6 +322,7 @@ class CheopsClass(EmdsClass):
         """
         Get the list of files available for a cone search centered in a target or coordinates
         and a default radius. The level of the products can also be specified
+
         Parameters
         ----------
         target_name: str, optional
@@ -333,7 +334,9 @@ class CheopsClass(EmdsClass):
         level: str, optional
             calibration level of the products.
             Available values: EXT, L0.5, L1 and L2
+
         """
+
         observations = self.get_observations(target_name=target_name, coordinates=coordinates, radius=radius)
         product_lists = []
         checked_visits = []
