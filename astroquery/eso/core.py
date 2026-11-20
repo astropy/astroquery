@@ -447,8 +447,8 @@ class EsoClass(QueryWithLogin):
         ----------
         all_versions : bool, optional
             If True, list all versions of each catalogue table. If False (default),
-            return only the latest version of each catalogue (as determined by the
-            TAP_CAT metadata query).
+            return only the current version of each catalogue (as flagged by
+            ``is_current = 1`` in ``TAP_SCHEMA.tables``).
 
         Returns
         -------
@@ -461,11 +461,7 @@ class EsoClass(QueryWithLogin):
                      f"WHERE schema_name='{schema}' ")
 
         if not all_versions:
-            query_str += ("AND cat_id IN ( "
-                          "SELECT t1.cat_id "
-                          "FROM TAP_SCHEMA.tables t1 "
-                          "LEFT JOIN TAP_SCHEMA.tables t2 ON (t1.title = t2.title AND t1.version < t2.version) "
-                          "WHERE t2.title IS NULL) ")
+            query_str += "AND is_current = 1 "
 
         query_str += "ORDER BY table_name"
 
