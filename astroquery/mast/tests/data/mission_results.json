@@ -18,7 +18,7 @@
       false,
       false
     ],
-    "skip_count": false,
+    "skip_count": true,
     "count_only": false,
     "select_cols": [
       "sci_data_set_name",
