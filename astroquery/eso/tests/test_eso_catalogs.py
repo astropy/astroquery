@@ -31,11 +31,7 @@ DATA_FILES = {
     "ADQL": {
         "SELECT table_name FROM TAP_SCHEMA.tables "
         "WHERE schema_name='safcat' "
-        "AND cat_id IN ( "
-        "SELECT t1.cat_id "
-        "FROM TAP_SCHEMA.tables t1 "
-        "LEFT JOIN TAP_SCHEMA.tables t2 ON (t1.title = t2.title AND t1.version < t2.version) "
-        "WHERE t2.title IS NULL) ORDER BY table_name": "query_list_catalogs_latest_versions.csv",
+        "AND is_current = 1 ORDER BY table_name": "query_list_catalogs_latest_versions.csv",
         "SELECT table_name FROM TAP_SCHEMA.tables "
         "WHERE schema_name='safcat' ORDER BY table_name": "query_list_catalogs_all_versions.csv",
         "select * from safcat.KiDS_DR4_1_ugriZYJHKs_cat_fits": "kids_dr4_sample.csv",
@@ -45,7 +41,6 @@ DATA_FILES = {
 catalog_list = [
     "AMBRE_V1",
     "ATLASGAL_V1",
-    "COSMOS2015_Laigle_v1_1b_latestV7_fits_V1",
     "EREBOS_cat_fits_V1",
     "EREBOS_RV_cat_fits_V1",
     "GOODS_FORS2_V1",
@@ -54,11 +49,7 @@ catalog_list = [
     "HUGS_GOODSS_K_V1",
     "HUGS_UDS_K_V1",
     "HUGS_UDS_Y_V1",
-    "KiDS_DR3_0_ugri_src_fits_V2",
     "KiDS_DR3_1_ugri_shear_fits_V1",
-    "video_er3_zyjhks_CDFS_catMetaData_fits_V2",
-    "video_er3_zyjhks_ES1_catMetaData_fits_V2",
-    "video_er3_zyjhks_XMM_catMetaData_fits_V3",
     "VIPERS_SPECTRO_PDR2_ESO_fits_V1",
     "vphas_er3_ugr_1r_2ihavphas_catMetaData_fits_V3",
     "VVV_MPHOT_Ks_V2",
@@ -67,32 +58,27 @@ catalog_list = [
     "ZCOSMOS_V2",
     "gcav_rxcj2129_YJKs_cat_fits_V1",
     "gcav_rxcj1515_YJKs_cat_fits_V1",
-    "VVV_VIRAC_PM_V1",
     "MW_BULGE_PSFPHOT_V1",
-    "VANDELS_spec_redshift_V3",
     "VEXAS_AllWISE_V1",
     "VEXAS_21_V1",
     "VEXAS_XRAY_V1",
-    "VEXAS_SPEC_V1",
     "viking_er5_zyjj_1j_2hks_catMetaData_fits_V4",
     "VHS_CAT_V3",
-    "KiDS_DR4_1_ugriZYJHKs_cat_fits",
     "NGTS_SOURCE_CAT_V2",
     "NGTS_LC_V2",
     "VVV_bandMergedSourceCat_V3",
-    "FDS_Sourcecatalog_V1",
+    "FDS_SourceCatalogue_V1",
     "VANDELS_SPECTRO_V4",
     "VEXAS_DESW_V2",
     "VEXAS_SMW_V2",
     "VEXAS_PSW_V2",
     "VEXAS_SPEC_GOOD_V2",
     "PESSTO_TRAN_CAT_V3",
-    "GNS_catalog_V1",
+    "GNS_catalogue_V1",
     "AMBRE_UVES_V1",
     "AMBRE_HARPS_V1",
     "PESSTO_MPHOT_V3",
     "legac_V3",
-    "GES_2021_VRAD",
     "VIDEO_CAT_DR5",
     "COSMOS2020_CLASSIC_V2",
     "COSMOS2020_FARMER_V2",
@@ -127,6 +113,7 @@ catalog_list = [
     "vmc_dr7_yjks_psfSrc_V5",
     "vmc_dr7_yjks_back_V1",
     "vmc_dr7_yjks_varCat_V3",
+    "ELT_GSC_V1",
 ]
 
 catalog_list_all = [
