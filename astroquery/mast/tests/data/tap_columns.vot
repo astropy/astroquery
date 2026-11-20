@@ -1,0 +1,909 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Produced with astropy.io.votable version 7.2.0
+     http://www.astropy.org/ -->
+<VOTABLE version="1.4" xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/VOTable-1.4.xsd">
+ <RESOURCE type="results">
+  <INFO ID="QUERY_STATUS" name="QUERY_STATUS" value="OK"/>
+  <INFO ID="QUERY" name="QUERY" value="SELECT column_name, datatype, unit, ucd, description FROM tap_schema.columns WHERE table_name = &apos;tic_v82.source&apos;"/>
+  <INFO ID="QUERY_STATUS" name="QUERY_STATUS" value="OVERFLOW"/>
+  <TABLE nrows="124">
+   <FIELD ID="column_name" arraysize="*" datatype="char" name="column_name">
+    <DESCRIPTION>
+     Column name
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="datatype" arraysize="*" datatype="char" name="datatype">
+    <DESCRIPTION>
+     ADQL datatype
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="unit" arraysize="*" datatype="char" name="unit">
+    <DESCRIPTION>
+     Unit in VO standard format
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="ucd" arraysize="*" datatype="char" name="ucd">
+    <DESCRIPTION>
+     UCD of column if any
+    </DESCRIPTION>
+   </FIELD>
+   <FIELD ID="description" arraysize="*" datatype="char" name="description">
+    <DESCRIPTION>
+     Brief description of column
+    </DESCRIPTION>
+   </FIELD>
+   <DATA>
+    <TABLEDATA>
+     <TR>
+      <TD>id</TD>
+      <TD>long</TD>
+      <TD/>
+      <TD>meta.id;meta.main</TD>
+      <TD>The TESS Input Catalog (TIC) identifier (min: 1; max: 10^16)</TD>
+     </TR>
+     <TR>
+      <TD>version</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.id</TD>
+      <TD>The date this version of the catalog was finalized (YYYYMMDD)</TD>
+     </TR>
+     <TR>
+      <TD>hip</TD>
+      <TD>int</TD>
+      <TD/>
+      <TD>meta.id</TD>
+      <TD>Hipparcos identifier</TD>
+     </TR>
+     <TR>
+      <TD>tyc</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.id</TD>
+      <TD>Tycho2 identifier</TD>
+     </TR>
+     <TR>
+      <TD>ucac</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.id</TD>
+      <TD>UCAC4 identifier</TD>
+     </TR>
+     <TR>
+      <TD>twomass</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.id</TD>
+      <TD>2MASS identifier (hhmmssss+ddmmsss J2000)</TD>
+     </TR>
+     <TR>
+      <TD>sdss</TD>
+      <TD>long</TD>
+      <TD/>
+      <TD>meta.id</TD>
+      <TD>SDSS DR9 objid identifier</TD>
+     </TR>
+     <TR>
+      <TD>allwise</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.id</TD>
+      <TD>ALLWISE identifier (jhhmmss.ss+ddmmss.s)</TD>
+     </TR>
+     <TR>
+      <TD>gaia</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.id</TD>
+      <TD>GAIA DR2 identifier</TD>
+     </TR>
+     <TR>
+      <TD>apass</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.id</TD>
+      <TD>APASS DR9 identifier</TD>
+     </TR>
+     <TR>
+      <TD>kic</TD>
+      <TD>int</TD>
+      <TD/>
+      <TD>meta.id</TD>
+      <TD>Kepler Input Catalog (KIC) identifier</TD>
+     </TR>
+     <TR>
+      <TD>objtype</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>src.class.starGalaxy</TD>
+      <TD>Flag to identify the object's type (star or extended)</TD>
+     </TR>
+     <TR>
+      <TD>typesrc</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.ref</TD>
+      <TD>Flag to identify the source of the object (see Table 5 of DOI = 10.3847/1538-3881/ab3467 for further information)</TD>
+     </TR>
+     <TR>
+      <TD>ra</TD>
+      <TD>double</TD>
+      <TD>deg</TD>
+      <TD>pos.eq.ra;meta.main</TD>
+      <TD>Right ascension in decimal degrees (J2000; min: 0; max: 360)</TD>
+     </TR>
+     <TR>
+      <TD>dec</TD>
+      <TD>double</TD>
+      <TD>deg</TD>
+      <TD>pos.eq.dec;meta.main</TD>
+      <TD>Declination in decimal degrees (J2000; min: -90; max: 90)</TD>
+     </TR>
+     <TR>
+      <TD>posflag</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.ref;pos.frame</TD>
+      <TD>Flag to identify the source of the object's position (see Table 5 of DOI = 10.3847/1538-3881/ab3467 for further information)</TD>
+     </TR>
+     <TR>
+      <TD>pmra</TD>
+      <TD>float</TD>
+      <TD>mas.yr**-1</TD>
+      <TD>pos.pm;pos.eq.ra</TD>
+      <TD>Proper motion in right ascension in mas/yr (min: -15000; max: 15000)</TD>
+     </TR>
+     <TR>
+      <TD>e_pmra</TD>
+      <TD>float</TD>
+      <TD>mas.yr**-1</TD>
+      <TD>stat.error;pos.pm;pos.eq.ra</TD>
+      <TD>Uncertainty in right ascension proper motion in mas/yr (pmra; min: 0; max: 15000)</TD>
+     </TR>
+     <TR>
+      <TD>pmdec</TD>
+      <TD>float</TD>
+      <TD>mas.yr**-1</TD>
+      <TD>pos.pm;pos.eq.dec</TD>
+      <TD>Proper motion in declination in mas/yr (min: -15000; max: 15000)</TD>
+     </TR>
+     <TR>
+      <TD>e_pmdec</TD>
+      <TD>float</TD>
+      <TD>mas.yr**-1</TD>
+      <TD>stat.error;pos.pm;pos.eq.dec</TD>
+      <TD>Uncertainty in declination proper motion in mas/yr (pmdec; min: 0; max: 15000)</TD>
+     </TR>
+     <TR>
+      <TD>pmflag</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.ref;pos.frame</TD>
+      <TD>Flag to identify the source of the object's proper motion (see Table 5 of DOI = 10.3847/1538-3881/ab3467 for further information)</TD>
+     </TR>
+     <TR>
+      <TD>plx</TD>
+      <TD>float</TD>
+      <TD>mas</TD>
+      <TD>pos.parallax</TD>
+      <TD>Parallax in mas (min: -100; max: 1000)</TD>
+     </TR>
+     <TR>
+      <TD>e_plx</TD>
+      <TD>float</TD>
+      <TD>mas</TD>
+      <TD>stat.error;pos.parallax</TD>
+      <TD>Error in the parallax in mas (plx; min: -100; max: 1000)</TD>
+     </TR>
+     <TR>
+      <TD>parflag</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.ref;pos.frame</TD>
+      <TD>Flag to identify the source of the object's parallax (see Table 5 of DOI = 10.3847/1538-3881/ab3467 for further information)</TD>
+     </TR>
+     <TR>
+      <TD>gallong</TD>
+      <TD>double</TD>
+      <TD>deg</TD>
+      <TD>pos.galactic.lon</TD>
+      <TD>Galactic longitude in decimal degrees (min: 0; max: 360)</TD>
+     </TR>
+     <TR>
+      <TD>gallat</TD>
+      <TD>double</TD>
+      <TD>deg</TD>
+      <TD>pos.galactic.lat</TD>
+      <TD>Galactic latitude in decimal degrees (min: -90; max: 90)</TD>
+     </TR>
+     <TR>
+      <TD>eclong</TD>
+      <TD>double</TD>
+      <TD>deg</TD>
+      <TD>pos.ecliptic.lon</TD>
+      <TD>Ecliptic longitude in decimal degrees (min: 0; max: 360)</TD>
+     </TR>
+     <TR>
+      <TD>eclat</TD>
+      <TD>double</TD>
+      <TD>deg</TD>
+      <TD>pos.ecliptic.lat</TD>
+      <TD>Ecliptic latitude in decimal degrees (min: -90; max: 90)</TD>
+     </TR>
+     <TR>
+      <TD>bmag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>phot.mag;em.opt.B</TD>
+      <TD>Johnson B magnitude (min: -25; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>e_bmag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.mag</TD>
+      <TD>Uncertainty in Johnson B magnitude (bmag; min: 0; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>vmag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>phot.mag;em.opt.V</TD>
+      <TD>Johnson V magnitude (min: -25; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>e_vmag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.mag</TD>
+      <TD>Uncertainty in Johnson V magnitude (vmag; min: 0; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>umag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>phot.mag;em.opt.U</TD>
+      <TD>SDSS u-band (ab) magnitude (min: -25; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>e_umag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.mag</TD>
+      <TD>Uncertainty in SDSS u magnitude (umag; min: 0; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>gmag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>phot.mag;em.opt.B</TD>
+      <TD>SDSS g-band (ab) magnitude (min: -25; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>e_gmag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.mag</TD>
+      <TD>Uncertainty in SDSS g magnitude (gmag; min: 0; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>rmag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>phot.mag;em.opt.R</TD>
+      <TD>SDSS r-band (ab) magnitude (min: -25; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>e_rmag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.mag</TD>
+      <TD>Uncertainty in SDSS r magnitude (rmag; min: 0; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>imag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>phot.mag;em.opt.I</TD>
+      <TD>SDSS i-band (ab) magnitude (min: -25; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>e_imag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.mag</TD>
+      <TD>Uncertainty in SDSS i magnitude (imag; min: 0; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>zmag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>phot.mag;em.opt.I</TD>
+      <TD>SDSS z-band (ab) magnitude (min: -25; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>e_zmag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.mag</TD>
+      <TD>Uncertainty in SDSS z magnitude (zmag; min: 0; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>jmag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>phot.mag;em.IR.J</TD>
+      <TD>2MASS J magnitude (min: -25; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>e_jmag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.mag</TD>
+      <TD>Uncertainty in 2MASS J magnitude (jmag; min: 0; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>hmag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>phot.mag;em.IR.H</TD>
+      <TD>2MASS H magnitude (min: -25; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>e_hmag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.mag</TD>
+      <TD>Uncertainty in 2MASS H magnitude (hmag; min: 0; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>kmag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>phot.mag;em.IR.K</TD>
+      <TD>2MASS Ks magnitude (min: -25; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>e_kmag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.mag</TD>
+      <TD>Uncertainty in 2MASS Ks magnitude (kmag; min: 0; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>twomflag</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.code.qual</TD>
+      <TD>Quality flags for 2MASS provided in a similar format to the EPIC catalog (ph_qual-rd_flag-bl_flg-cc_flg-gal_contam-mp_flag)</TD>
+     </TR>
+     <TR>
+      <TD>prox</TD>
+      <TD>float</TD>
+      <TD>arcsec</TD>
+      <TD>pos.angDistance</TD>
+      <TD>2MASS nearest neighbor distance in arcseconds (min: 0; max: 500)</TD>
+     </TR>
+     <TR>
+      <TD>w1mag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>phot.mag;em.IR.3-4um</TD>
+      <TD>ALLWISE W1 (3.4um) magnitude (min: -25; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>e_w1mag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.mag</TD>
+      <TD>Uncertainty in ALLWISE W1 magnitude (w1mag; min: 0; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>w2mag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>phot.mag;em.IR.4-8um</TD>
+      <TD>ALLWISE W2 (4.6um) magnitude (min: -25; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>e_w2mag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.mag</TD>
+      <TD>Uncertainty in ALLWISE W2 magnitude (w2mag; min: 0; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>w3mag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>phot.mag;em.IR.8-15um</TD>
+      <TD>ALLWISE W3 (12um) magnitude (min: -25; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>e_w3mag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.mag</TD>
+      <TD>Uncertainty in ALLWISE W3 magnitude (w3mag; min: 0; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>w4mag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>phot.mag;em.IR.15-30um</TD>
+      <TD>ALLWISE W4 (22um) magnitude (min: -25; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>e_w4mag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.mag</TD>
+      <TD>Uncertainty in ALLWISE W4 magnitude (w4mag; min: 0; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>gaiamag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>phot.mag;em.opt.V</TD>
+      <TD>GAIA DR2 G magnitude (min: -25; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>e_gaiamag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.mag</TD>
+      <TD>Uncertainty in GAIA DR2 G magnitude (gaiamag; min: 0; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>tmag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>phot.mag;em.opt</TD>
+      <TD>TESS magnitude (min: -25; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>e_tmag</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.mag</TD>
+      <TD>Uncertainty in TESS magnitude (tmag; min: 0; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>tessflag</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.code</TD>
+      <TD>Flag to identify the source of the object's TESS magnitude (tmag; usually a relation or catalog; see Table 5 of DOI = 10.3847/1538-3881/ab3467 for further information)</TD>
+     </TR>
+     <TR>
+      <TD>spflag</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.code</TD>
+      <TD>Flag to identify the source of the object's stellar characteristics (see Table 5 of DOI = 10.3847/1538-3881/ab3467 for further information)</TD>
+     </TR>
+     <TR>
+      <TD>teff</TD>
+      <TD>float</TD>
+      <TD>K</TD>
+      <TD>phys.temperature.effective</TD>
+      <TD>Stellar effective temperature in Kelvin (min: 300; max: 100000)</TD>
+     </TR>
+     <TR>
+      <TD>e_teff</TD>
+      <TD>float</TD>
+      <TD>K</TD>
+      <TD>stat.error;phys.temperature.effective</TD>
+      <TD>Uncertainty in stellar effective temperature in Kelvin (teff; min: 0; max: 100000)</TD>
+     </TR>
+     <TR>
+      <TD>logg</TD>
+      <TD>float</TD>
+      <TD>cm.s**-2</TD>
+      <TD>phys.gravity</TD>
+      <TD>Log of the stellar surface gravity in cgs units (min: -5; max: 10)</TD>
+     </TR>
+     <TR>
+      <TD>e_logg</TD>
+      <TD>float</TD>
+      <TD>cm.s**-2</TD>
+      <TD>stat.error;phys.gravity</TD>
+      <TD>Uncertainty in log of the stellar surface gravity in cgs units (logg; min: 0; max: 2.5)</TD>
+     </TR>
+     <TR>
+      <TD>mh</TD>
+      <TD>float</TD>
+      <TD/>
+      <TD>phys.abund.Z</TD>
+      <TD>Metallicity [M/H] (min: -7; max: 2)</TD>
+     </TR>
+     <TR>
+      <TD>e_mh</TD>
+      <TD>float</TD>
+      <TD/>
+      <TD>stat.error;phys.abund.Z</TD>
+      <TD>Uncertainty in the metallicity (mh; min: 0; max: 2.5)</TD>
+     </TR>
+     <TR>
+      <TD>rad</TD>
+      <TD>float</TD>
+      <TD>solRad</TD>
+      <TD>phys.size.radius</TD>
+      <TD>Stellar radius best estimate in units of solar radii (min: 0.001; max: 10000)</TD>
+     </TR>
+     <TR>
+      <TD>e_rad</TD>
+      <TD>float</TD>
+      <TD>solRad</TD>
+      <TD>stat.error;phys.size.radius</TD>
+      <TD>Uncertainty in the stellar radius in units of solar radii (rad; min: 0; max: 10000)</TD>
+     </TR>
+     <TR>
+      <TD>mass</TD>
+      <TD>float</TD>
+      <TD>solMass</TD>
+      <TD>phys.mass</TD>
+      <TD>Stellar mass best estimate in units of solar masses (min: 0.01; max: 500)</TD>
+     </TR>
+     <TR>
+      <TD>e_mass</TD>
+      <TD>float</TD>
+      <TD>solMass</TD>
+      <TD>stat.error;phys.mass</TD>
+      <TD>Uncertainty in the stellar mass in units of solar masses (mass; min: 0; max: 500)</TD>
+     </TR>
+     <TR>
+      <TD>rho</TD>
+      <TD>float</TD>
+      <TD/>
+      <TD>phys.density</TD>
+      <TD>Mean stellar density best estimate in solar units (mass/rad^3; min: 0; max: 10^8)</TD>
+     </TR>
+     <TR>
+      <TD>e_rho</TD>
+      <TD>float</TD>
+      <TD/>
+      <TD>stat.error;phys.density</TD>
+      <TD>Uncertainty in the mean stellar density in solar units (rho; min: 0; max: 10^8)</TD>
+     </TR>
+     <TR>
+      <TD>lumclass</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>src.class.luminosity</TD>
+      <TD>Luminosity class (DWARF or GIANT)</TD>
+     </TR>
+     <TR>
+      <TD>lum</TD>
+      <TD>float</TD>
+      <TD>solLum</TD>
+      <TD>phys.luminosity</TD>
+      <TD>Stellar luminosity in units of solar luminosities (rad^2*(teff/5772)^4; min: 0; max: 10^7)</TD>
+     </TR>
+     <TR>
+      <TD>e_lum</TD>
+      <TD>float</TD>
+      <TD>solLum</TD>
+      <TD>stat.error;phys.luminosity</TD>
+      <TD>Uncertainty in the stellar luminosity in units of solar luminosities (lum; min: 0; max: 10^7)</TD>
+     </TR>
+     <TR>
+      <TD>d</TD>
+      <TD>float</TD>
+      <TD>pc</TD>
+      <TD>pos.distance;pos.heliocentric</TD>
+      <TD>Distance in parsecs (min: 1; max: 5^9)</TD>
+     </TR>
+     <TR>
+      <TD>e_d</TD>
+      <TD>float</TD>
+      <TD>pc</TD>
+      <TD>stat.error;pos.distance</TD>
+      <TD>Uncertainty in the distance in parsecs (d; min: 0; max: 5^9)</TD>
+     </TR>
+     <TR>
+      <TD>ebv</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>phot.color.excess</TD>
+      <TD>Color excess/reddening (E(B-V); min: 0; max: 999999)</TD>
+     </TR>
+     <TR>
+      <TD>e_ebv</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.color.excess</TD>
+      <TD>Uncertainty in the color excess/reddening (ebv; min: 0; max: 999999)</TD>
+     </TR>
+     <TR>
+      <TD>numcont</TD>
+      <TD>int</TD>
+      <TD/>
+      <TD>meta.number</TD>
+      <TD>Number of contamination sources found within 10 arcsec of the star used in the calculation of the contamination ratio (min: 0; max: 999999)</TD>
+     </TR>
+     <TR>
+      <TD>contratio</TD>
+      <TD>float</TD>
+      <TD/>
+      <TD>stat.fit</TD>
+      <TD>Contamination ratio (min: 0; max: 999999)</TD>
+     </TR>
+     <TR>
+      <TD>disposition</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.code.class</TD>
+      <TD>Disposition type (one of NULL or DUPLICATE or ARTIFACT or SPLIT)</TD>
+     </TR>
+     <TR>
+      <TD>duplicate_id</TD>
+      <TD>long</TD>
+      <TD/>
+      <TD>meta.code.multip</TD>
+      <TD>TIC ID (id) of another object in DUPLICATE or SPLIT set of stars</TD>
+     </TR>
+     <TR>
+      <TD>priority</TD>
+      <TD>float</TD>
+      <TD/>
+      <TD>meta.number</TD>
+      <TD>Targeting priority (number from 0 to 1 = highest priority)</TD>
+     </TR>
+     <TR>
+      <TD>eneg_ebv</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.color.excess;stat.min</TD>
+      <TD>Negative error for color excess/reddening in magnitudes (ebv)</TD>
+     </TR>
+     <TR>
+      <TD>epos_ebv</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.color.excess;stat.max</TD>
+      <TD>Positive error for color excess/reddening in magnitudes (ebv)</TD>
+     </TR>
+     <TR>
+      <TD>ebvflag</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.ref;phot.color.excess</TD>
+      <TD>Flag to identify source of the object's reddening (ebv; see Table 6 of DOI = 10.3847/1538-3881/ab3467 for further information)</TD>
+     </TR>
+     <TR>
+      <TD>eneg_mass</TD>
+      <TD>float</TD>
+      <TD>solMass</TD>
+      <TD>stat.error;phys.mass;stat.min</TD>
+      <TD>Negative error for stellar mass in units of solar masses (mass)</TD>
+     </TR>
+     <TR>
+      <TD>epos_mass</TD>
+      <TD>float</TD>
+      <TD>solMass</TD>
+      <TD>stat.error;phys.mass;stat.max</TD>
+      <TD>Positive error for stellar mass in units of solar masses (mass)</TD>
+     </TR>
+     <TR>
+      <TD>eneg_rad</TD>
+      <TD>float</TD>
+      <TD>solRad</TD>
+      <TD>stat.error;phys.size.radius;stat.min</TD>
+      <TD>Negative error for stellar radius in units of solar radii (rad)</TD>
+     </TR>
+     <TR>
+      <TD>epos_rad</TD>
+      <TD>float</TD>
+      <TD>solRad</TD>
+      <TD>stat.error;phys.size.radius;stat.max</TD>
+      <TD>Positive error for stellar radius in units of solar radii (rad)</TD>
+     </TR>
+     <TR>
+      <TD>eneg_rho</TD>
+      <TD>float</TD>
+      <TD/>
+      <TD>stat.error;phys.density;stat.min</TD>
+      <TD>Negative error for mean stellar density in solar units (rho)</TD>
+     </TR>
+     <TR>
+      <TD>epos_rho</TD>
+      <TD>float</TD>
+      <TD/>
+      <TD>stat.error;phys.density;stat.max</TD>
+      <TD>Positive error for mean stellar density in solar units (rho)</TD>
+     </TR>
+     <TR>
+      <TD>eneg_logg</TD>
+      <TD>float</TD>
+      <TD>cm.s**-2</TD>
+      <TD>stat.error;phys.gravity;stat.min</TD>
+      <TD>Negative error for stellar surface gravity in cgs units (logg)</TD>
+     </TR>
+     <TR>
+      <TD>epos_logg</TD>
+      <TD>float</TD>
+      <TD>cm.s**-2</TD>
+      <TD>stat.error;phys.gravity;stat.max</TD>
+      <TD>Positive error for stellar surface gravity in cgs units (logg)</TD>
+     </TR>
+     <TR>
+      <TD>eneg_lum</TD>
+      <TD>float</TD>
+      <TD>solLum</TD>
+      <TD>stat.error;phys.luminosity;stat.min</TD>
+      <TD>Negative error for stellar luminosity in solar luminosities (lum)</TD>
+     </TR>
+     <TR>
+      <TD>epos_lum</TD>
+      <TD>float</TD>
+      <TD>solLum</TD>
+      <TD>stat.error;phys.luminosity;stat.max</TD>
+      <TD>Positive error for stellar luminosity in solar luminosities (lum)</TD>
+     </TR>
+     <TR>
+      <TD>eneg_dist</TD>
+      <TD>float</TD>
+      <TD>pc</TD>
+      <TD>stat.error;pos.distance;stat.min</TD>
+      <TD>Negative error for distance in parsecs (d)</TD>
+     </TR>
+     <TR>
+      <TD>epos_dist</TD>
+      <TD>float</TD>
+      <TD>pc</TD>
+      <TD>stat.error;pos.distance;stat.max</TD>
+      <TD>Positive error for distance in parsecs (d)</TD>
+     </TR>
+     <TR>
+      <TD>distflag</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.ref;pos.distance</TD>
+      <TD>Flag to identify the source of the object's distance (one of: NULL or bj2018 or tgas or hip; see DOI = 10.3847/1538-3881/ab3467 for further information)</TD>
+     </TR>
+     <TR>
+      <TD>eneg_teff</TD>
+      <TD>float</TD>
+      <TD>K</TD>
+      <TD>stat.error;phys.temperature.effective;stat.min</TD>
+      <TD>Negative error for effective temperature in Kelvin (teff)</TD>
+     </TR>
+     <TR>
+      <TD>epos_teff</TD>
+      <TD>float</TD>
+      <TD>K</TD>
+      <TD>stat.error;phys.temperature.effective;stat.max</TD>
+      <TD>Positive error for effective temperature in Kelvin (teff)</TD>
+     </TR>
+     <TR>
+      <TD>teffflag</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.ref;phys.temperature.effective</TD>
+      <TD>Flag to identify the source of the object's effective temperature (teff; see Table 6 of DOI = 10.3847/1538-3881/ab3467 for further information)</TD>
+     </TR>
+     <TR>
+      <TD>gaiabp</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>phot.mag;em.opt.B</TD>
+      <TD>GAIA DR2 BP magnitude (min: -25; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>e_gaiabp</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.mag</TD>
+      <TD>Uncertainty in GAIA DR2 BP magnitude (gaiabp; min: 0; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>gaiarp</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>phot.mag;em.opt.R</TD>
+      <TD>GAIA DR2 RP magnitude (min: -25; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>e_gaiarp</TD>
+      <TD>float</TD>
+      <TD>mag</TD>
+      <TD>stat.error;phot.mag</TD>
+      <TD>Uncertainty in GAIA DR2 RP magnitude (gaiarp; min: 0; max: 50)</TD>
+     </TR>
+     <TR>
+      <TD>gaiaqflag</TD>
+      <TD>int</TD>
+      <TD/>
+      <TD>meta.code.qual</TD>
+      <TD>Flag to identify the quality of the GAIA astrometric and photometric information (-1 for insufficient info; 0 for poor-quality Gaia info; 1 for good-quality Gaia info)</TD>
+     </TR>
+     <TR>
+      <TD>vmagflag</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.ref;phot.mag;em.opt.V</TD>
+      <TD>Flag to identify the source of the object's V magnitude (vmag; see Table 6 of DOI = 10.3847/1538-3881/ab3467 for further information)</TD>
+     </TR>
+     <TR>
+      <TD>bmagflag</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.ref;phot.mag;em.opt.B</TD>
+      <TD>Flag to identify the source of the object's B magnitude (bmag; see Table 6 of DOI = 10.3847/1538-3881/ab3467 for further information)</TD>
+     </TR>
+     <TR>
+      <TD>splists</TD>
+      <TD>char</TD>
+      <TD/>
+      <TD>meta.code</TD>
+      <TD>Flag to identify if the object is in a specially curated list (one of: NULL or cooldwarfs_v8 or hotsubdwarfs_v8; see DOI = 10.3847/1538-3881/ab3467 for further information)</TD>
+     </TR>
+     <TR>
+      <TD>e_ra</TD>
+      <TD>double</TD>
+      <TD>mas</TD>
+      <TD>stat.error;pos.eq.ra</TD>
+      <TD>Error in right ascension in mas (ra; min: 0)</TD>
+     </TR>
+     <TR>
+      <TD>e_dec</TD>
+      <TD>double</TD>
+      <TD>mas</TD>
+      <TD>stat.error;pos.eq.dec</TD>
+      <TD>Error in declination in mas (dec; min: 0)</TD>
+     </TR>
+     <TR>
+      <TD>ra_orig</TD>
+      <TD>double</TD>
+      <TD>deg</TD>
+      <TD>pos.eq.ra</TD>
+      <TD>Right ascension from original catalog in decimal degrees (min: 0; max: 360)</TD>
+     </TR>
+     <TR>
+      <TD>dec_orig</TD>
+      <TD>double</TD>
+      <TD>deg</TD>
+      <TD>pos.eq.dec</TD>
+      <TD>Dec from original catalog in decimal degrees (min: -90; max: 90)</TD>
+     </TR>
+     <TR>
+      <TD>e_ra_orig</TD>
+      <TD>double</TD>
+      <TD>mas</TD>
+      <TD>stat.error;pos.eq.ra</TD>
+      <TD>Error in ra_orig in mas (min: 0)</TD>
+     </TR>
+     <TR>
+      <TD>e_dec_orig</TD>
+      <TD>double</TD>
+      <TD>mas</TD>
+      <TD>stat.error;pos.eq.dec</TD>
+      <TD>Error in dec_orig in mas (min: 0)</TD>
+     </TR>
+     <TR>
+      <TD>raddflag</TD>
+      <TD>int</TD>
+      <TD/>
+      <TD>meta.code</TD>
+      <TD>Flag to identify the luminosity class of the object based on the object's stellar radius (-1 for insufficient information; 0 for giant; 1 for dwarf)</TD>
+     </TR>
+     <TR>
+      <TD>wdflag</TD>
+      <TD>int</TD>
+      <TD/>
+      <TD>meta.code</TD>
+      <TD>Flag to identify whether the object falls within the GAIA photometric white dwarf region (-1 for insufficient information; 0 for no; 1 for yes)</TD>
+     </TR>
+     <TR>
+      <TD>objid</TD>
+      <TD>long</TD>
+      <TD/>
+      <TD>meta.record</TD>
+      <TD>MAST database internal identifier (min: 1; max: 10^16)</TD>
+     </TR>
+    </TABLEDATA>
+   </DATA>
+  </TABLE>
+ </RESOURCE>
+</VOTABLE>
