@@ -10,7 +10,7 @@ Available Catalogues
 ====================
 
 You can list the available catalogues with :meth:`~astroquery.eso.EsoClass.list_catalogs`. By default,
-the ``all_versions=False`` option returns only the latest version of each
+the ``all_versions=False`` option returns only the current version of each
 catalogue.
 
 .. doctest-remote-data::
@@ -29,7 +29,7 @@ catalogue.
     'vmc_dr7_yjks_ysoVar_V1',
     'vphas_er3_ugr_1r_2ihavphas_catMetaData_fits_V3']
     >>> print(len(eso.list_catalogs(all_versions=False))) # doctest: +IGNORE_OUTPUT
-    84
+    75
 
 To include every available version of every catalogue, set
 ``all_versions=True``:
