@@ -129,6 +129,25 @@ the *NotFail* or *notengineering* terms respectively.
                           0.0           Full Frame                         -- ... 2019-11-22  --
 
 
+Inspecting Query Payloads
+-------------------------
+
+All query methods accept an optional ``get_query_payload`` keyword argument.  When set to
+``True``, no network request is made and a dictionary is returned instead of an
+`~astropy.table.Table`.  The dictionary contains the URL, HTTP method, and any data that
+would have been sent to the Gemini archive.  This is useful for debugging and verifying
+the query that will be executed.
+
+.. doctest-skip::
+
+                >>> from astroquery.gemini import Observations
+                >>> payload = Observations.query_criteria(instrument='GMOS-N',
+                ...                                       observation_type='BIAS',
+                ...                                       get_query_payload=True)
+                >>> print(payload)
+                {'url': 'https://archive.gemini.edu/jsonsummary/notengineering/NotFail/GMOS-N/BIAS', 'method': 'GET', 'data': {}}
+
+
 Authenticated Sessions
 ----------------------
 

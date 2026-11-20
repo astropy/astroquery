@@ -171,3 +171,74 @@ def test_url_helper_eng_fail(test_arg):
     urlsplit = url.split('/')
     assert (('notengineering' in urlsplit) == should_have_noteng)
     assert (('NotFail' in urlsplit) == should_have_notfail)
+
+
+def test_observations_query_region_get_query_payload():
+    coords = SkyCoord(210.80242917, 54.34875, unit="deg")
+    result = gemini.Observations.query_region(
+        coords,
+        radius=0.3 * units.deg,
+        get_query_payload=True
+    )
+    assert isinstance(result, dict)
+    assert 'url' in result
+    assert 'method' in result
+    assert result['method'] == 'GET'
+    assert 'data' in result
+    assert result['data'] == {}
+    assert 'ra=210.802429' in result['url']
+    assert 'dec=54.348750' in result['url']
+    assert 'sr=0.300000d' in result['url']
+
+
+def test_observations_query_object_get_query_payload():
+    result = gemini.Observations.query_object(
+        'M101',
+        radius=0.3 * units.deg,
+        get_query_payload=True
+    )
+    assert isinstance(result, dict)
+    assert 'url' in result
+    assert 'method' in result
+    assert result['method'] == 'GET'
+    assert 'data' in result
+    assert result['data'] == {}
+    assert 'object=M101' in result['url']
+    assert 'sr=0.300000d' in result['url']
+
+
+def test_observations_query_criteria_get_query_payload():
+    result = gemini.Observations.query_criteria(
+        instrument='GMOS-N',
+        program_id='GN-CAL20191122',
+        observation_type='BIAS',
+        utc_date=(date(2019, 10, 1), date(2019, 11, 25)),
+        get_query_payload=True
+    )
+    assert isinstance(result, dict)
+    assert 'url' in result
+    assert 'method' in result
+    assert result['method'] == 'GET'
+    assert 'data' in result
+    assert result['data'] == {}
+    assert 'GMOS-N' in result['url']
+    assert 'BIAS' in result['url']
+    assert '20191001-20191125' in result['url']
+    assert 'GN-CAL20191122' in result['url']
+
+
+def test_observations_query_raw_get_query_payload():
+    result = gemini.Observations.query_raw(
+        'GMOS-N', 'BIAS',
+        progid='GN-CAL20191122',
+        get_query_payload=True
+    )
+    assert isinstance(result, dict)
+    assert 'url' in result
+    assert 'method' in result
+    assert result['method'] == 'GET'
+    assert 'data' in result
+    assert result['data'] == {}
+    assert 'GMOS-N' in result['url']
+    assert 'BIAS' in result['url']
+    assert 'progid=GN-CAL20191122' in result['url']

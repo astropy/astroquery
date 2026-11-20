@@ -102,6 +102,11 @@ jplhorizons
 
 - Adding ``vector_table`` as an optional parameter for the ``Horizons.vectors`` method. [#3273]
 
+gemini
+^^^^^^
+
+- Added ``get_query_payload`` kwarg to allow inspection of the query payload to aid in debugging. [#3568]
+
 vizier
 ^^^^^^
 
