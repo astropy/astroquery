@@ -10,7 +10,7 @@ import glob
 import os
 import re
 import shutil
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch
 
@@ -1363,7 +1363,7 @@ def test_get_spectrum(mock_load_data, tmp_path_factory, capsys):
     assert "SPECTRA_RGS-sedm 1499442653027920313.fits" in result[0]
     assert "SPECTRA_BGS-sedm 1499442653027920313.fits" in result[1]
 
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     dirs = glob.glob(os.path.join(os.getcwd(), "temp_" + now.strftime("%Y%m%d") + '_*'))
 
     assert len(dirs) == 1
