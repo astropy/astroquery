@@ -24,7 +24,9 @@ from astropy.utils import deprecated
 import pyvo
 
 from astroquery import version, log, cache_conf
+from astroquery.exceptions import MissingContentDispositionError
 from astroquery.utils import system_tools
+from astroquery.utils.commons import filename_from_headers
 
 
 __all__ = ['BaseVOQuery', 'BaseQuery', 'QueryWithLogin']
@@ -412,7 +414,8 @@ class BaseQuery(metaclass=LoginABCMeta):
             self._last_query = query
             return response
 
-    def _download_file(self, url, local_filepath, timeout=None, auth=None,
+    def _download_file(self, url, local_filepath, local_dir=None,
+                       timeout=None, auth=None,
                        continuation=True, cache=False, method="GET",
                        head_safe=False, verbose=True, **kwargs):
         """
@@ -423,6 +426,8 @@ class BaseQuery(metaclass=LoginABCMeta):
         ----------
         url : string
         local_filepath : string
+        local_dir : string
+            Destination directory. Overriden by local_filepath
         timeout : int
         auth : dict or None
         continuation : bool
@@ -445,6 +450,15 @@ class BaseQuery(metaclass=LoginABCMeta):
                                              timeout=timeout, stream=True,
                                              auth=auth, **kwargs)
 
+        if local_filepath is None:
+            file_name = filename_from_headers(response.headers)
+            if not file_name:
+                raise MissingContentDispositionError(
+                    f'local_filepath required (cannot be deduced from '
+                    f'Content-Disposition for {url})')
+            dest = os.path.join(local_dir or self.cache_location or '.', file_name)
+        else:
+            dest = local_filepath
         response.raise_for_status()
         if 'content-length' in response.headers:
             length = int(response.headers['content-length'])
@@ -453,15 +467,15 @@ class BaseQuery(metaclass=LoginABCMeta):
         else:
             length = None
 
-        if ((os.path.exists(local_filepath)
+        if ((os.path.exists(dest)
              and ('Accept-Ranges' in response.headers)
              and length is not None
              and continuation)):
             open_mode = 'ab'
 
-            existing_file_length = os.stat(local_filepath).st_size
+            existing_file_length = os.stat(dest).st_size
             if existing_file_length == 0:
-                log.info(f"Found existing {local_filepath} file with length 0.  Overwriting.")
+                log.info(f"Found existing {dest} file with length 0.  Overwriting.")
                 open_mode = 'wb'
                 if head_safe:
                     response = self._session.request(method, url,
@@ -470,13 +484,14 @@ class BaseQuery(metaclass=LoginABCMeta):
                     response.raise_for_status()
             elif existing_file_length >= length:
                 # all done!
-                log.info(f"Found cached file {local_filepath} with size {existing_file_length} = {length}.")
-                return local_filepath
+                log.info(f"Found cached file {dest} with size {existing_file_length} = {length}.")
+                response.close()
+                return dest
             else:
                 log.info("Continuing download of file {0}, with {1} bytes to "
-                         "go ({2}%)".format(local_filepath,
+                         "go ({2}%)".format(dest,
                                             length - existing_file_length,
-                                            (length-existing_file_length)/length*100))
+                                            (length-existing_file_length) / length * 100))
 
                 # bytes are indexed from 0:
                 # https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#range-request-header
@@ -491,11 +506,11 @@ class BaseQuery(metaclass=LoginABCMeta):
                 response.raise_for_status()
                 del self._session.headers['Range']
 
-        elif cache and os.path.exists(local_filepath):
+        elif cache and os.path.exists(dest):
             if length is not None:
-                statinfo = os.stat(local_filepath)
+                statinfo = os.stat(dest)
                 if statinfo.st_size != length:
-                    log.warning(f"Found cached file {local_filepath} with size {statinfo.st_size} "
+                    log.warning(f"Found cached file {dest} with size {statinfo.st_size} "
                                 f"that is different from expected size {length}.  ")
                     if continuation:
                         log.warning(
@@ -507,15 +522,15 @@ class BaseQuery(metaclass=LoginABCMeta):
                                                      auth=auth, **kwargs)
                     response.raise_for_status()
                 else:
-                    log.info(f"Found cached file {local_filepath} with expected size {statinfo.st_size}.")
+                    log.info(f"Found cached file {dest} with expected size {statinfo.st_size}.")
                     response.close()
-                    return local_filepath
+                    return dest
             else:
                 # This is a special case where the server doesn't return a
                 # Content-Length header, but the file is already cached.
                 # One such case is dynamically generated files in the MAST Archive.
                 # In this case, we warn the user and re-download the file.
-                log.warning(f"Could not verify length of cached file {local_filepath}. "
+                log.warning(f"Could not verify length of cached file {dest}. "
                             "Re-downloading the file.")
                 open_mode = 'wb'
                 response = self._session.request(method, url,
@@ -532,7 +547,7 @@ class BaseQuery(metaclass=LoginABCMeta):
 
         blocksize = astropy.utils.data.conf.download_block_size
 
-        log.debug(f"Downloading URL {url} to {local_filepath} with size {length} "
+        log.debug(f"Downloading URL {url} to {dest} with size {length} "
                   f"by blocks of {blocksize} with open_mode={open_mode}")
 
         bytes_read = 0
@@ -544,9 +559,9 @@ class BaseQuery(metaclass=LoginABCMeta):
             progress_stream = io.StringIO()
 
         if verbose:
-            with ProgressBarOrSpinner(length, f'Downloading URL {url} to {local_filepath} ...',
+            with ProgressBarOrSpinner(length, f'Downloading URL {url} to {dest} ...',
                                       file=progress_stream) as pb:
-                with open(local_filepath, open_mode) as f:
+                with open(dest, open_mode) as f:
                     for block in response.iter_content(blocksize):
                         f.write(block)
                         bytes_read += len(block)
@@ -555,11 +570,11 @@ class BaseQuery(metaclass=LoginABCMeta):
                         else:
                             pb.update(bytes_read)
         else:
-            with open(local_filepath, open_mode) as f:
+            with open(dest, open_mode) as f:
                 f.write(response.content)
 
         response.close()
-        return local_filepath
+        return dest
 
 
 @deprecated(since="v0.4.7", message=("The suspend_cache function is deprecated,"
