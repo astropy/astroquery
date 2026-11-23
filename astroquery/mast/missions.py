@@ -1254,7 +1254,7 @@ class MastMissionsClass(MastQueryWithLogin):
         """
         return self.get_product(uri, mission=mission, **kwargs)
 
-    def get_cloud_uri_map(self, products=None, *, include_bucket=True, full_url=False, extension=None,
+    def get_cloud_uri_map(self, products=None, *, include_bucket=None, full_url=None, extension=None,
                           filter_products={}, mission=None, verbose=True):
         """
         Given an `~astropy.table.Table` of data products or query criteria and filter parameters,
@@ -1265,13 +1265,14 @@ class MastMissionsClass(MastQueryWithLogin):
         products : `~astropy.table.Table`, list
             Table containing products or list of MAST URIs to be converted into cloud data uris.
             If provided, this will supercede page_size, page, or any keyword arguments passed in as criteria.
-        include_bucket : bool
-            Default True. When False, returns the path of the file relative to the
-            top level cloud storage location.
-            Must be set to False when using the full_url argument.
-        full_url : bool
-            Default False. Return an HTTP fetchable url instead of a cloud uri.
-            Must set include_bucket to False to use this option.
+        include_bucket : bool, optional
+            Include the bucket in cloud URIs. If False, return paths relative to the bucket.
+            When omitted, defaults to False for full URLs and True otherwise.
+            Cannot be True when full_url is True.
+        full_url : bool, optional
+            Return an HTTP-fetchable URL instead of a cloud URI. When both full_url and
+            include_bucket are omitted, defaults to True for Roman and False for other missions.
+            Specifying include_bucket without full_url selects a cloud URI or relative path.
         extension : string or array, optional
             Default None. Option to filter by file extension.
         filter_products : dict, optional
@@ -1291,12 +1292,20 @@ class MastMissionsClass(MastQueryWithLogin):
         -------
         map : dict
             Dictionary mapping the original data product URIs to their corresponding cloud URIs.
+            Roman full URLs are presigned, expire, and should be treated as secrets.
+            Roman cloud URIs and relative paths do not include authentication and may require
+            separate AWS credentials.
         """
-        if include_bucket and full_url:
-            raise InvalidQueryError('include_bucket must be set to False when full_url is True.')
-
         mission = mission.lower() if mission else self.mission
         self._verify_mission(mission)
+
+        is_roman = mission in ['roman', 'roman_wfi', 'roman_spectra', 'roman_cgi']
+        if full_url is None:
+            full_url = is_roman and include_bucket is None
+        if include_bucket is None:
+            include_bucket = not full_url
+        if include_bucket and full_url:
+            raise InvalidQueryError('include_bucket must be set to False when full_url is True.')
 
         if isinstance(products, Table):
             # Filter product list
@@ -1324,7 +1333,7 @@ class MastMissionsClass(MastQueryWithLogin):
         data_uris = utils.remove_duplicate_products(data_uris, 'dataURI')
 
         uri_map = {}
-        if mission in ['roman', 'roman_wfi', 'roman_spectra', 'roman_cgi']:
+        if is_roman:
             for uri in data_uris:
                 # Get the presigned S3 URL for the Roman data product
                 try:
@@ -1344,7 +1353,7 @@ class MastMissionsClass(MastQueryWithLogin):
                     elif host == 's3.amazonaws.com' or host.startswith('s3.'):
                         bucket, _, path = path.partition('/')
                     else:
-                        raise InvalidQueryError(f"Unable to determine S3 bucket from URL: {s3_url}")
+                        raise InvalidQueryError("Unable to determine S3 bucket from URL")
 
                     cloud_uri = f"s3://{bucket}/{path}" if include_bucket else path
 

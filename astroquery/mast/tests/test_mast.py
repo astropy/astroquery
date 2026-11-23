@@ -831,21 +831,52 @@ def test_missions_get_cloud_uri_map(patch_boto3):
 
 
 @pytest.mark.parametrize(
-    'include_bucket, full_url, expected',
+    'options, expected',
     [
-        (True, False, 's3://example-bucket/test.asdf'),
-        (False, False, 'test.asdf'),
-        (False, True, 'https://example-bucket.s3.amazonaws.com/test.asdf?signature=abc123'),
+        ({}, 's3://stpubdata/hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits'),
+        ({'full_url': False}, 's3://stpubdata/hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits'),
+        ({'include_bucket': True}, 's3://stpubdata/hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits'),
+        ({'include_bucket': False}, 'hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits'),
+        ({'full_url': True}, 'http://s3.amazonaws.com/stpubdata/hst/public/u9o4/u9o40504m/u9o40504m_c3m.fits'),
     ],
 )
-def test_missions_get_cloud_uri_map_roman(include_bucket, full_url, expected):
+def test_missions_get_cloud_uri_map_non_roman_defaults(patch_boto3, options, expected):
+    missions = MastMissions(mission='hst')
+    uri = 'u9o40504m/u9o40504m_c3m.fits'
+    assert missions.get_cloud_uri_map(uri, **options) == {uri: expected}
+
+
+@pytest.mark.parametrize(
+    'options, expected',
+    [
+        ({}, 'https://example-bucket.s3.amazonaws.com/test.asdf?signature=abc123'),
+        ({'full_url': True}, 'https://example-bucket.s3.amazonaws.com/test.asdf?signature=abc123'),
+        ({'include_bucket': False, 'full_url': True},
+         'https://example-bucket.s3.amazonaws.com/test.asdf?signature=abc123'),
+        ({'full_url': False}, 's3://example-bucket/test.asdf'),
+        ({'include_bucket': True}, 's3://example-bucket/test.asdf'),
+        ({'include_bucket': True, 'full_url': False}, 's3://example-bucket/test.asdf'),
+        ({'include_bucket': False}, 'test.asdf'),
+        ({'include_bucket': False, 'full_url': False}, 'test.asdf'),
+    ],
+)
+def test_missions_get_cloud_uri_map_roman(options, expected):
     missions = MastMissions(mission='roman')
     result = missions.get_cloud_uri_map(
         ['mast:ROMAN/product/test.asdf'],
-        include_bucket=include_bucket,
-        full_url=full_url,
+        **options,
     )
     assert result == {'mast:ROMAN/product/test.asdf': expected}
+
+
+@pytest.mark.parametrize('mission', ['roman', 'roman_wfi', 'roman_spectra', 'roman_cgi'])
+def test_missions_get_cloud_uri_map_roman_mission_override(mocker, mission):
+    missions = MastMissions(mission='hst')
+    mocker.patch.object(type(MastMissions), '_verify_mission')
+    uri = 'mast:ROMAN/product/test.asdf'
+    assert missions.get_cloud_uri_map(uri, mission=mission.upper()) == {
+        uri: 'https://example-bucket.s3.amazonaws.com/test.asdf?signature=abc123'
+    }
 
 
 def test_missions_get_cloud_uri_map_roman_path_style():
@@ -856,6 +887,25 @@ def test_missions_get_cloud_uri_map_roman_path_style():
         full_url=False,
     )
     assert result == {'mast:ROMAN/product/path_style.asdf': 's3://example-bucket/path_style.asdf'}
+
+
+@pytest.mark.parametrize('include_bucket', [True, False, None])
+def test_missions_get_cloud_uri_map_roman_presigned_query(mocker, include_bucket):
+    missions = MastMissions(mission='roman')
+    query = 'X-Amz-Credential=example%2Fscope&X-Amz-Signature=abc%2B123'
+    mocker.patch.object(
+        type(MastMissions),
+        '_get_roman_cloud_location',
+        return_value=f'https://s3.us-west-2.amazonaws.com/example-bucket/test.asdf?{query}',
+    )
+
+    result = missions.get_cloud_uri_map('mast:ROMAN/product/test.asdf', include_bucket=include_bucket)
+    if include_bucket is None:
+        expected = f'https://s3.us-west-2.amazonaws.com/example-bucket/test.asdf?{query}'
+    else:
+        prefix = 's3://example-bucket/' if include_bucket else ''
+        expected = f'{prefix}test.asdf'
+    assert result == {'mast:ROMAN/product/test.asdf': expected}
 
 
 def test_missions_get_cloud_uri_map_roman_invalid():
