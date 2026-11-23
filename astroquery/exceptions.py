@@ -3,6 +3,8 @@
 Custom exceptions used in the astroquery query classes
 """
 
+import builtins
+
 from astropy.utils.exceptions import AstropyWarning
 
 __all__ = ['TimeoutError', 'InvalidQueryError', 'RemoteServiceError',
@@ -12,7 +14,7 @@ __all__ = ['TimeoutError', 'InvalidQueryError', 'RemoteServiceError',
            'EmptyResponseError', 'BlankResponseWarning']
 
 
-class TimeoutError(Exception):
+class TimeoutError(builtins.TimeoutError):
 
     """
     Raised on failure to establish connection with server
