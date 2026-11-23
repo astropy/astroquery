@@ -353,11 +353,12 @@ class MastMissionsClass(MastQueryWithLogin):
 
             # Add search parameters to table metadata
             result_json = response.json()
-            results.meta['search_params'] = result_json.get('search_params', {})
+            search_params = result_json.get('search_params', {})
+            results.meta['search_params'] = search_params
 
             # Warn if maximum results are returned
             if len(results) >= self.limit:
-                warnings.warn("Maximum results returned, may not include all sources within radius.",
+                warnings.warn("Maximum results returned, may not include all matching datasets.",
                               MaxResultsWarning)
             return results
 
