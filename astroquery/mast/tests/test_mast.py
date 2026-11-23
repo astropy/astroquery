@@ -107,6 +107,15 @@ def patch_post(mocker):
     mocker.patch.object(Zcut, '_download_file', zcut_download_mockreturn)
     mocker.patch.object(core.MastQueryWithLogin, '_download_file', download_mockreturn)
 
+    def roman_cloud_location(download_url):
+        if 'path_style' in download_url:
+            return 'https://s3.us-west-2.amazonaws.com/example-bucket/path_style.asdf?signature=abc123'
+        if 'invalid' in download_url:
+            return 'invalid'
+        return 'https://example-bucket.s3.amazonaws.com/test.asdf?signature=abc123'
+
+    mocker.patch.object(type(MastMissions), '_get_roman_cloud_location', side_effect=roman_cloud_location)
+
     return mocker
 
 

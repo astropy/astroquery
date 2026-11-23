@@ -1374,7 +1374,7 @@ class MastMissionsClass(MastQueryWithLogin):
         if self._authenticated:
             headers["Authorization"] = f"token {self._auth_obj.session.cookies['mast_token']}"
 
-        resp = utils._simple_request(download_url, headers=headers, allow_redirects=False)
+        resp = self._session.request("get", download_url, headers=headers, allow_redirects=False)
         resp.raise_for_status()
 
         return resp.headers.get("Location")
