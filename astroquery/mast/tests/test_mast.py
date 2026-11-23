@@ -16,7 +16,7 @@ import numpy as np
 import pytest
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
-from astropy.table import Table, unique
+from astropy.table import Row, Table, unique
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from requests import HTTPError, Response
 
@@ -788,6 +788,20 @@ def test_missions_get_cloud_uri_map(patch_boto3):
 
     # List input
     uri_map = MastMissions.get_cloud_uri_map([missions_uri])
+    assert isinstance(uri_map, dict)
+    assert len(uri_map) == 1
+    assert uri_map[missions_uri] == expected
+
+    # Row input
+    row = product[0]
+    assert isinstance(row, Row)
+    uri_map = MastMissions.get_cloud_uri_map(row)
+    assert isinstance(uri_map, dict)
+    assert len(uri_map) == 1
+    assert uri_map[missions_uri] == expected
+
+    # String input
+    uri_map = MastMissions.get_cloud_uri_map(missions_uri)
     assert isinstance(uri_map, dict)
     assert len(uri_map) == 1
     assert uri_map[missions_uri] == expected

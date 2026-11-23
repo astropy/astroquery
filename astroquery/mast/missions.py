@@ -1302,13 +1302,19 @@ class MastMissionsClass(MastQueryWithLogin):
             # Filter product list
             products = self.filter_products(products, extension=extension, **filter_products)
             data_uris = products['uri']
-        else:  # data_products is a list of URIs
+        elif isinstance(products, Row):
+            data_uris = [products['uri']]
+        else:  # data_products is not a Table or Row, assume it is a string or list of URIs
             # Warn if trying to supply filters
             if filter_products or extension:
                 warnings.warn('Filtering is not supported when providing a list of MAST URIs. '
                               'To apply filters, please provide query criteria or a table of data products '
                               'as returned by `Observations.get_product_list`', InputWarning)
-            data_uris = products
+
+            if isinstance(products, str):
+                data_uris = [products]
+            else:
+                data_uris = products
 
         if data_uris is None or not len(data_uris):
             warnings.warn('No matching products to fetch associated cloud URIs.', NoResultsWarning)
