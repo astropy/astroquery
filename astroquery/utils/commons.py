@@ -29,6 +29,7 @@ __all__ = ['parse_coordinates',
            'TableList',
            'suppress_vo_warnings',
            'validate_email',
+           'filename_from_headers',
            'ASTROPY_LT_5_1',
            'ASTROPY_LT_5_3',
            'ASTROPY_LT_6_0',
@@ -246,6 +247,55 @@ def suppress_vo_warnings():
     `astropy.io.votable.exceptions.VOWarning`.
     """
     warnings.filterwarnings("ignore", category=votable.exceptions.VOWarning)
+
+
+def filename_from_headers(headers):
+    """
+    Extract a basename from a ``Content-Disposition`` response header.
+
+    Supports both ``filename="..."`` / ``filename=...`` and RFC 5987
+    ``filename*=UTF-8''...`` forms. Returns ``None`` if no filename can be
+    deduced.
+    """
+    if headers is None:
+        return None
+    # requests uses a case-insensitive mapping; plain dicts may not.
+    content_disposition = headers.get('Content-Disposition')
+    if content_disposition is None:
+        for key, value in headers.items():
+            if key.lower() == 'content-disposition':
+                content_disposition = value
+                break
+    if not content_disposition:
+        return None
+
+    # Prefer RFC 5987 filename* when present
+    match = re.search(
+        r"filename\*\s*=\s*(?:UTF-8|utf-8)''([^;\s]+)",
+        content_disposition,
+        flags=re.IGNORECASE,
+    )
+    if match:
+        from urllib.parse import unquote
+        return os.path.basename(unquote(match.group(1).strip().strip('"')))
+
+    match = re.search(
+        r'filename\s*=\s*"([^"]+)"',
+        content_disposition,
+        flags=re.IGNORECASE,
+    )
+    if match:
+        return os.path.basename(match.group(1))
+
+    match = re.search(
+        r"filename\s*=\s*([^;\s]+)",
+        content_disposition,
+        flags=re.IGNORECASE,
+    )
+    if match:
+        return os.path.basename(match.group(1).strip().strip("'\""))
+
+    return None
 
 
 def validate_email(email):
