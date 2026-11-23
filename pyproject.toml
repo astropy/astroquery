@@ -44,7 +44,7 @@ test = [
    "pytest-rerunfailures",
    "fsspec[http]",
    "moto[s3]",
-   "s3fs",
+   "s3fs"
 ]
 docs = [
    "sphinx",
@@ -62,6 +62,9 @@ all = [
    "botocore",
    "regions>=0.5",
    "roman_datamodels",
+   "fsspec[http]",
+   "pandas",
+   "pyarrow"
 ]
 
 [build-system]
