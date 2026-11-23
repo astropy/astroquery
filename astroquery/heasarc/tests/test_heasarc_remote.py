@@ -294,6 +294,20 @@ class TestHeasarc:
         cat = "suzamaster"
         assert Heasarc.count_rows(cat) == 3055
 
+    def test__query_all(self):
+        result = Heasarc._query_all_catalogs(
+            "217.0 -31.70", start_time="2017-01-01", end_time="2020-01-01")
+        assert len(result) >= 7
+        assert 'intscw' in [res['table_name'] for res in result]
+
+        result = Heasarc._query_all_catalogs(
+            "217.0 -31.70", start_time="2017-01-01", end_time="2020-01-01",
+            radius=1
+        )
+        assert len(result) == 6
+        assert result[0]['table_name'] == 'swift2sxps'
+        assert result[1]['count'] == 85
+
 
 @pytest.mark.remote_data
 class TestHeasarcBrowse:

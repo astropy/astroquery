@@ -3,11 +3,13 @@ import shutil
 import requests
 import tarfile
 import warnings
+from io import BytesIO
 import numpy as np
 from astropy.table import Table, Row
 from astropy import coordinates
 from astropy import units as u
 from astropy.utils.decorators import deprecated, deprecated_renamed_argument
+from astropy.time import Time
 
 import pyvo
 
@@ -423,6 +425,163 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
                 )
         return conditions
 
+    def _query_all_catalogs(self, position=None, radius=None, *,
+                            start_time=None, end_time=None,
+                            get_query_payload=False,
+                            verbose=False, maxrec=None):
+        """Query all HEASARC holdings for matching observations.
+
+        This uses the Xamin query endpoint to search the HEASARC master
+        catalogs and returns the number of matching observations for each
+        catalog. At least one of ``position``, ``start_time``, or
+        ``end_time`` must be provided.
+
+        Parameters
+        ----------
+        position : str, `astropy.coordinates` object, optional
+            Search position. Strings are passed directly to the HEASARC
+            resolver; coordinate objects are converted to ICRS.
+        radius : str, float, or `~astropy.units.Quantity`, optional
+            Search radius around ``position``. Numeric values are interpreted
+            as degrees. If omitted, the HEASARC default search radius is used.
+        start_time, end_time : str or `~astropy.time.Time`, optional
+            Inclusive time range boundaries. Times are converted to MJD and
+            matched against observation start and end times, respectively.
+        get_query_payload : bool, optional
+            If `True`, return the request parameters instead of querying
+            HEASARC.
+        verbose : bool, optional
+            If `False`, suppress VOTable warnings.
+        maxrec : int, optional
+            Maximum number of catalog results to return.
+
+        Returns
+        -------
+        table : `~astropy.table.Table` or dict
+            A table containing one row per matching catalog, or the request
+            parameters when ``get_query_payload=True``.
+
+        """
+
+        # if verbose is False then suppress any VOTable related warnings
+        if not verbose:
+            commons.suppress_vo_warnings()
+
+        # we need either a position, or time constraints
+        if position is None and start_time is None and end_time is None:
+            raise ValueError(
+                "A valid position and/or a time range must be provided.")
+
+        # Construct the base parameters
+        params = {
+            "coordinates": "J2000",
+            "resolver": "NED,SIMBAD,GRB",
+            "colfilters": "iso,dec,round",
+            "showsql": "1",
+            "fields": "b.name as table_name,"
+                      "count(*) as count,"
+                      "b.description as description,"
+                      "b.regime as regime,"
+                      "b.mission as mission,"
+                      "b.type as obj_type",
+            "group": "b.name,b.description,b.regime,b.mission,b.type",
+            "sortvar": "1",
+            "format": "votable",
+            "constraint": "(a.table_name=b.name)"
+        }
+
+        # Handle Position
+        if position is not None:
+            # If position is a string, we pass it directly the backend resolver
+            if isinstance(position, str):
+                params['position'] = position
+            else:
+                coords_icrs = parse_coordinates(position).icrs
+                params['position'] = (
+                    f"{coords_icrs.ra.deg} {coords_icrs.dec.deg}")
+
+        # Handle Time & Table Selection
+        has_time = start_time is not None or end_time is not None
+        time_constraints = []
+
+        if start_time is not None:
+            start_mjd = Time(start_time, format='isot').mjd
+            time_constraints.append(f"end_time > {start_mjd:.8f}")
+        if end_time is not None:
+            end_mjd = Time(end_time, format='isot').mjd
+            time_constraints.append(f"start_time < {end_mjd:.8f}")
+
+        time_con_str = " AND ".join(time_constraints)
+
+        # Switch tables based on what data the user is filtering by
+        if position is not None and not has_time:
+            params["table"] = "master_table.pos_small,master_table.indexview"
+            params["union"] = "master_table.pos_big"
+        elif position is not None and has_time:
+            params["table"] = "master_table.pos_time_small,master_table.indexview"
+            params["union"] = "master_table.pos_time_big"
+            params["constraint"] += f" AND {time_con_str}"
+        elif position is None and has_time:
+            params["table"] = "master_table.time,master_table.indexview"
+            params["constraint"] += f" AND {time_con_str}"
+
+        # Handle Radius
+        if radius is not None:
+            if isinstance(radius, (int, float)):
+                r_deg = radius
+            else:
+                r_deg = coordinates.Angle(radius).to('deg').value
+
+            # The Xamin REST endpoint expects radius in arcminutes
+            r_arcmin = r_deg * 60.0
+            params["radius"] = str(r_arcmin)
+        else:
+            params["radius"] = "dsr*60,60"
+
+        # Handle maxrec
+        if maxrec is not None:
+            params["limit"] = str(maxrec)
+
+        if get_query_payload:
+            return params
+
+        # Get the QueryServlet API endpoint
+        api_url = self.VO_URL.replace('/vo', '/QueryServlet')
+
+        # Make the request using the existing session if available
+        session = self._session if self._session else requests.Session()
+        response = session.get(api_url, params=params)
+
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            raise InvalidQueryError(
+                f"Query failed: {e}\nResponse: {response.text}")
+
+        # Convert the VOTable response directly into an Astropy Table
+        try:
+            table = Table.read(BytesIO(response.content), format='votable')
+        except Exception as e:
+            # Handle cases where empty content is returned
+            if len(response.content) == 0:
+                warnings.warn(
+                    NoResultsWarning(
+                        "No matching rows were found in the query."
+                    )
+                )
+                return Table()
+            raise ValueError(
+                f"Failed to parse response into a Table: {e}\n"
+                f"Content snippet: {response.text[:200]}"
+            )
+
+        if len(table) == 0:
+            warnings.warn(
+                NoResultsWarning("No matching rows were found in the query."))
+            return table
+
+        return table
+
     @deprecated_renamed_argument(
         ('mission', 'fields', 'resultmax', 'entry', 'coordsys', 'equinox',
          'displaymode', 'action', 'sortvar', 'cache'),
@@ -435,6 +594,7 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
     def query_region(self, position=None, catalog=None, radius=None, *,
                      spatial='cone', width=None, polygon=None, column_filters=None,
                      add_offset=False, get_query_payload=False, columns=None, cache=False,
+                     start_time=None, end_time=None,
                      verbose=False, maxrec=None,
                      **kwargs):
         """Queries the HEASARC TAP server around a coordinate and returns a
@@ -498,6 +658,10 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
             Target column list with value separated by a comma(,).
             Use * for all the columns. The default is to return a subset
             of the columns that are generally the most useful.
+        start_time, end_time : str or `~astropy.time.Time`
+            Inclusive time range boundaries for the search. Currently,
+            time constraints are only possible when doing global searches
+            with catalog='all'.
         verbose : bool, optional
             If False, suppress vo warnings.
         maxrec : int, optional
@@ -516,6 +680,25 @@ class HeasarcClass(BaseVOQuery, BaseQuery):
         # check for a valid catalog name
         if catalog is None:
             raise InvalidQueryError(self._catalog_msg)
+
+        # start_time and end_time are currnently supported with
+        # catalog='all' only
+        if (
+            (start_time is not None or end_time is not None)
+            and catalog != 'all'
+        ):
+            raise InvalidQueryError(
+                "start_time and end_time are currnently supported "
+                "when catalog='all'"
+            )
+
+        # if doing all-catalog query; delegate to _query_all_catalogs
+        if catalog == 'all':
+            return self._query_all_catalogs(
+                position=position, radius=radius, start_time=start_time,
+                end_time=end_time, get_query_payload=get_query_payload,
+                verbose=verbose, maxrec=maxrec
+            )
 
         # add_offset is valid only with cone searches
         if add_offset and spatial != 'cone':

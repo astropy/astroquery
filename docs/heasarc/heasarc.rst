@@ -58,8 +58,8 @@ we use `~astropy.units.Quantity`:
     >>> tab = Heasarc.query_region(pos, catalog='chanmaster', radius=2*u.deg)
     >>> tab.sort('time')
     >>> tab['name', 'obsid', 'ra', 'dec'][:5].pprint(align='<')
-               name           obsid     ra      dec
-                                       deg      deg
+            name           obsid     ra      dec   
+                                    deg      deg   
     ------------------------- ----- --------- --------
     B2 0755+37                858   119.61750 37.78667
     ABELL 611                 3194  120.23708 36.05722
@@ -108,7 +108,7 @@ To do a full sky search, use ``spatial='all-sky'``:
     ...                            columns='name, obsid, ra, dec')
     >>> tab[:5].pprint()
             name         obsid     ra       dec
-                                  deg       deg
+                            deg       deg
     -------------------- ----- --------- ---------
              ESO005-G004 21421  91.42333 -86.63194
     1RXSJ200924.1-853911 10143 302.30417 -85.64633
@@ -202,6 +202,30 @@ following for instance will find master catalogs that have keywords 'nicer' or '
     swiftmastr Swift Master Catalog
 
 
+Query All Available Catalogs
+----------------------------
+If you need to know which catalogs are worth querying for your source, you can
+use the `~astroquery.heasarc.HeasarcClass.query_region`, passing ``catalogs='all'``.
+This will query all holdings and return the number of entries in each catalog.
+
+.. doctest-remote-data::
+    >>> from astroquery.heasarc import Heasarc
+    >>> from astropy.coordinates import SkyCoord
+    >>> from astropy import units as u
+    >>> pos = SkyCoord('217.0 -31.7', unit=u.deg)
+    >>> matches = Heasarc.query_region(pos, catalog='all')
+    >>> matches[0:5].pprint()
+    table_name count ... mission     obj_type    
+    ---------- ----- ... ------- ----------------
+    bat5bgrbsp     5 ...    cgro gamma-ray bursts
+       batse4b     4 ...    cgro gamma-ray bursts
+      batsegrb     5 ...    cgro gamma-ray bursts
+    batsegrbsp     2 ...    cgro gamma-ray bursts
+    batsetrigs    23 ...    cgro                 
+    
+Then as above, you query the table(s) with matches individually for fine-grained search.
+
+
 Adding Column Constraints
 ----------------------------------------
 In addition to region search in `~astroquery.heasarc.HeasarcClass.query_region`,
@@ -228,11 +252,11 @@ the search defaults to an all-sky search.
     ... )
     >>> tab['name', 'obsid', 'ra', 'dec', 'exposure'][:3].pprint()
           name      obsid     ra       dec    exposure
-                            deg       deg       s
+                             deg       deg       s    
     --------------- ----- --------- --------- --------
              Sgr A* 13842 266.41667 -29.00781   191760
     IGR J17480-2446 31425 267.02013 -24.78024   200000
-                M51 13814 202.50000  47.20000   192360
+    IGR J17480-2446 33560 267.02013 -24.78024   200000
 
 Another example may be to search the ``xmmmaster`` for a observation in some time range:
 

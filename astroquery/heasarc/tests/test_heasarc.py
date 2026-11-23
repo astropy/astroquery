@@ -3,7 +3,8 @@
 import os
 import pytest
 import tempfile
-from unittest.mock import patch, PropertyMock
+from io import BytesIO
+from unittest.mock import patch, PropertyMock, MagicMock
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
 from astropy.io import votable
@@ -11,7 +12,8 @@ from pyvo.dal import TAPResults
 import astropy.units as u
 
 from astroquery.heasarc import Heasarc, HeasarcClass
-from astroquery.exceptions import InvalidQueryError
+from astroquery.exceptions import InvalidQueryError, NoResultsWarning
+
 
 try:
     # Both boto3, botocore and moto are optional dependencies,
@@ -743,3 +745,91 @@ def test_query_region_offset_with_no_column():
         add_offset=True,
     )
     assert ',DISTANCE(POINT(' in query
+
+
+def test_query_all_catalogs_missing_args():
+    with pytest.raises(
+        ValueError,
+        match="A valid position and/or a time range must be provided."
+    ):
+        Heasarc._query_all_catalogs()
+
+
+def test_query_all_catalogs_payload_position():
+    params = Heasarc._query_all_catalogs(position="Crab", get_query_payload=True)
+    assert params["position"] == "Crab"
+    assert params["table"] == "master_table.pos_small,master_table.indexview"
+    assert params["union"] == "master_table.pos_big"
+    assert params["radius"] == "dsr*60,60"
+
+
+def test_query_all_catalogs_payload_time():
+    start = "2020-01-01T00:00:00"
+    end = "2020-01-02T00:00:00"
+    params = Heasarc._query_all_catalogs(
+        start_time=start, end_time=end, get_query_payload=True)
+    assert "position" not in params
+    assert params["table"] == "master_table.time,master_table.indexview"
+    assert "end_time >" in params["constraint"]
+    assert "start_time <" in params["constraint"]
+
+
+def test_query_all_catalogs_payload_pos_and_time():
+    start = "2020-01-01T00:00:00"
+    params = Heasarc._query_all_catalogs(
+        position="Crab", start_time=start, get_query_payload=True)
+    assert params["position"] == "Crab"
+    assert params["table"] == (
+        "master_table.pos_time_small,master_table.indexview")
+    assert params["union"] == "master_table.pos_time_big"
+    assert "end_time >" in params["constraint"]
+
+
+@pytest.mark.parametrize("radius,expected", [(1.0, "60.0"), ("1d", "60.0")])
+def test_query_all_catalogs_payload_radius(radius, expected):
+    params = Heasarc._query_all_catalogs(
+        position="Crab", radius=radius, get_query_payload=True)
+    assert params["radius"] == expected
+
+
+@patch('requests.Session.get')
+def test_query_all_catalogs_execute(mock_get):
+    # Dynamically generate the VOTable byte content
+    mock_table = Table(
+        [["xmmmaster"], [1]],
+        names=["table_name", "count"]
+    )
+
+    buf = BytesIO()
+    mock_table.write(buf, format='votable')
+
+    mock_response = MagicMock()
+    mock_response.content = buf.getvalue()
+    mock_response.raise_for_status.return_value = None
+    mock_get.return_value = mock_response
+
+    res = Heasarc._query_all_catalogs(position="Crab")
+
+    assert len(res) == 1
+    assert res["table_name"][0] == "xmmmaster"
+    assert res["count"][0] == 1
+
+
+@patch('requests.Session.get')
+def test_query_all_catalogs_empty(mock_get):
+    mock_response = MagicMock()
+    mock_response.content = b''
+    mock_response.raise_for_status.return_value = None
+    mock_get.return_value = mock_response
+
+    with pytest.warns(NoResultsWarning, match="No matching rows were found"):
+        res = Heasarc._query_all_catalogs(position="Crab")
+    assert len(res) == 0
+
+
+def test_query_region_catalog_all_routing():
+    params = Heasarc.query_region(
+        position="Crab", catalog="all", radius="1d", get_query_payload=True
+    )
+    assert params["position"] == "Crab"
+    assert params["radius"] == "60.0"
