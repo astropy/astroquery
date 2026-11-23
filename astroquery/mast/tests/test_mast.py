@@ -854,6 +854,21 @@ def test_missions_get_cloud_uri_map_roman_invalid():
         )
 
 
+def test_missions_get_cloud_uri_map_roman_http_error(mocker):
+    missions = MastMissions(mission='roman')
+    uri = 'mast:ROMAN/product/test.asdf'
+    mocker.patch.object(
+        type(MastMissions),
+        '_get_roman_cloud_location',
+        side_effect=HTTPError('download failed'),
+    )
+
+    with pytest.warns(NoResultsWarning, match='Failed to get Roman cloud location'):
+        result = missions.get_cloud_uri_map([uri], include_bucket=True, full_url=False)
+
+    assert result == {uri: None}
+
+
 def test_missions_get_cloud_uri_map_conflicting_options():
     with pytest.raises(InvalidQueryError, match='include_bucket must be set to False when full_url is True'):
         MastMissions.get_cloud_uri_map(

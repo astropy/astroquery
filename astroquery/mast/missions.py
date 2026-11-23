@@ -1321,7 +1321,11 @@ class MastMissionsClass(MastQueryWithLogin):
         if mission in ['roman', 'roman_wfi', 'roman_spectra', 'roman_cgi']:
             for uri in data_uris:
                 # Get the presigned S3 URL for the Roman data product
-                s3_url = self._get_roman_cloud_location(self._get_download_url(uri, mission))
+                try:
+                    s3_url = self._get_roman_cloud_location(self._get_download_url(uri, mission))
+                except HTTPError as e:
+                    warnings.warn(f"Failed to get Roman cloud location for {uri}: {e}", NoResultsWarning)
+                    s3_url = None
 
                 if full_url or s3_url is None:
                     cloud_uri = s3_url
