@@ -406,7 +406,13 @@ URIs to their cloud locations.
 Cloud URIs may be returned as:
 
   - Native cloud URIs (e.g., ``s3://stpubdata...``)
-  - HTTP URLs suitable for streaming (set ``full_url=True`` and ``include_bucket=False``)
+  - HTTP URLs suitable for streaming (set ``full_url=True``)
+
+By default, Roman products return presigned HTTPS URLs; other missions return native cloud URIs.
+For Roman products, explicitly set ``full_url=False`` to obtain an unsigned S3 URI, or set
+``include_bucket=False`` to obtain the relative path. These forms may require separate AWS credentials.
+Presigned URLs expire and grant access to the product, so treat them as secrets. The consuming tool must
+support HTTPS and the request method for which the URL was signed.
 
 The following example demonstrates how to map a list of data products to their corresponding cloud URIs.
 

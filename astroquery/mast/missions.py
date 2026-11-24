@@ -353,11 +353,12 @@ class MastMissionsClass(MastQueryWithLogin):
 
             # Add search parameters to table metadata
             result_json = response.json()
-            results.meta['search_params'] = result_json.get('search_params', {})
+            search_params = result_json.get('search_params', {})
+            results.meta['search_params'] = search_params
 
             # Warn if maximum results are returned
             if len(results) >= self.limit:
-                warnings.warn("Maximum results returned, may not include all sources within radius.",
+                warnings.warn("Maximum results returned, may not include all matching datasets.",
                               MaxResultsWarning)
             return results
 
@@ -1254,7 +1255,7 @@ class MastMissionsClass(MastQueryWithLogin):
         """
         return self.get_product(uri, mission=mission, **kwargs)
 
-    def get_cloud_uri_map(self, products=None, *, include_bucket=True, full_url=False, extension=None,
+    def get_cloud_uri_map(self, products=None, *, include_bucket=None, full_url=None, extension=None,
                           filter_products={}, mission=None, verbose=True):
         """
         Given an `~astropy.table.Table` of data products or query criteria and filter parameters,
@@ -1265,13 +1266,14 @@ class MastMissionsClass(MastQueryWithLogin):
         products : `~astropy.table.Table`, list
             Table containing products or list of MAST URIs to be converted into cloud data uris.
             If provided, this will supercede page_size, page, or any keyword arguments passed in as criteria.
-        include_bucket : bool
-            Default True. When False, returns the path of the file relative to the
-            top level cloud storage location.
-            Must be set to False when using the full_url argument.
-        full_url : bool
-            Default False. Return an HTTP fetchable url instead of a cloud uri.
-            Must set include_bucket to False to use this option.
+        include_bucket : bool, optional
+            Include the bucket in cloud URIs. If False, return paths relative to the bucket.
+            When omitted, defaults to False for full URLs and True otherwise.
+            Cannot be True when full_url is True.
+        full_url : bool, optional
+            Return an HTTP-fetchable URL instead of a cloud URI. When both full_url and
+            include_bucket are omitted, defaults to True for Roman and False for other missions.
+            Specifying include_bucket without full_url selects a cloud URI or relative path.
         extension : string or array, optional
             Default None. Option to filter by file extension.
         filter_products : dict, optional
@@ -1291,24 +1293,38 @@ class MastMissionsClass(MastQueryWithLogin):
         -------
         map : dict
             Dictionary mapping the original data product URIs to their corresponding cloud URIs.
+            Roman full URLs are presigned, expire, and should be treated as secrets.
+            Roman cloud URIs and relative paths do not include authentication and may require
+            separate AWS credentials.
         """
-        if include_bucket and full_url:
-            raise InvalidQueryError('include_bucket must be set to False when full_url is True.')
-
         mission = mission.lower() if mission else self.mission
         self._verify_mission(mission)
+
+        is_roman = mission in ['roman', 'roman_wfi', 'roman_spectra', 'roman_cgi']
+        if full_url is None:
+            full_url = is_roman and include_bucket is None
+        if include_bucket is None:
+            include_bucket = not full_url
+        if include_bucket and full_url:
+            raise InvalidQueryError('include_bucket must be set to False when full_url is True.')
 
         if isinstance(products, Table):
             # Filter product list
             products = self.filter_products(products, extension=extension, **filter_products)
             data_uris = products['uri']
-        else:  # data_products is a list of URIs
+        elif isinstance(products, Row):
+            data_uris = [products['uri']]
+        else:  # data_products is not a Table or Row, assume it is a string or list of URIs
             # Warn if trying to supply filters
             if filter_products or extension:
                 warnings.warn('Filtering is not supported when providing a list of MAST URIs. '
                               'To apply filters, please provide query criteria or a table of data products '
                               'as returned by `Observations.get_product_list`', InputWarning)
-            data_uris = products
+
+            if isinstance(products, str):
+                data_uris = [products]
+            else:
+                data_uris = products
 
         if data_uris is None or not len(data_uris):
             warnings.warn('No matching products to fetch associated cloud URIs.', NoResultsWarning)
@@ -1318,10 +1334,14 @@ class MastMissionsClass(MastQueryWithLogin):
         data_uris = utils.remove_duplicate_products(data_uris, 'dataURI')
 
         uri_map = {}
-        if mission in ['roman', 'roman_wfi', 'roman_spectra', 'roman_cgi']:
+        if is_roman:
             for uri in data_uris:
                 # Get the presigned S3 URL for the Roman data product
-                s3_url = self._get_roman_cloud_location(self._get_download_url(uri, mission))
+                try:
+                    s3_url = self._get_roman_cloud_location(self._get_download_url(uri, mission))
+                except HTTPError as e:
+                    warnings.warn(f"Failed to get Roman cloud location for {uri}: {e}", NoResultsWarning)
+                    s3_url = None
 
                 if full_url or s3_url is None:
                     cloud_uri = s3_url
@@ -1334,7 +1354,7 @@ class MastMissionsClass(MastQueryWithLogin):
                     elif host == 's3.amazonaws.com' or host.startswith('s3.'):
                         bucket, _, path = path.partition('/')
                     else:
-                        raise InvalidQueryError(f"Unable to determine S3 bucket from URL: {s3_url}")
+                        raise InvalidQueryError("Unable to determine S3 bucket from URL")
 
                     cloud_uri = f"s3://{bucket}/{path}" if include_bucket else path
 
@@ -1374,7 +1394,7 @@ class MastMissionsClass(MastQueryWithLogin):
         if self._authenticated:
             headers["Authorization"] = f"token {self._auth_obj.session.cookies['mast_token']}"
 
-        resp = utils._simple_request(download_url, headers=headers, allow_redirects=False)
+        resp = self._session.request("get", download_url, headers=headers, allow_redirects=False)
         resp.raise_for_status()
 
         return resp.headers.get("Location")
