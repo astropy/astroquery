@@ -414,11 +414,6 @@ class EsaTap(BaseVOQuery, BaseQuery):
             results format
         verbose: bool, optional, default False
             To log the query when executing this method.
-        upload_resource: str, optional, default None
-            resource to be uploaded to UPLOAD_SCHEMA
-        upload_table_name: str, required if uploadResource is provided
-            Default None
-            resource temporary table name associated to the uploaded resource
 
         Returns
         -------
@@ -633,12 +628,14 @@ class EsaTap(BaseVOQuery, BaseQuery):
     def __create_multiple_criteria(self, column, value_list):
         """
         Create the filter for a single value of different types
+
         Parameters
         ----------
         column : str, mandatory
             column where this filter is applied
         value_list : list of objects, mandatory
             values to be used to compare
+
         Returns
         -------
         The SQL filter for the column including all the values
@@ -657,8 +654,22 @@ class EsaTap(BaseVOQuery, BaseQuery):
                      table_name,
                      verbose=False):
         """
-        JWST-specific table upload. Uses the authenticated TAP session.
+        Table upload for TAPs. Uses the authenticated TAP session.
 
+        Parameters
+        ----------
+        upload_url : str, mandatory
+            URL of the upload service provided by the TAP
+        upload_resource : str, mandatory
+            resource to be uploaded to the TAP
+        table_name : str, mandatory
+            table in the user schema where this information will be stored
+        verbose: boolean, optional, default False
+            Write the outputs in console
+
+        Returns
+        -------
+        The response of the server to the table upload action
         """
 
         if self._auth_session is None:
@@ -698,9 +709,8 @@ class EsaTap(BaseVOQuery, BaseQuery):
                 files=files
             )
 
-        except Exception as e:
-            if verbose:
-                print("Exception: ", e)
+        except HTTPError as e:
+            print("Error when uploading: ", e)
 
         finally:
             if close_needed:

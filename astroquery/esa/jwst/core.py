@@ -93,10 +93,14 @@ class JwstClass(EsaTap):
         if show_messages:
             self.get_status_messages()
 
+    @deprecated_renamed_argument("dump_to_file", None, since="0.4.12")
+    @deprecated_renamed_argument("background", None, since="0.4.12")
     def launch_job(self, query, *,
                    output_file=None,
                    output_format="votable",
                    verbose=False,
+                   dump_to_file=None,
+                   background=None,
                    upload_resource=None,
                    upload_table_name=None,
                    async_job=False):
@@ -119,6 +123,11 @@ class JwstClass(EsaTap):
             'fits': str, FITS format
         verbose : bool, optional, default 'False'
             flag to display information about the process
+        dump_to_file : bool, optional, default 'False', deprecated
+            if True, the results are saved in a file instead of using memory
+        background : bool, optional, default 'False', deprecated
+            To execute the job in asynchronous mode. For consistency,
+            use async_job instead
         upload_resource: str, optional, default None
             resource to be uploaded to UPLOAD_SCHEMA
         upload_table_name: str, required if uploadResource is provided
@@ -347,6 +356,7 @@ class JwstClass(EsaTap):
                                   verbose=verbose)
 
     @deprecated_renamed_argument("dump_to_file", None, since="0.4.12")
+    @deprecated_renamed_argument("background", None, since="0.4.12")
     def cone_search(self, coordinate, radius, *,
                     observation_id=None,
                     cal_level=None,
@@ -358,6 +368,7 @@ class JwstClass(EsaTap):
                     show_all_columns=False,
                     async_job=False,
                     dump_to_file=None,
+                    background=None,
                     output_file=None,
                     output_format="votable",
                     verbose=False):
@@ -398,6 +409,9 @@ class JwstClass(EsaTap):
             synchronous)
         dump_to_file : bool, optional, default 'False', deprecated
             if True, the results are saved in a file instead of using memory
+        background : bool, optional, default 'False', deprecated
+            To execute the job in asynchronous mode. For consistency,
+            use async_job instead
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True.
             If this parameter is not provided, the jobid is used instead
