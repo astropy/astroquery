@@ -48,7 +48,9 @@ class DummyTapHandler:
         if method == self.__invokedMethod:
             return
         else:
-            raise ValueError(f"Method '+{str(method)}' not invoked. (Invoked method is '{str(self.__invokedMethod)}')")
+            raise ValueError(f"Method '+{str(method)}' "
+                             f"not invoked. (Invoked method "
+                             f"is '{str(self.__invokedMethod)}')")
 
     def check_parameters(self, parameters, method_name):
         print("FOUND")
@@ -89,7 +91,7 @@ class DummyTapHandler:
         return None
 
     def launch_job(self, query, name=None, output_file=None,
-                   output_format="votable", verbose=False, dump_to_file=False,
+                   output_format="votable", verbose=False,
                    upload_resource=None, upload_table_name=None):
         self.__invokedMethod = 'launch_job'
         self.__parameters['query'] = query
@@ -97,14 +99,12 @@ class DummyTapHandler:
         self.__parameters['output_file'] = output_file
         self.__parameters['output_format'] = output_format
         self.__parameters['verbose'] = verbose
-        self.__parameters['dump_to_file'] = dump_to_file
         self.__parameters['upload_resource'] = upload_resource
         self.__parameters['upload_table_name'] = upload_table_name
         return self.__job
 
     def launch_job_async(self, query, name=None, output_file=None,
                          output_format="votable", verbose=False,
-                         dump_to_file=False, background=False,
                          upload_resource=None, upload_table_name=None):
         self.__invokedMethod = 'launch_job_async'
         self.__parameters['query'] = query
@@ -112,8 +112,6 @@ class DummyTapHandler:
         self.__parameters['output_file'] = output_file
         self.__parameters['output_format'] = output_format
         self.__parameters['verbose'] = verbose
-        self.__parameters['dump_to_file'] = dump_to_file
-        self.__parameters['background'] = background
         self.__parameters['upload_resource'] = upload_resource
         self.__parameters['upload_table_name'] = upload_table_name
         return self.__job
@@ -128,11 +126,6 @@ class DummyTapHandler:
     def search_async_jobs(self, jobfilter=None, verbose=False):
         self.__invokedMethod = 'search_async_jobs'
         self.__parameters['jobfilter'] = jobfilter
-        self.__parameters['verbose'] = verbose
-        return None
-
-    def list_async_jobs(self, verbose=False):
-        self.__invokedMethod = 'list_async_jobs'
         self.__parameters['verbose'] = verbose
         return None
 
@@ -181,28 +174,24 @@ class DummyTapHandler:
         return None
 
     def cone_search(self, coordinate, radius, output_file=None,
-                    output_format="votable", verbose=False,
-                    dump_to_file=False):
+                    output_format="votable", verbose=False):
         self.__invokedMethod = 'cone_search'
         self.__parameters['coordinate'] = coordinate
         self.__parameters['radius'] = radius
         self.__parameters['output_file'] = output_file
         self.__parameters['output_format'] = output_format
         self.__parameters['verbose'] = verbose
-        self.__parameters['dump_to_file'] = dump_to_file
         return None
 
-    def cone_search_async(self, coordinate, radius, background=False,
+    def cone_search_async(self, coordinate, radius,
                           output_file=None, output_format="votable",
-                          verbose=False, dump_to_file=False):
+                          verbose=False):
         self.__invokedMethod = 'cone_search_async'
         self.__parameters['coordinate'] = coordinate
         self.__parameters['radius'] = radius
-        self.__parameters['background'] = background
         self.__parameters['output_file'] = output_file
         self.__parameters['output_format'] = output_format
         self.__parameters['verbose'] = verbose
-        self.__parameters['dump_to_file'] = dump_to_file
         return None
 
     def remove_jobs(self, jobs_list, verbose=False):
@@ -233,6 +222,11 @@ class DummyTapHandler:
 
     def logout(self, verbose=False):
         self.__invokedMethod = 'logout'
+        self.__parameters['verbose'] = verbose
+        return None
+
+    def upload_table(self, *, verbose=False):
+        self.__invokedMethod = 'upload_table'
         self.__parameters['verbose'] = verbose
         return None
 
