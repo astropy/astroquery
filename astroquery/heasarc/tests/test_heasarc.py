@@ -1,6 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import os
+import re
+import numpy as np
 import pytest
 import tempfile
 from unittest.mock import patch, PropertyMock
@@ -9,6 +11,7 @@ from astropy.table import Table
 from astropy.io import votable
 from pyvo.dal import TAPResults
 import astropy.units as u
+from astropy.time import Time
 
 from astroquery.heasarc import Heasarc, HeasarcClass
 from astroquery.exceptions import InvalidQueryError
@@ -724,6 +727,179 @@ def test_s3_mock_directory(s3_mock):
         assert os.path.exists(f"{tmpdir}/location/file1.txt")
         assert os.path.exists(f"{tmpdir}/location/sub/file2.txt")
         assert os.path.exists(f"{tmpdir}/location/sub/sub2/file3.txt")
+
+
+def test__get_vector():
+    # Test column name input
+    assert HeasarcClass._get_vector("a.ra", "a.dec") == \
+        ("a.__x_ra_dec", "a.__y_ra_dec", "a.__z_ra_dec")
+    # Test numeric input
+    actual = HeasarcClass._get_vector("217.0", "-31.7")
+    desired = (-0.5120309075160554, -0.6794879643287802, -0.5254716510722678)
+    # Convert to float for comparison
+    assert all(abs(d - a) < 0.5 * (10 ** (-6)) for d, a in zip(desired, actual))
+
+
+def adql_str_comp(testing: str, reference: str, rtol: float = 1e-7, atol: float = 1e-7) -> bool:
+    """Compare two ADQL query strings for equivalence, normalizing whitespace and
+    allowing a small floating-point tolerance on embedded numeric literals.
+
+    Different NumPy versions/builds and intermediate SkyCoord conversions can
+    produce tiny differences in the last decimal place of trigonometric calculations.
+    """
+    # Finds standalone numbers in an ADQL query string so they can be compared
+    # numerically, while skipping numbers that are part of table or column names
+    # (like "hete2" or "table_1").
+    adql_num_re = re.compile(
+        r"""
+        (?<![A-Za-z_\d.)])          # Make sure we aren't in the middle of a word/name, or right
+                                    # after a closing bracket (so 'a.dec-0.5' keeps its '-' sign
+                                    # as subtraction rather than gluing it to 0.5).
+        [-+]?                       # Include a leading '+' or '-' if the number is signed
+                                    # (for example, the '-0.512' in 'a.__x_ra_dec*-0.512').
+        (?:\d+\.\d*|\.\d+|\d+)      # Match the main digits, with or without a decimal point.
+        (?:[eE][-+]?\d+)?           # Include scientific notation at the end if present (like '1e-05').
+        (?![A-Za-z_\d.])            # Make sure the number ends cleanly and doesn't run into a word.
+        """,
+        re.VERBOSE,
+    )
+
+    testing_norm = HeasarcClass._fix_sql_whitespace(testing)
+    reference_norm = HeasarcClass._fix_sql_whitespace(reference)
+
+    # Extract all numeric literals in order and convert to float for tolerance comparison
+    testing_nums = [float(x) for x in adql_num_re.findall(testing_norm)]
+    reference_nums = [float(x) for x in adql_num_re.findall(reference_norm)]
+
+    # Replace numeric literals with a placeholder so we can verify that the
+    # non-numeric SQL structure and number positions match identically
+    testing_template = adql_num_re.sub("<NUM>", testing_norm)
+    reference_template = adql_num_re.sub("<NUM>", reference_norm)
+
+    return (
+        testing_template == reference_template
+        and len(testing_nums) == len(reference_nums)
+        and np.allclose(testing_nums, reference_nums, rtol=rtol, atol=atol)
+    )
+
+
+def test_adql_str_comp():
+    base_query = (
+        "SELECT * FROM hete2 AS a WHERE "
+        "(a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 > 0.9998476951563913) "
+        "AND (a.dec BETWEEN -32.7 AND -30.7) AND flux > 1e-12"
+    )
+
+    # Whitespace/newline differences and 16th-decimal-place float differences should pass
+    slightly_different_floats = """
+        SELECT * FROM hete2 AS a
+        WHERE (a.__x_ra_dec*-0.5120309075160552 + a.__y_ra_dec*-0.6794879643287802 > 0.9998476951563915)
+        AND (a.dec BETWEEN -32.7 AND -30.7) AND flux > 1.0000000000000002e-12
+    """
+    assert adql_str_comp(slightly_different_floats, base_query)
+
+    # Float differences larger than tolerance must fail
+    wrong_float = (
+        "SELECT * FROM hete2 AS a WHERE "
+        "(a.__x_ra_dec*-0.513 + a.__y_ra_dec*-0.6794879643287802 > 0.9998476951563913) "
+        "AND (a.dec BETWEEN -32.7 AND -30.7) AND flux > 1e-12"
+    )
+    assert not adql_str_comp(wrong_float, base_query)
+
+    # Different SQL operator/structure must fail
+    wrong_operator = base_query.replace("> 0.9998476951563913", "< 0.9998476951563913")
+    assert not adql_str_comp(wrong_operator, base_query)
+
+    # Different digits inside a table/column name (e.g. hete2 vs hete3) must fail
+    wrong_table_num = base_query.replace("hete2", "hete3")
+    assert not adql_str_comp(wrong_table_num, base_query)
+
+    # Binary subtraction vs addition (e.g. a.dec-0.5 vs a.dec+0.5) must fail
+    assert not adql_str_comp("WHERE a.dec-0.0 > 1.0", "WHERE a.dec+0.0 > 1.0")
+
+
+DESIRED_FULL_ADQL = """
+    select r.table_name as table_name, r.count as count,
+    r.description as description, r.regime as regime,
+    r.mission as mission, r.obj_type as obj_type, r.max_offset_deg
+    as max_offset_deg from ( SELECT table_name, count(*)
+    AS count, b.description, b.regime, b.mission, b.type
+    AS obj_type, MAX(DISTANCE(POINT('ICRS', a.ra, a.dec),
+    POINT('ICRS', 217.025, -31.725))) as max_offset_deg
+    FROM master_table.pos_small AS a, master_table.indexview
+    AS b WHERE a.table_name = b.name AND
+    ( (a.__x_ra_dec*-0.5121892283646801 + a.__y_ra_dec*-0.6790813682341418
+    + a.__z_ra_dec*-0.5258428374185955 > (cos(radians((a.dsr)))))
+    and (a.dec between -31.725 - a.dsr and -31.725 + a.dsr) and
+    (a.__x_ra_dec*-0.5121892283646801 + a.__y_ra_dec*-0.6790813682341418 +
+    a.__z_ra_dec*-0.5258428374185955 > 0.9998476951563913) and
+    (a.dec between -32.725 and -30.725) ) GROUP BY table_name,
+    b.description, b.regime, b.mission, b.type UNION ALL
+    SELECT table_name, count(*) AS count, b.description, b.regime,
+    b.mission, b.type AS obj_type, MAX(DISTANCE(POINT('ICRS',
+    a.ra, a.dec), POINT('ICRS', 217.025, -31.725))) as max_offset_deg
+    FROM master_table.pos_big AS a, master_table.indexview AS b
+    WHERE a.table_name = b.name AND ( (a.__x_ra_dec*-0.5121892283646801 +
+    a.__y_ra_dec*-0.6790813682341418 + a.__z_ra_dec*-0.5258428374185955 >
+    (cos(radians((a.dsr))))) and (a.dec between -31.725 - a.dsr and -31.725 + a.dsr)
+    ) GROUP BY table_name, b.description, b.regime, b.mission, b.type
+    ORDER BY count DESC ) as r
+"""
+
+
+def test__constraint_matches():
+    #  Testing all together because it's easier to read this way.
+    constraint_small = HeasarcClass._fast_geometry_constraint("217.0", "-31.7", large=False)
+    desired_small = """
+    ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 +
+    a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr))))) and
+    (a.dec between -31.7 - a.dsr and -31.7 + a.dsr) and
+    (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802 +
+    a.__z_ra_dec*-0.5254716510722678 > 0.9998476951563913)
+    and (a.dec between -32.7 and -30.7) )
+    """
+
+    assert adql_str_comp(constraint_small, desired_small)
+
+    constraint_large = HeasarcClass._fast_geometry_constraint("217.0", "-31.7", large=True)
+    desired_large = """
+            ( (a.__x_ra_dec*-0.5120309075160554 + a.__y_ra_dec*-0.6794879643287802
+            + a.__z_ra_dec*-0.5254716510722678 > (cos(radians((a.dsr)))))
+            and (a.dec between -31.7 - a.dsr and -31.7 + a.dsr) )
+            """
+    assert adql_str_comp(constraint_large, desired_large)
+
+    constraint_large_rad = HeasarcClass._fast_geometry_constraint("217.0", "-31.7",
+                                                                  radius=0.5*u.deg, large=True)
+    assert "(a.dec between -31.7 - 0.5 and -31.7 + 0.5)" in constraint_large_rad
+
+    constraint_time = HeasarcClass._time_constraint(start_time=Time("2017-01-01"),
+                                                    end_time=Time("2017-01-02"))
+    desired_time = "end_time > 57754.000000 AND start_time < 57755.000000"
+    assert adql_str_comp(constraint_time, desired_time)
+
+    constraint_full = HeasarcClass._query_matches("217.025", "-31.725")
+    assert adql_str_comp(constraint_full, DESIRED_FULL_ADQL)
+
+    constraint_with_time = HeasarcClass._query_matches("217.025", "-31.725",
+                                                       start_time="2017-01-01",
+                                                       end_time="2020-01-02")
+    assert "end_time > 57754.000000 AND start_time < 58850.000000" in constraint_with_time
+
+    constraint_with_radius = HeasarcClass._query_matches("217.0", "-31.7", radius=1.0)
+    assert "-31.7 - 1.0 and -31.7 + 1.0" in constraint_with_radius
+    assert "cos(radians((1.0)))" in constraint_with_radius
+
+
+def test__query_all():
+    full_with_strpos = Heasarc.query_all("217.025 -31.725", get_query_payload=True)
+    assert adql_str_comp(full_with_strpos, DESIRED_FULL_ADQL)
+
+    full_with_strtimes = Heasarc.query_all("217.0 -31.7",
+                                           start_time="2017-01-01",
+                                           end_time="2020-01-02", get_query_payload=True)
+    assert ("end_time > 57754.0" in full_with_strtimes
+            and "start_time < 58850.0" in full_with_strtimes)
 
 
 def test_row_count(mock_tap, mock_default_cols):
