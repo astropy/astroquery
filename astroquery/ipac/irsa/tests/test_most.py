@@ -3,6 +3,7 @@
 import io
 import os
 import pytest
+from requests import Request, Response
 
 from astropy.io import votable
 from astropy.table import Table
@@ -10,6 +11,7 @@ from astropy.utils.diff import report_diff_values
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from astroquery.utils.mocks import MockResponse
 from astroquery.ipac.irsa import Most
+from astroquery import cache_conf
 
 
 # each MOST query is given a PID and a temporary directory availible publicly
@@ -66,7 +68,7 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-def get_mocked_response(method=None, url=None, data=None, timeout=120, **kwargs):
+def get_mocked_response(method=None, url=None, data=None, timeout=120, cache=None, **kwargs):
     """Returns an appropriate MockedResponse based on type and content of the request."""
     if method == "GET":
         filepath = data_path(GET_FILENAME_MAP[url])
@@ -185,6 +187,46 @@ def test_regular(patch_requests):
     assert report_diff_values(expected_results, results["results"], silent_stream)
     assert report_diff_values(expected_metadata, results["metadata"], silent_stream)
     assert url == results["region"]
+
+
+@pytest.mark.parametrize("output_mode", ["Regular", "Full"])
+def test_repeated_queries_return_fresh_links(monkeypatch, tmp_path, output_mode):
+    most = Most()
+    most.cache_location = tmp_path
+    base_url = REGULAR_BASE_URL if output_mode == "Regular" else FULL_BASE_URL
+    response_file = POST_FILENAME_MAP[output_mode]
+    with open(data_path(response_file), 'rb') as infile:
+        content = infile.read()
+    job = 0
+
+    def request(method, url, **kwargs):
+        nonlocal job
+        response = Response()
+        response.request = Request(method, url).prepare()
+        response.status_code = 200
+        if method == "POST":
+            job += 1
+            current_url = base_url + f"job{job}/"
+            response._content = content.replace(base_url.encode(), current_url.encode())
+        else:
+            original_url = url.replace(f"job{job}/", "")
+            with open(data_path(GET_FILENAME_MAP[original_url]), 'rb') as infile:
+                response._content = infile.read()
+        return response
+
+    monkeypatch.setattr(most._session, 'request', request)
+    with cache_conf.set_temp('cache_active', True):
+        first = most.query_object(obj_name="Victoria", output_mode=output_mode, with_tarballs=True)
+        second = most.query_object(obj_name="Victoria", output_mode=output_mode, with_tarballs=True)
+
+    for key, filename in {
+        "region": "ds9region/ds9_orbit_path.reg",
+        "fits_tarball": "fitsimage_A850RA.tar.gz",
+        "region_tarball": "ds9region_A850RA.tar",
+    }.items():
+        assert first[key] == base_url + "job1/" + filename
+        assert second[key] == base_url + "job2/" + filename
+    assert len(second["results"]) == len(first["results"])
 
 
 def test_get_full_with_tarballs(patch_requests):

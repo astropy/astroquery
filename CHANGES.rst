@@ -240,6 +240,9 @@ imcce
 ipac.irsa
 ^^^^^^^^^
 
+- Disable caching of MOST queries to avoid returning expired download links.
+  [#3476]
+
 - Fix NAIF ID input mode in ``Most``: the parameter and value ``nafid``
   were typos; the API expects ``naifid``. Old ``obj_nafid`` keyword and
   ``"nafid_input"`` ``input_mode`` still work but emit

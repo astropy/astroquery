@@ -412,6 +412,9 @@ class MostClass(BaseQuery):
         Parameters are case sensitive.
         See module help for more details.
 
+        Queries are not cached because their download links point to temporary
+        files on the server.
+
         Parameters
         ----------
         catalog : str
@@ -550,7 +553,7 @@ class MostClass(BaseQuery):
 
         self._validate_input(qparams)
         response = self._request("POST", self.URL,
-                                 data=qparams, timeout=self.TIMEOUT)
+                                 data=qparams, timeout=self.TIMEOUT, cache=False)
 
         # service unreachable or some other reason
         response.raise_for_status()
