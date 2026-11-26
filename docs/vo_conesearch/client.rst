@@ -245,7 +245,7 @@ also see :ref:`Cone Search Examples <vo-sec-scs-examples>`):
 
 >>> from astroquery.vo_conesearch import vos_catalog
 >>> my_db = vos_catalog.get_remote_catalog_db('conesearch_good')  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
-Downloading https://astroconda.org/aux/vo_databases/conesearch_good.json
+Downloading https://ssb.stsci.edu/vo_databases/conesearch_good.json
 |==========================================|  59k/ 59k (100.00%)         0s
 >>> print(my_db)  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
 Guide Star Catalog 2.3 Cone Search 1
@@ -688,7 +688,7 @@ validation warnings. One should use these sites with caution:
 >>> from astroquery.vo_conesearch import conf
 >>> conf.conesearch_dbname = 'conesearch_warn'
 >>> conesearch.list_catalogs()  # doctest: +REMOTE_DATA +IGNORE_OUTPUT
-Downloading http://astroconda.org/aux/vo_databases/conesearch_warn.json
+Downloading https://ssb.stsci.edu/vo_databases/conesearch_warn.json
 |==========================================|  20k/ 20k (100.00%)         0s
 ['Gaia DR2 (Gaia Collaboration, 2018) 2',
  'The USNO-B1.0 Catalog (Monet+ 2003) 1']

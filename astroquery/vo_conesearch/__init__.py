@@ -18,7 +18,7 @@ class Conf(_config.ConfigNamespace):
     """
     # Config related to remote database of "reliable" services.
     vos_baseurl = _config.ConfigItem(
-        'https://astroconda.org/aux/vo_databases/',
+        'https://ssb.stsci.edu//vo_databases/',
         'URL where the VO Service database file is stored.')
     conesearch_dbname = _config.ConfigItem(
         'conesearch_good',

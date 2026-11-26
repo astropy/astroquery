@@ -117,7 +117,7 @@ List the available Cone Search catalogs that passed daily validation:
 
 >>> from astroquery.vo_conesearch import conesearch
 >>> conesearch.list_catalogs()
-Downloading https://astroconda.org/aux/vo_databases/conesearch_good.json
+Downloading https://ssb.stsci.edu/vo_databases/conesearch_good.json
 |==========================================|  59k/ 59k (100.00%)         0s
 ['Guide Star Catalog 2.3 Cone Search 1',
  'SDSS DR7 - Sloan Digital Sky Survey Data Release 7 1',
@@ -205,7 +205,7 @@ See Also
 
 - `STScI VAO Registry <http://vao.stsci.edu/directory/NVORegInt.asmx?op=VOTCapabilityPredOpt>`_
 
-- `STScI VO Databases <https://astroconda.org/aux/vo_databases/>`_
+- `STScI VO Databases <https://ssb.stsci.edu/vo_databases/>`_
 
 
 Troubleshooting
