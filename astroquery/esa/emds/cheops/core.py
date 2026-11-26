@@ -110,7 +110,7 @@ class CheopsClass(EmdsClass):
                                 async_job=async_job, output_file=output_file,
                                 output_format=output_format, **filters)
 
-    def get_programmes(self, programme_key=None, title=None, pi_name=None):
+    def get_program(self, *, programme_key=None, title=None, pi_name=None):
         """
         Retrieve the CHEOPS programme, given its programme key, title or PI name
 
@@ -270,7 +270,7 @@ class CheopsClass(EmdsClass):
         """
         return f"PR{program_type:02d}{program_id:04d}"
 
-    def get_observations_from_programme(self, programme_key=None, title=None, pi_name=None):
+    def get_observations_from_program(self, *, programme_key=None, title=None, pi_name=None):
         """
         Retrieve the observations executed for a specific programme given its programme key, title or PI name
 
@@ -411,7 +411,7 @@ class CheopsClass(EmdsClass):
         return self.query_table(conf.CHEOPS_DATA_PRODUCT_TABLE, visit_id=visit_id,
                                 verbose=False, **self._get_kwargs_for_level(level))
 
-    def get_products_from_programme(self, *, programme_key=None, title=None, pi_name=None, level=None):
+    def get_products_from_program(self, *, programme_key=None, title=None, pi_name=None, level=None):
         """
         Retrieve the files associated to a specific programme given its programme key, title or PI name
 
@@ -433,7 +433,7 @@ class CheopsClass(EmdsClass):
 
         """
 
-        observations = self.get_observations_from_programme(programme_key=programme_key, title=title, pi_name=pi_name)
+        observations = self.get_observations_from_program(programme_key=programme_key, title=title, pi_name=pi_name)
         product_lists = []
         for observation in observations:
             products = self.get_products_from_observation(observation, **self._get_kwargs_for_level(level))
@@ -598,7 +598,7 @@ class CheopsClass(EmdsClass):
             log.info(f"Downloading {product['filename']}")
             self.download_product(filename=product['filename'], path=path)
 
-    def download_products_from_programme(self, *, programme_key=None, title=None, pi_name=None, level=None, path=''):
+    def download_products_from_program(self, *, programme_key=None, title=None, pi_name=None, level=None, path=''):
         """
         Retrieve the files associated to a specific programme given its programme key, title or PI name
 
@@ -619,8 +619,8 @@ class CheopsClass(EmdsClass):
         """
         if path is not None and path != '' and not os.path.exists(path):
             os.makedirs(path)
-        products = self.get_products_from_programme(programme_key=programme_key, title=title,
-                                                    pi_name=pi_name, level=level)
+        products = self.get_products_from_program(programme_key=programme_key, title=title,
+                                                  pi_name=pi_name, level=level)
         for product in products:
             log.info(f"Downloading {product['filename']}")
             self.download_product(filename=product['filename'], path=path)

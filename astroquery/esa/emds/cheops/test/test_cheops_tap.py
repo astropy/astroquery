@@ -143,36 +143,36 @@ class TestCheopsTap:
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, '_get_programme_from_pi')
-    def test_get_programmes_by_pi_name(self, get_from_pi_mock):
+    def test_get_program_by_pi_name(self, get_from_pi_mock):
         expected = Table({'programme_key': ['PR010001']})
         get_from_pi_mock.return_value = expected
 
         cheops = CheopsClass()
-        result = cheops.get_programmes(pi_name='pi_name')
+        result = cheops.get_program(pi_name='pi_name')
 
         assert result is expected
         get_from_pi_mock.assert_called_once_with('pi_name')
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, '_get_programme_from_key_or_title')
-    def test_get_programmes_by_programme_key(self, get_from_key_or_title_mock):
+    def test_get_program_by_programme_key(self, get_from_key_or_title_mock):
         expected = Table({'programme_key': ['PR010001']})
         get_from_key_or_title_mock.return_value = expected
 
         cheops = CheopsClass()
-        result = cheops.get_programmes(programme_key='PR010001')
+        result = cheops.get_program(programme_key='PR010001')
 
         assert result is expected
         get_from_key_or_title_mock.assert_called_once_with(programme_key='PR010001')
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, '_get_programme_from_key_or_title')
-    def test_get_programmes_by_title(self, get_from_key_or_title_mock):
+    def test_get_program_by_title(self, get_from_key_or_title_mock):
         expected = Table({'programme_key': ['PR010001']})
         get_from_key_or_title_mock.return_value = expected
 
         cheops = CheopsClass()
-        result = cheops.get_programmes(title='Exoplanets')
+        result = cheops.get_program(title='Exoplanets')
 
         assert result is expected
         get_from_key_or_title_mock.assert_called_once_with(title='%Exoplanets%')
@@ -273,15 +273,15 @@ class TestCheopsTap:
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'get_observations')
-    @patch.object(CheopsClass, 'get_programmes')
-    def test_get_observations_from_programme(self, get_programmes_mock, get_observations_mock):
-        get_programmes_mock.return_value = Table({'programme_oid': [1001]})
+    @patch.object(CheopsClass, 'get_program')
+    def test_get_observations_from_program(self, get_program_mock, get_observations_mock):
+        get_program_mock.return_value = Table({'programme_oid': [1001]})
 
         cheops = CheopsClass()
-        result = cheops.get_observations_from_programme(programme_key='PR010023')
+        result = cheops.get_observations_from_program(programme_key='PR010023')
 
         assert result is get_observations_mock.return_value
-        get_programmes_mock.assert_called_once_with('PR010023', None, None)
+        get_program_mock.assert_called_once_with('PR010023', None, None)
         get_observations_mock.assert_called_once_with(programme_oid=1001)
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
@@ -452,8 +452,8 @@ class TestCheopsTap:
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'get_products_from_observation')
-    @patch.object(CheopsClass, 'get_observations_from_programme')
-    def test_get_products_from_programme(self, get_observations_mock, get_products_mock):
+    @patch.object(CheopsClass, 'get_observations_from_program')
+    def test_get_products_from_program(self, get_observations_mock, get_products_mock):
         get_observations_mock.return_value = Table({'observation_request_oid': [1111, 2222]})
 
         get_products_mock.side_effect = [Table({'filename': ['product-1.fits']}),
@@ -461,7 +461,7 @@ class TestCheopsTap:
 
         cheops = CheopsClass()
 
-        result = cheops.get_products_from_programme(programme_key='PR010023', level='L2')
+        result = cheops.get_products_from_program(programme_key='PR010023', level='L2')
 
         assert len(result) == 2
         assert list(result['filename']) == ['product-1.fits', 'product-2.fits']
@@ -571,15 +571,15 @@ class TestCheopsTap:
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'download_product')
-    @patch.object(CheopsClass, 'get_products_from_programme')
-    def test_download_products_from_programme(self, get_products_mock, download_product_mock, tmp_path):
+    @patch.object(CheopsClass, 'get_products_from_program')
+    def test_download_products_from_program(self, get_products_mock, download_product_mock, tmp_path):
         get_products_mock.return_value = Table({'filename': ['one.fits', 'two.fits']})
 
         destination = f"{tmp_path}/downloads"
 
         cheops = CheopsClass()
 
-        cheops.download_products_from_programme(programme_key='PR010023', level='L2', path=str(destination))
+        cheops.download_products_from_program(programme_key='PR010023', level='L2', path=str(destination))
 
         get_products_mock.assert_called_once_with(programme_key='PR010023', title=None, pi_name=None, level='L2')
 

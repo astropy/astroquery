@@ -225,7 +225,7 @@ must not be provided together.
 -----------------------------
 
 CHEOPS observations can be associated with observing programmes. The
-``get_programmes()`` method provides access to programme information using
+``get_program()`` method provides access to programme information using
 one of three selectors:
 
 * Programme key
@@ -238,13 +238,13 @@ A programme can be retrieved using its programme key:
 
 .. doctest-remote-data::
 
-    >>> cheops.get_programmes(programme_key="PR300050")  # doctest: +IGNORE_OUTPUT
+    >>> cheops.get_program(programme_key="PR300050")  # doctest: +IGNORE_OUTPUT
 
 A programme can also be searched by title:
 
 .. doctest-remote-data::
 
-    >>> cheops.get_programmes(title="very bright star")  # doctest: +IGNORE_OUTPUT
+    >>> cheops.get_program(title="very bright star")  # doctest: +IGNORE_OUTPUT
 
 Title searches are performed as partial matches. The supplied title is internally surrounded by ``%`` wildcard characters,
 to include the titles containing the defined text.
@@ -253,7 +253,7 @@ Programmes can also be searched using the name of their principal investigator:
 
 .. doctest-remote-data::
 
-    >>> cheops.get_programmes(pi_name="Smith")  # doctest: +IGNORE_OUTPUT
+    >>> cheops.get_program(pi_name="Smith")  # doctest: +IGNORE_OUTPUT
 
 The returned programme information includes the programme key, title and
 abstract, together with the PI name and the internal programme identifier
@@ -264,25 +264,25 @@ needed to associate programmes with observations.
 ----------------------------------------
 
 Once a programme has been identified, its observations can be retrieved
-directly with ``get_observations_from_programme()``.
+directly with ``get_observations_from_program()``.
 
 Using a programme key:
 
 .. doctest-remote-data::
 
-    >>> observations = cheops.get_observations_from_programme(programme_key="PR300050")  # doctest: +IGNORE_OUTPUT
+    >>> observations = cheops.get_observations_from_program(programme_key="PR300050")  # doctest: +IGNORE_OUTPUT
 
 The programme can alternatively be identified from its title:
 
 .. doctest-remote-data::
 
-    >>> observations = cheops.get_observations_from_programme(title="very bright star")  # doctest: +IGNORE_OUTPUT
+    >>> observations = cheops.get_observations_from_program(title="very bright star")  # doctest: +IGNORE_OUTPUT
 
 or from its PI:
 
 .. doctest-remote-data::
 
-    >>> observations = cheops.get_observations_from_programme(pi_name="Smith")  # doctest: +IGNORE_OUTPUT
+    >>> observations = cheops.get_observations_from_program(pi_name="Smith")  # doctest: +IGNORE_OUTPUT
 
 Internally, the method first identifies the corresponding programme and then
 uses its programme identifier to query the CHEOPS observation catalogue.
@@ -402,19 +402,19 @@ Alternatively, a visit identifier can be used directly:
 ---------------------------------
 
 All products corresponding to observations from a CHEOPS programme can be
-retrieved using ``get_products_from_programme()``.
+retrieved using ``get_products_from_program()``.
 
 For example:
 
 .. doctest-remote-data::
 
-    >>> products = cheops.get_products_from_programme(programme_key="PR300050")  # doctest: +IGNORE_OUTPUT
+    >>> products = cheops.get_products_from_program(programme_key="PR300050")  # doctest: +IGNORE_OUTPUT
 
 The product selection can also be restricted by processing level:
 
 .. doctest-remote-data::
 
-    >>> products = cheops.get_products_from_programme(programme_key="PR300050", level="L2")  # doctest: +IGNORE_OUTPUT
+    >>> products = cheops.get_products_from_program(programme_key="PR300050", level="L2")  # doctest: +IGNORE_OUTPUT
 
 The programme can also be selected using ``title`` or ``pi_name``.
 
@@ -429,7 +429,7 @@ For example:
 
 .. doctest-remote-data::
 
-    >>> products = cheops.get_products_from_programme(programme_key="PR300050", level="L2") # doctest: +IGNORE_OUTPUT
+    >>> products = cheops.get_products_from_program(programme_key="PR300050", level="L2") # doctest: +IGNORE_OUTPUT
     >>> filename = products["filename"][0] # doctest: +IGNORE_OUTPUT
     >>> cheops.download_product(filename=filename)  # doctest: +SKIP
 
@@ -507,25 +507,25 @@ A visit identifier can also be supplied directly.
 --------------------------------------
 
 All products associated with a CHEOPS programme can be downloaded with
-``download_products_from_programme()``.
+``download_products_from_program()``.
 
 For example:
 
 .. doctest-remote-data::
 
-    >>> cheops.download_products_from_programme(programme_key="PR010023", level="L2", path="cheops_data")  # doctest: +SKIP
+    >>> cheops.download_products_from_program(programme_key="PR010023", level="L2", path="cheops_data")  # doctest: +SKIP
 
 The programme can alternatively be located using its title:
 
 .. doctest-remote-data::
 
-    >>> cheops.download_products_from_programme(title="very bright star", level="L2", path="cheops_data")  # doctest: +SKIP
+    >>> cheops.download_products_from_program(title="very bright star", level="L2", path="cheops_data")  # doctest: +SKIP
 
 or its PI name:
 
 .. doctest-remote-data::
 
-    >>> cheops.download_products_from_programme(pi_name="Smith", level="L2", path="cheops_data")  # doctest: +SKIP
+    >>> cheops.download_products_from_program(pi_name="Smith", level="L2", path="cheops_data")  # doctest: +SKIP
 
 For bulk downloads, the destination directory is created automatically when
 it does not already exist.
