@@ -1899,6 +1899,110 @@ def test_observations_disable_cloud_dataset(patch_boto3):
     assert Observations._cloud_enabled_explicitly is False
 
 
+@pytest.mark.parametrize(
+    "product_path, expected_exception, match",
+    [
+        ("", ValueError, "No product path provided"),
+        ("   ", ValueError, "No product path provided"),
+        (None, ValueError, "No product path provided"),
+        ("unsupported_ex.txt", ValueError, "Unsupported product type"),
+    ],
+)
+def test_observations_get_product_invalid_inputs(product_path, expected_exception, match):
+    with pytest.raises(expected_exception, match=match):
+        Observations.get_product(product_path)
+
+
+@pytest.mark.parametrize(
+    ("module_name", "filename", "package"),
+    [
+        ("HAS_FSSPEC", "file.fits", "fsspec"),
+        ("HAS_ASDF", "file.asdf", "asdf"),
+    ],
+)
+def test_observations_get_product_dependency_missing(monkeypatch, module_name, filename, package):
+    monkeypatch.setitem(Observations.get_product.__globals__, module_name, None)
+
+    with pytest.raises(ImportError, match=package):
+        Observations.get_product(filename)
+
+
+def test_observations_get_product_fits(mock_fits_open):
+    s3_fits_path = "s3://mock_fits_path.fits"
+
+    result = Observations.get_product(s3_fits_path)
+
+    mock_fits_open.assert_called_once_with(
+        s3_fits_path,
+        fsspec_kwargs={"anon": True},
+    )
+
+    assert result is mock_fits_open.return_value
+
+
+@pytest.fixture
+def mock_asdf_open_fsspec_open(mocker):
+    """Mock asdf.open and fsspec.open for ASDF file reading without network access."""
+
+    mock_file = MagicMock()
+
+    mock_open_file = MagicMock()
+    mock_open_file.open.return_value = mock_file
+
+    mocker.patch(
+        "fsspec.open",
+        return_value=mock_open_file,
+    )
+
+    mock_asdf_file = MagicMock(spec=asdf.AsdfFile)
+
+    mock_asdf_open = mocker.patch(
+        "asdf.open",
+        return_value=mock_asdf_file,
+    )
+
+    return mock_asdf_open
+
+
+@pytest.mark.skipif(not HAS_ASDF or not HAS_FSSPEC, reason="Requires asdf and fsspec")
+def test_observations_get_product_asdf(mocker, mock_asdf_open_fsspec_open):
+    mocker.patch("importlib.util.find_spec", return_value=MagicMock())
+
+    s3_asdf_path = "s3://fake_asdf_path.asdf"
+
+    result = Observations.get_product(s3_asdf_path)
+
+    mock_asdf_open_fsspec_open.assert_called_once()
+    assert result is mock_asdf_open_fsspec_open.return_value
+
+
+@pytest.mark.skipif(not HAS_ASDF or not HAS_FSSPEC, reason="Requires asdf and fsspec")
+def test_observations_get_product_asdf_missing_packages(mocker, mock_asdf_open_fsspec_open):
+    """Test that warnings are issued for missing ASDF-related packages."""
+
+    def mock_find_spec(package_name):
+        if package_name in ["gwcs", "lz4", "roman_datamodels"]:
+            return None
+        return MagicMock()
+
+    mocker.patch("importlib.util.find_spec", side_effect=mock_find_spec)
+
+    with pytest.warns(ImportWarning) as warning_list:
+        result = Observations.get_product("s3://fake_asdf_path.asdf")
+
+    assert len(warning_list) == 3
+
+    warning_messages = [str(w.message) for w in warning_list]
+
+    for package in ["gwcs", "lz4", "roman_datamodels"]:
+        assert any(
+            package in msg and "encouraged" in msg
+            for msg in warning_messages
+        )
+
+    mock_asdf_open_fsspec_open.assert_called_once()
+    assert result is mock_asdf_open_fsspec_open.return_value
+
 ######################
 # CatalogClass tests #
 ######################

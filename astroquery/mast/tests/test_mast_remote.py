@@ -1106,6 +1106,17 @@ class TestMast:
         uris = Observations.get_cloud_uris(products)
         assert len(uris) == 1
 
+    @pytest.mark.remote_data
+    @pytest.mark.parametrize(
+        "product_path, expected_type",
+        [("s3://stpubdata/hst/public/u24r/u24r0102t/u24r0102t_c1f.fits", fits.HDUList,)],)
+    def test_observations_get_product(self, product_path, expected_type):
+        pytest.importorskip("asdf")
+        pytest.importorskip("fsspec")
+
+        product = Observations.get_product(product_path)
+        assert isinstance(product, expected_type)
+
     ######################
     # CatalogClass tests #
     ######################
