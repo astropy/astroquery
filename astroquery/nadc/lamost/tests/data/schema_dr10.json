@@ -1,0 +1,1092 @@
+{
+  "tables": {
+    "combined": {
+      "columns": {
+        "obsid": {
+          "datatype": "long"
+        },
+        "uid": {
+          "datatype": "char"
+        },
+        "gp_id": {
+          "datatype": "long"
+        },
+        "designation": {
+          "datatype": "char"
+        },
+        "obsdate": {
+          "datatype": "date"
+        },
+        "lmjd": {
+          "datatype": "int"
+        },
+        "mjd": {
+          "datatype": "int"
+        },
+        "planid": {
+          "datatype": "char"
+        },
+        "spid": {
+          "datatype": "int"
+        },
+        "fiberid": {
+          "datatype": "int"
+        },
+        "ra_obs": {
+          "datatype": "double"
+        },
+        "dec_obs": {
+          "datatype": "double"
+        },
+        "snru": {
+          "datatype": "double"
+        },
+        "snrg": {
+          "datatype": "double"
+        },
+        "snrr": {
+          "datatype": "double"
+        },
+        "snri": {
+          "datatype": "double"
+        },
+        "snrz": {
+          "datatype": "double"
+        },
+        "class": {
+          "datatype": "char"
+        },
+        "subclass": {
+          "datatype": "char"
+        },
+        "z": {
+          "datatype": "double"
+        },
+        "z_err": {
+          "datatype": "double"
+        },
+        "ps_id": {
+          "datatype": "long"
+        },
+        "mag_ps_g": {
+          "datatype": "double"
+        },
+        "mag_ps_r": {
+          "datatype": "double"
+        },
+        "mag_ps_i": {
+          "datatype": "double"
+        },
+        "mag_ps_z": {
+          "datatype": "double"
+        },
+        "mag_ps_y": {
+          "datatype": "double"
+        },
+        "gaia_source_id": {
+          "datatype": "char"
+        },
+        "gaia_g_mean_mag": {
+          "datatype": "double"
+        },
+        "fibertype": {
+          "datatype": "char"
+        },
+        "offsets": {
+          "datatype": "int"
+        },
+        "offsets_v": {
+          "datatype": "double"
+        },
+        "ra": {
+          "datatype": "double"
+        },
+        "dec": {
+          "datatype": "double"
+        },
+        "fibermask": {
+          "datatype": "int"
+        },
+        "with_norm_flux": {
+          "datatype": "int"
+        },
+        "logg_err": {
+          "datatype": "double"
+        },
+        "teff": {
+          "datatype": "double"
+        },
+        "vsini_lasp": {
+          "datatype": "double"
+        },
+        "feh_err": {
+          "datatype": "double"
+        },
+        "alpha_m_err": {
+          "datatype": "double"
+        },
+        "rv_err": {
+          "datatype": "double"
+        },
+        "rv": {
+          "datatype": "double"
+        },
+        "teff_err": {
+          "datatype": "double"
+        },
+        "alpha_m": {
+          "datatype": "double"
+        },
+        "logg": {
+          "datatype": "double"
+        },
+        "feh": {
+          "datatype": "double"
+        },
+        "hdelta12": {
+          "datatype": "double"
+        },
+        "hbeta12": {
+          "datatype": "double"
+        },
+        "halpha48": {
+          "datatype": "double"
+        },
+        "hgamma24": {
+          "datatype": "double"
+        },
+        "halpha_d02": {
+          "datatype": "double"
+        },
+        "halpha24": {
+          "datatype": "double"
+        },
+        "hdelta_d02": {
+          "datatype": "double"
+        },
+        "paschen242": {
+          "datatype": "double"
+        },
+        "hbeta_d02": {
+          "datatype": "double"
+        },
+        "halpha70": {
+          "datatype": "double"
+        },
+        "hdelta24": {
+          "datatype": "double"
+        },
+        "kp12": {
+          "datatype": "double"
+        },
+        "hgamma54": {
+          "datatype": "double"
+        },
+        "paschen13": {
+          "datatype": "double"
+        },
+        "hbeta24": {
+          "datatype": "double"
+        },
+        "hgamma48": {
+          "datatype": "double"
+        },
+        "halpha12": {
+          "datatype": "double"
+        },
+        "kp18": {
+          "datatype": "double"
+        },
+        "hdelta48": {
+          "datatype": "double"
+        },
+        "hbeta48": {
+          "datatype": "double"
+        },
+        "hbeta60": {
+          "datatype": "double"
+        },
+        "hgamma_d02": {
+          "datatype": "double"
+        },
+        "hgamma12": {
+          "datatype": "double"
+        },
+        "paschen142": {
+          "datatype": "double"
+        },
+        "kp6": {
+          "datatype": "double"
+        },
+        "hdelta64": {
+          "datatype": "double"
+        },
+        "tio4_err": {
+          "datatype": "double"
+        },
+        "cah1_err": {
+          "datatype": "double"
+        },
+        "ewha": {
+          "datatype": "double"
+        },
+        "tio1_err": {
+          "datatype": "double"
+        },
+        "tio5_err": {
+          "datatype": "double"
+        },
+        "tio1": {
+          "datatype": "double"
+        },
+        "m_h_err": {
+          "datatype": "double"
+        },
+        "cah2": {
+          "datatype": "double"
+        },
+        "caoh_err": {
+          "datatype": "double"
+        },
+        "cah3_err": {
+          "datatype": "double"
+        },
+        "type": {
+          "datatype": "double"
+        },
+        "m_h": {
+          "datatype": "double"
+        },
+        "caoh": {
+          "datatype": "double"
+        },
+        "tio5": {
+          "datatype": "double"
+        },
+        "cah3": {
+          "datatype": "double"
+        },
+        "cah2_err": {
+          "datatype": "double"
+        },
+        "cah1": {
+          "datatype": "double"
+        },
+        "zeta": {
+          "datatype": "double"
+        },
+        "tio4": {
+          "datatype": "double"
+        },
+        "tio3": {
+          "datatype": "double"
+        },
+        "ewha_err": {
+          "datatype": "double"
+        },
+        "tio2_err": {
+          "datatype": "double"
+        },
+        "tio3_err": {
+          "datatype": "double"
+        },
+        "na": {
+          "datatype": "double"
+        },
+        "tio2": {
+          "datatype": "double"
+        },
+        "zeta_err": {
+          "datatype": "double"
+        },
+        "abs_gmag_err": {
+          "datatype": "double"
+        },
+        "period": {
+          "datatype": "double"
+        },
+        "r": {
+          "datatype": "int"
+        },
+        "subtype": {
+          "datatype": "char"
+        },
+        "abs_gmag": {
+          "datatype": "double"
+        },
+        "wd_subclass": {
+          "datatype": "char"
+        },
+        "halpha_flux": {
+          "datatype": "double"
+        },
+        "metal_mw": {
+          "datatype": "double"
+        },
+        "oiii_4960_flux": {
+          "datatype": "double"
+        },
+        "sii_6718_ew": {
+          "datatype": "double"
+        },
+        "nii_6585_ew": {
+          "datatype": "double"
+        },
+        "hbeta_ew": {
+          "datatype": "double"
+        },
+        "age_mw": {
+          "datatype": "double"
+        },
+        "nii_6550_ew": {
+          "datatype": "double"
+        },
+        "vsig": {
+          "datatype": "double"
+        },
+        "sii_6718_flux": {
+          "datatype": "double"
+        },
+        "sii_6733_ew": {
+          "datatype": "double"
+        },
+        "oiii_5008_flux": {
+          "datatype": "double"
+        },
+        "halpha_ew": {
+          "datatype": "double"
+        },
+        "hbeta_flux": {
+          "datatype": "double"
+        },
+        "oiii_5008_ew": {
+          "datatype": "double"
+        },
+        "nii_6585_flux": {
+          "datatype": "double"
+        },
+        "sii_6733_flux": {
+          "datatype": "double"
+        },
+        "vsig_err": {
+          "datatype": "double"
+        },
+        "age_lw": {
+          "datatype": "double"
+        },
+        "oiii_4960_ew": {
+          "datatype": "double"
+        },
+        "nii_6550_flux": {
+          "datatype": "double"
+        },
+        "metal_lw": {
+          "datatype": "double"
+        },
+        "balmer_tau_e": {
+          "datatype": "double"
+        },
+        "fitting_status_2": {
+          "datatype": "int"
+        },
+        "ciii_na_2_sigma": {
+          "datatype": "int"
+        },
+        "hb_br_1_peak_wavelength": {
+          "datatype": "double"
+        },
+        "ndof_4": {
+          "datatype": "int"
+        },
+        "fe_op_norm": {
+          "datatype": "double"
+        },
+        "fitting_status_6": {
+          "datatype": "int"
+        },
+        "balmer_teff": {
+          "datatype": "int"
+        },
+        "red_chi2_6": {
+          "datatype": "int"
+        },
+        "line_name_6": {
+          "datatype": "char"
+        },
+        "ndof_2": {
+          "datatype": "int"
+        },
+        "hb_na_1_peak_flux": {
+          "datatype": "double"
+        },
+        "civ_ew": {
+          "datatype": "double"
+        },
+        "lya_area": {
+          "datatype": "double"
+        },
+        "ha_peak_wavelength": {
+          "datatype": "double"
+        },
+        "red_chi2_4": {
+          "datatype": "double"
+        },
+        "balmer_norm": {
+          "datatype": "double"
+        },
+        "mgii_br_1_peak_wavelength": {
+          "datatype": "double"
+        },
+        "civ_sigma": {
+          "datatype": "double"
+        },
+        "ciii_na_2_peak_wavelength": {
+          "datatype": "int"
+        },
+        "lya_na_1_peak_flux": {
+          "datatype": "double"
+        },
+        "poly_b": {
+          "datatype": "double"
+        },
+        "sii6718_1_peak_flux": {
+          "datatype": "double"
+        },
+        "mgii_na_1_peak_wavelength": {
+          "datatype": "double"
+        },
+        "hb_ew": {
+          "datatype": "double"
+        },
+        "mgii_area": {
+          "datatype": "double"
+        },
+        "line_name_2": {
+          "datatype": "char"
+        },
+        "ha_sigma": {
+          "datatype": "double"
+        },
+        "civ_br_1_sigma": {
+          "datatype": "double"
+        },
+        "civ_peak_wavelength": {
+          "datatype": "double"
+        },
+        "hb_sigma": {
+          "datatype": "double"
+        },
+        "ciii_br_2_peak_flux": {
+          "datatype": "double"
+        },
+        "civ_na_1_peak_wavelength": {
+          "datatype": "double"
+        },
+        "line_name_4": {
+          "datatype": "char"
+        },
+        "mgii_br_1_peak_flux": {
+          "datatype": "double"
+        },
+        "mgii_ew": {
+          "datatype": "double"
+        },
+        "hb_na_1_peak_wavelength": {
+          "datatype": "double"
+        },
+        "sii6718_1_sigma": {
+          "datatype": "double"
+        },
+        "lya_br_1_peak_wavelength": {
+          "datatype": "double"
+        },
+        "l3000": {
+          "datatype": "double"
+        },
+        "mgii_na_2_sigma": {
+          "datatype": "double"
+        },
+        "mgii_na_2_peak_flux": {
+          "datatype": "double"
+        },
+        "hb_br_1_peak_flux": {
+          "datatype": "double"
+        },
+        "civ_br_1_peak_wavelength": {
+          "datatype": "double"
+        },
+        "mgii_peak_wavelength": {
+          "datatype": "double"
+        },
+        "ciii_ew": {
+          "datatype": "double"
+        },
+        "sii6732_1_sigma": {
+          "datatype": "double"
+        },
+        "civ_br_1_peak_flux": {
+          "datatype": "double"
+        },
+        "hb_area": {
+          "datatype": "double"
+        },
+        "ha_br_3_peak_flux": {
+          "datatype": "double"
+        },
+        "fe_uv_fwhm": {
+          "datatype": "double"
+        },
+        "line_name_1": {
+          "datatype": "char"
+        },
+        "oiii4959_1_peak_wavelength": {
+          "datatype": "double"
+        },
+        "min_chi2_1": {
+          "datatype": "double"
+        },
+        "oiii5007_1_peak_flux": {
+          "datatype": "double"
+        },
+        "sn_ratio_conti": {
+          "datatype": "double"
+        },
+        "sii6732_1_peak_flux": {
+          "datatype": "double"
+        },
+        "oiii4959_1_sigma": {
+          "datatype": "double"
+        },
+        "nii6549_1_sigma": {
+          "datatype": "double"
+        },
+        "lya_br_1_sigma": {
+          "datatype": "double"
+        },
+        "min_chi2_6": {
+          "datatype": "int"
+        },
+        "ha_br_1_peak_flux": {
+          "datatype": "double"
+        },
+        "lya_sigma": {
+          "datatype": "double"
+        },
+        "pl_slope": {
+          "datatype": "double"
+        },
+        "ciii_br_2_peak_wavelength": {
+          "datatype": "double"
+        },
+        "fe_op_shift": {
+          "datatype": "double"
+        },
+        "fitting_status_5": {
+          "datatype": "int"
+        },
+        "mgii_br_1_sigma": {
+          "datatype": "double"
+        },
+        "ha_br_2_peak_flux": {
+          "datatype": "double"
+        },
+        "hb_na_1_sigma": {
+          "datatype": "double"
+        },
+        "line_name_5": {
+          "datatype": "char"
+        },
+        "red_chi2_5": {
+          "datatype": "int"
+        },
+        "ciii_na_1_peak_wavelength": {
+          "datatype": "int"
+        },
+        "mgii_sigma": {
+          "datatype": "double"
+        },
+        "lya_fwhm": {
+          "datatype": "double"
+        },
+        "ciii_peak_wavelength": {
+          "datatype": "double"
+        },
+        "min_chi2_3": {
+          "datatype": "double"
+        },
+        "nii6549_1_peak_flux": {
+          "datatype": "double"
+        },
+        "line_name_3": {
+          "datatype": "char"
+        },
+        "min_chi2_5": {
+          "datatype": "int"
+        },
+        "nii6585_1_peak_wavelength": {
+          "datatype": "double"
+        },
+        "red_chi2_2": {
+          "datatype": "double"
+        },
+        "ciii_sigma": {
+          "datatype": "double"
+        },
+        "ciii_br_1_peak_wavelength": {
+          "datatype": "double"
+        },
+        "ciii_br_1_sigma": {
+          "datatype": "double"
+        },
+        "hb_peak_wavelength": {
+          "datatype": "double"
+        },
+        "ha_br_1_peak_wavelength": {
+          "datatype": "double"
+        },
+        "sii6718_1_peak_wavelength": {
+          "datatype": "double"
+        },
+        "ha_br_1_sigma": {
+          "datatype": "double"
+        },
+        "l1350": {
+          "datatype": "double"
+        },
+        "ndof_3": {
+          "datatype": "int"
+        },
+        "poly_a": {
+          "datatype": "double"
+        },
+        "ciii_na_2_peak_flux": {
+          "datatype": "int"
+        },
+        "ha_fwhm": {
+          "datatype": "double"
+        },
+        "ha_na_1_sigma": {
+          "datatype": "double"
+        },
+        "min_chi2_2": {
+          "datatype": "double"
+        },
+        "pl_norm": {
+          "datatype": "double"
+        },
+        "fitting_status_1": {
+          "datatype": "int"
+        },
+        "civ_na_1_sigma": {
+          "datatype": "double"
+        },
+        "ciii_area": {
+          "datatype": "double"
+        },
+        "ha_br_3_peak_wavelength": {
+          "datatype": "double"
+        },
+        "poly_c": {
+          "datatype": "double"
+        },
+        "red_chi2_1": {
+          "datatype": "double"
+        },
+        "fitting_status_4": {
+          "datatype": "int"
+        },
+        "ndof_6": {
+          "datatype": "int"
+        },
+        "mgii_na_1_sigma": {
+          "datatype": "double"
+        },
+        "oiii5007_1_sigma": {
+          "datatype": "double"
+        },
+        "ha_na_1_peak_wavelength": {
+          "datatype": "double"
+        },
+        "l5100": {
+          "datatype": "double"
+        },
+        "civ_na_1_peak_flux": {
+          "datatype": "double"
+        },
+        "fitting_status_3": {
+          "datatype": "int"
+        },
+        "ha_br_2_sigma": {
+          "datatype": "double"
+        },
+        "civ_fwhm": {
+          "datatype": "double"
+        },
+        "ciii_na_1_sigma": {
+          "datatype": "int"
+        },
+        "ha_br_2_peak_wavelength": {
+          "datatype": "double"
+        },
+        "ciii_br_1_peak_flux": {
+          "datatype": "double"
+        },
+        "lya_peak_wavelength": {
+          "datatype": "double"
+        },
+        "min_chi2_4": {
+          "datatype": "double"
+        },
+        "nii6585_1_peak_flux": {
+          "datatype": "double"
+        },
+        "oiii5007_1_peak_wavelength": {
+          "datatype": "double"
+        },
+        "mgii_na_1_peak_flux": {
+          "datatype": "double"
+        },
+        "ciii_fwhm": {
+          "datatype": "double"
+        },
+        "ha_br_3_sigma": {
+          "datatype": "double"
+        },
+        "fe_uv_norm": {
+          "datatype": "double"
+        },
+        "mgii_fwhm": {
+          "datatype": "double"
+        },
+        "ha_ew": {
+          "datatype": "double"
+        },
+        "civ_area": {
+          "datatype": "double"
+        },
+        "hb_fwhm": {
+          "datatype": "double"
+        },
+        "hb_br_1_sigma": {
+          "datatype": "double"
+        },
+        "nii6585_1_sigma": {
+          "datatype": "double"
+        },
+        "sii6732_1_peak_wavelength": {
+          "datatype": "double"
+        },
+        "fe_uv_shift": {
+          "datatype": "double"
+        },
+        "fe_op_fwhm": {
+          "datatype": "double"
+        },
+        "lya_na_1_peak_wavelength": {
+          "datatype": "double"
+        },
+        "ha_area": {
+          "datatype": "double"
+        },
+        "red_chi2_3": {
+          "datatype": "double"
+        },
+        "ha_na_1_peak_flux": {
+          "datatype": "double"
+        },
+        "nii6549_1_peak_wavelength": {
+          "datatype": "double"
+        },
+        "lya_br_1_peak_flux": {
+          "datatype": "double"
+        },
+        "lya_ew": {
+          "datatype": "double"
+        },
+        "ndof_1": {
+          "datatype": "int"
+        },
+        "ciii_na_1_peak_flux": {
+          "datatype": "int"
+        },
+        "mgii_na_2_peak_wavelength": {
+          "datatype": "double"
+        },
+        "lya_na_1_sigma": {
+          "datatype": "double"
+        },
+        "oiii4959_1_peak_flux": {
+          "datatype": "double"
+        },
+        "ndof_5": {
+          "datatype": "int"
+        },
+        "gaia_vari_type_sos": {
+          "datatype": "char"
+        },
+        "gaia_vari_type_sos_arr": {
+          "datatype": ""
+        },
+        "file": {
+          "datatype": "char"
+        },
+        "spec": {
+          "datatype": "char"
+        }
+      }
+    },
+    "med_combined": {
+      "columns": {
+        "mobsid": {
+          "datatype": "char"
+        },
+        "obsid": {
+          "datatype": "long"
+        },
+        "uid": {
+          "datatype": "char"
+        },
+        "gp_id": {
+          "datatype": "long"
+        },
+        "designation": {
+          "datatype": "char"
+        },
+        "obsdate": {
+          "datatype": "date"
+        },
+        "lmjd": {
+          "datatype": "int"
+        },
+        "mjd": {
+          "datatype": "int"
+        },
+        "planid": {
+          "datatype": "char"
+        },
+        "spid": {
+          "datatype": "int"
+        },
+        "fiberid": {
+          "datatype": "int"
+        },
+        "lmjm": {
+          "datatype": "long"
+        },
+        "band": {
+          "datatype": "char"
+        },
+        "ra_obs": {
+          "datatype": "double"
+        },
+        "dec_obs": {
+          "datatype": "double"
+        },
+        "snr": {
+          "datatype": "double"
+        },
+        "gaia_source_id": {
+          "datatype": "char"
+        },
+        "gaia_g_mean_mag": {
+          "datatype": "double"
+        },
+        "gaia_bp_mean_mag": {
+          "datatype": "double"
+        },
+        "gaia_rp_mean_mag": {
+          "datatype": "double"
+        },
+        "fibertype": {
+          "datatype": "char"
+        },
+        "offsets": {
+          "datatype": "int"
+        },
+        "offsets_v": {
+          "datatype": "double"
+        },
+        "ra": {
+          "datatype": "double"
+        },
+        "dec": {
+          "datatype": "double"
+        },
+        "rv_b0": {
+          "datatype": "double"
+        },
+        "rv_b0_err": {
+          "datatype": "double"
+        },
+        "rv_b1": {
+          "datatype": "double"
+        },
+        "rv_b1_err": {
+          "datatype": "double"
+        },
+        "rv_b_flag": {
+          "datatype": "int"
+        },
+        "rv_r0": {
+          "datatype": "double"
+        },
+        "rv_r0_err": {
+          "datatype": "double"
+        },
+        "rv_r1": {
+          "datatype": "double"
+        },
+        "rv_r1_err": {
+          "datatype": "double"
+        },
+        "rv_r_flag": {
+          "datatype": "int"
+        },
+        "rv_br0": {
+          "datatype": "double"
+        },
+        "rv_br0_err": {
+          "datatype": "double"
+        },
+        "rv_br1": {
+          "datatype": "double"
+        },
+        "rv_br1_err": {
+          "datatype": "double"
+        },
+        "rv_br_flag": {
+          "datatype": "int"
+        },
+        "rv_lasp0": {
+          "datatype": "double"
+        },
+        "rv_lasp0_err": {
+          "datatype": "double"
+        },
+        "rv_lasp1": {
+          "datatype": "double"
+        },
+        "rv_lasp1_err": {
+          "datatype": "double"
+        },
+        "coadd": {
+          "datatype": "int"
+        },
+        "fibermask": {
+          "datatype": "int"
+        },
+        "bad_b": {
+          "datatype": "int"
+        },
+        "bad_r": {
+          "datatype": "int"
+        },
+        "moon_angle": {
+          "datatype": "double"
+        },
+        "lunardate": {
+          "datatype": "int"
+        },
+        "moon_flg": {
+          "datatype": "char"
+        },
+        "subproject": {
+          "datatype": "char"
+        },
+        "vsini_lasp": {
+          "datatype": "double"
+        },
+        "logg_cnn": {
+          "datatype": "double"
+        },
+        "logg_lasp": {
+          "datatype": "double"
+        },
+        "ca_fe": {
+          "datatype": "double"
+        },
+        "teff_lasp": {
+          "datatype": "double"
+        },
+        "c_fe": {
+          "datatype": "double"
+        },
+        "alpha_m_lasp_err": {
+          "datatype": "double"
+        },
+        "si_fe": {
+          "datatype": "double"
+        },
+        "mg_fe": {
+          "datatype": "double"
+        },
+        "o_fe": {
+          "datatype": "double"
+        },
+        "feh_lasp": {
+          "datatype": "double"
+        },
+        "feh_lasp_err": {
+          "datatype": "double"
+        },
+        "alpha_m_cnn": {
+          "datatype": "double"
+        },
+        "teff_lasp_err": {
+          "datatype": "double"
+        },
+        "feh_cnn": {
+          "datatype": "double"
+        },
+        "ni_fe": {
+          "datatype": "double"
+        },
+        "teff_cnn": {
+          "datatype": "double"
+        },
+        "cu_fe": {
+          "datatype": "double"
+        },
+        "n_fe": {
+          "datatype": "double"
+        },
+        "logg_lasp_err": {
+          "datatype": "double"
+        },
+        "vsini_lasp_err": {
+          "datatype": "double"
+        },
+        "cr_fe": {
+          "datatype": "double"
+        },
+        "ti_fe": {
+          "datatype": "double"
+        },
+        "m_h_cnn": {
+          "datatype": "double"
+        },
+        "s_fe": {
+          "datatype": "double"
+        },
+        "al_fe": {
+          "datatype": "double"
+        },
+        "alpha_m_lasp": {
+          "datatype": "double"
+        },
+        "gaia_vari_type_sos": {
+          "datatype": "char"
+        },
+        "gaia_vari_type_sos_arr": {
+          "datatype": ""
+        },
+        "file": {
+          "datatype": "char"
+        },
+        "spec": {
+          "datatype": "char"
+        }
+      }
+    }
+  }
+}
