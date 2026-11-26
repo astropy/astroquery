@@ -137,14 +137,14 @@ class TestCheopsRemote:
         temp_folder.cleanup()
 
     def test_get_program(self):
-        programmes_by_key = cheops.get_program(programme_key="PR240015")
-        programmes_by_title = cheops.get_program(
+        programs_by_key = cheops.get_program(program_key="PR240015")
+        programs_by_title = cheops.get_program(
             title="Hunting a second transit of the long-period Neptune exoplanet HIP41378 e in the gaps of TESS")
-        programmes_by_pi = cheops.get_program(pi_name="SALOME GROUFFAL")
+        programs_by_pi = cheops.get_program(pi_name="SALOME GROUFFAL")
 
-        assert len(programmes_by_key) > 0
-        assert (programmes_by_key['programme_key'] == programmes_by_title['programme_key'])
-        assert (programmes_by_key['programme_key'] == programmes_by_pi['programme_key'])
+        assert len(programs_by_key) > 0
+        assert (programs_by_key['program_key'] == programs_by_title['program_key'])
+        assert (programs_by_key['program_key'] == programs_by_pi['program_key'])
 
     def test_get_visit_from_observation(self):
         observation = cheops.get_observations(observation_request_oid=1)[0]
@@ -182,7 +182,7 @@ class TestCheopsRemote:
                 in products['filename'].value)
 
     def test_get_products_from_program(self):
-        products = cheops.get_products_from_program(programme_key='PR300050')
+        products = cheops.get_products_from_program(program_key='PR300050')
 
         assert len(products) > 0
         assert ('CH_PR300050_TG000101_TU2020-03-10T05-05-59_SCI_COR_Lightcurve-R34_V0300.fits'

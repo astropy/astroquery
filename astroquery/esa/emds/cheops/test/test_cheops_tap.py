@@ -142,9 +142,9 @@ class TestCheopsTap:
         assert kwargs['observation_request_id'] == 3000240001
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
-    @patch.object(CheopsClass, '_get_programme_from_pi')
+    @patch.object(CheopsClass, '_get_program_from_pi')
     def test_get_program_by_pi_name(self, get_from_pi_mock):
-        expected = Table({'programme_key': ['PR010001']})
+        expected = Table({'program_key': ['PR010001']})
         get_from_pi_mock.return_value = expected
 
         cheops = CheopsClass()
@@ -154,21 +154,21 @@ class TestCheopsTap:
         get_from_pi_mock.assert_called_once_with('pi_name')
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
-    @patch.object(CheopsClass, '_get_programme_from_key_or_title')
-    def test_get_program_by_programme_key(self, get_from_key_or_title_mock):
-        expected = Table({'programme_key': ['PR010001']})
+    @patch.object(CheopsClass, '_get_program_from_key_or_title')
+    def test_get_program_by_program_key(self, get_from_key_or_title_mock):
+        expected = Table({'program_key': ['PR010001']})
         get_from_key_or_title_mock.return_value = expected
 
         cheops = CheopsClass()
-        result = cheops.get_program(programme_key='PR010001')
+        result = cheops.get_program(program_key='PR010001')
 
         assert result is expected
-        get_from_key_or_title_mock.assert_called_once_with(programme_key='PR010001')
+        get_from_key_or_title_mock.assert_called_once_with(program_key='PR010001')
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
-    @patch.object(CheopsClass, '_get_programme_from_key_or_title')
+    @patch.object(CheopsClass, '_get_program_from_key_or_title')
     def test_get_program_by_title(self, get_from_key_or_title_mock):
-        expected = Table({'programme_key': ['PR010001']})
+        expected = Table({'program_key': ['PR010001']})
         get_from_key_or_title_mock.return_value = expected
 
         cheops = CheopsClass()
@@ -179,26 +179,26 @@ class TestCheopsTap:
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'query_table')
-    def test_get_programme_from_pi(self, query_table_mock):
+    def test_get_program_from_pi(self, query_table_mock):
         query_table_mock.side_effect = [Table({'pi_oid': [10]}),
                                         Table({
                                             'type': [1, 2],
                                             'id': [23, 7],
-                                            'programme_oid': [1001, 1002]
+                                            'program_oid': [1001, 1002]
                                         }),
                                         Table({
-                                            'programme_key': ['PR010023', 'PR020007'],
-                                            'title': ['Programme A', 'Programme B'],
+                                            'program_key': ['PR010023', 'PR020007'],
+                                            'title': ['Program A', 'Program B'],
                                             'abstract': ['Abstract A', 'Abstract B']
                                         })
                                         ]
 
         cheops = CheopsClass()
-        result = cheops._get_programme_from_pi('PI 1')
+        result = cheops._get_program_from_pi('PI 1')
 
         assert len(result) == 2
-        assert list(result['programme_key']) == ['PR010023', 'PR020007']
-        assert list(result['programme_oid']) == [1001, 1002]
+        assert list(result['program_key']) == ['PR010023', 'PR020007']
+        assert list(result['program_oid']) == [1001, 1002]
 
         assert query_table_mock.call_count == 3
 
@@ -210,45 +210,45 @@ class TestCheopsTap:
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'query_table')
-    def test_get_programme_from_key(self, query_table_mock):
+    def test_get_program_from_key(self, query_table_mock):
         query_table_mock.side_effect = [
-            Table({'programme_key': ['PR010023', 'PR020007'], 'title': ['Programme A', 'Programme B'],
+            Table({'program_key': ['PR010023', 'PR020007'], 'title': ['Program A', 'Program B'],
                    'abstract': ['Abstract A', 'Abstract B']}),
-            Table({'pi_oid': [10], 'programme_oid': [1001]}),
+            Table({'pi_oid': [10], 'program_oid': [1001]}),
             Table({'name': ['PI 1']}),
-            Table({'pi_oid': [20], 'programme_oid': [1002]}),
+            Table({'pi_oid': [20], 'program_oid': [1002]}),
             Table({'name': ['PI 2']})
         ]
 
         cheops = CheopsClass()
-        result = cheops._get_programme_from_key_or_title(programme_key=['PR010023', 'PR020007'])
+        result = cheops._get_program_from_key_or_title(program_key=['PR010023', 'PR020007'])
 
-        # Check returned programme information
-        assert list(result['programme_key']) == ['PR010023', 'PR020007']
+        # Check returned program information
+        assert list(result['program_key']) == ['PR010023', 'PR020007']
 
         assert list(result['pi_name']) == ['PI 1', 'PI 2']
 
-        assert list(result['programme_oid']) == [1001, 1002]
+        assert list(result['program_oid']) == [1001, 1002]
 
-        # Initial query + 2 queries per programme
+        # Initial query + 2 queries per program
         assert query_table_mock.call_count == 5
 
-        # Query programme information
+        # Query program information
         args, kwargs = query_table_mock.call_args_list[0]
         assert kwargs['table_name'] == conf.CHEOPS_PROGRAMME_INFO_TABLE
-        assert kwargs['columns'] == ['programme_key', 'title', 'abstract']
-        assert kwargs['programme_key'] == ['PR010023', 'PR020007']
+        assert kwargs['columns'] == ['program_key', 'title', 'abstract']
+        assert kwargs['program_key'] == ['PR010023', 'PR020007']
         assert kwargs['verbose'] is False
 
-        # Test programme info to programme table
+        # Test program info to program table
         args, kwargs = query_table_mock.call_args_list[1]
         assert args[0] == conf.CHEOPS_PROGRAMME_TABLE
-        assert kwargs['columns'] == ['pi_oid', 'programme_oid']
+        assert kwargs['columns'] == ['pi_oid', 'program_oid']
         assert kwargs['type'] == 1
         assert kwargs['id'] == 23
         assert kwargs['verbose'] is False
 
-        # Test programme info to PI table
+        # Test program info to PI table
         args, kwargs = query_table_mock.call_args_list[2]
         assert args[0] == conf.CHEOPS_PI_TABLE
         assert kwargs['columns'] == ['name']
@@ -257,32 +257,32 @@ class TestCheopsTap:
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'query_table')
-    def test_get_programme_from_title(self, query_table_mock):
+    def test_get_program_from_title(self, query_table_mock):
         query_table_mock.side_effect = [
-            Table({'programme_key': ['PR010023'], 'title': ['Planet transit'], 'abstract': ['Abstract']}),
-            Table({'pi_oid': [10], 'programme_oid': [1001]}),
+            Table({'program_key': ['PR010023'], 'title': ['Planet transit'], 'abstract': ['Abstract']}),
+            Table({'pi_oid': [10], 'program_oid': [1001]}),
             Table({'name': ['PI 1']})
         ]
 
         cheops = CheopsClass()
-        result = cheops._get_programme_from_key_or_title(title='%transit%')
+        result = cheops._get_program_from_key_or_title(title='%transit%')
 
-        assert result['programme_key'][0] == 'PR010023'
+        assert result['program_key'][0] == 'PR010023'
         assert result['pi_name'][0] == 'PI 1'
-        assert result['programme_oid'][0] == 1001
+        assert result['program_oid'][0] == 1001
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'get_observations')
     @patch.object(CheopsClass, 'get_program')
     def test_get_observations_from_program(self, get_program_mock, get_observations_mock):
-        get_program_mock.return_value = Table({'programme_oid': [1001]})
+        get_program_mock.return_value = Table({'program_oid': [1001]})
 
         cheops = CheopsClass()
-        result = cheops.get_observations_from_program(programme_key='PR010023')
+        result = cheops.get_observations_from_program(program_key='PR010023')
 
         assert result is get_observations_mock.return_value
         get_program_mock.assert_called_once_with('PR010023', None, None)
-        get_observations_mock.assert_called_once_with(programme_oid=1001)
+        get_observations_mock.assert_called_once_with(program_oid=1001)
 
     @patch('astroquery.esa.utils.utils.pyvo.dal.TAPService.capabilities', [])
     @patch.object(CheopsClass, 'query_table')
@@ -461,12 +461,12 @@ class TestCheopsTap:
 
         cheops = CheopsClass()
 
-        result = cheops.get_products_from_program(programme_key='PR010023', level='L2')
+        result = cheops.get_products_from_program(program_key='PR010023', level='L2')
 
         assert len(result) == 2
         assert list(result['filename']) == ['product-1.fits', 'product-2.fits']
 
-        get_observations_mock.assert_called_once_with(programme_key='PR010023', title=None, pi_name=None)
+        get_observations_mock.assert_called_once_with(program_key='PR010023', title=None, pi_name=None)
 
         assert get_products_mock.call_count == 2
 
@@ -579,9 +579,9 @@ class TestCheopsTap:
 
         cheops = CheopsClass()
 
-        cheops.download_products_from_program(programme_key='PR010023', level='L2', path=str(destination))
+        cheops.download_products_from_program(program_key='PR010023', level='L2', path=str(destination))
 
-        get_products_mock.assert_called_once_with(programme_key='PR010023', title=None, pi_name=None, level='L2')
+        get_products_mock.assert_called_once_with(program_key='PR010023', title=None, pi_name=None, level='L2')
 
         assert download_product_mock.call_count == 2
 

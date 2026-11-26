@@ -110,114 +110,113 @@ class CheopsClass(EmdsClass):
                                 async_job=async_job, output_file=output_file,
                                 output_format=output_format, **filters)
 
-    def get_program(self, *, programme_key=None, title=None, pi_name=None):
+    def get_program(self, *, program_key=None, title=None, pi_name=None):
         """
-        Retrieve the CHEOPS programme, given its programme key, title or PI name
+        Retrieve the CHEOPS program, given its program key, title or PI name
 
         Parameters
         ----------
-        programme_key: str, optional
-            Key of the programme provided
+        program_key: str, optional
+            Key of the program provided
         title: str, optional
-            Title of the programme, it may be incomplete
+            Title of the program, it may be incomplete
         pi_name: str, optional
-            Responsible for the programme
+            Responsible for the program
 
         Returns
         -------
-        An astropy.table with the programmes associated to the key, title or pi_name
+        An astropy.table with the programs associated to the key, title or pi_name
 
         """
 
-        if sum(x is not None for x in (programme_key, title, pi_name)) != 1:
-            raise TypeError("One parameter (programme_key, title, or pi_name) must be provided")
+        if sum(x is not None for x in (program_key, title, pi_name)) != 1:
+            raise TypeError("One parameter (program_key, title, or pi_name) must be provided")
 
-        programmes = None
+        programs = None
 
-        # To retrieve the search in programme table, we need the pi_oid or the type + id
+        # To retrieve the search in program table, we need the pi_oid or the type + id
         # PI Name table retrieves the pi_oid
         if pi_name is not None:
-            programmes = (self._get_programme_from_pi(pi_name))
+            programs = (self._get_program_from_pi(pi_name))
 
-        # The title provides a programme key, from where we can extract the type + id
+        # The title provides a program key, from where we can extract the type + id
         if title is not None:
-            programmes = (self._get_programme_from_key_or_title(title=f"%{title}%"))
+            programs = (self._get_program_from_key_or_title(title=f"%{title}%"))
 
-        if programme_key is not None:
-            programmes = (self._get_programme_from_key_or_title(programme_key=programme_key))
-        return programmes
+        if program_key is not None:
+            programs = (self._get_program_from_key_or_title(program_key=program_key))
+        return programs
 
-    def _get_programme_from_pi(self, pi_name):
+    def _get_program_from_pi(self, pi_name):
         """
-        Retrieve the programmes associated to a specific PI
+        Retrieve the programs associated to a specific PI
 
         Parameters
         ----------
         pi_name: str, mandatory
-            Responsible for the programme
+            Responsible for the program
 
         Returns
         -------
-        An astropy.table containing the programmes associated to that PI Name
+        An astropy.table containing the programs associated to that PI Name
 
         """
-        programmes = []
+        programs = []
         result_pi = self.query_table(table_name=conf.CHEOPS_PI_TABLE,
                                      columns=['pi_oid'],
                                      name=f"%{pi_name}%",
                                      verbose=False)
         pi_oids = result_pi['pi_oid']
         if len(pi_oids) > 0:
-            programmes_by_pi = self.query_table(conf.CHEOPS_PROGRAMME_TABLE, pi_oid=pi_oids[0], verbose=False)
-            programme_keys_from_id = list(map(lambda x:
-                                              self._get_programme_key_from_type_and_id(x['type'], x['id']),
-                                              programmes_by_pi))
-            programmes = self.query_table(conf.CHEOPS_PROGRAMME_INFO_TABLE,
-                                          columns=['programme_key', 'title', 'abstract'],
-                                          programme_key=programme_keys_from_id,
-                                          verbose=False)
-            programmes['pi_name'] = pi_name
-            programmes['programme_oid'] = programmes_by_pi['programme_oid']
+            programs_by_pi = self.query_table(conf.CHEOPS_PROGRAMME_TABLE, pi_oid=pi_oids[0], verbose=False)
+            program_keys_from_id = list(map(lambda x:
+                                            self._get_program_key_from_type_and_id(x['type'], x['id']), programs_by_pi))
+            programs = self.query_table(conf.CHEOPS_PROGRAMME_INFO_TABLE,
+                                        columns=['program_key', 'title', 'abstract'],
+                                        program_key=program_keys_from_id,
+                                        verbose=False)
+            programs['pi_name'] = pi_name
+            programs['program_oid'] = programs_by_pi['program_oid']
 
-        return programmes
+        return programs
 
-    def _get_programme_from_key_or_title(self, programme_key=None, title=None):
+    def _get_program_from_key_or_title(self, program_key=None, title=None):
         """
-        Retrieve the full programme, including pi_name, associated to a specific programme_key or title
+        Retrieve the full program, including pi_name, associated to a specific program_key or title
 
         Parameters
         ----------
-        programme_key: str, optional
-            Key of the programme provided
+        program_key: str, optional
+            Key of the program provided
         title: str, optional
-            Title of the programme
+            Title of the program
 
         Returns
         -------
-        An astropy.table containing the programmes associated to that PI Name
+        An astropy.table containing the programs associated to that PI Name
 
         """
-        programmes = None
-        if programme_key is not None and title is not None:
-            raise TypeError("Please use only programme_key or title as "
+        programs = None
+        if program_key is not None and title is not None:
+            raise TypeError("Please use only program_key or title as "
                             "parameter.")
-        elif programme_key is not None:
-            programmes = self.query_table(table_name=conf.CHEOPS_PROGRAMME_INFO_TABLE,
-                                          columns=['programme_key', 'title', 'abstract'],
-                                          programme_key=programme_key,
-                                          verbose=False)
+        elif program_key is not None:
+            programs = self.query_table(table_name=conf.CHEOPS_PROGRAMME_INFO_TABLE,
+                                        columns=['program_key', 'title', 'abstract'],
+                                        program_key=program_key,
+                                        verbose=False)
         elif title is not None:
-            programmes = self.query_table(table_name=conf.CHEOPS_PROGRAMME_INFO_TABLE,
-                                          columns=['programme_key', 'title', 'abstract'],
-                                          title=title,
-                                          verbose=False)
+            programs = self.query_table(table_name=conf.CHEOPS_PROGRAMME_INFO_TABLE,
+                                        columns=['program_key', 'title', 'abstract'],
+                                        title=title,
+                                        verbose=False)
         # It is necessary to retrieve the PI names using the type and id
-        programme_key_author = {}
-        programme_key_programme_oid = {}
-        for programme_key in programmes['programme_key']:
-            type, id = self._get_type_and_id_from_programme_key(programme_key)
+        program_key_author = {}
+        program_key_program_oid = {}
+        for program_key in programs['program_key']:
+            type, id = self._get_type_and_id_from_program_key(program_key)
             pi_oid = self.query_table(conf.CHEOPS_PROGRAMME_TABLE,
-                                      columns=['pi_oid', 'programme_oid'],
+                                      columns=['pi_oid', 'program_oid'],
                                       type=type, id=id, verbose=False)
             if len(pi_oid) > 0:
                 # In some cases we don't have enough information
@@ -225,71 +224,70 @@ class CheopsClass(EmdsClass):
                                            columns=['name'],
                                            pi_oid=pi_oid['pi_oid'][0],
                                            verbose=False)
-                programme_key_author[programme_key] = pi_name['name'][0]
-                programme_key_programme_oid[programme_key] = pi_oid['programme_oid'][0]
+                program_key_author[program_key] = pi_name['name'][0]
+                program_key_program_oid[program_key] = pi_oid['program_oid'][0]
             else:
-                programme_key_author[programme_key] = None
-                programme_key_programme_oid[programme_key] = None
+                program_key_author[program_key] = None
+                program_key_program_oid[program_key] = None
 
-        programmes['pi_name'] = [programme_key_author[programme_key] for programme_key in programmes['programme_key']]
-        programmes['programme_oid'] = [programme_key_programme_oid[programme_key] for
-                                       programme_key in programmes['programme_key']]
+        programs['pi_name'] = [program_key_author[program_key] for program_key in programs['program_key']]
+        programs['program_oid'] = [program_key_program_oid[program_key] for program_key in programs['program_key']]
 
-        return programmes
+        return programs
 
-    def _get_type_and_id_from_programme_key(self, programme_key):
+    def _get_type_and_id_from_program_key(self, program_key):
         """
-        Extracts the type and id from a programme_key
+        Extracts the type and id from a program_key
 
         Parameters
         ----------
-        programme_key: str, mandatory
-            Key of the programme provided
+        program_key: str, mandatory
+            Key of the program provided
 
         Returns
         -------
-        The type and id for the programme, as two integers
+        The type and id for the program, as two integers
         """
-        return int(programme_key[2:4]), int(programme_key[4:8])
+        return int(program_key[2:4]), int(program_key[4:8])
 
-    def _get_programme_key_from_type_and_id(self, program_type, program_id):
+    def _get_program_key_from_type_and_id(self, program_type, program_id):
         """
-        Extracts the programme key from a type and an id
+        Extracts the program key from a type and an id
 
         Parameters
         ----------
         program_type: int, mandatory
-            Type of the programme
+            Type of the program
 
         program_id: int, mandatory
-            Id of the programme
+            Id of the program
 
         Returns
         -------
-        The type and id for the programme, as two integers
+        The type and id for the program, as two integers
         """
         return f"PR{program_type:02d}{program_id:04d}"
 
-    def get_observations_from_program(self, *, programme_key=None, title=None, pi_name=None):
+    def get_observations_from_program(self, *, program_key=None, title=None, pi_name=None):
         """
-        Retrieve the observations executed for a specific programme given its programme key, title or PI name
+        Retrieve the observations executed for a specific program given its program key, title or PI name
 
         Parameters
         ----------
-        programme_key: str, optional
-            Key of the programme provided
+        program_key: str, optional
+            Key of the program provided
         title: str, optional
-            Title of the programme
+            Title of the program
         pi_name: str, optional
-            Responsible for the programme
+            Responsible for the program
 
         Returns
         -------
-        An astropy.table with the observations included in the programme, associated to the key, title or pi_name
+        An astropy.table with the observations included in the program, associated to the key, title or pi_name
 
         """
-        programmes = self.get_programmes(programme_key, title, pi_name)
-        return self.get_observations(programme_oid=programmes['programme_oid'][0])
+        programs = self.get_program(program_key, title, pi_name)
+        return self.get_observations(program_oid=programs['program_oid'][0])
 
     def get_visit_from_observation(self, observation):
         """
@@ -411,29 +409,29 @@ class CheopsClass(EmdsClass):
         return self.query_table(conf.CHEOPS_DATA_PRODUCT_TABLE, visit_id=visit_id,
                                 verbose=False, **self._get_kwargs_for_level(level))
 
-    def get_products_from_program(self, *, programme_key=None, title=None, pi_name=None, level=None):
+    def get_products_from_program(self, *, program_key=None, title=None, pi_name=None, level=None):
         """
-        Retrieve the files associated to a specific programme given its programme key, title or PI name
+        Retrieve the files associated to a specific program given its program key, title or PI name
 
         Parameters
         ----------
-        programme_key: str, optional
-            Key of the programme provided
+        program_key: str, optional
+            Key of the program provided
         title: str, optional
-            Title of the programme
+            Title of the program
         pi_name: str, optional
-            Responsible for the programme
+            Responsible for the program
         level: str, optional
             calibration level of the products.
             Available values: EXT, L0.5, L1 and L2
 
         Returns
         -------
-        An astropy.table with the observations included in the programme, associated to the key, title or pi_name
+        An astropy.table with the observations included in the program, associated to the key, title or pi_name
 
         """
 
-        observations = self.get_observations_from_program(programme_key=programme_key, title=title, pi_name=pi_name)
+        observations = self.get_observations_from_program(program_key=program_key, title=title, pi_name=pi_name)
         product_lists = []
         for observation in observations:
             products = self.get_products_from_observation(observation, **self._get_kwargs_for_level(level))
@@ -598,18 +596,18 @@ class CheopsClass(EmdsClass):
             log.info(f"Downloading {product['filename']}")
             self.download_product(filename=product['filename'], path=path)
 
-    def download_products_from_program(self, *, programme_key=None, title=None, pi_name=None, level=None, path=''):
+    def download_products_from_program(self, *, program_key=None, title=None, pi_name=None, level=None, path=''):
         """
-        Retrieve the files associated to a specific programme given its programme key, title or PI name
+        Retrieve the files associated to a specific program given its program key, title or PI name
 
         Parameters
         ----------
-        programme_key: str, optional
-            Key of the programme provided
+        program_key: str, optional
+            Key of the program provided
         title: str, optional
-            Title of the programme
+            Title of the program
         pi_name: str, optional
-            Responsible for the programme
+            Responsible for the program
         level: str, optional
             calibration level of the products.
             Available values: EXT, L0.5, L1 and L2
@@ -619,7 +617,7 @@ class CheopsClass(EmdsClass):
         """
         if path is not None and path != '' and not os.path.exists(path):
             os.makedirs(path)
-        products = self.get_products_from_program(programme_key=programme_key, title=title,
+        products = self.get_products_from_program(program_key=program_key, title=title,
                                                   pi_name=pi_name, level=level)
         for product in products:
             log.info(f"Downloading {product['filename']}")

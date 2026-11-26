@@ -11,11 +11,11 @@ planetary radii and help determine their physical properties.
 
 CHEOPS data are originally hosted by the CHEOPS Mission Archive at Geneva Observatory.
 The ESA Multi-Mission Data Services (EMDS) provides access to a mirror of this archive,
-allowing CHEOPS programmes, observations, visits, and data products to be queried and
+allowing CHEOPS programs, observations, visits, and data products to be queried and
 downloaded through the common EMDS interface.
 
 The typical workflow is to identify observations either directly, by sky
-position, or through a CHEOPS programme. The corresponding visits and data
+position, or through a CHEOPS program. The corresponding visits and data
 products can then be retrieved and downloaded.
 
 ========
@@ -51,7 +51,7 @@ tables and their columns. This is useful for understanding what data is accessib
   >>> from astroquery.esa.emds.cheops import CheopsClass
   >>> cheops = CheopsClass()
   >>> cheops.get_tables()
-  [<VODataServiceTable name="cheops.data_product">... 9 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.data_type">... 3 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.gaia_id">... 4 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.observation_request">... 10 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.pi_tbl">... 3 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.programme">... 4 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.programme_info">... 4 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.v_data_product">... 8 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.v_doi_generation">... 13 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.visit">... 9 columns ...</VODataServiceTable>]
+  [<VODataServiceTable name="cheops.data_product">... 9 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.data_type">... 3 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.gaia_id">... 4 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.observation_request">... 10 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.pi_tbl">... 3 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.program">... 4 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.program_info">... 4 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.v_data_product">... 8 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.v_doi_generation">... 13 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.visit">... 9 columns ...</VODataServiceTable>]
 
 
 By default, ``get_tables()`` returns table objects with metadata. If ``only_names=True`` is provided, the method returns
@@ -61,7 +61,7 @@ accessing their full metadata.
 .. doctest-remote-data::
 
   >>> cheops.get_tables(only_names=True)
-  ['cheops.data_product', 'cheops.data_type', 'cheops.gaia_id', 'cheops.observation_request', 'cheops.pi_tbl', 'cheops.programme', 'cheops.programme_info', 'cheops.v_data_product', 'cheops.v_doi_generation', 'cheops.visit']
+  ['cheops.data_product', 'cheops.data_type', 'cheops.gaia_id', 'cheops.observation_request', 'cheops.pi_tbl', 'cheops.program', 'cheops.program_info', 'cheops.v_data_product', 'cheops.v_doi_generation', 'cheops.visit']
 
 Once a specific table is selected using ``get_table()``, the returned object provides access to the table metadata,
 including its columns.
@@ -70,11 +70,11 @@ including its columns.
 
   >>> observation_table = cheops.get_table('cheops.observation_request')
   >>> observation_table.columns
-  [<BaseParam name="dec"/>, <BaseParam name="obs_cat"/>, <BaseParam name="observation_request_oid"/>, <BaseParam name="programme_oid"/>, <BaseParam name="ra"/>, <BaseParam name="request_id"/>, <BaseParam name="target_mag_cheops"/>, <BaseParam name="target_mag_gaia"/>, <BaseParam name="target_name"/>, <BaseParam name="target_temp"/>]
+  [<BaseParam name="dec"/>, <BaseParam name="obs_cat"/>, <BaseParam name="observation_request_oid"/>, <BaseParam name="program_oid"/>, <BaseParam name="ra"/>, <BaseParam name="request_id"/>, <BaseParam name="target_mag_cheops"/>, <BaseParam name="target_mag_gaia"/>, <BaseParam name="target_name"/>, <BaseParam name="target_temp"/>]
 
-----------------------------
+---------------------------
 3. ADQL Queries to EMDS TAP
-----------------------------
+---------------------------
 
 The Query TAP functionality facilitates the execution of custom Table Access Protocol (TAP)
 queries within the EMDS service. Queries can be executed synchronously or asynchronously,
@@ -90,7 +90,7 @@ and can be queried directly using fully-qualified table names.
   >>> cheops = CheopsClass()
   >>> cheops.query_tap(query=("SELECT * FROM cheops.observation_request"))  # doctest: +IGNORE_OUTPUT
   <Table length=2867>
-         dec             obs_cat      observation_request_oid programme_oid        ra        request_id target_mag_cheops target_mag_gaia  target_name   target_temp
+         dec             obs_cat      observation_request_oid program_oid        ra        request_id target_mag_cheops target_mag_gaia  target_name   target_temp
        float64            str255               int64              int64         float64        int64         float64          float64         str255        int64
   ----------------- ----------------- ----------------------- ------------- ---------------- ---------- ----------------- --------------- -------------- -----------
    28.0261988888889  flux sensitivity                       1             1      116.3289575 3000500001  1.14855874762684            1.14         Pollux        4620
@@ -145,7 +145,7 @@ For example, an observation request can be selected using its magnitude accordin
     >>> cheops.get_observations(target_mag_gaia=(">", 10))  # doctest: +IGNORE_OUTPUT
     Executed query:SELECT * FROM cheops.observation_request  WHERE target_mag_gaia > 10
     <Table length=1463>
-           dec             obs_cat      observation_request_oid programme_oid         ra        request_id target_mag_cheops target_mag_gaia         target_name          target_temp
+           dec             obs_cat      observation_request_oid program_oid         ra        request_id target_mag_cheops target_mag_gaia         target_name          target_temp
          float64            str255               int64              int64          float64        int64         float64          float64                str255               int64
     ----------------- ----------------- ----------------------- ------------- ----------------- ---------- ----------------- --------------- ---------------------------- -----------
             -12.45523  flux sensitivity                       2             2        161.197133 3000050005  11.9871310391184          11.979               TYC5502-1037-1        4750
@@ -220,27 +220,27 @@ A target name can also be supplied. The target is first resolved into sky coordi
 The ``target_name`` and ``coordinates`` arguments are mutually exclusive and
 must not be provided together.
 
------------------------------
-6. Querying CHEOPS programmes
------------------------------
+---------------------------
+6. Querying CHEOPS programs
+---------------------------
 
-CHEOPS observations can be associated with observing programmes. The
-``get_program()`` method provides access to programme information using
+CHEOPS observations can be associated with observing programs. The
+``get_program()`` method provides access to program information using
 one of three selectors:
 
-* Programme key
-* Programme title
+* Program key
+* Program title
 * Principal investigator (PI) name
 
 Only one selector can be provided in each call.
 
-A programme can be retrieved using its programme key:
+A program can be retrieved using its program key:
 
 .. doctest-remote-data::
 
-    >>> cheops.get_program(programme_key="PR300050")  # doctest: +IGNORE_OUTPUT
+    >>> cheops.get_program(program_key="PR300050")  # doctest: +IGNORE_OUTPUT
 
-A programme can also be searched by title:
+A program can also be searched by title:
 
 .. doctest-remote-data::
 
@@ -249,30 +249,30 @@ A programme can also be searched by title:
 Title searches are performed as partial matches. The supplied title is internally surrounded by ``%`` wildcard characters,
 to include the titles containing the defined text.
 
-Programmes can also be searched using the name of their principal investigator:
+Programs can also be searched using the name of their principal investigator:
 
 .. doctest-remote-data::
 
     >>> cheops.get_program(pi_name="Smith")  # doctest: +IGNORE_OUTPUT
 
-The returned programme information includes the programme key, title and
-abstract, together with the PI name and the internal programme identifier
-needed to associate programmes with observations.
+The returned program information includes the program key, title and
+abstract, together with the PI name and the internal program identifier
+needed to associate programs with observations.
 
-----------------------------------------
-7. Getting observations from a programme
-----------------------------------------
+--------------------------------------
+7. Getting observations from a program
+--------------------------------------
 
-Once a programme has been identified, its observations can be retrieved
+Once a program has been identified, its observations can be retrieved
 directly with ``get_observations_from_program()``.
 
-Using a programme key:
+Using a program key:
 
 .. doctest-remote-data::
 
-    >>> observations = cheops.get_observations_from_program(programme_key="PR300050")  # doctest: +IGNORE_OUTPUT
+    >>> observations = cheops.get_observations_from_program(program_key="PR300050")  # doctest: +IGNORE_OUTPUT
 
-The programme can alternatively be identified from its title:
+The program can alternatively be identified from its title:
 
 .. doctest-remote-data::
 
@@ -284,8 +284,8 @@ or from its PI:
 
     >>> observations = cheops.get_observations_from_program(pi_name="Smith")  # doctest: +IGNORE_OUTPUT
 
-Internally, the method first identifies the corresponding programme and then
-uses its programme identifier to query the CHEOPS observation catalogue.
+Internally, the method first identifies the corresponding program and then
+uses its program identifier to query the CHEOPS observation catalogue.
 
 -----------------------------------
 8. Getting visits from observations
@@ -322,7 +322,7 @@ CHEOPS data products can be retrieved using several different starting points:
 * Target name or coordinates
 * Observation
 * Visit
-* Programme
+* Program
 
 These methods return tables containing the data products corresponding to the
 specified selection.
@@ -397,26 +397,26 @@ Alternatively, a visit identifier can be used directly:
 
     >>> products = cheops.get_products_from_visit(visit=250033000901, level="L2")  # doctest: +SKIP
 
----------------------------------
-13. Get products from a programme
----------------------------------
+-------------------------------
+13. Get products from a program
+-------------------------------
 
-All products corresponding to observations from a CHEOPS programme can be
+All products corresponding to observations from a CHEOPS program can be
 retrieved using ``get_products_from_program()``.
 
 For example:
 
 .. doctest-remote-data::
 
-    >>> products = cheops.get_products_from_program(programme_key="PR300050")  # doctest: +IGNORE_OUTPUT
+    >>> products = cheops.get_products_from_program(program_key="PR300050")  # doctest: +IGNORE_OUTPUT
 
 The product selection can also be restricted by processing level:
 
 .. doctest-remote-data::
 
-    >>> products = cheops.get_products_from_program(programme_key="PR300050", level="L2")  # doctest: +IGNORE_OUTPUT
+    >>> products = cheops.get_products_from_program(program_key="PR300050", level="L2")  # doctest: +IGNORE_OUTPUT
 
-The programme can also be selected using ``title`` or ``pi_name``.
+The program can also be selected using ``title`` or ``pi_name``.
 
 -----------------------------
 14. Download a single product
@@ -429,7 +429,7 @@ For example:
 
 .. doctest-remote-data::
 
-    >>> products = cheops.get_products_from_program(programme_key="PR300050", level="L2") # doctest: +IGNORE_OUTPUT
+    >>> products = cheops.get_products_from_program(program_key="PR300050", level="L2") # doctest: +IGNORE_OUTPUT
     >>> filename = products["filename"][0] # doctest: +IGNORE_OUTPUT
     >>> cheops.download_product(filename=filename)  # doctest: +SKIP
 
@@ -502,20 +502,20 @@ Products belonging to an individual visit can be downloaded using
 
 A visit identifier can also be supplied directly.
 
---------------------------------------
-18. Download products from a programme
---------------------------------------
+------------------------------------
+18. Download products from a program
+------------------------------------
 
-All products associated with a CHEOPS programme can be downloaded with
+All products associated with a CHEOPS program can be downloaded with
 ``download_products_from_program()``.
 
 For example:
 
 .. doctest-remote-data::
 
-    >>> cheops.download_products_from_program(programme_key="PR010023", level="L2", path="cheops_data")  # doctest: +SKIP
+    >>> cheops.download_products_from_program(program_key="PR010023", level="L2", path="cheops_data")  # doctest: +SKIP
 
-The programme can alternatively be located using its title:
+The program can alternatively be located using its title:
 
 .. doctest-remote-data::
 

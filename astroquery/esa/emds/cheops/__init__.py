@@ -35,11 +35,11 @@ class Conf(EmdsConf):
     CHEOPS_PI_TABLE = _config.ConfigItem("cheops.pi_tbl",
                                          "CHEOPS PI Name Table")
 
-    CHEOPS_PROGRAMME_TABLE = _config.ConfigItem("cheops.programme",
-                                                "CHEOPS Programmes Table")
+    CHEOPS_PROGRAMME_TABLE = _config.ConfigItem("cheops.program",
+                                                "CHEOPS Programs Table")
 
-    CHEOPS_PROGRAMME_INFO_TABLE = _config.ConfigItem("cheops.programme_info",
-                                                     "CHEOPS Programme Info Table")
+    CHEOPS_PROGRAMME_INFO_TABLE = _config.ConfigItem("cheops.program_info",
+                                                     "CHEOPS Program Info Table")
 
     DEFAULT_SCHEMAS = _config.ConfigItem("cheops",
                                          "Default TAP schema(s) for this mission (comma-separated) "
