@@ -477,7 +477,7 @@ class EsaTap(BaseVOQuery, BaseQuery):
             StarName=['star1', 'star2'] -> StarName = 'star1' OR StarName - 'star2'
             ra=('>', 30) -> ra > 30
             ra=(20, 30) -> ra >= 20 AND ra <= 30
-        verbose: boolean, optional, default False
+        verbose : boolean, optional, default False
             Write the outputs in console
 
         Returns
