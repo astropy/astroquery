@@ -25,8 +25,8 @@ from astropy.table import Table
 import pyvo
 
 import numbers
-
 from requests import HTTPError
+import requests
 
 from astroquery.query import BaseVOQuery, BaseQuery
 
@@ -206,7 +206,12 @@ class EsaTap(BaseVOQuery, BaseQuery):
         if auth_session:
             self._auth_session = auth_session
         else:
+            http_session = requests.Session()
             self._auth_session = ESAAuthSession(self.REQUEST_PARAMETERS)
+            self._auth_session.credentials.set(
+                pyvo.auth.securitymethods.COOKIE,
+                http_session,
+            )
 
         # Checks if a different URL need to be defined
         if tap_url:
@@ -438,7 +443,7 @@ class EsaTap(BaseVOQuery, BaseQuery):
         return f"1=CONTAINS(POINT('ICRS', {ra_column}, {dec_column}),CIRCLE('ICRS', {ra}, {dec}, {radius}))"
 
     def query_table(self, table_name, *, columns=None, custom_filters=None, get_metadata=False, async_job=False,
-                    output_file=None, output_format='votable', **filters):
+                    output_file=None, output_format='votable', verbose=True, **filters):
         """
         Query a set of columns from a specific table in {ESA_ARCHIVE_NAME} TAP, using filters defined by the user
 
@@ -462,16 +467,18 @@ class EsaTap(BaseVOQuery, BaseQuery):
             file name where the results are saved
         output_format : str, optional, default 'votable'
             results format
-        Users can defined more parameters, using the column names. They will be
-        used to generate the SQL filters for the query. Some examples are described below,
-        where the left side is the parameter defined for this method and the right side the
-        SQL filter generated:
-        StarName='star1' -> StarName = 'star1'
-        StarName='star*' -> StarName ILIKE 'star%'
-        StarName='star%' -> StarName ILIKE 'star%'
-        StarName=['star1', 'star2'] -> StarName = 'star1' OR StarName - 'star2'
-        ra=('>', 30) -> ra > 30
-        ra=(20, 30) -> ra >= 20 AND ra <= 30
+            Users can defined more parameters, using the column names. They will be
+            used to generate the SQL filters for the query. Some examples are described below,
+            where the left side is the parameter defined for this method and the right side the
+            SQL filter generated:
+            StarName='star1' -> StarName = 'star1'
+            StarName='star*' -> StarName ILIKE 'star%'
+            StarName='star%' -> StarName ILIKE 'star%'
+            StarName=['star1', 'star2'] -> StarName = 'star1' OR StarName - 'star2'
+            ra=('>', 30) -> ra > 30
+            ra=(20, 30) -> ra >= 20 AND ra <= 30
+        verbose : boolean, optional, default False
+            Write the outputs in console
 
         Returns
         -------
@@ -505,7 +512,7 @@ class EsaTap(BaseVOQuery, BaseQuery):
 
         query = f"SELECT {result_columns} FROM {table_name} {query_filters}{additional_filters}"
         return self.query_tap(query=query, async_job=async_job, output_file=output_file,
-                              output_format=output_format, verbose=True)
+                              output_format=output_format, verbose=verbose)
 
     def __create_adql_criteria(self, filters):
         """
