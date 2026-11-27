@@ -1004,6 +1004,11 @@ def test_missions_get_product_fits(mocker, mock_fits_open):
     mock_fits_open.assert_called_with("https://test.url/file.fits", memmap=False)
     assert isinstance(obj, fits.HDUList)
 
+    # Row input
+    row = Table({"uri": ["file.fits"]})[0]
+    obj = MastMissions.get_product(row, mission='jwst')
+    assert isinstance(obj, fits.HDUList)
+
 
 @pytest.mark.skipif(not HAS_ASDF or not HAS_FSSPEC, reason="Requires asdf and fsspec")
 def test_missions_get_product_asdf(mocker, mock_asdf_open):
@@ -1242,6 +1247,13 @@ def test_missions_get_product_unsupported_format():
     """Test that unsupported file formats raise an InvalidQueryError."""
     with pytest.raises(InvalidQueryError, match="Unsupported file type"):
         MastMissions.get_product("unsupported_file.txt")
+
+
+def test_missions_get_product_invalid_row(mocker):
+    """Test that providing a Row without a 'uri' column raises a ValueError."""
+    row = Table({"wrong_column": ["file.fits"]})[0]
+    with pytest.raises(ValueError, match="does not contain a 'uri' column"):
+        MastMissions.get_product(row, mission='jwst')
 
 
 def test_missions_get_product_unauthorized(mocker):

@@ -1195,8 +1195,8 @@ class MastMissionsClass(MastQueryWithLogin):
 
     def get_product(self, uri, *, mission=None, **kwargs):
         """
-        Reads a data product file directly from a URI into an appropriate in-memory object based on file type.
-        Supported file types are FITS and ASDF.
+        Reads a data product file directly from a URI or a `~astropy.table.Row` into an appropriate
+        in-memory object based on file type. Supported file types are FITS and ASDF.
 
         FITS files are opened with `~astropy.io.fits.open` and are downloaded and cached on disk. ASDF files
         are opened directly from the presigned S3 URL using `~fsspec.open` and `~asdf.open`, without being
@@ -1204,8 +1204,9 @@ class MastMissionsClass(MastQueryWithLogin):
 
         Parameters
         ----------
-        uri : str
-            The product filename or URI to be read.
+        uri : str, `~astropy.table.Row`
+            The product filename or URI to be read. If a `~astropy.table.Row` is provided, it should contain
+            a column named 'uri' with the product URI.
         mission : str, optional
             The mission to which the file belongs. If not provided, the current value of the ``mission`` attribute
             will be used.
@@ -1213,6 +1214,11 @@ class MastMissionsClass(MastQueryWithLogin):
             Additional keyword arguments to be passed to the file reading function (e.g., `~astropy.io.fits.open`
             or `~asdf.open`).
         """
+        if isinstance(uri, Table.Row):
+            if 'uri' not in uri.colnames:
+                raise ValueError("The provided Row does not contain a 'uri' column.")
+            uri = uri['uri']
+
         # Construct the full data URL based on mission
         download_url = self._get_download_url(uri, mission=mission)
 
