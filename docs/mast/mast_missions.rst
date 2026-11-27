@@ -340,7 +340,7 @@ Reading Data Products
 ======================
 
 The `~astroquery.mast.MastMissionsClass.get_product` function allows you to read FITS or ASDF data products directly into memory as `~astropy.io.fits.HDUList`
-or `~asdf.AsdfFile` objects, respectively. The function accepts a product URI or a direct filename (for certain missions) as input.
+or `~asdf.AsdfFile` objects, respectively. The function accepts a product URI or a `~astropy.table.Row` containing the product information.
 
 FITS files are opened with `~astropy.io.fits.open` and are downloaded and cached locally.
 
