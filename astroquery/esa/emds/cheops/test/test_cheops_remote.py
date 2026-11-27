@@ -143,8 +143,8 @@ class TestCheopsRemote:
         programs_by_pi = cheops.get_program(pi_name="SALOME GROUFFAL")
 
         assert len(programs_by_key) > 0
-        assert (programs_by_key['program_key'] == programs_by_title['program_key'])
-        assert (programs_by_key['program_key'] == programs_by_pi['program_key'])
+        assert (programs_by_key['programme_key'] == programs_by_title['programme_key'])
+        assert (programs_by_key['programme_key'] == programs_by_pi['programme_key'])
 
     def test_get_visit_from_observation(self):
         observation = cheops.get_observations(observation_request_oid=1)[0]

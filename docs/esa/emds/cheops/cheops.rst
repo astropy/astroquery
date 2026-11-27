@@ -51,7 +51,7 @@ tables and their columns. This is useful for understanding what data is accessib
   >>> from astroquery.esa.emds.cheops import CheopsClass
   >>> cheops = CheopsClass()
   >>> cheops.get_tables()
-  [<VODataServiceTable name="cheops.data_product">... 9 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.data_type">... 3 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.gaia_id">... 4 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.observation_request">... 10 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.pi_tbl">... 3 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.program">... 4 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.program_info">... 4 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.v_data_product">... 8 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.v_doi_generation">... 13 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.visit">... 9 columns ...</VODataServiceTable>]
+  [<VODataServiceTable name="cheops.data_product">... 9 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.data_type">... 3 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.gaia_id">... 4 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.observation_request">... 10 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.pi_tbl">... 3 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.programme">... 4 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.programme_info">... 4 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.v_data_product">... 8 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.v_doi_generation">... 13 columns ...</VODataServiceTable>, <VODataServiceTable name="cheops.visit">... 9 columns ...</VODataServiceTable>]
 
 
 By default, ``get_tables()`` returns table objects with metadata. If ``only_names=True`` is provided, the method returns
@@ -61,7 +61,7 @@ accessing their full metadata.
 .. doctest-remote-data::
 
   >>> cheops.get_tables(only_names=True)
-  ['cheops.data_product', 'cheops.data_type', 'cheops.gaia_id', 'cheops.observation_request', 'cheops.pi_tbl', 'cheops.program', 'cheops.program_info', 'cheops.v_data_product', 'cheops.v_doi_generation', 'cheops.visit']
+  ['cheops.data_product', 'cheops.data_type', 'cheops.gaia_id', 'cheops.observation_request', 'cheops.pi_tbl', 'cheops.programme', 'cheops.programme_info', 'cheops.v_data_product', 'cheops.v_doi_generation', 'cheops.visit']
 
 Once a specific table is selected using ``get_table()``, the returned object provides access to the table metadata,
 including its columns.
@@ -70,7 +70,7 @@ including its columns.
 
   >>> observation_table = cheops.get_table('cheops.observation_request')
   >>> observation_table.columns
-  [<BaseParam name="dec"/>, <BaseParam name="obs_cat"/>, <BaseParam name="observation_request_oid"/>, <BaseParam name="program_oid"/>, <BaseParam name="ra"/>, <BaseParam name="request_id"/>, <BaseParam name="target_mag_cheops"/>, <BaseParam name="target_mag_gaia"/>, <BaseParam name="target_name"/>, <BaseParam name="target_temp"/>]
+  [<BaseParam name="dec"/>, <BaseParam name="obs_cat"/>, <BaseParam name="observation_request_oid"/>, <BaseParam name="programme_oid"/>, <BaseParam name="ra"/>, <BaseParam name="request_id"/>, <BaseParam name="target_mag_cheops"/>, <BaseParam name="target_mag_gaia"/>, <BaseParam name="target_name"/>, <BaseParam name="target_temp"/>]
 
 ---------------------------
 3. ADQL Queries to EMDS TAP
@@ -90,7 +90,7 @@ and can be queried directly using fully-qualified table names.
   >>> cheops = CheopsClass()
   >>> cheops.query_tap(query=("SELECT * FROM cheops.observation_request"))  # doctest: +IGNORE_OUTPUT
   <Table length=2867>
-         dec             obs_cat      observation_request_oid program_oid        ra        request_id target_mag_cheops target_mag_gaia  target_name   target_temp
+         dec             obs_cat      observation_request_oid programme_oid        ra        request_id target_mag_cheops target_mag_gaia  target_name   target_temp
        float64            str255               int64              int64         float64        int64         float64          float64         str255        int64
   ----------------- ----------------- ----------------------- ------------- ---------------- ---------- ----------------- --------------- -------------- -----------
    28.0261988888889  flux sensitivity                       1             1      116.3289575 3000500001  1.14855874762684            1.14         Pollux        4620
@@ -145,7 +145,7 @@ For example, an observation request can be selected using its magnitude accordin
     >>> cheops.get_observations(target_mag_gaia=(">", 10))  # doctest: +IGNORE_OUTPUT
     Executed query:SELECT * FROM cheops.observation_request  WHERE target_mag_gaia > 10
     <Table length=1463>
-           dec             obs_cat      observation_request_oid program_oid         ra        request_id target_mag_cheops target_mag_gaia         target_name          target_temp
+           dec             obs_cat      observation_request_oid programme_oid         ra        request_id target_mag_cheops target_mag_gaia         target_name          target_temp
          float64            str255               int64              int64          float64        int64         float64          float64                str255               int64
     ----------------- ----------------- ----------------------- ------------- ----------------- ---------- ----------------- --------------- ---------------------------- -----------
             -12.45523  flux sensitivity                       2             2        161.197133 3000050005  11.9871310391184          11.979               TYC5502-1037-1        4750

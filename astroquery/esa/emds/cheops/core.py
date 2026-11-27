@@ -172,11 +172,11 @@ class CheopsClass(EmdsClass):
             program_keys_from_id = list(map(lambda x:
                                             self._get_program_key_from_type_and_id(x['type'], x['id']), programs_by_pi))
             programs = self.query_table(conf.CHEOPS_PROGRAMME_INFO_TABLE,
-                                        columns=['program_key', 'title', 'abstract'],
-                                        program_key=program_keys_from_id,
+                                        columns=['programme_key', 'title', 'abstract'],
+                                        programme_key=program_keys_from_id,
                                         verbose=False)
             programs['pi_name'] = pi_name
-            programs['program_oid'] = programs_by_pi['program_oid']
+            programs['programme_oid'] = programs_by_pi['programme_oid']
 
         return programs
 
@@ -202,21 +202,21 @@ class CheopsClass(EmdsClass):
                             "parameter.")
         elif program_key is not None:
             programs = self.query_table(table_name=conf.CHEOPS_PROGRAMME_INFO_TABLE,
-                                        columns=['program_key', 'title', 'abstract'],
-                                        program_key=program_key,
+                                        columns=['programme_key', 'title', 'abstract'],
+                                        programme_key=program_key,
                                         verbose=False)
         elif title is not None:
             programs = self.query_table(table_name=conf.CHEOPS_PROGRAMME_INFO_TABLE,
-                                        columns=['program_key', 'title', 'abstract'],
+                                        columns=['programme_key', 'title', 'abstract'],
                                         title=title,
                                         verbose=False)
         # It is necessary to retrieve the PI names using the type and id
         program_key_author = {}
         program_key_program_oid = {}
-        for program_key in programs['program_key']:
+        for program_key in programs['programme_key']:
             type, id = self._get_type_and_id_from_program_key(program_key)
             pi_oid = self.query_table(conf.CHEOPS_PROGRAMME_TABLE,
-                                      columns=['pi_oid', 'program_oid'],
+                                      columns=['pi_oid', 'programme_oid'],
                                       type=type, id=id, verbose=False)
             if len(pi_oid) > 0:
                 # In some cases we don't have enough information
@@ -225,13 +225,13 @@ class CheopsClass(EmdsClass):
                                            pi_oid=pi_oid['pi_oid'][0],
                                            verbose=False)
                 program_key_author[program_key] = pi_name['name'][0]
-                program_key_program_oid[program_key] = pi_oid['program_oid'][0]
+                program_key_program_oid[program_key] = pi_oid['programme_oid'][0]
             else:
                 program_key_author[program_key] = None
                 program_key_program_oid[program_key] = None
 
-        programs['pi_name'] = [program_key_author[program_key] for program_key in programs['program_key']]
-        programs['program_oid'] = [program_key_program_oid[program_key] for program_key in programs['program_key']]
+        programs['pi_name'] = [program_key_author[program_key] for program_key in programs['programme_key']]
+        programs['programme_oid'] = [program_key_program_oid[program_key] for program_key in programs['programme_key']]
 
         return programs
 
@@ -286,8 +286,8 @@ class CheopsClass(EmdsClass):
         An astropy.table with the observations included in the program, associated to the key, title or pi_name
 
         """
-        programs = self.get_program(program_key, title, pi_name)
-        return self.get_observations(program_oid=programs['program_oid'][0])
+        programs = self.get_program(program_key=program_key, title=title, pi_name=pi_name)
+        return self.get_observations(programme_oid=programs['programme_oid'][0])
 
     def get_visit_from_observation(self, observation):
         """
