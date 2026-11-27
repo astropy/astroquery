@@ -227,7 +227,7 @@ class TemplateClass(BaseQuery):
     # the downloaded images to a preferred location. Here we look at the
     # skeleton code for image services
 
-    def get_images(self, coordinates, radius, get_query_payload):
+    def get_images(self, coordinates, radius, get_query_payload=False):
         """
         A query function that searches for image cut-outs around coordinates
 
